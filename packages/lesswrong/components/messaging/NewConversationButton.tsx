@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
-import Conversations from '../../lib/collections/conversations/collection';
+import Conversations, { userCanStartConversations } from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -68,6 +68,8 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     }
     void newConversation(search);
   }
+
+  if (!userCanStartConversations(currentUser)) return null
   
   return (
     <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>

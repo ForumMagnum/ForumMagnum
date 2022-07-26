@@ -1,5 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, {useCallback, useState} from 'react';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";
@@ -69,11 +70,11 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
     <Components.SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
-          <Link to={"/newPost"}>
+          {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
             <Components.SectionButton>
               <DescriptionIcon /> New Post
             </Components.SectionButton>
-          </Link>
+          </Link>}
         </div>
         {showAllDraftsLink && <div className={classes.draftsPageButton}>
           <Link to={"/drafts"}>

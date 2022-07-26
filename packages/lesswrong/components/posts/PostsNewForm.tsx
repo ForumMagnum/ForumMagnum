@@ -1,6 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
+import { Posts, userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
@@ -159,7 +159,7 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, Loading } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
@@ -176,9 +176,18 @@ const PostsNewForm = ({classes}: {
   }
   const eventForm = query && query.eventForm
 
-  if (!Posts.options.mutations.new.check(currentUser)) {
+  if (!currentUser) {
     return (<WrappedLoginForm />);
   }
+
+  if (!userCanPost(currentUser)) {
+    return (<SingleColumnSection>
+      <Typography variant="display1">
+        You don't have permission to post
+      </Typography>
+    </SingleColumnSection>);
+  }
+
   if (templateId && templateLoading) {
     return <Loading />
   }

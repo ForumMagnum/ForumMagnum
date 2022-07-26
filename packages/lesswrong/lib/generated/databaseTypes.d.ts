@@ -820,6 +820,10 @@ interface DbUser extends DbObject {
   facebookProfileURL: string
   twitterProfileURL: string
   githubProfileURL: string
+  postingDisabled: boolean
+  allCommentingDisabled: boolean
+  commentingOnOtherUsersDisabled: boolean
+  conversationsDisabled: boolean
   moderationGuidelines: EditableFieldContents
   howOthersCanHelpMe: EditableFieldContents
   howICanHelpOthers: EditableFieldContents

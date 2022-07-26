@@ -12,6 +12,12 @@ export interface ServerRequestStatusContextType {
   redirectUrl?: string
 };
 
+interface SegmentedUrl {
+  pathname: string
+  search: string
+  hash: string
+}
+
 export const LocationContext = React.createContext<RouterLocation|null>(null);
 export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
 export const NavigationContext = React.createContext<any>(null);
@@ -19,7 +25,7 @@ export const ServerRequestStatusContext = React.createContext<ServerRequestStatu
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path: string) {
+export const parsePath = function parsePath(path: string): SegmentedUrl {
   var pathname = path || '/';
   var search = '';
   var hash = '';
@@ -60,7 +66,7 @@ export function parseQuery(location) {
 // If there is no match, returns a special 404 route, and calls onError if
 // provided.
 export function parseRoute({location, followRedirects=true, onError=null}: {
-  location: any,
+  location: SegmentedUrl,
   followRedirects?: boolean,
   onError?: null|((err: string)=>void),
 }): RouterLocation {

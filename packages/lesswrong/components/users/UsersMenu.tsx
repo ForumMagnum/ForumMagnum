@@ -24,6 +24,7 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { userCanPost } from '../../lib/collections/posts';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -82,8 +83,6 @@ const UsersMenu = ({classes}: {
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
-  
-  
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -114,18 +113,18 @@ const UsersMenu = ({classes}: {
                 ev.preventDefault()
               }
             }}>
-              <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+             {userCanPost(currentUser) && <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question
-              </MenuItem>
-              <Link to={`/newPost`}>
+              </MenuItem>}
+              {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
-              </Link>
+              </Link>}
             </div>
-            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
+            {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                New Shortform
             </MenuItem> }
             {showNewButtons && <Divider/>}
-            {showNewButtons &&
+            {showNewButtons && userCanPost(currentUser) && 
               <Link to={`/newPost?eventForm=true`}>
                 <MenuItem>New Event</MenuItem>
               </Link>

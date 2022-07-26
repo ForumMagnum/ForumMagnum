@@ -21,6 +21,7 @@ import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
+import { userCanPost } from '../../lib/collections/posts';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
@@ -266,6 +267,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
 
+    const showMessageButton = currentUser?._id != user._id
+
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
@@ -295,7 +298,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
