@@ -113,7 +113,6 @@ const sharedPlugins = [
 	SanitizeTags,
 	Spoilers,
 	AutoLink,
-	RestyledCommentButton,
 	Footnote,
 	Mention,
 	UrlValidator,
@@ -130,6 +129,7 @@ const postEditorPlugins = [
 
 const collaborativeEditorPlugins = [
 	...postEditorPlugins,
+	RestyledCommentButton,
 	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
 	RealTimeCollaborativeTrackChanges,
