@@ -172,7 +172,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean)=>void
   classes: ClassesType
 }) => {
-  const { EditableUsersList, LWDialog } = Components;
+  const { EditableUsersList, LWDialog, LWTooltip } = Components;
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);
@@ -239,15 +239,18 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
       <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email us at team@lesswrong.com if you experience issues</p>
 
       <div className={classes.buttonRow}>
-        {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
-          <CopyToClipboard
-            text={collabEditorLink}
-            onCopy={(text,result) => {
-              flash("Link copied");
-            }}
-          >
-            <Button>Copy link</Button>
-          </CopyToClipboard>
+        {(sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId)
+          ? <CopyToClipboard
+              text={collabEditorLink}
+              onCopy={(text,result) => {
+                flash("Link copied");
+              }}
+            >
+              <Button>Copy link</Button>
+            </CopyToClipboard>
+          : <LWTooltip title="Enable link-sharing permission and confirm sharing settings first">
+              <Button disabled={true}>Copy link</Button>
+            </LWTooltip>
         }
         
         <span className={classes.spacer}/>
