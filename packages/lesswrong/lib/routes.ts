@@ -578,6 +578,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'EAHome',
+      enableResourcePrefetch: true,
       sunshineSidebar: true
     },
     {
@@ -691,6 +692,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'Home2',
+      enableResourcePrefetch: true,
       sunshineSidebar: true
     },
     {
@@ -909,6 +911,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name:'alignment.home',
       path:'/',
       componentName: 'AlignmentForumHome',
+      enableResourcePrefetch: true,
       sunshineSidebar: true //TODO: remove this in production?
     },
     {
@@ -990,11 +993,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'sequencesHome',
       path: '/library',
       componentName: 'LibraryPage',
+      enableResourcePrefetch: true,
       title: "The Library"
     },
     {
       name: 'Sequences',
       path: '/sequences',
+      enableResourcePrefetch: true,
       componentName: 'CoreSequences',
       title: "Rationality: A-Z"
     },
@@ -1020,6 +1025,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name:'home',
       path:'/',
       componentName: 'Home2',
+      enableResourcePrefetch: true,
       sunshineSidebar: true //TODO: remove this in production?
     },
     {
@@ -1054,6 +1060,7 @@ addRoute(
     name: 'AllComments',
     path: '/allComments',
     componentName: 'AllComments',
+    enableResourcePrefetch: true,
     title: "All Comments"
   },
   {
@@ -1254,12 +1261,14 @@ addRoute(
     name: 'home2',
     path: '/home2',
     componentName: 'Home2',
+    enableResourcePrefetch: true,
     title: "Home2 Beta",
   },
   {
     name: 'allPosts',
     path: '/allPosts',
     componentName: 'AllPostsPage',
+    enableResourcePrefetch: true,
     title: "All Posts",
   },
   {
