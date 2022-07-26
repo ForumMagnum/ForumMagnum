@@ -1,6 +1,5 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { userHasCkCollaboration } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
@@ -55,10 +54,6 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
       && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
     )
   }
-}
-
-export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
-  return userHasCkCollaboration(currentUser) && userIsSharedOn(currentUser, document)
 }
 
 export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {

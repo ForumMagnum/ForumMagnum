@@ -23,7 +23,6 @@ const isEAForum = forumTypeSetting.get() === 'EAForum'
 //////////////////////////////////////////////////////////////////////////////
 
 export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
-export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
