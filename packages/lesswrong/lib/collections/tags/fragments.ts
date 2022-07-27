@@ -94,6 +94,7 @@ registerFragment(`
   }
 `);
 
+// TODO-JM: add comment explaining subforumPostId add here to avoid two round trips
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
@@ -101,6 +102,7 @@ registerFragment(`
       _id
       htmlHighlight
     }
+    subforumShortformPostId
   }
 `);
 

@@ -136,6 +136,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
   readonly canVoteOnRels: Array<string>,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -1477,6 +1478,7 @@ interface TagRevisionFragment_description { // fragment on Revisions
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagPreviewFragment_description|null,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions

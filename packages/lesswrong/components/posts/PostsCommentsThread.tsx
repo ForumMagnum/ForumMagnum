@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
-  post: PostsDetails,
+  post?: PostsDetails,
   terms: CommentsViewTerms,
   newForm?: boolean,
 }) => {

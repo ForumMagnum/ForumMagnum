@@ -352,7 +352,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagsSingleCustomName',
       path: `/${taggingNamePluralSetting.get()}/:slug`,
-      componentName: 'TagPage',
+      componentName: 'TagSubforumPage',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
@@ -473,6 +473,11 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
+    {
+      name: 'taggingSubforumCustomName',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+    }
   )
 } else {
   addRoute(
@@ -485,7 +490,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tags.single',
       path: '/tag/:slug',
-      componentName: 'TagPage',
+      componentName: 'TagSubforumPage',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',

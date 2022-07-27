@@ -505,6 +505,7 @@ importComponent("TagActivityFeed", () => require('../components/tagging/TagActiv
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
+importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
