@@ -142,3 +142,4 @@ PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
 PostEditorCollaboration.defaultConfig = {...postEditorConfig};
 CommentEditor.builtinPlugins = [ ...sharedPlugins ];
 CommentEditor.defaultConfig = { ...commentEditorConfig };
+
