@@ -58,6 +58,7 @@ import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import RestyledCommentButton from './restyled-comment-button-plugin';
 import Footnote from './ckeditor5-footnote/src/footnote';
+import UrlValidator from './url-validator-plugin';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
@@ -114,7 +115,8 @@ const sharedPlugins = [
 	AutoLink,
 	RestyledCommentButton,
 	Footnote,
-  	Mention,
+  Mention,
+	UrlValidator,
 ];
 
 const postEditorPlugins = [
@@ -140,4 +142,3 @@ PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
 PostEditorCollaboration.defaultConfig = {...postEditorConfig};
 CommentEditor.builtinPlugins = [ ...sharedPlugins ];
 CommentEditor.defaultConfig = { ...commentEditorConfig };
-

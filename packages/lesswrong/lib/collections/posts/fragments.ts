@@ -382,7 +382,7 @@ registerFragment(`
       slug
       commentCount
       baseScore
-      sequence(sequenceId: $sequenceId) {
+      sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
@@ -392,7 +392,7 @@ registerFragment(`
       slug
       commentCount
       baseScore
-      sequence(sequenceId: $sequenceId) {
+      sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
     }

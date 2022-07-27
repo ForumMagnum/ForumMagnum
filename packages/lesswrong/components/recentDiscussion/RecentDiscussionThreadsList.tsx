@@ -65,7 +65,7 @@ const RecentDiscussionThreadsList = ({
   return (
     <SingleColumnSection>
       <SectionTitle title={title}>
-        {currentUser?.isReviewed && shortformButton && <div onClick={toggleShortformFeed}>
+        {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
             New Shortform Post
