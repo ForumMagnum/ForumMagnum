@@ -10,7 +10,7 @@ import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { AllowHidingFrontPagePostsContext } from './PostsPage/PostActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
