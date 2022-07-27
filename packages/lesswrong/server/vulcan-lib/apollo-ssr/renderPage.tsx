@@ -50,9 +50,8 @@ export type RenderResult = {
   timings: RenderTimings
 }
 
-export const renderWithCache = async (req: Request, res: Response) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
-  const user = await getUserFromReq(req);
   
   let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
   let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
@@ -135,6 +134,15 @@ export const renderWithCache = async (req: Request, res: Response) => {
   }
 };
 
+export function getThemeOptions(req: Request, user: DbUser|null) {
+  const themeCookie = getCookieFromReq(req, "theme");
+  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
+  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
+  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
+  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
+  return themeOptions;
+}
+
 export const renderRequest = async ({req, user, startTime, res, clientId}: {
   req: Request,
   user: DbUser|null,
@@ -174,12 +182,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     abTestGroupsUsed={abTestGroups}
     timeOverride={timeOverride}
   />;
-
-  const themeCookie = getCookieFromReq(req, "theme");
-  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
-  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
-  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
-  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
+  
+  const themeOptions = getThemeOptions(req, user);
 
   const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   

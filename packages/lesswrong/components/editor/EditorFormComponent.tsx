@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
-import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
+import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
