@@ -16,7 +16,7 @@ export const TagSubforumPage = ({classes, user}: {
   user: UsersProfile
 }) => {
 
-  const { Error404, Loading, PostsCommentsThread, SingleColumnSection, Typography } = Components
+  const { Error404, Loading, PostsCommentsThread, SectionTitle, SingleColumnSection, Typography } = Components
 
   const { params } = useLocation();
   const { slug } = params;
@@ -40,7 +40,7 @@ export const TagSubforumPage = ({classes, user}: {
   }
 
   return <SingleColumnSection className={classes.root}>
-    <Typography variant="title">{tag.name} Subforum</Typography>
+    <SectionTitle title={`${tag.name} Subforum`} />
     <AnalyticsContext pageSectionContext="commentsSection">
       <PostsCommentsThread terms={{postId: tag.subforumShortformPostId}} newForm/>
     </AnalyticsContext>
