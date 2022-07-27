@@ -42,7 +42,7 @@ export const TagSubforumPage = ({classes, user}: {
   return <SingleColumnSection className={classes.root}>
     <SectionTitle title={`${tag.name} Subforum`} />
     <AnalyticsContext pageSectionContext="commentsSection">
-      <PostsCommentsThread terms={{postId: tag.subforumShortformPostId}} newForm/>
+      <PostsCommentsThread terms={{postId: tag.subforumShortformPostId}} newForm condensed/>
     </AnalyticsContext>
   </SingleColumnSection>;
 }

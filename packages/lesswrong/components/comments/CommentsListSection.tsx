@@ -60,7 +60,22 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
+const CommentsListSection = ({
+  post,
+  tag,
+  commentCount,
+  loadMoreCount,
+  totalComments,
+  loadMoreComments,
+  loadingMoreComments,
+  comments,
+  parentAnswerId,
+  startThreadTruncated,
+  newForm=true,
+  classes,
+  condensed=false,
+}: {
+
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -73,6 +88,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   startThreadTruncated?: boolean,
   newForm: boolean,
   classes: ClassesType,
+  condensed?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
@@ -97,6 +113,9 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
+    if (condensed) {
+      return null;
+    }
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -154,7 +173,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
 
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>New Comment</div>
+          {!condensed && <div className={classes.newCommentLabel}>New Comment</div>}
           {post?.isEvent && post?.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
