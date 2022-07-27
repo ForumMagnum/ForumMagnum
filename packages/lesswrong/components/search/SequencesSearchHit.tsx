@@ -61,7 +61,7 @@ const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: {
       {showIcon && <LWTooltip title="Sequence">
         <LocalLibraryIcon className={classes.icon}/>
       </LWTooltip>}
-      <Link to={"sequences/" + sequence._id} onClick={() => clickAction(sequence._id)}>
+      <Link to={"/sequences/" + sequence._id} onClick={() => clickAction(sequence._id)}>
         <div className="sequences-item-body ">
           <div className={classes.title}>
             {sequence.title}
