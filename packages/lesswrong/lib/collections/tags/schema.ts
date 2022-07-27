@@ -8,7 +8,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/schema';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
@@ -428,6 +428,18 @@ export const schema: SchemaType<DbTag> = {
       value: key,
       label: val.label
     })),
+  },
+
+  canVoteOnRels: {
+    type: Array,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.advancedOptions,
+  },
+  'canVoteOnRels.$': {
+    type: String,
   },
 }
 

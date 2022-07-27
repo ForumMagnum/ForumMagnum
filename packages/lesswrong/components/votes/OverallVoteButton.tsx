@@ -8,6 +8,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
   color = "secondary",
   orientation = "up",
+  enabled = true,
   solidArrow,
   classes,
 }: {
@@ -18,6 +19,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
+  enabled?: boolean,
   solidArrow?: boolean
   classes: ClassesType
 }) => {
@@ -58,6 +60,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     color={color}
     orientation={orientation}
     solidArrow={solidArrow}
+    enabled={enabled}
   />
 }
 

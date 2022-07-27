@@ -18,7 +18,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
