@@ -16,6 +16,9 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    '& .form-input': {
+      margin: "8px 0 0",
+    },
   },
   loadingRoot: {
     opacity: 0.5
