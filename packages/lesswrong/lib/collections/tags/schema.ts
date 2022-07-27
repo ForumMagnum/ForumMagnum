@@ -436,7 +436,7 @@ export const schema: SchemaType<DbTag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,
-    hidden: true,
+    group: formGroups.advancedOptions,
   },
   'canVoteOnRels.$': {
     type: String,
