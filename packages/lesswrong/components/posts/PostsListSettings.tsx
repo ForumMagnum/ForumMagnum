@@ -11,7 +11,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/schema';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 

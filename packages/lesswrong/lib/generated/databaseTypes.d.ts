@@ -659,6 +659,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
+  canVoteOnRels: Array<string>
   description: EditableFieldContents
 }
 
