@@ -14,8 +14,6 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
-    display: "flex",
-    alignItems: "center",
   },
   background: {
     width: "100%",
@@ -27,22 +25,23 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     backdropFilter: "blur(1px)",
   },
   postsItem: {
-    display: "flex",
+    display: "grid",
+    gridTemplateColumns: "min-content 1fr min-content",
+    gridTemplateAreas: '"karma title author"',
     position: "relative",
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
-    flexGrow: 1,
     [theme.breakpoints.down('xs')]: {
+      gridTemplateAreas: '"karma title" "karma author"',
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
     },
   },
   postsItemWithImage: {
-    flexDirection: "column",
-    alignItems: "flex-start",
+    gridTemplateAreas: '"karma title" "karma author"',
     paddingTop: 15,
     paddingBottom: 15,
   },
@@ -52,6 +51,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
   karma: {
     width: KARMA_WIDTH,
     justifyContent: "center",
+    gridArea: "karma",
   },
   title: {
     minHeight: 26,
@@ -60,15 +60,13 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
+    gridArea: "title",
     [theme.breakpoints.up('sm')]: {
       position: "relative",
       top: 3,
     },
     [theme.breakpoints.down('xs')]: {
-      order:-1,
-      height: "unset",
-      maxWidth: "unset",
-      width: "100%",
+      maxWidth: '80%',
       paddingRight: theme.spacing.unit,
     },
     '&:hover': {
@@ -81,12 +79,8 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     textOverflow: "ellipsis",
     marginRight: theme.spacing.unit*1.5,
     zIndex: theme.zIndexes.postItemAuthor,
-    [theme.breakpoints.down('xs')]: {
-      justifyContent: "flex-end",
-      width: "unset",
-      marginLeft: 0,
-      flex: "unset",
-    },
+    gridArea: "author",
+    width: "min-content",
   },
   mobileSecondRowSpacer: {
     [theme.breakpoints.up('sm')]: {
@@ -117,6 +111,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
   sequenceImageImg: {
     height: "100%",
     width: 'auto',
+    opacity: 0.6,
   },
   dense: {
     paddingTop: 7,
@@ -127,16 +122,9 @@ export const styles = (theme: ThemeType): JssStyles=> ({
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const PostsItemIntroSequence = ({
-  // post: The post displayed.
   post,
-  // sequenceId, chapter: If set, these will be used for making a nicer URL.
-  sequenceId,
-  chapter,
   sequence,
   showBottomBorder=true,
-  // dense: (bool) Slightly reduce margins to make this denser. Used on the
-  // All Posts page.
-  dense=false,
   hideAuthor=false,
   classes,
   curatedIconLeft=false,
@@ -144,7 +132,6 @@ const PostsItemIntroSequence = ({
   withImage,
 }: {
   post: PostsList,
-  sequenceId?: string,
   chapter?: any,
   sequence: SequencesPageFragment,
   showBottomBorder?: boolean,
@@ -161,73 +148,68 @@ const PostsItemIntroSequence = ({
 
   const { PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
-  const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  const postLink = postGetPageUrl(post, false, sequence._id);
 
   return (
-      <AnalyticsContext pageElementContext="postItem" postId={post._id}>
-        <div className={classNames(
-          classes.root,
-          {
-            [classes.background]: !translucentBackground,
-            [classes.translucentBackground]: translucentBackground,
-            [classes.bottomBorder]: showBottomBorder,
-            [classes.isRead]: isRead,
-          })}
+    <AnalyticsContext pageElementContext="postItem" postId={post._id}>
+      <div className={classNames(
+        classes.root,
+        {
+          [classes.background]: !translucentBackground,
+          [classes.translucentBackground]: translucentBackground,
+          [classes.bottomBorder]: showBottomBorder,
+          [classes.isRead]: isRead,
+        })}
+      >
+        <PostsItemTooltipWrapper
+          post={post}
+          className={classNames(
+            classes.postsItem,
+            {
+              [classes.postsItemWithImage]: withImage,
+            }
+          )}
         >
           <PostsItem2MetaInfo className={classes.karma}>
             {<PostsItemKarma post={post} />}
           </PostsItem2MetaInfo>
-          <PostsItemTooltipWrapper
-            post={post}
-            className={classNames(
-              classes.postsItem,
-              {
-                [classes.dense]: dense,
-                [classes.postsItemWithImage]: withImage,
-              }
-            )}
-          >
-            <span className={classNames(classes.title)}>
-              <AnalyticsTracker
-                  eventType={"postItem"}
-                  captureOnMount={(eventData) => eventData.capturePostItemOnMount}
-                  captureOnClick={false}
-              >
-                <PostsTitle
-                  postLink={postLink}
-                  post={post}
-                  read={isRead}
-                  curatedIconLeft={curatedIconLeft}
-                />
-              </AnalyticsTracker>
-            </span>
-
-            {!post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
-            </PostsItem2MetaInfo>}
-
-            <div className={classes.mobileSecondRowSpacer}/>
-
-            {withImage && <div className={classes.sequenceImage}>
-              <img className={classes.sequenceImageImg}
-                src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-                  sequence.gridImageId
-                }`}
+          <span className={classes.title}>
+            <AnalyticsTracker
+              eventType={"postItem"}
+              captureOnMount={(eventData) => eventData.capturePostItemOnMount}
+              captureOnClick={false}
+            >
+              <PostsTitle
+                postLink={postLink}
+                post={post}
+                read={isRead}
+                curatedIconLeft={curatedIconLeft}
               />
-            </div>}
-          </PostsItemTooltipWrapper>
+            </AnalyticsTracker>
+          </span>
+          {!post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
+            <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
+          </PostsItem2MetaInfo>}
 
-        </div>
-      </AnalyticsContext>
+          <div className={classes.mobileSecondRowSpacer}/>
+
+          {withImage && sequence.gridImageId && <div className={classes.sequenceImage}>
+            <img className={classes.sequenceImageImg}
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                sequence.gridImageId
+              }`}
+            />
+          </div>}
+        </PostsItemTooltipWrapper>
+
+      </div>
+    </AnalyticsContext>
   )
 };
 
 const PostsItemIntroSequenceComponent = registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
   styles,
   hocs: [withErrorBoundary],
-  areEqual: {
-    terms: "deep",
-  },
 });
 
 declare global {
