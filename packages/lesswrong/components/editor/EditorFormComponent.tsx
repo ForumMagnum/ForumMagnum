@@ -425,6 +425,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   resetEditor = () => {
     const { name, document } = this.props;
     // On Form submit, create a new empty editable
+    this.setEditorValue("");
     this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
     this.setState({
       draftJSValue: EditorState.createEmpty(),
