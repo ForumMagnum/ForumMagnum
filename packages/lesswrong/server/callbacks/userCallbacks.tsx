@@ -405,3 +405,15 @@ async function sendWelcomeMessageTo(userId: string) {
     })
   }
 }
+
+getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(data: DbUser, {oldDocument}) {
+  if (data.displayName !== undefined && data.displayName !== oldDocument.displayName) {
+    if (!data.displayName) {
+      throw new Error("You must enter a display name");
+    }
+    if (await Users.findOne({displayName: data.displayName})) {
+      throw new Error("This display name is already taken");
+    }
+  }
+  return data;
+});

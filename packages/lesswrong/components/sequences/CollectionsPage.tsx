@@ -98,12 +98,14 @@ const CollectionsPage = ({ documentId, classes }: {
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
           </ContentStyles>
 
-          <ButtonUntyped
-            className={classes.startReadingButton}
-            component={Link} to={document.firstPageLink}
-          >
-            {startedReading ? "Continue Reading" : "Start Reading"}
-          </ButtonUntyped>
+          {!collection.hideStartReadingButton &&
+            <ButtonUntyped
+              className={classes.startReadingButton}
+              component={Link} to={document.firstPageLink}
+            >
+              {startedReading ? "Continue Reading" : "Start Reading"}
+            </ButtonUntyped>
+          }
         </div>
       </SingleColumnSection>
       <div>

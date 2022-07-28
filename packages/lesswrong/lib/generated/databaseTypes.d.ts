@@ -34,6 +34,7 @@ interface DbBook extends DbObject {
   number: number
   postIds: Array<string>
   sequenceIds: Array<string>
+  showChapters: boolean
   contents: EditableFieldContents
 }
 
@@ -62,6 +63,7 @@ interface DbCollection extends DbObject {
   slug: string
   gridImageId: string
   firstPageLink: string
+  hideStartReadingButton: boolean
   contents: EditableFieldContents
 }
 
