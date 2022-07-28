@@ -15,8 +15,8 @@ export function isCollaborative(post, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
-  if (post?.shareWithUsers) return true;
-  if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+  if (post.shareWithUsers) return true;
+  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   return false;
 }
@@ -85,7 +85,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     
     // Only save to localStorage if not using collaborative editing, since with
     // collaborative editing stuff is getting constantly sent through a
-    // websocket and saved taht way.
+    // websocket and saved that way.
     if (!isCollabEditor) {
       if (!isBlank(contents)) {
         hasUnsavedDataRef.current.hasUnsavedData = true;
@@ -183,18 +183,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       currentUser={currentUser}
       label={label}
       formType={formType}
-      documentId={document?._id}
+      documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
       initialEditorType={initialEditorType}
       isCollaborative={isCollabEditor}
-      accessLevel={document?.myEditorAccess}
+      accessLevel={document.myEditorAccess}
       value={contents}
       onChange={wrappedSetContents}
       placeholder={actualPlaceholder}
       commentStyles={commentStyles}
-      answerStyles={document?.answer}
-      questionStyles={document?.question}
+      answerStyles={document.answer}
+      questionStyles={document.question}
       commentEditor={commentEditor}
       hideControls={hideControls}
       maxHeight={maxHeight}
@@ -203,7 +203,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
-        postId={document?._id}
+        postId={document._id}
       />
     }
   </div>

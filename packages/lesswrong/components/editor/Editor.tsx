@@ -2,13 +2,11 @@ import React, { Component, MutableRefObject } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
-import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -101,9 +99,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     top: 0,
     color: theme.palette.grey[500],
-    // Dark Magick
-    // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
-    // Without this code, there's a weird thing where if you try to click the placeholder text, instead of focusing on the editor element, it... doesn't. This is overriding something habryka did to make spoiler tags work. We discussed this for awhile and this seemed like the best option.
+    // Without this pointerEvent code, there's a weird thing where if you try to click the placeholder text, instead of focusing on the editor element, it... doesn't. This is overriding something habryka did to make spoiler tags work. We discussed this for awhile and this seemed like the best option.
     pointerEvents: "none",
     "& *": {
       pointerEvents: "none",
@@ -283,7 +279,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   constructor(props: EditorProps) {
     super(props)
     
-    const editorType = this.getCurrentEditorType()
     this.state = {
       updateType: 'minor',
       commitMessage: "",
@@ -395,7 +390,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     if (hideControls) return null
     
     return <div className={classes.changeDescriptionRow}>
-      <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
+      <span className={classes.changeDescriptionLabel}>
+        Edit summary (Briefly describe your changes):{" "}
+      </span>
       <Input
         className={classes.changeDescriptionInput}
         value={this.state.commitMessage}
@@ -486,7 +483,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   renderPlaintextEditor = (contents: EditorContents) => {
     const { markdownImgErrs } = this.state
     const { _classes: classes, commentStyles, questionStyles } = this.props
-    const {className, contentType} = this.getBodyStyles();
+    const {contentType} = this.getBodyStyles();
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
@@ -572,9 +569,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   render() {
     const { loading } = this.state
-    const { currentUser, initialEditorType, formType, label, _classes: classes } = this.props
+    const { label, _classes: classes } = this.props
     const { Loading, ContentStyles } = Components
-    const currentEditorType = this.getCurrentEditorType()
     const {className, contentType} = this.getBodyStyles();
 
     return <div>

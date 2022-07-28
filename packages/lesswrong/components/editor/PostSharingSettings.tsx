@@ -10,7 +10,6 @@ import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
@@ -64,7 +63,6 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   const { LWTooltip } = Components
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
-  const hasUnsavedPermissionsChanges = false;
   const initialSharingSettings = value || defaultSharingSettings;
   const { flash } = useMessages();
   
@@ -83,7 +81,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
     // either, it's a new, not-yet-edited post, and we have a separate error
     // message for that.
     // See also EditorFormComponent.
-    const editorType = (document as any)?.contents_type || (document as any)?.contents?.originalContents?.type;
+    const editorType = (document as any).contents_type || (document as any).contents?.originalContents?.type;
     if (!editorType) {
       flash("Edit the document first to enable sharing");
       return;
@@ -138,29 +136,6 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   addToSuccessForm: PropTypes.func,
   submitForm: PropTypes.func,
 };
-
-const PreviewSharingSettings = ({sharingSettings, unsavedChanges, classes}: {
-  sharingSettings: SharingSettings,
-  unsavedChanges: boolean,
-  classes: ClassesType,
-}) => {
-  if (!sharingSettings)
-    return <div/>;
-  
-  return <span className={classes.linkSharingPreview}>
-    {sharingSettings.anyoneWithLinkCan === "read"    && <span className={classes.linkSharingDescriptionPart}>Anyone with the link can read</span>}
-    {sharingSettings.anyoneWithLinkCan === "comment" && <span className={classes.linkSharingDescriptionPart}>Anyone with the link can comment</span>}
-    {sharingSettings.anyoneWithLinkCan === "edit"    && <span className={classes.linkSharingDescriptionPart}>Anyone with the link can edit</span>}
-    
-    {sharingSettings.explicitlySharedUsersCan === "read"    && <span className={classes.linkSharingDescriptionPart}>Explicitly shared users can can read</span>}
-    {sharingSettings.explicitlySharedUsersCan === "comment" && <span className={classes.linkSharingDescriptionPart}>Explicitly shared users can comment</span>}
-    {sharingSettings.explicitlySharedUsersCan === "edit"    && <span className={classes.linkSharingDescriptionPart}>Explicitly shared users can edit</span>}
-    
-    {unsavedChanges && <span className={classes.saveAsDraftToApplyChanges}>Click Save as Draft to apply changes to permissions settings.</span>}
-  </span>
-  
-  return <div/>
-}
 
 
 const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
@@ -239,7 +214,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
       <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email us at team@lesswrong.com if you experience issues</p>
 
       <div className={classes.buttonRow}>
-        {(sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId)
+        {(sharingSettings.anyoneWithLinkCan!=="none" && postId)
           ? <CopyToClipboard
               text={collabEditorLink}
               onCopy={(text,result) => {
