@@ -52,8 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
+      paddingLeft: 8,
+      paddingRight: 8,
     },
   },
   gridActivated: {
