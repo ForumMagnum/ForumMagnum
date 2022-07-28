@@ -43,17 +43,12 @@ const TagIntroSequence = ({tag, classes}: {
     <SectionTitle title={`Introduction to ${tag.name}`} />
     <AnalyticsContext listContext={'tagIntroSequnce'}>
       {loading && <Loading />}
-      {posts.map((post, i) => i === 0 ?
+      {posts.map((post, i) =>
         <PostsItemIntroSequence
           key={post._id}
           post={post}
           sequence={sequence}
-          withImage
-        /> :
-        <PostsItemIntroSequence
-          key={post._id}
-          post={post}
-          sequence={sequence}
+          withImage={i === 0}
         />)}
       {totalCount > PREVIEW_N && !loadedMore && <LoadMore
         loadMore={() => setLoadedMore(true)}
