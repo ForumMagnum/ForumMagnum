@@ -103,8 +103,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('sm')]: {
       marginTop: -12,
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     },
     [theme.breakpoints.down('xs')]: {
       marginTop: -10,
