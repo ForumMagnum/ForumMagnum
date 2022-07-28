@@ -219,7 +219,7 @@ export function startWebserver() {
     const parsedRoute = parseRoute({
       location: parsePath(request.url)
     });
-    const prefetchResources = parsedRoute.currentRoute.enableResourcePrefetch;
+    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptions(request, user);
