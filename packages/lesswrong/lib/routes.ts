@@ -352,7 +352,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagsSingleCustomName',
       path: `/${taggingNamePluralSetting.get()}/:slug`,
-      componentName: 'TagSubforumPage',
+      componentName: 'TagPage',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
@@ -490,7 +490,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tags.single',
       path: '/tag/:slug',
-      componentName: 'TagSubforumPage',
+      componentName: 'TagPage',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
