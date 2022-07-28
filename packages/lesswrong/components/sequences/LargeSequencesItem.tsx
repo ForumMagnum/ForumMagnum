@@ -134,12 +134,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
+  showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, ContentItemBody, LWTooltip } = Components
   
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -194,11 +195,21 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         </div>
       </div>
       <div className={classes.right}>
-        {posts.map(post => <SequencesSmallPostLink 
-            key={sequence._id + post._id} 
-            post={post}
-            sequenceId={sequence._id}
-          />
+        {sequence.chapters?.flatMap(({posts, title, contents}) =>
+          <>
+            {showChapters && contents?.htmlHighlight && (
+              <ContentStyles contentType="postHighlight">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: title ?? contents.htmlHighlight}} />
+              </ContentStyles>
+            )}
+            {posts.map((post) => (
+              <SequencesSmallPostLink
+                key={sequence._id + post._id}
+                post={post}
+                sequenceId={sequence._id}
+              />
+            ))}
+          </>
         )}
       </div>
     </div>

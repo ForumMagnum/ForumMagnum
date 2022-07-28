@@ -214,6 +214,7 @@ interface BooksDefaultFragment { // fragment on Books
   readonly number: number,
   readonly postIds: Array<string>,
   readonly sequenceIds: Array<string>,
+  readonly showChapters: boolean,
 }
 
 interface CollectionsDefaultFragment { // fragment on Collections
@@ -223,6 +224,7 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly slug: string,
   readonly gridImageId: string,
   readonly firstPageLink: string,
+  readonly hideStartReadingButton: boolean,
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
@@ -1305,6 +1307,7 @@ interface BookPageFragment { // fragment on Books
   readonly postIds: Array<string>,
   readonly posts: Array<PostsList>,
   readonly collectionId: string,
+  readonly showChapters: boolean,
 }
 
 interface BookEdit extends BookPageFragment { // fragment on Books
@@ -1322,6 +1325,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly firstPageLink: string,
   readonly gridImageId: string,
   readonly books: Array<BookPageFragment>,
+  readonly hideStartReadingButton: boolean,
 }
 
 interface CollectionsEditFragment extends CollectionsPageFragment { // fragment on Collections
