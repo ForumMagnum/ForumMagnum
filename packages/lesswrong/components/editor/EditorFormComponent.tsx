@@ -56,7 +56,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const [initialEditorType] = useState(contents.type);
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
-  const currentEditorType = contents?.type || defaultEditorType;
+  const currentEditorType = contents.type || defaultEditorType;
   const showEditorWarning = (formType !== "new") && (initialEditorType !== 'ckEditorMarkup') && (currentEditorType !== defaultEditorType)
   
   const saveBackup = useCallback((newContents: EditorContents) => {
