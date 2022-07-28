@@ -195,11 +195,11 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters?.flatMap(({posts, contents}) =>
+        {sequence.chapters?.flatMap(({posts, title, contents}) =>
           <>
             {showChapters && contents?.htmlHighlight && (
               <ContentStyles contentType="postHighlight">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: contents.htmlHighlight}} />
+                <ContentItemBody dangerouslySetInnerHTML={{__html: title ?? contents.htmlHighlight}} />
               </ContentStyles>
             )}
             {posts.map((post) => (
