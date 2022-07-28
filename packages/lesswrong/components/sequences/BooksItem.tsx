@@ -74,7 +74,9 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        {book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
+        {book.sequences.map(sequence =>
+          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
+        )}
       </SingleColumnSection>
       <Divider />
     </div>
