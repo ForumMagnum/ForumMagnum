@@ -1435,6 +1435,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly description: TagFragment_description|null,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -1509,12 +1510,14 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -1534,6 +1537,7 @@ interface TagRecentDiscussion extends TagFragment { // fragment on Tags
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
+  readonly subforumShortformPostId: string,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions

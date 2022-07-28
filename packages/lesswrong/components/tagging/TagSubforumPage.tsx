@@ -4,11 +4,16 @@ import { useLocation } from '../../lib/routeUtil'
 import { useTagBySlug } from './useTag';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
 
-  }
+  },
+  title: {
+    marginLeft: 24,
+    marginBottom: 10,
+  },
 });
 
 export const TagSubforumPage = ({classes, user}: {
@@ -22,6 +27,12 @@ export const TagSubforumPage = ({classes, user}: {
   const { slug } = params;
   // TODO-JM: add comment explaining the use of TagPreviewFragment (which loads on hover over tag) to avoid extra round trip
   const { tag, loading, error } = useTagBySlug(slug, "TagPreviewFragment");
+  const { document: post } = useSingle({
+    collectionName: 'Posts',
+    fragmentName: 'PostsDetails',
+    documentId: tag?.subforumShortformPostId,
+    skip: !tag?.subforumShortformPostId,
+  })
 
   if (loading) {
     return <Loading />;
@@ -40,9 +51,14 @@ export const TagSubforumPage = ({classes, user}: {
   }
 
   return <SingleColumnSection className={classes.root}>
-    <SectionTitle title={`${tag.name} Subforum`} />
+    <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin />
     <AnalyticsContext pageSectionContext="commentsSection">
-      <PostsCommentsThread terms={{postId: tag.subforumShortformPostId}} newForm condensed/>
+      <PostsCommentsThread
+        terms={{postId: tag.subforumShortformPostId}}
+        newForm
+        condensed
+        post={post}
+      />
     </AnalyticsContext>
   </SingleColumnSection>;
 }
@@ -54,4 +70,3 @@ declare global {
     TagSubforumPage: typeof TagSubforumPageComponent
   }
 }
-
