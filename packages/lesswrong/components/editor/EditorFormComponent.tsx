@@ -241,13 +241,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const Editor = EditorModule.default
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
-    
+
     if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
   }
-  
+
   setEditorValue(newValue: string) {
     const html = markdownToHtmlSimple(newValue)
     this.setState({
@@ -327,7 +327,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.setState(savedState);
     }
   }
-  
+
   isEmpty = (): boolean => {
     switch(this.getCurrentEditorType()) {
       case "draftJS": {
@@ -360,7 +360,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   getStorageHandlers = () => {
     const { fieldName, form } = this.props
     const collectionName = form.collectionName;
-    
+
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId)
   }
@@ -425,6 +425,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   resetEditor = () => {
     const { name, document } = this.props;
     // On Form submit, create a new empty editable
+    this.state.ckEditorReference?.setData("");
     this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
     this.setState({
       draftJSValue: EditorState.createEmpty(),
@@ -505,14 +506,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.hasUnsavedData = false;
     } else {
       const serialized = this.editorContentsToJson();
-  
+
       const success = this.getStorageHandlers().set({
         state: serialized,
         doc: document,
         name,
         prefix: this.getLSKeyPrefix()
       });
-  
+
       if (success) {
         this.hasUnsavedData = false;
       }
@@ -573,7 +574,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   getCurrentEditorType = () => {
     // Tags can only be edited via CKEditor
     if (this.props.collectionName === 'Tags') return "ckEditorMarkup"
-    
+
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
 
     // If there is an override, return that
@@ -624,18 +625,18 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       <MenuItem value={'patch'}>Patch</MenuItem>
     </Select>
   }
-  
+
   renderCommitMessageInput = () => {
     const { currentUser, formType, fieldName, form, classes } = this.props
-    
+
     const collectionName = form.collectionName;
     if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
-    
-    
+
+
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
     if (!fieldHasCommitMessages) return null;
     if (form.hideControls) return null
-    
+
     return <div className={classes.changeDescriptionRow}>
       <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
       <Input
@@ -655,9 +656,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     if (form.hideControls) return null
     if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
-    
+
     const tooltip = collectionName === 'Tags' ? `Tags can only be edited in the ${ckEditorName} editor` : "Warning! Changing format will erase your content"
-    
+
     return (
       <LWTooltip title={tooltip} placement="left">
         <Select
@@ -777,7 +778,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { classes, document, form: { commentStyles } } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     const {className, contentType} = this.getBodyStyles();
-    
+
     return <div>
       { this.renderPlaceholder(!value, false) }
       <Components.ContentStyles contentType={contentType}>
