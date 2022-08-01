@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { isMissingDocumentError } from '../../../lib/utils/errorUtil';
+import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -30,7 +30,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   })
 
   const { Error404, Loading, PostsPage } = Components;
-  if (error && !isMissingDocumentError(error)) {
+  if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
