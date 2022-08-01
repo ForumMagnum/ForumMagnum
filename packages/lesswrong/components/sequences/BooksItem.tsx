@@ -59,10 +59,12 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
+        {book.subtitle && <div className={classes.subtitle}>{book.subtitle}</div>}
+
         <AnalyticsContext pageElementContext="booksProgressBar">
           <BooksProgressBar book={book} />
         </AnalyticsContext>
-        <div className={classes.subtitle}>{book.subtitle}</div>
+
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: html}}
