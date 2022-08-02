@@ -661,15 +661,11 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   let query = {
     selector: {
       userId: viewFieldAllowAny,
-<<<<<<< HEAD
-      $or: [{userId: terms.userId}, {"shareWithUsers.[*]": terms.userId}],
-=======
       $or: [
         {userId: terms.userId},
-        {shareWithUsers: terms.userId},
-        {"coauthorStatuses.userId": terms.userId},
+        {"shareWithUsers.[*]": terms.userId}
+        {"coauthorStatuses.[*].userId": terms.userId},
       ],
->>>>>>> a3a261c4524ea2c3ff8c1e605bde8e9a69a1eb19
       draft: true,
       deletedDraft: false,
       hideAuthor: false,
