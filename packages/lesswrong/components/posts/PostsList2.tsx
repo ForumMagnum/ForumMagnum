@@ -6,6 +6,7 @@ import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
+import { useCurrentUser } from '../common/withUser';
 import * as _ from 'underscore';
 
 const Error = ({error}) => <div>
@@ -16,24 +17,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   itemIsLoading: {
     opacity: .4,
   },
-  loading: {
-    '&&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
   posts: {
-    boxShadow: theme.boxShadow
-  },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
+    boxShadow: theme.palette.boxShadow.default,
   }
 })
 
@@ -50,15 +35,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 //    more posts (default true)
 //  * showNoResults: Show a placeholder if there are no results (otherwise
 //    render only whiteness) (default true)
-//  * hideLastUnread: If the initial set of posts ends with N consecutive
-//    already-read posts, hide the last N-1 of them. Used for abbreviating
-//    read posts from the Recently Curated section on the front page.
+//  * hideLastUnread: If the list ends with N sequential read posts, 
+//    hide them, except for the first post in the list
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
   topLoading = false,
   showLoading = true,
   showLoadMore = true,
+  alwaysShowLoadMore = false,
   showNoResults = true,
   hideLastUnread = false,
   showPostedAt = true,
@@ -74,7 +59,8 @@ const PostsList2 = ({
   hideAuthor=false,
   boxShadow=true,
   curatedIconLeft=false,
-  showFinalBottomBorder=false
+  showFinalBottomBorder=false,
+  hideHiddenFrontPagePosts=false,
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -82,6 +68,7 @@ const PostsList2 = ({
   topLoading?: boolean,
   showLoading?: boolean,
   showLoadMore?: boolean,
+  alwaysShowLoadMore?: boolean,
   showNoResults?: boolean,
   hideLastUnread?: boolean,
   showPostedAt?: boolean,
@@ -97,7 +84,8 @@ const PostsList2 = ({
   hideAuthor?: boolean,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
-  showFinalBottomBorder?: boolean
+  showFinalBottomBorder?: boolean,
+  hideHiddenFrontPagePosts?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -115,26 +103,38 @@ const PostsList2 = ({
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     itemsPerPage: itemsPerPage,
+    alwaysShowLoadMore,
     ...tagVariables
   });
 
-  let hidePosts: Array<boolean>|null = null;
-  if (hideLastUnread && results?.length && !haveLoadedMore) {
-    // If the list ends with N sequential read posts, hide N-1 of them.
-    let numUnreadAtEnd = 0;
-    for (let i=results.length-1; i>=0; i--) {
-      // FIXME: This uses the initial-load version of the read-status, and won't
-      // update based on the client-side read status cache.
-      if (results[i].isRead) numUnreadAtEnd++;
-      else break;
+  // Map from post._id to whether to hide it. Used for client side post filtering like e.g. hiding read posts
+  const hiddenPosts: {[key: string]: boolean} = {}
+
+  const currentUser = useCurrentUser();
+  if (results?.length) {
+    if (hideLastUnread && !haveLoadedMore) {
+      // If the list ends with N sequential read posts, hide them, except for the first post in the list
+      for (let i=results.length-1; i>=0; i--) {
+        // FIXME: This uses the initial-load version of the read-status, and won't
+        // update based on the client-side read status cache.
+        if (results[i].isRead && i > 0) {
+          hiddenPosts[results[i]._id] = true;
+        }
+        else break;
+      }
     }
-    if (numUnreadAtEnd > 1) {
-      const numHiddenAtEnd = numUnreadAtEnd - 1;
-      hidePosts = [..._.times(results.length-numHiddenAtEnd, i=>false), ..._.times(numHiddenAtEnd, i=>true)];
+
+    if (currentUser && hideHiddenFrontPagePosts) {
+      // Hide any posts that a user has explicitly hidden
+      // 
+      // FIXME: this has an unfortunate edge case, where if a user hides enough posts they'll end up with
+      // no frontpage! We're assuming this is very unlikely, but consider moving this to server side
+      for (const metadata of currentUser.hiddenPostsMetadata || []) {
+        hiddenPosts[metadata.postId] = true;
+      }
     }
   }
-
-
+  
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
   //         indicator showing up on initial pageload?
@@ -153,10 +153,10 @@ const PostsList2 = ({
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results?.length && (results.length >= limit))
+  const maybeMorePosts = !!(results?.length && (results.length >= limit)) || alwaysShowLoadMore;
 
   let orderedResults = results
-  if (defaultToShowUnreadComments) {
+  if (defaultToShowUnreadComments && results) {
     orderedResults = _.sortBy(results, (post) => {
       return !post.lastVisitedAt || (post.lastVisitedAt >=  postGetLastCommentedAt(post));
     })
@@ -164,15 +164,16 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useOnMountTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
+  useOnMountTracking({eventType: "postList", eventProps: {postIds, postVisibility: hiddenPosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
+  if (results && !results.length && !showNoResults) return null
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={decodeIntlError(error)} />}
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
-      {results && !results.length && showNoResults && <PostsNoResults />}
+      {results && !results.length && <PostsNoResults />}
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
@@ -184,16 +185,18 @@ const PostsList2 = ({
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
-            showBottomBorder: showFinalBottomBorder || ((orderedResults.length > 1) && i < (orderedResults.length - 1))
+            // I don't know why TS is not narrowing orderedResults away from
+            // undefined given the truthy check above
+            showBottomBorder: showFinalBottomBorder || ((orderedResults!.length > 1) && i < (orderedResults!.length - 1))
           };
 
-          if (!(hidePosts && hidePosts[i])) {
+          if (!(post._id in hiddenPosts)) {
             return <PostsItem2 key={post._id} {...props} hideAuthor={hideAuthor} />
           }
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { (maybeMorePosts||loading) && <div className={classes.loadMore}>
+        { (maybeMorePosts||loading) && 
           <LoadMore
             {...loadMoreProps}
             loadMore={() => {
@@ -201,8 +204,9 @@ const PostsList2 = ({
               setHaveLoadedMore(true);
             }}
             hideLoading={dimWhenLoading || !showLoading}
+            sectionFooterStyles
           />
-        </div>}
+        }
         { children }
       </SectionFooter>}
     </div>
@@ -221,4 +225,3 @@ declare global {
     PostsList2: typeof PostsList2Component
   }
 }
-

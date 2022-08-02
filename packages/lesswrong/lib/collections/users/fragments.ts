@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    previousDisplayName
     fullName
     karma
     afKarma
@@ -28,8 +29,28 @@ registerFragment(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    bio
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionDisplay
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
     frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
@@ -38,6 +59,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
+    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -56,6 +78,14 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
+    noindex
+    paymentEmail
+    paymentInfo
+    goodHeartTokens
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
   }
 `);
 
@@ -79,11 +109,14 @@ registerFragment(`
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
+    allPostsIncludeEvents
     allPostsOpenSettings
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    bio
+    biography {
+      ...RevisionEdit
+    }
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -111,6 +144,7 @@ registerFragment(`
     emails
     whenConfirmationEmailSent
     hideSubscribePoke
+    hideMeetupsPoke
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
@@ -125,14 +159,17 @@ registerFragment(`
       ...PostsList
     }
 
+    hiddenPostsMetadata
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
+    reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -142,6 +179,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    lastUsedTimezone
     ...SharedUserBooleans
   }
 `);
@@ -192,8 +230,8 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
-    bio
     htmlBio
+    website
     createdAt
     email
     commentCount
@@ -246,6 +284,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -261,6 +302,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    beta
 
     # Emails
     email
@@ -291,6 +333,9 @@ registerFragment(`
     mongoLocation
     googleLocation
     location
+    
+    # Map Location (public)
+    mapLocation
 
     # Admin & Review
     reviewedByUserId
@@ -317,10 +362,13 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationPostsNominatedReview
+    notificationGroupAdministration
 
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     deleted
   }
@@ -340,3 +388,42 @@ registerFragment(`
     karma
   }
 `);
+
+registerFragment(`
+  fragment UsersWithReviewInfo on User {
+    ...UsersMinimumInfo
+    reviewVoteCount
+    email
+  }
+`)
+
+registerFragment(`
+  fragment UsersProfileEdit on User {
+    _id
+    slug
+    jobTitle
+    organization
+    careerStage
+    profileImageId
+    biography {
+      ...RevisionEdit
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
+    mapLocation
+    website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
+  }
+`)

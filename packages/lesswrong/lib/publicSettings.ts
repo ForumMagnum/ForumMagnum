@@ -63,6 +63,8 @@ export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('clo
 
 export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10) // Number of days to display in the timeframe view
 
+export const nofollowKarmaThreshold = new DatabasePublicSetting<number>('nofollowKarmaThreshold', 10) // Users with less than this much karma have their links marked as nofollow
+
 export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US')
 export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw') // Because the EA Forum was identical except for the change from /lw/ to /ea/
 
@@ -82,3 +84,19 @@ export const elicitSourceURL = new DatabasePublicSetting('elicitSourceURL', 'htt
 export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOpumu-')
 
 export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
+
+export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
+export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null)
+
+export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
+
+// You will need to restart your server after changing these at present;
+// FrontpageReviewWidget reads them at startup.
+export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
+// The following dates cut off their phase at the end of the day
+export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
+export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
+export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-01")
+export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
+
+export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")

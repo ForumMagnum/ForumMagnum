@@ -9,10 +9,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { sortings as defaultSortings, timeframes as defaultTimeframes } from './AllPostsPage'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { timeframes as defaultTimeframes } from './AllPostsPage'
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/sortOrderOptions';
 
-const FILTERS_ALL = {
+type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
+
+const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   "AlignmentForum": {
     all: {
       label: "All Posts",
@@ -21,11 +24,7 @@ const FILTERS_ALL = {
     questions: {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
-    },
-    meta: {
-      label: "Meta",
-      tooltip: "Posts relating to LessWrong itself"
-    },
+    }
   },
   "LessWrong": {
     all: {
@@ -47,11 +46,7 @@ const FILTERS_ALL = {
     events: {
       label: "Events",
       tooltip: "Events from around the world."
-    },
-    meta: {
-      label: "Meta",
-      tooltip: "Posts relating to LessWrong itself"
-    },
+    }
   },
   "EAForum": {
     all: {
@@ -66,9 +61,32 @@ const FILTERS_ALL = {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
     },
+    events: {
+      label: "Events",
+      tooltip: "Events from around the world."
+    },
+  },
+  "default": {
+    all: {
+      label: "All Posts",
+      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
+    },
+    frontpage: {
+      label: "Frontpage",
+      tooltip: "Posts about research and other work in high-impact cause areas."
+    },
+    questions: {
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
+    },
+    events: {
+      label: "Events",
+      tooltip: "Events from around the world."
+    },
   }
 }
-const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
+
+const FILTERS = forumSelect(FILTERS_ALL)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: "12px 24px 8px 12px"
   },
   hidden: {
@@ -152,6 +170,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
           // TODO: Can the query have an ordering that matches the column ordering?
           query={{ [type]: name }}
           merge
+          rel="nofollow"
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
@@ -172,17 +191,19 @@ const USER_SETTING_NAMES = {
   sortedBy: 'allPostsSorting',
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
+  showEvents: 'allPostsIncludeEvents'
 }
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, timeframes=defaultTimeframes, sortings=defaultSortings, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
   currentSorting: any,
   currentFilter: any,
   currentShowLowKarma: boolean,
+  currentIncludeEvents: boolean,
   timeframes?: any,
-  sortings?: any,
+  sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
   classes: ClassesType,
 }) => {
@@ -227,20 +248,39 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
           classes={classes}
         />
 
-        <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>}>
-          <QueryLink
-            className={classes.checkboxGroup}
-            onClick={() => setSetting('showLowKarma', !currentShowLowKarma)}
-            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
-            merge
-          >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
+        <div>
+          <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('showLowKarma', !currentShowLowKarma)}
+              query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
-            <MetaInfo className={classes.checkboxLabel}>
-              Show Low Karma
-            </MetaInfo>
-          </QueryLink>
-        </Tooltip>
+              <MetaInfo className={classes.checkboxLabel}>
+                Show Low Karma
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>
+          
+          <Tooltip title={<div><div>By default, events are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('showEvents', !currentIncludeEvents)}
+              query={{includeEvents: !currentIncludeEvents}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
+
+              <MetaInfo className={classes.checkboxLabel}>
+                Show Events
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>
+        </div>
       </div>
   );
 };

@@ -12,6 +12,7 @@ import type { Request, Response } from 'express';
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
+// See mongoCollection.ts for implementation
 interface CollectionBase<
   T extends DbObject,
   N extends CollectionNameString = CollectionNameString
@@ -29,19 +30,35 @@ interface CollectionBase<
   _schemaFields: SchemaType<T>
   _simpleSchema: any
   
-  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, update: any}
-  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
+  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
+  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
-  // Return result is number of documents **matched** not affected
-  //
-  // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
-  // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
-  // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
-  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
-  insert: (data: any, options?: any) => Promise<string>
+  
+  /**
+   * Update without running callbacks. Consider using updateMutator, which wraps
+   * this.
+   *
+   * Return result is number of documents **matched** not affected
+   *
+   * You might have expected that the return type would be MongoDB's
+   * WriteResult. Unfortunately, no. Meteor was maintaining backwards
+   * compatibility with an old version that returned nMatched. See:
+   * https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
+   *
+   * We then decided to maintain compatibility with meteor when we switched
+   * away.
+   */
+  rawUpdateOne: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  rawUpdateMany: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  
+  /** Remove without running callbacks. Consider using deleteMutator, which
+   * wraps this. */
+  rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
+  /** Inserts without running callbacks. Consider using createMutator, which
+   * wraps this. */
+  rawInsert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
   _ensurePgIndex: (indexName: string, indexDescription: string)=>Promise<void>
@@ -76,6 +93,7 @@ type ViewQueryAndOptions<
     sort?: MongoSort<T>
     limit?: number
     skip?: number
+    projection?: MongoProjection<T>
   }
 }
 
@@ -92,8 +110,8 @@ interface MergedViewQueryAndOptions<
 }
 
 type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
-type MongoModifier<T extends DbObject> = any; //TODO
+type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
+type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type MongoFindOptions<T extends DbObject> = any; //TODO
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
@@ -126,14 +144,17 @@ interface HasUserIdType {
 interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
+  extendedScore: any,
   voteCount: number
   af?: boolean
   afBaseScore?: number
+  afExtendedScore?: any,
   afVoteCount?: number
 }
 
 interface VoteableTypeClient extends VoteableType {
   currentUserVote: string|null
+  currentUserExtendedVote?: any,
 }
 
 interface DbVoteableType extends VoteableType, DbObject {
@@ -163,6 +184,7 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   currentUser: DbUser|null,
   locale: string,
+  isGreaterWrong: boolean,
   loaders: {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }

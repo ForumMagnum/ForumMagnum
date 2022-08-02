@@ -10,12 +10,22 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { getAlgoliaIndexName, getAlgoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import moment from 'moment';
+import { isProductionDBSetting } from '../../lib/publicSettings';
 
-async function algoliaExport(collection, selector?: any, updateFunction?: any) {
+async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
+  
+  // The EA Forum needs to use less algolia resources on Dev and Staging, so we
+  // time-bound our queries
+  const timeBound = forumTypeSetting.get() === 'EAForum' && !isProductionDBSetting.get() ?
+    { createdAt: { $gte: moment().subtract(3, 'months').toDate() } } :
+    {}
+  const computedSelector = {...selector, ...timeBound}
   
   const indexName = getAlgoliaIndexName(collection.collectionName);
   // eslint-disable-next-line no-console
@@ -26,17 +36,22 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   console.log("Initiated Index connection")
   
   let totalErrors: any[] = [];
-  const totalItems = collection.find(selector||{}).count();
+  const totalItems = await collection.find(computedSelector).count();
   let exportedSoFar = 0;
   
-  await forEachDocumentBatchInCollection({collection, batchSize: 100, loadFactor: 0.5, callback: async (documents) => {
-    await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
-      errors: totalErrors, updateFunction });
-    
-    exportedSoFar += documents.length;
-    // eslint-disable-next-line no-console
-    console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
-  }});
+  await forEachDocumentBatchInCollection({
+    collection,
+    filter: computedSelector,
+    batchSize: 100,
+    loadFactor: 0.5,
+    callback: async (documents: AlgoliaIndexedDbObject[]) => {
+      await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
+      
+      exportedSoFar += documents.length;
+      // eslint-disable-next-line no-console
+      console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
+    }
+  });
   
   if (totalErrors.length) {
     // eslint-disable-next-line no-console
@@ -53,7 +68,7 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
       await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
       break
     case 'Comments':
-      await algoliaExport(Comments, {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
+      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
       break
     case 'Users':
       await algoliaExport(Users, {deleted: {$ne: true}})
@@ -70,19 +85,15 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
 }
 
 export async function algoliaExportAll() {
-  for (let collectionName in getAlgoliaIndexedCollectionNames) {
-    // I found it quite surprising that I'd need to type cast this. If algoliaIndexNames
-    // is of type <Record<AlgoliaIndexCollectionName, string>>, why would collectionName
-    // be a string? (It's not because we have the in / of mixed up.)
-    // Answer: https://stackoverflow.com/questions/61829651/how-can-i-iterate-over-record-keys-in-a-proper-type-safe-way
-    await algoliaExportByCollectionName(collectionName as AlgoliaIndexCollectionName);
+  for (let collectionName of algoliaIndexedCollectionNames) {
+    await algoliaExportByCollectionName(collectionName);
   }
 }
 
 
 Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
 Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
-Vulcan.algoliaExportAll = algoliaExportAll
+Vulcan.algoliaExportAll = wrapVulcanAsyncScript('algoliaExportAll', algoliaExportAll)
 
 
 // Go through the Algolia index for a collection, removing any documents which
@@ -108,7 +119,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   // eslint-disable-next-line no-console
   console.log("Checking documents against the mongodb...");
   const ids = _.map(allDocuments, doc=>doc._id)
-  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection as unknown as AlgoliaIndexedCollection<DbObject>, ids); // TODO: Pagination
+  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids); // TODO: Pagination
   const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
   
   const hitsToDelete = _.filter(allDocuments, doc=>doc._id in mongoIdsToDeleteDict);
@@ -121,11 +132,48 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
 }
 
 export async function algoliaCleanAll() {
-  for (let collectionName in getAlgoliaIndexedCollectionNames) {
-    await algoliaCleanIndex(collectionName as AlgoliaIndexCollectionName);
+  for (let collectionName of algoliaIndexedCollectionNames) {
+    await algoliaCleanIndex(collectionName);
   }
 }
 
 Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
 Vulcan.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
-Vulcan.algoliaCleanAll = algoliaCleanAll
+
+/**
+ * Remove all objects from the index
+ *
+ * Not called "clearIndex" following Algolia, because this is extremely
+ * destructive. But it does not actually remove the index, just clears it.
+ */
+async function algoliaDestroyIndex(collectionName: AlgoliaIndexCollectionName) {
+  // eslint-disable-next-line no-console
+  console.log('Destroying index:', collectionName)
+  const client = getAlgoliaAdminClient()
+  if (!client) return
+  const algoliaIndex = client.initIndex(getAlgoliaIndexName(collectionName))
+
+  await algoliaIndex.clearIndex()
+}
+
+/** Remove all objects from algolia */
+async function algoliaDestroyAll() {
+  for (let collectionName of algoliaIndexedCollectionNames) {
+    await algoliaDestroyIndex(collectionName)
+  }
+}
+
+Vulcan.algoliaDestroyIndex = wrapVulcanAsyncScript('algoliaDestroyIndex', algoliaDestroyIndex)
+Vulcan.algoliaDestroyAll = wrapVulcanAsyncScript('algoliaDestroyAll', algoliaDestroyAll)
+
+/**
+ * Destroy and rebuild algolia. (Probably) DO NOT RUN ON PRODUCTION!!
+ *
+ * Because this is dev, it'll only recreate the last few months of documents.
+ */
+async function algoliaDevRefresh() {
+  await algoliaDestroyAll()
+  await algoliaExportAll()
+}
+
+Vulcan.algoliaDevRefresh = wrapVulcanAsyncScript('algoliaDevRefresh', algoliaDevRefresh)

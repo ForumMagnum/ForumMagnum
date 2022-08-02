@@ -1,12 +1,16 @@
 import * as _ from 'underscore';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
+import { Sequences } from '../lib/collections/sequences/collection';
+import { Collections } from '../lib/collections/collections/collection';
 import { ensureIndex } from '../lib/collectionUtils';
-import { accessFilterMultiple } from '../lib/utils/schemaUtils';
+import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
 import { WeightedList } from './weightedList';
 import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -70,14 +74,35 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
     }
   }
   if (algorithm.reviewReviews) {
+    if (isEAForum) {
+      return {
+        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
+        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
+      }
+    }
     return {
-      [algorithm.reviewReviews === 2018 ? "nominationCount2018" : "nominationCount2019"]: {$gte: 2}
+      postedAt: {
+        $gt: new Date(`${algorithm.reviewReviews}-01-01`),
+        $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
+      },
+      positiveReviewVoteCount: {$gte: 1},
     }
   }
-  if ([2018, 2019].includes(algorithm.reviewNominations || 0)) {
+  if (algorithm.reviewNominations) {
+    if (isEAForum) {
+      return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
+    }
     return {
+      isEvent: false,
       postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},
       meta: false
+    }
+  }
+  if (algorithm.reviewFinal) {
+    return {
+      postedAt: {$gt: new Date(`${algorithm.reviewFinal}-01-01`), $lt: new Date(`${(algorithm.reviewFinal as number) + 1}-01-01`)},
+      reviewCount: {$gte: 1},
+      finalReviewVoteScoreHighKarma: {$gte: 10}
     }
   }
   if (algorithm.includePersonal) {
@@ -275,14 +300,17 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
   const results = await Promise.all(_.map(sequences,
     async (partiallyReadSequence: any) => {
       const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
+      
+      const [sequence, collection, nextPost] = await Promise.all([
+        sequenceId ? context.loaders.Sequences.load(sequenceId) : null,
+        collectionId ? context.loaders.Collections.load(collectionId) : null,
+        context.loaders.Posts.load(nextPostId),
+      ]);
+      
       return {
-        sequence: sequenceId
-          ? await context.loaders.Sequences.load(sequenceId)
-          : null,
-        collection: collectionId
-          ? await context.loaders.Collections.load(collectionId)
-          : null,
-        nextPost: await context.loaders.Posts.load(nextPostId),
+        sequence: await accessFilterSingle(currentUser, Sequences, sequence, context),
+        collection: await accessFilterSingle(currentUser, Collections, collection, context),
+        nextPost: await accessFilterSingle(currentUser, Posts, nextPost, context),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,

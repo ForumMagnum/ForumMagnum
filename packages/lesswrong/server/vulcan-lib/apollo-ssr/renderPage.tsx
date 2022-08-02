@@ -7,7 +7,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
@@ -23,7 +23,12 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions } from '../../../themes/themeNames';
+import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
+import type { TimeOverride } from '../../../lib/utils/timeUtil';
+
+const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
 type RenderTimings = {
   totalTime: number
@@ -40,14 +45,19 @@ export type RenderResult = {
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
+  themeOptions: ThemeOptions,
+  renderedAt: Date,
   timings: RenderTimings
 }
 
-export const renderWithCache = async (req: Request, res: Response) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
-  const user = await getUserFromReq(req);
   
-  const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
+  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
+  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
+  if (ip.indexOf(",")>=0)
+    ip = ip.split(",")[0];
+  
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
@@ -83,6 +93,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: rendered.timings,
       cached: false,
       abTestGroups: rendered.allAbTestGroups,
+      ip
     });
     // eslint-disable-next-line no-console
     console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
@@ -111,8 +122,9 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.relevantAbTestGroups,
+      abTestGroups: rendered.allAbTestGroups,
       cached: rendered.cached,
+      ip
     });
     
     return {
@@ -122,6 +134,15 @@ export const renderWithCache = async (req: Request, res: Response) => {
   }
 };
 
+export function getThemeOptions(req: Request, user: DbUser|null) {
+  const themeCookie = getCookieFromReq(req, "theme");
+  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
+  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
+  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
+  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
+  return themeOptions;
+}
+
 export const renderRequest = async ({req, user, startTime, res, clientId}: {
   req: Request,
   user: DbUser|null,
@@ -130,6 +151,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   clientId: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
+  configureSentryScope(requestContext);
+  
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
@@ -151,13 +174,18 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // the render will be omitted, which is the point.)
   let abTestGroups: RelevantTestGroupAllocation = {};
   
+  const now = new Date();
+  const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
     req={req} apolloClient={client}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroups}
+    timeOverride={timeOverride}
   />;
+  
+  const themeOptions = getThemeOptions(req, user);
 
-  const WrappedApp = wrapWithMuiTheme(App, context);
+  const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
   let htmlContent = '';
   try {
@@ -182,9 +210,24 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
   // context.
   const sheetsRegistry = context.sheetsRegistry;
+  
+  // Experimental handling to make default theme (dark mode or not) depend on
+  // the user's system setting. Currently doesn't work because, while this does
+  // successfully customize everything that goes through our merged stylesheet,
+  // it can't handle the material-UI stuff that gets stuck into the page header.
+  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
+  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}">`
+    +'<style>'
+    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
+    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
+    +'</style>'*/
+  
+  const stylesheet = getMergedStylesheet(themeOptions);
+  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+    +'<style id="jss-insertion-point"></style>'
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {
@@ -194,8 +237,14 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   };
   
   // eslint-disable-next-line no-console
-  if (timings.totalTime > 3000) {
-    captureException(new Error("SSR time above 3 seconds"));
+  const slowSSRWarnThreshold = slowSSRWarnThresholdSetting.get();
+  if (timings.totalTime > slowSSRWarnThreshold) {
+    captureException(new Error(`SSR time above ${slowSSRWarnThreshold}ms`), {
+      extra: {
+        url: getPathFromReq(req),
+        ssrTime: timings.totalTime,
+      }
+    });
   }
   
   return {
@@ -206,6 +255,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
+    themeOptions: themeOptions,
+    renderedAt: now,
     timings,
   };
 }

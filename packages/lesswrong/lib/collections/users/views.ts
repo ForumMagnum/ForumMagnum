@@ -4,6 +4,7 @@ import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarn
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
+import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -19,6 +20,8 @@ declare global {
     },
     userId?: string,
     slug?: string,
+    lng?: number
+    lat?: number
   }
 }
 
@@ -43,6 +46,8 @@ ensureIndex(Users, {createdAt:-1,_id:-1});
 
 // Case-insensitive email index
 ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }})
+
+ensureIndex(Users, {email: 1})
 
 const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
@@ -107,6 +112,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
       needsReview: true,
+      banned: viewFieldNullOrMissing,
       reviewedByUserId: null,
       $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
     },
@@ -145,6 +151,31 @@ Users.addView("usersMapLocations", function () {
 })
 ensureIndex(Users, {mapLocationSet: 1})
 
+Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      karma: {$gte: 1000},
+    },
+    options: {
+      sort: {
+        karma: -1
+      }
+    }
+  }
+})
+
+Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
+    },
+    options: {
+      sort: {
+        displayName: 1
+      }
+    }
+  }
+})
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",

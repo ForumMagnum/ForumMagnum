@@ -3,7 +3,8 @@ import Users from '../../lib/collections/users/collection'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import { bulkUpdateWithJS, wrapVulcanAsyncScript } from '../scripts/utils'
-import { recalculateBaseScore } from '../../lib/scoring';
+import { recalculateDocumentScores } from '../voteServer';
+import { createAdminContext } from '../vulcan-lib/query';
 
 Vulcan.renameDuplicateUsernames = wrapVulcanAsyncScript('renameDuplicateUsernames', async () => {
   await bulkUpdateWithJS({
@@ -25,12 +26,14 @@ Vulcan.renameDuplicateUsernames = wrapVulcanAsyncScript('renameDuplicateUsername
 })
 
 Vulcan.updateBaseScores = wrapVulcanAsyncScript('updateBaseScores', async () => {
+  const context = await createAdminContext();
+  
   for (const collection of [Posts, Comments]) {
     await bulkUpdateWithJS({
       collection,
       updateFunction: async (document) => {
-        const newBaseScore = await recalculateBaseScore(document)
-        return {$set: {baseScore: newBaseScore}}
+        const scoreFields = await recalculateDocumentScores(document, context)
+        return {$set: {...scoreFields}}
       }
     })
   }

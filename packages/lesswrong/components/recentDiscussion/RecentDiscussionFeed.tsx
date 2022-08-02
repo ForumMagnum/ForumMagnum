@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -34,7 +37,7 @@ const RecentDiscussionFeed = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder } = Components
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, RecentDiscussionTagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder, RecentDiscussionMeetupsPoke } = Components
   
   const refetch = useCallback(() => {
     if (refetchRef.current)
@@ -44,7 +47,7 @@ const RecentDiscussionFeed = ({
   return (
     <SingleColumnSection>
       <SectionTitle title={title}>
-        {currentUser?.isReviewed && shortformButton && <div onClick={toggleShortformFeed}>
+        {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
             New Shortform Post
@@ -94,7 +97,7 @@ const RecentDiscussionFeed = ({
           tagRevised: {
             fragmentName: "RevisionTagFragment",
             render: (revision: RevisionTagFragment) => <div>
-              {revision.tag && <TagRevisionItem
+              {revision.tag && <RecentDiscussionTagRevisionItem
                 tag={revision.tag}
                 revision={revision}
                 headingStyle="full"
@@ -105,6 +108,10 @@ const RecentDiscussionFeed = ({
           subscribeReminder: {
             fragmentName: null,
             render: () => <RecentDiscussionSubscribeReminder/>
+          },
+          meetupsPoke: {
+            fragmentName: null,
+            render: () => isEAForum ? null : <RecentDiscussionMeetupsPoke/>
           },
         }}
       />
@@ -121,4 +128,3 @@ declare global {
     RecentDiscussionFeed: typeof RecentDiscussionFeedComponent,
   }
 }
-

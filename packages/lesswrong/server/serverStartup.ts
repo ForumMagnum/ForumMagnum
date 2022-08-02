@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 //import { Pool } from 'pg';
 import pgPromise from 'pg-promise';
 import { setDatabaseConnection, setPostgresConnection } from '../lib/mongoCollection';
-import { onStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -76,8 +76,7 @@ async function serverStartup() {
   
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
-  for (let startupFunction of onStartupFunctions)
-    await startupFunction();
+  await runStartupFunctions();
   
   // define executableSchema
   createVoteableUnionType();

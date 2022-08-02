@@ -3,7 +3,7 @@ import React from 'react';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overflow: {
-    color: "red"
+    color: theme.palette.text.red,
   }
 })
 

@@ -6,14 +6,13 @@ Display of a single message in the Conversation Wrapper
 
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   message: {
-    backgroundColor: grey[200],
+    backgroundColor: theme.palette.grey[200],
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -23,20 +22,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     wordWrap: "break-word"
   },
   backgroundIsCurrent: {
-    backgroundColor: grey[700],
-    color: "white",
+    backgroundColor: theme.palette.grey[700],
+    color: theme.palette.panelBackground.default,
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
     marginBottom:theme.spacing.unit*1.5
   },
   whiteMeta: {
-    color: 'rgba(255,255,255, 0.7)'
+    color: theme.palette.text.invertedBackgroundText2,
   },
   messageBody: {
     '& a': {
       color: theme.palette.primary.light
-    }
+    },
+    '& img': {
+      maxWidth: '100%',
+    },
   }
 })
 

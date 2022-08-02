@@ -14,13 +14,17 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import { forumSelect } from '../../lib/forumTypeUtils';
+
+const isEAForum = forumTypeSetting.get() === "EAForum";
 
 const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {
@@ -45,39 +49,63 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2
   },
   errorMsg: {
-    color: "#9b5e5e"
+    color: theme.palette.text.error,
   },
   link: {
     textDecoration: "underline"
   },
 });
 
-// Estimated number of hours of reading per week in a frontpage/community feed
-// with the given karma threshold. Calculated based on the average number of
-// words posted per week on LW2 as of August 2018.
-const hoursPerWeek = {
-  2: "3 hours",
-  30: "2 hours",
-  45: "1 hour",
-  75: "half an hour"
-};
+const thresholds = forumSelect({
+  LessWrong: [2, 30, 45, 75, 125],
+  AlignmentForum: [2, 30, 45],
+  EAForum: [2, 30, 75, 125, 200],
+  // We default you off pretty low, you can add more once you get more high
+  // karma posts
+  default: [2, 30, 45, 75]
+})
 
-// Estimated number of posts per week in a frontpage/community feed with the
-// given karma threshold. Calculated based on the average number of posts per
-// week on LW2 as of August 2018.
-// ^^^ Lol
-const postsPerWeek = {
-  2: 20,
-  30: 11,
-  45: 7,
-  75: 3
-};
+/**
+ * Calculated based on the average number of words posted per post on LW2 as of
+ * August 2018.
+ */
+function timePerWeekFromPosts(posts: number) {
+  const minutes = posts * 11
+  if (minutes < 60) {
+    return `${minutes} minutes`
+  }
+  return `${Math.round(minutes / 60)} hours`
+}
+
+/** Posts per week as of May 2022 */
+const postsPerWeek = forumSelect({
+  EAForum: {
+    2: 119,
+    30: 24,
+    45: 20,
+    75: 10,
+    125: 4,
+    200: 1,
+  },
+  // (JP) I eyeballed these, you could query your db for better numbers
+  LessWrong: {
+    2: 80,
+    30: 16,
+    45: 13,
+    75: 7,
+    125: 2,
+  },
+  AlignmentForum: {
+    2: 10,
+    30: 2,
+    45: 1,
+  },
+});
 
 const viewNames = {
   'frontpage': 'Frontpage',
   'curated': 'Curated Content',
   'community': 'All Posts',
-  'meta': 'Meta',
   'pending': 'pending posts',
   'rejected': 'rejected posts',
   'scheduled': 'scheduled posts',
@@ -140,7 +168,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (!userEmailAddressIsVerified(currentUser)) {
+    if (isEAForum && !userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -209,10 +237,10 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         disabled={method === "email" && !currentUser}
         inputProps={{ id: "subscribe-dialog-view" }}
       >
-        <MenuItem value="curated">Curated</MenuItem>
+        {/* TODO: Forum digest */}
+        {!isEAForum && <MenuItem value="curated">Curated</MenuItem>}
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
-        <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>
       </Select>
     </FormControl>
 
@@ -222,7 +250,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         open={open}
         onClose={onClose}
       >
-        <Tabs
+        {!isEAForum && <Tabs
           value={method}
           indicatorColor="primary"
           textColor="primary"
@@ -232,7 +260,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         >
           <Tab label="RSS" key="tabRSS" value="rss" />
           <Tab label="Email" key="tabEmail" value="email" />
-        </Tabs>
+        </Tabs>}
 
         <DialogContent className={classes.content}>
           { method === "rss" && <React.Fragment>
@@ -245,17 +273,19 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
-                { [2, 30, 45, 75].map(t => t.toString()).map(threshold =>
+                { thresholds.map(t => t.toString()).map(threshold =>
                   <FormControlLabel
-                      control={<Radio />}
-                      label={threshold}
-                      value={threshold}
-                      key={`labelKarmaThreshold${threshold}`}
-                      className={classes.thresholdButton} />
+                    control={<Radio />}
+                    label={threshold}
+                    value={threshold}
+                    key={`labelKarmaThreshold${threshold}`}
+                    className={classes.thresholdButton}
+                  />
                 ) }
               </RadioGroup>
               <DialogContentText className={classes.estimate}>
-                That's roughly { postsPerWeek[threshold] } posts per week ({ hoursPerWeek[threshold] } of reading)
+                That's roughly { postsPerWeek[threshold] } posts per week
+                ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)
               </DialogContentText>
             </div>}
 
@@ -272,9 +302,14 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
           { method === "email" && [
             viewSelector,
             !!currentUser ? (
-              !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
-                Sorry, there's currently no email feed for {viewNames[view]}.
-              </DialogContentText>
+              [
+                !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
+                  Sorry, there's currently no email feed for {viewNames[view]}.
+                </DialogContentText>,
+                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+                  We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
+                </DialogContentText>
+              ]
             ) : (
               <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
                 You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email

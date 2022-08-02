@@ -11,8 +11,8 @@ export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit*1.5,
     alignItems: "center",
     flexWrap: "nowrap",
-    background: "white",
-    borderBottom: theme.itemBorderBottom,
+    background: theme.palette.panelBackground.default,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
     },
@@ -22,7 +22,7 @@ export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
     },
     "& a:hover": {
       textDecoration: "none",
-      color: "rgba(0,0,0,.4)",
+      color: theme.palette.link.dim3,
     },
     '&:hover $actions': {
       opacity: .2,
@@ -66,7 +66,7 @@ export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
 const styles = (theme: ThemeType): JssStyles => ({
   ...postsItemLikeStyles(theme),
   location: {
-    color: "rgba(0,0,0,.4)",
+    color: theme.palette.text.dim40,
     marginRight: 8,
   },
   links: {
@@ -84,7 +84,7 @@ const LocalGroupsItem = ({group, classes}: {
 
   return (
     <div className={classes.root}>
-      <Link to={"groups/" + group._id}  className={classes.title}>{group.name}</Link>
+      <Link to={`/groups/${group._id}`}  className={classes.title}>{group.name}</Link>
       <div  className={classes.location}>
         <PostsItemMetaInfo>{ group.location }</PostsItemMetaInfo>
       </div>

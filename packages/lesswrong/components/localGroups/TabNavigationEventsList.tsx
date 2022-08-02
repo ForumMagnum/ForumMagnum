@@ -29,11 +29,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: ".85rem",
     position: "relative",
     top: -1,
-    color: "rgba(0,0,0,.92)",
+    color: theme.palette.text.slightlyIntense,
     marginRight: theme.spacing.unit,
   },
   yesterday: {
     color: "unset"
+  },
+  tooltipGroup: {
+    ...theme.typography.tinyText
   },
   tooltipTitle: {
     fontWeight: 600,
@@ -67,7 +70,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
   },
   tooltipDivider: {
-    borderTop: "solid 1px rgba(255,255,255,.2)",
+    borderTop: theme.palette.border.tooltipHR,
     width: 25,
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2
@@ -120,11 +123,12 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
         const highlight = truncate(htmlHighlight, HIGHLIGHT_LENGTH)
 
         const tooltip = <div>
+            {event.group && <div className={classes.tooltipGroup}>{event.group.name}</div>}
             <div className={classes.tooltipTitle}>{event.title}</div>
             <div className={classes.tooltipLogisticsTitle}>
-             {event.onlineEvent ? "Onlne Event" : "Location"}
+              {event.onlineEvent ? "Online Event" : "Location"}
             </div>
-            <div>{event.location}</div>
+            {!event.onlineEvent && <div>{event.location}</div>}
             <div className={classes.tooltipLogisticsTitle}>Time</div>
             <div>
               {event.startTime

@@ -13,25 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: "auto"
     }
   },
-  itemIsLoading: {
-    opacity: .4,
-  },
-  loading: {
-    '&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
   header: {
     ...theme.typography.body2,
     marginTop: theme.spacing.unit*2,
@@ -43,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subSubQuestions: {
     paddingLeft: theme.spacing.unit,
-    borderLeft: "solid 1px rgba(0,0,0,.15)"
+    borderLeft: theme.palette.border.slightlyFaint,
   }
 })
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
 
@@ -40,7 +41,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
-  const { TagPreview, VoteButton, TagRelevanceButton, LWTooltip } = Components;
+  const { TagPreview, OverallVoteButton, TagRelevanceButton, LWTooltip } = Components;
   
   return <div>
     <div className={classes.relevance}>
@@ -50,10 +51,11 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         </span>
       </LWTooltip>
       <div className={classes.voteButton}>
-        <VoteButton
+        <OverallVoteButton
           orientation="left"
           color="error"
-          voteType="Downvote"
+          upOrDown="Downvote"
+          enabled={tagRel.currentUserCanVote}
           {...voteProps}
         />
       </div>
@@ -61,16 +63,25 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         {voteProps.baseScore}
       </span>
       <div className={classes.voteButton}>
-        <VoteButton
+        <OverallVoteButton
           orientation="right"
           color="secondary"
-          voteType="Upvote"
+          upOrDown="Upvote"
+          enabled={tagRel.currentUserCanVote}
           {...voteProps}
         />
       </div>
       {newlyVoted && <span className={classes.removeButton}>
-        <LWTooltip title={"Remove your relevance vote from this tag"} placement="top">
-          <TagRelevanceButton label="Remove Tag" {...voteProps} voteType="smallUpvote" cancelVote/>
+        <LWTooltip
+          title={`Remove your relevance vote from this ${taggingNameSetting.get()}`}
+          placement="top"
+        >
+          <TagRelevanceButton
+            label={`Remove ${taggingNameCapitalSetting.get()}`}
+            {...voteProps}
+            voteType="smallUpvote"
+            cancelVote
+          />
         </LWTooltip>
       </span>}
       {voteProps.baseScore <= 0 && <span className={classes.removed}>Removed (refresh page)</span>}
@@ -86,4 +97,3 @@ declare global {
     TagRelCard: typeof TagRelCardComponent
   }
 }
-

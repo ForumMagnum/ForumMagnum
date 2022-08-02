@@ -1,14 +1,18 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import theme from '../../themes/eaTheme';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = () => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit*3,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    
+    "& svg": {
+      fill: "currentColor",
+    },
   },
   divider: {
     height: 80,
@@ -34,6 +38,9 @@ const Divider = ({ classes, wings=true }: {
   classes: ClassesType,
   wings?: boolean
 }) => {
+  if (forumTypeSetting.get() === "EAForum") {
+    return null;
+  }
   return <div className={classes.root}>
     {wings && <div className={classes.divider}>
       { divider }

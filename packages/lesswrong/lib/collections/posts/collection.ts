@@ -3,21 +3,28 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { postCanEdit } from './helpers';
+import { userIsPostGroupOrganizer } from './helpers';
+
+export const userCanPost = (user: UsersCurrent|DbUser) => {
+  if (user.deleted) return false;
+  if (user.postingDisabled) return false
+  return userCanDo(user, 'posts.new')
+}
 
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
     if (!user) return false;
-    return userCanDo(user, 'posts.new')
+    return userCanPost(user)
   },
 
-  editCheck: (user: DbUser|null, document: DbPost|null) => {
+  editCheck: async (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
     if (userCanDo(user, 'posts.alignment.move.all') ||
         userCanDo(user, 'posts.alignment.suggest')) {
       return true
     }
-    return postCanEdit(user, document)
+    
+    return userOwns(user, document) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, document)
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {

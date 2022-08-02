@@ -1,13 +1,17 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
+import { useSingle } from '../../lib/crud/withSingle';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
+
+export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
+  width: POST_PREVIEW_WIDTH,
+  paddingTop: theme.spacing.unit,
+  paddingBottom: theme.spacing.unit
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {
-    width: POST_PREVIEW_WIDTH,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit
+    ...notificationLoadingStyles(theme)
   }
 })
 
@@ -29,7 +33,9 @@ const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, postsLi
   if (postLoading) return <div className={classes.loading}>
       <Loading/>
     </div>
-  
+
+  if (!post) {return null;}
+
   return <PostsPreviewTooltip post={post} postsList={postsList}/>
 }
 
@@ -60,6 +66,8 @@ const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, trun
   if (postLoading || commentLoading) return <div className={classes.loading}>
       <Loading/>
     </div>
+
+  if (!post) {return null;}
   
   return <PostsPreviewTooltip post={post} comment={commentId && comment} />
 }
@@ -85,6 +93,7 @@ const TaggedPostTooltipSingle = ({tagRelId, classes}:{
   if (tagRelLoading) return <div className={classes.loading}>
     <Loading/>
   </div>
+  if (!tagRel) {return null;}
   return <PostsPreviewTooltip post={tagRel.post} />
 }
 

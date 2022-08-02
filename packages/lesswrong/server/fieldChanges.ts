@@ -19,11 +19,11 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
     //  * It's a denormalized field
     //  * The logChanges option is present on the field, and false
     //  * The logChanges option is undefined on the field, and is false on the collection
-    if (before===after) continue;
-    if (schema[key].denormalized) continue;
-    if (schema[key].logChanges != undefined && !schema[key].logChanges)
+    if (before===after || JSON.stringify(before)===JSON.stringify(after)) continue;
+    if (schema[key]?.denormalized) continue;
+    if (schema[key]?.logChanges != undefined && !schema[key]?.logChanges)
       continue;
-    if (!schema[key].logChanges && !collection.options.logChanges)
+    if (!schema[key]?.logChanges && !collection.options.logChanges)
       continue;
     
     // As a special case, don't log changes from null to undefined (or vise versa).
@@ -32,8 +32,9 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
     if (before===undefined && after===null) continue;
     if (after===undefined && before===null) continue;
     
-    loggedChangesBefore[key] = before;
-    loggedChangesAfter[key] = after;
+    const sanitizedKey = sanitizeKey(key);
+    loggedChangesBefore[sanitizedKey] = before;
+    loggedChangesAfter[sanitizedKey] = after;
   }
   
   if (Object.keys(loggedChangesAfter).length > 0) {
@@ -53,4 +54,8 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
       validate: false,
     })
   }
+}
+
+function sanitizeKey(key: string): string {
+  return key.replace(/\./g, "_");
 }

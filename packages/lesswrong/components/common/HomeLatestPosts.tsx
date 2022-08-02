@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
-import { getDefaultFilterSettings } from '../../lib/filterSettings';
+import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
+import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -38,18 +38,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
 
-const useFilterSettings = (currentUser: UsersCurrent|null) => {
-  const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : getDefaultFilterSettings();
-
-  return useState(defaultSettings);
-}
-
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-  const updateCurrentUser = useUpdateCurrentUser();
 
-  const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
+  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
@@ -82,7 +75,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <AnalyticsContext pageSectionContext="tagFilterSettings">
               <div className={classes.toggleFilters}>
                 <SettingsButton 
-                  label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
+                  label={filterSettingsVisible ?
+                    "Hide Filters" :
+                    `Show ${taggingNameCapitalSetting.get()} Filters`}
                   showIcon={false}
                   onClick={() => {
                     setFilterSettingsVisible(!filterSettingsVisible)
@@ -95,31 +90,18 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </div>
               <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
-                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                    setFilterSettings(newSettings)
-                    void updateCurrentUser({
-                      frontpageFilterSettings: newSettings
-                    });
-                  }}
+                  filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
                 />
               </span>
           </AnalyticsContext>
         </div>
         <AnalyticsContext listContext={"latestPosts"}>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2
-              terms={{view:"curated", limit: currentUser ? 3 : 2}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              curatedIconLeft={true}
-              showFinalBottomBorder={true}
-            />
-          </AnalyticsContext>
-          <PostsList2 terms={recentPostsTerms}>
-            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-          </PostsList2>
+          {/* Allow hiding posts from the front page*/}
+          <AllowHidingFrontPagePostsContext.Provider value={true}>
+            <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+              <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+            </PostsList2>
+          </AllowHidingFrontPagePostsContext.Provider>
         </AnalyticsContext>
       </SingleColumnSection>
     </AnalyticsContext>

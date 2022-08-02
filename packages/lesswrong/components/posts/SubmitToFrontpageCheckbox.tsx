@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -21,13 +21,14 @@ const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className
   </ul>
 </div>
 
-const forumDefaultTooltip = {
+const forumDefaultTooltip: ForumOptions<(classes?: ClassesType) => JSX.Element | string> = {
   LessWrong: defaultTooltipLWAF,
   AlignmentForum: defaultTooltipLWAF,
-  EAForum: () => "Uncheck this box if you want your post to stay on your personal blog."
+  EAForum: () => "Uncheck this box if you want your post to stay on your personal blog.",
+  default: () => "Uncheck this box if you want your post to stay on your personal blog."
 }
 
-const defaultTooltip = forumDefaultTooltip[forumTypeSetting.get()]
+const defaultTooltip = forumSelect(forumDefaultTooltip)
 
 const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpageWrapper: {
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpage: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 300,
+    maxWidth: 200,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: "none",
@@ -51,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
     verticalAlign: 'middle',
     lineHeight: '1.25em'
   },
@@ -99,7 +100,11 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
   }
 
   render() {
-    const { classes, label='Moderators may promote to Frontpage', tooltip } = this.props
+    const defaultLabel = forumSelect({
+      EAForum:'This post may appear on the Frontpage',
+      default: 'Moderators may promote to Frontpage'
+    })
+    const { classes, label = defaultLabel, tooltip } = this.props
 
     const displayedTooltip = tooltip || defaultTooltip({classes})
 

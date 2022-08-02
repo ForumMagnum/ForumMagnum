@@ -20,6 +20,7 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
 import { syncDocumentWithLatestRevision } from './editor/utils';
+import { createAdminContext } from './vulcan-lib/query';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -42,9 +43,23 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
   }
 });
 
+getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
+  // if the user is setting up their profile and their username changes from that form,
+  // we don't want this action to count toward their one username change
+  const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
+  if (user.displayName !== oldUser.displayName && !isSettingUsername) {
+    await updateMutator({
+      collection: Users,
+      documentId: user._id,
+      set: {previousDisplayName: oldUser.displayName},
+      currentUser: user,
+      validate: false,
+    });
+  }
+});
 
 getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
-  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser?.isAdmin) {
+  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
 });
@@ -55,12 +70,12 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   }
 });
 
-const reverseVote = async (vote: DbVote) => {
+const reverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({document, collection, user})
+    await clearVotesServer({document, collection, user, context})
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
@@ -75,6 +90,7 @@ export const nullifyVotesForUser = async (user: DbUser) => {
 
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
   const collectionName = capitalize(collection.collectionName);
+  const context = await createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -83,7 +99,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
   for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    await reverseVote(vote);
+    await reverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
@@ -217,7 +233,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tag revisions: ", tagRevisions)
-  await Revisions.remove({userId: user._id})
+  await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
     const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
@@ -232,6 +248,12 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   }
 }
 
+/**
+ * Add user IP address to IP ban list for a day and remove their login tokens
+ *
+ * NB: We haven't tested the IP ban list in like 3 years and it should not be
+ * assumed to work.
+ */
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
   // IP ban
   const query = `
@@ -265,7 +287,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  await Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  await Users.rawUpdateOne({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
 
@@ -278,7 +300,7 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     //   https://docs.mongodb.com/manual/core/retryable-writes/#retryable-update-upsert
     // In particular, this means the selector has to exactly match the unique
     // index's keys.
-    await ReadStatuses.update({
+    await ReadStatuses.rawUpdateOne({
       postId: event.documentId,
       userId: event.userId,
       tagId: null,

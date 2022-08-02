@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { registerComponent } from '../../lib/vulcan-lib'
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings'
+import { isClient } from '../../lib/executionEnvironment';
 
 const reCaptchaSiteKey = reCaptchaSiteKeySetting.get()
 
@@ -22,8 +23,8 @@ const defaultProps = {
 
 const isReady = () =>
   typeof window !== 'undefined' &&
-  typeof (window as any).grecaptcha !== 'undefined' &&
-  typeof (window as any).grecaptcha.execute !== 'undefined'
+  typeof window.grecaptcha !== 'undefined' &&
+  typeof window.grecaptcha.execute !== 'undefined'
 
 let readyCheck
 
@@ -47,7 +48,7 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
       ready: isReady()
     }
 
-    if (!this.state.ready) {
+    if (isClient && !this.state.ready) {
       readyCheck = setInterval(this._updateReadyState.bind(this), 1000)
     }
   }
@@ -76,7 +77,7 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
     } = this.props
 
     if (this.state.ready) {
-      (window as any).grecaptcha.execute(sitekey, { action })
+      window.grecaptcha.execute(sitekey, { action })
         .then(token => {
 
           if (typeof verifyCallback !== 'undefined') {

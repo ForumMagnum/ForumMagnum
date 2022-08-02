@@ -11,6 +11,11 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
+
+const isEAForum= forumTypeSetting.get() === "EAForum"
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -34,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 5,
     display: "inline",
-    color: "rgba(0,0,0,.5)",
+    color: theme.palette.link.dim,
     "@media print": {
       display: "none",
     },
@@ -61,14 +66,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       marginRight: 5,
     },
-    
+
     marginBottom: 8,
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     paddingTop: ".6em",
-  
+
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: "rgba(0,0,0,0.3) !important",
+      color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   bottom: {
@@ -79,10 +84,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyForm: {
     marginTop: 2,
     marginBottom: 8,
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
   },
   deleted: {
-    backgroundColor: "#ffefef",
+    backgroundColor: theme.palette.panelBackground.deletedComment,
   },
   moderatorHat: {
     marginRight: 8,
@@ -101,11 +106,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
     display: "block",
+    color: theme.palette.link.dim2,
+  },
+  reviewVotingButtons: {
+    borderTop: theme.palette.border.normal,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 6,
+  },
+  updateVoteMessage: {
+    ...theme.typography.body2,
+    ...theme.typography.smallText,
     color: theme.palette.grey[600]
   }
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -115,6 +132,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentCommentId?: string,
   scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
+  setSingleLine?: (boolean)=>void,
   truncated: boolean,
   parentAnswerId?: string|undefined,
   classes: ClassesType,
@@ -122,10 +140,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
+  const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -170,6 +189,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           className={classes.menu}
           comment={comment}
           post={post}
+          tag={tag}
           showEdit={setShowEdit}
         />
       </AnalyticsContext>
@@ -196,7 +216,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const renderCommentBottom = () => {
     const { CommentBottomCaveats } = Components
 
-    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
     const showReplyButton = (
       !hideReply &&
@@ -241,11 +261,19 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
 
   if (!comment) {
     return null;
   }
+
+  const displayReviewVoting = 
+    !hideReviewVoteButtons &&
+    reviewIsActive() &&
+    comment.reviewingForReview === REVIEW_YEAR+"" &&
+    post &&
+    currentUser?._id !== post.userId &&
+    eligibleToNominate(currentUser)
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -269,7 +297,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         )}
 
         {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>
+            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+              {comment.post.draft && "[Draft] "}
+              {comment.post.title}
+            </Link>
           </LWTooltip>}
         {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
@@ -290,6 +321,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
+            {singleLineCollapse && <a className={classes.collapse} onClick={() => 
+              setSingleLine && setSingleLine(true)}>
+              [<span>{collapsed ? "+" : "-"}</span>]
+            </a>
+            }
             <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
@@ -307,12 +343,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
             {!isParentComment && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
-            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
+            
+            {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
-            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
-            {`Review for ${comment.reviewingForReview} Review`}
-          </Link>}
+
+            {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
+              {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
+            </Link>}
+            
           </div>
           { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}
@@ -320,6 +359,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
+        {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
+          <div className={classes.updateVoteMessage}>
+            <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
+              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
+              <LWHelpIcon/>
+            </LWTooltip>
+          </div>
+          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+        </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
     </AnalyticsContext>

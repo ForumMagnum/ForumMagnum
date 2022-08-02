@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerTagList: {
     marginTop: 16,
     marginBottom: 66,
-  }
+  },
 });
 
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
@@ -46,7 +46,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && <AnalyticsContext pageSectionContext="tagFooter">
+    {!post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && <AnalyticsContext pageSectionContext="tagFooter">
       <div className={classes.footerTagList}>
         <FooterTagList post={post}/>
       </div>

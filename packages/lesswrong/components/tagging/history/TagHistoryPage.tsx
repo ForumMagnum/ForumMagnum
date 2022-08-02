@@ -55,6 +55,7 @@ const TagHistoryPage = ({classes}: {
               revision={revision}
               headingStyle={"abridged"}
               documentId={tag._id}
+              showDiscussionLink={false}
             />
           </div>,
         },
@@ -75,7 +76,7 @@ const TagHistoryPage = ({classes}: {
           fragmentName: "CommentsList",
           render: (comment: CommentsList) => <div>
             <CommentsNode
-              treeOptions={{}}
+              treeOptions={{ tag }}
               comment={comment}
               loadChildrenSeparately={true}
             />

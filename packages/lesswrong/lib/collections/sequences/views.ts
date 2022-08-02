@@ -31,6 +31,7 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
       userId: terms.userId,
       isDeleted: false,
       draft: false,
+      hideFromAuthorPage: false
     },
     options: {
       sort: {
@@ -42,15 +43,36 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
 });
 ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
 
-Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
+Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
       isDeleted: false,
+      $or: [
+        {draft: true},
+        {hideFromAuthorPage: true}
+      ]
     },
     options: {
       sort: {
         drafts: -1,
+        userProfileOrder: 1,
+        createdAt: -1,
+      }
+    },
+  };
+});
+
+Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      isDeleted: false
+    },
+    options: {
+      sort: {
+        drafts: -1,
+        hideFromAuthorPage: 1,
         userProfileOrder: 1,
         createdAt: -1
       }

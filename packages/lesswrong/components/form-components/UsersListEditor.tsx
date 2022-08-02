@@ -6,6 +6,23 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import * as _ from 'underscore';
 
+export const shouldCancelStart = (e) => {
+  // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
+  const disabledElements = [
+    'input',
+    'textarea',
+    'select',
+    'option',
+    'button',
+    'svg',
+    'path'
+  ];
+  if (disabledElements.includes(e.target.tagName.toLowerCase())) {
+    return true; // Return true to cancel sorting
+  } else {
+    return false;
+  }
+}
 
 const sortableItemStyles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,7 +48,7 @@ const sortableListStyles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(SortableContainer(({items, currentUser, removeItem, classes}) => {
+export const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(SortableContainer(({items, currentUser, removeItem, classes}) => {
   return (
     <div className={classes.root}>
       {items.map((userId, index) => (
@@ -60,23 +77,6 @@ class UsersListEditor extends Component<any> {
     const newIds = _.without(this.props.value, userId);
     this.context.updateCurrentValues({[this.props.path]: newIds});
   }
-  shouldCancelStart = (e) => {
-    // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
-    const disabledElements = [
-      'input',
-      'textarea',
-      'select',
-      'option',
-      'button',
-      'svg',
-      'path'
-    ];
-    if (disabledElements.includes(e.target.tagName.toLowerCase())) {
-      return true; // Return true to cancel sorting
-    } else {
-      return false;
-    }
-  }
 
   render() {
     const { classes, label, currentUser } = this.props
@@ -95,7 +95,7 @@ class UsersListEditor extends Component<any> {
           onSortEnd={this.onSortEnd}
           currentUser={currentUser}
           removeItem={this.removeUserId}
-          shouldCancelStart={this.shouldCancelStart}
+          shouldCancelStart={shouldCancelStart}
         />
       </div>
     )

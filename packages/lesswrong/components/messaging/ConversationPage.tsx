@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -7,6 +7,8 @@ import { conversationGetTitle } from '../../lib/collections/conversations/helper
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { useTracking } from '../../lib/analyticsEvents';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -50,6 +52,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   const loading = loadingMessages || loadingConversation;
 
   const { query } = useLocation()
+  const { captureEvent } = useTracking()
 
   const { document: template, loading: loadingTemplate } = useSingle({
     documentId: query.templateCommentId,
@@ -72,6 +75,20 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
     }
   }, [loadingMessages,scrolledToBottom]);
+  
+  // try to attribute this sent message to where the user came from
+  const profileViewedFrom = useRef('')
+  useEffect(() => {
+    const ls = getBrowserLocalStorage()
+    if (query.from) {
+      profileViewedFrom.current = query.from
+    } else if (conversation && conversation.participantIds.length === 2 && ls) {
+      // if this is a conversation with one other person, see if we have info on where the current user found them
+      const otherUserId = conversation.participantIds.find(id => id !== currentUser._id)
+      const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles'))
+      profileViewedFrom.current = lastViewedProfiles?.find(profile => profile.userId === otherUserId)?.from
+    }
+  }, [query.from, conversation, currentUser._id])
 
   const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
   
@@ -101,6 +118,15 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
             collection={Messages}
             prefilledProps={ {conversationId: conversation._id, contents: { ckEditorMarkup: template?.contents?.html}}}
             mutationFragment={getFragment("messageListFragment")}
+            successCallback={() => {
+              captureEvent('messageSent', {
+                conversationId: conversation._id,
+                sender: currentUser._id,
+                participantIds: conversation.participantIds,
+                messageCount: (conversation.messageCount || 0) + 1,
+                ...(profileViewedFrom.current && {from: profileViewedFrom.current})
+              })
+            }}
             errorCallback={(message: any) => {
               //eslint-disable-next-line no-console
               console.error("Failed to send", message)

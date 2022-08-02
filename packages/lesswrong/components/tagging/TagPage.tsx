@@ -1,25 +1,51 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
-import { useTagBySlug } from './useTag';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser';
-import { tagBodyStyles } from '../../themes/stylePiping'
+import { useApolloClient } from "@apollo/client";
+import classNames from 'classnames';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { truncate } from '../../lib/editor/ellipsize';
+import { userHasNewTagSubscriptions } from "../../lib/betas";
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
-import { EditTagForm } from './EditTagPage';
+import { truncate } from '../../lib/editor/ellipsize';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
-import classNames from 'classnames';
-import { useApolloClient } from "@apollo/client";
+import { EditTagForm } from './EditTagPage';
+import { useTagBySlug } from './useTag';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagMinimumKarmaPermissions } from "../../lib/collections/tags/collection";
+
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
-  description: {
-    marginTop: 18,
-    ...tagBodyStyles(theme),
-    marginBottom: 18,
+  rootGivenImage: {
+    marginTop: 185,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 130,
+    },
+  },
+  imageContainer: {
+    width: '100%',
+    '& > img': {
+      height: 300,
+      objectFit: 'cover',
+      width: '100%',
+    },
+    position: 'absolute',
+    top: 90,
+    [theme.breakpoints.down('sm')]: {
+      width: 'unset',
+      '& > img': {
+        height: 200,
+        width: '100%',
+      },
+      top: 77,
+      left: -4,
+      right: -4,
+    },
   },
   centralColumn: {
     marginLeft: "auto",
@@ -31,11 +57,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tableOfContentsWrapper: {
     position: "relative",
     top: 12,
+  },
+  titleRow: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'flex',
+      justifyContent: 'space-between',
+    }
   },
   title: {
     ...theme.typography.display3,
@@ -44,13 +76,35 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontVariant: "small-caps"
   },
+  notifyMeButton: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 6,
+    },
+  },
+  nonMobileButtonRow: {
+    [theme.breakpoints.down('xs')]: {
+      // Ensure this takes priority over the properties in TagPageButtonRow
+      display: 'none !important',
+    },
+  },
+  mobileButtonRow: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none !important',
+    },
+  },
+  editMenu: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 16,
+      marginBottom: 8,
+    },
+  },
   wikiSection: {
     paddingTop: 5,
     paddingLeft: 42,
     paddingRight: 42,
     paddingBottom: 12,
     marginBottom: 24,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tagHeader: {
     display: "flex",
@@ -92,7 +146,12 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
+  const {
+    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
+    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
+    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
+   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -141,10 +200,10 @@ const TagPage = ({classes}: {
   const [nextTagPosition, setNextTagPosition] = useState<number | null>(null);
   useEffect(() => {
     // Initial list position setting
-    if (tagPositionInList >= 0) {
+    if (tagPositionInList && tagPositionInList >= 0) {
       setNextTagPosition(tagPositionInList + 1)
     }
-    if (nextTagPosition !== null && tagPositionInList < 0) {
+    if (nextTagPosition !== null && tagPositionInList && tagPositionInList < 0) {
       // Here we want to decrement the list positions by one, because we removed the original tag and so
       // all the indices are moved to the next
       setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
@@ -169,6 +228,12 @@ const TagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
+  if (editing && currentUser && currentUser.karma < tagMinimumKarmaPermissions.edit) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+  }
+
+  // if no sort order was selected, try to use the tag page's default sort order for posts
+  query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
 
   const terms = {
     ...tagPostTerms(tag, query),
@@ -180,10 +245,40 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly)
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = htmlWithAnchors;
+    for (let matchString of [
+        'id="Further_reading"',
+        'id="Bibliography"',
+        'id="Related_entries"',
+        'class="footnotes"',
+      ]) {
+      if(htmlWithAnchors.includes(matchString)) {
+        const truncationLength = htmlWithAnchors.indexOf(matchString);
+        /**
+         * The `truncate` method used below uses a complicated criterion for what
+         * counts as a character. Here, we want to truncate at a known index in
+         * the string. So rather than using `truncate`, we can slice the string
+         * at the desired index, use `parseFromString` to clean up the HTML,
+         * and then append our footer 'read more' element.
+         */
+        description = truncated ?
+          new DOMParser().parseFromString(
+            htmlWithAnchors.slice(0, truncationLength), 
+            'text/html'
+          ).body.innerHTML + "<span>...<p><a>(Read More)</a></p></span>" :
+          htmlWithAnchors;
+        break;
+      }
+    }
+  } else {
+    description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
+  }
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -204,23 +299,32 @@ const TagPage = ({classes}: {
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}
-    <ToCColumn
-      tableOfContents={
-        tag.tableOfContents
-          ? <span className={classes.tableOfContentsWrapper}>
-              <TableOfContents
-                sectionData={tag.tableOfContents}
-                title={tag.name}
-                onClickSection={expandAll}
-              />
-              <Link to="/tags/random" className={classes.randomTagLink}>Random Tag</Link>
-              <TableOfContentsRow href="#" divider={true}/>
-              <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-            </span>
-          : null
-      }
-      header={<div className={classNames(classes.header,classes.centralColumn)}>
-        <div>
+    {tag.bannerImageId && <div className={classes.imageContainer}>
+      <CloudinaryImage2
+        publicId={tag.bannerImageId}
+        height={300}
+        fullWidthHeader
+      />
+    </div>}
+    <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
+      <ToCColumn
+        tableOfContents={
+          tag.tableOfContents
+            ? <span className={classes.tableOfContentsWrapper}>
+                <TableOfContents
+                  sectionData={tag.tableOfContents}
+                  title={tag.name}
+                  onClickSection={expandAll}
+                />
+                <Link to="/tags/random" className={classes.randomTagLink}>
+                  Random {taggingNameCapitalSetting.get()}
+                </Link>
+                <TableOfContentsRow href="#" divider={true}/>
+                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
+              </span>
+            : null
+        }
+        header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>
             <Link to={`/tags/dashboard?focus=${query.flagId}`}>
               <TagFlagItem 
@@ -234,56 +338,77 @@ const TagPage = ({classes}: {
                 Next Tag ({nextTag.name})
             </Link></span>}
           </span>}
-          <Typography variant="display3" className={classes.title}>
-            {tag.name}
-          </Typography>
-        </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
-      </div>}
-    >
-      <div className={classNames(classes.wikiSection,classes.centralColumn)}>
-        <AnalyticsContext pageSectionContext="wikiSection">
-          { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-            You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
-          </div>}
-          {editing ? <EditTagForm
-            tag={tag}
-            successCallback={ async () => {
-              setEditing(false)
-              await client.resetStore()
-            }}
-            cancelCallback={() => setEditing(false)}
-          /> :
-          <div onClick={clickReadMore}>
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description||""}}
-              description={`tag ${tag.name}`}
-              className={classes.description}
-            />
-          </div>}
-        </AnalyticsContext>
-      </div>
-      <div className={classes.centralColumn}>
-        {editing && <TagDiscussionSection
-          key={tag._id}
-          tag={tag}
-        />}
-        {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-          <div className={classes.tagHeader}>
-            <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-            <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+          <div className={classes.titleRow}>
+            <Typography variant="display3" className={classes.title}>
+              {tag.name}
+            </Typography>
+            <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+            {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
+              <SubscribeButton
+                tag={tag}
+                className={classes.notifyMeButton}
+                subscribeMessage="Subscribe"
+                unsubscribeMessage="Unsubscribe"
+                subscriptionType={subscriptionTypes.newTagPosts}
+              />
+            }
           </div>
-          <PostsList2
-            terms={terms}
-            enableTotal
-            tagId={tag._id}
-            itemsPerPage={200}
-          >
-            <AddPostsToTag tag={tag} />
-          </PostsList2>
-        </AnalyticsContext>}
-      </div>
-    </ToCColumn>
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+        </div>}
+        welcomeBox={null}
+      >
+        <div className={classNames(classes.wikiSection,classes.centralColumn)}>
+          <AnalyticsContext pageSectionContext="wikiSection">
+            { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
+              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+            </div>}
+            {editing ? <EditTagForm
+              tag={tag}
+              successCallback={ async () => {
+                setEditing(false)
+                await client.resetStore()
+              }}
+              cancelCallback={() => setEditing(false)}
+            /> :
+            <div onClick={clickReadMore}>
+              <ContentStyles contentType="tag">
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: description||""}}
+                  description={`tag ${tag.name}`}
+                  className={classes.description}
+                />
+              </ContentStyles>
+            </div>}
+          </AnalyticsContext>
+        </div>
+        <div className={classes.centralColumn}>
+          {editing && <TagDiscussionSection
+            key={tag._id}
+            tag={tag}
+          />}
+          {tag.sequence && <TagIntroSequence tag={tag} />}
+          {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
+            {tag.sequence ?
+              <SectionTitle title={`Posts tagged ${tag.name}`}>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+              </SectionTitle> :
+              <div className={classes.tagHeader}>
+                <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+              </div>
+            }
+            <PostsList2
+              terms={terms}
+              enableTotal
+              tagId={tag._id}
+              itemsPerPage={200}
+            >
+              <AddPostsToTag tag={tag} />
+            </PostsList2>
+          </AnalyticsContext>}
+        </div>
+      </ToCColumn>
+    </div>
   </AnalyticsContext>
 }
 

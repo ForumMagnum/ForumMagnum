@@ -3,6 +3,7 @@ import React from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import { MenuTabRegular } from './menuTabs';
 
 const compressedIconSize = 23
 
@@ -13,6 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: compressedIconSize,
     height: compressedIconSize,
     '& svg': {
+      fill: "currentColor",
       width: compressedIconSize,
       height: compressedIconSize,
     }
@@ -30,7 +32,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
+type TabNavigationCompressedItemProps = {
+  tab: MenuTabRegular,
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
+  classes: ClassesType,
+}
+
+const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
   // Case to any to work around it, to be able to pass a "to" parameter.

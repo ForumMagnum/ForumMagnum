@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
+import { LoadMoreCallback } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -11,6 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
     minHeight: 20,
+  },
+  afterPostsListMarginTop: {
+    marginTop: 6,
   },
   loading: {
     minHeight: 20,
@@ -21,6 +25,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 1
     }
+  },
+  sectionFooterStyles: {
+    // This is an artifact of how SectionFooter is currently implemented, which should probably change.
+    flexGrow: 1,
+    textAlign: "left !important",
+    marginLeft: "0 !important", // for loading spinner
+    '&:after': {
+      content: "'' !important",
+      marginLeft: "0 !important",
+      marginRight: "0 !important",
+    }
   }
 })
 
@@ -28,14 +43,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Load More button. The simplest way to use this is to take `loadMoreProps`
 // from the return value of `useMulti` and spread it into this component's
 // props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes }: {
+const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassName, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles, afterPostsListMarginTop }: {
   // loadMore: Callback when clicked.
-  loadMore: any,
+  loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
   // className: If provided, replaces the root style (default typography).
   className?: string|null|undefined,
+  loadingClassName?: string,
   // disabled: If true, this is grayed out (eg because everything's already loaded).
   disabled?: boolean,
   networkStatus?: any,
@@ -44,27 +60,27 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   hideLoading?: boolean,
   hidden?: boolean,
   classes: ClassesType,
+  sectionFooterStyles?: boolean,
+  afterPostsListMarginTop?: boolean,
 }) => {
   const { captureEvent } = useTracking()
 
   const { Loading } = Components
   const handleClickLoadMore = event => {
     event.preventDefault();
-    loadMore();
+    void loadMore();
     captureEvent("loadMoreClicked")
   }
 
-  if (loading || (networkStatus && queryIsUpdating(networkStatus))) {
-    return <div className={classes.loading}>
-      {!hideLoading && <Loading/>}
-    </div>
+  if (!hideLoading && (loading || (networkStatus && queryIsUpdating(networkStatus)))) {
+    return <Loading className={classNames(classes.loading, loadingClassName, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
   }
 
   if (hidden) return null;
-  
+
   return (
     <a
-      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled})}
+      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled, [classes.sectionFooterStyles]: sectionFooterStyles, [classes.afterPostsListMarginTop]: afterPostsListMarginTop})}
       href="#"
       onClick={handleClickLoadMore}
     >

@@ -13,25 +13,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "16px",
     fontFamily: "Roboto, sans-serif",
   },
-  
+
   selected: {
-    color: "white",
+    color: theme.palette.buttons.primaryDarkText,
     textTransform: "none",
     // TODO: This green is hardcoded, but it's k because it's only used for events
-    backgroundColor: "rgba(100,169,105, 0.9)",
+    backgroundColor: theme.palette.buttons.groupTypesMultiselect.background,
 
     "&:hover": {
-      backgroundColor: "rgba(100,169,105, 0.5)",
+      backgroundColor: theme.palette.buttons.groupTypesMultiselect.hoverBackground,
     },
   },
-  
+
   notSelected: {
     textTransform: "none",
-    color: "rgba(0,0,0,0.6)",
-    backgroundColor: "rgba(0,0,0, 0)",
-    
+    color: theme.palette.text.dim60,
+    backgroundColor: "transparent",
+
     "&:hover": {
-      backgroundColor: "rgba(0,0,0, 0.1)",
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
     },
   },
 });

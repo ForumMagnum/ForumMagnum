@@ -1,6 +1,7 @@
 import React from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
+import type { MutationResult } from '@apollo/client/react';
 import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
 import { getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
@@ -70,7 +71,7 @@ export const withUpdate = (options: {
 
   const mutationWrapper = (Component: any) => (props: any) => (
     <Mutation mutation={query}>
-      {(mutate, { data }) => (
+      {(mutate, mutationResult: MutationResult<any>) => (
         <Component
           {...props}
           mutate={mutate}

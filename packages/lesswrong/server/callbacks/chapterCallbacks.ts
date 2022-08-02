@@ -1,19 +1,21 @@
 import { Sequences } from '../../lib/collections/sequences/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import { Posts } from '../../lib/collections/posts/collection'
+import { createAdminContext } from '../vulcan-lib/query';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
-  const posts = await sequenceGetAllPosts(chapter.sequenceId)
+  const context = await createAdminContext();
+  const posts = await sequenceGetAllPosts(chapter.sequenceId, context)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
   const postsWithCanonicalSequenceId = await Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
   const removedPosts = _.difference(_.pluck(postsWithCanonicalSequenceId, '_id'), _.pluck(posts, '_id'))
 
   await asyncForeachSequential(removedPosts, async (postId) => {
-    await Posts.update({_id: postId}, {$unset: {
+    await Posts.rawUpdateOne({_id: postId}, {$unset: {
       canonicalPrevPostSlug: true,
       canonicalNextPostSlug: true,
       canonicalSequenceId: true,
@@ -36,7 +38,7 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
       if (i+1<posts.length) {
         nextPost = posts[i+1]
       }
-      await Posts.update({slug: currentPost.slug}, {$set: {
+      await Posts.rawUpdateOne({slug: currentPost.slug}, {$set: {
         canonicalPrevPostSlug: prevPost.slug,
         canonicalNextPostSlug: nextPost.slug,
         canonicalSequenceId: chapter.sequenceId,

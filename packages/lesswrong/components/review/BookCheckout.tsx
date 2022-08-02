@@ -18,10 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   checkoutButton: {
     ...theme.typography.commentStyle,
     height: '36px',
-    background: "#53a55a", //theme.palette.primary.dark,
+    background: theme.palette.buttons.bookCheckoutButton,
     paddingLeft: 16,
     paddingRight: 16,
-    color: 'white',
+    color: theme.palette.buttons.primaryDarkText,
     fontSize: '14px',
     border: 0,
     fontWeight: '500',
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     letterSpacing: '0.6',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
+    boxShadow: `0px 4px 5.5px 0px ${theme.palette.greyAlpha(0.07)}`,
     '&:hover': {
       opacity: 0.8
     },
@@ -43,10 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   intlButton: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginLeft: 10,
-    color: "#606060",
-    border: "1px solid #ccc",
+    color: theme.palette.grey[710],
+    border: `1px solid ${theme.palette.greyAlpha(.75)}`,
     
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0,
@@ -58,9 +58,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 // recreating the `Stripe` object on every render.
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
+const amazonLink = "https://www.amazon.com/dp/1736128515"
 
-const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
+const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
   handleClickAmazon: (event: any)=>void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
@@ -68,7 +68,7 @@ const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
 }) => {
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
-      {`${text} (US) - $29`}
+      {`${text} (US) - $30`}
     </button>
     {/* <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
       {`${text} (international) - $29`}

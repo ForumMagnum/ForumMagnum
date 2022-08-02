@@ -5,8 +5,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import classNames from 'classnames';
 import * as _ from 'underscore';
-import { getHeaderTextColor } from "../common/Header";
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: getHeaderTextColor(theme),
+    color: theme.palette.header.text,
     fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,
@@ -25,16 +25,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     pointerEvents: "none",
   },
   buttonOpen: {
-    backgroundColor: "rgba(0,0,0,0.4)"
+    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
+    color: theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
-    backgroundColor: "rgba(0,0,0,0)"
+    backgroundColor: "transparent",
+    color: theme.palette.header.text,
   },
 });
 
-const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
   open: boolean,
-  color?: string,
   toggle: any,
   currentUser: UsersCurrent,
   classes: ClassesType,
@@ -52,14 +53,11 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
     fetchPolicy: 'cache-and-network',
   });
   
-  let filteredResults: Array<NotificationsList> = results && _.filter(results,
+  let filteredResults: Array<NotificationsList> | undefined = results && _.filter(results,
     (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
   );
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
-  const notificationIconStyle = {
-    color: open ? "#FFFFFF" : (color || "rgba(0,0,0,0.6)"),
-  }
 
   return (
     <Badge
@@ -67,9 +65,8 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
       badgeContent={(filteredResults && filteredResults.length) || ""}
     >
       <IconButton
-          classes={{ root: buttonClass }}
-          onClick={toggle}
-          style={ notificationIconStyle }
+        classes={{ root: buttonClass }}
+        onClick={toggle}
       >
         {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
       </IconButton>
@@ -84,4 +81,3 @@ declare global {
     NotificationsMenuButton: typeof NotificationsMenuButtonComponent
   }
 }
-

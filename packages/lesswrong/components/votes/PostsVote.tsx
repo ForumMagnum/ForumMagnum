@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     color: theme.palette.grey[500],
     fontSize: '1rem',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0
   },
@@ -43,7 +43,7 @@ const PostsVote = ({ post, classes }: {
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");
-  const {VoteButton, Typography} = Components;
+  const {OverallVoteButton, Typography} = Components;
 
   return (
       <div className={classes.voteBlock}>
@@ -53,10 +53,10 @@ const PostsVote = ({ post, classes }: {
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.upvote}>
-            <VoteButton
+            <OverallVoteButton
               orientation="up"
               color="secondary"
-              voteType="Upvote"
+              upOrDown="Upvote"
               {...voteProps}
             />
           </div>
@@ -93,10 +93,10 @@ const PostsVote = ({ post, classes }: {
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.downvote}>
-            <VoteButton
+            <OverallVoteButton
               orientation="down"
               color="error"
-              voteType="Downvote"
+              upOrDown="Downvote"
               {...voteProps}
             />
           </div>

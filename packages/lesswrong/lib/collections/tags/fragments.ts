@@ -13,20 +13,24 @@ registerFragment(`
     descriptionTruncationCount
     createdAt
     wikiOnly
+    deleted
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
-    deleted
     oldSlugs
     isRead
     defaultOrder
     reviewedByUserId
     wikiGrade
+    bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
+    sequence {
+      ...SequencesPageFragment
+    }
   }
 `);
 
@@ -41,6 +45,13 @@ registerFragment(`
       plaintextDescription
       version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithTocFragment on Tag {
+    ...TagFragment
+    descriptionHtmlWithToc
   }
 `);
 
@@ -127,6 +138,7 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -145,6 +157,7 @@ registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -179,6 +192,7 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
     tagFlagsIds
+    postsDefaultSortOrder
     description {
       ...RevisionEdit
     }

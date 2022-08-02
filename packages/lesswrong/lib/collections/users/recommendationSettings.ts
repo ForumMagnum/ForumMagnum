@@ -2,6 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
+import { ReviewYear } from '../../reviewUtils';
 
 export interface RecommendationsAlgorithm {
   method: "top"|"sample"
@@ -9,8 +10,9 @@ export interface RecommendationsAlgorithm {
   scoreOffset: number
   scoreExponent: number
   coronavirus?: boolean
-  reviewNominations?: 2018 | 2019
-  reviewReviews?: 2018 | 2019
+  reviewNominations?: ReviewYear
+  reviewReviews?: ReviewYear
+  reviewFinal?: ReviewYear,
   includePersonal?: boolean
   includeMeta?: boolean
   minimumBaseScore?: number

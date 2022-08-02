@@ -11,18 +11,25 @@ import './EmailFooterRecommendations';
 const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     textAlign: "center",
+    color: theme.palette.primary.main,
+    marginBottom: 30
+  },
+  headingRow: {
+    marginBottom: 8
   },
   
   headingLink: {
-    color: "black",
+    color: theme.palette.text.maxIntensity,
     textDecoration: "none",
+    fontWeight: "normal",
+    fontFamily: "Arial, sans-serif"
   },
   
   headingHR: {
     width: 210,
     height: 0,
     borderTop: "none",
-    borderBottom: "1px solid #aaa",
+    borderBottom: theme.palette.border.emailHR,
     marginTop: 50,
     marginBottom: 35,
   },
@@ -32,10 +39,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NewPostEmail = ({documentId, classes, reason}: {
+const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   documentId: string,
-  classes: any,
   reason?: string,
+  hideRecommendations?: boolean,
+  classes: any,
 }) => {
   const { document } = useSingle({
     documentId,
@@ -48,6 +56,18 @@ const NewPostEmail = ({documentId, classes, reason}: {
   });
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
   if (!document) return null;
+  
+  // event location - for online events, attempt to show the meeting link
+  let eventLocation: string|JSX.Element = document.location
+  if (document.onlineEvent) {
+    eventLocation = document.joinEventLink ? <a
+      className={classes.onlineEventLocation}
+      href={document.joinEventLink}
+      target="_blank" rel="noopener noreferrer">
+        {document.joinEventLink}
+    </a> : "Online Event"
+  }
+
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
@@ -56,18 +76,20 @@ const NewPostEmail = ({documentId, classes, reason}: {
       
       <hr className={classes.headingHR}/>
       
-      <EmailPostAuthors post={document}/><br/>
-      <div className="postDate">
+      <div className={classes.headingRow}>
+        <EmailPostAuthors post={document}/>
+      </div>
+      <div className={classes.headingRow}>
         <EmailPostDate post={document}/>
-      </div><br/>
-      {document.location && <div>
-        {document.location}
+      </div>
+      {document.isEvent && <div className={classes.headingRow}>
+        {eventLocation}
       </div>}
-      {document.contactInfo && <div>
+      {document.contactInfo && <div className={classes.headingRow}>
         Contact: {document.contactInfo}
       </div>}
       
-      {document.url && <div>
+      {document.url && <div className={classes.headingRow}>
         This is a linkpost for <a href={postGetLink(document)} target={postGetLinkTarget(document)}>{document.url}</a>
       </div>}
     </div>
@@ -78,9 +100,12 @@ const NewPostEmail = ({documentId, classes, reason}: {
     
     <a href={postGetPageUrl(document, true)}>Discuss</a>
     
-    <hr className={classes.hr}/>
-    
-    <EmailFooterRecommendations />
+    {!hideRecommendations && (
+      <>
+        <hr className={classes.hr}/>
+        <EmailFooterRecommendations />
+      </>
+    )}
     
     <hr className={classes.hr}/>
     

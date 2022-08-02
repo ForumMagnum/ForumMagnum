@@ -4,9 +4,17 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
+export const userCanStartConversations = (user: DbUser|UsersCurrent|null) => {
+  if (!user) return false
+  if (user.deleted) return false
+  if (user.conversationsDisabled) return false;
+  return true
+}
+
 const options: MutationOptions<DbConversation> = {
   newCheck: (user: DbUser|null, document: DbConversation|null) => {
     if (!user || !document) return false;
+    if (!userCanStartConversations(user)) return false
     return document.participantIds.includes(user._id) ? userCanDo(user, 'conversations.new.own')
      : userCanDo(user, `conversations.new.all`)
   },

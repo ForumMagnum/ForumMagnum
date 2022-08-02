@@ -3,21 +3,22 @@ import NoSSR from 'react-no-ssr';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
+import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
 
     width: "calc(33% - 5px)",
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     paddingBottom: 0,
     marginBottom: 10,
     display: "flex",
     flexDirection: "column",
 
     "&:hover": {
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-      color: "rgba(0,0,0,0.87)",
+      boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
+      color: theme.palette.text.normal,
     },
 
     [legacyBreakpoints.maxSmall]: {
@@ -48,11 +49,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   draft: {
     textTransform: "uppercase",
-    color: "rgba(100, 169, 105, 0.9)",
+    color: theme.palette.text.sequenceIsDraft,
   },
 
   author: {
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
   },
 
   meta: {
@@ -64,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   bookItemShadowStyle: {
     boxShadow: "none",
@@ -80,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8
   },
   image: {
-    backgroundColor: "#eee",
+    backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
     [legacyBreakpoints.maxSmall]: {
@@ -109,30 +110,37 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { LinkCard } = Components;
+  const { LinkCard, SequencesHoverOver } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence?.contents?.plaintextDescription?.slice(0, 750)}>
-    <div className={classes.image}>
-      <NoSSR>
-        <Components.CloudinaryImage
-          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-          height={124}
-          width={315}
-        />
-      </NoSSR>
-    </div>
-    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
-      <div className={classes.title}>
-        {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-        {sequence.title}
+  // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
+  let positionAdjustment = -35
+  if (showAuthor) positionAdjustment -= 20
+  if (sequence.title.length > 26) positionAdjustment -= 17
+
+  return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
+    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={<div style={{marginTop:positionAdjustment}}><SequencesHoverOver sequence={sequence} showAuthor={showAuthor}/></div>}>
+      <div className={classes.image}>
+        <NoSSR>
+          <Components.CloudinaryImage
+            publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+            height={124}
+            width={315}
+          />
+        </NoSSR>
       </div>
-      { showAuthor && sequence.user &&
-        <div className={classes.author}>
-          by <Components.UsersName user={sequence.user} />
-        </div>}
-    </div>
-  </LinkCard>
+      <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
+        <div className={classes.title}>
+          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+          {sequence.title}
+        </div>
+        { showAuthor && sequence.user &&
+          <div className={classes.author}>
+            by <Components.UsersName user={sequence.user} />
+          </div>}
+      </div>
+    </LinkCard>
+  </div>
 }
 
 const SequencesGridItemComponent = registerComponent('SequencesGridItem', SequencesGridItem, {styles});

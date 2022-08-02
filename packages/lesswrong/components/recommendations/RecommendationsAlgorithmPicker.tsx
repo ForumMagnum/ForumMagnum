@@ -7,6 +7,7 @@ import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: "wrap"
   },
   settingGroup: {
-    border:"solid 1px rgba(0,0,0,.15)",
+    border: theme.palette.border.slightlyFaint,
     borderRadius: 3,
     padding: 8,
     marginBottom: 10
@@ -60,12 +61,13 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
 }
 
 // TODO: Probably to be removed when Community becomes a tag
-const forumIncludeExtra = {
+const forumIncludeExtra: ForumOptions<{humanName: string, machineName: string}> = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
+  default: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
 }
-const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
+const includeExtra = forumSelect(forumIncludeExtra)
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: RecommendationsAlgorithm,

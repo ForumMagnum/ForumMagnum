@@ -3,10 +3,12 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import Divider from '@material-ui/core/Divider';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagMinimumKarmaPermissions, Tags } from '../../lib/collections/tags/collection';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
+import { Link } from '../../lib/reactRouterWrapper';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,34 +27,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle
   },
-  newTagForm: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingBottom: 8,
-    maxWidth: 365,
-    background: "rgba(0,0,0,.03)",
-    '& .form-input.input-name': {
-      marginTop: 0
-    },
-    '& .form-submit': {
-      textAlign: "right"
-    },
-    '& .EditorFormComponent-select': {
-      position: "relative",
-      top: 48
-    }
-  },
-  creating: {
-    background: "rgba(0,0,0,.03)",
-    borderTop: "solid 1px rgba(0,0,0,.07)",
-    fontStyle: "italic"
-  },
-  showAll: {
-    '& ul': {
-      columns: 4,
-      columnWidth: 180
-    }
-  }
 });
 
 const AddTag = ({onTagSelected, classes}: {
@@ -63,12 +37,10 @@ const AddTag = ({onTagSelected, classes}: {
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [showCreateTag, setShowCreateTag] = useState(false);
-  const [showAllTags, setShowAllTags] = useState(false)
   const searchStateChanged = React.useCallback((searchState) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
 
-  
   // When this appears, yield to the event loop once, use getElementsByTagName
   // to find the search input text box, then focus it.
   //
@@ -106,7 +78,7 @@ const AddTag = ({onTagSelected, classes}: {
     </div>
   }
   
-  return <div className={classNames(classes.root, {[classes.showAll]: showAllTags})} ref={containerRef}>
+  return <div className={classes.root} ref={containerRef}>
     <InstantSearch
       indexName={getAlgoliaIndexName("Tags")}
       searchClient={getSearchClient()}
@@ -116,13 +88,9 @@ const AddTag = ({onTagSelected, classes}: {
         * null is the only option that actually suppresses the extra X button.
        // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
-      {showAllTags && <Divider/>}
-      {showAllTags && <a onClick={()=>setShowAllTags(!showAllTags)} className={classes.newTag}>
-        Show fewer tags
-      </a>}
       <Configure
         filters="wikiOnly:false"
-        hitsPerPage={showAllTags ? 500 : (searchOpen ? 12 : 6)}
+        hitsPerPage={searchOpen ? 12 : 6}
       />
       <Hits hitComponent={({hit}) =>
         <TagSearchHit hit={hit}
@@ -134,23 +102,16 @@ const AddTag = ({onTagSelected, classes}: {
         }/>
     </InstantSearch>
     <Divider/>
-    <a onClick={()=>setShowAllTags(!showAllTags)} className={classes.newTag}>
-      Show All Tags
-    </a>
-    {userCanCreateTags(currentUser) && <a
-      onClick={()=>setShowCreateTag(!showCreateTag)}
-      className={classNames(classes.newTag, {[classes.creating]:showCreateTag})}
+    <Link target="_blank" to="/tags/all" className={classes.newTag}>
+      All {taggingNamePluralCapitalSetting.get()}
+    </Link>
+    {userCanCreateTags(currentUser) && ((currentUser?.karma ?? 0) >= tagMinimumKarmaPermissions.new) && <Link
+      target="_blank"
+      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
+      className={classes.newTag}
     >
-      {showCreateTag ? "Create Tag (click to cancel)" : "Create Tag"}
-    </a>}
-    {showCreateTag && <div className={classes.newTagForm}><WrappedSmartForm
-      collection={Tags}
-      fields={["name", "description"]}
-      mutationFragment={getFragment('TagFragment')}
-      successCallback={tag => {
-        onTagSelected({tagId: tag._id, tagName: tag.name});
-      }}
-    /></div>}
+      Create {taggingNameCapitalSetting.get()}
+    </Link>}
   </div>
 }
 

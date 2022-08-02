@@ -1,12 +1,13 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
-import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
+import { useSingle } from '../../lib/crud/withSingle';
+import { commentsNodeRootMarginBottom } from '../../themes/globalStyles/globalStyles';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -19,8 +20,7 @@ export const highlightSimplifiedStyles = {
   }
 }
 
-export const highlightStyles = (theme: ThemeType) => ({
-  ...postHighlightStyles(theme),
+const highlightStyles = (theme: ThemeType) => ({
   marginTop: theme.spacing.unit*2.5,
   marginBottom: theme.spacing.unit*1.5,
   marginRight: theme.spacing.unit/2,
@@ -42,8 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
-    padding: theme.spacing.unit*1.5,
-    paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
     },
@@ -56,10 +54,18 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "pointer"
     }
   },
+  postPreview: {
+    maxHeight: 450,
+    padding: theme.spacing.unit*1.5,
+    paddingBottom: 0,
+    paddingTop: 0
+  },
   header: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    padding: theme.spacing.unit*1.5,
+    paddingBottom: 0,
   },
   title: {
     marginBottom: -6,
@@ -67,7 +73,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipInfo: {
     marginLeft: 2,
     fontStyle: "italic",
-    ...commentBodyStyles(theme),
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",
@@ -78,16 +83,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   comment: {
     marginTop: theme.spacing.unit,
-    marginLeft: -13,
-    marginRight: -13,
-    marginBottom: -9
   },
   bookmark: {
     marginTop: -4,
     paddingRight: 4
   },
   continue: {
-    ...postHighlightStyles(theme),
     color: theme.palette.grey[500],
     fontSize: "1rem",
     marginBottom: theme.spacing.unit,
@@ -104,20 +105,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
     marginRight: theme.spacing.unit
   },
-  karmaIcon: {
-    marginRight: -2,
-    marginTop: 2,
-    height: 15,
-    color: "rgba(0,0,0,.19)"
-  },
-  commentIcon: {
-    marginLeft: 6,
-    marginTop: 2,
-    // position: "relative",
-    marginRight: -1,
-    height: 13,
-    color: "rgba(0,0,0,.19)"
-  }
 })
 
 const getPostCategory = (post: PostsBase) => {
@@ -126,7 +113,6 @@ const getPostCategory = (post: PostsBase) => {
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.meta) categories.push(`Meta Post`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)
@@ -139,20 +125,31 @@ const getPostCategory = (post: PostsBase) => {
     return null;
 }
 
-const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
+const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   postsList?: boolean,
+  hash?: string|null,
   post: PostsList|SunshinePostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false)
 
-  if (!post) return null
+  const {document: postWithHighlight, loading} = useSingle({
+    collectionName: "Posts",
+    fragmentName: "HighlightWithHash",
+    documentId: post?._id,
+    skip: !post || (!hash && !!post.contents),
+    fetchPolicy: "cache-first",
+    extraVariables: { hash: "String" },
+    extraVariablesValues: {hash}
+  });
 
+  if (!post) return null
+  
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = post.customHighlight?.html || htmlHighlight
+  const highlight = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
@@ -170,7 +167,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <div className={classes.title}>
               <PostsTitle post={post} wrap showIcons={false} />
             </div>
-            <div className={classes.tooltipInfo}>
+            <ContentStyles contentType="comment" className={classes.tooltipInfo}>
               { postsList && <span> 
                 {postCategory}
                 {postCategory && (tags?.length > 0) && " – "}
@@ -193,7 +190,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                   </span>
                 </div>
               </>}
-            </div>
+            </ContentStyles>
           </div>
           { !postsList && <div className={classes.bookmark}>
             <BookmarkButton post={post}/>
@@ -212,16 +209,19 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                 forceNotSingleLine
               />
             </div>
-          : <div onClick={() => setExpanded(true)}>
-              <ContentItemBody
-                className={classes.highlight}
-                dangerouslySetInnerHTML={{__html: truncatedHighlight }}
-                description={`post ${post._id}`}
-              />
-              {expanded && <Link to={postGetPageUrl(post)}><div className={classes.continue} >
-                (Continue Reading)
-              </div></Link>}
-            </div>
+          : loading
+            ? <Loading/>
+            : <div onClick={() => setExpanded(true)} className={classes.postPreview}>
+                <ContentStyles contentType="postHighlight" className={classes.highlight}>
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: truncatedHighlight }}
+                    description={`post ${post._id}`}
+                  />
+                </ContentStyles>
+                {expanded && <Link to={postGetPageUrl(post)}><div className={classes.continue} >
+                  (Continue Reading)
+                </div></Link>}
+              </div>
         }
     </Card>
   </AnalyticsContext>

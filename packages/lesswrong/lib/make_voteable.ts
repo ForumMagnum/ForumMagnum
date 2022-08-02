@@ -1,9 +1,11 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
+import GraphQLJSON from 'graphql-type-json';
 
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
+  userCanVoteOn?: (user: DbUser, document: DbVoteableType) => boolean|Promise<boolean>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
@@ -57,6 +59,30 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           return votes[0].voteType;
         }
       }
+    },
+    
+    currentUserExtendedVote: {
+      type: GraphQLJSON,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: GraphQLJSON,
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+          const { Votes, currentUser } = context;
+          if (!currentUser) return null;
+          const votes = await getWithLoader(context, Votes,
+            `votesByUser${currentUser._id}`,
+            {
+              userId: currentUser._id,
+              cancelled: false,
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return null;
+          return votes[0].extendedVoteType || null;
+        }
+      },
     },
     
     // DEPRECATED (but preserved for backwards compatibility): Returns an array
@@ -135,6 +161,11 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         // default to 0 if empty
         return document.baseScore || 0;
       }
+    },
+    extendedScore: {
+      type: GraphQLJSON,
+      optional: true,
+      canRead: customBaseScoreReadAccess || ['guests'],
     },
     // The document's current score (factoring in age)
     score: {

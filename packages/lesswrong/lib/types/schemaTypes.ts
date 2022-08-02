@@ -5,9 +5,17 @@ import type { SimpleSchema } from 'simpl-schema';
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-type SingleFieldCreatePermission = string|((user: DbUser|UsersCurrent|null)=>boolean);
+// TODO: This should probably be defined in some central permissions file
+type PermissionGroups = 'guests' |
+  'members' |
+  'admins' |
+  'sunshineRegiment' |
+  'alignmentForumAdmins' |
+  'alignmentForum' |
+  'alignmentVoters'
+type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
-type SingleFieldPermissions = string|((user: DbUser|UsersCurrent|null, object: any)=>boolean);
+type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldSpecification<T extends DbObject> {
@@ -35,22 +43,61 @@ interface CollectionFieldSpecification<T extends DbObject> {
   getValue?: (doc: T, context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
+  nullable?: boolean,
   
   min?: number,
   max?: number,
   regEx?: any,
   minCount?: number,
+  /** NOTE: not in use or tested as of 2022-05 */
+  maxCount?: number,
   options?: any,
   allowedValues?: any,
   query?: any,
   
   form?: any,
   input?: any,
+  /**
+   * Custom props that will be passed to the input component. Can pass in
+   * values or functions. All functions will be called before being passed into
+   * the input component. Example:
+   *
+   * {
+   *   emphasis: 'bold',
+   *   defaultValue: () => new Date(),
+   * }
+   *
+   * Note that if you want to put a component as one of the input values (you're
+   * doing something crazy aren't you), components are functions and so would be
+   * called. To get your intended behavior, wrap it in a callback:
+   *
+   * {
+   *   decorativeComponent: () => MyDecorativeComponent
+   * }
+   *
+   * NOTE: this is unused and untested as of 2022-05
+   */
+  inputProperties?: any,
+  
   beforeComponent?: keyof ComponentTypes,
+  /** NOTE: not in use or tested as of 2022-05 */
+  afterComponent?: keyof ComponentTypes,
   order?: number,
   label?: string,
   tooltip?: string,
-  control?: string,
+  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
+  control?: 'text' |
+    'number' |
+    'url' |
+    'email' |
+    'textarea' |
+    'checkbox' |
+    'checkboxgroup' |
+    'radiogroup' |
+    'select' |
+    'datetime' |
+    'date' |
+    keyof ComponentTypes,
   placeholder?: string,
   hidden?: boolean|((formProps: any)=>boolean),
   group?: FormGroup,

@@ -7,6 +7,7 @@ declare global {
   interface ConversationsViewTerms extends ViewTermsBase {
     view?: ConversationsViewName
     userId?: string
+    participantIds?: Array<string>
     showArchive?: boolean
   }
 }
@@ -32,7 +33,15 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
 });
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
-Conversations.addView("userUntitledConversations", function (terms: ConversationsViewTerms) {
-  return { selector: {"participantIds.[*]": terms.userId, title: viewFieldNullOrMissing}, archivedByIds: {$ne: terms.userId}};
+Conversations.addView("userGroupUntitledConversations", function (terms: ConversationsViewTerms) {
+  // returns a list of conversations where the participant list is exactly terms.participantIds
+  return {
+    selector: {
+      participantIds: terms.participantIds ? {$size: terms.participantIds.length, $all: terms.participantIds} : terms.userId,
+      title: viewFieldNullOrMissing,
+      // pass in a terms.userId to exclude conversations that this user archived
+      archivedByIds: {$ne: terms.userId}
+    },
+  };
 });
 ensureIndex(Conversations, { participantIds: 1, title: 1 })

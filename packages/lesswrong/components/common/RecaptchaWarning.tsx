@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   warningText: {
     margin: 10,
     padding: 20,
-    border: '1px solid #ccc',
+    border: theme.palette.border.slightlyIntense,
     ...theme.typography.body2
   },
   link: {
@@ -30,7 +30,7 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
     case 'EAForum':
       return <div className={classes.warningText}>
         You've been flagged by our spam detection system. Please{' '}
-        <Link className={classes.link} to="/contact">contact us</Link> to active posting and commenting privileges on your accout.
+        <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
       </div>
     case 'AlignmentForum':
     case 'LessWrong':

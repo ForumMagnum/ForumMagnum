@@ -3,6 +3,7 @@ import { formGroups } from "../../collections/posts/formGroups"
 import { arrayOfForeignKeysField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { forumTypeSetting } from "../../instanceSettings";
+import GraphQLJSON from 'graphql-type-json';
 
 addFieldsDict(Posts, {
   af: {
@@ -34,6 +35,11 @@ addFieldsDict(Posts, {
     type: Number,
     optional: true,
     label: "Alignment Base Score",
+    viewableBy: ['guests'],
+  },
+  afExtendedScore: {
+    type: GraphQLJSON,
+    optional: true,
     viewableBy: ['guests'],
   },
 
@@ -93,6 +99,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
+    hidden: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
     group: formGroups.adminOptions,

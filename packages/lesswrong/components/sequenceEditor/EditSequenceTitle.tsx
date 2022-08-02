@@ -7,7 +7,7 @@ import { sequencesImageScrim } from '../sequences/SequencesPage'
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 65,
-    backgroundColor: "rgba(0,0,0,0.25)",
+    backgroundColor: theme.palette.panelBackground.darken25,
     height: 380,
     [theme.breakpoints.down('sm')]: {
       marginTop: 40,
@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     bottom: 10,
     left: "50%",
-    zIndex: 1,
     width: 0,
     
     [theme.breakpoints.down('sm')]: {
@@ -34,16 +33,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     left: -275,
     width: 650,
     fontSize: '36px',
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     fontVariant: 'small-caps',
-    zIndex: 2,
+    zIndex: theme.zIndexes.editSequenceTitleInput,
     height: '1em',
     resize: 'none',
     backgroundColor: 'transparent',
     boxShadow: 'none',
     overflow: 'hidden',
     '&::placeholder': {
-      color: 'rgba(255,255,255,.5)'
+      color: theme.palette.text.sequenceTitlePlaceholder,
     },
     [theme.breakpoints.down('sm')]: {
       left: 5,

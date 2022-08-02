@@ -111,15 +111,6 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['members'],
     hidden: true,
   },
-  // Whether the comment is deleted. Delete comments' content doesn't appear on the site.
-  // FIXME: Not a real field. We inherited this from vulcan-starter, but
-  // implemented our own, unrelated soft delete mechanism with the field named
-  // `deleted` rather than `isDeleted`.
-  isDeleted: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-  },
   userIP: {
     type: String,
     optional: true,
@@ -382,6 +373,18 @@ const schema: SchemaType<DbComment> = {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;
+    }
+  }),
+  
+  votingSystem: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      if (!comment?.postId) {
+        return "default";
+      }
+      const post = await context.loaders.Posts.load(comment.postId);
+      return post.votingSystem || "default";
     }
   }),
 };

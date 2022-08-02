@@ -10,14 +10,21 @@ registerFragment(`
     }
     lastActivity
     name
+    isOnline
     location
     googleLocation
     mongoLocation
     types
+    categories
     contactInfo
     facebookLink
+    facebookPageLink
+    meetupLink
+    slackLink
     website
+    bannerImageId
     inactive
+    deleted
   }
 `);
 
@@ -39,3 +46,10 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment localGroupsIsOnline on Localgroup {
+    _id
+    name
+    isOnline
+  }
+`);

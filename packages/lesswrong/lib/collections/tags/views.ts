@@ -174,7 +174,6 @@ Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
 Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
   return {
     selector: {
-      deleted: viewFieldAllowAny,
       adminOnly: viewFieldAllowAny,
       wikiOnly: viewFieldAllowAny
     },
@@ -183,3 +182,6 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
 });
 
 ensureIndex(Tags, {name: 1});
+
+// Used in packages/lesswrong/server/defaultTagWeights/cache.ts
+ensureIndex(Tags, {defaultFilterMode: 1});

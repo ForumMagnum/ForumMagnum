@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
 export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
@@ -16,14 +16,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*3,
     paddingBottom: 8
   },
+  noTopMargin: {
+    marginTop: 0
+  },
   title: {
     ...sectionTitleStyle(theme)
-  },
-  rightMargin: {
-    marginRight: theme.spacing.unit*1.5
-  },
-  noTitle: {
-    marginLeft: 0,
   },
   children: {
     ...theme.typography.commentStyle,
@@ -34,17 +31,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SectionTitle = ({children, classes, className, title }: {
+const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
+  if (anchor) {
+    return anchor;
+  }
+  if (typeof title === 'string') {
+    return slugify(title);
+  }
+}
+
+const SectionTitle = ({children, classes, className, title, noTopMargin, anchor}: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
-  title: React.ReactNode
+  title: React.ReactNode,
+  noTopMargin?: Boolean,
+  anchor?: string,
 }) => {
-
-  
   return (
-    <div className={classes.root}>
-      <Components.Typography variant='display1' className={classNames(classes.title, className)}>
+    <div className={noTopMargin ? classNames(classes.root, classes.noTopMargin) : classes.root}>
+      <Components.Typography
+        id={getAnchorId(anchor, title)}
+        variant='display1'
+        className={classNames(classes.title, className)}
+      >
         {title}
       </Components.Typography>
       <div className={classes.children}>{ children }</div>

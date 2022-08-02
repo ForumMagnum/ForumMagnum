@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   meta: {
     fontSize: ".9rem",
-    color: "rgba(0,0,0,.45)"
+    color: theme.palette.text.dim45,
   },
   title: {
     overflow: "hidden",
@@ -27,6 +27,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   });
 
   if (loading) return <Loading/>
+  if (!tagRel) {return null;}
 
   return <div className={classes.root}>
     <div className={classes.meta}>New post tagged <em>{tagRel.tag?.name}</em>:</div>

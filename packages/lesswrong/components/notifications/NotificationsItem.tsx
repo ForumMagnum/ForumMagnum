@@ -12,22 +12,22 @@ import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.02) !important",
+      backgroundColor: `${theme.palette.panelBackground.darken02} !important`,
     },
     display: "flex",
     alignItems: "center",
     padding: 0,
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
 
     // Disable MUI's hover-highlight-color animation that conflicts with having
     // a non-default background color and looks glitchy.
     transition: "none",
   },
   read: {
-    backgroundColor: "rgba(0,0,0,0.04) !important",
+    backgroundColor: `${theme.palette.panelBackground.darken04} !important`,
     
     "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.08) !important",
+      backgroundColor: `${theme.palette.panelBackground.darken08} !important`,
     },
   },
   unread: {
@@ -39,12 +39,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   notificationLabel: {
-    ...theme.typography.commentStyles,
     ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
     paddingRight: theme.spacing.unit*2,
-    color: "rgba(0,0,0, 0.66)",
+    color: theme.palette.text.notificationLabel,
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,
@@ -73,14 +72,16 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   const { LWPopper } = Components
 
   const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
-
+    if (notification.type == "postNominated") {
+      return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
+    }
     switch (notification.documentType) {
       case 'tagRel':
         return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
       case 'post':
-        return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+        return <Card><PostsPreviewTooltipSingle postId={notification.documentId}/></Card>
       case 'comment':
         const postId = parsedPath?.params?._id
         if (!postId) return null
@@ -140,12 +141,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           open={hover}
           anchorEl={anchorEl}
           placement="left-start"
-          modifiers={{
-            flip: {
-              behavior: ["left-start"],
-              boundariesElement: 'viewport'
-            }
-          }}
+          allowOverflow
         >
           <span className={classes.preview}>{renderPreview()}</span>
         </LWPopper>

@@ -10,6 +10,8 @@ import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { AllowHidingFrontPagePostsContext } from './PostsPage/PostActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -36,14 +38,6 @@ const timeframeToNumTimeBlocks = {
   yearly: forumAllPostsNumYearsSetting.get(),
 }
 
-export const sortings = {
-  magic: 'Magic (New & Upvoted)',
-  recentComments: 'Recent Comments',
-  new: 'New',
-  old: 'Old',
-  top: 'Top',
-}
-
 interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps, WithUpdateCurrentUserProps {
 }
 interface AllPostsPageState {
@@ -67,14 +61,15 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     })
   }
 
-  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
+  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma, currentIncludeEvents}) => {
     const { timezone, location } = this.props
     const { query } = location
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
 
-    const baseTerms = {
+    const baseTerms: PostsViewTerms = {
       karmaThreshold: query.karmaThreshold || (currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD),
+      excludeEvents: !currentIncludeEvents && currentFilter !== 'events',
       filter: currentFilter,
       sortedBy: currentSorting,
       after: query.after,
@@ -96,7 +91,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
     const timeBlock = timeframeToTimeBlock[currentTimeframe]
     
-    let postListParameters: any = {
+    let postListParameters: PostsViewTerms = {
       view: 'timeframe',
       ...baseTerms
     }
@@ -104,23 +99,26 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     if (parseInt(query.limit)) {
       postListParameters.limit = parseInt(query.limit)
     }
-
+    
     return <div>
       <AnalyticsContext
         listContext={"allPostsPage"}
         terms={postListParameters}
         capturePostItemOnMount
       >
-        <PostsTimeframeList
-          timeframe={currentTimeframe}
-          postListParameters={postListParameters}
-          numTimeBlocks={numTimeBlocks}
-          dimWhenLoading={showSettings}
-          after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
-          before={query.before  || getBeforeDefault({timeBlock, timezone})}
-          reverse={query.reverse === "true"}
-          displayShortform={query.includeShortform !== "false"}
-        />
+        {/* Allow unhiding posts from all posts menu to allow recovery of hiding the wrong post*/}
+        <AllowHidingFrontPagePostsContext.Provider value={true}>
+          <PostsTimeframeList
+            timeframe={currentTimeframe}
+            postListParameters={postListParameters}
+            numTimeBlocks={numTimeBlocks}
+            dimWhenLoading={showSettings}
+            after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone, before: query.before})}
+            before={query.before  || getBeforeDefault({timeBlock, timezone, after: query.after})}
+            reverse={query.reverse === "true"}
+            displayShortform={query.includeShortform !== "false"}
+          />
+        </AllowHidingFrontPagePostsContext.Provider>
       </AnalyticsContext>
     </div>
   }
@@ -136,6 +134,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all'
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
       currentUser?.allPostsShowLowKarma || false
+    const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false
 
     return (
       <React.Fragment>
@@ -145,7 +144,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
                 <SectionTitle title="All Posts">
-                  <SettingsButton label={`Sorted by ${ sortings[currentSorting] }`}/>
+                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 </SectionTitle>
               </div>
             </Tooltip>
@@ -155,10 +154,11 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
               currentSorting={currentSorting}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
+              currentIncludeEvents={currentIncludeEvents}
               persistentSettings
               showTimeframe
             />
-            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
+            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents})}
           </SingleColumnSection>
         </AnalyticsContext>
       </React.Fragment>

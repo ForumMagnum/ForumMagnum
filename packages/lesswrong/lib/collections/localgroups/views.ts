@@ -1,5 +1,6 @@
 import Localgroups from "./collection"
 import { ensureIndex } from '../../collectionUtils';
+import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {
@@ -9,6 +10,7 @@ declare global {
     userId?: string
     lng?: number
     lat?: number
+    includeInactive?: boolean
   }
 }
 
@@ -21,11 +23,34 @@ Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
   }
   return {
     selector: {
-      ...selector, 
-      inactive: false
+      ...selector,
+      inactive: terms.includeInactive ? null : false,
+      deleted: false
     }
   };
 });
+
+Localgroups.addView("userOrganizesGroups", function (terms: LocalgroupsViewTerms) {
+  return {
+    selector: {
+      organizerIds: terms.userId,
+      inactive: null
+    },
+    options: {sort: {name: 1}}
+  };
+});
+ensureIndex(Localgroups, { organizerIds: 1, deleted: 1, name: 1 })
+
+Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
+  return {
+    selector: {
+      organizerIds: terms.userId,
+      inactive: false
+    },
+    options: {sort: {name: 1}}
+  };
+});
+ensureIndex(Localgroups, { organizerIds: 1, inactive: 1, deleted: 1, name: 1 });
 
 Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
@@ -35,14 +60,14 @@ Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms)
     }
   };
 });
-ensureIndex(Localgroups, { organizerIds: 1, inactive: 1 });
+ensureIndex(Localgroups, { organizerIds: 1, inactive: 1, deleted: 1 });
 
 Localgroups.addView("all", function (terms: LocalgroupsViewTerms) {
   return {
-    options: {sort: {createdAt: -1}}
+    options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { createdAt: -1 });
+ensureIndex(Localgroups, { inactive: 1, deleted: 1, name: 1 });
 
 Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
   return {
@@ -54,7 +79,10 @@ Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
                coordinates: [ terms.lng, terms.lat ]
           },
         },
-      }
+      },
+      $or: [
+        {isOnline: false}, {isOnline: {$exists: false}}
+      ]
     },
     options: {
       sort: {
@@ -64,7 +92,7 @@ Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
     }
   };
 });
-ensureIndex(Localgroups, { mongoLocation: "2dsphere", inactive: 1 });
+ensureIndex(Localgroups, { mongoLocation: "2dsphere", isOnline: 1, inactive: 1, deleted: 1 });
 
 Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
   return {
@@ -72,3 +100,19 @@ Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
     options: {sort: {createdAt: -1}}
   };
 });
+
+Localgroups.addView("local", function () {
+  return {
+    selector: {$or: [
+      {isOnline: false}, {isOnline: {$exists: false}}
+    ]},
+    options: {sort: {name: 1}}
+  };
+});
+Localgroups.addView("online", function () {
+  return {
+    selector: {isOnline: true},
+    options: {sort: {name: 1}}
+  };
+});
+ensureIndex(Localgroups, { isOnline: 1, inactive: 1, deleted: 1, name: 1 });

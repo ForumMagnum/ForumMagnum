@@ -4,6 +4,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
+import { MenuTabRegular } from './menuTabs';
 
 const smallIconSize = 23
 
@@ -37,6 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
+      fill: "currentColor",
     }
   },
   navText: {
@@ -52,13 +54,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const TabNavigationFooterItem = ({tab, classes}) => {
+type TabNavigationFooterItemProps = {
+  tab: MenuTabRegular,
+  classes: ClassesType,
+}
+
+const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
   // React router links don't handle external URLs, so use a
   // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
-  const Element = externalLink ? 
+  const Element = externalLink ?
     ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
     : Link;
 

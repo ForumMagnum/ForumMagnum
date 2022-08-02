@@ -7,10 +7,14 @@ import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
+import Tags from "../tags/collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
+import uniqBy from 'lodash/uniqBy'
+import { slugify, Utils } from '../../vulcan-lib';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -91,10 +95,10 @@ const notificationTypeSettingsField = (overrideSettings?: any) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings",
-  canRead: [userOwns, 'admins'],
-  canUpdate: [userOwns, 'admins'],
-  canCreate: ['members', 'admins'],
+  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  canRead: [userOwns, 'admins'] as FieldPermissions,
+  canUpdate: [userOwns, 'admins'] as FieldPermissions,
+  canCreate: ['members', 'admins'] as FieldCreatePermissions,
   ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
@@ -128,6 +132,42 @@ const partiallyReadSequenceItem = new SimpleSchema({
     optional: true,
   },
 });
+
+export const CAREER_STAGES = [
+  {value: 'highSchool', label: "In high school"},
+  {value: 'associateDegree', label: "Pursuing an associate's degree"},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree"},
+  {value: 'professionalDegree', label: "Pursuing a professional degree"},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma"},
+  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
+  {value: 'midCareer', label: "Working (6-15 years of experience)"},
+  {value: 'lateCareer', label: "Working (15+ years of experience)"},
+  {value: 'seekingWork', label: "Seeking work"},
+  {value: 'retired', label: "Retired"},
+]
+
+export const PROGRAM_PARTICIPATION = [
+  {value: 'vpIntro', label: "Completed the Introductory EA VP"},
+  {value: 'vpInDepth', label: "Completed the In-Depth EA VP"},
+  {value: 'vpPrecipice', label: "Completed the Precipice Reading Group"},
+  {value: 'vpLegal', label: "Completed the Legal Topics in EA VP"},
+  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals VP"},
+  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals VP"},
+  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars VP"},
+  {value: 'eag', label: "Attended an EA Global conference"},
+  {value: 'eagx', label: "Attended an EAGx conference"},
+  {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
+  {value: '80k', label: "Received career coaching from 80,000 Hours"},
+]
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
 
 addFieldsDict(Users, {
   // TODO(EA): Allow resending of confirmation email
@@ -202,10 +242,38 @@ addFieldsDict(Users, {
       }
     },
   },
+  
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: true,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 69,
+  },
+  
+  // We tested this on the EA Forum and it didn't encourage more PMs, but it led to some profile views.
+  // Hiding for now, will probably delete or test another version in the future.
+  showPostAuthorCard: {
+    type: Boolean,
+    optional: true,
+    label: "Show my bio at the end of my posts",
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    hidden: true,
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 70,
+  },
 
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
-    order: 70,
+    order: 71,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -220,7 +288,7 @@ addFieldsDict(Users, {
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {
-    order: 71,
+    order: 72,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -254,6 +322,45 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() !== 'AlignmentForum',
     label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
+  },
+  
+  noSingleLineComments: {
+    order: 91,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
+  },
+
+  noCollapseCommentsPosts: {
+    order: 92,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (in large threads on Post Pages)"
+  },
+
+  noCollapseCommentsFrontpage: {
+    order: 93,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (on home page)"
   },
 
   hideNavigationSidebar: {
@@ -314,6 +421,14 @@ addFieldsDict(Users, {
     canCreate: 'guests',
     hidden: true,
   },
+  allPostsIncludeEvents: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   allPostsOpenSettings: {
     type: Boolean,
     optional: true,
@@ -332,32 +447,6 @@ addFieldsDict(Users, {
     logChanges: false,
   },
 
-  // Bio (Markdown version)
-  bio: {
-    type: String,
-    optional: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.default,
-    order: 40,
-    form: {
-      hintText:"Bio",
-      rows:4,
-      multiLine:true,
-      fullWidth:true,
-    },
-  },
-
-  // Bio (HTML version)
-  htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-
   // Karma field
   karma: {
     type: Number,
@@ -365,16 +454,10 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
-  // Website
-  website: {
-    type: String,
-    hidden: true,
+  goodHeartTokens: {
+    type: Number,
     optional: true,
-    control: "text",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
-    order: 50,
   },
 
   moderationStyle: {
@@ -404,7 +487,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -422,19 +505,6 @@ addFieldsDict(Users, {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
-  },
-
-  showHideKarmaOption: {
-    type: Boolean,
-    optional: true,
-    label: "Enable option on posts to hide karma visibility",
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: forumTypeSetting.get() !== 'EAForum',
-    control: 'checkbox',
-    group: formGroups.default,
-    order: 72,
   },
 
   // bannedUserIds: users who are not allowed to comment on this user's posts
@@ -496,6 +566,42 @@ addFieldsDict(Users, {
     optional: true
   },
   "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
+    optional: true
+  },
+
+  // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
+  // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
+  // model this closer to ReadStatuses: an object per hidden thread + user pair, and exposing the hidden status
+  // as a property on thread. 
+  //
+  // That said, this is likely fine given this is a power use feature, but if it ever gives anyone any problems
+  // feel free to change it!
+  hiddenPostsMetadata: {
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.hiddenPostsMetadata) {
+        return uniqBy(data?.hiddenPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "hiddenPostsMetadata",
+      resolverName: "hiddenPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "hiddenPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "hiddenPostsMetadata.$.postId": {
     type: String,
     foreignKey: "Posts",
     optional: true
@@ -621,7 +727,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   autoSubscribeAsOrganizer: {
-    label: "Auto-subscribe to posts and meetups in groups I organize",
+    label: `Auto-subscribe to posts/events in groups I organize`,
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -634,7 +740,7 @@ addFieldsDict(Users, {
   },
 
   notificationCommentsOnSubscribedPost: {
-    label: "Comments on posts I'm subscribed to",
+    label: `Comments on posts/events I'm subscribed to`,
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
@@ -672,16 +778,28 @@ addFieldsDict(Users, {
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
+    hidden: forumTypeSetting.get() === 'EAForum',
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
-    label: "New Events in my notification radius",
+    label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationGroupAdministration: {
+    label: "Group administration notifications",
+    hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationPostsNominatedReview: {
+    label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
+    // Hide this while review is inactive
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -726,7 +844,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.emails,
-    control: 'checkbox',
+    control: 'EmailConfirmationRequiredCheckbox',
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -764,6 +882,16 @@ addFieldsDict(Users, {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
+  
+  hideMeetupsPoke: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
   frontpagePostCount: {
@@ -792,7 +920,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => !sequence.draft && !sequence.isDeleted
+      filterFn: sequence => !sequence.draft && !sequence.isDeleted && !sequence.hideFromAuthorPage
     }),
     canRead: ['guests'],
   },
@@ -810,53 +938,66 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
+  // Should match googleLocation/location
+  // Determines which events are considered nearby for default sorting on the community page
+  // Determines where the community map is centered/zoomed in on by default
+  // Not shown to other users
   mongoLocation: {
     type: Object,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (user) => {
         if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+        return null
       }
     }),
   },
 
+  // Is the canonical value for denormalized mongoLocation and location
+  // Edited from the /events page to choose where to show events near
   googleLocation: {
     type: Object,
-    canRead: ['guests'],
+    form: {
+      stringVersionFieldName: "location",
+    },
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     hidden: !hasEventsSetting.get(),
-    label: "Group Location",
+    label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 42,
+    order: 100,
   },
 
   location: {
     type: String,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
     optional: true
   },
 
+  // Used to place a map marker pin on the where-are-other-users map.
+  // Public.
   mapLocation: {
     type: Object,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
-    label: "Your location on the community map",
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
+    order: forumTypeSetting.get() === "EAForum" ? 9 : 101,
+    label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 43,
+    hidden: forumTypeSetting.get() === "EAForum"
   },
 
   mapLocationSet: {
@@ -899,6 +1040,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
     type: Object,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -968,12 +1110,25 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageBookAd: {
+    // this was for the 2018 book, no longer relevant
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
+  hideFrontpageBook2019Ad: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    order: 46,
+    order: 47,
     hidden: forumTypeSetting.get() === "EAForum",
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -1154,45 +1309,6 @@ addFieldsDict(Users, {
     order: 39,
   },
 
-  noSingleLineComments: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not collapse comments to Single Line"
-  },
-
-  noCollapseCommentsPosts: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (in large threads on Post Pages)"
-  },
-
-  noCollapseCommentsFrontpage: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (on home page)"
-  },
-
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1254,6 +1370,25 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVoteCount:resolverOnlyField({
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    resolver: async (document, args, context: ResolverContext) => {
+      const { ReviewVotes } = context;
+      const voteCount = await ReviewVotes.find({
+        userId: document._id,
+        year: REVIEW_YEAR+""
+      }).count();
+      return voteCount
+    }
+  }),
+  reviewVotesQuadratic2020: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,
@@ -1292,9 +1427,16 @@ addFieldsDict(Users, {
     type: Array,
     optional: true,
     canRead: ['guests'],
-    onUpdate: ({data, oldDocument}) => {
+    onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug)  {
         return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+      }
+      // The next three lines are copy-pasted from slug.onUpdate
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
+          return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+        }
       }
     }
   },
@@ -1409,7 +1551,7 @@ addFieldsDict(Users, {
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
-    order: 72,
+    order: 73,
   },
   walledGardenInvite: {
     type: Boolean,
@@ -1447,7 +1589,256 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-  }
+  },
+  paymentEmail: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    label: "Payment Contact Email",
+    tooltip: "An email you'll definitely check where you can receive information about receiving payments",
+    group: formGroups.paymentInfo,
+  },
+  paymentInfo: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    label: "PayPal Info",
+    tooltip: "Your PayPal account info, for sending small payments",
+    group: formGroups.paymentInfo,
+  },
+  
+  // Cloudinary image id for the profile image (high resolution)
+  profileImageId: {
+    hidden: true,
+    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, "admins", "sunshineRegiment"],
+    label: "Profile Image",
+    tooltip: "This will only be shown on your profile page",
+    control: "ImageUpload"
+  },
+  
+  jobTitle: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 2,
+    label: 'Role'
+  },
+  
+  organization: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 3,
+  },
+  
+  careerStage: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 4,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Career stage",
+    form: {
+      separator: '\r\n',
+      options: CAREER_STAGES
+    },
+  },
+  'careerStage.$': {
+    type: String,
+    optional: true,
+  },
+
+  bio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  htmlBio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
+  organizerOfGroupIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerOfGroupIds",
+      resolverName: "organizerOfGroups",
+      collectionName: "Localgroups",
+      type: "Localgroup"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.aboutMe,
+    order: 7,
+    control: "SelectLocalgroup",
+    label: "Organizer of",
+    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+    form: {
+      useDocumentAsUser: true,
+      separator: '\r\n',
+      multiselect: true
+    },
+  },
+  'organizerOfGroupIds.$': {
+    type: String,
+    foreignKey: "Localgroups",
+    optional: true,
+  },
+  
+  programParticipation: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 8,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Which of these programs have you participated in?",
+    form: {
+      separator: '\r\n',
+      options: PROGRAM_PARTICIPATION
+    },
+  },
+  'programParticipation.$': {
+    type: String,
+    optional: true,
+  },
+
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    },
+    group: formGroups.aboutMe,
+    order: 9
+  },
+  
+  linkedinProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  facebookProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  twitterProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  githubProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  postingDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 69,
+  },
+  allCommentingDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 70,
+  },
+  commentingOnOtherUsersDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 71,
+  },
+  conversationsDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 72,
+  },
 });
 
 makeEditable({
@@ -1465,6 +1856,68 @@ makeEditable({
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     }
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 5,
+    fieldName: 'howOthersCanHelpMe',
+    label: "How others can help me",
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 6,
+    fieldName: 'howICanHelpOthers',
+    label: "How I can help others",
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+// biography: Some text the user provides for their profile page and to display
+// when people hover over their name.
+//
+// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+// which now exist as resolver-only fields for back-compatibility.
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    hidden: forumTypeSetting.get() === "EAForum",
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    fieldName: "biography",
+    label: "Bio",
+    hintText: "Tell us about yourself",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
   }
 })
 

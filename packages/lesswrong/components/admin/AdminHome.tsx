@@ -33,7 +33,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   adminLogGroup: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
     padding: 10,
     margin: 16,
     borderRadius: 2,
@@ -43,10 +43,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     float: "left",
   },
   recentLogins: {
-    backgroundColor: "rgba(50,100,50,.1)",
+    backgroundColor: theme.palette.panelBackground.adminHomeRecentLogins,
   },
   allUsers: {
-    backgroundColor: "rgba(100,50,50,.1)",
+    backgroundColor: theme.palette.panelBackground.adminHomeAllUsers,
   },
 });
 
@@ -262,4 +262,3 @@ declare global {
     AdminHome: typeof AdminHomeComponent
   }
 }
-

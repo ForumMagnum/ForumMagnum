@@ -63,7 +63,7 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
     } else {
       return (
         <div className={classes.root}>
-          <div>Please verify your email address.</div>
+          <div>You need to verify your email address to enable email notifications.</div>
           <Button color="secondary" variant="outlined"
             className={classes.verifyEmailButton}
             onClick={() => this.sendConfirmationEmail()}

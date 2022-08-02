@@ -6,6 +6,8 @@ import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { useCurrentUser } from '../../common/withUser';
+import { useHover } from '../../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: 'small-caps',
     fontFamily: theme.typography.uiSecondary.fontFamily,
     lineHeight: '24px',
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
   }
 })
 
@@ -28,7 +30,9 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
+  const { LWTooltip, SequencesHoverOver, SequencesNavigationLink } = Components 
   const { history } = useNavigation();
+  const currentUser = useCurrentUser();
 
   const handleKey = useCallback((ev) => {
     // Only if Shift and no other modifiers
@@ -54,17 +58,24 @@ const PostsTopSequencesNav = ({post, classes}: {
   if (!post?.sequence)
     return null;
 
+  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+    return null;
+  }
+  
   return (
     <div className={classes.root}>
-      <Components.SequencesNavigationLink
+      <SequencesNavigationLink
         post={post.prevPost}
         direction="left" />
 
-      <div className={classes.title}>
-        <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
-      </div>
+      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
+        <div className={classes.title}>
+          {post.sequence.draft && "[Draft] "}
+          <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
+        </div>
+      </LWTooltip>
 
-      <Components.SequencesNavigationLink
+      <SequencesNavigationLink
         post={post.nextPost}
         direction="right" />
     </div>

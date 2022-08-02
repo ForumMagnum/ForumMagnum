@@ -77,28 +77,34 @@ Scenario 4: single GraphQL error with no data property
 
 */
 export const getErrors = error => {
-
-  // 1. wrap in array
-  let errors = [error];
   // if this is one or more GraphQL errors, extract and convert them
   if (error.graphQLErrors && error.graphQLErrors.length > 0) {
     // get graphQL error (see https://github.com/thebigredgeek/apollo-errors/issues/12)
-    const graphQLError = error.graphQLErrors[0];
-    const data = (graphQLError && graphQLError.extensions && graphQLError.extensions.exception && graphQLError.extensions.exception.data) ||
-                 graphQLError.data
-                 
+    const graphQLError = error.graphQLErrors[0]
+    const data = (graphQLError?.extensions?.exception?.data) || graphQLError?.data
+
+    let baseErrorMessages = parseErrorMessage(graphQLError?.message)
     if (data && !isEmpty(data)) {
       if (data.errors) {
-        // 2. there are multiple errors on the data.errors object
-        errors = data.errors;
-      } else {
-        // 3. there is only one error
-        errors = [data];
+        // 2. There are multiple errors on the data.errors object
+        // Check for helpful message
+        if (data.errors.some(e => e.message)) {
+          return data.errors
+        }
+        // Otherwise we need at least one helpful message
+        return baseErrorMessages.concat(data.errors)
       }
-    } else {
-      // 4. there is no data object, try to parse raw error message
-      errors = parseErrorMessage(graphQLError.message);
+      // 3. There is only one error
+      // Check for helpful message
+      if (data.message) {
+        return [data]
+      }
+      // Again we need a helpful message
+      return baseErrorMessages.concat([data])
     }
+    // 4. There is no data object, just use the raw error messages
+    return baseErrorMessages
   }
-  return errors;
+  // 1. Wrap in array
+  return [error]
 }

@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "16px",
     marginLeft: "5px",
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      background: theme.palette.buttons.hoverGrayHighlight,
     }
   },
   submitButton: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
   postId: string,
-  onClose: ()=>void,
+  onClose?: ()=>void,
   classes: ClassesType,
 }) => {
   const SubmitComponent = ({submitLabel = "Submit"}) => {

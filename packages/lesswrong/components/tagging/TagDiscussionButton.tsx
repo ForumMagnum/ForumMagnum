@@ -4,16 +4,15 @@ import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
+import { taggingNameIsSet, taggingNamePluralSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
-    ...theme.typography.uiStyle,
     color: theme.palette.grey[700],
     display: "flex",
     alignItems: "center",
-    marginRight: 8,
     marginLeft: "auto"
   },
   discussionButtonIcon: {
@@ -24,10 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700]
   },
   discussionCount: {
-      [theme.breakpoints.down('sm')]: { 
-        alignSelf: "flex-start" //appears to low when there's no label
-      }
-    },
+    [theme.breakpoints.down('sm')]: {
+      alignSelf: "flex-start" //appears to low when there's no label
+    }
+  },
   hideOnMobile: {
     marginRight: 2,
     [theme.breakpoints.down('sm')]: { //optimized or tag paye
@@ -57,7 +56,11 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
     enableTotal: true,
   });
   
-  return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
+  return <Link
+    className={classes.discussionButton}
+    to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`}
+    {...eventHandlers}
+  >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
     <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
     {!loading && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}

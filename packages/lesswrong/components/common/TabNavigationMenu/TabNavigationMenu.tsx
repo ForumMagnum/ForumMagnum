@@ -5,8 +5,8 @@ import { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => {
       marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*2.5,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+      borderBottom: theme.palette.border.normal,
     },
   }
 }
@@ -33,21 +33,29 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { TabNavigationItem } = Components
+  const { captureEvent } = useTracking()
+  const { TabNavigationItem, FeaturedResourceBanner } = Components
   const customComponentProps = {currentUser}
+  
+  const handleClick = (e, tabId) => {
+    captureEvent(`${tabId}NavClicked`)
+    onClickSection && onClickSection(e)
+  }
 
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
-          {menuTabs[forumTypeSetting.get()].map(tab => {
-            if (tab.divider) {
+          {forumSelect(menuTabs).map(tab => {
+            if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
+            
+            if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }
-            if (tab.customComponentName) {
+            if ('customComponentName' in tab) {
               const CustomComponent = Components[tab.customComponentName];
               return <CustomComponent
                 key={tab.id}
-                onClick={onClickSection}
+                onClick={(e) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />
             }
@@ -55,9 +63,11 @@ const TabNavigationMenu = ({onClickSection, classes}: {
             return <TabNavigationItem
               key={tab.id}
               tab={tab}
-              onClick={onClickSection}
+              onClick={(e) => handleClick(e, tab.id)}
             />
           })}
+          {/* NB: This returns null if you don't have any active resources */}
+          <FeaturedResourceBanner terms={{view: "activeResources"}}/>
         </div>
     </AnalyticsContext>  )
 };

@@ -11,13 +11,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
     width: 15, 
     height: 15,
-    fill: '#2b6a99',
+    fill: theme.palette.event,
     opacity: 0.8
   },
   eaIcon: {
     width: 20,
     height: 20,
-    fill: theme.palette.primary.main,
+    fill: theme.palette.event,
     opacity: 0.8,
   },
 }))

@@ -5,19 +5,20 @@ import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",
     display:"none",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
   },
   background: {
-    background: "white"
+    background: theme.palette.panelBackground.default,
   },
   toggle: {
     position: "relative",
@@ -48,6 +49,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
+  const underbellyName = forumTypeSetting.get() === 'EAForum' ? 'Low Priority' : 'the Underbelly'
 
   return (
     <div className={classes.root}>
@@ -55,14 +57,14 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
-        <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        <SunshineReportedContentList />
         <SunshineNewTagsList />
         
         {/* alignmentForumAdmins see AF content above the fold */}
         { currentUser.groups?.includes('alignmentForumAdmins') && <div>
-          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
-          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
+          <AFSuggestPostsList />
+          <AFSuggestCommentsList />
+          <AFSuggestUsersList />
         </div>}
       </div>}
 
@@ -85,20 +87,20 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
 
         {/* regular admins (but not sunshines) see AF content below the fold */}
         { userIsAdmin(currentUser) && <div>
-          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
-          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+          <AFSuggestUsersList />
+          <AFSuggestPostsList />
+          <AFSuggestCommentsList />
         </div>}
       </div>}
 
       { showSidebar && <div>
         { showUnderbelly ? <div className={classes.toggle} onClick={() => setShowUnderbelly(false)}>
-          Hide the Underbelly
+          Hide {underbellyName}
           <KeyboardArrowDownIcon/>
         </div>
         :
         <div className={classes.toggle} onClick={() => setShowUnderbelly(true)}>
-          Show the Underbelly
+          Show {underbellyName}
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
@@ -120,4 +122,3 @@ declare global {
     SunshineSidebar: typeof SunshineSidebarComponent
   }
 }
-

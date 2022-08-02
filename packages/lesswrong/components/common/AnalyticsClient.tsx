@@ -10,23 +10,21 @@ export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
   const [cookies] = useCookies(['clientId']);
   
-  const query = gql`
-    mutation analyticsEventMutation($events: [JSON!], $now: Date) {
-      analyticsEvent(events: $events, now: $now)
-    }
-  `;
-  const [mutate] = useMutation(query, {
-    ignoreResults: true
-  });
-  
-  const flushEvents = useCallback((events) => {
-    void mutate({
-      variables: {
-        events,
-        now: new Date(),
-      }
+  // We do this with a direct POST request rather than going through graphql
+  // because this type of request is voluminous enough and different enough
+  // from other requests that we want its error handling to be different, and
+  // potentially want it to be a special case at the load balancer.
+  const flushEvents = useCallback(async (events) => {
+    await fetch("/analyticsEvent", {
+      method: "POST",
+      body: JSON.stringify({
+        events, now: new Date(),
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-  }, [mutate]);
+  }, []);
  
   const currentUserId = currentUser?._id;
   const clientId = cookies.clientId;

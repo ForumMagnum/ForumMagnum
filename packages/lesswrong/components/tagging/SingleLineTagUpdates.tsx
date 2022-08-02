@@ -6,13 +6,14 @@ import { tagGetUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpe
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     borderRadius: 3,
     marginBottom: 4,
   },
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   subheading: {
     fontSize: "1.17rem",
     fontFamily: theme.typography.fontFamily,
-    color: "#424242",
+    color: theme.palette.link.grey800,
     display: "inline-block",
     marginLeft: 8,
     marginBottom: 8,
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: POSTED_AT_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
+      color: theme.palette.text.slightlyIntense2,
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -71,22 +72,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
-    color: "rgba(0, 0, 0, .4)",
+    color: theme.palette.link.dim3,
     margin: "-8px 0 8px 8px",
+  },
+  usernames: {
+    marginRight: 16,
+    
+    maxWidth: 310,
+    textOverflow: "ellipsis",
+    overflowX: "hidden",
+    textAlign: "right",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 160
+    },
   },
 });
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, changeMetrics, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, lastRevisedAt, classes}: {
   tag: TagBasicInfo,
   revisionIds: string[],
   commentCount?: number,
   commentIds?: string[],
+  users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
   classes: ClassesType,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo } = Components;
+  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName } = Components;
   
   return <div className={classes.root} >
     <div className={classes.metadata} onClick={ev => setExpanded(!expanded)}>
@@ -102,6 +115,15 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
           </LWTooltip>
         : null
       }
+      
+      {users && users?.length > 0 && <div className={classes.usernames}>
+        <PostsItem2MetaInfo>
+          <UsersName user={users[0]}/>
+          {users.length > 1 && users.slice(1).map(user =>
+            <span key={user._id}>, <UsersName user={user}/></span>
+          )}
+        </PostsItem2MetaInfo>
+      </div>}
 
       {(changeMetrics.added>0 || changeMetrics.removed>0) && <div className={classes.changeMetrics}>
         <ChangeMetricsDisplay changeMetrics={changeMetrics}/>
@@ -118,7 +140,10 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
     
     {expanded && <div className={classes.expandedBody}>
       {revisionIds.length>0 && 
-        <Link to={`/tag/${tag.slug}/history`} className={classes.history}>
+        <Link
+          to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+          className={classes.history}
+        >
           <TagHistory className={classes.icon}  />
           <span>History</span>
         </Link>}

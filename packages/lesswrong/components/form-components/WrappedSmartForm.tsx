@@ -1,7 +1,6 @@
 /*
- * This component wraps SmartForm (see below for why), which is defined in
- * FormWrapper.tsx (where it calls itself FormWrapper), which itself wraps Form,
- * which is defined in Form.tsx (where it calls itself SmartForm).
+ * This component wraps FormWrapper (see below for why), which is defined in
+ * FormWrapper.tsx, which itself wraps Form, which is defined in Form.tsx.
  */
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -9,7 +8,7 @@ import { editableCollections, editableCollectionsFields } from '../../lib/editor
 import * as _ from 'underscore';
 
 /**
- * This is a wrapper around SmartForm which adds a submit callback that filters
+ * This is a wrapper around FormWrapper which adds a submit callback that filters
  * out any data that would cause problems with editable fields. This is
  * necessary because editable fields have a different input type than they have
  * query type, and so we have to make sure to not resubmit any data that we
@@ -19,7 +18,7 @@ function WrappedSmartForm(props) {
   const { collection } = props
   const collectionName = collection && collection.options && collection.options.collectionName
   if (editableCollections.has(collectionName)) {
-    return <Components.SmartForm
+    return <Components.FormWrapper
       {...props}
       submitCallback={(data) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
@@ -38,7 +37,7 @@ function WrappedSmartForm(props) {
       }}
     />  
   } else {
-    return <Components.SmartForm {...props}/>
+    return <Components.FormWrapper {...props}/>
   }
 }
 

@@ -1,25 +1,28 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
-import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
+import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
+import { forumSelect } from './forumTypeUtils';
 
 
-const isEAForum = forumTypeSetting.get() === 'EAForum';
-export const communityPath = isEAForum ? '/groupsAndEvents' : '/community';
-const communitySectionName = isEAForum ? 'Groups/Events' : 'Community';
+export const communityPath = '/community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
+const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
+
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
-const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
-const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
-const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
+const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
+
+const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
+const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
-const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
+const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
 async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
@@ -206,6 +209,12 @@ addRoute(
     background: "white"
   },
   {
+    name: 'postAnalytics',
+    path: '/postAnalytics',
+    componentName: 'PostsAnalyticsPage',
+    background: "white"
+  },
+  {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
@@ -215,7 +224,20 @@ addRoute(
   {
     name:'reviewVoting',
     path: '/reviewVoting',
-    componentName: "ReviewVotingPage"
+    redirect: () => `/reviewVoting/2020`,
+  },
+  // {
+  //   name:'reviewVoting2019',
+  //   path: '/reviewVoting/2019',
+  //   title: "Voting 2019 Review",
+  //   componentName: "ReviewVotingPage2019"
+  // },
+  {
+    name:'reviewVoting2020',
+    path: '/reviewVoting/2020',
+    title: "Voting 2020 Review",
+    componentName: "ReviewVotingPage",
+    ...reviewSubtitle
   },
 
   // Sequences
@@ -223,6 +245,7 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequences.single',
@@ -230,6 +253,7 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequencesEdit',
@@ -270,62 +294,32 @@ addRoute(
     componentName: 'CollectionsSingle'
   },
   {
+    name: 'highlights',
+    path: '/highlights',
+    title: "Sequences Highlights",
+    componentName: 'SequencesHighlightsCollection'
+  },
+  {
+    name: 'highlights.posts.single',
+    path: '/highlights/:slug',
+    componentName: 'PostsSingleSlug',
+    previewComponentName: 'PostLinkPreviewSlug',
+    ...highlightsSubtitle,
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    background: postBackground
+  },
+  {
     name: 'bookmarks',
     path: '/bookmarks',
     componentName: 'BookmarksPage',
     title: 'Bookmarks',
   },
 
-  // Tags
+  // Tags redirects
   {
-    name: 'tags.single',
-    path: '/tag/:slug',
-    componentName: 'TagPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagHoverPreview',
-  },
-  {
-    name: 'tagDiscussion',
-    path: '/tag/:slug/discussion',
-    componentName: 'TagDiscussionPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagHoverPreview',
-    background: "white"
-  },
-  {
-    name: 'tagHistory',
-    path: '/tag/:slug/history',
-    componentName: 'TagHistoryPage',
-    titleComponentName: 'TagHistoryPageTitle',
-    subtitleComponentName: 'TagHistoryPageTitle',
-  },
-  {
-    name: 'tagEdit',
-    path: '/tag/:slug/edit',
-    componentName: 'EditTagPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-  },
-  {
-    name: 'tagCreate',
-    path: '/tag/create',
-    componentName: 'NewTagPage',
-    title: "New Tag",
-    subtitleComponentName: 'TagPageTitle',
-    background: "white"
-  },
-  {
-    name: 'randomTag',
-    path: '/tags/random',
-    componentName: 'RandomTagPage',
-  },
-  {
-    name: 'allTags',
-    path: '/tags/all',
-    componentName: 'AllTagsPage',
-    title: "Concepts Portal",
+    name: "TagsAll",
+    path:'/tags',
+    redirect: () => `/tags/all`,
   },
   {
     name: "Concepts",
@@ -337,26 +331,222 @@ addRoute(
     path: '/tagVoting',
     redirect: () => `/tagActivity`,
   },
-  {
-    name: 'tagActivity',
-    path: '/tagActivity',
-    componentName: 'TagVoteActivity',
-    title: 'Tag Voting Activity'
-  },
-  {
-    name: 'tagFeed',
-    path: '/tagFeed',
-    componentName: 'TagActivityFeed',
-    title: 'Tag Activity'
-  },
+
   {
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',
     title: 'Search',
     background: "white"
-  }
+  },
+  {
+    name: 'votesByYear',
+    path: '/votesByYear/:year',
+    componentName: 'UserSuggestNominations',
+    title: "Your Past Votes"
+  },
 );
+
+if (taggingNameIsSet.get()) {
+  addRoute(
+    {
+      name: 'tagsSingleCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug`,
+      componentName: 'TagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+    },
+    {
+      name: 'tagsSingleRedirectCustomName',
+      path: '/tag/:slug',
+      redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+    },
+    {
+      name: 'tagsAllCustomName',
+      path: `/${taggingNamePluralSetting.get()}/all`,
+      componentName: 'AllTagsPage',
+      title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
+    },
+    {
+      name: "tagsRedirectCustomName",
+      path:'/tags/all',
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`,
+    },
+    {
+      name: 'tagDiscussionCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug/discussion`,
+      componentName: 'TagDiscussionPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      background: "white"
+    },
+    {
+      name: 'tagDiscussionCustomNameRedirect',
+      path: '/tag/:slug/discussion',
+      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/discussion`
+    },
+    {
+      name: 'tagHistoryCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug/history`,
+      componentName: 'TagHistoryPage',
+      titleComponentName: 'TagHistoryPageTitle',
+      subtitleComponentName: 'TagHistoryPageTitle',
+    },
+    {
+      name: 'tagHistoryCustomNameRedirect',
+      path: '/tag/:slug/history',
+      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/history`
+    },
+    {
+      name: 'tagEditCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug/edit`,
+      componentName: 'EditTagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+    },
+    {
+      name: 'tagEditCustomNameRedirect',
+      path: '/tag/:slug/edit',
+      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/edit`
+    },
+    {
+      name: 'tagCreateCustomName',
+      path: `/${taggingNamePluralSetting.get()}/create`,
+      title: `New ${taggingNameCapitalSetting.get()}`,
+      componentName: 'NewTagPage',
+      subtitleComponentName: 'TagPageTitle',
+      background: "white"
+    },
+    {
+      name: 'tagCreateCustomNameRedirect',
+      path: '/tag/create',
+      redirect: () => `/${taggingNamePluralSetting.get()}/create`
+    },
+    {
+      name: 'randomTagCustomName',
+      path: `/${taggingNamePluralSetting.get()}/random`,
+      componentName: 'RandomTagPage',
+    },
+    {
+      name: 'randomTagCustomNameRedirect',
+      path: '/tags/random',
+      redirect: () => `/${taggingNamePluralSetting.get()}/random`
+    },
+    {
+      name: 'tagActivityCustomName',
+      path: `/${taggingNamePluralSetting.get()}Activity`,
+      componentName: 'TagVoteActivity',
+      title: `${taggingNamePluralCapitalSetting.get()} Voting Activity`
+    },
+    {
+      name: 'tagActivityCustomNameRedirect',
+      path: '/tagActivity',
+      redirect: () => `/${taggingNamePluralSetting.get()}Activity`
+    },
+    {
+      name: 'tagFeedCustomName',
+      path: `/${taggingNamePluralSetting.get()}Feed`,
+      componentName: 'TagActivityFeed',
+      title: `${taggingNamePluralCapitalSetting.get()} Activity`
+    },
+    {
+      name: 'tagFeedCustomNameRedirect',
+      path: '/tagFeed',
+      redirect: () => `/${taggingNamePluralSetting.get()}Feed`
+    },
+    {
+      name: 'taggingDashboardCustomName',
+      path: `/${taggingNamePluralSetting.get()}/dashboard`,
+      componentName: "TaggingDashboard",
+      title: `${taggingNamePluralCapitalSetting.get()} Dashboard`,
+      ...taggingDashboardSubtitle
+    },
+    {
+      name: 'taggingDashboardCustomNameRedirect',
+      path: '/tags/dashboard',
+      redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
+    },
+    {
+      name: 'taggingAllCustomNameRedirect',
+      path: `/${taggingNamePluralSetting.get()}/`,
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
+    },
+  )
+} else {
+  addRoute(
+    {
+      name: 'allTags',
+      path: '/tags/all',
+      componentName: 'AllTagsPage',
+      title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
+    },
+    {
+      name: 'tags.single',
+      path: '/tag/:slug',
+      componentName: 'TagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+    },
+    {
+      name: 'tagDiscussion',
+      path: '/tag/:slug/discussion',
+      componentName: 'TagDiscussionPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      background: "white"
+    },
+    {
+      name: 'tagHistory',
+      path: '/tag/:slug/history',
+      componentName: 'TagHistoryPage',
+      titleComponentName: 'TagHistoryPageTitle',
+      subtitleComponentName: 'TagHistoryPageTitle',
+    },
+    {
+      name: 'tagEdit',
+      path: '/tag/:slug/edit',
+      componentName: 'EditTagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+    },
+    {
+      name: 'tagCreate',
+      path: '/tag/create',
+      componentName: 'NewTagPage',
+      title: "New Tag",
+      subtitleComponentName: 'TagPageTitle',
+      background: "white"
+    },
+    {
+      name: 'randomTag',
+      path: '/tags/random',
+      componentName: 'RandomTagPage',
+    },
+    {
+      name: 'tagActivity',
+      path: '/tagActivity',
+      componentName: 'TagVoteActivity',
+      title: 'Tag Voting Activity'
+    },
+    {
+      name: 'tagFeed',
+      path: '/tagFeed',
+      componentName: 'TagActivityFeed',
+      title: 'Tag Activity'
+    },
+    {
+      name: 'taggingDashboard',
+      path: '/tags/dashboard',
+      componentName: "TaggingDashboard",
+      title: "Tagging Dashboard",
+      ...taggingDashboardSubtitle
+    },
+  )
+}
 
 onStartup(() => {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
@@ -381,52 +571,176 @@ onStartup(() => {
   );
 });
 
-if (forumTypeSetting.get() !== 'EAForum') {
-  addRoute(
+const forumSpecificRoutes = forumSelect<Route[]>({
+  EAForum: [
     {
-      name: 'sequencesHome',
-      path: '/library',
-      componentName: 'SequencesHome',
-      title: "The Library"
+      name: 'home',
+      path: '/',
+      componentName: 'EAHome',
+      enableResourcePrefetch: true,
+      sunshineSidebar: true
     },
     {
-      name: 'Sequences',
-      path: '/sequences',
-      componentName: 'CoreSequences',
-      title: "Rationality: A-Z"
-    },
-    {
-      name: 'Rationality',
-      path: '/rationality',
-      componentName: 'CoreSequences',
-      title: "Rationality: A-Z",
-      ...rationalitySubtitle
-    },
-    {
-      name: 'Rationality.posts.single',
-      path: '/rationality/:slug',
-      componentName: 'PostsSingleSlug',
-      previewComponentName: 'PostLinkPreviewSlug',
-      ...rationalitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      name:'about',
+      path:'/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       background: postBackground
     },
     {
-      name: 'tagIndex',
-      path:'/tags',
-      redirect: () => `/tags/all`,
-    }
-  )
-}
-
-if (forumTypeSetting.get() === 'LessWrong') {
-  addRoute(
+      name: 'handbook',
+      path: '/handbook',
+      componentName: 'EAIntroCurriculum',
+      title: 'The Effective Altruism Handbook',
+    },
+    {
+      name: 'intro',
+      path: '/intro',
+      componentName: 'PostsSingleRoute',
+      _id: introPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'contact',
+      path:'/contact',
+      componentName: 'PostsSingleRoute',
+      _id: contactPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'CommunityTag',
+      path: '/meta',
+      redirect: () => `/tag/community`,
+    },
+    {
+      name: 'eaSequencesRedirect',
+      path: '/sequences',
+      redirect: () => '/library'
+    },
+    {
+      name: 'eaLibrary',
+      path: '/library',
+      componentName: 'EASequencesHome'
+    },
+    {
+      name: 'EventsHome',
+      path: '/events',
+      componentName: 'EventsHome',
+      title: 'Events',
+      subtitle: 'Events',
+      subtitleLink: '/events'
+    },
+    {
+      name: "communityRedirect",
+      path:'/groupsAndEvents',
+      redirect: () => communityPath
+    },
+    {
+      name: 'Community',
+      path: communityPath,
+      componentName: 'Community',
+      title: 'Community',
+      ...communitySubtitle
+    },
+    {
+      name: 'CommunityMembersFullMap',
+      path: '/community/map',
+      componentName: 'CommunityMembersFullMap',
+      title: 'Community Members',
+      ...communitySubtitle
+    },
+    {
+      name: 'EditMyProfile',
+      path: '/profile/edit',
+      componentName: 'EditProfileForm',
+      title: 'Edit Profile',
+      background: 'white',
+    },
+    {
+      name: 'EditProfile',
+      path: '/profile/:slug/edit',
+      componentName: 'EditProfileForm',
+      title: 'Edit Profile',
+      background: 'white',
+    },
+    {
+      name: 'ImportProfile',
+      path: '/profile/import',
+      componentName: 'EAGApplicationImportForm',
+      title: 'Import Profile',
+      background: 'white',
+    },
+    {
+      name: 'EAGApplicationData',
+      path: '/api/eag-application-data'
+    },
+  ],
+  LessWrong: [
+    {
+      name: 'home',
+      path: '/',
+      componentName: 'Home2',
+      enableResourcePrefetch: true,
+      sunshineSidebar: true
+    },
+    {
+      name: 'about',
+      path: '/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'contact',
+      path:'/contact',
+      componentName: 'PostsSingleRoute',
+      _id: contactPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'faq',
+      path: '/faq',
+      componentName: 'PostsSingleRoute',
+      _id: faqPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'donate',
+      path: '/donate',
+      componentName: 'PostsSingleRoute',
+      _id:"LcpQQvcpWfPXvW7R9",
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+      background: postBackground
+    },
+    {
+      name: 'Meta',
+      path: '/meta',
+      redirect: () => `/tag/site-meta`,
+    },
+    {
+      name: 'bestoflesswrong',
+      path: '/bestoflesswrong',
+      componentName: 'BestOfLessWrong',
+      title: "Best of LessWrong",
+      ...bestoflwSubtitle,
+    },
     {
       name: 'HPMOR',
       path: '/hpmor',
       componentName: 'HPMOR',
       title: "Harry Potter and the Methods of Rationality",
       ...hpmorSubtitle,
+    },
+    {
+      name: 'Curated',
+      path: '/curated',
+      redirect: () => `/recommendations`,
     },
     {
       name: 'Walled Garden',
@@ -437,10 +751,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
     {
       name: 'Walled Garden Portal',
       path: '/walledGardenPortal',
-      componentName: 'WalledGardenPortal',
-      title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle,
-      disableAutoRefresh: true,
+      redirect: () => `/walledGarden`,
     },
     {
       name: 'HPMOR.posts.single',
@@ -468,14 +779,279 @@ if (forumTypeSetting.get() === 'LessWrong') {
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
-  );
-}
+    {
+      name: 'bookLanding',
+      path: '/books',
+      redirect: () => `/books/2018`,
+    },
+    {
+      name: 'book2018Landing',
+      path: '/books/2018',
+      componentName: 'Book2018Landing',
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
+    },
+    {
+      name: 'editPaymentInfo',
+      path: '/payments/account',
+      componentName: 'EditPaymentInfoPage'
+    },
+    {
+      name: 'paymentsAdmin',
+      path: '/payments/admin',
+      componentName: 'AdminPaymentsPage'
+    },
+    {
+      name: 'payments',
+      path: '/payments',
+      redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database",
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
+    },
+    {
+      name: 'library',
+      path: '/library',
+      componentName: 'LibraryPage',
+      title: "The Library"
+    },
+    {
+      name: 'Sequences',
+      path: '/sequences',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z"
+    },
+    {
+      name: 'Rationality',
+      path: '/rationality',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z",
+      ...rationalitySubtitle
+    },
+    {
+      name: 'Rationality.posts.single',
+      path: '/rationality/:slug',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
+      ...rationalitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
+    },
+  ],
+  AlignmentForum: [
+    {
+      name:'alignment.home',
+      path:'/',
+      componentName: 'AlignmentForumHome',
+      enableResourcePrefetch: true,
+      sunshineSidebar: true //TODO: remove this in production?
+    },
+    {
+      name:'about',
+      path:'/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get()
+    },
+    {
+      name: 'faq',
+      path: '/faq',
+      componentName: 'PostsSingleRoute',
+      _id: faqPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'Meta',
+      path: '/meta',
+      redirect: () => `/tag/site-meta`,
+    },
+    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database",
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
+    },
+    {
+      name: 'sequencesHome',
+      path: '/library',
+      componentName: 'LibraryPage',
+      enableResourcePrefetch: true,
+      title: "The Library"
+    },
+    {
+      name: 'Sequences',
+      path: '/sequences',
+      enableResourcePrefetch: true,
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z"
+    },
+    {
+      name: 'Rationality',
+      path: '/rationality',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z",
+      ...rationalitySubtitle
+    },
+    {
+      name: 'Rationality.posts.single',
+      path: '/rationality/:slug',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
+      ...rationalitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
+    },
+  ],
+  default: [
+    {
+      name:'home',
+      path:'/',
+      componentName: 'Home2',
+      enableResourcePrefetch: true,
+      sunshineSidebar: true //TODO: remove this in production?
+    },
+    {
+      name:'about',
+      path:'/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get()
+    },
+    {
+      name: 'faq',
+      path: '/faq',
+      componentName: 'PostsSingleRoute',
+      _id: faqPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'contact',
+      path:'/contact',
+      componentName: 'PostsSingleRoute',
+      _id: contactPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      background: postBackground
+    },
+  ],
+})
+
+addRoute(...forumSpecificRoutes)
 
 addRoute(
   {
     name: 'AllComments',
     path: '/allComments',
     componentName: 'AllComments',
+    enableResourcePrefetch: true,
     title: "All Comments"
   },
   {
@@ -500,19 +1076,18 @@ if (hasEventsSetting.get()) {
       componentName: 'EventsUpcoming',
       title: "Upcoming Events by Day"
     },
-
     {
       name: 'CommunityHome',
-      path: communityPath,
+      path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
       componentName: 'CommunityHome',
-      title: communitySectionName,
+      title: 'Community',
       ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
       path: '/meetups',
       componentName: 'CommunityHome',
-      title: communitySectionName,
+      title: 'Community',
     },
 
     {
@@ -521,19 +1096,30 @@ if (hasEventsSetting.get()) {
       componentName: 'AllGroupsPage',
       title: "All Local Groups"
     },
+    
+    {
+      name: 'GroupsMap',
+      path: '/groups-map',
+      componentName: 'GroupsMap',
+      title: "Groups Map",
+      standalone: true
+    },
 
     {
       name:'Localgroups.single',
       path: '/groups/:groupId',
       componentName: 'LocalGroupSingle',
+      titleComponentName: 'LocalgroupPageTitle',
       ...communitySubtitle
     },
     {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
+      titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
-      ...communitySubtitle,
+      subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
+      subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
       background: postBackground
     },
@@ -576,6 +1162,16 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+    background: postBackground
+  },
+  {
+    name:'posts.slug.single',
+    path:'/posts/slug/:slug?',
+    componentName: 'PostsSingleSlugRedirect',
+    titleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: 'PostLinkPreviewSlug',
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
   {
@@ -636,13 +1232,6 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
-  {
-    name: 'taggingDashboard',
-    path: '/tags/dashboard',
-    componentName: "TaggingDashboard",
-    title: "Tagging Dashboard",
-    ...taggingDashboardSubtitle
-  }
 );
 
 addRoute(
@@ -658,157 +1247,19 @@ addRoute(
   }
 );
 
-switch (forumTypeSetting.get()) {
-  case 'AlignmentForum':
-    addRoute(
-      {
-        name:'alignment.home',
-        path:'/',
-        componentName: 'AlignmentForumHome',
-        sunshineSidebar: true //TODO: remove this in production?
-      },
-      {
-        name:'about',
-        path:'/about',
-        componentName: 'PostsSingleRoute',
-        _id: aboutPostIdSetting.get()
-      },
-      {
-        name: 'faq',
-        path: '/faq',
-        componentName: 'PostsSingleRoute',
-        _id: faqPostIdSetting.get(),
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
-        background: postBackground
-      },
-      {
-        name: 'Meta',
-        path: '/meta',
-        componentName: 'Meta',
-        title: "Meta",
-        ...metaSubtitle
-      },
-    );
-    break
-  case 'EAForum':
-    addRoute(
-      {
-        name: 'home',
-        path: '/',
-        componentName: 'EAHome',
-        sunshineSidebar: true
-      },
-      {
-        name:'about',
-        path:'/about',
-        componentName: 'PostsSingleRoute',
-        _id: aboutPostIdSetting.get(),
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
-        background: postBackground
-      },
-      {
-        name: 'intro',
-        path: '/intro',
-        componentName: 'PostsSingleRoute',
-        _id: introPostIdSetting.get(),
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, introPostIdSetting.get()),
-        background: postBackground
-      },
-      {
-        name: 'contact',
-        path:'/contact',
-        componentName: 'PostsSingleRoute',
-        _id: contactPostIdSetting.get(),
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
-        background: postBackground
-      },
-      {
-        name: 'Community',
-        path: '/meta',
-        redirect: () => `/tags/community`,
-      },
-      {
-        name: 'eaSequencesHome',
-        path: '/sequences',
-        componentName: 'EASequencesHome'
-      },
-      {
-        name: 'eaSequencesRedirect',
-        path: '/library',
-        redirect: () => '/sequences'
-      },
-      {
-        name: "TagsAll",
-        path:'/tags',
-        redirect: () => `/tags/all`,
-      },
-    );
-    break
-  default:
-    // Default is Vanilla LW
-    addRoute(
-      {
-        name: 'home',
-        path: '/',
-        componentName: 'Home2',
-        sunshineSidebar: true
-      },
-      {
-        name: 'about',
-        path: '/about',
-        componentName: 'PostsSingleRoute',
-        _id: aboutPostIdSetting.get(),
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
-        background: postBackground
-      },
-      {
-        name: 'faq',
-        path: '/faq',
-        componentName: 'PostsSingleRoute',
-        _id: faqPostIdSetting.get(),
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
-        background: postBackground
-      },
-      {
-        name: 'donate',
-        path: '/donate',
-        componentName: 'PostsSingleRoute',
-        _id:"LcpQQvcpWfPXvW7R9",
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
-        background: postBackground
-      },
-      {
-        name: 'Meta',
-        path: '/meta',
-        componentName: 'Meta',
-        title: "Meta"
-      },
-    );
-    break;
-}
-
-if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
-  addRoute(
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
-    }
-  )
-}
-
 addRoute(
   {
     name: 'home2',
     path: '/home2',
     componentName: 'Home2',
+    enableResourcePrefetch: true,
     title: "Home2 Beta",
   },
   {
     name: 'allPosts',
     path: '/allPosts',
     componentName: 'AllPostsPage',
+    enableResourcePrefetch: true,
     title: "All Posts",
   },
   {
@@ -834,20 +1285,13 @@ addRoute(
     componentName: 'PasswordResetPage',
   },
   {
-    name: 'nominations2018',
-    path: '/nominations2018',
-    componentName: 'Nominations2018',
-    title: "2018 Nominations",
-  },
-  {
     name: 'nominations',
     path: '/nominations',
-    componentName: 'Nominations2019',
-    title: "2019 Nominations",
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
-    name: 'userReviews',
-    path:'/users/:slug/reviews',
+    name: 'userReviewsByYear',
+    path:'/users/:slug/reviews/:year',
     componentName: 'UserReviews',
     title: "User Reviews",
   },
@@ -858,22 +1302,24 @@ addRoute(
     title: "User Comment Replies",
   },
   {
-    name: 'reviews2018',
-    path: '/reviews2018',
-    componentName: 'Reviews2018',
-    title: "2018 Reviews",
-  },
-  {
     name: 'reviews',
     path: '/reviews',
-    componentName: 'Reviews2019',
-    title: "2019 Reviews",
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
-    name: 'bookLanding',
-    path: '/books',
-    componentName: 'BookLanding',
-    title: "A Map that Reflects the Territory",
-    background: "white"
+    name: 'reviews-2020',
+    path: '/reviews/2020',
+    redirect: () => `/reviewVoting/2020`,
   },
+  {
+    name: 'reviewAdmin',
+    path: '/reviewAdmin',
+    redirect: () => `/reviewAdmin/2020`,
+  },
+  {
+    name: 'reviewAdmin-year',
+    path: '/reviewAdmin/:year',
+    componentName: 'ReviewAdminDashboard',
+    title: "Review Admin Dashboard",
+  }
 );

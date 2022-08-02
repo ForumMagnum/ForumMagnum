@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   // that's otherwise globally applied to <a> tags.
   highlighted: {
     '& $link': {
-      color: "black",
+      color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
       content: `"•"`,
@@ -29,19 +29,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
     paddingTop: 6,
     paddingBottom: 6,
-    color: theme.palette.grey[600],
+    color: theme.palette.link.tocLink,
     lineHeight: "1.2em",
     '&:hover':{
       opacity:1,
-      color: "black",
-      textShadow: "0 0 0 rgba(0,0,0,1].87)",
+      color: theme.palette.link.tocLinkHighlighted,
     }
   },
+  highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
   title: {
     paddingTop: 3,
     paddingBottom: theme.spacing.unit*1.5,
-    borderBottom: "solid 1px rgba(0,0,0,.1)"
+    borderBottom: theme.palette.border.faint,
   },
   level0: {
     display:"inline-block",
@@ -65,19 +65,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   level3: {
     fontSize:"1.1rem",
-    color:theme.palette.grey[700],
+    color: theme.palette.text.dim700,
     paddingLeft: 32,
   },
   level4: {
     fontSize:"1.1rem",
-    color:theme.palette.grey[700],
+    color: theme.palette.text.dim700,
     paddingLeft: 48,
   },
   divider: {
     width: 80,
     marginBottom:theme.spacing.unit,
     marginRight: "auto",
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
     paddingBottom: theme.spacing.unit,
     display:"block",
   }
@@ -115,7 +115,10 @@ const TableOfContentsRow = ({
       { [classes.highlighted]: highlighted }
     )}
   >
-    <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title})}>
+    <a href={href} onClick={onClick} className={classNames(classes.link, {
+      [classes.title]: title,
+      [classes.highlightDot]: !answer,
+    })}>
       {children}
     </a>
   </div>

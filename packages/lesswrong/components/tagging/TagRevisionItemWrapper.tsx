@@ -17,6 +17,7 @@ const TagRevisionItemWrapper = ({tag, headingStyle, revisionId, documentId}: {
   });
   
   if (loading) return null;
+  if (!document) {return null;}
   return <TagRevisionItem tag={tag} headingStyle={headingStyle} revision={document} documentId={documentId}/>
 }
 

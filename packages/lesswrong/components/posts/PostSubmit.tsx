@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import { useCurrentUser } from "../common/withUser";
+import { useTracking } from "../../lib/analyticsEvents";
+import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -17,14 +21,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 5,
     fontWeight: 500,
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      background: theme.palette.buttons.hoverGrayHighlight,
     }
   },
 
   secondaryButton: {
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
   },
 
+  submitButtons: {
+    marginLeft: 'auto'
+  },
+  
   submitButton: {
     color: theme.palette.secondary.main,
   },
@@ -35,23 +43,52 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   draft: {
-    marginLeft: 'auto'
+  },
+  feedback: {
+    
   }
 });
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
+
+const coauthorTooltip = 'Your post will be scheduled so your co-authors can give their permission. If they do not respond, your post will be automatically published in 24 hours.';
 
 interface PostSubmitProps {
   submitLabel?: string,
   cancelLabel?: string,
   saveDraftLabel?: string,
+  feedbackLabel?: string,
   cancelCallback: any,
   document: PostsPage,
   collectionName: string,
   classes: ClassesType
 }
 
+const requestFeedbackKarmaLevel = forumSelect({
+  EAForum: 200,
+  default: 100,
+})
+
 const PostSubmit = ({
-  submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes
+  submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
 }: PostSubmitProps, { updateCurrentValues }) => {
+  
+  const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
+  if (!currentUser) throw Error("must be logged in to post")
+
+  const waitForCoauthors = !document.hasCoauthorPermission &&
+    document.coauthorStatuses?.findIndex?.(({ confirmed }) => !confirmed) >= 0;
+
+  const { LWTooltip } = Components;
+  const SubmitTooltip = waitForCoauthors
+    ? ({ children }) => (
+      <LWTooltip title={coauthorTooltip} placement="top">
+        {children}
+      </LWTooltip>
+    )
+    : ({ children }) => children;
+
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -67,22 +104,46 @@ const PostSubmit = ({
           </Button>
         </div>
       }
-
-      <Button type="submit"
-        className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-        onClick={() => updateCurrentValues({draft: true})}
-      >
-        {saveDraftLabel}
-      </Button>
-      
-      <Button
-        type="submit"
-        onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
-        className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-        variant={collectionName=="users" ? "outlined" : undefined}
-      >
-        {submitLabel}
-      </Button>
+      <div className={classes.submitButtons}>
+        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+          // EA Forum title is Effective Altruism Forum, which is unecessarily long
+          title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
+        >
+          <Button type="submit"//treat as draft when draft is null
+            className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+            onClick={() => {
+              captureEvent("feedbackRequestButtonClicked")
+              if (!!document.title) {
+                updateCurrentValues({draft: true});
+                // eslint-disable-next-line
+                window.Intercom(
+                  'trackEvent',
+                  'requested-feedback',
+                  {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
+                )
+              }
+            }}
+          >
+            {feedbackLabel}
+          </Button>
+        </LWTooltip>}
+        <Button type="submit"
+          className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
+          onClick={() => updateCurrentValues({draft: true})}
+        >
+          {saveDraftLabel}
+        </Button>
+        <Button
+          type="submit"
+          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
+          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+          variant={collectionName=="users" ? "outlined" : undefined}
+        >
+          <SubmitTooltip>
+            {submitLabel}
+          </SubmitTooltip>
+        </Button>
+      </div>
     </React.Fragment>
   );
 }
@@ -111,4 +172,3 @@ declare global {
     PostSubmit: typeof PostSubmitComponent
   }
 }
-

@@ -1,12 +1,11 @@
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
+import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -20,24 +19,26 @@ import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import { globalStyles } from '../lib/globalStyles';
+import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
+import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
+const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
-const standaloneNavMenuRouteNames: Record<string,string[]> = {
+const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
-    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
+    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Codex', 'bestoflesswrong',
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
-  'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaSequencesHome'],
+  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook'],
+  'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -80,11 +81,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'sunshine'
   },
   whiteBackground: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
   },
   '@global': {
     ...globalStyles(theme),
-    p: pBodyStyle,
+    p: pBodyStyle(theme),
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
@@ -99,6 +100,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
+    ...(theme.palette.intercom ? {
+      '.intercom-launcher': {
+        backgroundColor: theme.palette.intercom.buttonBackground
+      }
+    } : null),
   },
   searchResultsArea: {
     position: "absolute",
@@ -109,14 +115,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  // FIXME sure seems like this should be an optional prop
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrent | null,
   messages: any,
   children?: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
   cookies: any,
   theme: ThemeType,
+  updateUser: any,
 }
 interface LayoutState {
   timezone: string,
@@ -161,11 +167,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   toggleStandaloneNavigation = () => {
-    const { updateCurrentUser, currentUser } = this.props
+    const { updateUser, currentUser } = this.props
     this.setState(prevState => {
       if (currentUser) {
-        void updateCurrentUser({
-          hideNavigationSidebar: !prevState.hideNavigationSidebar
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          }
         })
       }
       return {
@@ -174,24 +183,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     })
   }
 
-  getUniqueClientId = () => {
-    const { currentUser, cookies } = this.props
-
-    if (currentUser) return currentUser._id
-
-    const cookieId = cookies.get('clientId')
-    if (cookieId) return cookieId
-
-    const newId = randomId()
-    cookies.set('clientId', newId)
-    return newId
-  }
-
   componentDidMount() {
-    const { cookies } = this.props;
+    const { updateUser, currentUser, cookies } = this.props;
     const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone) {
+    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
       cookies.set('timezone', newTimezone);
+      if (currentUser) {
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            lastUsedTimezone: newTimezone,
+          }
+        })
+      }
       this.setState({
         timezone: newTimezone
       });
@@ -201,7 +205,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -233,7 +237,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
     const currentRoute = location.currentRoute
     const standaloneNavigation = !currentRoute ||
-      standaloneNavMenuRouteNames[forumTypeSetting.get()]
+      forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
         
     const shouldUseGridLayout = standaloneNavigation
@@ -243,12 +247,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const afterTime = petrovAfterTime.get()
 
     const renderPetrovDay = 
-      currentRoute?.name == "home"
-      && forumTypeSetting.get() === "LessWrong"
+      currentRoute?.name === "home"
+      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
       
-
-      return (
+    return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
@@ -267,7 +270,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -288,16 +291,16 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
-              {showIntercom(currentUser)}
+              {!currentRoute?.standalone && showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Header
+              {!currentRoute?.standalone && <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
-              />
+              />}
               {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
@@ -338,7 +341,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
     withLocation, withCookies,
-    withUpdateCurrentUser,
+    withUpdate({
+      collectionName: "Users",
+      fragmentName: 'UsersCurrent',
+    }),
     withTheme()
   ]}
 );

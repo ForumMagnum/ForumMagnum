@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { isAnyTest, onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
 import { MongoCollection } from '../../../lib/mongoCollection';
 
 // A package for running jobs synchronized across multiple processes
@@ -143,13 +143,11 @@ SyncedCron.add = async function(entry: {
 SyncedCron.start = function() {
   var self = this;
 
-  onStartup(async function() {
-    // Schedule each job with later.js
-    _.each(self._entries, function(entry) {
-      scheduleEntry(entry);
-    });
-    self.running = true;
+  // Schedule each job with later.js
+  _.each(self._entries, function(entry) {
+    scheduleEntry(entry);
   });
+  self.running = true;
 }
 
 // Return the next scheduled date of the first matching entry or undefined
@@ -213,7 +211,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = await self._collection.insert(jobHistory);
+        jobHistory._id = await self._collection.rawInsert(jobHistory);
       } catch(e) {
         // http://www.mongodb.org/about/contributors/error-codes/
         // 11000 == duplicate key error
@@ -233,7 +231,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 
       log.info('Finished "' + entry.name + '".');
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -243,7 +241,7 @@ SyncedCron._entryWrapper = function(entry: any) {
     } catch(e) {
       log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e
@@ -257,7 +255,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 // for tests
 SyncedCron._reset = async function() {
   this._entries = {};
-  await this._collection.remove({});
+  await this._collection.rawRemove({});
   this.running = false;
 }
 
@@ -336,10 +334,10 @@ SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
     }
 
     if(diff < 2147483647) {
-      t = runAfterDelay(function() { fn(intendedAt); }, diff);
+      t = setTimeout(function() { fn(intendedAt); }, diff);
     }
     else {
-      t = runAfterDelay(scheduleTimeout, 2147483647);
+      t = setTimeout(scheduleTimeout, 2147483647);
     }
   }
 
@@ -349,7 +347,7 @@ SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
     * Clears the timeout.
     */
     clear: function() {
-      clearRunAfterDelay(t);
+      clearTimeout(t);
     }
 
   };

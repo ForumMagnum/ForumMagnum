@@ -1,4 +1,4 @@
-import { isAnyTest, onStartup, runAfterDelay } from '../lib/executionEnvironment';
+import { isAnyTest, onStartup } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { getCommandLineArguments } from './commandLine';
 
@@ -12,6 +12,7 @@ SyncedCron.options = {
 export function addCronJob(options: {
   name: string,
   interval?: string,
+  // uses later.js parser, no seconds allowed though
   cronStyleSchedule?: string,
   job: ()=>void,
 })
@@ -19,14 +20,15 @@ export function addCronJob(options: {
   onStartup(function() {
     if (!isAnyTest && !getCommandLineArguments().shellMode) {
       // Defer starting of cronjobs until 20s after server startup
-      runAfterDelay(() => {
+      setTimeout(() => {
         SyncedCron.add({
           name: options.name,
           schedule: (parser: any) => {
             if (options.interval)
               return parser.text(options.interval);
-            else if (options.cronStyleSchedule)
+            else if (options.cronStyleSchedule) {
               return parser.cron(options.cronStyleSchedule);
+            }
             else
               throw new Error("addCronJob needs a schedule specified");
           },
@@ -38,7 +40,7 @@ export function addCronJob(options: {
 }
 
 export function removeCronJob(name: string) {
-  SyncedCron.remove(name);
+  SyncedCron.rawRemove(name);
 }
 
 export function startSyncedCron() {

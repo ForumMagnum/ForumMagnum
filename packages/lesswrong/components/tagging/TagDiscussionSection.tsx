@@ -2,21 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
-import { commentBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
-    marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
-  },
-  description: {
-    marginTop: 18,
-    ...commentBodyStyles(theme),
-    marginBottom: 18,
-  },
 });
 
 const TagDiscussionSection = ({classes, tag}: {
@@ -40,7 +27,9 @@ const TagDiscussionSection = ({classes, tag}: {
   
   const nestedComments = !!results && unflattenComments(results);
   
-  return (  
+  if (!nestedComments) return null
+  
+  return (
     <CommentsListSection
       comments={nestedComments} tag={tag ? tag : undefined}
       loadMoreComments={loadMore}

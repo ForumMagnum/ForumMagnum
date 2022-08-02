@@ -2,12 +2,16 @@ import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
+import { Votes } from '../lib/collections/votes'
+import Tags from '../lib/collections/tags/collection'
+import Revisions from '../lib/collections/revisions/collection'
 import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
-import { PartialDeep } from 'type-fest'
+import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Localgroups from '../lib/collections/localgroups/collection';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -184,7 +188,8 @@ export const createDummyUser = async (data?: any) => {
   const defaultData = {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
-    reviewedByUserId: "fakeuserid" // TODO: make this user_id correspond to something real that would hold up if we had proper validation
+    reviewedByUserId: "fakeuserid", // TODO: make this user_id correspond to something real that would hold up if we had proper validation
+    previousDisplayName: randomId()
   }
   const userData = {...defaultData, ...data};
   const newUserResponse = await createMutator({
@@ -250,15 +255,79 @@ export const createDummyMessage = async (user: any, data?: any) => {
   return newMessageResponse.data
 }
 
+export const createDummyLocalgroup = async (data?: any) => {
+  let defaultData = {
+    name: randomId()
+  }
+  const groupData = {...defaultData, ...data};
+  const groupResponse = await createMutator({
+    collection: Localgroups,
+    document: groupData,
+    validate: false,
+  });
+  return groupResponse.data
+}
+
+export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
+  const defaultData = {
+    userId: user._id,
+    authorIds: [],
+    cancelled: false,
+    isUnvote: false,
+  };
+  const voteData = {...defaultData, ...data};
+  const newVoteResponse = await createMutator({
+    collection: Votes,
+    document: voteData,
+    currentUser: user,
+    validate: false,
+  });
+  return newVoteResponse.data;
+}
+
+export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
+  const defaultData = {
+    userId: user._id,
+    deleted: false,
+    adminOnly: false,
+    postCount: 0,
+    createdAt: new Date(Date.now()),
+  };
+  const tagData = {...defaultData, ...data};
+  const newTagResponse = await createMutator({
+    collection: Tags,
+    document: tagData,
+    currentUser: user,
+    validate: false,
+  });
+  return newTagResponse.data;
+}
+
+export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision>) => {
+  const defaultData = {
+    userId: user._id,
+    inactive: false,
+    editedAt: new Date(Date.now()),
+  };
+  const revisionData = {...defaultData, ...data};
+  const newRevisionResponse = await createMutator({
+    collection: Revisions,
+    document: revisionData,
+    currentUser: user,
+    validate: false,
+  });
+  return newRevisionResponse.data;
+}
+
 export const clearDatabase = async () => {
   await asyncForeachSequential(await Users.find().fetch(), async (i) => {
-    await Users.remove(i._id)
+    await Users.rawRemove(i._id)
   });
   await asyncForeachSequential(await Posts.find().fetch(), async (i) => {
-    await Posts.remove(i._id)
+    await Posts.rawRemove(i._id)
   });
   await asyncForeachSequential(await Comments.find().fetch(), async (i) => {
-    await Comments.remove(i._id)
+    await Comments.rawRemove(i._id)
   });
 }
 

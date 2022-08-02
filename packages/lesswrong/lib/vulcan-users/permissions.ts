@@ -1,4 +1,5 @@
 import intersection from 'lodash/intersection';
+import moment from 'moment';
 import * as _ from 'underscore';
 import { getSchema } from'../utils/getSchema';
 
@@ -33,19 +34,21 @@ export const createGroup = (groupName: string): Group => {
 export const userGetGroups = (user: UsersProfile|DbUser|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
-  } else {
-    let userGroups: Array<string> = ['members'];
-
-    if (user.groups) { // custom groups
-      userGroups = userGroups.concat(user.groups);
-    }
-
-    if (userIsAdmin(user)) { // admin
-      userGroups.push('admins');
-    }
-    
-    return userGroups;
   }
+  if (user.banned > moment().toDate()) { // banned users have no membership permissions
+    return ['guests'];
+  }
+  let userGroups: Array<string> = ['members'];
+
+  if (user.groups) { // custom groups
+    userGroups = userGroups.concat(user.groups);
+  }
+
+  if (userIsAdmin(user)) { // admin
+    userGroups.push('admins');
+  }
+  
+  return userGroups;
 };
 
 // Get a list of all the actions a user can perform
@@ -64,7 +67,7 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
 };
 
 // Check if a user is a member of a group
-export const userIsMemberOf = (user: UsersCurrent|DbUser|null, group: string): boolean => {
+export const userIsMemberOf = (user: UsersCurrent|UsersProfile|DbUser|null, group: string): boolean => {
   const userGroups = userGetGroups(user);
   for (let userGroup of userGroups) {
     if (userGroup === group)
@@ -100,6 +103,20 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
     return documentUser.slug ? user.slug === documentUser.slug : user._id === documentUser._id;
   }
 };
+
+
+export const userOverNKarmaFunc = (n: number) => {
+    return (user: UsersMinimumInfo|DbUser|null): boolean => {
+      if (!user) return false
+      return (user.karma > n)
+    }
+}
+
+export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean => {
+  if (!user) return false
+  return !user.previousDisplayName
+}
+  
 
 // Check if a user is an admin
 export const userIsAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {

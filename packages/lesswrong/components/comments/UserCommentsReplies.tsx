@@ -24,7 +24,7 @@ const UserCommentsReplies = ({ classes }) => {
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
-  const user = getUserFromResults(userResults)
+  const user = getUserFromResults(userResults ?? null)
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms: {view: 'allRecentComments', authorIsUnreviewed: null, limit: 50, userId: user?._id},
     collectionName: "Comments",
@@ -48,6 +48,7 @@ const UserCommentsReplies = ({ classes }) => {
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
+                tag: comment.tag || undefined,
                 showPostTitle: true,
               }}
               comment={comment}

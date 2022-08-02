@@ -9,14 +9,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,
-      ...theme.typography.uiStyle,
-      backgroundColor: "rgba(0,0,0,0)"
+      backgroundColor: "transparent"
     },
     "& li": {
       listStyle: "none",
     },
     "& .react-autosuggest__suggestion--highlighted": {
-        backgroundColor: "rgba(0,0,0,0.05)",
+      backgroundColor: theme.palette.panelBackground.darken05,
     },
     "& ul": {
       marginLeft: 0,

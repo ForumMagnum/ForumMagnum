@@ -10,7 +10,7 @@ registerMigration({
     const organizers = await Users.find({createdAt: {$gt: new Date("2021-08-22T05:48:35.336Z")}, emails: null}).fetch()
     for (const organizer of organizers) {
       if (organizer.email) {
-        await Users.update({_id: organizer._id}, {$set: {emails: [{address: organizer.email, verified: true}]}})
+        await Users.rawUpdateOne({_id: organizer._id}, {$set: {emails: [{address: organizer.email, verified: true}]}})
       }
     }
   },

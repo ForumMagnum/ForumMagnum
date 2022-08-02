@@ -1,5 +1,7 @@
 import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { pluralize } from './vulcan-lib/pluralize';
+import startCase from 'lodash/startCase'
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -109,12 +111,28 @@ export class PublicInstanceSetting<SettingValueType> {
 */
 
 export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
+export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
+/**
+ * Name of the tagging feature on your site. The EA Forum is going to try
+ * calling them topics. You should set this setting with the lowercase singular
+ * form of the name. We assume this is a single word currently. Spaces will
+ * cause issues.
+ */
+export const taggingNameSetting = new PublicInstanceSetting<string>('taggingName', 'tag', 'optional')
+export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSetting.get())}
+export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
+export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
+export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
+
+// NB: Now that neither LW nor the EAForum use this setting, it's a matter of
+// time before it falls out of date. Nevertheless, I expect any newly-created
+// forums to use this setting.
 export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', true, 'optional') // Whether the current connected server has events activated
 
 // Sentry settings
@@ -124,3 +142,6 @@ export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sent
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
 // Stripe setting
+
+//Test vs Production Setting
+export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")

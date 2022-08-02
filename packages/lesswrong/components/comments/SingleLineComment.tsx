@@ -1,6 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -9,31 +8,36 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
 
+export const SINGLE_LINE_PADDING_TOP = 5
+
+export const singleLineStyles = (theme: ThemeType): JssStyles => ({
+  display: "flex",
+  borderRadius: 3,
+  backgroundColor: theme.palette.panelBackground.singleLineComment,
+  '&:hover': {
+    backgroundColor: theme.palette.panelBackground.singleLineCommentHovered,
+  },
+  marginTop: 0,
+  marginBottom: 0,
+  paddingLeft: theme.spacing.unit,
+  paddingRight: theme.spacing.unit,
+  color: theme.palette.text.dim60,
+  whiteSpace: "nowrap",
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     cursor: "pointer",
   },
   commentInfo: {
-    display: "flex",
-    borderRadius: 3,
-    backgroundColor: "#f0f0f0",
-    '&:hover': {
-      backgroundColor: "#e0e0e0",
-    },
-    ...commentBodyStyles(theme),
-    marginTop: 0,
-    marginBottom: 0,
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    color: "rgba(0,0,0,.6)",
-    whiteSpace: "nowrap",
+    ...singleLineStyles(theme)
   },
   username: {
     display:"inline-block",
-    padding: 5,
+    padding: SINGLE_LINE_PADDING_TOP,
     '& a, & a:hover': {
-      color: "rgba(0,0,0,.87)",
+      color: theme.palette.link.unmarked,
     },
     fontWeight: 600,
     marginRight: 10,
@@ -49,18 +53,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"inline-block",
     textAlign: "center",
     width: 30,
-    paddingTop: 5,
-    paddingRight: 5,
+    paddingTop: SINGLE_LINE_PADDING_TOP,
+    paddingRight: SINGLE_LINE_PADDING_TOP,
   },
   date: {
     display:"inline-block",
-    padding: 5,
+    padding: SINGLE_LINE_PADDING_TOP,
     paddingRight: theme.spacing.unit,
     paddingLeft: theme.spacing.unit
   },
   truncatedHighlight: {
-    padding: 5,
-    ...commentBodyStyles(theme),
+    padding: SINGLE_LINE_PADDING_TOP,
+    display: "inline",
     flexGrow: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -81,25 +85,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   highlight: {
-    ...commentBodyStyles(theme),
-    backgroundColor: "white",
-    padding: theme.spacing.unit*1.5,
+    backgroundColor: theme.palette.panelBackground.default,
     width: "inherit",
     maxWidth: 625,
     position: "absolute",
     top: "calc(100% - 20px)",
     right: 0,
     zIndex: 5,
-    border: "solid 1px rgba(0,0,0,.1)",
-    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    border: theme.palette.border.faint,
+    boxShadow: theme.palette.boxShadow.comment,
     maxHeight: 500,
     overflow: "hidden",
     '& img': {
       maxHeight: "200px"
     }
   },
+  highlightPadding: {
+    padding: theme.spacing.unit*1.5
+  },
   isAnswer: {
-    ...postBodyStyles(theme),
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
     '& a, & a:hover': {
@@ -109,14 +113,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   odd: {
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     '&:hover': {
-      backgroundColor: "#f3f3f3",
+      backgroundColor: theme.palette.panelBackground.singleLineCommentOddHovered,
     }
   },
   metaNotice: {
     ...commentsItemStyles(theme).metaNotice,
     marginRight: theme.spacing.unit
+  },
+  postTitle: {
+    ...commentsItemStyles(theme).metaNotice,
+    marginRight: 20
+  },
+  preview: {
+    width: 400
   }
 })
 
@@ -129,14 +140,14 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   showDescendentCount?: boolean,
   classes: ClassesType,
 }) => {
-  const {hover, eventHandlers} = useHover();
+  const {anchorEl, hover, eventHandlers} = useHover();
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
-  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
@@ -144,10 +155,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <div className={classNames(classes.commentInfo, {
+      <ContentStyles
+        contentType={comment.answer ? "post" : "comment"}
+        className={classNames(classes.commentInfo, {
           [classes.isAnswer]: comment.answer, 
           [classes.odd]:((nestingLevel%2) !== 0),
-        })}>
+        })}
+      >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
 
         {parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
@@ -160,22 +174,30 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
-        {renderHighlight && <span className={classes.truncatedHighlight}> 
+        {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
+          {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
           {plaintextMainText}
-        </span>}
+        </ContentStyles>}
         {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
           small={true}
           commentCount={comment.descendentCount}
           unreadComments={false}
           newPromotedComments={false}
         />}
-      </div>
-      {displayHoverOver && <span className={classNames(classes.highlight)}>
-        <CommentBody truncated comment={comment}/>
-      </span>}
+      </ContentStyles>
+      <LWPopper
+        open={displayHoverOver}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        clickable={false}
+      >
+          <div className={classes.preview}>
+            <CommentsNode truncated nestingLevel={1} comment={comment} treeOptions={{...treeOptions, hideReply: true}} forceNotSingleLine hoverPreview/>
+          </div>
+      </LWPopper>
     </div>
   )
 };

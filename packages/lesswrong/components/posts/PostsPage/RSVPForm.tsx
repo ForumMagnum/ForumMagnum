@@ -18,10 +18,9 @@ export const responseToText = {
 }
 
 const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
-  userId: string,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
-  onClose: ()=>void,
+  onClose?: ()=>void,
 }) => {
   const [registerRSVP] = useMutation(gql`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {
@@ -36,13 +35,16 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
   const [name, setName] = useState(currentUser?.displayName || "")
   const [email, setEmail] = useState("")
   const [response, setResponse] = useState(initialResponse)
+  const [error, setError] = useState("")
+
   return (
     <Components.LWDialog
       title={`RSVP to ${post.title}`}
       open={true}
       onClose={() => {
         history.push({...location, search: ``})
-        onClose()
+        if (onClose)
+          onClose()
       }}
     >
       <DialogTitle>
@@ -67,14 +69,29 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
           <MenuItem value="maybe">{responseToText["maybe"]}</MenuItem>
           <MenuItem value="no">{responseToText["no"]}</MenuItem>
         </Select>
+        {error && <div>
+          {error}
+        </div>}
+        <p>
+          <i>The provided email is only visible to the organizer.</i>
+        </p>
       </DialogContent>
       <DialogActions>
         <Button 
           type="submit"
           color="primary"
           onClick={async () => {
-            await registerRSVP({variables: {postId: post._id, name, email, response}})
-            onClose()
+            if (name) {
+              const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}})
+              if (errors) {
+                setError(`Oops, something went wrong: ${errors[0].message}`)
+              } else if (onClose) {
+                onClose()
+              }
+            } else {
+              setError("Please provide a name")
+            }
+            
           }}
         >
           Submit

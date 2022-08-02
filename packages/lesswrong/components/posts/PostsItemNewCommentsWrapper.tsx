@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
+    color: theme.palette.text.dim700,
     marginBottom: 4
   }
 })
@@ -36,11 +36,11 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions,
   
   else {
     const lastCommentId = results && results[0]?._id
-    const nestedComments = unflattenComments(results);
+    const nestedComments = results && unflattenComments(results);
     return (
       <div>
         {title && <div className={classes.title}>{title}</div>}
-        <CommentsList
+        {nestedComments && <CommentsList
           treeOptions={{
             ...treeOptions,
             lastCommentId: lastCommentId,
@@ -49,7 +49,7 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions,
           comments={nestedComments}
           startThreadTruncated={true}
           forceSingleLine={forceSingleLine}
-        />
+        />}
         {loading && <Loading/>}
       </div>
     );
@@ -67,4 +67,3 @@ declare global {
     PostsItemNewCommentsWrapper: typeof PostsItemNewCommentsWrapperComponent
   }
 }
-

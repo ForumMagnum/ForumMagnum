@@ -4,7 +4,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 
 const UserReviews = () => {
-  const { params: { slug } } = useLocation();
+  const { params: { slug, year } } = useLocation();
   const { results, loading } = useMulti({
     collectionName: "Users",
     fragmentName: 'UsersProfile',
@@ -17,25 +17,46 @@ const UserReviews = () => {
 
   if (loading) return <Loading />
   if (!user) return <Error404 />
+  if (!year) return <Error404 />
+
+  let nominationsView
+  let reviewsView
+
+  switch (year) {
+    case "2018":
+      nominationsView = "nominations2018"
+      reviewsView = "reviews2018"
+      break
+    case "2019":
+      nominationsView = "nominations2019"
+      reviewsView = "reviews2019"
+      break
+    case "all":
+      nominationsView = "nominationsAll"
+      reviewsView = "reviewsAll"
+      break
+  }
+
+  if (!nominationsView || !reviewsView) return <Error404 />
 
   const nominationTerms: CommentsViewTerms = {
-    view: "nominations2018",
+    view: nominationsView,
     userId: user._id,
     limit: 50
   }
 
   const reviewTerms: CommentsViewTerms = {
-    view: "reviews2018",
+    view: reviewsView,
     userId: user._id,
     limit: 50
   }
 
   return (
     <SingleColumnSection>
-      <SectionTitle title={`${user.displayName}'s 2018 Reviews`}/>
-      <RecentComments terms={reviewTerms} noResultsMessage="No Reviews Found"/>
-      <SectionTitle title={`${user.displayName}'s 2018 Nominations`}/>
-      <RecentComments terms={nominationTerms} noResultsMessage="No Nominations Found"/>
+      <SectionTitle title={`${user.displayName}'s ${year} Reviews`}/>
+      <RecentComments terms={reviewTerms} truncated noResultsMessage="No Reviews Found"/>
+      <SectionTitle title={`${user.displayName}'s ${year} Nominations`}/>
+      <RecentComments terms={nominationTerms} truncated noResultsMessage="No Nominations Found"/>
     </SingleColumnSection>
   )
 

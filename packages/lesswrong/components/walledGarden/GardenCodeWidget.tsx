@@ -4,7 +4,6 @@ import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {commentBodyStyles} from "../../themes/stylePiping";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import moment from 'moment';
@@ -12,11 +11,10 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 
 export const gardenForm = (theme: ThemeType) => ({
-  ...commentBodyStyles(theme, true),
-  border: "solid 1px rgba(0,0,0,.2)",
+  border: theme.palette.border.normal,
   borderRadius: 3,
   padding: 8,
-  backgroundColor: "white",
+  backgroundColor: theme.palette.panelBackground.default,
   maxWidth: 400,
   '& .MuiInput-formControl': {
     width: 320
@@ -92,7 +90,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
 
   const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type", "afOnly"]
 
-  return <div className={classes.root} {...keyDown}>
+  return <Components.ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
@@ -137,7 +135,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
             successCallback={code => setCurrentCode(code)}/>
       </div>
     }
-  </div>
+  </Components.ContentStyles>
 }
 
 const GardenCodeWidgetComponent = registerComponent('GardenCodeWidget', GardenCodeWidget, {styles});

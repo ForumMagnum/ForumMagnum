@@ -15,12 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "5px",
 
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      background: theme.palette.panelBackground.darken05,
     }
   },
 
   secondaryButton: {
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
   },
 
   submitButton: {

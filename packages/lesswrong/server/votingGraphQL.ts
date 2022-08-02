@@ -1,6 +1,6 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
-import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
+import { VoteableCollections, VoteableCollectionOptions, collectionIsVoteable } from '../lib/make_voteable';
 
 export function createVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
@@ -47,7 +47,7 @@ const voteResolver = {
       if (!currentUser) throw new Error("Error casting vote: Not logged in.");
 
       const document = await performVoteServer({
-        documentId, voteType, collection, user: currentUser,
+        documentId, voteType: voteType||"neutral", collection, user: currentUser,
         toggleIfAlreadyVoted: true,
       });
       return document;
@@ -62,24 +62,30 @@ function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
   const typeName = collection.options.typeName;
   const mutationName = `setVote${typeName}`;
   
-  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String): ${typeName}`);
+  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String, extendedVote: JSON): ${typeName}`);
   
   addGraphQLResolvers({
     Mutation: {
-      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null}, context: ResolverContext) => {
-        const {documentId, voteType} = args;
+      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
+        const {documentId, voteType, extendedVote} = args;
         const {currentUser} = context;
         const document = await collection.findOne({_id: documentId});
         
         if (!currentUser) throw new Error("Error casting vote: Not logged in.");
         if (!document) throw new Error("No such document ID");
-  
-        if (voteType === null) {
-          return await clearVotesServer({document, user: currentUser, collection});
+
+        const {userCanVoteOn} = VoteableCollectionOptions[collection.collectionName] ?? {};
+        if (userCanVoteOn && !(await userCanVoteOn(currentUser, document))) {
+          throw new Error("You do not have permission to vote on this");
+        }
+
+        if (!voteType && !extendedVote) {
+          return await clearVotesServer({document, user: currentUser, collection, context});
         } else {
           return await performVoteServer({
             toggleIfAlreadyVoted: false,
-            document, voteType, collection, user: currentUser
+            document, voteType: voteType||"neutral", extendedVote, collection, user: currentUser,
+            context,
           });
         }
       }

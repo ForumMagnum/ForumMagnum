@@ -1,37 +1,42 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { useUserLocation } from '../../../lib/collections/users/helpers';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
-
-  const lat = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms: PostsViewTerms = {
-    view: 'events',
-    onlineEvent: false,
-    limit: 3,
-  }
-  if (lat && lng) {
-    eventsListTerms = {
-      onlineEvent: false,
+  
+  const {lat, lng, known} = useUserLocation(currentUser, true)
+  
+  if (lat && lng && known) {
+    const nearbyTerms: PostsViewTerms = {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 1,
+      limit: isEAForum ? 4 : 7,
     }
+    return <span>
+      <AnalyticsContext pageSubSectionContext="menuEventsList">
+        <TabNavigationEventsList onClick={onClick} terms={nearbyTerms} />
+      </AnalyticsContext>
+    </span>
   }
-  const onlineTerms: PostsViewTerms = {
-    view: 'onlineEvents',
-    limit: 4
+
+  const eventsListTerms: PostsViewTerms = {
+    view: 'events',
+    globalEvent: false,
+    limit: isEAForum ? 1 : 3,
+  }
+  const globalTerms: PostsViewTerms = {
+    view: 'globalEvents',
+    limit: isEAForum ? 3 : 4,
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
-      <TabNavigationEventsList onClick={onClick} terms={onlineTerms} />
+      <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
       <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
     </AnalyticsContext>
   </span>

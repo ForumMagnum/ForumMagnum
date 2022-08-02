@@ -27,34 +27,33 @@ function normalizeTagLink(link: string) {
   return removeUrlParameters(link, ["showPostCount", "useTagName"]);
 }
 
-const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}: {
+const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6, noPrefetch}: {
   href: string,
   targetLocation: any,
   innerHTML: string,
   classes: ClassesType,
-  postCount?: number
+  postCount?: number,
+  noPrefetch?: boolean,
 }) => {
   const { params: {slug} } = targetLocation;
-  const { tag } = useTagBySlug(slug, "TagPreviewFragment");
-  const { PopperCard, TagPreview, Loading } = Components;
-  const { hover, anchorEl, eventHandlers } = useHover();
+  const { hover, anchorEl, eventHandlers, everHovered } = useHover();
+  const { tag, loading } = useTagBySlug(slug, "TagPreviewFragment", {skip: noPrefetch && !everHovered});
+  const { PopperCard, TagPreview } = Components;
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
-  const useTagName = tag && tag.name && useTagNameQuery === "true" // query parameters are strings
+  const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
   
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
-      {tag
-        ? <TagPreview tag={tag} postCount={postCount}/>
-        : <Loading/>}
+      <TagPreview tag={tag} postCount={postCount} loading={loading} />
     </PopperCard>
     <Link
       className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}
       to={linkTarget}
-      dangerouslySetInnerHTML={{__html: useTagName ? tag?.name : innerHTML}}
+      dangerouslySetInnerHTML={{__html: tagName ?? innerHTML}}
     />
     {!!(showPostCount && tag?.postCount) && <span className={classes.count}>({tag?.postCount})</span>}
   </span>;

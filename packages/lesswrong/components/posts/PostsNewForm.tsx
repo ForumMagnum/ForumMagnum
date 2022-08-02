@@ -1,7 +1,8 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
+import { Posts, userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -10,6 +11,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
+import { useSingle } from '../../lib/crud/withSingle';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -84,12 +86,46 @@ export const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+  },
+  collaborativeRedirectLink: {
+    color:  theme.palette.secondary.main
   }
 })
 
+const prefillFromTemplate = (template: PostsEdit) => {
+  return pick(
+    template,
+    [
+      "contents",
+      "activateRSVPs",
+      "location",
+      "googleLocation",
+      "onlineEvent",
+      "globalEvent",
+      "startTime",
+      "endTime",
+      "localStartTime",
+      "localEndTime",
+      "eventRegistrationLink",
+      "joinEventLink",
+      "website",
+      "contactInfo",
+      "isEvent",
+      "eventImageId",
+      "eventType",
+      "types",
+      "groupId",
+      "group",
+      "title",
+      "coauthorStatuses",
+      "hasCoauthorPermission",
+    ]
+  )
+}
+
 const PostsNewForm = ({classes}: {
-  classes: ClassesType,
-}) => {
+    classes: ClassesType,
+  }) => {
   const { query } = useLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
@@ -99,12 +135,31 @@ const PostsNewForm = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+  const templateId = query && query.templateId;
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
+  // if we are trying to create an event in a group,
+  // we want to prefill the "onlineEvent" checkbox if the group is online
+  const { document: groupData } = useSingle({
+    collectionName: "Localgroups",
+    fragmentName: 'localGroupsIsOnline',
+    documentId: query && query.groupId,
+    skip: !query || !query.groupId
+  });
+  const { document: templateDocument, loading: templateLoading } = useSingle({
+    documentId: templateId,
+    collectionName: "Posts",
+    fragmentName: 'PostsEdit',
+    skip: !templateId,
+  });
+  
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
-  const prefilledProps = {
+  const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
+    activateRSVPs: true,
+    onlineEvent: groupData?.isOnline,
+    globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
     af: af || (query && !!query.af),
@@ -114,9 +169,22 @@ const PostsNewForm = ({classes}: {
   }
   const eventForm = query && query.eventForm
 
-  if (!Posts.options.mutations.new.check(currentUser)) {
+  if (!currentUser) {
     return (<WrappedLoginForm />);
   }
+
+  if (!userCanPost(currentUser)) {
+    return (<SingleColumnSection>
+      <Typography variant="display1">
+        You don't have permission to post
+      </Typography>
+    </SingleColumnSection>);
+  }
+
+  if (templateId && templateLoading) {
+    return <Loading />
+  }
+
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
@@ -133,14 +201,14 @@ const PostsNewForm = ({classes}: {
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={post => {
-              afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
               history.push({pathname: postGetPageUrl(post)})
               flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}
             repeatErrors
             formComponents={{
-              FormSubmit: NewPostsSubmit,
+              FormSubmit: NewPostsSubmit
             }}
           />
         </NoSsr>
@@ -156,4 +224,3 @@ declare global {
     PostsNewForm: typeof PostsNewFormComponent
   }
 }
-

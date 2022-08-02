@@ -19,14 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     height:"100%",
     cursor:"pointer",
     '&:hover': {
-      backgroundColor: "rgba(0,0,0,.075)"
+      backgroundColor: theme.palette.commentParentScrollerHover,
     }
   },
   children: {
     position: "relative"
   },
   gapIndicator: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
@@ -194,13 +194,14 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
               toggleCollapse={toggleCollapse}
               key={comment._id}
               scrollIntoView={scrollIntoView}
+              setSingleLine={setSingleLine}
               { ...passedThroughItemProps}
             />
         }
       </div>}
 
       {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
           <Components.CommentsNode
@@ -218,7 +219,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">
-          <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+          <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
           <RepliesToCommentList
             parentCommentId={comment._id}
             post={post as PostsBase}

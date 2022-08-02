@@ -1,8 +1,8 @@
+import { ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
-import * as _ from 'underscore';
-import { WatchQueryFetchPolicy, useQuery, gql } from '@apollo/client';
 
 // Single query used on the client
 //
@@ -124,6 +124,17 @@ export function withSingle({
   });
 }
 
+type TSuccessReturn<FragmentTypeName extends keyof FragmentTypes> = {loading: false, error: undefined, document: FragmentTypes[FragmentTypeName]};
+type TErrorReturn = {loading: false, error: ApolloError, document: undefined};
+type TLoadingReturn = {loading: true, error: undefined, document: undefined};
+
+type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<FragmentTypeName> | TErrorReturn | TLoadingReturn) & {
+  refetch: any,
+  data?: {
+    refetch: any,
+  }
+}
+
 export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   collectionName,
   fragmentName, fragment,
@@ -145,18 +156,11 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   documentId: string|undefined,
   extraVariablesValues?: any,
   skip?: boolean,
-}): {
-  document: FragmentTypes[FragmentTypeName],
-  loading: boolean,
-  error?: any,
-  refetch: any,
-  data: {
-    refetch: any,
-  },
-} {
+}): TReturn<FragmentTypeName> {
   const collection = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
+  // TODO: Properly type this generic query
   const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {
@@ -175,8 +179,9 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     // eslint-disable-next-line no-console
     console.error(error.message)
   }
-  const document = data && data[resolverName] && data[resolverName].result
-  return { document, data, error, ...rest }
+  const document: FragmentTypes[FragmentTypeName] | undefined = data && data[resolverName] && data[resolverName].result
+  // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)
+  return { document, data, error, ...rest } as TReturn<FragmentTypeName>
 }
 
 export default withSingle;

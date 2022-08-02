@@ -17,14 +17,15 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
+import { truncatise } from '../../lib/truncatise';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
-export interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+export interface AlgoliaIndexedCollection<T extends AlgoliaIndexedDbObject> extends CollectionBase<T, AlgoliaIndexCollectionName> {
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
-const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const COMMENT_MAX_SEARCH_CHARACTERS = 18000
 const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
@@ -36,7 +37,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     _id: comment._id,
     userId: comment.userId,
     baseScore: comment.baseScore,
-    isDeleted: comment.isDeleted,
+    isDeleted: comment.deleted,
     retracted: comment.retracted,
     deleted: comment.deleted,
     spam: comment.spam,
@@ -101,6 +102,21 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
   if (user.deleted) return null;
   if (user.deleteContent) return null;
   
+  let howOthersCanHelpMe = ""
+  if (user.howOthersCanHelpMe?.originalContents?.type) {
+    const { data, type } = user.howOthersCanHelpMe.originalContents
+    howOthersCanHelpMe = dataToMarkdown(data, type)
+  }
+  let howICanHelpOthers = ""
+  if (user.howICanHelpOthers?.originalContents?.type) {
+    const { data, type } = user.howICanHelpOthers.originalContents
+    howICanHelpOthers = dataToMarkdown(data, type)
+  }
+  
+  const bioOriginalContents = user.biography?.originalContents;
+  const bio = bioOriginalContents ? dataToMarkdown(bioOriginalContents.data, bioOriginalContents.type) : "";
+  const htmlBio = user.biography?.html || "";
+  
   const algoliaUser: AlgoliaUser = {
     _id: user._id,
     objectID: user._id,
@@ -108,12 +124,27 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     displayName: user.displayName,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
-    bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    profileImageId: user.profileImageId,
+    bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    htmlBio: truncatise(htmlBio, {
+      TruncateBy: 'characters',
+      TruncateLength: USER_BIO_MAX_SEARCH_CHARACTERS - 500 // some buffer for HTML tags
+    }),
+    howOthersCanHelpMe: howOthersCanHelpMe.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    howICanHelpOthers: howICanHelpOthers.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
+    jobTitle: user.jobTitle,
+    organization: user.organization,
+    careerStage: user.careerStage,
     website: user.website,
     groups: user.groups,
-    af: user.groups && user.groups.includes('alignmentForum')
+    af: user.groups && user.groups.includes('alignmentForum'),
+    ...(user.mapLocation?.geometry?.location?.lat && {_geoloc: {
+      lat: user.mapLocation.geometry.location.lat,
+      lng: user.mapLocation.geometry.location.lng,
+    }}),
+    ...(user.mapLocation?.formatted_address && {mapLocationAddress: user.mapLocation.formatted_address})
   }
   return [algoliaUser];
 }
@@ -171,7 +202,11 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
       postBatch.push(_.clone({
         ...algoliaMetaInfo,
         objectID: post._id + "_" + paragraphCounter,
-        body: paragraph,
+        
+        // Algolia limits text to 20 KB. They don't say what encoding they use though. 
+        // Some random tests seem to imply that they use UTF-8, which means between 1 and 4 bytes per character.
+        // So limit to 18,000 characters under the assumption that we have ~1.1 bytes/character.
+        body: paragraph.slice(0, 18000),
       }));
     })
   } else {
@@ -587,7 +622,7 @@ export async function algoliaIndexDocumentBatch<T extends AlgoliaIndexedDbObject
 }
 
 
-export async function subsetOfIdsAlgoliaShouldntIndex<T extends DbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
+export async function subsetOfIdsAlgoliaShouldntIndex<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
   // Filter out duplicates
   const sortedIds = _.clone(ids).sort();
   const uniqueIds = _.uniq(sortedIds, true);

@@ -4,7 +4,7 @@ import { useServerRequestStatus } from '../../lib/routeUtil'
 
 const Error404 = () => {
   const { SingleColumnSection } = Components;
-  const serverRequestStatus: any = useServerRequestStatus()
+  const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) serverRequestStatus.status = 404
   
   return (
@@ -22,4 +22,3 @@ declare global {
     Error404: typeof Error404Component
   }
 }
-

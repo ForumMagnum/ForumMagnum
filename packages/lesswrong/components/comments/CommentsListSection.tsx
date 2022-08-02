@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Components,
-  registerComponent
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu';
@@ -11,6 +9,7 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
+import * as _ from 'underscore';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -32,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     position: 'relative',
     borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
@@ -46,6 +45,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
+  },
+  newCommentSublabel: {
+    paddingLeft: theme.spacing.unit*1.5,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    fontStyle: 'italic',
+    marginTop: 4,
   }
 })
 
@@ -54,8 +60,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
-  lastEvent?: any,
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -70,14 +75,10 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const [highlightDate,setHighlightDate] = useState(
-    (lastEvent?.properties?.createdAt
-      && new Date(lastEvent.properties.createdAt))
-    || (post?.lastVisitedAt &&
-      new Date(post.lastVisitedAt))
-    || new Date()
-  );
+  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
+  const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
+  const now = useCurrentTime();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setAnchorEl(event.currentTarget);
@@ -94,7 +95,7 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
 
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography } = Components
-    const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
+    const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>
       <Typography
@@ -117,8 +118,11 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
         component='span'
         className={classes.inline}
       >
-        Highlighting new comments since <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate}/>
+        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
+        {highlightDate && !newCommentsSinceDate && "No new comments since "}
+        {!highlightDate && "Click to highlight new comments since: "}
+        <a className={classes.button} onClick={handleClick}>
+          <Components.CalendarDate date={highlightDate || now}/>
         </a>
         <Menu
           anchorEl={anchorEl}
@@ -151,6 +155,11 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
+          {post?.isEvent && post?.rsvps?.length && (
+            <div className={classes.newCommentSublabel}>
+              Everyone who RSVP'd to this event will be notified.
+            </div>
+          )}
           <Components.CommentsNewForm
             post={post} tag={tag}
             prefilledProps={{

@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 
 declare global {
   var bundleIsServer: boolean
@@ -13,9 +14,29 @@ export const isProduction = bundleIsProduction
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
 
-export const onStartupFunctions: Array<()=>void> = [];
-export const onStartup = (fn: ()=>void) => {
-  onStartupFunctions.push(fn);
+let alreadyRunStartupFuntions = false
+
+type StartupFunction = {
+  fn: ()=>void|Promise<void>,
+  order: number
+}
+const onStartupFunctions: StartupFunction[] = [];
+// Register a function to be executed on startup (after top-level import is
+// done). Startup functions have a numeric order attached, and are executed in
+// order from lowest to highest. If no order is given, the order is 0. Between
+// functions with the same order number, order of execution is undefined.
+export const onStartup = (fn: ()=>void|Promise<void>, order?: number) => {
+  if (alreadyRunStartupFuntions) {
+    throw new Error("Startup functions have already been run, can no longer register more")
+  }
+  onStartupFunctions.push({fn, order: order||0});
+}
+
+export const runStartupFunctions = async () => {
+  alreadyRunStartupFuntions = true
+  for (let startupFunction of _.sortBy(onStartupFunctions, f=>f.order)) {
+    await startupFunction.fn();
+  }
 }
 
 let instanceSettings: any = null;
@@ -26,7 +47,7 @@ export const getInstanceSettings = (): any => {
       instanceSettings = loadInstanceSettings();
     } else {
       instanceSettings = {
-        public: (window as any).publicInstanceSettings,
+        public: window.publicInstanceSettings,
       };
     }
   }
@@ -42,22 +63,6 @@ export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
   } else {
     return "http://localhost:3000/"
   }
-}
-
-// Like setTimeout, but with fiber handling
-export const runAfterDelay = setTimeout;
-// Like clearTimeout, but with fiber handling
-export const clearRunAfterDelay = clearTimeout;
-
-// Like setTimeout with 0 timeout, possibly different priority, and fiber handling
-export const deferWithoutDelay = (fn) => setTimeout(fn, 0);
-
-export const runAtInterval = setInterval;
-
-export const wrapAsync = (fn)=>fn
-
-export const throwMeteorError = (messageId: string, message: string, messageOptions?: any) => {
-  throw new Error(`${messageId}: message`);
 }
 
 export const addGlobalForShell = (name: string, value: any) => {

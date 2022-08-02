@@ -43,7 +43,6 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
 // Images on domains not in this list will be mirrored on Cloudinary and have
 // their lines updated. (If you run the script. This doesn't (yet) auto-apply
 // to all posts.)
-// ea-forum-lookhere
 const imageUrlWhitelist = [
   "cloudinary.com",
   "res.cloudinary.com",
@@ -110,8 +109,8 @@ async function convertImagesInPost(postId: string) {
     commitMessage: "Move images to CDN",
     changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
   };
-  const insertedRevisionId: string = await Revisions.insert(newRevision);
-  await Posts.update({_id: postId}, {
+  const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
+  await Posts.rawUpdateOne({_id: postId}, {
     $set: {
       contents_latest: insertedRevisionId,
       contents: {

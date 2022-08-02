@@ -4,6 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
+import { MenuTabRegular } from './menuTabs';
 
 export const iconWidth = 30
 
@@ -46,6 +47,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 28,
     marginRight: theme.spacing.unit*2,
     display: "inline",
+    
+    "& svg": {
+      fill: "currentColor",
+      color: theme.palette.icon.navigationSidebarIcon,
+    },
   },
   navText: {
     ...theme.typography.body2,
@@ -61,26 +67,40 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const TabNavigationItem = ({tab, onClick, classes}) => {
+type TabNavigationItemProps = {
+  tab: MenuTabRegular,
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
+  classes: ClassesType,
+}
+
+const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
   const { TabNavigationSubItem, LWTooltip } = Components
   const { pathname } = useLocation()
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
-  // Case to any to work around it, to be able to pass a "to" parameter.
+  // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
   
-  // React router links don't handle external URLs, so use a
-  // normal HTML a tag if the URL is external
+  // Due to an issue with using anchor tags, we use react-router links, even for
+  // external links, we just use window.open to actuate the link.
   const externalLink = /https?:\/\//.test(tab.link);
-  const Element = externalLink ? 
-    ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
-    : Link;
+  let handleClick = onClick
+  if (externalLink) {
+    handleClick = (e) => {
+      e.preventDefault()
+      window.open(tab.link, '_blank')?.focus()
+      onClick && onClick(e)
+    }
+  }
 
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemUntyped
-      onClick={onClick}
-      component={Element} to={tab.link}
+      onClick={handleClick}
+      // We tried making this a function that return an a tag once. It made the
+      // entire sidebar fail on iOS. True story.
+      component={Link}
+      to={tab.link}
       disableGutters
       classes={{root: classNames({
         [classes.navButton]: !tab.subItem,

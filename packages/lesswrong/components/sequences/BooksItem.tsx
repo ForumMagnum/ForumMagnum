@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -8,23 +8,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,
-    ...postBodyStyles(theme),
   },
   subtitle: {
     fontSize: 20,
     lineHeight: 1.1,
     fontStyle: "italic",
-    marginTop: 20,
+    marginBottom: 20,
   },
   posts: {
     marginLeft: 20,
     marginRight: 25,
     marginBottom: 30,
-    "& .posts-item": {
+    "& .posts-item": { // UNUSED (.posts-item isn't a real clas)
       "&:hover": {
-        boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
+        boxShadow: `0 1px 6px ${theme.palette.boxShadowColor(0.12)}, 0 1px 4px ${theme.palette.boxShadowColor(0.12)}`,
       },
-      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.1)",
+      boxShadow: `0 1px 6px ${theme.palette.boxShadowColor(0.06)}, 0 1px 4px ${theme.palette.boxShadowColor(0.12)}`,
       textDecoration: "none",
     }
   },
@@ -38,8 +37,8 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { SingleColumnSection, SectionTitle, SectionButton, SequencesGrid,
-    SequencesPostsList, Divider, ContentItemBody } = Components
+  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
+    SequencesPostsList, Divider, ContentItemBody, ContentStyles } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -60,18 +59,24 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
-        {html  && <div className={classes.description}>
+        <AnalyticsContext pageElementContext="booksProgressBar">
+          <BooksProgressBar book={book} />
+        </AnalyticsContext>
+        <div className={classes.subtitle}>{book.subtitle}</div>
+        {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: html}}
             description={`book ${book._id}`}
           />
-        </div>}
+        </ContentStyles>}
 
         {book.posts && !!book.posts.length && <div className={classes.posts}>
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        <SequencesGrid sequences={book.sequences} bookItemStyle/>
+        {book.sequences.map(sequence =>
+          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
+        )}
       </SingleColumnSection>
       <Divider />
     </div>

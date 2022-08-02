@@ -17,10 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   info: {
     display: "inline",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     marginRight: theme.spacing.unit,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle
+  },
+  calendarIcon: {
+    marginRight: theme.spacing.unit
   }
 })
 
@@ -36,10 +39,10 @@ const PostsItemMeta = ({post, read, classes}: {
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip } = Components;
+  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
-      {!post.shortform && <span className={classes.info}>
+      {!post.shortform && !post.isEvent && <span className={classes.info}>
         <LWTooltip title={<div>
           This post has { baseScore || 0 } karma<br/>
           ({ post.voteCount} votes)
@@ -51,6 +54,11 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       { post.isEvent && <span className={classes.info}>
+        {post.startTime && (
+          <span className={classes.calendarIcon}>
+            <AddToCalendarButton post={post} />
+          </span>
+        )}
         {post.startTime
           ? <LWTooltip title={<Components.EventTime post={post} />}>
               <DateWithoutTime date={post.startTime} />
@@ -60,7 +68,7 @@ const PostsItemMeta = ({post, read, classes}: {
             </LWTooltip>}
       </span>}
 
-      { post.isEvent && <span className={classes.info}>
+      { post.isEvent && !post.onlineEvent && <span className={classes.info}>
         <Components.EventVicinity post={post} />
       </span>}
 
@@ -76,11 +84,11 @@ const PostsItemMeta = ({post, read, classes}: {
         </LWTooltip>
       </span>}
 
-      <span className={classes.info}>
+      {!post.isEvent && <span className={classes.info}>
         <AnalyticsContext pageElementContext="tagsList">
           <FooterTagList post={post} hideScore hideAddTag smallText/>
         </AnalyticsContext>
-      </span>
+      </span>}
 
       {post.postedAt && !post.isEvent && <span className={classes.info}>
         <FormatDate date={post.postedAt}/>
@@ -95,4 +103,3 @@ declare global {
     PostsItemMeta: typeof PostsItemMetaComponent
   }
 }
-

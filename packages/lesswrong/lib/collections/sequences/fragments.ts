@@ -4,6 +4,10 @@ registerFragment(`
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
+    canonicalCollectionSlug
+    canonicalCollection {
+      title
+    }
   }
 `);
 
@@ -24,11 +28,21 @@ registerFragment(`
     draft
     isDeleted
     hidden
+    hideFromAuthorPage
     curatedOrder
     userProfileOrder
     af
   }
 `);
+
+registerFragment(`
+  fragment SequencesPageWithChaptersFragment on Sequence {
+    ...SequencesPageFragment
+    chapters {
+      ...ChaptersFragment
+    }
+  }
+`)
 
 registerFragment(`
   fragment SequencesEdit on Sequence {

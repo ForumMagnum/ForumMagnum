@@ -1,7 +1,8 @@
 import { Posts } from '../lib/collections/posts';
 import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from './vulcan-lib';
+import { createNotification } from './notificationCallbacksHelpers';
+import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import sortBy from 'lodash/sortBy';
-import { createNotification } from './notificationCallbacks';
 
 const responseSortOrder = {
   yes: 1,
@@ -41,8 +42,8 @@ addGraphQLResolvers({
         validate: false
       })).data
 
-      await createNotification(post.userId, "newRSVP", "post", post._id)
-      return updatedPost
+      await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id})
+      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
     }
   }
 });

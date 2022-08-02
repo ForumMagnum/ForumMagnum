@@ -14,11 +14,17 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import GraphIcon from '@material-ui/icons/ShowChart'
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
+import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+
+// We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
+export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -45,12 +51,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostActions = ({post, closeMenu, classes}: {
   post: PostsList,
-  closeMenu: ()=>void
-  classes: ClassesType
+  closeMenu: ()=>void,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
   const {openDialog} = useDialog();
+  const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -164,21 +171,53 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton} = Components
   if (!post) return null;
   const postAuthor = post.user;
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
 
+  const defaultLabel = forumSelect({
+    EAForum:'This post may appear on the Frontpage',
+    default: 'Moderators may promote to Frontpage'
+  })
+
+  // WARNING: Clickable items in this menu must be full-width, and
+  // ideally should use the <MenuItem> component. In particular,
+  // do NOT wrap a <MenuItem> around something that has its own
+  // onClick handler; the onClick handler should either be on the
+  // MenuItem, or on something outside of it. Putting an onClick
+  // on an element inside of a MenuItem can create a dead-space
+  // click area to the right of the item which looks like you've
+  // selected the thing, and closes the menu, but doesn't do the
+  // thing.
+  
   return (
       <div className={classes.actions}>
-        {/* <NominatePostMenuItem post={post} closeMenu={closeMenu} /> */}
+        { postCanEdit(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
+          <MenuItem>
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            Duplicate Event
+          </MenuItem>
+        </Link>}
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
               <EditIcon />
             </ListItemIcon>
             Edit
+          </MenuItem>
+        </Link>}
+        { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
+          to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
+        >
+          <MenuItem>
+            <ListItemIcon>
+              <GraphIcon />
+            </ListItemIcon>
+            Analytics
           </MenuItem>
         </Link>}
         { userCanCollaborate(currentUser, post) &&
@@ -191,35 +230,38 @@ const PostActions = ({post, closeMenu, classes}: {
             </MenuItem>
           </Link>
         }
-        {currentUser && post.group && <MenuItem>
-          <SubscribeTo document={post.group} showIcon
+        {currentUser && post.group &&
+          <NotifyMeButton asMenuItem
+            document={post.group} showIcon
             subscribeMessage={"Subscribe to "+post.group.name}
-            unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
-        </MenuItem>}
-
-        {currentUser && post.shortform && (post.userId !== currentUser._id) &&
-          <MenuItem>
-            <SubscribeTo document={post} showIcon
-              subscriptionType={subscriptionTypes.newShortform}
-              subscribeMessage={`Subscribe to ${post.title}`}
-              unsubscribeMessage={`Unsubscribe from ${post.title}`}
-            />
-          </MenuItem>
+            unsubscribeMessage={"Unsubscribe from "+post.group.name}
+          />
         }
 
-        {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
-          <SubscribeTo document={postAuthor} showIcon
-            subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
-            unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}/>
-        </MenuItem>}
+        {currentUser && post.shortform && (post.userId !== currentUser._id) &&
+          <NotifyMeButton asMenuItem document={post} showIcon
+            subscriptionType={subscriptionTypes.newShortform}
+            subscribeMessage={`Subscribe to ${post.title}`}
+            unsubscribeMessage={`Unsubscribe from ${post.title}`}
+          />
+        }
 
-        {currentUser && <MenuItem>
-          <SubscribeTo document={post} showIcon
-            subscribeMessage="Subscribe to comments"
-            unsubscribeMessage="Unsubscribe from comments"/>
-        </MenuItem>}
+        {currentUser && postAuthor && postAuthor._id !== currentUser._id &&
+          <NotifyMeButton asMenuItem document={postAuthor} showIcon
+            subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}
+          />
+        }
+
+        {currentUser && <NotifyMeButton asMenuItem
+          document={post} showIcon
+          subscribeMessage="Subscribe to comments"
+          unsubscribeMessage="Unsubscribe from comments"
+        />}
 
         <BookmarkButton post={post} menuItem/>
+        
+        {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 
         <ReportPostMenuItem post={post}/>
         <div onClick={handleOpenTagDialog}>
@@ -227,7 +269,7 @@ const PostActions = ({post, closeMenu, classes}: {
             <ListItemIcon>
               <LocalOfferOutlinedIcon />
             </ListItemIcon>
-            Edit Tags
+            Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
         { isRead
@@ -247,19 +289,12 @@ const PostActions = ({post, closeMenu, classes}: {
         <DeleteDraft post={post}/>
         { userCanDo(currentUser, "posts.edit.all") &&
           <span>
-            { !post.meta &&
-              <div onClick={handleMoveToMeta}>
-                <MenuItem>
-                  Move to Meta
-                </MenuItem>
-              </div>
-            }
             { !post.frontpageDate &&
               <div onClick={handleMoveToFrontpage}>
                 <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
-                    'user did not select "Moderators may promote to Frontpage" option'
+                    `user did not select ${defaultLabel} option`
                 }>
                   <MenuItem>
                     Move to Frontpage
@@ -293,20 +328,23 @@ const PostActions = ({post, closeMenu, classes}: {
             }
           </span>
         }
-        <SuggestAlignment post={post}/>
-        { userCanMakeAlignmentPost(currentUser, post) &&
-          !post.af && <div onClick={handleMoveToAlignmentForum }>
-            <MenuItem>
-              Ω Move to Alignment
-            </MenuItem>
-          </div>}
-        { userCanMakeAlignmentPost(currentUser, post) && post.af &&
-          <div onClick={handleRemoveFromAlignmentForum}>
-            <MenuItem>
-              Ω Remove Alignment
-            </MenuItem>
-          </div>
-        }
+        {forumTypeSetting.get() !== "EAForum" && <>
+          <SuggestAlignment post={post}/>
+          { userCanMakeAlignmentPost(currentUser, post) && !post.af && 
+            <div onClick={handleMoveToAlignmentForum }>
+              <MenuItem>
+                Ω Move to Alignment
+              </MenuItem>
+            </div>
+          }
+          { userCanMakeAlignmentPost(currentUser, post) && post.af &&
+            <div onClick={handleRemoveFromAlignmentForum}>
+              <MenuItem>
+                Ω Remove Alignment
+              </MenuItem>
+            </div>
+          }
+        </>}
       </div>
   )
 }

@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,
-  onClose: ()=>void,
+  onClose?: ()=>void,
   classes: ClassesType,
 }) => {
   const [deletedReason, setDeletedReason] = useState("");
@@ -35,7 +35,8 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
       deletedReason: deletedReason,
     }).then(()=>{
       flash({messageString: "Successfully deleted comment", type: "success"})
-      onClose()
+      if (onClose)
+        onClose();
     }).catch(/* error */);
   }
 
@@ -49,7 +50,8 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
       deletedReason: deletedReason,
     }).then(()=>{
       flash({messageString: "Successfully deleted comment", type: "success"})
-      onClose()
+      if (onClose)
+        onClose();
     }).catch(/* error */);
   }
 
@@ -61,7 +63,11 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
           What is your reason for deleting this comment?
         </DialogTitle>
         <DialogContent>
-          <p><em>(If you delete without a trace, the reason will be sent to the author of the comment privately. Otherwise it will be publicly displayed below the comment.)</em></p>
+          <p><em>
+            (If you delete without a trace, the reason will be sent to the
+            author of the comment privately. Otherwise it will be publicly
+            displayed below the comment.)
+          </em></p>
           <br/>
           <TextField
             id="comment-menu-item-delete-reason"

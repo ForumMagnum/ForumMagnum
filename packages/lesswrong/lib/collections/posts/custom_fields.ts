@@ -1,6 +1,7 @@
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import * as _ from 'underscore';
+import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
@@ -9,15 +10,36 @@ import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeign
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { Posts } from './collection';
-import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
+import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
+import { userOverNKarmaFunc } from "../../vulcan-users";
+
+const MINIMUM_COAUTHOR_KARMA = 10;
+
+export const EVENT_TYPES = [
+  {value: 'presentation', label: 'Presentation'},
+  {value: 'discussion', label: 'Discussion'},
+  {value: 'workshop', label: 'Workshop'},
+  {value: 'social', label: 'Social'},
+  {value: 'coworking', label: 'Coworking'},
+  {value: 'course', label: 'Course'},
+  {value: 'conference', label: 'Conference'},
+]
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
-const frontpageDefault = isEAForum ? () => new Date() : undefined
+function eaFrontpageDate (document: Partial<DbPost>) {
+  if (document.isEvent || !document.submitToFrontpage) {
+    return undefined
+  }
+  return new Date()
+}
+const frontpageDefault = isEAForum ?
+  eaFrontpageDate :
+  undefined
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
@@ -31,8 +53,8 @@ addFieldsDict(Posts, {
     hidden: false,
     defaultValue: false,
     viewableBy: ['guests'],
-    editableBy: ['admin'],
-    insertableBy: ['admin'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
     control: "checkbox",
     order: 12,
     group: formGroups.adminOptions,
@@ -207,27 +229,47 @@ addFieldsDict(Posts, {
     group: formGroups.canonicalSequence,
   },
 
-  coauthorUserIds: {
-    ...arrayOfForeignKeysField({
-      idFieldName: "coauthorUserIds",
-      resolverName: "coauthors",
-      collectionName: "Users",
-      type: "User"
-    }),
+  coauthorStatuses: {
+    type: Array,
+    resolveAs: {
+      fieldName: 'coauthors',
+      type: '[User!]!',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
+        const loader = context.loaders['Users'];
+        const resolvedDocs = await loader.loadMany(
+          post.coauthorStatuses?.map(({ userId }) => userId) || []
+        );
+        return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
+      },
+      addOriginalField: true,
+    },
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
     label: "Co-Authors",
-    control: "UsersListEditor",
+    control: "CoauthorsListEditor",
     group: formGroups.advancedOptions,
   },
-  'coauthorUserIds.$': {
-    type: String,
-    foreignKey: 'Users',
-    optional: true
+  'coauthorStatuses.$': {
+    type: new SimpleSchema({
+      userId: String,
+      confirmed: Boolean,
+      requested: Boolean,
+    }),
+    optional: true,
   },
-  
+
+  hasCoauthorPermission: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(true),
+  },
+
   // Cloudinary image id for an image that will be used as the OpenGraph image
   socialPreviewImageId: {
     type: String,
@@ -289,7 +331,8 @@ addFieldsDict(Posts, {
       // work out of the box with the id-resolver generators
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     },
   },
@@ -341,9 +384,13 @@ addFieldsDict(Posts, {
     control: "text"
   },
 
-  // The next post. If a sequenceId is provided, that sequence must contain this
-  // post, and this returns the next post after this one in that sequence. If
-  // no sequenceId is provided, uses this post's canonical sequence.
+  /**
+   * The next post. If a sequenceId is provided, that sequence must contain this
+   * post, and this returns the next post after this one in that sequence.  If
+   * there is no next post in the same sequence, we check if this sequence is in a
+   * collection, and if there's a next sequence after this one.  If so, return the
+   * first post in the next sequence. If no sequenceId is provided, uses this post's canonical sequence.
+   */
   nextPost: resolverOnlyField({
     type: "Post",
     graphQLtype: "Post",
@@ -353,16 +400,22 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const nextPostID = await sequenceGetNextPostID(sequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(sequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
-          if (nextPostFiltered)
-            return nextPostFiltered;
+          return accessFilterSingle(currentUser, Posts, nextPost, context);
+        } else {
+          const nextSequencePostIdTuple = await getNextPostIdFromNextSequence(sequenceId, post._id, context);
+          if (!nextSequencePostIdTuple) {
+            return null;
+          }
+
+          const nextPost = await context.loaders.Posts.load(nextSequencePostIdTuple.postId);
+          return accessFilterSingle(currentUser, Posts, nextPost, context);
         }
       }
       if(post.canonicalSequenceId) {
-        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
           const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -381,9 +434,13 @@ addFieldsDict(Posts, {
     }
   }),
 
-  // The previous post. If a sequenceId is provided, that sequence must contain
-  // this post, and this returns the post before this one in that sequence.
-  // If no sequenceId is provided, uses this post's canonical sequence.
+  /**
+   * The previous post. If a sequenceId is provided, that sequence must contain
+   * this post, and this returns the post before this one in that sequence. If
+   * there is no previous post in the same sequence, we check if this sequence is in a
+   * collection, and if there's a previous sequence before this one.  If so, return the
+   * last post in the previous sequence. If no sequenceId is provided, uses this post's canonical sequence.
+   */
   prevPost: resolverOnlyField({
     type: "Post",
     graphQLtype: "Post",
@@ -393,17 +450,22 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
-          if (prevPostFiltered) {
-            return prevPostFiltered;
+          return accessFilterSingle(currentUser, Posts, prevPost, context);
+        } else {
+          const prevSequencePostIdTuple = await getPrevPostIdFromPrevSequence(sequenceId, post._id, context);
+          if (!prevSequencePostIdTuple) {
+            return null;
           }
+
+          const prevPost = await context.loaders.Posts.load(prevSequencePostIdTuple.postId);
+          return accessFilterSingle(currentUser, Posts, prevPost, context);
         }
       }
       if(post.canonicalSequenceId) {
-        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -424,23 +486,36 @@ addFieldsDict(Posts, {
     }
   }),
 
-  // A sequence this post is part of. Takes an optional sequenceId; if the
-  // sequenceId is given and it contains this post, returns that sequence.
-  // Otherwise, if this post has a canonical sequence, return that. If no
-  // sequence ID is given and there is no canonical sequence for this post,
-  // returns null.
+  /**
+   * A sequence this post is part of. Takes an optional sequenceId and an optional
+   * flag indicating whether we're in the context of a "next" or "previous" post;
+   * if the sequenceId is given and it contains this post, returns that sequence.
+   * If it doesn't contain this post, and we have a prevOrNext flag, check the
+   * previous or next sequence (as requested) for this post, and return it if
+   * it's part of that sequence, return the sequence. Otherwise, if this post
+   * has a canonical sequence, return that. If no sequence ID is given and
+   * there is no canonical sequence for this post, returns null.
+   */
   sequence: resolverOnlyField({
     type: "Sequence",
     graphQLtype: "Sequence",
     viewableBy: ['guests'],
-    graphqlArguments: 'sequenceId: String',
-    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
-      const { sequenceId } = args;
+    graphqlArguments: 'sequenceId: String, prevOrNext: String',
+    resolver: async (post: DbPost, args: {sequenceId: string, prevOrNext?: 'prev' | 'next'}, context: ResolverContext) => {
+      const { sequenceId, prevOrNext } = args;
       const { currentUser } = context;
       let sequence: DbSequence|null = null;
-      if (sequenceId && await sequenceContainsPost(sequenceId, post._id)) {
+      if (sequenceId && await sequenceContainsPost(sequenceId, post._id, context)) {
         sequence = await context.loaders.Sequences.load(sequenceId);
-      } else if (post.canonicalSequenceId) {
+      } else if (sequenceId && prevOrNext) {
+        const sequencePostIdTuple = prevOrNext === 'prev'
+          ? await getPrevPostIdFromPrevSequence(sequenceId, post._id, context)
+          : await getNextPostIdFromNextSequence(sequenceId, post._id, context);
+
+        if (sequencePostIdTuple) {
+          sequence = await context.loaders.Sequences.load(sequencePostIdTuple.sequenceId);
+        }
+      } else if (!sequence && post.canonicalSequenceId) {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
@@ -503,7 +578,7 @@ addFieldsDict(Posts, {
     ...schemaDefaultValue(false),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: true,
   },
 
@@ -513,7 +588,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     label: "Publish to meta",
@@ -568,12 +643,26 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
+  // The timestamp when the post's maxBaseScore first exceeded 125
+  scoreExceeded125Date: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: document => document.baseScore >= 125 ? new Date() : null
+  },
+  // The timestamp when the post's maxBaseScore first exceeded 200
+  scoreExceeded200Date: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: document => document.baseScore >= 200 ? new Date() : null
+  },
   bannedUserIds: {
     type: Array,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
     insertableBy: [userCanModeratePost],
-    editableBy: ['sunshines', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
@@ -606,7 +695,7 @@ addFieldsDict(Posts, {
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
     control: "UsersListEditor",
@@ -628,11 +717,30 @@ addFieldsDict(Posts, {
       nullable: true,
     }),
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
-    hidden: true,
+    order: 1,
+    control: 'SelectLocalgroup',
+    label: 'Group',
     group: formGroups.event,
+    hidden: (props) => !props.eventForm,
+  },
+  
+  eventType: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: (props) => !props.eventForm,
+    control: 'select',
+    group: formGroups.event,
+    optional: true,
+    order: 2,
+    label: 'Event Format',
+    form: {
+      options: EVENT_TYPES
+    },
   },
 
   isEvent: {
@@ -644,6 +752,20 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(false),
+    
+    onCreate: ({newDocument}: {newDocument: DbInsertion<DbPost>}) => {
+      // HACK: This replaces the `onCreate` that normally comes with
+      // `schemaDefaultValue`. In addition to enforcing that the field must
+      // be present (not undefined), it also enforces that it cannot be null.
+      // There is a bug where GreaterWrong somehow submits posts with isEvent
+      // set to null (instead of false), which causes some post-views to filter
+      // it out (because they filter for non-events using isEvent:false which
+      // does not match null).
+      if (newDocument.isEvent===undefined || newDocument.isEvent===null)
+        return false;
+      else
+        return undefined;
+    }
   },
 
   reviewedByUserId: {
@@ -676,12 +798,14 @@ addFieldsDict(Posts, {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "Start Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
+    tooltip: 'For courses/programs, this is the application deadline.'
   },
 
   localStartTime: {
@@ -691,30 +815,72 @@ addFieldsDict(Posts, {
 
   endTime: {
     type: Date,
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || props.document.eventType === 'course',
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localEndTime: {
     type: Date,
     viewableBy: ['guests'],
   },
+  
+  eventRegistrationLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Event Registration Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
+  joinEventLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Join Online Event Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
 
   onlineEvent: {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
     order: 0,
+    ...schemaDefaultValue(false),
+  },
+  
+  globalEvent: {
+    type: Boolean,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    group: formGroups.event,
+    label: "This event is intended for a global audience",
+    tooltip: 'By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere.',
     ...schemaDefaultValue(false),
   },
 
@@ -728,17 +894,21 @@ addFieldsDict(Posts, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (post) => {
         if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation)
+        return null
       }
     }),
   },
 
   googleLocation: {
     type: Object,
+    form: {
+      stringVersionFieldName: "location",
+    },
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    label: "Group Location",
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    label: "Event Location",
     control: 'LocationFormComponent',
     blackbox: true,
     group: formGroups.event,
@@ -748,7 +918,7 @@ addFieldsDict(Posts, {
   location: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     optional: true
@@ -761,7 +931,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
   },
@@ -771,11 +941,27 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/events/...'
+  },
+  
+  meetupLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    label: "Meetup.com Event",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -783,17 +969,32 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: "MuiInput",
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
+  eventImageId: {
+    type: String,
+    optional: true,
+    hidden: (props) => !props.eventForm || !isEAForum,
+    label: "Event Image",
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: "ImageUpload",
+    group: formGroups.event,
+    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
   },
 
   types: {
     type: Array,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: (props) => isEAForum || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
@@ -832,12 +1033,25 @@ addFieldsDict(Posts, {
     }
   },
 
+  sharingSettings: {
+    type: Object,
+    order: 16,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: [userOwns, 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    label: "Sharing Settings",
+    group: formGroups.title,
+    blackbox: true,
+    hidden: true,
+  },
+  
   shareWithUsers: {
     type: Array,
     order: 15,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     control: "UsersListEditor",
     label: "Share draft with users",
@@ -940,7 +1154,7 @@ addFieldsDict(Posts, {
     group: formGroups.moderationGroup,
     label: "Style",
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
@@ -1020,6 +1234,11 @@ makeEditable({
     formGroup: formGroups.content,
     order: 25,
     pingbacks: true,
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      insertableBy: ['members']
+    },
   }
 })
 
@@ -1035,7 +1254,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
       insertableBy: [userHasModerationGuidelines]
     },
   }

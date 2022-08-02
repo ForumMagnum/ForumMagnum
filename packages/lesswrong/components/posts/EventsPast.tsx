@@ -16,7 +16,7 @@ const EventsPast = ({ classes }: {
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = forumAllPostsNumDaysSetting.get();
   const terms = {
-    view: 'pastEvents',
+    view: 'eventsInTimeRange',
     timeField: 'startTime',
   };
 

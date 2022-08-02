@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,11 +37,17 @@ const TagEditsByUser = ({userId, limit, classes}: {
     return <Components.Loading />
   }
 
-  if (results.length === 0)
-    return (<Components.Typography variant="body2" className={classes.wikiEmpty}>No wiki contributions to display.</Components.Typography>)
+  const resultsWithLiveTags = results
+    .filter(tagUpdates => tagUpdates.tag && !tagUpdates.tag.deleted)
+
+  if (resultsWithLiveTags.length === 0) {
+    return <Components.Typography variant="body2" className={classes.wikiEmpty}>
+      No {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contributions to display.
+    </Components.Typography>
+  }
 
   return <div className={classes.root}>
-    {results.filter(elm => !!elm.tag).map(tagUpdates => <Components.SingleLineTagUpdates
+    {resultsWithLiveTags.map(tagUpdates => <Components.SingleLineTagUpdates
       key={tagUpdates.documentId + " " + tagUpdates.editedAt}
       tag={tagUpdates.tag!}
       revisionIds={[tagUpdates._id]}

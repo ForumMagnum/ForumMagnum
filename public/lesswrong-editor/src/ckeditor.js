@@ -63,6 +63,9 @@ import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
+import Footnote from './ckeditor5-footnote/src/footnote';
+import UrlValidator from './url-validator-plugin';
+
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
@@ -132,7 +135,9 @@ const postEditorPlugins = [
 	Mathematics,
 	SanitizeTags,
 	Spoilers,
-	AutoLink
+	AutoLink,
+	Footnote,
+	UrlValidator,
 ];
 
 PostEditor.builtinPlugins = [
@@ -178,6 +183,26 @@ const embedConfig = {
 			`
 		},
 		{
+			name: "Manifold",
+			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
+			html: ([match, longslug]) => `
+				<div data-manifold-id="${longslug}" class="manifold-preview">
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}" />
+				</div>
+			`
+		},
+		{
+			name: "OWID",
+			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
+			html: ([match, slug]) => {
+				return `
+					<div data-owid-slug="${slug}" class="owid-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
+		{
 		  name: 'Thoughtsaver',
 		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
 		  html: ([match,urlParams]) => `
@@ -195,7 +220,8 @@ const postEditorConfig = {
 		'insertTable',
 		'horizontalLine',
 		'mathDisplay',
-		'mediaEmbed'
+		'mediaEmbed',
+		'footnote',
 	],
 	toolbar: [
 		'heading',
@@ -213,7 +239,8 @@ const postEditorConfig = {
 		'|',
 		'trackChanges',
 		'comment',
-		'math'
+		'math',
+		'footnote',
 	],
 	image: {
 		toolbar: [
@@ -281,7 +308,9 @@ CommentEditor.builtinPlugins = [
 	Mathematics,
 	SanitizeTags,
 	Spoilers,
-	AutoLink
+	AutoLink,
+	Footnote,
+	UrlValidator,
 ];
 
 CommentEditor.defaultConfig = {
@@ -298,7 +327,8 @@ CommentEditor.defaultConfig = {
 		'bulletedList',
 		'numberedList',
 		'|',
-		'math'
+		'math',
+		'footnote'
 	],
 	image: {
 		toolbar: [

@@ -7,7 +7,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
 ]
 
 const allowedTableStyles = {
@@ -38,21 +38,27 @@ export const sanitize = function(s: string): string {
       tr: ['style'],
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
-      ol: ['start', 'reversed', 'type'],
-      span: ['style'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
+      ol: ['start', 'reversed', 'type', 'role'],
+      span: ['style', 'id', 'role'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-owid-slug'],
       a: ['href', 'name', 'target', 'rel'],
-      iframe: ['src', 'allowfullscreen', 'allow']
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id', 'role'],
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com', 
       'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
       'metaculus.com',
-      'app.thoughtsaver.com'
+      'manifold.markets',
+      'app.thoughtsaver.com',
+      'ourworldindata.org',
     ],
     allowedClasses: {
-      div: [ 'spoilers', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
+      ol: [ 'footnotes' ],
+      li: [ 'footnote-item' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,

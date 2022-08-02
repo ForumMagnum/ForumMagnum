@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { Posts } from '../lib/collections/posts/collection';
-import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
@@ -14,11 +14,13 @@ import { userGetDisplayName } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
-import './emailComponents/EventInRadiusEmail';
+import './emailComponents/EventUpdatedEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
-import { forumTypeSetting } from '../lib/instanceSettings';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
-import { responseToText } from '../components/posts/PostsPage/RSVPForm';
+import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
+import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 
 interface ServerNotificationType {
   name: string,
@@ -74,11 +76,11 @@ export const NewEventNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post to generate subject-line for: ${notifications}`)
-    return post.title;
+    return `New event: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    return <Components.NewPostEmail documentId={postId}/>
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -92,9 +94,21 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    return <Components.NewPostEmail documentId={postId}/>
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
+
+export const NominatedPostNotification = serverRegisterNotificationType({
+  name: "postNominated",
+  canCombineEmails: false,
+  emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    return `Your post was nominated for the ${REVIEW_NAME_TITLE}`
+  },
+  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    return <Components.PostNominatedEmail documentId={postId} />
+  }
+})
 
 export const NewShortformNotification = serverRegisterNotificationType({
   name: "newShortform",
@@ -207,10 +221,11 @@ export const NewUserNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null,
 });
 
-const newMessageEmails: Partial<Record<string,string>> = {
-  EAForum: 'forum-noreply@effectivealtruism.org'
+const newMessageEmails: ForumOptions<string | null> = {
+  EAForum: 'forum-noreply@effectivealtruism.org',
+  default: null,
 }
-const forumNewMessageEmail = newMessageEmails[forumTypeSetting.get()]
+const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
 
 export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",
@@ -325,13 +340,11 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `A new event has been created in your area: ${post.title}`;
+    return `New event in your area: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    return <Components.EventInRadiusEmail
-      openingSentence="A new event has been created in your area"
-      postId={notifications[0].documentId}
-    />
+    const postId = notifications[0].documentId;
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 
@@ -341,11 +354,10 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `An event in your area has been edited: ${post.title}`;
+    return `Event in your area updated: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    return <Components.EventInRadiusEmail
-      openingSentence="An event in your area has been edited"
+    return <Components.EventUpdatedEmail
       postId={notifications[0].documentId}
     />
   },
@@ -371,5 +383,86 @@ export const NewRSVPNotification = serverRegisterNotificationType({
         <a href={postGetPageUrl(post,true)}>Event Link</a>
       </p>
     </div>
+  },
+});
+
+export const NewGroupOrganizerNotification = serverRegisterNotificationType({
+  name: "newGroupOrganizer",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const localGroup = await Localgroups.findOne(notifications[0].documentId)
+    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
+    return `You've been added as an organizer of ${localGroup.name}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const localGroup = await Localgroups.findOne(notifications[0].documentId)
+    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
+    
+    const groupLink = `${getSiteUrl().slice(0,-1)}/groups/${localGroup._id}`
+    
+    return <div>
+      <p>
+        Hi {user.displayName},
+      </p>
+      <p>
+        You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get()}.
+      </p>
+      <p>
+        We recommend you check the group's info and update it if necessary. You can also post your group's events on the forum, which get advertised to users based on relevance.
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
+      </p>
+    </div>
+  },
+});
+
+export const PostCoauthorRequestNotification = serverRegisterNotificationType({
+  name: "coauthorRequestNotification",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    const name = await postGetAuthorName(post);
+    return `${name} requested that you co-author their post: ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    const link = postGetPageUrl(post, true);
+    const name = await postGetAuthorName(post);
+    return (
+      <p>
+        {name} requested that you co-author their post <a href={link}>{post.title}</a>.
+      </p>
+    );
+  },
+});
+
+export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
+  name: "coauthorAcceptNotification",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    return `Your co-author request for '${post.title}' was accepted`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    const link = postGetPageUrl(post, true);
+    return (
+      <p>
+        Your co-author request for <a href={link}>{post.title}</a> was accepted.
+      </p>
+    );
   },
 });
