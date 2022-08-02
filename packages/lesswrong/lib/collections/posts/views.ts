@@ -1,13 +1,8 @@
 import moment from 'moment';
 import * as _ from 'underscore';
-<<<<<<< HEAD
-import { combineIndexWithDefaultViewIndex, ensureIndex, ensurePgIndex } from '../../collectionUtils';
-import type { FilterMode, FilterSettings } from '../../filterSettings';
-=======
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex, ensurePgIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
->>>>>>> a3a261c4524ea2c3ff8c1e605bde8e9a69a1eb19
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
