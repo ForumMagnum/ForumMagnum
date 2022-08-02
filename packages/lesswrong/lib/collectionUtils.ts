@@ -137,7 +137,7 @@ export async function ensurePgIndexAsync<T extends DbObject>(collection: Collect
     if (isAnyTest) {
       await buildIndex();
     } else {
-      runAfterDelay(buildIndex, 15000);
+      setTimeout(buildIndex, 15000);
     }
   }
 }

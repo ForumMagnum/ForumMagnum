@@ -663,7 +663,7 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
       userId: viewFieldAllowAny,
       $or: [
         {userId: terms.userId},
-        {"shareWithUsers.[*]": terms.userId}
+        {"shareWithUsers.[*]": terms.userId},
         {"coauthorStatuses.[*].userId": terms.userId},
       ],
       draft: true,
@@ -1347,7 +1347,7 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
         {})
     }
   }
-));
+});
 ensurePgIndex(Posts, "startTime", "USING BTREE ((json->>'startTime'))");
 ensurePgIndex(Posts, "lastCommentedAt", "USING BTREE ((json->>'lastCommentedAt'))");
 ensurePgIndex(Posts, "latestPosts", "USING BTREE ((json->'sticky'), (json->'stickyPriority'), (json->'score'))");
