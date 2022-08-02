@@ -90,7 +90,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
   },
   twoLineEvent: {
-    lineHeight: "1.2rem",
+    lineHeight: "1.2rem !important",
   },
 }))
 
