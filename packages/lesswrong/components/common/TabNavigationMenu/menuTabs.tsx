@@ -86,6 +86,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      icon: allPostsIcon,
+      tooltip: 'See all posts, filtered and sorted however you like.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'concepts',
       title: 'Concepts',
       mobileTitle: 'Concepts',
@@ -155,36 +163,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'eventsList',
       customComponentName: "EventsList",
     }, {
-      id: 'allPosts',
-      title: 'All Posts',
-      link: '/allPosts',
-      icon: allPostsIcon,
-      tooltip: 'See all posts, filtered and sorted however you like.',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
     }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
-    }, {
-      id: 'questions',
-      title: 'Open Questions',
-      mobileTitle: 'Questions',
-      link: '/questions',
-      tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
-      </div>,
-      subItem: true
-    }, {
-      id: 'contact',
-      title: 'Contact Us',
-      link: '/contact',
-      subItem: true,
     }, {
       id: 'about',
       title: 'About',
@@ -197,11 +181,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
-    }, {
-      id: 'donate',
-      title: "Donate",
-      link: '/donate',
-      subItem: true
     }
   ],
   AlignmentForum: [
