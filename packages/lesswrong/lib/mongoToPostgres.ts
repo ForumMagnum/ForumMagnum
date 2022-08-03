@@ -28,8 +28,8 @@ export const mongoSelectorToSql = <T extends DbObject>(schema: SchemaType<T>|Fak
     args = [...args, ...atGreaterArgs];
   }
   
-  for (let [selectorKey, selector] of Object.entries(complexSelectorKeys)) {
-    const {sql,arg} = mongoSelectorFieldToSql(schema, selectorKey, selector, (argOffset||1)+args.length);
+  for (let selectorKey of complexSelectorKeys) {
+    const {sql,arg} = mongoSelectorFieldToSql(schema, selectorKey, selector[selectorKey], (argOffset||1)+args.length);
     if (sql && sql.length > 0) {
       selectorFragments.push(sql);
       args = [...args, ...arg];
