@@ -1429,13 +1429,15 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug)  {
-        return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+        // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
+        return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== data.slug) || []), oldDocument.slug])]
       }
       // The next three lines are copy-pasted from slug.onUpdate
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
-          return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+        if (!await Utils.slugIsUsed("Users", slugForNewName, oldDocument._id)) {
+          // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
+          return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
         }
       }
     }
