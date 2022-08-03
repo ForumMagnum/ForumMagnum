@@ -13,13 +13,13 @@ registerFragment(`
     descriptionTruncationCount
     createdAt
     wikiOnly
+    deleted
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
-    deleted
     oldSlugs
     isRead
     defaultOrder
@@ -45,6 +45,13 @@ registerFragment(`
       plaintextDescription
       version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithTocFragment on Tag {
+    ...TagFragment
+    descriptionHtmlWithToc
   }
 `);
 

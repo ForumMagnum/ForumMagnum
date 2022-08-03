@@ -1,5 +1,5 @@
 import compose from 'lodash/flowRight';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
@@ -78,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,()=>void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -98,15 +98,15 @@ const addClassnames = (componentName: string, styles: any) => {
         return `${componentName}-invalid`;
     }
   });
-  return (WrappedComponent: any) => (props: any) => {
+  return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
       const withStylesHoc = withStyles(styles, {name: componentName})
       const StylesWrappedComponent = withStylesHoc(WrappedComponent)
       return <StylesWrappedComponent {...props}/>
     }
-    return <WrappedComponent {...props} classes={classesProxy}/>
-  }
+    return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
+  })
 }
 
 // Register a component. Takes a name, a raw component, and ComponentOptions

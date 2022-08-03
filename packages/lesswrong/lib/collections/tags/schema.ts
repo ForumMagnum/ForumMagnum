@@ -8,7 +8,8 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
-import { SORT_ORDER_OPTIONS } from '../posts/schema';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
+import omit from 'lodash/omit';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -33,9 +34,9 @@ addGraphQLSchema(`
   }
 `);
 
-export const TAG_POSTS_SORT_ORDER_OPTIONS = {
-  relevance: 'Most Relevant',
-  ...SORT_ORDER_OPTIONS
+export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
+  relevance: { label: 'Most Relevant' },
+  ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
 }
 
 export const schema: SchemaType<DbTag> = {
@@ -128,6 +129,12 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
+  },
+  descriptionHtmlWithToc: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    // See resolveAs in server/resolvers/tagResolvers.ts
   },
   postCount: {
     ...denormalizedCountOfReferences({
@@ -420,9 +427,21 @@ export const schema: SchemaType<DbTag> = {
     control: 'select',
     options: () => Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).map(([key, val]) => ({
       value: key,
-      label: val
+      label: val.label
     })),
-  }
+  },
+
+  canVoteOnRels: {
+    type: Array,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.advancedOptions,
+  },
+  'canVoteOnRels.$': {
+    type: String,
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {

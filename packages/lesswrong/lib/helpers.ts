@@ -57,3 +57,7 @@ Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): P
   const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
   return !!existingUserWithSlug
 }
+
+export function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

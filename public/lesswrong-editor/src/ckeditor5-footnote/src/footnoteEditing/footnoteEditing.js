@@ -22,6 +22,7 @@ import { defineSchema } from './schema';
 import { defineConverters } from './converters';
 import { addFootnoteAutoformatting } from './autoformatting';
 import { ATTRIBUTES, COMMANDS, ELEMENTS } from '../constants';
+import GoogleDocsFootnotesNormalizer from './googleDocsFootnotesNormalizer';
 
 export default class FootnoteEditing extends Plugin {
 	static get requires() {
@@ -34,21 +35,21 @@ export default class FootnoteEditing extends Plugin {
 	get rootElement() {
 		const rootElement = this.editor.model.document.getRoot();
 		if(!rootElement) {
-			throw new Error('Document has no rootElement element.')
+			throw new Error('Document has no rootElement element.');
 		}
 		return rootElement;
 	}
 
 	init() {
 		defineSchema(this.editor.model.schema);
-		defineConverters(this.editor, this.rootElement);
+		defineConverters(this.editor);
 
 		this.editor.commands.add( COMMANDS.insertFootnote, new InsertFootnoteCommand( this.editor ) );
 
 		addFootnoteAutoformatting(this.editor, this.rootElement);
 
 		this.editor.model.document.on('change:data', (eventInfo, batch) => {
-			const diffItems = [...eventInfo.source.differ.getChanges()]; 
+			const diffItems = [...eventInfo.source.differ.getChanges()];
 			// If a footnote reference is inserted, ensure that footnote references remain ordered.
 			if(diffItems.some(diffItem => (
 				diffItem.type === 'insert' &&
@@ -68,10 +69,19 @@ export default class FootnoteEditing extends Plugin {
 					if(!footnoteId) {
 						return;
 					}
-					this._updateReferenceIndices(batch, footnoteId, newFootnoteIndex);
+					this._updateReferenceIndices(batch, `${footnoteId}`, newFootnoteIndex);
 				}
 			});
 		}, { priority: 'high' });
+
+		this.editor.plugins.get( 'ClipboardPipeline' ).on(
+			'inputTransformation',
+			( _, data ) => {
+				const googleDocsFootnotesNormalizer = new GoogleDocsFootnotesNormalizer();
+				googleDocsFootnotesNormalizer.execute( data );
+			},
+			{ priority: 'high' }
+		);
 
 		this._handleDelete();
 
@@ -108,7 +118,7 @@ export default class FootnoteEditing extends Plugin {
 					this._removeReferences(modelWriter);
 				}
 
-				const deletingFootnote = deletedElement && deletedElement.is('element', ELEMENTS.footnoteItem)
+				const deletingFootnote = deletedElement && deletedElement.is('element', ELEMENTS.footnoteItem);
 
 				const currentFootnote = deletingFootnote ?
 					deletedElement :
@@ -139,8 +149,8 @@ export default class FootnoteEditing extends Plugin {
 	/**
 	 * Clear the children of the provided footnoteContent element,
 	 * leaving an empty paragraph behind. This allows users to empty
-	 * a footnote without deleting it. modelWriter is passed in to 
-	 * batch these changes with the ones that instantiated them, 
+	 * a footnote without deleting it. modelWriter is passed in to
+	 * batch these changes with the ones that instantiated them,
 	 * such that the set can be undone with a single action.
 	 * @param {ModelElement} footnoteContent
 	 */
@@ -172,7 +182,7 @@ export default class FootnoteEditing extends Plugin {
 		}
 		const index = footnoteSection.getChildIndex(footnote);
 		const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
-		this._removeReferences(modelWriter, id);
+		this._removeReferences(modelWriter, `${id}`);
 
 		modelWriter.remove(footnote);
 		// if no footnotes remain, remove the footnote section
@@ -186,7 +196,7 @@ export default class FootnoteEditing extends Plugin {
 			// to avoid that.
 			const neighborFootnote = index === 0 ?
 				footnoteSection.getChild(index) :
-				footnoteSection.getChild(index-1);
+				footnoteSection.getChild(index-1)
 			if(!(neighborFootnote instanceof ModelElement)) {
 				return;
 			}
@@ -255,7 +265,7 @@ export default class FootnoteEditing extends Plugin {
 	 * Reindexes footnotes such that footnote references occur in order, and reorders
 	 * footnote items in the footer section accordingly. batch is passed in to group changes with
 	 * the ones that instantiated them.
-	 * @param {Batch} batch 
+	 * @param {Batch} batch
 	 */
 	_orderFootnotes(batch) {
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
@@ -289,7 +299,7 @@ export default class FootnoteEditing extends Plugin {
 				 * should fire from the attribute change immediately above. It seems that events initiated by
 				 * a `change:data` event do not themselves fire another `change:data` event.
 				 */
-				id && this._updateReferenceIndices(batch, id, index);
+				id && this._updateReferenceIndices(batch, `${id}`, `${index}`);
 			}
 		});
 	}

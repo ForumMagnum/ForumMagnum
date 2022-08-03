@@ -20,7 +20,7 @@ Forum Magnum is built on top of a number major open-source libraries.
 
 5. [Apollo](https://www.apollographql.com/docs/) is a client-side ORM which we use for managing data on the client. We interact with it primarily via the React hooks API.
 
-6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative text editor, which is no longer the default but which we still support.
+6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative rich text editor, which is no longer the default but which we still support.
 
 ## Running locally
 
@@ -80,7 +80,7 @@ Some relevant pieces of documentation that will help you understand aspects of t
 2. JSS styles: [intro](https://cssinjs.org/)
 3. GraphQL: [tutorial](https://graphql.org/learn/)
 4. Apollo: [introduction](https://www.apollographql.com/docs/react/) and [hooks API reference](https://www.apollographql.com/docs/react/api/react/hooks/)
-5. Underscore: [reference](https://underscorejs.org/)
+5. Lodash: [reference](https://lodash.com/docs/4.17.15)
 6. MongoDB: [manual](https://docs.mongodb.com/manual/introduction/)
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.

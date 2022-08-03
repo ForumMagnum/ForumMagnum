@@ -6,9 +6,9 @@ import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
-import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import { Globals } from '../../lib/vulcan-lib/config';
+import { extractTableOfContents } from "../tableOfContents";
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -201,6 +201,14 @@ augmentFieldsDict(Tags, {
       }
     }
   },
+  descriptionHtmlWithToc: {
+    resolveAs: {
+      type: "String",
+      resolver: async (tag: DbTag, args: {}, context: ResolverContext): Promise<string> => {
+        return extractTableOfContents(tag?.description?.html)?.html ?? "";
+      },
+    },
+  },
 });
 
 async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
@@ -237,7 +245,7 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
     // Filtered by: is a self-vote
     { $match: {
       $expr: {
-        $eq: ["$userId", "$authorId"]
+        $in: ["$userId", "$authorIds"]
       }
     }}
   ]).toArray();
@@ -293,7 +301,6 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
-
 export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   const html = await annotateAuthors(tag._id, "Tags", "description");
   await Tags.rawUpdateOne({_id: tag._id}, {$set: {

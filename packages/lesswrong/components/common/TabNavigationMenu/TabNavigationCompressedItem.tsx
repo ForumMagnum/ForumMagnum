@@ -14,6 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: compressedIconSize,
     height: compressedIconSize,
     '& svg': {
+      fill: "currentColor",
       width: compressedIconSize,
       height: compressedIconSize,
     }

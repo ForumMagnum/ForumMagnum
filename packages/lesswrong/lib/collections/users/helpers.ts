@@ -37,7 +37,8 @@ export const userOwnsAndInGroup = (group: string) => {
 
 export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
-  return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
+  return document.shareWithUsers?.includes(currentUser._id) ||
+    document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0;
 }
 
 export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
@@ -160,17 +161,13 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
 }
 
 export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
-  if (!user) {
-    return false
-  }
+  if (!user) return false
+  if (user.deleted) return false
+  if (user.allCommentingDisabled) return false
+  if (user.commentingOnOtherUsersDisabled && post.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
 
-  if (user.deleted) {
-    return false
-  }
-
-  if (!post) {
-    return true
-  }
+  if (!post) return true
+  if (post.commentsLocked) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
@@ -181,10 +178,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   }
 
   if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
-    return false
-  }
-
-  if (post.commentsLocked) {
     return false
   }
 
@@ -417,22 +410,6 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
   return {...locationData, setLocationData}
 }
 
-// utility function for checking how much karma a user is supposed to have
-export const userGetAggregateKarma = async (user: DbUser): Promise<number> => {
-  const posts = (await mongoFind("Posts", {userId:user._id})).map(post=>post._id)
-  const comments = (await mongoFind("Comments", {userId:user._id})).map(comment=>comment._id)
-  const documentIds = [...posts, ...comments]
-
-  return (await mongoAggregate("Votes", [
-    {$match: {
-      documentId: {$in:documentIds},
-      userId: {$ne: user._id},
-      cancelled: false
-    }},
-    {$group: { _id: null, totalPower: { $sum: '$power' }}},
-  ]))[0].totalPower;
-}
-
 export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return user.afPostCount;
@@ -447,4 +424,8 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
   } else {
     return user.commentCount;
   }
+}
+
+export const isMod = (user: UsersProfile|DbUser): boolean => {
+  return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }

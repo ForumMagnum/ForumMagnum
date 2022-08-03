@@ -33,6 +33,7 @@ const MuiTextField = ({
   rows,
   variant,
   type,
+  disabled=false,
   InputLabelProps
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
@@ -60,6 +61,7 @@ const MuiTextField = ({
       classes.textField,
       {[classes.fullWidth] :fullWidth}
     )}
+    disabled={disabled}
   >
     {children}
   </TextField>

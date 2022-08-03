@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -17,6 +17,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       backgroundColor: 'transparent',
     }
+  },
+  disabled: {
+    cursor: 'not-allowed',
   },
   smallArrow: {
     fontSize: '50%',
@@ -63,6 +66,7 @@ export interface VoteArrowIconProps {
   solidArrow?: boolean,
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
+  enabled?: boolean,
   color: "error"|"primary"|"secondary",
   voted: boolean,
   eventHandlers: {
@@ -77,36 +81,51 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const theme = useTheme();
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
-  
+  const { LWTooltip } = Components;
+
+  const Tooltip = enabled
+    ? ({ children }) => children
+    : ({ children }) => (
+      <LWTooltip title={"You do not have permission to vote on this"}>
+        {children}
+      </LWTooltip>
+    );
+
+  if (!enabled) {
+    eventHandlers = {};
+  }
+
   return (
-    <IconButton
-      className={classNames(classes.root, classes[orientation])}
-      onMouseDown={eventHandlers.handleMouseDown}
-      onMouseUp={eventHandlers.handleMouseUp}
-      onMouseOut={eventHandlers.clearState}
-      onClick={eventHandlers.handleClick}
-      disableRipple
-    >
-      <Icon
-        className={classes.smallArrow}
-        color={(voted || alwaysColored) ? color : 'inherit'}
-        viewBox='6 6 12 12'
-      />
-      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
-        {(state) => (
-          <UpArrowIcon
-            style={bigVoteCompleted ? {color: theme.palette[color].light} : undefined}
-            className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
-            color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
-            viewBox='6 6 12 12'
-          />)}
-      </Transition>
-    </IconButton>
+    <Tooltip>
+      <IconButton
+        className={classNames(classes.root, classes[orientation], {[classes.disabled]: !enabled})}
+        onMouseDown={eventHandlers.handleMouseDown}
+        onMouseUp={eventHandlers.handleMouseUp}
+        onMouseOut={eventHandlers.clearState}
+        onClick={eventHandlers.handleClick}
+        disableRipple
+      >
+        <Icon
+          className={classes.smallArrow}
+          color={(voted || alwaysColored) ? color : 'inherit'}
+          viewBox='6 6 12 12'
+        />
+        <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
+          {(state) => (
+            <UpArrowIcon
+              style={bigVoteCompleted ? {color: theme.palette[color].light} : undefined}
+              className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
+              color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
+              viewBox='6 6 12 12'
+            />)}
+        </Transition>
+      </IconButton>
+    </Tooltip>
   )
 }
 

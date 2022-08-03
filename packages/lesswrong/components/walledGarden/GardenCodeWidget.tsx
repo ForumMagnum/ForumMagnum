@@ -90,7 +90,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
 
   const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type", "afOnly"]
 
-  return <Components.ContentStyles contentType="commentExceptPointerEvents" className={classes.root} {...keyDown}>
+  return <Components.ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.

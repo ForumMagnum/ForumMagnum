@@ -192,6 +192,7 @@ declare global {
       translucent: ColorString,
       translucent2: ColorString,
       translucent3: ColorString,
+      translucent4: ColorString,
       hoverHighlightGrey: ColorString,
       postsItemHover: ColorString,
       formErrors: ColorString,
@@ -320,6 +321,9 @@ declare global {
     datePicker: {
       selectedDate: ColorString,
     },
+    intercom?: { //Optional. If omitted, use defaults from library.
+      buttonBackground: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
@@ -379,6 +383,7 @@ declare global {
     },
     zIndexes: any,
     overrides: any,
+    postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
     secondary: any,
     
@@ -386,6 +391,8 @@ declare global {
     // `theme.palette.boxShadow` which defines shadows semantically rather than
     // with an arbitrary darkness number)
     shadows: string[],
+    
+    rawCSS: string[],
   };
   
   type BaseThemeSpecification = {

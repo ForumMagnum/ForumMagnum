@@ -386,6 +386,21 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
     userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
   })
   userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+  
+  // if the post is associated with a group, also (potentially) notify the group organizers
+  if (post && post.groupId) {
+    const group = await Localgroups.findOne(post.groupId)
+    if (group?.organizerIds && group.organizerIds.length) {
+      const subsWithOrganizers = await getSubscribedUsers({
+        documentId: comment.postId,
+        collectionName: "Posts",
+        type: subscriptionTypes.newComments,
+        potentiallyDefaultSubscribedUserIds: group.organizerIds,
+        userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer
+      })
+      userIdsSubscribedToPost = _.union(userIdsSubscribedToPost, _.map(subsWithOrganizers, u=>u._id))
+    }
+  }
 
   // Notify users who are subscribed to shortform posts
   if (!comment.topLevelCommentId && comment.shortform) {
@@ -437,10 +452,32 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  if (post.shareWithUsers?.length) {
-    await createNotifications({userIds: post.shareWithUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: post._id})
-  }
+  const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
+  const coauthors = coauthorStatuses ? coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) : []
+  const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
+  await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
+
+const sendCoauthorRequestNotifications = async (post: DbPost) => {
+  const { _id, coauthorStatuses, hasCoauthorPermission } = post;
+
+  if (hasCoauthorPermission === false && coauthorStatuses?.length) {
+    await createNotifications({
+      userIds: coauthorStatuses.filter(({requested, confirmed}) => !requested && !confirmed).map(({userId}) => userId),
+      notificationType: "coauthorRequestNotification",
+      documentType: "post",
+      documentId: _id,
+    });
+
+    post.coauthorStatuses = coauthorStatuses.map((status) => ({ ...status, requested: true }));
+    await Posts.rawUpdateOne({ _id }, { $set: { coauthorStatuses: post.coauthorStatuses } });
+  }
+
+  return post;
+}
+
+getCollectionHooks("Posts").newAfter.add(sendCoauthorRequestNotifications);
+getCollectionHooks("Posts").updateAfter.add(sendCoauthorRequestNotifications);
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af

@@ -67,6 +67,16 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.manifold-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
 const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.owid-preview': {
     '& iframe': {
@@ -211,7 +221,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     fontWeight:600,
   },
   '& img': {
-    maxWidth: "100%"
+    maxWidth: "100%",
+    ...theme.postImageStyles,
   },
   '& sup': {
     verticalAlign: 'baseline',
@@ -252,7 +263,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& figcaption': {
     ...theme.typography.caption,
     ...theme.typography.postStyle
-  }
+  },
+  '& ol > li > ol': {
+    listStyle: 'lower-alpha',
+  },
+  '& ol > li > ol > li > ol': {
+    listStyle: 'lower-roman',
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
@@ -260,6 +277,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
+    ...manifoldPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),

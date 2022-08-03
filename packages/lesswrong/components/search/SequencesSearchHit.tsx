@@ -2,17 +2,33 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
+import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
+import { Snippet } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+    display: 'flex',
+    alignItems: 'center'
+  },
   title: {
     display: "inline",
+    ...theme.typography.postStyle,
     fontSize: "1.25rem",
     fontVariant: "small-caps",
     marginRight: 8,
     textDecoration: "none",
     "& a:hover": {
       color: "inherit",
-    }
+    },
+  },
+  icon: {
+    width: 20,
+    color: theme.palette.grey[500],
+    marginRight: 12,
+    marginLeft: 4
   },
   meta: {
     display: "inline-block",
@@ -22,28 +38,44 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 5,
     }
   },
+  snippet: {
+    ...theme.typography.postStyle,
+    lineHeight: "1.3rem",
+    marginTop: 4,
+    wordBreak: "break-word"
+  }
 });
 
-const SequencesSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<AlgoliaSequence>,
+const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: {
+  hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
+  showIcon?: boolean
 }) => {
   const sequence: AlgoliaSequence = hit;
-  const linkProperties = clickAction ? {onClick: () => clickAction(sequence._id)} : {to: "sequences/" + sequence._id};
-  return <div className="search-results-sequences-item sequences-item">
-      <Link {...linkProperties} className="sequence-item-title-link">
+  const { LWTooltip, MetaInfo } = Components
+  
+  const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
+
+  return <div className={classes.root}>
+      {showIcon && <LWTooltip title="Sequence">
+        <LocalLibraryIcon className={classes.icon}/>
+      </LWTooltip>}
+      <Link to={"/sequences/" + sequence._id} onClick={() => clickAction(sequence._id)}>
         <div className="sequences-item-body ">
           <div className={classes.title}>
             {sequence.title}
           </div>
           <div className={classes.meta}>
-            <div className="sequences-item-author">{sequence.authorDisplayName}</div>
-            <div className="sequences-item-created-date">
+            <MetaInfo>{sequence.authorDisplayName}</MetaInfo>
+            <MetaInfo className="sequences-item-created-date">
               <Components.FormatDate date={sequence.createdAt}/>
-            </div>
+            </MetaInfo>
           </div>
         </div>
+        {showSnippet && <div className={classes.snippet}>
+          <Snippet attribute="description" hit={sequence} tagName="mark" />
+        </div>}
       </Link>
   </div>
 }

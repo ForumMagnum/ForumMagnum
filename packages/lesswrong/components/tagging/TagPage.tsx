@@ -14,7 +14,8 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagMinimumKarmaPermissions } from "../../lib/collections/tags/collection";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -227,6 +228,9 @@ const TagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
+  if (editing && currentUser && currentUser.karma < tagMinimumKarmaPermissions.edit) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+  }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
@@ -241,10 +245,40 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly && !isEAForum)
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = htmlWithAnchors;
+    for (let matchString of [
+        'id="Further_reading"',
+        'id="Bibliography"',
+        'id="Related_entries"',
+        'class="footnotes"',
+      ]) {
+      if(htmlWithAnchors.includes(matchString)) {
+        const truncationLength = htmlWithAnchors.indexOf(matchString);
+        /**
+         * The `truncate` method used below uses a complicated criterion for what
+         * counts as a character. Here, we want to truncate at a known index in
+         * the string. So rather than using `truncate`, we can slice the string
+         * at the desired index, use `parseFromString` to clean up the HTML,
+         * and then append our footer 'read more' element.
+         */
+        description = truncated ?
+          new DOMParser().parseFromString(
+            htmlWithAnchors.slice(0, truncationLength), 
+            'text/html'
+          ).body.innerHTML + "<span>...<p><a>(Read More)</a></p></span>" :
+          htmlWithAnchors;
+        break;
+      }
+    }
+  } else {
+    description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
+  }
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -321,6 +355,7 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
+        welcomeBox={null}
       >
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">

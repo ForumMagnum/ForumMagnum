@@ -12,13 +12,14 @@ registerFragment(`
     }
     sequenceIds
     sequences {
-      ...SequencesPageFragment
+      ...SequencesPageWithChaptersFragment
     }
     postIds
     posts {
       ...PostsList
     }
     collectionId
+    showChapters
   }
 `);
 

@@ -10,6 +10,7 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,7 +58,7 @@ const AllTagsPage = ({classes}: {
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
-  const { tag } = useTagBySlug("portal", "TagFragment");
+  const { tag } = useTagBySlug("portal", "TagWithTocFragment");
   const [ editing, setEditing ] = useState(false)
 
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles } = Components;
@@ -80,22 +81,22 @@ const AllTagsPage = ({classes}: {
           <AnalyticsContext pageSectionContext="tagPortal">
             <SectionTitle title={sectionTitle}>
               <SectionButton>
-                {currentUser
-                  ? <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
-                      <AddBoxIcon className={classes.addTagButton}/>
-                      New {taggingNameCapitalSetting.get()}
-                    </Link>
-                  : <a onClick={(ev) => {
-                      openDialog({
-                        componentName: "LoginPopup",
-                        componentProps: {}
-                      });
-                      ev.preventDefault();
-                    }}>
-                      <AddBoxIcon className={classes.addTagButton}/>
-                      New {taggingNameCapitalSetting.get()}
-                    </a>
-                }
+                {currentUser && currentUser.karma > tagMinimumKarmaPermissions.new && <Link
+                  to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
+                >
+                  <AddBoxIcon className={classes.addTagButton}/>
+                  New {taggingNameCapitalSetting.get()}
+                </Link>}
+                {!currentUser && <a onClick={(ev) => {
+                  openDialog({
+                    componentName: "LoginPopup",
+                    componentProps: {}
+                  });
+                  ev.preventDefault();
+                }}>
+                  <AddBoxIcon className={classes.addTagButton}/>
+                  New {taggingNameCapitalSetting.get()}
+                </a>}
               </SectionButton>
             </SectionTitle>
             <ContentStyles contentType="comment" className={classes.portal}>
@@ -106,7 +107,7 @@ const AllTagsPage = ({classes}: {
                 <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
                 :
                 <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
+                  dangerouslySetInnerHTML={{__html: tag?.descriptionHtmlWithToc || ""}}
                   description={`tag ${tag?.name}`} noHoverPreviewPrefetch
                 />
               }

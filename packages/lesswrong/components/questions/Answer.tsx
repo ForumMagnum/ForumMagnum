@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -115,7 +116,6 @@ const Answer = ({ comment, post, classes }: {
   classes: ClassesType,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
-  const [commenting,setCommenting] = useState(false);
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
@@ -183,6 +183,7 @@ const Answer = ({ comment, post, classes }: {
                       className={classNames({[classes.retracted]: comment.retracted})}
                       dangerouslySetInnerHTML={{__html:html}}
                       description={`comment ${comment._id} on post ${post._id}`}
+                      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
                     />
                   </ContentStyles>
                   <CommentBottomCaveats comment={comment}/>

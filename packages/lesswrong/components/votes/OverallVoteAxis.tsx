@@ -19,9 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2
   },
   overallSectionBox: {
+    marginLeft: 8,
     outline: theme.palette.border.commentBorder,
+    borderRadius: 2,
     textAlign: 'center',
-    minWidth: 70
+    minWidth: 60
   },
   vote: {
     fontSize: 25,
@@ -118,7 +120,7 @@ const OverallVoteAxis = ({ document, options, voteProps, classes, showBox=false 
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
           <LWTooltip
-            title={<div><b>Overall Karma: downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
             <OverallVoteButton
@@ -143,7 +145,7 @@ const OverallVoteAxis = ({ document, options, voteProps, classes, showBox=false 
             </LWTooltip>
           }
           <LWTooltip
-            title={<div><b>Overall Karma: upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
             <OverallVoteButton

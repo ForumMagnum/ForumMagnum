@@ -42,11 +42,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
         open={hover}
         anchorEl={anchorEl}
         placement="left"
-        modifiers={{
-          flip: {
-            enabled: false,
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltipSingle postId={post._id} postsList/>
       </LWPopper>
@@ -58,7 +54,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
           {post.authorDisplayName}
         </MetaInfo>}
         <MetaInfo>
-          {post.baseScore} points
+          {post.baseScore} karma
         </MetaInfo>
         {post.postedAt && <MetaInfo>
           <FormatDate date={post.postedAt}/>

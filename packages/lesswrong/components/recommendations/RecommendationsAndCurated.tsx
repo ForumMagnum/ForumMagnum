@@ -9,7 +9,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
+export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -75,6 +75,8 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
+const isLW = forumTypeSetting.get() === 'LessWrong'
+
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -92,7 +94,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -146,26 +148,23 @@ const RecommendationsAndCurated = ({
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
-          <SequencesGridWrapper
-            terms={{'view':'curatedSequences', limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-          />
+          <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+            <CuratedSequences />
+          </AnalyticsContext>
         </div>
         <div className={classes.smallScreenLoggedOutSequences}>
           <ContinueReadingList continueReading={continueReading} />
         </div>
       </div>}
 
-      {/* Disabled during 2018 Review [and coronavirus season] */}
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage &&
+          {!settings.hideFrontpage && 
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
-          {/* <AnalyticsContext listContext={"curatedPosts"}>
+          <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
@@ -174,7 +173,7 @@ const RecommendationsAndCurated = ({
               boxShadow={false}
               curatedIconLeft={true}
             />
-          </AnalyticsContext> */}
+          </AnalyticsContext>
         </div>
       </div>
 
@@ -198,7 +197,7 @@ const RecommendationsAndCurated = ({
           </Link>
         </LWTooltip>
         <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={bookmarksLimit} />
+          <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
         </AnalyticsContext>
       </div>}
 

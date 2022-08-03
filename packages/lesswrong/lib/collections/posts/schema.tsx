@@ -1,3 +1,4 @@
+import React from 'react'
 import { userOwns } from '../../vulcan-users/permissions';
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
@@ -13,20 +14,22 @@ import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
+import { forumTypeSetting } from '../../instanceSettings';
+import { SORT_ORDER_OPTIONS, SettingsOption } from './sortOrderOptions';
+import { Link } from '../../reactRouterWrapper';
+
+const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
+const isEAForum = (forumTypeSetting.get() === 'EAForum')
+
+const urlHintText = isEAForum
+    ? 'UrlHintText'
+    : 'Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don\'t click offsite links.)'
 
 const STICKY_PRIORITIES = {
   1: "Low",
   2: "Normal",
   3: "Elevated",
   4: "Max",
-}
-
-export const SORT_ORDER_OPTIONS = {
-  magic: 'Magic (New & Upvoted)',
-  recentComments: 'Recent Comments',
-  new: 'New',
-  old: 'Old',
-  top: 'Top',
 }
 
 export interface RSVPType {
@@ -121,8 +124,15 @@ const schema: SchemaType<DbPost> = {
         title
       }
     `,
-    placeholder: 'Add a linkpost URL',
+    inputProperties: {
+      labels: {
+        inactive: 'Link-post?',
+        active: 'Add a linkpost URL',
+      },
+      hintText: urlHintText
+    },
     group: formGroups.options,
+    hidden: (props) => props.eventForm,
   },
   // Title
   title: {
@@ -925,6 +935,7 @@ const schema: SchemaType<DbPost> = {
           .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
+    ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
   },
 };
 

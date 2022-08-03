@@ -18,6 +18,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle
   },
+  button: {
+    background: theme.palette.primary.main,
+    borderRadius: 3,
+    color: theme.palette.text.invertedBackgroundText,
+    display: "block",
+    width: 300,
+    padding: 16,
+    marginTop: 36,
+    textAlign: "center",
+    fontWeight: 600,
+    marginLeft: "auto",
+    marginRight: "auto"
+  }
 })
 
 const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
@@ -41,26 +54,12 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
         Walled Garden
       </Typography>
       <p>
-        <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"><strong>Link to the Garden</strong></a><br/>
-      </p>
-      <p>
-        There are many kinds of important social interactions; and not all of those can be achieved on a scheduled Zoom call or from behind a keyboard. Even before the pandemic, it was challenging to make all the worthwhile conversations happen.
-      </p>
-      <p>
-        To address this, The LessWrong team is experimenting with a permanent, virtual world for rationalists. The vision to provide an always-available, 24/7 communal hub where you can socialize, cowork, play games, and attend events.
-      </p>
-      <p>
-        We’re calling it <strong>The Walled Garden</strong>. The plan is to only invite folks if we trust them to embody the virtues, norms, and culture of the LessWrong/Rationality community at its best. &nbsp;If you're seeing this, we invited you with that in mind. <i>Please don't share the password.</i>
+        Walled Garden is a virtual world hosted on <a href="https://gather.town/">gather.town</a>. You control an avatar who can walk around, videochatting with other nearby avatars. It was created to enable social interaction during the 2020 pandemic, and continues getting some use as a place people host online meetups.
       </p>
       <p>
         Come visit! Reconnect with old friends, make new ones. And if you're keen to stretch your legs, take a virtual walk together through the waterfalls or explore the abandoned (for now) university campus.
       </p>
-      <p>
-        <strong>The Garden is open 24/7</strong></p>
-      <ul>
-        <li>Schelling socializing hours at 1pm and 7pm PT</li>
-        <li>Schelling co-working hours between 2pm-7pm PT</li>
-      </ul>
+      <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"><div className={classes.button}>Click to enter the Garden</div></a><br/>
       <h2>A Culture of Truth-Seeking</h2><p>As a home for Rationalists, the Garden will have a culture of truth-seeking. Inhabitants should reflect on their thought-processes, embody these <a href="https://lesswrong.com/posts/7ZqGiPHTpiDMwqMN2/twelve-virtues-of-rationality">12 virtues of Rationality</a> (and others), and generally try to be right rather than Right.
       </p>
       <h2>Garden Etiquette</h2>

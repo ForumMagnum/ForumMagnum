@@ -21,10 +21,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   header: {
-    margin: theme.spacing.unit * 2,
+    marginTop: 0, // override default H1 margin
+    marginLeft: theme.spacing.unit * 2,
+    marginRight: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,
     [theme.breakpoints.down('md')]: {
       marginLeft: theme.spacing.unit/2,
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: theme.spacing.unit * 2,
     },
   },
   resetButton: {
@@ -96,8 +101,11 @@ const UsersEditForm = ({terms, classes}: {
         hideFields={["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
           flash(`User "${userGetDisplayName(user)}" edited`);
-          await client.resetStore()
-          history.push(userGetProfileUrl(user));
+          try {
+            await client.resetStore()
+          } finally {
+            history.push(userGetProfileUrl(user))
+          }
         }}
         queryFragment={getFragment('UsersEdit')}
         mutationFragment={getFragment('UsersEdit')}

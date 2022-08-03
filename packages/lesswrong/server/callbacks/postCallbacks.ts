@@ -8,7 +8,7 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 
@@ -266,3 +266,29 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   
   return modifier
 })
+
+const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
+  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+
+const scheduleCoauthoredPost = (post: DbPost): DbPost => {
+  const now = new Date();
+  post.postedAt = new Date(now.setDate(now.getDate() + 1));
+  post.isFuture = true;
+  return post;
+}
+
+getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
+  if (postHasUnconfirmedCoauthors(post) && !post.draft) {
+    post = scheduleCoauthoredPost(post);
+  }
+  return post;
+});
+
+getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
+  // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
+  // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
+  if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
+    post = scheduleCoauthoredPost(post);
+  }
+  return post;
+});

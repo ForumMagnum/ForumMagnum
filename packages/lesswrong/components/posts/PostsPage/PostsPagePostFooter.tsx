@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerTagList: {
     marginTop: 16,
     marginBottom: 66,
-  }
+  },
 });
 
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
