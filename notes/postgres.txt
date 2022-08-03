@@ -20,6 +20,7 @@ Setting Up and Importing a Local Copy of the Dev DB
         CREATE DATABASE lesswrong;
         CREATE ROLE lesswrong WITH LOGIN PASSWORD 'ReplaceThisWithAPassword';
         GRANT ALL PRIVILEGES ON DATABASE lesswrong TO lesswrong;
+        ALTER USER lesswrong CREATEDB;
         exit
 
 3. Export a copy of the dev DB
@@ -45,3 +46,7 @@ Setting Up and Importing a Local Copy of the Dev DB
 
     export PG_URL="postgres://user:password@localhost/db"
     yarn run start-dev-db
+
+    export PG_TEST_URL="postgres://user:password@localhost/db"
+    yarn jest packages/lesswrong/testing/mongoToPostgres.tests.ts
+
