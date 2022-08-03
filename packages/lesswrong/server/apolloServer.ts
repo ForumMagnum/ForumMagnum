@@ -39,6 +39,7 @@ import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getMergedStylesheet } from './styleGeneration';
+import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -227,6 +228,9 @@ export function startWebserver() {
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptions(request, user);
     const stylesheet = getMergedStylesheet(themeOptions);
+    const externalStylesPreload = globalExternalStylesheets.map(url =>
+      `<link rel="stylesheet" type="text/css" href="${url}">`
+    ).join("");
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -238,6 +242,7 @@ export function startWebserver() {
       + '<html lang="en">\n'
       + '<head>\n'
         + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + externalStylesPreload
         + instanceSettingsHeader
         + clientScript
     );

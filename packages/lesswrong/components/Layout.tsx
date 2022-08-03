@@ -274,16 +274,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
-                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-                { theme.typography.fontDownloads &&
-                    theme.typography.fontDownloads.map(
-                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                    )
+                {theme.typography.fontDownloads &&
+                  theme.typography.fontDownloads.map(
+                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                  )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-                <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
               <AnalyticsClient/>
