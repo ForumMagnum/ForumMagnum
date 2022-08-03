@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { isMissingDocumentError, isAccessDeniedError } from '../../../lib/utils/errorUtil';
+import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -33,12 +33,14 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   
   if (post) {
     return <PostsPage post={post} refetch={refetch} />
+  } else if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
+    throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
   } else if (error) {
     if (isMissingDocumentError(error)) {
       return <Error404/>
-    } else if (isAccessDeniedError(error)) {
+    } else if (isOperationNotAllowedError(error)) {
       return <Components.ErrorAccessDenied/>
     } else {
       throw new Error(error.message);

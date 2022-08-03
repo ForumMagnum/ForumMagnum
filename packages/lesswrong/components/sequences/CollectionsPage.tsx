@@ -10,11 +10,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       paddingTop: 70,
       marginTop: -50,
-      marginLeft: -4,
-      marginRight: -4
+      marginLeft: -8,
+      marginRight: -8
     }
   },
   header: {
@@ -98,12 +98,14 @@ const CollectionsPage = ({ documentId, classes }: {
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
           </ContentStyles>
 
-          <ButtonUntyped
-            className={classes.startReadingButton}
-            component={Link} to={document.firstPageLink}
-          >
-            {startedReading ? "Continue Reading" : "Start Reading"}
-          </ButtonUntyped>
+          {!collection.hideStartReadingButton &&
+            <ButtonUntyped
+              className={classes.startReadingButton}
+              component={Link} to={document.firstPageLink}
+            >
+              {startedReading ? "Continue Reading" : "Start Reading"}
+            </ButtonUntyped>
+          }
         </div>
       </SingleColumnSection>
       <div>

@@ -2,7 +2,7 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ ea-deploy, master, review-2020 ]
+    branches: [ ea-deploy, master, widerMobileMargins ]
 jobs:
   deploy:
     runs-on: ubuntu-latest

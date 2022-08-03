@@ -24,7 +24,6 @@ const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
-const eaHandbookPostIdSetting = new PublicInstanceSetting<string | null>('eaHandbookPostId', null, "optional")
 
 async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
@@ -598,12 +597,10 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name:'handbook',
-      path:'/handbook',
-      componentName: 'PostsSingleRoute',
-      _id: eaHandbookPostIdSetting.get(),
-      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, eaHandbookPostIdSetting.get()),
-      background: postBackground
+      name: 'handbook',
+      path: '/handbook',
+      componentName: 'EAIntroCurriculum',
+      title: 'The Effective Altruism Handbook',
     },
     {
       name: 'intro',
@@ -687,12 +684,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
-    },
-    {
-      name: 'IntroCurriculum',
-      path: '/curriculum',
-      componentName: 'EAIntroCurriculum',
-      title: 'Intro Curriculum',
     },
   ],
   LessWrong: [

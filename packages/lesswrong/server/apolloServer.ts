@@ -43,15 +43,18 @@ import { getMergedStylesheet } from './styleGeneration';
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
+  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
+  // save a conversion and a little memory
+  const bundleBuffer = Buffer.from(bundleText, 'utf8');
   const lastModified = fs.statSync(bundlePath).mtimeMs;
   return {
     bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleText, 'utf8').digest('hex'),
+    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
     lastModified,
-    bundleText,
+    bundleBuffer,
   };
 }
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleText: string}|null = null;
+let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer}|null = null;
 const getClientBundle = () => {
   if (!clientBundle) {
     clientBundle = loadClientBundle();
@@ -151,7 +154,7 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleText} = getClientBundle();
+    const {bundleHash, bundleBuffer} = getClientBundle();
     if (query.hash && query.hash !== bundleHash) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
       // version upgrade in progress, and the SSR and the bundle were handled by servers
@@ -162,13 +165,13 @@ export function startWebserver() {
         "Cache-Control": "public, max-age=60",
         "Content-Type": "text/javascript; charset=utf-8"
       });
-      res.end(bundleText);
+      res.end(bundleBuffer);
     } else {
       res.writeHead(200, {
         "Cache-Control": "public, max-age=604800, immutable",
         "Content-Type": "text/javascript; charset=utf-8"
       });
-      res.end(bundleText);
+      res.end(bundleBuffer);
     }
   });
   // Setup CKEditor Token
@@ -220,7 +223,7 @@ export function startWebserver() {
     const parsedRoute = parseRoute({
       location: parsePath(request.url)
     });
-    const prefetchResources = parsedRoute.currentRoute.enableResourcePrefetch;
+    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptions(request, user);

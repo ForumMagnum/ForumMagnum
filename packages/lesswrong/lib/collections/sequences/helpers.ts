@@ -65,7 +65,7 @@ const getSequenceCollectionBooks = async function(sequenceId: string) {
 
   const { _id: collectionId } = collection;
 
-  return Books.find({ collectionId }).fetch();
+  return Books.find({ collectionId }, { sort: { number: 1 } }).fetch();
 }
 
 const getSurroundingSequencePostIdTuples = async function (sequenceId: string, context: ResolverContext) {

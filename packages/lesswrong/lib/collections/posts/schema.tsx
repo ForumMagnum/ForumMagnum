@@ -16,6 +16,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
+import { SORT_ORDER_OPTIONS, SettingsOption } from './sortOrderOptions';
 import { Link } from '../../reactRouterWrapper';
 
 const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
@@ -30,20 +31,6 @@ const STICKY_PRIORITIES = {
   2: "Normal",
   3: "Elevated",
   4: "Max",
-}
-
-export interface SettingsOption {
-  label: string;
-  tooltip?: string;
-}
-
-export const SORT_ORDER_OPTIONS: { [key: string]: SettingsOption; } = {
-  magic: { label: 'Magic (New & Upvoted)', tooltip: 'Posts with the highest karma from the past few days' },
-  topAdjusted: { label: 'Top (Inflation Adjusted)', tooltip: 'Posts with the highest karma relative to those posted around the same time' },
-  recentComments: { label: 'Recent Comments' },
-  new: { label: 'New' },
-  old: { label: 'Old' },
-  top: { label: 'Top' },
 }
 
 export interface RSVPType {

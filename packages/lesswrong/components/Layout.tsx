@@ -37,7 +37,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'IntroCurriculum'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -52,8 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
+      paddingLeft: 8,
+      paddingRight: 8,
     },
   },
   gridActivated: {
@@ -322,9 +322,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   <Footer />
                 </div>
                 {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
-                    <SunshineSidebar/>
-                  </div>
-                  }
+                  <Components.SunshineSidebar/>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>

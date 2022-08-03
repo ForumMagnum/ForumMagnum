@@ -25,6 +25,6 @@ export function isMissingDocumentError(error: ApolloError): boolean {
   return (error && error.message==='app.missing_document');
 }
 
-export function isAccessDeniedError(error: ApolloError): boolean {
+export function isOperationNotAllowedError(error: ApolloError): boolean {
   return (error && error.message==='app.operation_not_allowed');
 }
