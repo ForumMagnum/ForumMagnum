@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     display:"none",
     background: theme.palette.panelBackground.default,
+    width: 210,
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
@@ -107,7 +108,6 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
         </div>}
       </div>}
-
     </div>
   )
 }
