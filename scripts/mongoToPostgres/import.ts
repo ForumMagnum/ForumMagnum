@@ -89,18 +89,22 @@ const excludedCollections: string[] = [
   "movies", "categories",
   // Other junk of unclear origin
   "usercollectionrels", "usersequencerels", "roles", "objectlabs-system", "objectlabs-system.admin.collections",
+];
+const excludeContentsButSetUpTables: string[] = [
   // TODO Disabled during experimentation, because there are issues to work
   // around, but need to be reenabled before using this script for production:
   // (Specifically: Rows in these collections have _id fields of type ObjectID
   // rather than string.)
   "databasemetadata", "debouncerevents", "lwevents", "readstatuses",
 ];
+
 function isExcludedCollection(collectionName: string, options: CommandLineOptions) {
   if (options.onlyCollection)
     return collectionName!==options.onlyCollection;
   return collectionName.startsWith("ROLLBACKS_")
     || collectionName.startsWith("meteor_")
     || excludedCollections.find(c=>c===collectionName)
+    || excludeContentsButSetUpTables.find(c=>c===collectionName)
 }
 
 async function foreachRowInBsonFile(filename: string, fn: (row: any)=>Promise<void>) {
@@ -177,6 +181,11 @@ async function performImport(options: CommandLineOptions, connectionPool: Pool) 
   const collectionNames = map(filter(filesInDump, filename=>filename.endsWith(".bson")), filename=>filename.substr(0, filename.length-".bson".length));
   const filteredCollectionNames = filter(collectionNames, c=>!isExcludedCollection(c, options));
   console.log(`Importing ${filteredCollectionNames.length} collections and ignoring ${collectionNames.length-filteredCollectionNames.length} collections`);
+  
+  for (let collectionName of excludeContentsButSetUpTables)
+  {
+    await createTable(collectionName, options, connectionPool);
+  }
   
   for (let collectionName of filteredCollectionNames)
   {
