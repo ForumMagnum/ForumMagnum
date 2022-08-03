@@ -7,7 +7,7 @@ import { useItemsRead } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    display: "inline"
+    marginBottom: 16
   },
   postProgressBox: {
     border: theme.palette.border.normal,
