@@ -90,6 +90,13 @@ const schema: SchemaType<DbBook> = {
     foreignKey: "Sequences",
     optional: true,
   },
+  sequencesGridDisplay: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
 
   showChapters: {
     type: Boolean,

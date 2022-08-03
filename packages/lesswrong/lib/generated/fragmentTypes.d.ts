@@ -214,6 +214,7 @@ interface BooksDefaultFragment { // fragment on Books
   readonly number: number,
   readonly postIds: Array<string>,
   readonly sequenceIds: Array<string>,
+  readonly sequencesGridDisplay: boolean,
   readonly showChapters: boolean,
 }
 
@@ -1307,6 +1308,7 @@ interface BookPageFragment { // fragment on Books
   readonly postIds: Array<string>,
   readonly posts: Array<PostsList>,
   readonly collectionId: string,
+  readonly sequencesGridDisplay: boolean,
   readonly showChapters: boolean,
 }
 

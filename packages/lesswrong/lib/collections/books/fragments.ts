@@ -19,6 +19,7 @@ registerFragment(`
       ...PostsList
     }
     collectionId
+    sequencesGridDisplay
     showChapters
   }
 `);

@@ -38,7 +38,7 @@ const BooksItem = ({ book, canEdit, classes }: {
 
   const { html = "" } = book.contents || {}
   const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, Divider, ContentItemBody, ContentStyles } = Components
+    SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -74,7 +74,8 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        {book.sequences.map(sequence =>
+        {book.sequencesGridDisplay && <SequencesGrid sequences={book.sequences}/>}
+        {!!book.sequencesGridDisplay && book.sequences.map(sequence =>
           <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
         )}
       </SingleColumnSection>
