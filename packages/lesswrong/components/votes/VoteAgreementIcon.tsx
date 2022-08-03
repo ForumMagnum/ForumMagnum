@@ -8,58 +8,6 @@ import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 
-// const styles = (theme: ThemeType): JssStyles => ({
-//   root: {
-//     color: theme.palette.grey[400],
-//     fontSize: 'inherit',
-//     width: 'initial',
-//     height: 'initial',
-//     padding: 0,
-//     '&:hover': {
-//       backgroundColor: 'transparent',
-//     }
-//   },
-//   smallArrow: {
-//     fontSize: '50%',
-//     opacity: 0.6
-//   },
-//   up: {},
-//   right: {
-//     transform: 'rotate(-270deg)',
-//   },
-//   down: {
-//     transform: 'rotate(-180deg)',
-//   },
-//   left: {
-//     transform: 'rotate(-90deg)',
-//   },
-//   bigArrow: {
-//     position: 'absolute',
-//     top: '-70%',
-//     fontSize: '82%',
-//     opacity: 0,
-//     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-//   },
-//   bigArrowSolid: {
-//     fontSize: '65%',
-//     top: "-45%"
-//   },
-//   bigArrowCompleted: {
-//     fontSize: '90%',
-//     top: '-75%',
-//   },
-//   // Classes for the animation transitions of the bigArrow. See Transition component
-//   entering: {
-//     opacity: 1
-//   },
-//   entered: {
-//     opacity: 1
-//   },
-//   exiting: {
-//     transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
-//   }
-// })
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.grey[400],
@@ -163,9 +111,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   exiting: {
     transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
   },
-  bigVoteIconStyling: { // necessary? unclear
-    marginLeft: 0
-  },
   iconsContainer: {
     position: 'relative',
     width: 25,
@@ -227,7 +172,7 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, vo
         />
         <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
-            <span className={classNames(classes.noClickCatch, classes.bigVoteIconStyling)}>
+            <>
               <BigVoteAccentIcon
                 className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
                 color={voted ? color : 'inherit'}
@@ -243,7 +188,7 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, vo
                 color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
                 viewBox='6 6 12 12'
               />
-            </span>)}
+            </>)}
         </Transition>
       </span>
     </IconButton>
