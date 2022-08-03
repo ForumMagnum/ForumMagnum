@@ -236,6 +236,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
+      restoreSavedContentNotice: ColorString,
     },
     boxShadow: {
       default: string,

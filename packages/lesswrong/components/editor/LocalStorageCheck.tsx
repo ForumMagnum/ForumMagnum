@@ -7,7 +7,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
-    paddingBottom: 12,
+    
+    border: theme.palette.border.normal,
+    padding: 8,
+    borderRadius: 4,
+    backgroundColor: theme.palette.panelBackground.restoreSavedContentNotice,
+    marginTop: 10,
+    marginBottom: 10,
+    
+    "& a": {
+      textDecoration: "underline",
+    }
   },
   restoreLink: {
     color: theme.palette.lwTertiary.main,
