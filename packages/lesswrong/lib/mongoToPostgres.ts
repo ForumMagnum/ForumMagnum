@@ -58,7 +58,7 @@ const mongoSelectorToAtGreater = (selector: any, keys: string[], argOffset: numb
 }
 
 const isSimpleSelector = (selector: any, key: string): boolean => {
-  if (selector[key] === undefined || selector[key] === null)
+  if (selector[key] === undefined || selector[key] === null || key==="_id")
     return false;
   if (key.indexOf(".") >= 0)
     return false;
@@ -135,10 +135,19 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(schema: SchemaType<T
         arg: [value],
       };
     } else if (typeof value==="object" && value.$in) {
-      return {
-        sql: `id IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
-        arg: value.$in,
-      };
+      if (!(value.$in instanceof Array)) {
+        throw new Error("Argument to $in must be an array");
+      } else if (!value.$in.length) {
+        return {
+          sql: "false",
+          arg: [],
+        };
+      } else {
+        return {
+          sql: `id IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
+          arg: value.$in,
+        };
+      }
     } else {
       throw new Error(`Don't know how to handle selector for ${fieldName}`); // TODO
     }
@@ -186,8 +195,16 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(schema: SchemaType<T
   } else if (typeof value==='object') {
     for (let op of Object.keys(value)) {
       if (op==="$in") {
-        // Special case: all strings (used in query-by-ID)
-        if (_.all(Object.keys(value.$in), k=>(typeof k == "string"))) {
+        if (!(value.$in instanceof Array)) {
+          throw new Error("Argument to $in must be an array");
+        } else if (value.$in.length === 0) {
+          // Special case for $in:[] (never matches anything)
+          return {
+            sql: "false",
+            arg: [],
+          }
+        } else if (_.all(Object.keys(value.$in), k=>(typeof k == "string"))) {
+          // Special case: all strings (used in query-by-ID)
           return {
             sql: `${mongoFieldToSql(fieldName, schema, value.$in[0])} IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
             arg: value.$in,
@@ -282,7 +299,7 @@ const mongoFieldToSql = <T extends DbObject>(fieldName: string, schema: SchemaTy
 
 const mongoFieldToSqlWithSchema = <T extends DbObject>(fieldName: string, collection: CollectionBase<T>) => {
   const schemaField = collection._schemaFields[fieldName];
-  if (!schemaField) throw new Error(`Field not in schema: ${fieldName}`);
+  if (!schemaField) throw new Error(`Field not in schema: ${collection.collectionName}.${fieldName}`);
   const fieldType = schemaField.type;
   
   if (fieldType === Number)
