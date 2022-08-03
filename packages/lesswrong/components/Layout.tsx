@@ -322,9 +322,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   <Footer />
                 </div>
                 {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
-                    <SunshineSidebar/>
-                  </div>
-                  }
+                  <Components.SunshineSidebar/>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
