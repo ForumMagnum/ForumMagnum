@@ -28,7 +28,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
   // of currentUser.bookmarkedPostsMetadata, but within the limited result set
   // the posts themselves may be out of order. Sort them. See also comments in
   // the myBookmarkedPosts view.
-  let sortedBookmarkedPosts = sortBy(bookmarkedPosts,
+  const sortedBookmarkedPosts = sortBy(bookmarkedPosts,
     post => -findIndex(
       currentUser?.bookmarkedPostsMetadata||[],
       (bookmark)=>bookmark.postId === post._id
@@ -36,10 +36,10 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
   );
 
   return <div>
-    {bookmarkedPosts && sortedBookmarkedPosts.map((post: PostsList, i: number) =>
+    {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsList, i: number) =>
       <PostsItem2
         key={post._id} post={post} bookmark
-        showBottomBorder={i < bookmarkedPosts.length-1}
+        showBottomBorder={i < sortedBookmarkedPosts.length-1}
       />
     )}
     {!hideLoadMore && <LoadMore {...loadMoreProps}/>}
