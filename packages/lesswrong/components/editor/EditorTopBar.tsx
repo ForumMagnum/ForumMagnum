@@ -53,6 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   collabModeSelect: {
   },
   saveStatus: {
+    '&:hover': {
+      background: "unset"
+    }
   },
 });
 
@@ -65,8 +68,8 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
   setCollaborationMode: (mode: CollaborationMode)=>void,
   classes: ClassesType
 }) => {
-  const availableModes = ["Viewing","Commenting","Editing"]; //TODO: Filter by permissions
-  
+  const { LWTooltip } = Components
+
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList} ref={presenceListRef}/>
     
@@ -93,10 +96,12 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
       </MenuItem>
     </Select>
     
-    <Button className={classes.saveStatus}>
-      Saved
-      {/*TODO: Make this track offline status etc*/}
-    </Button>
+    <LWTooltip title="Collaborative docs automatically save all changes">
+      <Button className={classes.saveStatus}>
+        Auto-Saved
+        {/*TODO: Make this track offline status etc*/}
+      </Button>
+    </LWTooltip>
   </div>
 }
 

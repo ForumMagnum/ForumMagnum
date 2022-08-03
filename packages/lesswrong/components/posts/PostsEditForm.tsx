@@ -37,7 +37,6 @@ const PostsEditForm = ({ documentId, classes }: {
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
     if (!post.draft) return "Move to Drafts"
-    if (isCollaborative(post, "contents")) return "Preview"
     return "Save Draft"
   })(document)
   
