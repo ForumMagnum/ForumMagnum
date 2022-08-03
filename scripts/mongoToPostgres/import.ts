@@ -172,9 +172,11 @@ async function createTable(collectionName: string, options: CommandLineOptions, 
 }
 
 async function performImport(options: CommandLineOptions, connectionPool: Pool) {
+  console.log("Reading mongodb dump");
   const filesInDump = fs.readdirSync(options.mongoDumpDirectory);
   const collectionNames = map(filter(filesInDump, filename=>filename.endsWith(".bson")), filename=>filename.substr(0, filename.length-".bson".length));
   const filteredCollectionNames = filter(collectionNames, c=>!isExcludedCollection(c, options));
+  console.log(`Importing ${filteredCollectionNames.length} collections and ignoring ${collectionNames.length-filteredCollectionNames.length} collections`);
   
   for (let collectionName of filteredCollectionNames)
   {
@@ -187,7 +189,11 @@ async function performImport(options: CommandLineOptions, connectionPool: Pool) 
           const rowCopy = {...row};
           const id = row._id.toString();
           delete rowCopy._id;
-          await runQuery(connectionPool, `INSERT INTO ${collectionName}(id, json) values ($1, $2)`, [id, rowCopy]);
+          try {
+            await runQuery(connectionPool, `INSERT INTO ${collectionName}(id, json) values ($1, $2)`, [id, rowCopy]);
+          } catch(e) {
+            console.log(`Failed importing row ${id}: ${e}`);
+          }
         }
       }
       rowCount++;
@@ -199,7 +205,10 @@ async function performImport(options: CommandLineOptions, connectionPool: Pool) 
 function main() {
   const commandLineOptions = parseCommandLine(process.argv);
   if (commandLineOptions.doNothing) return;
+  
+  console.log("Connecting to postgres");
   const connectionPool = new Pool({ connectionString: commandLineOptions.postgresConnectionString });
+  
   performImport(commandLineOptions, connectionPool);
 }
 
