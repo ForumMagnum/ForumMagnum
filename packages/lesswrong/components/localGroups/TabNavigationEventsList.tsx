@@ -31,10 +31,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: "auto",
   },
   city: {
-    marginRight: 8,
+    marginLeft: 6,
   },
   date: {
-    marginLeft: 8,
+    marginRight: 6,
   },
   displayTime: {
     fontSize: ".85rem",
@@ -195,11 +195,11 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
       <span className={classes.title}>{event.title}</span>
       <div/>
       <span className={classes.secondLine}>
-        {cityName && <>
-          <span className={classes.city}>{cityName}</span>
-          {"•"}
-        </>}
         <span className={classes.date}>{shortDate}</span>
+        {cityName && <>
+          {"•"}
+          <span className={classes.city}>{cityName}</span>
+        </>}
       </span>
     </TabNavigationSubItem>
   </MenuItemUntyped>
