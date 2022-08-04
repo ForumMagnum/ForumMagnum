@@ -10,13 +10,27 @@ const responseSortOrder = {
   no: 3
 }
 
+type ValidResponse = 'yes' | 'no' | 'maybe';
+const isValidResponse = (response: string): response is ValidResponse => {
+  return response in responseSortOrder;
+}
+
 addGraphQLMutation('RSVPToEvent(postId: String, name: String, email: String, private: Boolean, response: String): Post');
 addGraphQLResolvers({
   Mutation: {
     async RSVPToEvent(root: void, {postId, name, email, nonPublic, response}: {postId: string, name: string, email: string, nonPublic: boolean, response: string}, context: ResolverContext) {
       const { currentUser } = context;
+      
+      if (!currentUser) {
+        throw new Error('Error submitting RSVP: Not logged in');
+      }
+
+      if (!isValidResponse(response)) {
+        throw new Error('Error submitting RSVP: Invalid response');
+      }
+
       const post = await context.loaders.Posts.load(postId);
-      const newRSVP = {name, email, nonPublic, response, userId: currentUser?._id, createdAt: new Date()}
+      const newRSVP = {name, email, nonPublic, response, userId: currentUser._id, createdAt: new Date()}
       let rsvps = post.rsvps || []
       
       if (!post.isEvent) {
