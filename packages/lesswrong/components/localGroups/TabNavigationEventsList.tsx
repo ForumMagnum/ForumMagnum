@@ -90,8 +90,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
   },
   twoLineEvent: {
-    lineHeight: "1.2rem !important",
+    lineHeight: "1.3rem !important",
   },
+  dot: {
+    color: theme.palette.grey[500]
+  }
 }))
 
 
@@ -197,7 +200,7 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
       <span className={classes.secondLine}>
         <span className={classes.date}>{shortDate}</span>
         {cityName && <>
-          {"•"}
+          <span className={classes.dot}>{"•"}</span>
           <span className={classes.city}>{cityName}</span>
         </>}
       </span>
