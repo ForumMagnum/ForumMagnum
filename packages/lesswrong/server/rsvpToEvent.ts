@@ -10,7 +10,7 @@ const responseSortOrder = {
   no: 3
 }
 
-type ValidResponse = 'yes' | 'no' | 'maybe';
+type ValidResponse = keyof typeof responseSortOrder;
 const isValidResponse = (response: string): response is ValidResponse => {
   return response in responseSortOrder;
 }
@@ -20,7 +20,7 @@ addGraphQLResolvers({
   Mutation: {
     async RSVPToEvent(root: void, {postId, name, email, nonPublic, response}: {postId: string, name: string, email: string, nonPublic: boolean, response: string}, context: ResolverContext) {
       const { currentUser } = context;
-      
+
       if (!currentUser) {
         throw new Error('Error submitting RSVP: Not logged in');
       }
