@@ -15,7 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
   },
   contributorRow: {
-    paddingLeft: 0,
     fontSize: "1.1rem",
     paddingTop: 0,
     paddingBottom: 2,
