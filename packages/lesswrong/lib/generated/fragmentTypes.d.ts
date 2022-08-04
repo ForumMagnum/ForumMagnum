@@ -198,12 +198,12 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,
   readonly rsvps: Array<{
-    name: string
-    email: string
-    nonPublic: boolean
-    response: "yes" | "maybe" | "no"
-    userId: string
-    createdAt: Date
+    name: string,
+    email: string,
+    nonPublic: boolean,
+    response: "yes" | "maybe" | "no",
+    userId: string,
+    createdAt: Date,
   }>,
   readonly activateRSVPs: boolean,
   readonly nextDayReminderSent: boolean,
@@ -315,8 +315,8 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly userId: string,
   readonly draft: boolean,
   readonly originalContents: {
-    type: string
-    data: string
+    type: string,
+    data: string,
   },
   readonly html: string,
   readonly markdown: string,
@@ -359,9 +359,9 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly coauthorStatuses: Array<{
-    userId: string
-    confirmed: boolean
-    requested: boolean
+    userId: string,
+    confirmed: boolean,
+    requested: boolean,
   }>,
   readonly hasCoauthorPermission: boolean,
   readonly commentCount: number,
@@ -538,12 +538,12 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
   readonly rsvps: Array<{
-    name: string
-    email: string
-    nonPublic: boolean
-    response: "yes" | "maybe" | "no"
-    userId: string
-    createdAt: Date
+    name: string,
+    email: string,
+    nonPublic: boolean,
+    response: "yes" | "maybe" | "no",
+    userId: string,
+    createdAt: Date,
   }>,
   readonly activateRSVPs: boolean,
 }
@@ -657,9 +657,9 @@ interface PostsPage extends PostsDetails { // fragment on Posts
 
 interface PostsEdit extends PostsPage { // fragment on Posts
   readonly coauthorStatuses: Array<{
-    userId: string
-    confirmed: boolean
-    requested: boolean
+    userId: string,
+    confirmed: boolean,
+    requested: boolean,
   }>,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly contents: RevisionEdit|null,
@@ -862,8 +862,8 @@ interface RevisionEdit { // fragment on Revisions
   readonly editedAt: Date,
   readonly userId: string,
   readonly originalContents: {
-    type: string
-    data: string
+    type: string,
+    data: string,
   },
   readonly html: string,
   readonly markdown: string,
@@ -1712,45 +1712,45 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
   readonly karmaChangeNotifierSettings: {
-    updateFrequency: "disabled" | "daily" | "weekly" | "realtime"
-    timeOfDayGMT: number
-    dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"
-    showNegativeKarma: boolean
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   },
   readonly karmaChangeLastOpened: Date,
   readonly shortformFeedId: string,
   readonly viewUnreviewedComments: boolean,
   readonly recommendationSettings: {
     frontpage: {
-      method: string
-      count: number
-      scoreOffset: number
-      scoreExponent: number
-      personalBlogpostModifier: number
-      frontpageModifier: number
-      curatedModifier: number
-      onlyUnread: boolean
-    }
+      method: string,
+      count: number,
+      scoreOffset: number,
+      scoreExponent: number,
+      personalBlogpostModifier: number,
+      frontpageModifier: number,
+      curatedModifier: number,
+      onlyUnread: boolean,
+    },
     frontpageEA: {
-      method: string
-      count: number
-      scoreOffset: number
-      scoreExponent: number
-      personalBlogpostModifier: number
-      frontpageModifier: number
-      curatedModifier: number
-      onlyUnread: boolean
-    }
+      method: string,
+      count: number,
+      scoreOffset: number,
+      scoreExponent: number,
+      personalBlogpostModifier: number,
+      frontpageModifier: number,
+      curatedModifier: number,
+      onlyUnread: boolean,
+    },
     recommendationspage: {
-      method: string
-      count: number
-      scoreOffset: number
-      scoreExponent: number
-      personalBlogpostModifier: number
-      frontpageModifier: number
-      curatedModifier: number
-      onlyUnread: boolean
-    }
+      method: string,
+      count: number,
+      scoreOffset: number,
+      scoreExponent: number,
+      personalBlogpostModifier: number,
+      frontpageModifier: number,
+      curatedModifier: number,
+      onlyUnread: boolean,
+    },
   },
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
@@ -1877,94 +1877,94 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly afSubmittedApplication: boolean,
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeNotifierSettings: {
-    updateFrequency: "disabled" | "daily" | "weekly" | "realtime"
-    timeOfDayGMT: number
-    dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"
-    showNegativeKarma: boolean
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   },
   readonly notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   },
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,

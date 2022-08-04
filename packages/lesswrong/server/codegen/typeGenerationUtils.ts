@@ -69,7 +69,7 @@ function simplSchemaObjectTypeToTypescript(innerSchema, indent: number) {
   const indentSpaces = Array(indent + 2).fill(' ').join('');
   const fields = Object.keys(innerSchema).map(innerSchemaField => {
     const fieldTypeDef = simplSchemaTypeToTypescript(innerSchema, innerSchemaField, innerSchema[innerSchemaField].type, indent + 2);
-    return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef}`;
+    return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef},`;
   }).join('');
   return `{${fields}\n${indentSpaces.slice(0, indentSpaces.length - 2)}}`;
 }

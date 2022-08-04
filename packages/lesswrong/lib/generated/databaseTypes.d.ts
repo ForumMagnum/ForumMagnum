@@ -381,12 +381,12 @@ interface DbPost extends DbObject {
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
   rsvps: Array<{
-    name: string
-    email: string
-    nonPublic: boolean
-    response: "yes" | "maybe" | "no"
-    userId: string
-    createdAt: Date
+    name: string,
+    email: string,
+    nonPublic: boolean,
+    response: "yes" | "maybe" | "no",
+    userId: string,
+    createdAt: Date,
   }>
   activateRSVPs: boolean
   nextDayReminderSent: boolean
@@ -409,9 +409,9 @@ interface DbPost extends DbObject {
   frontpageDate: Date
   collectionTitle: string
   coauthorStatuses: Array<{
-    userId: string
-    confirmed: boolean
-    requested: boolean
+    userId: string,
+    confirmed: boolean,
+    requested: boolean,
   }>
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
@@ -558,8 +558,8 @@ interface DbRevision extends DbObject {
   userId: string
   draft: boolean
   originalContents: {
-    type: string
-    data: string
+    type: string,
+    data: string,
   }
   html: string
   wordCount: number
@@ -737,94 +737,94 @@ interface DbUser extends DbObject {
   auto_subscribe_to_my_comments: boolean
   autoSubscribeAsOrganizer: boolean
   notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both"
-    batchingFrequency: "realtime" | "daily" | "weekly"
-    timeOfDayGMT: number
-    dayOfWeekGMT: string
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
   }
   karmaChangeNotifierSettings: {
-    updateFrequency: "disabled" | "daily" | "weekly" | "realtime"
-    timeOfDayGMT: number
-    dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"
-    showNegativeKarma: boolean
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   }
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
@@ -868,13 +868,13 @@ interface DbUser extends DbObject {
   shortformFeedId: string
   viewUnreviewedComments: boolean
   partiallyReadSequences: Array<{
-    sequenceId: string
-    collectionId: string
-    lastReadPostId: string
-    nextPostId: string
-    numRead: number
-    numTotal: number
-    lastReadTime: Date
+    sequenceId: string,
+    collectionId: string,
+    lastReadPostId: string,
+    nextPostId: string,
+    numRead: number,
+    numTotal: number,
+    lastReadTime: Date,
   }>
   beta: boolean
   reviewVotesQuadratic: boolean
@@ -922,35 +922,35 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents
   recommendationSettings: {
     frontpage: {
-      method: string
-      count: number
-      scoreOffset: number
-      scoreExponent: number
-      personalBlogpostModifier: number
-      frontpageModifier: number
-      curatedModifier: number
-      onlyUnread: boolean
-    }
+      method: string,
+      count: number,
+      scoreOffset: number,
+      scoreExponent: number,
+      personalBlogpostModifier: number,
+      frontpageModifier: number,
+      curatedModifier: number,
+      onlyUnread: boolean,
+    },
     frontpageEA: {
-      method: string
-      count: number
-      scoreOffset: number
-      scoreExponent: number
-      personalBlogpostModifier: number
-      frontpageModifier: number
-      curatedModifier: number
-      onlyUnread: boolean
-    }
+      method: string,
+      count: number,
+      scoreOffset: number,
+      scoreExponent: number,
+      personalBlogpostModifier: number,
+      frontpageModifier: number,
+      curatedModifier: number,
+      onlyUnread: boolean,
+    },
     recommendationspage: {
-      method: string
-      count: number
-      scoreOffset: number
-      scoreExponent: number
-      personalBlogpostModifier: number
-      frontpageModifier: number
-      curatedModifier: number
-      onlyUnread: boolean
-    }
+      method: string,
+      count: number,
+      scoreOffset: number,
+      scoreExponent: number,
+      personalBlogpostModifier: number,
+      frontpageModifier: number,
+      curatedModifier: number,
+      onlyUnread: boolean,
+    },
   }
   afPostCount: number
   afCommentCount: number
