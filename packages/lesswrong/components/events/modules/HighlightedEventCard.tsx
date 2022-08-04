@@ -30,8 +30,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     boxShadow: theme.palette.boxShadow.moreFocused,
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   recommendedText: {

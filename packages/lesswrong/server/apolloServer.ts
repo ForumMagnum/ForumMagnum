@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, getInstanceSettings } from '../lib/executionEnvironment';
-import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
+import { renderWithCache, getThemeOptions } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
@@ -37,19 +37,24 @@ import { ckEditorTokenHandler } from './ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
+import { getMergedStylesheet } from './styleGeneration';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
+  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
+  // save a conversion and a little memory
+  const bundleBuffer = Buffer.from(bundleText, 'utf8');
   const lastModified = fs.statSync(bundlePath).mtimeMs;
   return {
     bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleText, 'utf8').digest('hex'),
+    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
     lastModified,
-    bundleText,
+    bundleBuffer,
   };
 }
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleText: string}|null = null;
+let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer}|null = null;
 const getClientBundle = () => {
   if (!clientBundle) {
     clientBundle = loadClientBundle();
@@ -148,7 +153,7 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleText} = getClientBundle();
+    const {bundleHash, bundleBuffer} = getClientBundle();
     if (query.hash && query.hash !== bundleHash) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
       // version upgrade in progress, and the SSR and the bundle were handled by servers
@@ -159,13 +164,13 @@ export function startWebserver() {
         "Cache-Control": "public, max-age=60",
         "Content-Type": "text/javascript; charset=utf-8"
       });
-      res.end(bundleText);
+      res.end(bundleBuffer);
     } else {
       res.writeHead(200, {
         "Cache-Control": "public, max-age=604800, immutable",
         "Content-Type": "text/javascript; charset=utf-8"
       });
-      res.end(bundleText);
+      res.end(bundleBuffer);
     }
   });
   // Setup CKEditor Token
@@ -206,31 +211,64 @@ export function startWebserver() {
   })
 
   app.get('*', async (request, response) => {
-    const renderResult = await renderWithCache(request, response);
-    
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, themeOptions, renderedAt, allAbTestGroups} = renderResult;
     const {bundleHash} = getClientBundle();
-
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
+
+    // Check whether the requested route has enableResourcePrefetch. If it does,
+    // we send HTTP status and headers early, before we actually rendered the
+    // page, so that the browser can get started on loading the stylesheet and
+    // JS bundle while SSR is still in progress.
+    const parsedRoute = parseRoute({
+      location: parsePath(request.url)
+    });
+    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
+    
+    const user = await getUserFromReq(request);
+    const themeOptions = getThemeOptions(request, user);
+    const stylesheet = getMergedStylesheet(themeOptions);
+    
+    // The part of the header which can be sent before the page is rendered.
+    // This includes an open tag for <html> and <head> but not the matching
+    // close tags, since there's stuff inside that depends on what actually
+    // gets rendered. The browser will pick up any references in the still-open
+    // tag and start fetching the, without waiting for the closing tag.
+    const prefetchPrefix = (
+      '<!doctype html>\n'
+      + '<html lang="en">\n'
+      + '<head>\n'
+        + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + instanceSettingsHeader
+        + clientScript
+    );
+    
+    if (prefetchResources) {
+      response.status(200);
+      response.write(prefetchPrefix);
+    }
+    
+    const renderResult = await renderWithCache(request, response, user);
+    
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
-    const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
+    // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
     
     // Finally send generated HTML with initial data to the client
-    if (redirectUrl) {
+    if (redirectUrl && !prefetchResources) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
       response.status(status||301).redirect(redirectUrl);
     } else {
-      return response.status(status||200).send(
-        '<!doctype html>\n'
-        + '<html lang="en">\n'
-        + '<head>\n'
-          + clientScript
-          + headers.join('\n')
-          + instanceSettingsHeader
+      if (!prefetchResources) {
+        response.status(status||200);
+        response.write(prefetchPrefix);
+      }
+      response.write(
+        // <html><head> opened by the prefetch prefix
+          headers.join('\n')
           + themeOptionsHeader
           + jssSheets
         + '</head>\n'
@@ -240,6 +278,7 @@ export function startWebserver() {
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
         + serializedApolloState + '\n'
         + '</html>\n')
+      response.end();
     }
   })
 

@@ -78,7 +78,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 16,
     background: theme.palette.panelBackground.default,
     borderRadius: 3,
-    marginBottom:4
+    marginBottom:4,
+    
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      paddingLeft: 14,
+      paddingRight: 14,
+    },
   },
   titleAndActions: {
     display: "flex",

@@ -89,7 +89,15 @@ const schema: SchemaType<DbBook> = {
     type: String,
     foreignKey: "Sequences",
     optional: true,
-  }
+  },
+
+  showChapters: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
 
 }
 

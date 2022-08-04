@@ -104,6 +104,40 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly deleted: boolean,
 }
 
+interface TagsDefaultFragment { // fragment on Tags
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
+  readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
+  readonly descriptionTruncationCount: number,
+  readonly descriptionHtmlWithToc: string,
+  readonly postCount: number,
+  readonly userId: string,
+  readonly adminOnly: boolean,
+  readonly charsAdded: number,
+  readonly charsRemoved: number,
+  readonly deleted: boolean,
+  readonly lastCommentedAt: Date,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
+  readonly wikiGrade: number,
+  readonly wikiOnly: boolean,
+  readonly bannerImageId: string,
+  readonly tagFlagsIds: Array<string>,
+  readonly lesswrongWikiImportRevision: string,
+  readonly lesswrongWikiImportSlug: string,
+  readonly lesswrongWikiImportCompleted: boolean,
+  readonly htmlWithContributorAnnotations: string,
+  readonly contributors: any /*TagContributorsList*/,
+  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly introSequenceId: string,
+  readonly postsDefaultSortOrder: string,
+  readonly canVoteOnRels: Array<string>,
+}
+
 interface TagRelsDefaultFragment { // fragment on TagRels
   readonly createdAt: Date,
   readonly tagId: string,
@@ -171,6 +205,43 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly votingSystem: string,
 }
 
+interface BooksDefaultFragment { // fragment on Books
+  readonly createdAt: Date,
+  readonly postedAt: Date,
+  readonly title: string,
+  readonly subtitle: string,
+  readonly collectionId: string,
+  readonly number: number,
+  readonly postIds: Array<string>,
+  readonly sequenceIds: Array<string>,
+  readonly showChapters: boolean,
+}
+
+interface CollectionsDefaultFragment { // fragment on Collections
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly title: string,
+  readonly slug: string,
+  readonly gridImageId: string,
+  readonly firstPageLink: string,
+  readonly hideStartReadingButton: boolean,
+}
+
+interface SequencesDefaultFragment { // fragment on Sequences
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly title: string,
+  readonly gridImageId: string,
+  readonly bannerImageId: string,
+  readonly curatedOrder: number,
+  readonly userProfileOrder: number,
+  readonly draft: boolean,
+  readonly isDeleted: boolean,
+  readonly canonicalCollectionSlug: string,
+  readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -224,54 +295,6 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly status: string,
   readonly rawFeed: any /*{"definitions":[{}]}*/,
   readonly setCanonicalUrl: boolean,
-}
-
-interface SequencesDefaultFragment { // fragment on Sequences
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly title: string,
-  readonly gridImageId: string,
-  readonly bannerImageId: string,
-  readonly curatedOrder: number,
-  readonly userProfileOrder: number,
-  readonly draft: boolean,
-  readonly isDeleted: boolean,
-  readonly canonicalCollectionSlug: string,
-  readonly hidden: boolean,
-  readonly hideFromAuthorPage: boolean,
-}
-
-interface TagsDefaultFragment { // fragment on Tags
-  readonly createdAt: Date,
-  readonly name: string,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly defaultOrder: number,
-  readonly descriptionTruncationCount: number,
-  readonly descriptionHtmlWithToc: string,
-  readonly postCount: number,
-  readonly userId: string,
-  readonly adminOnly: boolean,
-  readonly charsAdded: number,
-  readonly charsRemoved: number,
-  readonly deleted: boolean,
-  readonly lastCommentedAt: Date,
-  readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
-  readonly wikiGrade: number,
-  readonly wikiOnly: boolean,
-  readonly bannerImageId: string,
-  readonly tagFlagsIds: Array<string>,
-  readonly lesswrongWikiImportRevision: string,
-  readonly lesswrongWikiImportSlug: string,
-  readonly lesswrongWikiImportCompleted: boolean,
-  readonly htmlWithContributorAnnotations: string,
-  readonly contributors: any /*TagContributorsList*/,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly introSequenceId: string,
-  readonly postsDefaultSortOrder: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1148,26 +1171,6 @@ interface ChaptersDefaultFragment { // fragment on Chapters
   readonly postIds: Array<string>,
 }
 
-interface BooksDefaultFragment { // fragment on Books
-  readonly createdAt: Date,
-  readonly postedAt: Date,
-  readonly title: string,
-  readonly subtitle: string,
-  readonly collectionId: string,
-  readonly number: number,
-  readonly postIds: Array<string>,
-  readonly sequenceIds: Array<string>,
-}
-
-interface CollectionsDefaultFragment { // fragment on Collections
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly title: string,
-  readonly slug: string,
-  readonly gridImageId: string,
-  readonly firstPageLink: string,
-}
-
 interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly createdAt: Date,
   readonly userId: string,
@@ -1304,6 +1307,7 @@ interface BookPageFragment { // fragment on Books
   readonly postIds: Array<string>,
   readonly posts: Array<PostsList>,
   readonly collectionId: string,
+  readonly showChapters: boolean,
 }
 
 interface BookEdit extends BookPageFragment { // fragment on Books
@@ -1321,6 +1325,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly firstPageLink: string,
   readonly gridImageId: string,
   readonly books: Array<BookPageFragment>,
+  readonly hideStartReadingButton: boolean,
 }
 
 interface CollectionsEditFragment extends CollectionsPageFragment { // fragment on Collections
@@ -1363,6 +1368,7 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly post: PostsList|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly currentUserCanVote: boolean,
 }
 
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1387,6 +1393,7 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly currentUserCanVote: boolean,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1618,6 +1625,10 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentEmail: string,
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
+  readonly postingDisabled: boolean,
+  readonly allCommentingDisabled: boolean,
+  readonly commentingOnOtherUsersDisabled: boolean,
+  readonly conversationsDisabled: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
@@ -1678,7 +1689,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly viewUnreviewedComments: boolean,
   readonly recommendationSettings: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"frontpage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage"},"frontpageEA":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage ea"},"recommendationspage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Recommendationspage"}},"_depsLabels":{},"_schemaKeys":["frontpage","frontpageEA","recommendationspage"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["frontpage","frontpageEA","recommendationspage"],"_objectKeys":{"frontpage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"frontpageEA.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"recommendationspage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2},"blackbox":true}]}*/,
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly bookmarkedPosts: Array<PostsList>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
@@ -1697,6 +1707,11 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
   readonly lastUsedTimezone: string,
+}
+
+interface UserBookmarkedPosts { // fragment on Users
+  readonly _id: string,
+  readonly bookmarkedPosts: Array<PostsList>,
 }
 
 interface UserKarmaChanges { // fragment on Users
@@ -1936,13 +1951,15 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  BooksDefaultFragment: BooksDefaultFragment
+  CollectionsDefaultFragment: CollectionsDefaultFragment
+  SequencesDefaultFragment: SequencesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
-  SequencesDefaultFragment: SequencesDefaultFragment
-  TagsDefaultFragment: TagsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
@@ -2006,8 +2023,6 @@ interface FragmentTypes {
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
-  BooksDefaultFragment: BooksDefaultFragment
-  CollectionsDefaultFragment: CollectionsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
   reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
@@ -2055,6 +2070,7 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
+  UserBookmarkedPosts: UserBookmarkedPosts
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
   SunshineUsersList: SunshineUsersList
@@ -2083,13 +2099,15 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   PostRelationsDefaultFragment: "PostRelations"
   LocalgroupsDefaultFragment: "Localgroups"
+  TagsDefaultFragment: "Tags"
   TagRelsDefaultFragment: "TagRels"
   PostsDefaultFragment: "Posts"
+  BooksDefaultFragment: "Books"
+  CollectionsDefaultFragment: "Collections"
+  SequencesDefaultFragment: "Sequences"
   VotesDefaultFragment: "Votes"
   CommentsDefaultFragment: "Comments"
   RSSFeedsDefaultFragment: "RSSFeeds"
-  SequencesDefaultFragment: "Sequences"
-  TagsDefaultFragment: "Tags"
   RevisionsDefaultFragment: "Revisions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
@@ -2153,8 +2171,6 @@ interface CollectionNamesByFragmentName {
   BansDefaultFragment: "Bans"
   BansAdminPageFragment: "Bans"
   ChaptersDefaultFragment: "Chapters"
-  BooksDefaultFragment: "Books"
-  CollectionsDefaultFragment: "Collections"
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
   reviewVoteWithUserAndPost: "ReviewVotes"
@@ -2202,6 +2218,7 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
+  UserBookmarkedPosts: "Users"
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"
   SunshineUsersList: "Users"

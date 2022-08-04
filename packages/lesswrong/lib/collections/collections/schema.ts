@@ -79,7 +79,15 @@ const schema: SchemaType<DbCollection> = {
     viewableBy: ["guests"],
     editableBy: ["admins"],
     insertableBy: ["admins"],
-  }
+  },
+
+  hideStartReadingButton: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
 }
 
 

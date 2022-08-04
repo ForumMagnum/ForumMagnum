@@ -20,7 +20,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     {
       title: "The EA Handbook",
       id: "handbook",
-      userId: "jd3Bs7YAT2KqnLxYD",
+      userId: "syx2QxGnDXhsr9tRi",
       summary: "To help you learn the basics of effective altruism, we took some of the movement's best writing and made this handbook. Think of it as the textbook you'd get for a college course on EA. It explains the core ideas, so that you can start applying them to your own life.",
       imageId: "Banner/qnsx7lpxxfpf7tqxmnql",
       color: "#0c869b",
