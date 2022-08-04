@@ -52,6 +52,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    commentsLockedToAccountsCreatedAfter
 
     # questions
     question
