@@ -677,6 +677,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
+    {
+      name: 'wikiTopisRedirect',
+      path: '/wiki',
+      redirect: () => '/topics/all'
+    },
   ],
   LessWrong: [
     {
