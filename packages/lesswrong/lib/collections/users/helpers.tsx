@@ -5,9 +5,8 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
-import React from 'react';
 import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
