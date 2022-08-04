@@ -14,9 +14,9 @@ type Auth0Settings = {
  * For this to work, we must authorize the forum application in Auth0:
  * Applications -> APIs -> Auth0 Management API -> Machine to Machine Applications
  */
-const auth0Client = new class {
+const auth0Client = new class Auth0Client {
   private settings = new DatabaseServerSetting<Auth0Settings|null>("oAuth.auth0", null);
-  private client: ManagementClient|undefined;
+  private client?: ManagementClient;
 
   get() {
     if (!this.client) {
