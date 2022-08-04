@@ -1,10 +1,11 @@
+import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
 
 interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
-  fragmentObject?: any
+  fragmentObject?: DocumentNode
 }
 
 const Fragments: Record<FragmentName,FragmentDefinition> = {} as any;
@@ -46,14 +47,14 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
   const literals = subFragments ? [fragmentText, ...subFragments.map(x => '\n')] : [fragmentText];
 
   // the gql function expects an array of literals as first argument, and then sub-fragments as other arguments
-  const gqlArguments = subFragments ? [literals, ...subFragments.map(subFragmentName => {
+  const gqlArguments: [string | readonly string[], ...any[]] = subFragments ? [literals, ...subFragments.map(subFragmentName => {
     // return subfragment's gql fragment
     if (!Fragments[subFragmentName]) {
       throw new Error(`Subfragment “${subFragmentName}” of fragment “${extractFragmentName(fragmentText)}” has not been defined.`);
     }
     
     return getFragment(subFragmentName);
-  })] : [literals];
+  }).filter((fragment): fragment is DocumentNode => fragment !== undefined)] : [literals];
 
   return gql.apply(null, gqlArguments);
 };
