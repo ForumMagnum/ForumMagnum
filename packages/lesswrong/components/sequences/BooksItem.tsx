@@ -75,7 +75,7 @@ const BooksItem = ({ book, canEdit, classes }: {
         </div>}
 
         {book.sequencesGridDisplay && <SequencesGrid sequences={book.sequences}/>}
-        {!!book.sequencesGridDisplay && book.sequences.map(sequence =>
+        {!book.sequencesGridDisplay && book.sequences.map(sequence =>
           <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
         )}
       </SingleColumnSection>

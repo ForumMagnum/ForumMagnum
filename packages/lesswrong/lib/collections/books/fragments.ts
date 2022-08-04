@@ -20,6 +20,7 @@ registerFragment(`
     }
     collectionId
     sequencesGridDisplay
+    hideProgressBar
     showChapters
   }
 `);
