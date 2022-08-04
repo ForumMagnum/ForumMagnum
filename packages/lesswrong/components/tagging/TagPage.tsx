@@ -233,7 +233,9 @@ const TagPage = ({classes}: {
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+  if (query.sortedBy || tag.postsDefaultSortOrder) {
+    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+  }
 
   const terms = {
     ...tagPostTerms(tag, query),
