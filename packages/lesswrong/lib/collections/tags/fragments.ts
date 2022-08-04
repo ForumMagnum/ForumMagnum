@@ -3,11 +3,13 @@ import { registerFragment } from '../../vulcan-lib';
 registerFragment(`
   fragment TagBasicInfo on Tag {
     _id
+    userId
     name
     slug
     core
     postCount
     adminOnly
+    authorOnly
     suggestedAsFilter
     needsReview
     descriptionTruncationCount

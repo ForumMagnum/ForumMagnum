@@ -168,6 +168,16 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  authorOnly: {
+    label: "Only Editable by Author",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
   charsAdded: {
     type: Number,
     optional: true,

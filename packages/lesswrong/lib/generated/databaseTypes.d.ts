@@ -640,6 +640,7 @@ interface DbTag extends DbObject {
   postCount: number
   userId: string
   adminOnly: boolean
+  authorOnly: boolean
   charsAdded: number
   charsRemoved: number
   deleted: boolean

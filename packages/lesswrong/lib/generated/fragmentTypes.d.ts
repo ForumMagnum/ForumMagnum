@@ -117,6 +117,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
+  readonly authorOnly: boolean,
   readonly charsAdded: number,
   readonly charsRemoved: number,
   readonly deleted: boolean,
@@ -1411,11 +1412,13 @@ interface WithVoteTagRel { // fragment on TagRels
 
 interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
+  readonly userId: string,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
   readonly adminOnly: boolean,
+  readonly authorOnly: boolean,
   readonly suggestedAsFilter: boolean,
   readonly needsReview: boolean,
   readonly descriptionTruncationCount: number,
