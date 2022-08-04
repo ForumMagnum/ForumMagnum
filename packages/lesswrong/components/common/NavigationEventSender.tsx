@@ -33,9 +33,11 @@ const NavigationEventSender = () => {
   return null;
 }
 
-/// Register a callback to be run when the user navigates the tab. This happens
-/// at the *start* of the navigation, ie, when the link is first clicked (but
-/// before most of the stuff at the destination has loaded).
+/**
+ * Register a callback to be run when the user navigates the tab. This happens
+ * at the *start* of the navigation, ie, when the link is first clicked (but
+ * before most of the stuff at the destination has loaded).
+ */
 export function useOnNavigate(fn: ({oldLocation,newLocation}: {oldLocation: RouterLocation|null, newLocation: RouterLocation})=>void) {
   useEffect(() => {
     routerOnUpdate.add(fn);
