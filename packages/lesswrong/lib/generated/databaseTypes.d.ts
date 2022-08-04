@@ -385,7 +385,7 @@ interface DbPost extends DbObject {
     email: string,
     nonPublic: boolean,
     response: "yes" | "maybe" | "no",
-    userId: string,
+    userId: string | null,
     createdAt: Date,
   }>
   activateRSVPs: boolean

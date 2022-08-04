@@ -21,16 +21,15 @@ addGraphQLResolvers({
     async RSVPToEvent(root: void, {postId, name, email, nonPublic, response}: {postId: string, name: string, email: string, nonPublic: boolean, response: string}, context: ResolverContext) {
       const { currentUser } = context;
 
-      if (!currentUser) {
-        throw new Error('Error submitting RSVP: Not logged in');
-      }
-
       if (!isValidResponse(response)) {
         throw new Error('Error submitting RSVP: Invalid response');
       }
 
+      // The generated db type expects null, not undefined, for an absent value
+      const userId = currentUser?._id ?? null;
+
       const post = await context.loaders.Posts.load(postId);
-      const newRSVP = {name, email, nonPublic, response, userId: currentUser._id, createdAt: new Date()}
+      const newRSVP = {name, email, nonPublic, response, userId, createdAt: new Date()}
       let rsvps = post.rsvps || []
       
       if (!post.isEvent) {
