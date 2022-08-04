@@ -34,6 +34,7 @@ import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
 import * as _ from 'underscore';
+import type { GraphQLSchema } from 'graphql';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
@@ -453,7 +454,7 @@ export const initGraphQL = () => {
   return executableSchema;
 };
 
-let executableSchema: any = null;
+let executableSchema: GraphQLSchema | null = null;
 export const getExecutableSchema = () => {
   if (!executableSchema) {
     throw new Error('Warning: trying to access executable schema before it has been created by the server.');
