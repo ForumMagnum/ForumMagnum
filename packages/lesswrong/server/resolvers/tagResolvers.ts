@@ -301,13 +301,6 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
-export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
-  const html = await annotateAuthors(tag._id, "Tags", "description");
-  await Tags.rawUpdateOne({_id: tag._id}, {$set: {
-    htmlWithContributorAnnotations: html,
-  }});
-  return html;
-}
 
 
 // Migration to clear the contributor-stats field (which is a cache that gets
