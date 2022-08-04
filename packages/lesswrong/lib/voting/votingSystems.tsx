@@ -8,16 +8,22 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 
 export type VoteWidgetOptions = {
-  // Hide the karma score. Used if the `hideCommentKarma` option is set on a post.
+  /**
+   * Hide the karma score. Used if the `hideCommentKarma` option is set on a post.
+   */
   hideKarma?: boolean,
   
-  // Offset the displayed karma by a given amount. Used in tag contributor lists,
-  // when you're voting on the user's most recent revision but the displayed score
-  // is the sum of all of the revisions they've made to the tag.
+  /**
+   * Offset the displayed karma by a given amount. Used in tag contributor lists,
+   * when you're voting on the user's most recent revision but the displayed score
+   * is the sum of all of the revisions they've made to the tag.
+   */
   displayKarmaOffset?: number,
   
-  // Tooltip for when score is hovered. Optional, if provided overrides the
-  // default.
+  /**
+   * Tooltip for when score is hovered. Optional, if provided overrides the
+   * default.
+   */
   scoreTooltip?: (props: {baseScore: number, voteCount: number})=>React.ReactNode,
 }
 
