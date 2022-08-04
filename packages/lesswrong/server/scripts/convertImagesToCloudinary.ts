@@ -9,8 +9,8 @@ import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
 import { URL } from 'url';
 
-const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
-const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
+export const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
+export const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
 // Given a URL which (probably) points to an image, download that image,
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If
