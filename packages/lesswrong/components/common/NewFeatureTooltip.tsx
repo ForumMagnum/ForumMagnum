@@ -28,6 +28,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   content: {
     maxWidth: 250,
+    '@media (max-width: 800px)': {
+      maxWidth: 180,
+    },
   },
   handle: {
     cursor: 'pointer',
@@ -37,6 +40,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: '50%',
     margin: `${-Math.floor(HANDLE_SIZE / 2)}px 0 0 ${-Math.floor(HANDLE_SIZE / 2)}px`,
     background: theme.palette.lwTertiary.main,
+    '@media (max-width: 450px), (hover: none)': {
+      display: 'none',
+    },
   },
   'handle-left': {
     left: 0,
