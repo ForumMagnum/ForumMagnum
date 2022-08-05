@@ -1067,6 +1067,19 @@ interface unclaimedReportsList_claimedUser { // fragment on Users
   readonly slug: string,
 }
 
+interface TagReportsDefaultFragment { // fragment on TagReports
+  readonly userId: string,
+  readonly tagId: string,
+  readonly tagRevisionId: string,
+  readonly link: string,
+  readonly claimedUserId: string,
+  readonly description: string,
+  readonly createdAt: Date,
+  readonly closedAt: Date,
+  readonly markedAsSpam: boolean,
+  readonly reportedAsSpam: boolean,
+}
+
 interface TagFlagFragment { // fragment on TagFlags
   readonly _id: string,
   readonly createdAt: Date,
@@ -2014,6 +2027,7 @@ interface FragmentTypes {
   RSSFeedMutationFragment: RSSFeedMutationFragment
   ReportsDefaultFragment: ReportsDefaultFragment
   unclaimedReportsList: unclaimedReportsList
+  TagReportsDefaultFragment: TagReportsDefaultFragment
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
@@ -2162,6 +2176,7 @@ interface CollectionNamesByFragmentName {
   RSSFeedMutationFragment: "RSSFeeds"
   ReportsDefaultFragment: "Reports"
   unclaimedReportsList: "Reports"
+  TagReportsDefaultFragment: "TagReports"
   TagFlagFragment: "TagFlags"
   TagFlagEditFragment: "TagFlags"
   TagFlagsDefaultFragment: "TagFlags"
@@ -2238,5 +2253,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"TagReports"|"Tags"|"Users"|"Votes"
 
