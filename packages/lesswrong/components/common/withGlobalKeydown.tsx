@@ -10,5 +10,5 @@ export const useGlobalKeydown = (keyboardHandlerFn: (this: Document, ev: Keyboar
         document.removeEventListener('keydown', keyboardHandlerFn);
       };
     }
-  });
+  }, [keyboardHandlerFn]);
 }

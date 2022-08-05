@@ -19,14 +19,15 @@ import { ensureIndex } from '../../lib/collectionUtils';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
+// This should get refactored someday to be more forum-neutral
 const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
   {
     username: "AdminTeam",
     email: "forum@effectivealtruism.org"
   } :
   {
-    username: "LessWrong",
-    email: "lesswrong@lesswrong.com"
+    username: forumTypeSetting.get(),
+    email: "team@lesswrong.com"
   }
 
 export const getAdminTeamAccount = async () => {
