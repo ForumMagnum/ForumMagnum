@@ -228,81 +228,102 @@ const htmlTemplate = `
 </html>
 `
 
-export async function ChaptersEditEbookCallback (chapter: DbChapter) {
-  console.log("BEGIN ChaptersEditEbookCallback")
+async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
   const context = await createAdminContext();
-  const posts = await sequenceGetAllPosts(chapter.sequenceId, context)
-  const chapters = await Chapters.find({sequenceId: chapter.sequenceId}).fetch()
-  const sequence = await Sequences.findOne({_id: chapter.sequenceId})
+  const posts = await sequenceGetAllPosts(sequence._id, context)
+  const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
   const author = await Users.findOne({_id: sequence?.userId})
 
-  if (!sequence) throw Error("No sequence found")
   if (!author) throw Error("No author found")
 
-  // get cover image
-  const imageUrl = makeCloudinaryImageUrl(sequence.bannerImageId, {f:'jpg'})
-  const file = fs.createWriteStream("tmp/ebookImage0.jpg")
+  const config = getConfigFromSequence(sequence, author, coverPath)
   
-  https.get(imageUrl, (response) => {
-    response.pipe(file);
-    file.on("finish", async () => {
-      const config = getConfigFromSequence(sequence, author, '/Users/raymondarnold/Documents/LessWrongSuite/Lesswrong2/tmp/ebookImage0.jpg')
-      let epub = makepub.document(config);
-    
-      // epub.addCSS(jetpack.read('style/base.css')); 
-      epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
-      
-      function buildEbookFromSequence(sequence, chapters, posts) {
-        // 
-        createDocFromLWContents(sequence.title, sequence)
-        for (let chapter of chapters) {
-          if (chapter.title) {
-            createDocFromLWContents(chapter.title, chapter)
-          }
-          for (let post of posts) {
-            createDocFromLWContents(post.title, post)
-          }
-        }
-      }
-      
-      function createDocFromLWContents(title, document) {
-        let newDoc = cheerio.load(htmlTemplate)
-        if (document.title) {
-          let safe_title = document.title.toLowerCase().replace(/ /g, '-');
-          newDoc('body').append('<div id="'+safe_title+'"></div>');
-          newDoc('div').append('<h1>'+document.title+'</h1>')
-        }
-        newDoc('div').append(document.contents?.html || '')
-        epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
-      }
-    
-      buildEbookFromSequence(sequence, chapters, posts)
-    
-      const outFolder = "tmp/"
-      const outFile = "/Users/raymondarnold/Documents/LessWrongSuite/Lesswrong2/tmp/test_ebook.epub" //"tmp/test_ebook.epub"
-      await epub.writeEPUB(outFolder, "test_ebook")
-    
-      const cloudName = cloudinaryCloudNameSetting.get();
-      const apiKey = cloudinaryApiKey.get();
-      const apiSecret = cloudinaryApiSecret.get();
-    
-      const result = await cloudinary.v2.uploader.upload(
-        outFile,
-        {
-          public_id: `${slugify(sequence.title)}`,
-          folder: `ebooks`,
-          cloud_name: cloudName,
-          api_key: apiKey,
-          api_secret: apiSecret,
-          resource_type: "raw"
-        }
-      );
-      console.log("end of thing")
-      console.log(result)
-      console.log(result.url)
-      file.close();
-    });
-  })
+  let epub = makepub.document(config);
 
- 
+  epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
+  
+  function buildEbookFromSequence(sequence, chapters, posts) {
+    // 
+    createDocFromLWContents(sequence.title, sequence)
+    for (let chapter of chapters) {
+      if (chapter.title) {
+        createDocFromLWContents(chapter.title, chapter)
+      }
+      for (let post of posts) {
+        createDocFromLWContents(post.title, post)
+      }
+    }
+  }
+  
+  function createDocFromLWContents(title, document) {
+    let newDoc = cheerio.load(htmlTemplate)
+    if (document.title) {
+      let safe_title = document.title.toLowerCase().replace(/ /g, '-');
+      newDoc('body').append('<div id="'+safe_title+'"></div>');
+      newDoc('div').append('<h1>'+document.title+'</h1>')
+    }
+    newDoc('div').append(document.contents?.html || '')
+    epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
+  }
+
+  buildEbookFromSequence(sequence, chapters, posts)
+
+  const outFolder = "/Users/wh/Documents/code/ForumMagnum/tmp/"
+  const outFilename = `${slugify(sequence.title)}`
+  const outFile = `${outFolder}${outFilename}.epub`
+  await epub.writeEPUB(outFolder, outFilename)
+
+  return outFile
+}
+
+// TODO make more generic
+function downloadImageFile(url, outFile): Promise<void> {
+  const file = fs.createWriteStream(outFile)
+  return new Promise((resolve, reject) => {
+    https.get(url, (response) => {
+      response.pipe(file);
+      file.on("finish", async () => {
+        resolve()
+      })
+      file.on("error",  async () => {
+        reject()
+      });
+    })
+  })
+}
+
+export async function ChaptersEditEbookCallback (chapter: DbChapter) {
+  console.log("BEGIN ChaptersEditEbookCallback")
+  const sequence = await Sequences.findOne({_id: chapter.sequenceId})
+
+  if (!sequence) throw Error("No sequence found")
+
+  const coverImagePath = `/Users/wh/Documents/code/ForumMagnum/tmp/${sequence?._id}_cover.jpg`
+  const imageUrl = makeCloudinaryImageUrl(sequence.bannerImageId, {f:'jpg'})
+  await downloadImageFile(imageUrl, coverImagePath)
+
+  const localEbookFile = await buildLocalEbookFromSequence(sequence, coverImagePath)
+
+  const cloudName = cloudinaryCloudNameSetting.get();
+  const apiKey = cloudinaryApiKey.get();
+  const apiSecret = cloudinaryApiSecret.get();
+
+  console.log("logging apiKey")
+  console.log(apiKey)
+  console.log(apiSecret)
+
+  const result = await cloudinary.v2.uploader.upload(
+    localEbookFile,
+    {
+      public_id: `${slugify(sequence.title)}`,
+      folder: `ebooks`,
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      resource_type: "raw"
+    }
+  );
+  console.log("end of thing")
+  console.log(result)
+  console.log(result.url) 
 }
