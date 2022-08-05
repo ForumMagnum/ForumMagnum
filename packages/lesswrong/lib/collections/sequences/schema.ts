@@ -1,5 +1,6 @@
 import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../../utils/schemaUtils';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { slugify, Utils } from '../../vulcan-lib';
 
 const schema: SchemaType<DbSequence> = {
   createdAt: {
@@ -34,6 +35,20 @@ const schema: SchemaType<DbSequence> = {
     order: 10,
     placeholder: "Sequence Title",
     control: 'EditSequenceTitle',
+  },
+
+  slug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: async (sequence) => {
+      return await Utils.getUnusedSlugByCollectionName("Sequences", slugify(sequence.title))
+    },
+    onEdit: async (modifier, sequence) => {
+      if (modifier.$set.title) {
+        return await Utils.getUnusedSlugByCollectionName("Sequences", slugify(modifier.$set.title), false, sequence._id)
+      }
+    }
   },
 
   // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
