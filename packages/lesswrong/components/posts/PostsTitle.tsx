@@ -124,6 +124,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
+    {post.isFuture && <span className={classes.tag}>[Pending]</span>}
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
