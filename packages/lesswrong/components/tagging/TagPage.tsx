@@ -350,7 +350,7 @@ const TagPage = ({classes}: {
                 subscribeMessage="Subscribe"
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
-              />
+                />
             }
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />

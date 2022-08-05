@@ -111,6 +111,7 @@ importComponent("LinkCard", () => require('../components/common/LinkCard'));
 importComponent("LWDialog", () => require('../components/common/LWDialog'));
 importComponent("Error404", () => require('../components/common/Error404'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
+importComponent("NewFeatureTooltip", () => require('../components/common/NewFeatureTooltip'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
 
 importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu'));
