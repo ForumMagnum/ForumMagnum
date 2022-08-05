@@ -1,7 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
+import Revisions from '../../lib/collections/revisions/collection';
+import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -9,14 +11,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
   },
   contributorsHeading: {
-    paddingBottom: 12,
+    paddingBottom: 6,
     paddingTop: 4,
   },
   contributorRow: {
-    paddingLeft: 8,
     fontSize: "1.1rem",
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingBottom: 2,
     color: theme.palette.grey[600],
     
     "&:hover, &:hover a": {
@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
   },
   contributorName: {
+    marginLeft: 4,
   },
   loadMore: {
     paddingTop: 8,
@@ -41,7 +42,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   onHoverUser: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
-  const { UsersNameDisplay, Loading, LWTooltip } = Components;
+  const { Loading } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
@@ -66,31 +67,69 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       Contributors
     </div>
     
-    {tag.contributors && nonMissingContributors.map(contributor => <div key={contributor.user._id} className={classes.contributorRow} >
-      <LWTooltip
-        className={classes.contributorScore}
-        placement="left"
-        title={<span>
-          {contributor.contributionScore} total points from {contributor.voteCount} votes on {contributor.numCommits} edits
-        </span>}
-      >
-        {contributor.contributionScore}
-      </LWTooltip>
-      <span className={classes.contributorName}
-        onMouseEnter={ev => {
-          onHoverUser(contributor.user._id);
-        }}
-        onMouseLeave={ev => {
-          onHoverUser(null);
-        }}
-      >
-        <UsersNameDisplay user={contributor.user}/>
-      </span>
-    </div>)}
+    {tag.contributors && nonMissingContributors.map(contributor =>
+      <TagContributorRow
+        key={contributor.user._id}
+        contributor={contributor}
+        tag={tag}
+        onHover={onHoverUser}
+        classes={classes}
+      />
+    )}
     {expandLoadMore && loadingMore && <Loading/>}
     {hasLoadMore && <div className={classes.loadMore}><a onClick={loadMore}>
       Load More
     </a></div>}
+  </div>
+}
+
+const TagContributorRow = ({contributor, tag, onHover, classes}: {
+  contributor: any, //FIXME typechecking hole
+  tag: TagPageFragment|TagPageWithRevisionFragment,
+  onHover: (userId: string|null)=>void,
+  classes: ClassesType
+}) => {
+  const { UsersNameDisplay, LWTooltip, SmallSideVote } = Components;
+  const displayKarmaOffset = contributor.contributionScore - contributor.mostRecentContribution?.baseScore;
+  const voteCountOffset = contributor.voteCount - contributor.mostRecentContribution?.voteCount;
+  const numCommits = contributor.numCommits;
+  
+  const voteWidgetOptions = useMemo<VoteWidgetOptions>(() => ({
+    hideKarma: false,
+    displayKarmaOffset,
+    scoreTooltip: ({baseScore, voteCount}) => <div>
+      {baseScore+displayKarmaOffset} points from {voteCount+voteCountOffset} votes on {numCommits} edits.
+    </div>
+  }), [displayKarmaOffset, voteCountOffset, numCommits]);
+  
+  return <div
+    className={classes.contributorRow}
+    onMouseEnter={ev => {
+      onHover(contributor.user._id);
+    }}
+    onMouseLeave={ev => {
+      onHover(null);
+    }}
+  >
+    {contributor.mostRecentContribution
+      ? <SmallSideVote
+          document={contributor.mostRecentContribution}
+          collection={Revisions}
+          options={voteWidgetOptions}
+        />
+      : <LWTooltip
+          className={classes.contributorScore}
+          placement="left"
+          title={<span>
+            {contributor.contributionScore} total points from {contributor.voteCount} votes on {contributor.numCommits} edits
+          </span>}
+        >
+          {contributor.contributionScore}
+        </LWTooltip>
+    }
+    <span className={classes.contributorName}>
+      <UsersNameDisplay user={contributor.user} link={`/tag/${tag.slug}/history?user=${contributor.user.slug}`} />
+    </span>
   </div>
 }
 

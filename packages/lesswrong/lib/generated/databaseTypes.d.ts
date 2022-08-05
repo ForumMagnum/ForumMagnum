@@ -659,6 +659,7 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   description: EditableFieldContents
+  pingbacks: any /*{"definitions":[{}]}*/
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {

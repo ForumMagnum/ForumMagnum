@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -14,6 +14,7 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import type { VoteWidgetOptions } from '../../../lib/voting/votingSystems';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -262,6 +263,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
   
   const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const voteWidgetOptions: VoteWidgetOptions = useMemo(() => ({
+    hideKarma: post?.hideCommentKarma,
+  }), [post?.hideCommentKarma]);
 
   if (!comment) {
     return null;
@@ -338,7 +342,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             <SmallSideVote
               document={comment}
               collection={Comments}
-              hideKarma={post?.hideCommentKarma}
+              options={voteWidgetOptions}
             />
 
             {!isParentComment && renderMenu()}

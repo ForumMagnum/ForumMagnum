@@ -1,8 +1,9 @@
+import React, {useMemo} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
+import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -27,39 +28,51 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const SunshineNewUserPost = ({post, classes}: {
+  post: SunshinePostsList,
+  classes: ClassesType
+}) => {
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions, ContentStyles } = Components
+  const voteWidgetOptions: VoteWidgetOptions = useMemo(() => ({
+    hideKarma: false
+  }), []);
+ 
+  return <div className={classes.post}>
+    <div className={classes.row}>
+      <div>
+        <Link to={`/posts/${post._id}`}>
+          <PostsTitle post={post} showIcons={false} wrap/>
+          {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
+        </Link>
+        <span className={classes.meta}>
+          <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
+          <SmallSideVote document={post} collection={Posts} options={voteWidgetOptions}/>
+        </span>
+      </div>
+      <PostsPageActions post={post} />
+    </div>
+    {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
+      <div dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
+    </ContentStyles>}
+  </div>
+}
+
 const SunshineNewUserPostsList = ({posts, user, classes}: {
   posts?: SunshinePostsList[],
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions, ContentStyles } = Components
- 
   if (!posts) return null
 
   const newPosts = user.reviewedAt ? _filter(posts, post => post.postedAt > user.reviewedAt) : posts
 
-  return (
-    <div>
-      {newPosts.map(post=><div className={classes.post} key={post._id}>
-        <div className={classes.row}>
-          <div>
-            <Link to={`/posts/${post._id}`}>
-              <PostsTitle post={post} showIcons={false} wrap/> 
-              {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
-            </Link>
-            <span className={classes.meta}>
-              <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
-              <SmallSideVote document={post} collection={Posts}/>
-            </span>
-          </div>
-          <PostsPageActions post={post} />
-        </div>
-        {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
-          <div dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
-        </ContentStyles>}
-      </div>)}
-    </div>
-  )
+  return <div>
+    {newPosts.map(post => <SunshineNewUserPost
+      key={post._id}
+      post={post}
+      classes={classes}/>
+    )}
+  </div>
 }
 
 const SunshineNewUserPostsListComponent = registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});

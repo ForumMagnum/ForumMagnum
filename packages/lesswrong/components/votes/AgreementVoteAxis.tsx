@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent, getCollection } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, VoteWidgetOptions } from '../../lib/voting/votingSystems';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import type { VotingProps } from './withVote';
@@ -32,9 +32,9 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType
 }
 
-const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
+const AgreementVoteAxis = ({ document, options, voteProps, classes }: {
   document: VoteableTypeClient,
-  hideKarma?: boolean,
+  options: VoteWidgetOptions,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
 }) => {

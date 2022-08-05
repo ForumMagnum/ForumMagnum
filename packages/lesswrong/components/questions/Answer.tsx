@@ -1,11 +1,12 @@
+import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState, useCallback } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
+import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -125,6 +126,9 @@ const Answer = ({ comment, post, classes }: {
 
   const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography, ContentStyles } = Components
   const { html = "" } = comment.contents || {}
+  const voteWidgetOptions: VoteWidgetOptions = useMemo(() => ({
+    hideKarma: false,
+  }), []);
 
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
@@ -153,7 +157,7 @@ const Answer = ({ comment, post, classes }: {
                   <CommentsItemDate comment={comment} post={post}/>
                 </Typography>
                 <span className={classes.vote}>
-                  <SmallSideVote document={comment} collection={Comments}/>
+                  <SmallSideVote document={comment} collection={Comments} options={voteWidgetOptions}/>
                 </span>
                 <CommentsMenu
                   className={classes.menu}

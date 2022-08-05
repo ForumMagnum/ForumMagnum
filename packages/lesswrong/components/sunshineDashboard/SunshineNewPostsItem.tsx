@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation, gql } from '@apollo/client';
@@ -13,6 +13,7 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
 import { Posts } from '../../lib/collections/posts';
+import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -110,6 +111,8 @@ const SunshineNewPostsItem = ({post, classes}: {
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
   const moderationSection = post.moderationStyle || post.user?.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
+  
+  const voteWidgetOptions: VoteWidgetOptions = useMemo(() => ({ hideKarma: false }), []);
 
   return (
     <span {...eventHandlers}>
@@ -135,7 +138,12 @@ const SunshineNewPostsItem = ({post, classes}: {
                 { post.title }
               </Link>
             </Typography>
-            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
+            <div className={classes.vote}>
+              <SmallSideVote
+                document={post} collection={Posts}
+                options={voteWidgetOptions}
+              />
+            </div>
             {moderationSection && <div className={classes.moderation}>
               {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>

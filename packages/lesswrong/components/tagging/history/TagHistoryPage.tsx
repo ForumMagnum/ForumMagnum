@@ -59,7 +59,11 @@ const TagHistoryPage = ({classes}: {
             />
           </div>,
         },
-        tagApplied: {
+        // On the version of the tag-history page that's focused on a user, don't show
+        // tag applications, only more substantive edits. Motivated by the case of
+        // core tags, where tag-applications by moderators are super numerous and would
+        // make it impossible to find substantive edits without excessive scrolling.
+        ...(focusedUser ? {} : {tagApplied: {
           fragmentName: "TagRelHistoryFragment",
           render: (application: TagRelHistoryFragment) => {
             if (!application.post)
@@ -71,7 +75,7 @@ const TagHistoryPage = ({classes}: {
               <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
             </SingleLineFeedEvent>
           }
-        },
+        }}),
         tagDiscussionComment: {
           fragmentName: "CommentsList",
           render: (comment: CommentsList) => <div>
@@ -79,6 +83,7 @@ const TagHistoryPage = ({classes}: {
               treeOptions={{ tag }}
               comment={comment}
               loadChildrenSeparately={true}
+              forceSingleLine={!!focusedUser}
             />
           </div>
         }

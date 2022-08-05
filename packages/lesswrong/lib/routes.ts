@@ -1,10 +1,11 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, taggingNameSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
+import Tags from './collections/tags/collection';
 
 
 export const communityPath = '/community';
@@ -49,6 +50,19 @@ async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
   const post = await Posts.findOne({slug: slug});
   if (!post) return null;
   return await getPostPingbackById(parsedUrl, post._id);
+}
+
+async function getTagPingbackBySlug(parsedUrl: RouterLocation, slug: string): Promise<PingbackDocument|null> {
+  const tag = await Tags.findOne({slug: slug});
+  if (!tag) return null;
+  return ({ collectionName: "Tags", documentId: tag._id })
+}
+
+const rewriteTagUrl = (location: RouterLocation): string|undefined => {
+  if (location.url.startsWith('/tag/')) {
+    return `/${taggingNamePluralSetting.get()}/${location.url.substring(5)}`
+  }
+  return undefined
 }
 
 
@@ -356,11 +370,13 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
-      redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      redirect: location => rewriteTagUrl(location),
     },
     {
       name: 'tagsAllCustomName',
@@ -380,12 +396,14 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white"
+      background: "white",
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagDiscussionCustomNameRedirect',
       path: '/tag/:slug/discussion',
-      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/discussion`
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      redirect: location => rewriteTagUrl(location),
     },
     {
       name: 'tagHistoryCustomName',
@@ -393,11 +411,13 @@ if (taggingNameIsSet.get()) {
       componentName: 'TagHistoryPage',
       titleComponentName: 'TagHistoryPageTitle',
       subtitleComponentName: 'TagHistoryPageTitle',
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagHistoryCustomNameRedirect',
       path: '/tag/:slug/history',
-      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/history`
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      redirect: location => rewriteTagUrl(location),
     },
     {
       name: 'tagEditCustomName',
@@ -409,7 +429,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagEditCustomNameRedirect',
       path: '/tag/:slug/edit',
-      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/edit`
+      redirect: location => rewriteTagUrl(location),
     },
     {
       name: 'tagCreateCustomName',
@@ -422,7 +442,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagCreateCustomNameRedirect',
       path: '/tag/create',
-      redirect: () => `/${taggingNamePluralSetting.get()}/create`
+      redirect: location => rewriteTagUrl(location),
     },
     {
       name: 'randomTagCustomName',
@@ -489,6 +509,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagDiscussion',
@@ -497,7 +518,8 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white"
+      background: "white",
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagHistory',
@@ -505,6 +527,7 @@ if (taggingNameIsSet.get()) {
       componentName: 'TagHistoryPage',
       titleComponentName: 'TagHistoryPageTitle',
       subtitleComponentName: 'TagHistoryPageTitle',
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagEdit',
