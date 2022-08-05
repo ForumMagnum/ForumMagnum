@@ -23,7 +23,7 @@ function cloudinaryPropsToStr(props) {
   return sb.join(",");
 }
 
-function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: CloudinaryPropsType) {
+export function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: CloudinaryPropsType) {
   return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`
 }
 

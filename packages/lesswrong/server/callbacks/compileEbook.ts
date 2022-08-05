@@ -1,19 +1,18 @@
 import cheerio from 'cheerio';
 import cloudinary from 'cloudinary';
 import makepub from 'nodepub';
-import jetpack from 'fs-jetpack';
-import { request } from 'graphql-request';
-import { execSync } from 'child_process';
 import sanitizeHtml from 'sanitize-html';
 import Sequences from '../../lib/collections/sequences/collection';
-import { createAdminContext, getSiteUrl } from '../vulcan-lib';
+import { createAdminContext, getSiteUrl, slugify } from '../vulcan-lib';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import Chapters from '../../lib/collections/chapters/collection';
 import Users from '../../lib/collections/users/collection';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { cloudinaryApiKey, cloudinaryApiSecret } from '../scripts/convertImagesToCloudinary';
+import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
+import fs from 'fs';
+import https from 'https'
 
 // export async function _ChaptersEditEbookCallback (chapter: DbChapter) {
   
@@ -194,14 +193,11 @@ import { cloudinaryApiKey, cloudinaryApiSecret } from '../scripts/convertImagesT
 //   }
 // }
 
-const getConfigFromSequence = (sequence: DbSequence, author: DbUser) => {
+const getConfigFromSequence = (sequence: DbSequence, author: DbUser, imagePath: string) => {
   return {
-    img: "images/codex.jpg",
-    shorttitle: sequence.title,
-    metadata: {
-      id: sequence._id,
+      id: slugify(sequence.title),
       title: sequence.title,
-      cover: "/Users/wh/Documents/code/ForumMagnum/public/gatherTownIconMuted.png",
+      cover: imagePath,
       series: siteNameWithArticleSetting.get(),
       sequence: 1,
       author: author.displayName,
@@ -209,7 +205,7 @@ const getConfigFromSequence = (sequence: DbSequence, author: DbUser) => {
       // TODO come back to
       // genre: "Non-Fiction",
       // tags: "Rationality",
-      // copyright: "Scott Alexander, 2017",
+      // copyright: `${author.displayName}, `, "Scott Alexander, 2017",
       publisher: siteNameWithArticleSetting.get(),
       // published: "2017",
       language: "en",
@@ -217,9 +213,6 @@ const getConfigFromSequence = (sequence: DbSequence, author: DbUser) => {
       contents: "Chapters",
       source: getSiteUrl(),
       images: []
-    },
-    titleSelector: "h1.PostsPageTitle-root",
-    contentSelector: "div.PostsPage-postContent",
   }
 }
 
@@ -243,60 +236,73 @@ export async function ChaptersEditEbookCallback (chapter: DbChapter) {
   const sequence = await Sequences.findOne({_id: chapter.sequenceId})
   const author = await Users.findOne({_id: sequence?.userId})
 
+  if (!sequence) throw Error("No sequence found")
+  if (!author) throw Error("No author found")
+
   // get cover image
-
+  const imageUrl = makeCloudinaryImageUrl(sequence.bannerImageId, {f:'jpg'})
+  const file = fs.createWriteStream("tmp/ebookImage0.jpg")
   
-  console.log(sequence)
-  const config = getConfigFromSequence(sequence, author)
-  let epub = makepub.document(config.metadata);
-
-  // epub.addCSS(jetpack.read('style/base.css')); 
-  epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
-  
-  function buildEbookFromSequence(sequence, chapters, posts, author) {
-    // 
-    createDocFromLWContents(sequence.title, sequence)
-    for (let chapter of chapters) {
-      if (chapter.title) {
-        createDocFromLWContents(chapter.title, chapter)
+  https.get(imageUrl, (response) => {
+    response.pipe(file);
+    file.on("finish", async () => {
+      const config = getConfigFromSequence(sequence, author, '/Users/raymondarnold/Documents/LessWrongSuite/Lesswrong2/tmp/ebookImage0.jpg')
+      let epub = makepub.document(config);
+    
+      // epub.addCSS(jetpack.read('style/base.css')); 
+      epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
+      
+      function buildEbookFromSequence(sequence, chapters, posts) {
+        // 
+        createDocFromLWContents(sequence.title, sequence)
+        for (let chapter of chapters) {
+          if (chapter.title) {
+            createDocFromLWContents(chapter.title, chapter)
+          }
+          for (let post of posts) {
+            createDocFromLWContents(post.title, post)
+          }
+        }
       }
-      for (let post of posts) {
-        createDocFromLWContents(post.title, post)
+      
+      function createDocFromLWContents(title, document) {
+        let newDoc = cheerio.load(htmlTemplate)
+        if (document.title) {
+          let safe_title = document.title.toLowerCase().replace(/ /g, '-');
+          newDoc('body').append('<div id="'+safe_title+'"></div>');
+          newDoc('div').append('<h1>'+document.title+'</h1>')
+        }
+        newDoc('div').append(document.contents?.html || '')
+        epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
       }
-    }
-  }
-  
-  function createDocFromLWContents(title, document) {
-    let newDoc = cheerio.load(htmlTemplate)
-    if (document.title) {
-      let safe_title = document.title.toLowerCase().replace(/ /g, '-');
-      newDoc('body').append('<div id="'+safe_title+'"></div>');
-      newDoc('div').append('<h1>'+document.title+'</h1>')
-    }
-    newDoc('div').append(document?.contents?.html || '')
-    epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
-  }
+    
+      buildEbookFromSequence(sequence, chapters, posts)
+    
+      const outFolder = "tmp/"
+      const outFile = "/Users/raymondarnold/Documents/LessWrongSuite/Lesswrong2/tmp/test_ebook.epub" //"tmp/test_ebook.epub"
+      await epub.writeEPUB(outFolder, "test_ebook")
+    
+      const cloudName = cloudinaryCloudNameSetting.get();
+      const apiKey = cloudinaryApiKey.get();
+      const apiSecret = cloudinaryApiSecret.get();
+    
+      const result = await cloudinary.v2.uploader.upload(
+        outFile,
+        {
+          public_id: `${slugify(sequence.title)}`,
+          folder: `ebooks`,
+          cloud_name: cloudName,
+          api_key: apiKey,
+          api_secret: apiSecret,
+          resource_type: "raw"
+        }
+      );
+      console.log("end of thing")
+      console.log(result)
+      console.log(result.url)
+      file.close();
+    });
+  })
 
-  buildEbookFromSequence(sequence, chapters, posts, author)
-
-  const outFolder = "/Users/wh/Documents/code/ForumMagnum/test_ebook"
-  const outFile = "/Users/wh/Documents/code/ForumMagnum/test_ebook/test_ebook.epub"
-  epub.writeEPUB(outFolder, "test_ebook")
-
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const apiKey = cloudinaryApiKey.get();
-  const apiSecret = cloudinaryApiSecret.get();
-
-  const result = await cloudinary.v2.uploader.upload(
-    outFile,
-    {
-      folder: `test_ebook/${sequence?._id}`,
-      cloud_name: cloudName,
-      api_key: apiKey,
-      api_secret: apiSecret,
-    }
-  );
-  console.log("end of thing")
-  console.log(result)
-  console.log(result.url)
+ 
 }
