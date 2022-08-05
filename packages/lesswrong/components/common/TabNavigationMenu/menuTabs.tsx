@@ -272,8 +272,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
-      title: taggingNamePluralCapitalSetting.get(),
-      mobileTitle: taggingNamePluralCapitalSetting.get(),
+      title: taggingNamePluralCapitalSetting.get() + " Wiki",
+      mobileTitle: taggingNamePluralCapitalSetting.get() + " Wiki",
       link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
