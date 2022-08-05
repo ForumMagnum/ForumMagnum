@@ -66,8 +66,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   peopleList: {
