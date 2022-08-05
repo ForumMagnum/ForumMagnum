@@ -933,10 +933,14 @@ interface MessagesDefaultFragment { // fragment on Messages
 
 interface messageListFragment { // fragment on Messages
   readonly _id: string,
-  readonly user: UsersMinimumInfo|null,
+  readonly user: messageListFragment_user|null,
   readonly contents: messageListFragment_contents|null,
   readonly createdAt: Date,
   readonly conversationId: string,
+}
+
+interface messageListFragment_user extends UsersMinimumInfo { // fragment on Users
+  readonly profileImageId: string,
 }
 
 interface messageListFragment_contents { // fragment on Revisions
