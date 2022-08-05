@@ -42,7 +42,7 @@ const SubscribeButton = ({
   const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
-  const { LWTooltip, NotifyMeButton, NewFeatureTooltip } = Components
+  const { LWTooltip, NotifyMeButton } = Components
 
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
@@ -68,16 +68,14 @@ const SubscribeButton = ({
   const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
 
   return <div className={classNames(className, classes.root)}>
-    <NewFeatureTooltip title="New! Subscribe to this topic to see more posts you're interested in">
-      <LWTooltip title={isSubscribed ?
-        `Remove homepage boost for ${postsWording}` :
-        `See more ${postsWording} on the homepage`
-      }>
-        <Button variant="outlined" onClick={onSubscribe}>
-          <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
-        </Button>
-      </LWTooltip>
-    </NewFeatureTooltip>
+    <LWTooltip title={isSubscribed ?
+      `Remove homepage boost for ${postsWording}` :
+      `See more ${postsWording} on the homepage`
+    }>
+      <Button variant="outlined" onClick={onSubscribe}>
+        <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
+      </Button>
+    </LWTooltip>
     <NotifyMeButton
       document={tag}
       tooltip={`Click to toggle notifications for ${postsWording}`}
