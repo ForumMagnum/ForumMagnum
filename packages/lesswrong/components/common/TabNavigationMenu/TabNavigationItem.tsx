@@ -23,10 +23,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity:.6,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    paddingTop: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
+    
+    ...(theme.forumType === "LessWrong"
+      ? {
+        paddingTop: 7,
+        paddingBottom: 8,
+        paddingLeft: 16,
+        paddingRight: 16,
+      } : {
+        padding: 16,
+      }
+    ),
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -45,12 +52,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .3,
     width: iconWidth,
     height: 28,
-    marginRight: theme.spacing.unit*2,
+    marginRight: 16,
     display: "inline",
     
     "& svg": {
       fill: "currentColor",
       color: theme.palette.icon.navigationSidebarIcon,
+      ...(theme.forumType === "LessWrong"
+        ? { transform: "scale(0.8)" }
+        : {}
+      ),
     },
   },
   navText: {
