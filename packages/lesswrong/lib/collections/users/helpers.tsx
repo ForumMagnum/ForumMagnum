@@ -186,7 +186,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   return true
 }
 
-// TODO change to JSX element
 export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): JSX.Element => {
   if (!user) {
     return <>Can't recognize user</>
