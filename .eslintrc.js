@@ -213,6 +213,8 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
+
+    "unused-imports/no-unused-imports": "error",
   },
   "env": {
     "browser": true,
@@ -225,7 +227,8 @@ module.exports = {
     "babel",
     "react",
     "react-hooks",
-    "import"
+    "import",
+    "unused-imports",
   ],
   "settings": {
     "import/core-modules": [
