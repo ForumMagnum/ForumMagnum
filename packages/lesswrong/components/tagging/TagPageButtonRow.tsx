@@ -6,12 +6,11 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import HistoryIcon from '@material-ui/icons/History';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import Tags, { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
+import { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 

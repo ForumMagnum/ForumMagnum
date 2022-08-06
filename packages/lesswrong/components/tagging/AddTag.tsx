@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import Divider from '@material-ui/core/Divider';
-import { tagMinimumKarmaPermissions, Tags } from '../../lib/collections/tags/collection';
-import classNames from 'classnames';
+import { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';

@@ -19,7 +19,7 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../../lib/instanceSettings';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in

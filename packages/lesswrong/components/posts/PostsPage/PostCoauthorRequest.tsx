@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
-import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({

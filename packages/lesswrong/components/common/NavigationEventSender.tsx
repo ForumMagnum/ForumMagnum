@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CallbackChainHook  } from '../../lib/vulcan-lib/callbacks';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';

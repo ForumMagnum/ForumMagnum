@@ -8,7 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
 

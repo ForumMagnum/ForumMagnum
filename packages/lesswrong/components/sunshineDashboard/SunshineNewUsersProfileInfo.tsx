@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
