@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
-  onHoverUser: (userId: string|null)=>void,
+  onHoverUser?: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
   const { UsersNameDisplay, Loading, LWTooltip } = Components;
@@ -78,10 +78,10 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       </LWTooltip>
       <span className={classes.contributorName}
         onMouseEnter={ev => {
-          onHoverUser(contributor.user._id);
+          onHoverUser?.(contributor.user._id);
         }}
         onMouseLeave={ev => {
-          onHoverUser(null);
+          onHoverUser?.(null);
         }}
       >
         <UsersNameDisplay user={contributor.user}/>

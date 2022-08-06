@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import type { ToCData } from '../../../server/tableOfContents';
+import type { ToCDisplayOptions } from './TableOfContentsList';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
@@ -17,10 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 type setToCFn = (title: string|null, sectionData: ToCData|null)=>void
 export const TableOfContentsContext = React.createContext<setToCFn|null>(null);
 
-const TableOfContents = ({sectionData, title, onClickSection, classes}: {
+const TableOfContents = ({sectionData, title, onClickSection, displayOptions, classes}: {
   sectionData: ToCData,
   title: string|null,
   onClickSection?: ()=>void,
+  displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -43,8 +45,8 @@ const TableOfContents = ({sectionData, title, onClickSection, classes}: {
     <Components.TableOfContentsList
       sectionData={sectionData}
       title={title}
-      drawerStyle={false}
       onClickSection={onClickSection}
+      displayOptions={displayOptions}
     />
   );
 }

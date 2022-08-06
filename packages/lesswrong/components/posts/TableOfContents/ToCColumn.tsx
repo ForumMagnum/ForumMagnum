@@ -113,7 +113,7 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
   header: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
-  welcomeBox: React.ReactNode|null
+  welcomeBox?: React.ReactNode|undefined
 }) => {
   return (
     <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents || !!welcomeBox})}>
