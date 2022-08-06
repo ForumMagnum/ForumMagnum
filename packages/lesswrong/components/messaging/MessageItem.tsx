@@ -12,6 +12,9 @@ import { useCurrentUser } from '../common/withUser';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
+const PROFILE_IMG_WIDTH = 36
+const PROFILE_IMG_WIDTH_MOBILE = 26
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom:theme.spacing.unit*1.5,
@@ -20,10 +23,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     columnGap: 10,
     maxWidth: '95%',
-    gridTemplateColumns: '36px 1fr',
+    gridTemplateColumns: `${PROFILE_IMG_WIDTH}px 1fr`,
     gridTemplateAreas: '"image message"',
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: `${PROFILE_IMG_WIDTH_MOBILE}px 1fr`,
+    }
   },
   rootCurrentUserWithImages: {
+    columnGap: 0,
     marginLeft: 'auto',
   },
   message: {
@@ -63,13 +70,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: '50%',
     gridArea: 'image',
     alignSelf: 'flex-end',
+    [theme.breakpoints.down('xs')]: {
+      height: PROFILE_IMG_WIDTH_MOBILE,
+      width: PROFILE_IMG_WIDTH_MOBILE
+    }
   },
   defaultProfileImage: {
     gridArea: 'image',
     alignSelf: 'flex-end',
-    fontSize: 36,
-    color: theme.palette.grey[500],
+    fontSize: PROFILE_IMG_WIDTH,
+    color: theme.palette.grey[400],
     borderRadius: '50%',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: PROFILE_IMG_WIDTH_MOBILE
+    }
   },
 })
 
@@ -88,15 +102,12 @@ const MessageItem = ({message, classes}: {
   const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   let profilePhoto
-  
-  if(!isCurrentUser && isEAForum) {
+  if (!isCurrentUser && isEAForum) {
     profilePhoto = message.user?.profileImageId ? <Components.CloudinaryImage2
-      height={36}
-      width={36}
-      imgProps={{q: '100'}}
+      imgProps={{q: '100', h: `${PROFILE_IMG_WIDTH}`, w: `${PROFILE_IMG_WIDTH}`}}
       publicId={message.user.profileImageId}
       className={classes.profileImage}
-    /> : <AccountCircleIcon width={36} height={36} viewBox="3 3 18 18" className={classes.defaultProfileImage}/>
+    /> : <AccountCircleIcon viewBox="3 3 18 18" className={classes.defaultProfileImage}/>
   }
   
   return (
