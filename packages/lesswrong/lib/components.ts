@@ -36,6 +36,7 @@ importComponent("ConversationWrapper", () => require('../components/messaging/Co
 importComponent("ConversationPage", () => require('../components/messaging/ConversationPage'));
 importComponent("ConversationPreview", () => require('../components/messaging/ConversationPreview'));
 importComponent("MessageItem", () => require('../components/messaging/MessageItem'));
+importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePhoto'));
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
