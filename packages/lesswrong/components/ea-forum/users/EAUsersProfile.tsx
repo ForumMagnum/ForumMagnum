@@ -319,6 +319,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }
   
   const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+  const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
@@ -359,6 +360,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </div>
       <AnalyticsContext listContext="userPageDrafts">
         <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms} boxShadow={false} />
+        <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>

@@ -81,7 +81,6 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
     },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
-    pollInterval: 0,
     limit: 20,
     enableTotal: false,
   });
