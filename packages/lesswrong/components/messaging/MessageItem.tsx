@@ -9,11 +9,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
 
-const PROFILE_IMG_WIDTH = 36
-const PROFILE_IMG_WIDTH_MOBILE = 26
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,10 +21,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     columnGap: 10,
     maxWidth: '95%',
-    gridTemplateColumns: `${PROFILE_IMG_WIDTH}px 1fr`,
+    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px 1fr`,
     gridTemplateAreas: '"image message"',
     [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: `${PROFILE_IMG_WIDTH_MOBILE}px 1fr`,
+      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px 1fr`,
     }
   },
   rootCurrentUserWithImages: {
@@ -63,27 +61,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: '100%',
     },
   },
-  profileImage: {
-    'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
-    '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
-    '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
-    borderRadius: '50%',
+  profileImg: {
     gridArea: 'image',
-    alignSelf: 'flex-end',
-    [theme.breakpoints.down('xs')]: {
-      height: PROFILE_IMG_WIDTH_MOBILE,
-      width: PROFILE_IMG_WIDTH_MOBILE
-    }
-  },
-  defaultProfileImage: {
-    gridArea: 'image',
-    alignSelf: 'flex-end',
-    fontSize: PROFILE_IMG_WIDTH,
-    color: theme.palette.grey[400],
-    borderRadius: '50%',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: PROFILE_IMG_WIDTH_MOBILE
-    }
+    alignSelf: 'flex-end'
   },
 })
 
@@ -103,11 +83,7 @@ const MessageItem = ({message, classes}: {
 
   let profilePhoto
   if (!isCurrentUser && isEAForum) {
-    profilePhoto = message.user?.profileImageId ? <Components.CloudinaryImage2
-      imgProps={{q: '100', h: `${PROFILE_IMG_WIDTH}`, w: `${PROFILE_IMG_WIDTH}`}}
-      publicId={message.user.profileImageId}
-      className={classes.profileImage}
-    /> : <AccountCircleIcon viewBox="3 3 18 18" className={classes.defaultProfileImage}/>
+    profilePhoto = <Components.ProfilePhoto user={message.user} className={classes.profileImg} />
   }
   
   return (
