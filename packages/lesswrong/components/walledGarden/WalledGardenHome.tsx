@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { moderationEmail } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
@@ -47,7 +48,8 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
   })
 
   if (!currentUser || !currentUser.walledGardenInvite) { return <Error404/> }
-
+  const email = moderationEmail.get()
+  
   return <SingleColumnSection>
     <ContentStyles contentType="post">
       <Typography variant="display3">
@@ -69,7 +71,7 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
       <ul>
         <li>All interactions are voluntary! Feel free to tap out of any conversation.</li>
         <li>Be mindful of the experience of others.</li>
-        <li>Contact the Garden Wardens (LW team) at <a href="mailto:team@lesswrong.com">team@lesswrong.com</a> or Intercom if someone is bothering you or if you have any other concerns.
+        <li>Contact the Garden Wardens (LW team) at <a href={`mailto:${email}`}>{email}</a> or Intercom if someone is bothering you or if you have any other concerns.
           <ul>
             <li>Even if it's minor and you don't want anything done, hearing about small things helps us track trends.</li>
           </ul>

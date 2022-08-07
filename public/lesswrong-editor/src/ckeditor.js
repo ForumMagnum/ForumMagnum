@@ -64,6 +64,7 @@ import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import Footnote from './ckeditor5-footnote/src/footnote';
+import UrlValidator from './url-validator-plugin';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
@@ -136,6 +137,7 @@ const postEditorPlugins = [
 	Spoilers,
 	AutoLink,
 	Footnote,
+	UrlValidator,
 ];
 
 PostEditor.builtinPlugins = [
@@ -308,6 +310,7 @@ CommentEditor.builtinPlugins = [
 	Spoilers,
 	AutoLink,
 	Footnote,
+	UrlValidator,
 ];
 
 CommentEditor.defaultConfig = {

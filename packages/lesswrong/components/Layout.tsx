@@ -22,6 +22,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -37,7 +38,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'IntroCurriculum'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -52,8 +53,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
+      paddingLeft: 8,
+      paddingRight: 8,
     },
   },
   gridActivated: {
@@ -239,6 +240,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
+    
+    const showSunshineSidebar = (currentRoute?.sunshineSidebar && userCanDo(currentUser, 'posts.moderate.all')) || currentUser?.groups?.includes('alignmentForumAdmins')
         
     const shouldUseGridLayout = standaloneNavigation
 
@@ -321,10 +324,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <Footer />
                 </div>
-                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
-                    <SunshineSidebar/>
-                  </div>
-                  }
+                {showSunshineSidebar && <div className={classes.sunshine}>
+                  <Components.SunshineSidebar/>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>

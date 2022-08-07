@@ -23,6 +23,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+  importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
@@ -35,6 +36,7 @@ importComponent("ConversationWrapper", () => require('../components/messaging/Co
 importComponent("ConversationPage", () => require('../components/messaging/ConversationPage'));
 importComponent("ConversationPreview", () => require('../components/messaging/ConversationPreview'));
 importComponent("MessageItem", () => require('../components/messaging/MessageItem'));
+importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePhoto'));
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
@@ -100,6 +102,7 @@ importComponent("RevisionComparisonNotice", () => require('../components/revisio
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
+importComponent("NewFeatureTooltip", () => require('../components/common/NewFeatureTooltip'));
 importComponent("Typography", () => require('../components/common/Typography'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
 importComponent("Footer", () => require('../components/common/Footer'));
@@ -613,6 +616,7 @@ importComponent("ContinueReadingList", () => require('../components/recommendati
 importComponent("RecommendationsAlgorithmPicker", () => require('../components/recommendations/RecommendationsAlgorithmPicker'));
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
+importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 
 // Review Components

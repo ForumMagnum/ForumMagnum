@@ -30,8 +30,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   onlineGroups: {
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   onlineGroup: {

@@ -34,6 +34,7 @@ interface DbBook extends DbObject {
   number: number
   postIds: Array<string>
   sequenceIds: Array<string>
+  showChapters: boolean
   contents: EditableFieldContents
 }
 
@@ -62,6 +63,7 @@ interface DbCollection extends DbObject {
   slug: string
   gridImageId: string
   firstPageLink: string
+  hideStartReadingButton: boolean
   contents: EditableFieldContents
 }
 
@@ -655,6 +657,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
+  canVoteOnRels: Array<string>
   description: EditableFieldContents
 }
 
@@ -812,6 +815,10 @@ interface DbUser extends DbObject {
   facebookProfileURL: string
   twitterProfileURL: string
   githubProfileURL: string
+  postingDisabled: boolean
+  allCommentingDisabled: boolean
+  commentingOnOtherUsersDisabled: boolean
+  conversationsDisabled: boolean
   moderationGuidelines: EditableFieldContents
   howOthersCanHelpMe: EditableFieldContents
   howICanHelpOthers: EditableFieldContents

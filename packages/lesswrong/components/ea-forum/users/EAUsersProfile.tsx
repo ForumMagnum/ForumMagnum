@@ -15,7 +15,7 @@ import { taglineSetting } from '../../common/HeadTags';
 import { getBrowserLocalStorage } from '../../async/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
-import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/schema';
+import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
@@ -28,6 +28,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
+import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -318,6 +319,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }
   
   const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+  const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
@@ -358,6 +360,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </div>
       <AnalyticsContext listContext="userPageDrafts">
         <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms} boxShadow={false} />
+        <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>
@@ -405,6 +408,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: user.htmlBio }}
             description={`user ${user._id} bio`}
+            nofollow={userKarma < nofollowKarmaThreshold.get()}
           />
         </ContentStyles>}
         {user.howOthersCanHelpMe && <>
@@ -412,7 +416,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
           </div>
           <ContentStyles contentType="post">
-            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
         {user.howICanHelpOthers && <>
@@ -420,7 +424,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
           </div>
           <ContentStyles contentType="post">
-            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
       </>,

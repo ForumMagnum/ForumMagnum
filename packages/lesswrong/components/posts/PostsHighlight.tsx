@@ -3,6 +3,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, {useState, useCallback} from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
@@ -50,6 +51,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
       </div>}
       dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
       description={`post ${post._id}`}
+      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />
     {loading && expanded && <Components.Loading/>}
   </Components.ContentStyles>

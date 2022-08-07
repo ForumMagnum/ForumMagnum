@@ -15,23 +15,14 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
+import { SORT_ORDER_OPTIONS, SettingsOption } from './sortOrderOptions';
 import { Link } from '../../reactRouterWrapper';
 
 const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
 const urlHintText = isEAForum
-    ? <>Please write what you liked about the post, and consider sharing some relevant excerpts. If you have permission from the author, you can also copy in the entire post text. If you know the author's username you can add them as a co-author of this post in the "Options" menu below. You can find more guidelines{' '}
-    <Link
-      to='/posts/8yDsenRQhNF4HEDwu/link-posting-is-an-act-of-community-service'
-      // This link gets removed as soon as focus shifts from the input,
-      // mousedown would shift focus from the input, and prevent the link from
-      // being clicked.
-      onMouseDown={e => e.preventDefault()}
-    >
-      here
-    </Link>.
-    </>
+    ? 'UrlHintText'
     : 'Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don\'t click offsite links.)'
 
 const STICKY_PRIORITIES = {
@@ -39,20 +30,6 @@ const STICKY_PRIORITIES = {
   2: "Normal",
   3: "Elevated",
   4: "Max",
-}
-
-export interface SettingsOption {
-  label: string;
-  tooltip?: string;
-}
-
-export const SORT_ORDER_OPTIONS: { [key: string]: SettingsOption; } = {
-  magic: { label: 'Magic (New & Upvoted)', tooltip: 'Posts with the highest karma from the past few days' },
-  topAdjusted: { label: 'Top (Inflation Adjusted)', tooltip: 'Posts with the highest karma relative to those posted around the same time' },
-  recentComments: { label: 'Recent Comments' },
-  new: { label: 'New' },
-  old: { label: 'Old' },
-  top: { label: 'Top' },
 }
 
 export interface RSVPType {

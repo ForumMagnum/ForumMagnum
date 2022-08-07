@@ -51,6 +51,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginBottom: 12
   },
+  eaDescription: {
+    fontSize: "1rem",
+  },
   author: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
@@ -105,7 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
+    justifyContent: forumTypeSetting.get() === "EAForum" ? "flex-start" : "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -134,13 +137,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
+  showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip } = Components
-  
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, ContentItemBody, LWTooltip } = Components
+
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -177,7 +181,10 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
               by <UsersName user={sequence.user} />
             </div>}
           </div>
-          {(highlight.length > 0) && <ContentStyles contentType="postHighlight" className={classes.description}>
+          {(highlight.length > 0) && <ContentStyles
+            contentType="postHighlight"
+            className={classNames(classes.description, {[classes.eaDescription]: forumTypeSetting.get() === "EAForum"})}
+          >
             <ContentItemTruncated
               maxLengthWords={100}
               graceWords={20}
@@ -194,11 +201,21 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         </div>
       </div>
       <div className={classes.right}>
-        {posts.map(post => <SequencesSmallPostLink 
-            key={sequence._id + post._id} 
-            post={post}
-            sequenceId={sequence._id}
-          />
+        {sequence.chapters?.flatMap(({posts, title, contents}) =>
+          <>
+            {showChapters && contents?.htmlHighlight && (
+              <ContentStyles contentType="postHighlight">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: title ?? contents.htmlHighlight}} />
+              </ContentStyles>
+            )}
+            {posts.map((post) => (
+              <SequencesSmallPostLink
+                key={sequence._id + post._id}
+                post={post}
+                sequenceId={sequence._id}
+              />
+            ))}
+          </>
         )}
       </div>
     </div>

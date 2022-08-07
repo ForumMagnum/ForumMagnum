@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
 import { forumSelect } from '../../../lib/forumTypeUtils';
@@ -103,8 +103,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('sm')]: {
       marginTop: -12,
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     },
     [theme.breakpoints.down('xs')]: {
       marginTop: -10,
@@ -238,7 +238,7 @@ const PostsPage = ({post, refetch, classes}: {
         <ContentStyles contentType="post" className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
-            { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+            { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`} nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}/> }
           </AnalyticsContext>
         </ContentStyles>
 
