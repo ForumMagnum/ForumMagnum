@@ -101,7 +101,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   }
 
   return (
-    <Tooltip>
+    // <Tooltip> HOTFIX because this breaks stuff TODO: Fix properly
       <IconButton
         className={classNames(classes.root, classes[orientation], {[classes.disabled]: !enabled})}
         onMouseDown={eventHandlers.handleMouseDown}
@@ -125,7 +125,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
             />)}
         </Transition>
       </IconButton>
-    </Tooltip>
+    // </Tooltip> HOTFIX because this breaks stuff TODO: Fix properly
   )
 }
 
