@@ -95,15 +95,16 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
 export const getFragmentName = fragment => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
 
 // Get actual gql fragment
-export const getFragment = (fragmentName: FragmentName) => {
+export const getFragment = (fragmentName: FragmentName): DocumentNode => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
-  if (!Fragments[fragmentName].fragmentObject) {
-    initializeFragment(fragmentName);
+  const fragmentObject = Fragments[fragmentName].fragmentObject;
+  if (!fragmentObject) {
+    // return fragment object created by gql
+    return initializeFragment(fragmentName);
   }
-  // return fragment object created by gql
-  return Fragments[fragmentName].fragmentObject;  
+  return fragmentObject;
 };
 
 // Get gql fragment text
@@ -115,9 +116,11 @@ export const getFragmentText = (fragmentName: FragmentName): string => {
   return Fragments[fragmentName].fragmentText;  
 };
 
-export const initializeFragment = (fragmentName: FragmentName): void => {
+export const initializeFragment = (fragmentName: FragmentName): DocumentNode => {
   const fragment = Fragments[fragmentName];
-  Fragments[fragmentName].fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+  const fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+  Fragments[fragmentName].fragmentObject = fragmentObject;
+  return fragmentObject;
 };
 
 export const getAllFragmentNames = (): Array<FragmentName> => {
