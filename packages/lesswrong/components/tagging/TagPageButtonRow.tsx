@@ -33,7 +33,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 1, // JP it's fine, stop adjusting single pixels
       cursor: "pointer",
       color: theme.palette.grey[700]
-    }
+    },
+    "@media print": {
+      display: "none",
+    },
   },
   buttonTooltip: {
     display: "flex",

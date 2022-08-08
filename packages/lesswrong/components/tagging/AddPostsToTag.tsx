@@ -18,7 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& input': {
       width: 70,
       cursor: "pointer"
-    }
+    },
+    "@media print": {
+      display: "none",
+    },
   },
   open: {
     width: "100%",

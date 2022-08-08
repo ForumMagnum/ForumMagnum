@@ -12,7 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     display: "inline-block",
-    textAlign: "center"
+    textAlign: "center",
+    "@media print": { display: "none" },
   },
   defaultButton: {
     paddingLeft: 4
