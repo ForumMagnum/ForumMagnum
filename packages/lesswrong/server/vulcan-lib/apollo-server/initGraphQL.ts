@@ -26,7 +26,7 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from './graphqlTemplates';
-import type { GraphQLScalarType } from 'graphql';
+import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -34,7 +34,6 @@ import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
 import * as _ from 'underscore';
-import type { GraphQLSchema } from 'graphql';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
