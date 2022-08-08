@@ -10,41 +10,8 @@ const fragmentFileHeader = generatedFileHeader+`//
 //
 `
 
-function getAllGraphQLTypeNames(): string[] {
-  const standaloneTypes = getAdditionalSchemas();
-  return standaloneTypes
-    .split('\n')
-    .map(type => type.trim())
-    .filter(typeLine => typeLine.startsWith('type') && typeLine.endsWith('{'))
-    .map(type => type.split(' ')[1]);
-}
-
-function getGraphQLTypes(typeNames: string[]) {
-  const schema = getExecutableSchema();
-  return typeNames
-    .map(typeName => {
-      const type = schema.getType(typeName);
-      assert(!!type, `Missing type with name ${typeName}!`);
-      return type as GraphQLNamedType;
-    });
-}
-
-function generateStandaloneTypeDefinition(type: GraphQLNamedType) {
-  if (type.astNode?.kind === "ObjectTypeDefinition") {
-
-
-  }
-
-  throw new Error("Invalid kind");
-}
-
 export function generateFragmentTypes(): string {
-  const fragmentNames: Array<FragmentName> = getAllFragmentNames();
-  const typeNames = getAllGraphQLTypeNames();
-  const standaloneTypes = getGraphQLTypes(typeNames);
-  for (const type of standaloneTypes) {
-    console.log("ehfiwhefu", type.astNode?.kind, type.name);
-  }
+  const fragmentNames: Array<FragmentName> = getAllFragmentNames();  
   const sb: Array<string> = [];
   
   for (let fragmentName of fragmentNames) {
