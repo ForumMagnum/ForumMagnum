@@ -80,7 +80,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   if (!targetUser) throw Error(`Can't find targetUser with Id: ${targetUserId}`)
 
   // DO NOT transfer LWEvents, there are way too many and they're probably not important after the fact
-  // await transferCollection({sourceUserId, targetUserId, collectionName: "Notifications"})
+  // await transferCollection({sourceUserId, targetUserId, collectionName: "LWEvents"})
 
   // Do not transfer gardencodes, they aren't in use
   // await transferCollection({sourceUserId, targetUserId, collectionName: "GardenCodes"})
