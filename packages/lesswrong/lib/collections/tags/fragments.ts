@@ -9,7 +9,7 @@ registerFragment(`
     core
     postCount
     adminOnly
-    authorOnly
+    canEditUserIds
     suggestedAsFilter
     needsReview
     descriptionTruncationCount

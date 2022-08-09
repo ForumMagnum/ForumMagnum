@@ -11,7 +11,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import Tags, { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
+import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -49,13 +49,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-  disabledButton: {
+  lockIcon: {
     display: "flex",
     alignItems: "center",
     marginRight: 16,
     '&:hover': {
       opacity: 1
     },
+    '& svg': {
+      color: theme.palette.grey[600],
+    }
   },
   subscribeToWrapper: {
     display: "flex !important",
@@ -99,15 +102,15 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     }
   }
 
-  const showEdit = !editing
-  const noEditKarmaTooLow = currentUser && currentUser.karma < tagMinimumKarmaPermissions.edit
-  const noEditNotAuthor = currentUser && !currentUser.isAdmin && tag.authorOnly && tag.userId !== currentUser._id
-  const canEdit = showEdit && !noEditKarmaTooLow && !noEditNotAuthor
+  const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0
+  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)))
+  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit")
+  const canEdit = !editing && !noEditKarmaTooLow && !noEditNotAuthor
 
   const editTooltip = <>
     {noEditNotAuthor && <>
       <div>
-      This article can only be edited by the author or an admin, please comment in the discussion to suggest changes
+      This article can only be edited by the authors, please comment in the discussion to suggest changes
     </div>
     <br />
     </>}
@@ -132,7 +135,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
   </>
 
   return <div className={classNames(classes.buttonsRow, className)}>
-    {showEdit && <LWTooltip
+    {!editing && <LWTooltip
       className={classes.buttonTooltip}
       title={editTooltip}
     >
@@ -141,7 +144,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
           Edit
         </span>
       </a>) : (
-        <a className={classes.disabledButton} onClick={() => {}}><LockIcon /><span className={classes.buttonLabel}>
+        <a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/><span className={classes.buttonLabel}>
           Edit
         </span></a>)}
     </LWTooltip>}

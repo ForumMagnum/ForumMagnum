@@ -168,15 +168,21 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
-  authorOnly: {
-    label: "Only Editable by Author",
-    type: Boolean,
+  canEditUserIds: {
+    type: Array,
     viewableBy: ['guests'],
-    insertableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     optional: true,
-    ...schemaDefaultValue(false),
+    label: "Restrict to these authors",
+    tooltip: "Only these authors will be able to edit the topic",
+    control: "UsersListEditor",
+    group: formGroups.advancedOptions,
+  },
+  'canEditUserIds.$': {
+    type: String,
+    foreignKey: 'Users',
+    optional: true,
   },
   charsAdded: {
     type: Number,

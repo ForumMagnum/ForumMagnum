@@ -5,19 +5,7 @@ import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
 import { forumSelect } from '../../forumTypeUtils';
-
-export const tagMinimumKarmaPermissions = forumSelect({
-  // Topic spampocalypse defense
-  EAForum: {
-    new: 10,
-    edit: 10,
-  },
-  // Default is to allow all users to create/edit tags
-  default: {
-    new: -1000,
-    edit: -1000,
-  }
-})
+import { tagUserHasSufficientKarma } from './helpers';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -37,13 +25,14 @@ export const Tags: ExtendedTagsCollection = createCollection({
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
       if (!user) return false;
       if (user.deleted) return false;
-      if ((user.karma ?? 0) < tagMinimumKarmaPermissions.new) {
+      if (!tagUserHasSufficientKarma(user, "new")) {
         return false
       }
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
-      if ((user?.karma ?? 0) < tagMinimumKarmaPermissions.edit) {
+      const userIsAllowedAuthor = tag && user && tag.canEditUserIds && tag.canEditUserIds.includes(user._id)
+      if (!userIsAllowedAuthor && !tagUserHasSufficientKarma(user, "edit")) {
         return false
       }
       return userCanCreateTags(user);
