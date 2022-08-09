@@ -25,15 +25,21 @@ export const Tags: ExtendedTagsCollection = createCollection({
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
       if (!user) return false;
       if (user.deleted) return false;
-      if (!tagUserHasSufficientKarma(user, "new")) {
-        return false
+
+      if (!user.isAdmin) {  // skip further checks for admins
+        if (!tagUserHasSufficientKarma(user, "new")) return false
       }
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
-      const userIsAllowedAuthor = tag && user && tag.canEditUserIds && tag.canEditUserIds.includes(user._id)
-      if (!userIsAllowedAuthor && !tagUserHasSufficientKarma(user, "edit")) {
-        return false
+      if (!user) return false;
+      if (user.deleted) return false;
+
+      if (!user.isAdmin) {  // skip further checks for admins
+        // If canEditUserIds is set only those users can edit the tag
+        const restricted = tag && tag.canEditUserIds
+        if (restricted && !tag.canEditUserIds.includes(user._id)) return false;
+        if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
       }
       return userCanCreateTags(user);
     },
