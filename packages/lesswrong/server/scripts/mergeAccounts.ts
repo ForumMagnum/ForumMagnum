@@ -79,11 +79,35 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   if (!sourceUser) throw Error(`Can't find sourceUser with Id: ${sourceUserId}`)
   if (!targetUser) throw Error(`Can't find targetUser with Id: ${targetUserId}`)
 
+  // Transfer bans
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Bans"})
+
+  // Transfer subscriptions (i.e. email subscriptions)
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Subscriptions"})
+
   // Transfer posts
   await transferCollection({sourceUserId, targetUserId, collectionName: "Posts"})
 
+  // Transfer revisions
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Revisions"})
+
   // Transfer comments
   await transferCollection({sourceUserId, targetUserId, collectionName: "Comments"})
+
+  // Transfer user-created tags
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Tags"})
+
+  // Transfer tag-post relationships (first user who voted on that tag for that post)
+  await transferCollection({sourceUserId, targetUserId, collectionName: "TagRels"})
+
+  // Transfer rss feeds (for crossposting)
+  await transferCollection({sourceUserId, targetUserId, collectionName: "RSSFeeds"})
+
+  // Transfer petrov day launches
+  await transferCollection({sourceUserId, targetUserId, collectionName: "PetrovDayLaunchs"})
+
+  // Transfer reports (i.e. user reporting a comment/tag/etc)
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Reports"})
 
   // Transfer conversations
   await Conversations.rawUpdateMany({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
@@ -107,6 +131,9 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
 
   // Transfer localgroups
   await transferCollection({sourceUserId, targetUserId, collectionName: "Localgroups"})
+
+  // Transfer review votes
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ReviewVotes"})
   
   // Transfer votes that target content from source user (authorId)
   // eslint-disable-next-line no-console
@@ -160,6 +187,9 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
     set: {oldSlugs: newOldSlugs}, 
     validate: false
   })
+
+  // Transfer email tokens
+  await transferCollection({sourceUserId, targetUserId, collectionName: "EmailTokens"})
   
   // Mark old acccount as deleted
   // eslint-disable-next-line no-console
