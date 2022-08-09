@@ -32,6 +32,7 @@ registerFragment(`
     curatedOrder
     userProfileOrder
     af
+    epubUrl
   }
 `);
 

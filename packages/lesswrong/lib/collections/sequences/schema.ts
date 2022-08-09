@@ -164,7 +164,15 @@ const schema: SchemaType<DbSequence> = {
     editableBy: ['members'],
     insertableBy: ['members'],
     ...schemaDefaultValue(false),
-  }
+  },
+
+  epubUrl: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins']
+  },
 }
 
 

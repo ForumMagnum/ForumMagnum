@@ -13,6 +13,13 @@ import { cloudinaryApiKey, cloudinaryApiSecret } from '../scripts/convertImagesT
 import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
 import fs from 'fs';
 import https from 'https'
+import convert from 'ebook-convert'
+import { renderToString } from 'react-dom/server';
+import React from 'react';
+
+var path = require('path')
+var xtend = require('xtend')
+// var convert = require('ebook-convert')
 
 // export async function _ChaptersEditEbookCallback (chapter: DbChapter) {
   
@@ -227,12 +234,34 @@ const htmlTemplate = `
 <body></body>
 </html>
 `
-
 async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
   const context = await createAdminContext();
   const posts = await sequenceGetAllPosts(sequence._id, context)
   const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
-  const author = await Users.findOne({_id: sequence?.userId})
+  const author = await Users.findOne({_id: sequence.userId})
+
+  if (!author) throw Error("No author found")
+
+  const config = getConfigFromSequence(sequence, author, coverPath)
+  
+  let epub = makepub.document(config);
+
+  epub.addSection('Title Page', renderToString(<h1>Blah de blah</h1>), true, true);
+  
+  const outFolder = "tmp/"
+  const outFilename = `${slugify(sequence.title)}`
+  const outFile = `${outFolder}${outFilename}.epub`
+  await epub.writeEPUB(outFolder, outFilename)
+
+  return outFile
+}
+
+
+async function OldbuildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
+  const context = await createAdminContext();
+  const posts = await sequenceGetAllPosts(sequence._id, context)
+  const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
+  const author = await Users.findOne({_id: sequence.userId})
 
   if (!author) throw Error("No author found")
 
@@ -268,7 +297,7 @@ async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: stri
 
   buildEbookFromSequence(sequence, chapters, posts)
 
-  const outFolder = "/Users/wh/Documents/code/ForumMagnum/tmp/"
+  const outFolder = "tmp/"
   const outFilename = `${slugify(sequence.title)}`
   const outFile = `${outFolder}${outFilename}.epub`
   await epub.writeEPUB(outFolder, outFilename)
@@ -292,38 +321,68 @@ function downloadImageFile(url, outFile): Promise<void> {
   })
 }
 
+// const wrappedBodyComponent = (
+//   <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+//   <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
+//   <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
+//   <TimezoneContext.Provider value={timezone}>
+//     {bodyComponent}
+//   </TimezoneContext.Provider>
+//   </UserContext.Provider>
+//   </MuiThemeProvider>
+//   </JssProvider>
+// )
+
+
+
 export async function ChaptersEditEbookCallback (chapter: DbChapter) {
   console.log("BEGIN ChaptersEditEbookCallback")
   const sequence = await Sequences.findOne({_id: chapter.sequenceId})
 
   if (!sequence) throw Error("No sequence found")
 
-  const coverImagePath = `/Users/wh/Documents/code/ForumMagnum/tmp/${sequence?._id}_cover.jpg`
+  const coverImagePath = `tmp/${sequence._id}_cover.jpg`
   const imageUrl = makeCloudinaryImageUrl(sequence.bannerImageId, {f:'jpg'})
   await downloadImageFile(imageUrl, coverImagePath)
 
   const localEbookFile = await buildLocalEbookFromSequence(sequence, coverImagePath)
-
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const apiKey = cloudinaryApiKey.get();
-  const apiSecret = cloudinaryApiSecret.get();
-
-  console.log("logging apiKey")
-  console.log(apiKey)
-  console.log(apiSecret)
 
   const result = await cloudinary.v2.uploader.upload(
     localEbookFile,
     {
       public_id: `${slugify(sequence.title)}`,
       folder: `ebooks`,
-      cloud_name: cloudName,
-      api_key: apiKey,
-      api_secret: apiSecret,
+      cloud_name: cloudinaryCloudNameSetting.get(),
+      api_key: cloudinaryApiKey.get(),
+      api_secret:  cloudinaryApiSecret.get(),
       resource_type: "raw"
     }
   );
-  console.log("end of thing")
-  console.log(result)
   console.log(result.url) 
+
+
+   
+  // see more options at https://manual.calibre-ebook.com/generated/en/ebook-convert.html
+  // var options = {
+  //   input: path.join(localEbookFile),
+  //   output: path.join(`${localEbookFile}.mobi`),
+  //   authors: '"Seth Vincent"',
+  //   pageBreaksBefore: '//h:h1',
+  //   chapter: '//h:h1',
+  //   insertBlankLine: true,
+  //   insertBlankLineSize: '1',
+  //   lineHeight: '12',
+  //   marginTop: '50',
+  //   marginRight: '50',
+  //   marginBottom: '50',
+  //   marginLeft: '50'
+  // }
+   
+  // /*
+  // * create epub file
+  // */
+  // convert(options, function (err) {
+  //   if (err) console.log(err)
+  // })
+
 }
