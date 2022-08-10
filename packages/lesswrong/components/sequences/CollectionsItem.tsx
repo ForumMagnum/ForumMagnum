@@ -2,6 +2,8 @@ import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { commentBodyStyles } from '../../themes/stylePiping';
+import { useCurrentUser } from '../common/withUser';
 import { CoreReadingCollection } from './LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -66,6 +68,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('sm')]: {
       display: "none"
     }
+  },
+  firstPost: {
+    ...theme.typography.body2,
+    fontSize: "1rem",
+    ...commentBodyStyles(theme),
+    color: theme.palette.grey[500],
   }
 });
 
@@ -74,6 +82,8 @@ export const CollectionsItem = ({classes, collection}: {
   classes: ClassesType,
 }) => {
   const { Typography, LinkCard, ContentStyles, ContentItemBody } = Components
+
+  const currentUser = useCurrentUser()
   
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
@@ -98,6 +108,9 @@ export const CollectionsItem = ({classes, collection}: {
             />}
           </div>
         </ContentStyles>
+        {<div className={classes.firstPost}>
+          First Post: <Link to={"/highlights/the-lens-that-sees-its-flaws"}>The Lens that Sees Its Flaws</Link>
+        </div>}
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
     </LinkCard>
