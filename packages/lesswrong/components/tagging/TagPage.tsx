@@ -105,6 +105,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
   },
+  subHeading: {
+    paddingLeft: 42,
+    paddingRight: 42,
+    marginTop: -2,
+    background: theme.palette.panelBackground.default,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+  },
+  subHeadingInner: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    borderTop: theme.palette.border.extraFaint,
+    borderBottom: theme.palette.border.extraFaint,
+  },
+  relatedTagLink : {
+    color: theme.palette.lwTertiary.dark
+  },
   tagHeader: {
     display: "flex",
     justifyContent: "space-between",
@@ -356,6 +373,16 @@ const TagPage = ({classes}: {
         </div>}
         welcomeBox={null}
       >
+        {(tag.parentTag || tag.subTags.length) && 
+        <div className={classNames(classes.subHeading,classes.centralColumn)}>
+          <div className={classes.subHeadingInner}>
+            {tag.parentTag && <div className={classes.relatedTag}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-topics:&nbsp;{tag.subTags.map((subTag, idx) => {
+              return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+            })}</span></div> : <></>}
+          </div>
+        </div>
+        }
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>

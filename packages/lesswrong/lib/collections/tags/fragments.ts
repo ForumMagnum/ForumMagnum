@@ -81,6 +81,14 @@ registerFragment(`
 registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     isRead
     description(version: $version) {
       _id
@@ -99,6 +107,14 @@ registerFragment(`
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     description {
       _id
       htmlHighlight
@@ -136,9 +152,18 @@ registerFragment(`
   }
 `);
 
+//, FIXME refactor parentTag and subTags to put them in fewer fragments
 registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     tableOfContents
     postsDefaultSortOrder
     contributors(limit: $contributorsLimit) {

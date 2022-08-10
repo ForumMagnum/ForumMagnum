@@ -457,6 +457,39 @@ export const schema: SchemaType<DbTag> = {
   'canVoteOnRels.$': {
     type: String,
   },
+  parentTagId: {
+    ...foreignKeyField({
+      idFieldName: "parentTagId",
+      resolverName: "parentTag",
+      collectionName: "Tags",
+      type: "Tag",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    group: formGroups.advancedOptions,
+  },
+  subTags: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (tag, args: void, context: ResolverContext) => {
+      const { currentUser, Tags } = context;
+      // TODO try and do it this way
+      // const tags = await getWithLoader(context, Tags, 'tags', { parentTagId: tag._id }, 'name');
+      const tags = await Tags.find({
+        parentTagId: tag._id
+      }, {
+        sort: {name: 1}
+      }).fetch();
+      return await accessFilterMultiple(currentUser, Tags, tags, context);
+    }
+  }),
+  'subTags.$': {
+    type: Object,
+    foreignKey: 'Tags',
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {
