@@ -436,6 +436,7 @@ interface DbPost extends DbObject {
   scoreExceeded200Date: Date
   bannedUserIds: Array<string>
   commentsLocked: boolean
+  commentsLockedToAccountsCreatedAfter: Date
   organizerIds: Array<string>
   groupId: string
   eventType: string
