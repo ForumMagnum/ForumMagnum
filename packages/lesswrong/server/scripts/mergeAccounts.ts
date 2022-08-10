@@ -32,8 +32,11 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
       collection.find({[fieldName]: sourceUserId}).count(),
       collection.find({[fieldName]: targetUserId}).count(),
     ])
+    // eslint-disable-next-line no-console
     console.log()
+    // eslint-disable-next-line no-console
     console.log(`Source user ${sourceUserId} ${collectionName} count: ${sourceUserCount}`)
+    // eslint-disable-next-line no-console
     console.log(`Target user ${targetUserId} ${collectionName} count: ${targetUserCount}`)
 
     if (!dryRun) {
@@ -51,18 +54,25 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
             })
           }
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.log("")
+          // eslint-disable-next-line no-console
           console.log("%c Error Transferring Document", doc._id, collectionName, 'color: red')
+          // eslint-disable-next-line no-console
           console.log(err)
         }
       }
       const finalTargetUserCount = await collection.find({[fieldName]: targetUserId}).count()
+      // eslint-disable-next-line no-console
       console.log(`Final target user ${targetUserId} ${collectionName} count: ${finalTargetUserCount} (compare ${sourceUserCount + targetUserCount})`)
     }
 
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log()
+    // eslint-disable-next-line no-console
     console.log(`%c Error while transferring collection ${collectionName}`, "color: red")
+    // eslint-disable-next-line no-console
     console.log(err)
   }
 }
@@ -153,7 +163,9 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       Conversations.find({participantIds: sourceUserId}).count(),
       Conversations.find({participantIds: sourceUserId}).count()
     ])
+    // eslint-disable-next-line no-console
     console.log(`conversations from source user: ${sourceConversationsCount}`)
+    // eslint-disable-next-line no-console
     console.log(`conversations from target user: ${targetConversationsCount}`)
 
     if (!dryRun) {
@@ -161,8 +173,11 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       await Conversations.rawUpdateMany({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log()
+    // eslint-disable-next-line no-console
     console.log("%c Error merging conversations", "color:red")
+    // eslint-disable-next-line no-console
     console.log(err)
   }
 
@@ -176,7 +191,9 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
     const readPostIds = readStatuses.map((status) => status.postId).filter(postId => !!postId)
     const readTagIds = readStatuses.map((status) => status.tagId).filter(tagId => !!tagId)
+    // eslint-disable-next-line no-console
     console.log(`source readPostIds count: ${readPostIds.length}`)
+    // eslint-disable-next-line no-console
     console.log(`source readTagIds count: ${readTagIds.length}`)
     if (!dryRun) {
       // Transfer readStatuses
@@ -188,8 +205,11 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       })
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log()
+    // eslint-disable-next-line no-console
     console.log("%c Error merging readStatuses", "color: red")
+    // eslint-disable-next-line no-console
     console.log(err)
   }
 
@@ -208,7 +228,9 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       Votes.find({authorIds: sourceUserId}).count(),
       Votes.find({userId: sourceUserId}).count()
     ]) 
+    // eslint-disable-next-line no-console
     console.log(`authorVotesCount: ${authorVotesCount}`)
+    // eslint-disable-next-line no-console
     console.log(`userVoteCounts: ${userVoteCounts}`)
     if (!dryRun) {
       // Transfer votes that target content from source user (authorId)
@@ -239,8 +261,11 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       })
     }    
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log()
+    // eslint-disable-next-line no-console
     console.log("%c Error merging votes", "color: red")
+    // eslint-disable-next-line no-console
     console.log(err)
   }
 
@@ -275,8 +300,11 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       })
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log()
+    // eslint-disable-next-line no-console
     console.log("%c Error changing slugs", "color: red")
+    // eslint-disable-next-line no-console
     console.log(err)
   }
 
