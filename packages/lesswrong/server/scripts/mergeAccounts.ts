@@ -52,7 +52,7 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
           }
         } catch (err) {
           console.log("")
-          console.log("Error Transferring Document", doc._id, collectionName)
+          console.log("%c Error Transferring Document", doc._id, collectionName, 'color: red')
           console.log(err)
         }
       }
@@ -62,7 +62,7 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
 
   } catch (err) {
     console.log()
-    console.log(`Error while transferring collection ${collectionName}`)
+    console.log(`%c Error while transferring collection ${collectionName}`, "color: red")
     console.log(err)
   }
 }
@@ -162,7 +162,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     }
   } catch (err) {
     console.log()
-    console.log("Error merging conversations")
+    console.log("%c Error merging conversations", "color:red")
     console.log(err)
   }
 
@@ -189,7 +189,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     }
   } catch (err) {
     console.log()
-    console.log("Error merging readStatuses")
+    console.log("%c Error merging readStatuses", "color: red")
     console.log(err)
   }
 
@@ -240,7 +240,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     }    
   } catch (err) {
     console.log()
-    console.log("Error merging votes")
+    console.log("%c Error merging votes", "color: red")
     console.log(err)
   }
 
@@ -276,7 +276,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     }
   } catch (err) {
     console.log()
-    console.log("Error changing slugs")
+    console.log("%c Error changing slugs", "color: red")
     console.log(err)
   }
 
