@@ -6,7 +6,7 @@ import { CoreReadingCollection } from './LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: 14,
+    marginBottom: 12,
   },
   linkCard: {
     display: "flex",
@@ -24,9 +24,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12
   },
   description: {
-    marginTop: 16,
+    marginTop: 14,
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    lineHeight: "1.65rem",
     '& p': {
       marginTop: '0.5em',
       marginBottom: '0.5em'
@@ -34,8 +35,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     ...theme.typography.headerStyle,
-    fontWeight: "bold",
-    textTransform: "uppercase"
+    fontSize: 20,
+    fontVariant: "small-caps"
   },
   subtitle: {
     ...theme.typography.body2,
@@ -45,12 +46,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   image: {
     width: 130,
-    objectFit: "cover"
+    objectFit: "cover",
+    [theme.breakpoints.down('xs')]: {
+      width: 96
+    }
   },
   small: {
     width: 'calc(50% - 8px)',
     [theme.breakpoints.down('sm')]: {
       width: "100%"
+    }
+  },
+  desktop: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
+  },
+  mobile: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none"
     }
   }
 });
@@ -60,6 +74,7 @@ export const CollectionsItem = ({classes, collection}: {
   classes: ClassesType,
 }) => {
   const { Typography, LinkCard, ContentStyles, ContentItemBody } = Components
+  
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
       <div className={classes.content}>
@@ -70,10 +85,18 @@ export const CollectionsItem = ({classes, collection}: {
           {collection.subtitle}
         </div>}
         <ContentStyles contentType="postHighlight" className={classes.description}>
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: collection.summary}}
-            description={`sequence ${collection.id}`}
-          />
+          <div className={classes.desktop}>
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: collection.summary}}
+              description={`sequence ${collection.id}`}
+            />
+          </div>
+          <div className={classes.mobile}>
+            {collection.mobileSummary && <ContentItemBody
+              dangerouslySetInnerHTML={{__html: collection.mobileSummary}}
+              description={`sequence ${collection.id}`}
+            />}
+          </div>
         </ContentStyles>
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}

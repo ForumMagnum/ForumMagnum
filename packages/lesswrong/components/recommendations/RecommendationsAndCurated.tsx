@@ -8,6 +8,22 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { CoreReadingCollection } from '../sequences/LWCoreReading';
+
+const sequenceHighlights: CoreReadingCollection = {
+  title: "The Sequences Highlights",
+  subtitle: "An overview of key rationality concepts",
+  id: "dummyId4",
+  userId: "nmk3nLpQE89dMRzzN",
+  summary: `<div>
+    <p>LessWrong can be kind of intimidating - there's a lot of concepts to learn. We recommend getting started with the Highlights, a collection of 50 top posts from Eliezer's Sequences.</p>
+    <p>A day or two read, covering the foundations of rationality.</p>
+    </div>`,
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces,w_auto,h_280/sequences/rdl8pwokejuqyxipg6vx",
+  color: "#757AA7",
+  big: false,
+  url: "/highlights",
+}
 
 export const curatedUrl = "/recommendations"
 
@@ -94,7 +110,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CollectionsItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -146,20 +162,24 @@ const RecommendationsAndCurated = ({
           onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
+      <AnalyticsContext pageSectionContext="frontpageCuratedCollections">
+        <CollectionsItem collection={sequenceHighlights} />
+      </AnalyticsContext>
+
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
-        <div className={classes.largeScreenLoggedOutSequences}>
+        {/* <div className={classes.largeScreenLoggedOutSequences}>
           <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
             <CuratedSequences />
           </AnalyticsContext>
         </div>
         <div className={classes.smallScreenLoggedOutSequences}>
           <ContinueReadingList continueReading={continueReading} />
-        </div>
+        </div> */}
       </div>}
 
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage && 
+          {!settings.hideFrontpage && !isLW && 
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
@@ -169,7 +189,7 @@ const RecommendationsAndCurated = ({
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
               showLoadMore={false}
-              hideLastUnread={true}
+              // hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />
