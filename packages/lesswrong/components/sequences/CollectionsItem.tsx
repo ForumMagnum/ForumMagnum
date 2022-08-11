@@ -89,11 +89,20 @@ export const CollectionsItem = ({classes, collection}: {
 
   const currentUser = useCurrentUser()
 
-  const { document: post } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-    documentId: collection.firstPostId,
-  });
+  let post: PostsList | undefined;
+  if (collection.firstPostId) {
+    ({ document: post } = useSingle({
+      collectionName: "Posts",
+      fragmentName: 'PostsList',
+      documentId: collection.firstPostId,
+    }));
+  }
+
+  // const { document: post } = useSingle({
+  //   collectionName: "Posts",
+  //   fragmentName: 'PostsList',
+  //   documentId: collection.firstPostId,
+  // });
   
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
@@ -118,11 +127,9 @@ export const CollectionsItem = ({classes, collection}: {
             />}
           </div>
         </ContentStyles>
-        {collection.firstPostId && <div className={classes.firstPost}>
-          First Post: <PostsItemTooltipWrapper post={post}>
-            <Link to={`/s/${collection.id}/${collection.firstPostId}`}>{post.title}</Link>
-          </PostsItemTooltipWrapper>
-          {collection.firstPost}
+        {post && collection.firstPostId && <div className={classes.firstPost}>
+          First Post: <PostsItemTooltipWrapper post={post}><Link to={`/s/${collection.id}/p/${collection.firstPostId}`}>{post.title}</Link></PostsItemTooltipWrapper>
+          {/* {collection.firstPost} */}
         </div>}
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
