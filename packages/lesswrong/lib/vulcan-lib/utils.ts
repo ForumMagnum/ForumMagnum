@@ -18,7 +18,7 @@ interface UtilsType {
   // In lib/helpers.ts
   getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameString, slug: string, idToAllowOldSlugsFor?: string) => Promise<boolean>
+  slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   
   // In client/vulcan-lib/apollo-client/updates.ts
   mingoBelongsToSet: any
