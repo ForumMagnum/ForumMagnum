@@ -1,4 +1,5 @@
-import { MongoCollection } from '../../lib/mongoCollection';
+import { MongoCollection } from '../mongoCollection';
+import PgCollection from '../sql/PgCollection';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
@@ -53,6 +54,7 @@ export const createCollection = <
 >(options: {
   typeName: string,
   collectionName: N,
+  postgres?: boolean,
   schema: SchemaType<T>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
@@ -64,13 +66,16 @@ export const createCollection = <
   const {
     typeName,
     collectionName,
+    postgres,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
   } = options;
 
+  const Collection = postgres ? PgCollection : MongoCollection;
+
   // initialize new Mongo collection
-  const collection = new MongoCollection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
+  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
 
   // decorate collection with options
   collection.options = options as any;
@@ -191,6 +196,10 @@ export const createCollection = <
     logger('getParameters(), final parameters:', parameters);
     return parameters;
   }) as any;
+
+  if (collection instanceof PgCollection) {
+    collection.buildPostgresTable();
+  }
 
   registerCollection(collection);
 
