@@ -1,13 +1,17 @@
 import { randomId } from './random';
+import postgres from 'postgres';
 
 let client: any = null;
 let db: any = null;
+let sql: postgres.Sql<any> | null = null;
 export const setDatabaseConnection = (_client, _db) => {
   client = _client;
   db = _db;
 }
+export const setSqlConnection = (_sql) => sql = _sql;
 export const getDatabase = () => db;
 export const getMongoClient = () => client
+export const getSqlClient = () => sql;
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {

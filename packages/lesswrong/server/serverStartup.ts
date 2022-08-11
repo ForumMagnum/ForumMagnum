@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
-import { setDatabaseConnection } from '../lib/mongoCollection';
+import postgres from 'postgres';
+import { setDatabaseConnection, setSqlConnection } from '../lib/mongoCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
@@ -52,7 +53,19 @@ async function serverStartup() {
     process.exit(1);
     return;
   }
-  
+
+  try {
+    // eslint-disable-next-line no-console
+    console.log("Connecting to postgres");
+    const sql = postgres(commandLineArguments.postgresUrl);
+    setSqlConnection(sql);
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to connect to postgres: ", err);
+    process.exit(1);
+    return;
+  }
+
   // eslint-disable-next-line no-console
   console.log("Loading settings");
   await refreshSettingsCaches();
