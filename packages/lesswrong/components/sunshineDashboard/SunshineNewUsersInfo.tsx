@@ -8,7 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import FlagIcon from '@material-ui/icons/Flag';
 import SnoozeIcon from '@material-ui/icons/Snooze';
-import HourglassTopIcon from '@material-ui/icons/HourglassTop';
+import AddAlarmIcon from '@material-ui/icons/AddAlarm';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
@@ -356,9 +356,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                     <SnoozeIcon />
                   </Button>
                 </LWTooltip>
-                <LWTooltip title="Snooze 1 (Appear in sidebar after 10 posts and/or comment)">
+                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)">
                   <Button title="Snooze 10" onClick={() => handleSnooze(10)}>
-                    <HourglassTopIcon />
+                    <AddAlarmIcon />
                   </Button>
                 </LWTooltip>
                 <LWTooltip title="Ban for 3 months">
