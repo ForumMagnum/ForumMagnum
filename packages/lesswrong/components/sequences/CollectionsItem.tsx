@@ -28,10 +28,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   closeButton: {
     padding: '.25em',
-    margin: "-1.5em -1.5em 0 0",
     minHeight: '.75em',
     minWidth: '.75em',
-    alignSelf: 'end',
+    position: 'absolute',
+    top: 0,
+    right: 0
   },
   content: {
     padding: 16,
