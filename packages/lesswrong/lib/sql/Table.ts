@@ -1,16 +1,11 @@
-import { Type, IdType } from "./Type";
+import { Type, IdType, isResolverOnly } from "./Type";
 import { expectedIndexes } from "../collectionUtils";
 
 class Table {
-  private rawName: string;
-  private name: string;
   private fields: Record<string, Type> = {};
   private indexes: string[][] = [];
 
-  constructor(name: string) {
-    this.rawName = name;
-    this.name = `"${name}"`;
-  }
+  constructor(private name: string) {}
 
   addField(name: string, type: Type) {
     this.fields[name] = type;
@@ -20,25 +15,33 @@ class Table {
     this.indexes.push(index);
   }
 
-  getName() {
-    return this.name;
-  }
-
-  toCreateSQL() {
-    let result = `CREATE TABLE IF NOT EXISTS ${this.getName()} (\n`;
-    result += `  id ${this.fields["id"].toString()} PRIMARY KEY`;
+  toCreateSQL(sql: SqlClient) {
+    let query = `CREATE TABLE IF NOT EXISTS "${this.name}" (\n`;
+    query += `  id ${this.fields["id"].toString()} PRIMARY KEY`;
     for (const field of Object.keys(this.fields).filter((field) => field !== "id")) {
-      result += `,\n  "${field}" ${this.fields[field].toString()}`;
+      query += `,\n  "${field}" ${this.fields[field].toString()}`;
     }
-    return result + "\n);";
+    query += "\n);";
+    return sql.unsafe(query);
   }
 
-  toCreateIndexSQL() {
+  toCreateIndexSQL(sql: SqlClient) {
     return this.indexes.map((index) => {
-      const name = `idx_${this.rawName}_${index.join("_")}`;
-      const fields = index.join(", ");
-      return `CREATE INDEX IF NOT EXISTS ${name} ON ${this.name} USING btree(${fields})`;
+      const name = `"idx_${this.name}_${index.join("_")}"`;
+      const fields = index.map((field) => `"${field}"`).join(", ");
+      const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
+      return sql.unsafe(query);
     });
+  }
+
+  toInsertSQL<T extends {}>(sql: SqlClient, data: T, ignoreConflicts = false) {
+    const inserter = {};
+    for (const field in this.fields) {
+      inserter[field] = data[field] ?? null;
+    }
+    inserter["id"] = data["_id"];
+    return sql`INSERT INTO ${sql(this.name)} ${sql(inserter)}
+      ${ignoreConflicts ? sql`ON CONFLICT DO NOTHING` : sql``}`;
   }
 
   static fromCollection<T extends DbObject>(collection: CollectionBase<T>) {
@@ -50,7 +53,7 @@ class Table {
         table.addField("id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
-        if (!fieldSchema.resolveAs) {
+        if (!isResolverOnly(fieldSchema)) {
           const indexSchema = schema[`${field}.$`];
           table.addField(field, Type.fromSchema(fieldSchema, indexSchema));
         }

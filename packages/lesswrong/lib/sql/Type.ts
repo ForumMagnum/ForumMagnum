@@ -2,6 +2,9 @@ import { getCollection } from "../vulcan-lib";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 
+export const isResolverOnly = <T extends DbObject>(schema: CollectionFieldSpecification<T>) =>
+  schema.resolveAs && !schema.resolveAs.addOriginalField;
+
 export abstract class Type {
   abstract toString() : string;
 
@@ -9,8 +12,13 @@ export abstract class Type {
     schema: CollectionFieldSpecification<T>,
     indexSchema?: CollectionFieldSpecification<T>,
   ) {
-    if (schema.resolveAs) {
+    if (isResolverOnly(schema)) {
       throw new Error("Can't generate type for resolver-only field");
+    }
+
+    if (schema.defaultValue !== undefined) {
+      const {defaultValue, ...rest} = schema;
+      return new DefaultValueType(Type.fromSchema(rest, indexSchema), defaultValue);
     }
 
     if (!schema.optional) {
@@ -110,5 +118,15 @@ export class NotNullType extends Type {
 
   toString() {
     return `${this.subtype.toString()} NOT NULL`;
+  }
+}
+
+export class DefaultValueType extends Type {
+  constructor(private subtype: Type, private value: any) {
+    super();
+  }
+
+  toString() {
+    return `${this.subtype.toString()} DEFAULT ${this.value}`;
   }
 }

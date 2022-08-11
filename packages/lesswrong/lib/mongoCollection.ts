@@ -1,9 +1,13 @@
 import { randomId } from './random';
 import postgres from 'postgres';
 
+declare global {
+  type SqlClient = postgres.Sql<any>;
+}
+
 let client: any = null;
 let db: any = null;
-let sql: postgres.Sql<any> | null = null;
+let sql: SqlClient | null = null;
 export const setDatabaseConnection = (_client, _db) => {
   client = _client;
   db = _db;
