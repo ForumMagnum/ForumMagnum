@@ -15,6 +15,9 @@ import moment from 'moment';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
+    '&:hover $closeButton': {
+      color: theme.palette.grey[500],
+    }
   },
   linkCard: {
     display: "flex",
@@ -27,10 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   closeButton: {
-    padding: '.25em',
+    padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
     position: 'absolute',
+    color: theme.palette.grey[300],
     top: 0,
     right: 0
   },

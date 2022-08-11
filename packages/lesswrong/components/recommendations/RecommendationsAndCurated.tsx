@@ -17,7 +17,7 @@ const sequenceHighlights: CoreReadingCollection = {
   summary: `<div>How can we think better on purpose? Why should we think better on purpose?<br/>
     Read up on the core concepts that underly the LessWrong community.
     </div>`,
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660104605/collection-cover-image_zx9h8s.jpg",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660183285/collection-cover-image-03_pca1jo.jpg",
   color: "#757AA7",
   big: false,
   url: "/highlights",
