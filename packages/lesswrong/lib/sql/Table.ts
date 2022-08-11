@@ -1,4 +1,4 @@
-import { Vulcan, getCollection } from "../vulcan-lib";
+import { getCollection } from "../vulcan-lib";
 import { Type, IdType } from "./Type";
 
 class Table {
@@ -21,7 +21,7 @@ class Table {
     let result = `CREATE TABLE IF NOT EXISTS ${this.getName()} (\n`;
     result += `  id ${this.fields["id"].toString()} PRIMARY KEY`;
     for (const field of Object.keys(this.fields).filter((field) => field !== "id")) {
-      result += `,\n  ${field} ${this.fields[field].toString()}`;
+      result += `,\n  "${field}" ${this.fields[field].toString()}`;
     }
     return result + "\n);";
   }
@@ -51,7 +51,4 @@ class Table {
   }
 }
 
-Vulcan.collectionNameToTable = (name: CollectionNameString) => {
-  const table = Table.fromCollectionName(name);
-  console.log(table.toCreateSQL());
-};
+export default Table;
