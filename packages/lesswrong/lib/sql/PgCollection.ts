@@ -12,6 +12,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     this.pgTable = Table.fromCollection(this as unknown as CollectionBase<T>);
   }
 
+  private getSqlClient() {
+    const sql = getSqlClient();
+    if (!sql) {
+      throw new Error("Sql client is not initialized");
+    }
+    return sql;
+  }
+
   getTable = () => {
     throw new Error("PgCollection: getTable not yet implemented");
   }
@@ -44,8 +52,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     throw new Error("PgCollection: rawRemove not yet implemented");
   }
 
-  _ensureIndex = async (fieldOrSpec, options)=>{
-    throw new Error("PgCollection: _ensureIndex not yet implemented");
+  _ensureIndex = async (fieldOrSpec, options) => {
+    const index = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
+    if (!this.pgTable.hasIndex(index)) {
+      this.pgTable.addIndex(index);
+      const sql = this.getSqlClient();
+      const query = this.pgTable.buildCreateIndexSQL(sql, index);
+      await query;
+    }
   }
 
   aggregate = (pipeline, options) => {

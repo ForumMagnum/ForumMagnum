@@ -15,6 +15,20 @@ class Table {
     this.indexes.push(index);
   }
 
+  hasIndex(index: string[]) {
+    for (const ind of this.indexes) {
+      if (index.length !== ind.length) {
+        continue;
+      }
+      for (let i = 0; i < ind.length; ++i) {
+        if (index[i] !== ind[i]) {
+          break;
+        }
+      }
+    }
+    return false;
+  }
+
   toCreateSQL(sql: SqlClient) {
     let query = `CREATE TABLE IF NOT EXISTS "${this.name}" (\n`;
     query += `  id ${this.fields["id"].toString()} PRIMARY KEY`;
@@ -25,13 +39,15 @@ class Table {
     return sql.unsafe(query);
   }
 
+  buildCreateIndexSQL(sql: SqlClient, index: string[]) {
+    const name = `"idx_${this.name}_${index.join("_")}"`;
+    const fields = index.map((field) => `"${field}"`).join(", ");
+    const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
+    return sql.unsafe(query);
+  }
+
   toCreateIndexSQL(sql: SqlClient) {
-    return this.indexes.map((index) => {
-      const name = `"idx_${this.name}_${index.join("_")}"`;
-      const fields = index.map((field) => `"${field}"`).join(", ");
-      const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
-      return sql.unsafe(query);
-    });
+    return this.indexes.map((index) => this.buildCreateIndexSQL(sql, index));
   }
 
   toInsertSQL<T extends {}>(sql: SqlClient, data: T, ignoreConflicts = false) {
