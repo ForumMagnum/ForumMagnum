@@ -201,8 +201,8 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters?.flatMap(({posts, title, contents}) =>
-          <>
+        {sequence.chapters?.flatMap(({posts, title, contents}, index) =>
+          <React.Fragment key={index}>
             {showChapters && contents?.htmlHighlight && (
               <ContentStyles contentType="postHighlight">
                 <ContentItemBody dangerouslySetInnerHTML={{__html: title ?? contents.htmlHighlight}} />
@@ -215,7 +215,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
                 sequenceId={sequence._id}
               />
             ))}
-          </>
+          </React.Fragment>
         )}
       </div>
     </div>
