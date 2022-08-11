@@ -116,6 +116,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
     cookieName,
     "true", {
     expires: moment().add(30, 'days').toDate(),
+    path: "/"
   });
 
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
@@ -148,11 +149,11 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
         </div>}
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
-      <Tooltip title="Hide this for the next month">
+      {showCloseIcon && <Tooltip title="Hide this for the next month">
         <Button className={classes.closeButton} onClick={hideBanner}>
           <CloseIcon className={classes.closeIcon} />
         </Button>
-      </Tooltip>
+      </Tooltip>}
     </LinkCard>
   </div>
 }

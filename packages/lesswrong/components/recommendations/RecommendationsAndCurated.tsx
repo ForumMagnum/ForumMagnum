@@ -166,7 +166,7 @@ const RecommendationsAndCurated = ({
         /> }
 
       <AnalyticsContext pageSectionContext="frontpageCuratedCollections">
-        <CollectionsItem collection={sequenceHighlights} />
+        <CollectionsItem collection={sequenceHighlights} showCloseIcon/>
       </AnalyticsContext>
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
