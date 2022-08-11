@@ -23,7 +23,7 @@ const sequenceHighlights: CoreReadingCollection = {
   url: "/highlights",
   firstPost: {
     postId: "46qnWRSR7L2eyNbMA",
-    postUrl: "/highlights/the-lens-that-sees-its-flaws",
+    postUrl: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
     postTitle: "The Lens That Sees Its Flaws"
   }
 }
