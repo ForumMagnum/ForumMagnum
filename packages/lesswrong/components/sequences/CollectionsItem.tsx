@@ -6,6 +6,11 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { CoreReadingCollection } from './LWCoreReading';
+import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import CloseIcon from '@material-ui/icons/Close';
+import { useCookies } from 'react-cookie';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,6 +25,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     }
+  },
+  closeButton: {
+    padding: '.25em',
+    margin: "-1.5em -1.5em 0 0",
+    minHeight: '.75em',
+    minWidth: '.75em',
+    alignSelf: 'end',
   },
   content: {
     padding: 16,
@@ -81,31 +93,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const CollectionsItem = ({classes, collection}: {
+const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
+
+export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
+  showCloseIcon?: boolean,
   classes: ClassesType,
 }) => {
   const { Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle } = Components
 
   const { firstPost } = collection;
-
-  const currentUser = useCurrentUser()
-
-  // let post: PostsList | undefined;
-  // if (firstPost?.postId) {
-  //   ({ document: post } = useSingle({
-  //     collectionName: "Posts",
-  //     fragmentName: 'PostsList',
-  //     documentId: firstPost.postId,
-  //   }));
-  // }
-
-  // const { document: post } = useSingle({
-  //   collectionName: "Posts",
-  //   fragmentName: 'PostsList',
-  //   documentId: collection.firstPostId,
-  // });
   
+  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`;
+  const [cookies, setCookie] = useCookies([cookieName]);
+
+  if (cookies[cookieName]) {
+    return null;
+  }
+
+  const hideBanner = () => setCookie(
+    cookieName,
+    "true", {
+    expires: moment().add(30, 'days').toDate(),
+  });
+
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
       <div className={classes.content}>
@@ -131,12 +142,16 @@ export const CollectionsItem = ({classes, collection}: {
         </ContentStyles>
         {firstPost && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost.postId}/>} tooltip={false}>
-            {/* We really shouldn't be using the id field for the sequence id - do that properly later */}
             <Link to={firstPost.postUrl}>{firstPost.postTitle}</Link>
           </LWTooltip>
         </div>}
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
+      <Tooltip title="Hide this for the next month">
+        <Button className={classes.closeButton} onClick={hideBanner}>
+          <CloseIcon className={classes.closeIcon} />
+        </Button>
+      </Tooltip>
     </LinkCard>
   </div>
 }
