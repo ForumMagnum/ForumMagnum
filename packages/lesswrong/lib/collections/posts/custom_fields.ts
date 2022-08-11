@@ -293,6 +293,23 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
   },
 
+  fmCrosspost: {
+    type: new SimpleSchema({
+      isCrosspost: Boolean,
+      hostedHere: { type: Boolean, optional: true },
+      foreignPostId: { type: String, optional: true },
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, 'admins'],
+    insertableBy: ['members'],
+    control: "FMCrosspostControl",
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue({
+      isCrosspost: false,
+    }),
+  },
+
   canonicalSequenceId: {
     ...foreignKeyField({
       idFieldName: "canonicalSequenceId",
