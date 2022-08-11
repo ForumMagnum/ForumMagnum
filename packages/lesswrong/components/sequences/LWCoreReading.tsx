@@ -26,7 +26,11 @@ export interface CoreReadingCollection {
   color: string,
   big?: boolean,
   url: string,
-  firstPostId?: string
+  firstPost?: {
+    postId: string,
+    postTitle: string,
+    postUrl: string
+  }
 }
 
 const coreReadingCollections: Array<CoreReadingCollection> = 

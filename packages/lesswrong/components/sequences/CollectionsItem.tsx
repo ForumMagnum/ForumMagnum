@@ -85,18 +85,20 @@ export const CollectionsItem = ({classes, collection}: {
   collection: CoreReadingCollection,
   classes: ClassesType,
 }) => {
-  const { Typography, LinkCard, ContentStyles, ContentItemBody, PostsItemTooltipWrapper } = Components
+  const { Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle } = Components
+
+  const { firstPost } = collection;
 
   const currentUser = useCurrentUser()
 
-  let post: PostsList | undefined;
-  if (collection.firstPostId) {
-    ({ document: post } = useSingle({
-      collectionName: "Posts",
-      fragmentName: 'PostsList',
-      documentId: collection.firstPostId,
-    }));
-  }
+  // let post: PostsList | undefined;
+  // if (firstPost?.postId) {
+  //   ({ document: post } = useSingle({
+  //     collectionName: "Posts",
+  //     fragmentName: 'PostsList',
+  //     documentId: firstPost.postId,
+  //   }));
+  // }
 
   // const { document: post } = useSingle({
   //   collectionName: "Posts",
@@ -127,9 +129,11 @@ export const CollectionsItem = ({classes, collection}: {
             />}
           </div>
         </ContentStyles>
-        {post && collection.firstPostId && <div className={classes.firstPost}>
-          First Post: <PostsItemTooltipWrapper post={post}><Link to={`/s/${collection.id}/p/${collection.firstPostId}`}>{post.title}</Link></PostsItemTooltipWrapper>
-          {/* {collection.firstPost} */}
+        {firstPost && <div className={classes.firstPost}>
+          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost.postId}/>} tooltip={false}>
+            {/* We really shouldn't be using the id field for the sequence id - do that properly later */}
+            <Link to={firstPost.postUrl}>{firstPost.postTitle}</Link>
+          </LWTooltip>
         </div>}
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}

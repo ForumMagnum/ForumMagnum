@@ -21,7 +21,11 @@ const sequenceHighlights: CoreReadingCollection = {
   color: "#757AA7",
   big: false,
   url: "/highlights",
-  firstPostId: "46qnWRSR7L2eyNbMA"
+  firstPost: {
+    postId: "46qnWRSR7L2eyNbMA",
+    postUrl: "/highlights/the-lens-that-sees-its-flaws",
+    postTitle: "The Lens That Sees Its Flaws"
+  }
 }
 
 export const curatedUrl = "/recommendations"
