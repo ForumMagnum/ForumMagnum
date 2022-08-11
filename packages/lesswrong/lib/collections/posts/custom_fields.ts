@@ -682,6 +682,15 @@ addFieldsDict(Posts, {
     optional: true,
     control: "checkbox",
   },
+  commentsLockedToAccountsCreatedAfter: {
+    type: Date,
+    control: 'datetime',
+    viewableBy: ['guests'],
+    group: formGroups.moderationGroup,
+    insertableBy: (currentUser: DbUser|null) => userCanCommentLock(currentUser, null),
+    editableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
+    optional: true,
+  },
 
   // Event specific fields:
   /////////////////////////////////////////////////////////////////////////////
