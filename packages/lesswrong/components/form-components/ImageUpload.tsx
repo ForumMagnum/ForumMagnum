@@ -1,5 +1,5 @@
 /* global cloudinary */
-import React, { Component, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
@@ -7,11 +7,14 @@ import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
-import forumThemeExport from '../../themes/forumTheme';
+import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { userHasDefaultProfilePhotos } from '../../lib/betas';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
 
@@ -23,11 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   button: {
-    background: "rgba(0,0,0, 0.5)",
+    background: theme.palette.buttons.imageUpload.background,
     "&:hover": {
-      background: "rgba(0,0,0,.35)"
+      background: theme.palette.buttons.imageUpload.hoverBackground,
     },
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
   },
   imageIcon: {
     fontSize: 18,
@@ -37,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 10
   },
   removeButton: {
-    color: "rgba(0,0,0, 0.5)",
+    color: theme.palette.icon.dim,
     marginLeft: 10
   }
 });
@@ -55,6 +58,13 @@ const cloudinaryArgsByImageType = {
     croppingAspectRatio: 1.91,
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
+  },
+  profileImageId: {
+    minImageHeight: 170,
+    minImageWidth: 170,
+    croppingAspectRatio: 1,
+    croppingDefaultSelectionRatio: 1,
+    uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
   },
   socialPreviewImageId: {
     minImageHeight: 400,
@@ -78,7 +88,11 @@ const formPreviewSizeByImageType = {
   },
   bannerImageId: {
     width: "auto",
-    height: 380
+    height: 280
+  },
+  profileImageId: {
+    width: 90,
+    height: 90
   },
   socialPreviewImageId: {
     width: 153,
@@ -98,6 +112,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
   label: string,
   classes: ClassesType
 }) => {
+  const theme = useTheme();
 
   const setImageInfo = (error, result) => {
     if (error) {
@@ -132,9 +147,9 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
       croppingShowDimensions: true,
       styles: {
         palette: {
-            tabIcon: forumThemeExport.palette.primary.main,
-            link: forumThemeExport.palette.primary.main,
-            action: forumThemeExport.palette.primary.main,
+            tabIcon: theme.palette.primary.main,
+            link: theme.palette.primary.main,
+            action: theme.palette.primary.main,
             textDark: "#212121",
         },
         fonts: {
@@ -176,7 +191,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
         <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
       </Helmet>
       {imageId &&
-        <Components.CloudinaryImage
+        <Components.CloudinaryImage2
           publicId={imageId}
           {...formPreviewSize}
         /> }
@@ -192,6 +207,18 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
         onClick={() => openDialog({
           componentName: "ImageUploadDefaultsDialog",
           componentProps: {onSelect: chooseDefaultImg}
+        })}
+        className={classes.chooseButton}
+      >
+        Choose from ours
+      </Button>}
+      {userHasDefaultProfilePhotos(useCurrentUser()) && (name === 'profileImageId') && <Button
+        variant="outlined"
+        onClick={() => openDialog({
+          componentName: "ImageUploadDefaultsDialog",
+          componentProps: {
+            onSelect: chooseDefaultImg,
+            type: "Profile"}
         })}
         className={classes.chooseButton}
       >

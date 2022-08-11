@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,14 +38,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 // described in https://www.sarasoueidan.com/blog/nested-links/, we make the
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
-const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
+const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable}: {
   children?: React.ReactNode,
   to: string,
   tooltip?: any,
   className?: string,
   classes: ClassesType,
-  onClick?: any
+  onClick?: any,
+  clickable?: boolean
 }) => {
+  const { LWTooltip } = Components
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>
@@ -57,11 +58,13 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   );
   
   if (tooltip) {
-    return <Tooltip title={tooltip} placement="bottom-start">
+    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false} clickable={clickable} flip={false}>
       {card}
-    </Tooltip>;
+    </LWTooltip>;
   } else {
-    return card;
+    return <div className={classNames(className, classes.root)}>
+      {card}
+      </div>
   }
 }
 

@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...eventName(theme)
   },
   eventNameLink: {
-    color: "rgba(0,0,0,0.55) !important",
+    color: `${theme.palette.text.dim55} !important`,
   },
   eventTime: {
     ...eventTime(theme)
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .75,
   },
   trailingIcons: {
-    color: theme.palette.grey[700],
+    color: theme.palette.icon.dim700,
     width: 48,
     marginLeft: 8,
     display: "flex",
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...iconStyling,
   },
   fbIcon: {
-    color: theme.palette.grey[700],
+    color: theme.palette.icon.dim700,
     height: 12,
     width: 12,
     opacity: .5,

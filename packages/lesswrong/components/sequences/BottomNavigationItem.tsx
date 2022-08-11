@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "&:hover, &:visited, &:focus": {
-      color: "rgba(0,0,0, 0.5)",
+      color: theme.palette.link.dim,
     },
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   meta: {
-    color: "rgba(0,0,0,.5)",
+    color: theme.palette.text.dim,
     fontSize: 12,
   },
   
@@ -82,7 +82,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
           <div className={classes.postTitle}>{post.title}</div>
           <div className={classes.meta}>
             <span className={classes.metaEntry}>{commentCount} comments</span>
-            <span className={classes.metaEntry}>{post.baseScore} points</span>
+            <span className={classes.metaEntry}>{post.baseScore} karma</span>
           </div>
         </div>
       </Link>

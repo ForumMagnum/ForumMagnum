@@ -24,13 +24,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     backgroundPosition: 'center',
     background: theme.palette.primary.main,
     textAlign: 'center',
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
+    overflow: 'visible',
     borderRadius: 0,
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: theme.palette.boxShadow.moreFocused,
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   recommendedText: {
@@ -41,6 +42,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontStyle: 'italic',
     fontSize: 14,
     opacity: 0.7
+  },
+  addToCal: {
+    ...theme.typography.commentStyle,
+    position: 'absolute',
+    top: 20,
+    right: 25,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
+  },
+  addToCalIcon: {
+    fill: theme.palette.icon.inverted,
   },
   content: {
     position: 'relative',
@@ -57,9 +70,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'center',
     height: '100%'
   },
-  spinner: {
+  spinner: { //UNUSED
     "& div": {
-      backgroundColor: 'white',
+      backgroundColor: theme.palette.panelBackground.default,
     }
   },
   row: {
@@ -72,7 +85,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     ...theme.typography.headline,
     fontSize: 36,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     marginTop: 0,
     marginBottom: 10,
     [theme.breakpoints.down('sm')]: {
@@ -88,16 +101,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginBottom: 0
     }
   },
-  addToCal: {
-    ...theme.typography.commentStyle,
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
-  },
-
 }))
 
 
@@ -114,7 +117,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { Loading } = Components
+  const { Loading, AddToCalendarButton } = Components
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
@@ -158,6 +161,9 @@ const HighlightedEventCard = ({event, loading, classes}: {
   return (
     <Card className={classes.root} style={cardBackground}>
       <div className={classes.recommendedText}>Recommended for you</div>
+      <div className={classes.addToCal}>
+        <AddToCalendarButton post={event} iconClassName={classes.addToCalIcon} />
+      </div>
       <div className={classes.content}>
         <div className={classes.text}>
           <div className={classes.detail}>

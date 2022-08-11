@@ -5,6 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../instanceSettings';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -191,6 +192,9 @@ const schema: SchemaType<DbUser> = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
+    form: {
+      disabled: forumTypeSetting.get() === 'EAForum'
+    },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
   // The user's profile URL slug // TODO: change this when displayName changes
@@ -211,9 +215,17 @@ const schema: SchemaType<DbUser> = {
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
+        const slugLower = data.slug.toLowerCase();
+        const slugIsUsed = await Utils.slugIsUsed("Users", slugLower)
         if (slugIsUsed) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
+          throw Error(`Specified slug is already used: ${slugLower}`)
+        }
+        return slugLower;
+      }
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
+          return slugForNewName;
         }
       }
     }
@@ -302,6 +314,15 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
+  },
+  
+  theme: {
+    type: String,
+    optional: true, 
+    canCreate: ['members'],
+    canUpdate: ownsOrIsAdmin,
+    canRead: ownsOrIsAdmin,
+    hidden: true,
   },
   
   lastUsedTimezone: {

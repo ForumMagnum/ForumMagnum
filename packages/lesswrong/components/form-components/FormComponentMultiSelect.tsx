@@ -10,12 +10,17 @@ import ListItemText from '@material-ui/core/ListItemText';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .MuiOutlinedInput-input': {
+      whiteSpace: 'pre-wrap',
+      lineHeight: '1.8rem',
       paddingRight: 30
     },
+  },
+  placeholder: {
+    color: theme.palette.grey[600]
   }
 })
 
-const FormComponentMultiSelect = ({ value, classes, placeholder, options, path }, context) => {
+const FormComponentMultiSelect = ({ value, classes, placeholder, separator, options, path, updateCurrentValues }) => {
   
   return <Select
     className={classes.root}
@@ -24,7 +29,7 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, options, path }
     onChange={e => {
       // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
       // @ts-ignore
-      context.updateCurrentValues({
+      updateCurrentValues({
         [path]: e.target.value
       })
     }}
@@ -35,8 +40,9 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, options, path }
         return <em className={classes.placeholder}>{placeholder}</em>
       }
       // if any options are selected, display them separated by commas
-      return selected.map(s => options.find(option => option.value === s)?.label).join(', ')
-    }}>
+      return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
+    }}
+    {...!options.length ? {disabled: true} : {}}>
       {options.map(option => {
         return <MenuItem key={option.value} value={option.value}>
           <Checkbox checked={value.some(v => v === option.value)} />
@@ -45,10 +51,6 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, options, path }
       })}
   </Select>
 }
-
-(FormComponentMultiSelect as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect, {styles});
 

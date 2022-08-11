@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -14,6 +15,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
+import ExtensionIcon from '@material-ui/icons/Extension';
 
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -21,6 +23,7 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { userCanPost } from '../../lib/collections/posts';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -39,6 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
+    color: theme.palette.header.text,
   },
   notAMember: {
     marginLeft: 5,
@@ -56,20 +60,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
-  color?: string,
+const UsersMenu = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
-  const { LWPopper, LWTooltip } = Components
-  
+  const { LWPopper, LWTooltip, ThemePickerMenu } = Components
+
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
-        <span className={classes.userButtonContents} style={{ color: color }}>
+        <span className={classes.userButtonContents}>
           LOG OUT
         </span>
       </Button>
@@ -79,13 +82,11 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
-  
-  
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
           <Button classes={{root: classes.userButtonRoot}}>
-            <span className={classes.userButtonContents} style={{ color: color }}>
+            <span className={classes.userButtonContents}>
               {userGetDisplayName(currentUser)}
               {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
                 <div>Your account has been deactivated:</div>
@@ -111,18 +112,18 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 ev.preventDefault()
               }
             }}>
-              <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+             {userCanPost(currentUser) && <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question
-              </MenuItem>
-              <Link to={`/newPost`}>
+              </MenuItem>}
+              {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
-              </Link>
+              </Link>}
             </div>
-            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
+            {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                New Shortform
             </MenuItem> }
             {showNewButtons && <Divider/>}
-            {showNewButtons &&
+            {showNewButtons && userCanPost(currentUser) && 
               <Link to={`/newPost?eventForm=true`}>
                 <MenuItem>New Event</MenuItem>
               </Link>
@@ -144,12 +145,20 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 User Profile
               </MenuItem>
             </Link>}
+            {userHasThemePicker(currentUser) && <ThemePickerMenu>
+              <MenuItem>
+                <ListItemIcon>
+                  <ExtensionIcon className={classes.icon}/>
+                </ListItemIcon>
+                  Theme
+              </MenuItem>
+            </ThemePickerMenu>}
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Edit Account
+                Account Settings
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>

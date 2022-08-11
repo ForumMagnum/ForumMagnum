@@ -14,7 +14,7 @@ import LWEvents from '../../lib/collections/lwevents/collection';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
-import forumTheme from '../../themes/forumTheme';
+import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
@@ -161,7 +161,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
+    <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
@@ -279,7 +279,7 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
-    return sendEmailSmtp(renderedEmail); // From meteor's 'email' package
+    return sendEmailSmtp(renderedEmail);
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line

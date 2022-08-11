@@ -1,13 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { FilterSettings, FilterMode } from '../../lib/filterSettings';
+import { FilterSettings, FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
-import { commentBodyStyles } from '../../themes/stylePiping';
+import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import Card from '@material-ui/core/Card';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -24,11 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
-    border: `solid 1px rgba(0,0,0,.25)`,
-    backgroundColor: "white"
+    border: theme.palette.border.slightlyIntense,
+    backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.tag.addTagButtonBackground,
     paddingLeft: 9,
     paddingTop: 5,
     paddingBottom: 5,
@@ -40,45 +39,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   personalTooltip: {
     ...filteringStyles(theme),
-    ...commentBodyStyles(theme)
   }
 });
-
-const lwafPersonalBlogpostInfo = {
-  name: "Personal Blog",
-  tooltip: <div>
-    <p><b>Personal Blogposts</b> are posts that don't fit LessWrong's Frontpage Guidelines. They get less visibility by default. The frontpage guidelines are:</p>
-    <ul>
-      <li><em>Timelessness</em>. Will people still care about this in 5 years?</li>
-      <li><em>Avoid political topics</em>. They're important to discuss sometimes, but we try to avoid it on LessWrong.</li>
-      <li><em>General Appeal</em>. Is this a niche post that only a small fraction of users will care about?</li>
-    </ul>
-  </div>
-}
-
-const personalBlogpostInfo: ForumOptions<{name: string, tooltip: JSX.Element}> = {
-  LessWrong: lwafPersonalBlogpostInfo,
-  AlignmentForum: lwafPersonalBlogpostInfo,
-  EAForum: {
-    name: 'Personal',
-    tooltip: <div>
-      <div>
-        By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively. Personal posts get to have looser standards of relevance, and may include topics that could lead to more emotive or heated discussion (e.g. politics), which are generally excluded from Frontpage.
-      </div>
-    </div>
-  },
-  default: {
-    name: 'Personal',
-    tooltip: <div>
-      <div>
-        By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively. Personal posts get to have looser standards of relevance, and may include topics that could lead to more emotive or heated discussion (e.g. politics), which are generally excluded from Frontpage.
-      </div>
-    </div>
-  },
-}
-
-const personalBlogpostName = forumSelect(personalBlogpostInfo).name
-const personalBlogpostTooltip = forumSelect(personalBlogpostInfo).tooltip
 
 /**
  * Adjust the weighting the frontpage gives to posts with the given tags
@@ -99,13 +61,20 @@ const TagFilterSettings = ({
   removeTagFilter: (tagId: string) => void,
   classes: ClassesType,
 }) => {
-  const { AddTagButton, FilterMode, Loading, LWTooltip } = Components
+  const { AddTagButton, FilterMode, Loading, LWTooltip, ContentStyles } = Components
   const currentUser = useCurrentUser()
 
-  const personalBlogpostCard = <Card><div className={classes.personalTooltip}>
-    <p><em>Click to show personal blogposts</em></p>
-    <div>{personalBlogpostTooltip}</div>
-  </div></Card>
+  const {
+    name: personalBlogpostName,
+    tooltip: personalBlogpostTooltip,
+  } = usePersonalBlogpostInfo();
+
+  const personalBlogpostCard = <Card>
+    <ContentStyles contentType="comment" className={classes.personalTooltip}>
+      <p><em>Click to show personal blogposts</em></p>
+      <div>{personalBlogpostTooltip}</div>
+    </ContentStyles>
+  </Card>
 
   const showPersonalBlogpostsButton = (currentUser && (filterSettings.personalBlog === "Hidden"))
 
@@ -118,7 +87,9 @@ const TagFilterSettings = ({
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
-          const newMode = mode === tagSettings.filterMode ? 0 : mode
+          // If user has clicked on, eg, "Hidden" after it's already selected, return it to default
+          // ... but don't apply that to manually input filter settings
+          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(currentUser, mode) ? 0 : mode
           setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
         }}
         onRemove={() => {

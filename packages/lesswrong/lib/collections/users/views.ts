@@ -112,6 +112,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
       needsReview: true,
+      banned: viewFieldNullOrMissing,
       reviewedByUserId: null,
       $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
     },

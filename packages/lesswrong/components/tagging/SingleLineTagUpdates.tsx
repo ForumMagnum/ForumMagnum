@@ -12,8 +12,8 @@ export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     borderRadius: 3,
     marginBottom: 4,
   },
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   subheading: {
     fontSize: "1.17rem",
     fontFamily: theme.typography.fontFamily,
-    color: "#424242",
+    color: theme.palette.link.grey800,
     display: "inline-block",
     marginLeft: 8,
     marginBottom: 8,
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: POSTED_AT_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
+      color: theme.palette.text.slightlyIntense2,
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
-    color: "rgba(0, 0, 0, .4)",
+    color: theme.palette.link.dim3,
     margin: "-8px 0 8px 8px",
   },
   usernames: {

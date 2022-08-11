@@ -11,15 +11,18 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
-import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMessages } from '../common/withMessages';
+import { userCanPost } from '../../lib/collections/posts';
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -33,6 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
+      paddingTop: 10,
       margin: 0,
     }
   },
@@ -40,19 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "3rem",
     ...theme.typography.display3,
     ...theme.typography.postStyle,
-    marginTop: 0
-  },
-  mapLocation: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 4,
-    ...theme.typography.commentStyle,
-    fontSize: 13,
-    color: theme.palette.grey[800],
-    marginBottom: 20
-  },
-  locationIcon: {
-    fontSize: 14,
+    marginTop: 0,
   },
   userInfo: {
     display: "flex",
@@ -71,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     '&$specificalz': {
       fontSize: 18,
-      color: 'rgba(0,0,0,0.5)',
+      color: theme.palette.icon.dim,
       marginRight: 4
     }
   },
@@ -80,9 +72,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    marginLeft: theme.spacing.unit/2,
-    marginRight: theme.spacing.unit,
-    ...postBodyStyles(theme)
   },
   primaryColor: {
     color: theme.palette.primary.light
@@ -95,16 +84,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   specificalz: {},
   userMetaInfo: {
     display: "inline-flex"
-  }
+  },
+  reportUserSection: {
+    marginTop: 60
+  },
+  reportUserBtn: {
+    ...theme.typography.commentStyle,
+    background: 'none',
+    color: theme.palette.primary.main,
+    fontSize: 13,
+    padding: 0,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    }
+  },
 })
-
-const sortings: Partial<Record<string,string>> = {
-  magic: "Magic (New & Upvoted)",
-  recentComments: "Recent Comments",
-  new: "New",
-  old: "Old",
-  top: "Top"
-}
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
@@ -118,13 +112,22 @@ const UsersProfileFn = ({terms, slug, classes}: {
 }) => {
   const [showSettings, setShowSettings] = useState(false);
 
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  })
+
   const currentUser = useCurrentUser();
+  
   const {loading, results} = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
+  const user = getUserFromResults(results)
+  
+  const { query } = useLocation()
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -134,10 +137,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
   }
 
+  const { flash } = useMessages()
+  const reportUser = async () => {
+    if (!user) return
+    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
+    flash({messageString: "Your report has been sent to the moderators"})
+  }
+
   const renderMeta = () => {
-    const document = getUserFromResults(results)
-    if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
+    if (!user) return null
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = user;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -193,11 +202,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
   }
 
-  const { query } = useLocation();
-
   const render = () => {
-    const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      Typography, ContentStyles } = Components
+
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -228,7 +238,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
 
-
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
@@ -249,20 +258,21 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
 
+    const showMessageButton = currentUser?._id != user._id
+
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+          image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>{username}</div>
-            {user.mapLocation && <div className={classes.mapLocation}>
-              <LocationIcon className={classes.locationIcon} />
-              {user.mapLocation.formatted_address}
-            </div>}
+            <div className={classes.usernameTitle}>
+              {username}
+            </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
@@ -279,8 +289,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
-                <a>Message</a>
+              { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
+                <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
                 document={user}
@@ -288,11 +298,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Edit Account
+                Account Settings
               </Link>}
             </Typography>
 
-            { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+            {user.htmlBio && <ContentStyles contentType="post">
+              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} nofollow={(user.karma || 0) < nofollowKarmaThreshold.get()}/>
+            </ContentStyles>}
           </SingleColumnSection>
 
           <SingleColumnSection>
@@ -312,11 +324,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
             <SectionTitle title="My Drafts">
-              <Link to={"/newPost"}>
+              {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
                 <SectionButton>
                   <DescriptionIcon /> New Blog Post
                 </SectionButton>
-              </Link>
+              </Link>}
             </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
@@ -340,7 +352,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
@@ -349,16 +361,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
               currentIncludeEvents={currentIncludeEvents}
-              sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
+              {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
             (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
                 view: 'userActiveGroups',
-                userId: user?._id,
+                userId: user._id,
                 limit: 300
               }} heading="Organizer of" showNoResults={false} />
           }
@@ -388,6 +400,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
+
+          {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
+            <SingleColumnSection className={classes.reportUserSection}>
+              <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
+            </SingleColumnSection>
+          }
         </AnalyticsContext>
       </div>
     )

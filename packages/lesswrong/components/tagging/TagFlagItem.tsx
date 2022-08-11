@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
-import { commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 
@@ -16,22 +15,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     margin: 4,
     borderRadius: 5,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: theme.palette.panelBackground.tenPercent,
     display: 'inline-block'
   },
   black: {
-    color: 'white',
-    backgroundColor: 'rgba(0,0,0,0.8)'
+    color: theme.palette.text.invertedBackgroundText,
+    backgroundColor: theme.palette.greyAlpha(0.8),
   },
   white: {
-    backgroundColor: 'white',
-    border: '1px solid rgba(0,0,0,0.4)',
-    color: 'rgba(0,0,0,0.6)'
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.slightlyIntense3,
+    color: theme.palette.text.dim60,
   },
   hoverCard: {
     maxWidth: 350,
     padding: theme.spacing.unit,
-    ...commentBodyStyles(theme)
   }
 })
 
@@ -44,7 +42,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {
-  const { LWPopper, ContentItemBody } = Components;
+  const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
@@ -99,11 +97,13 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
     >
         {(["allPages", "userPages"].includes(itemType) || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
           <Card className={classes.hoverCard}>
-            <ContentItemBody
-              className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
-              description={tagFlagDescription[itemType]}
-            />
+            <ContentStyles contentType="comment">
+              <ContentItemBody
+                className={classes.highlight}
+                dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
+                description={tagFlagDescription[itemType]}
+              />
+            </ContentStyles>
           </Card>
         </AnalyticsContext>}
     </LWPopper>

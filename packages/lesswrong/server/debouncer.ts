@@ -257,19 +257,41 @@ export const dispatchPendingEvents = async () => {
   } while (eventToHandle);
 };
 
-// Given a Date, dispatch any pending debounced events that would fire on or
-// before then. If no date is given, dispatch any pending events, regardless of
-// their timer. You would do this interactively if you're testing and don't
-// want to wait.
-export const forcePendingEvents = async (upToDate=null) => {
+/**
+ * Given a Date, dispatch any pending debounced events that would fire on or
+ * before then. If no date is given, dispatch any pending events, regardless of
+ * their timer. You would do this interactively if you're testing and don't
+ * want to wait.
+ */
+export const forcePendingEvents = async (
+  {upToDate, delay}:
+  {
+    upToDate?: string,
+    /** Delay between pending events in ms */
+    delay?: number
+  } = {}
+) => {
   let eventToHandle = null;
   const af = forumTypeSetting.get() === 'AlignmentForum'
+  let countHandled = 0;
+  // Default time condition is nothing
+  let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
+  if (upToDate) {
+    const upToDateTime = new Date(upToDate).getTime()
+    timeCondition = {
+      $or: [
+        { delayTime: { $lt: upToDateTime } },
+        { upperBoundTime: { $lt: upToDateTime } },
+      ]
+    }
+  }
   
   do {
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
         af: af,
+        ...timeCondition,
       },
       { $set: { dispatched: true } },
     );
@@ -277,10 +299,17 @@ export const forcePendingEvents = async (upToDate=null) => {
     
     if (eventToHandle) {
       await dispatchEvent(eventToHandle);
+      countHandled++;
     }
     
+    if (delay) {
+      await sleepWithVariance(delay)
+    }
     // Keep checking for more events to handle so long as one was handled.
   } while (eventToHandle);
+
+  // eslint-disable-next-line no-console
+  console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
 
 Vulcan.forcePendingEvents = forcePendingEvents;
@@ -294,4 +323,24 @@ if (!testServerSetting.get()) {
       void dispatchPendingEvents();
     }
   });
+}
+
+function sleepWithVariance(ms: number)
+{
+  const variance = Math.sqrt(ms)
+  const randomizedSleepTimeMs = Math.round(normalDistribution(ms, variance))
+  return new Promise(resolve => setTimeout(resolve, randomizedSleepTimeMs));
+}
+
+// https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve
+function normalDistribution(mean: number, variance: number) {
+  let x=0, y=0
+  while (x === 0) {
+    x = Math.random(); //Converting [0,1) to (0,1)
+  }
+  while (y === 0) {
+    y = Math.random();
+  }
+  const initialNormal = Math.sqrt( -2.0 * Math.log( x ) ) * Math.cos( 2.0 * Math.PI * y )
+  return (initialNormal * variance) + mean
 }

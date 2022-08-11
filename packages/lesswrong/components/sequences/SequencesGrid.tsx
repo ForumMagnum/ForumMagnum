@@ -19,9 +19,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: "rgba(0,0,0,0.87)",
+      color: theme.palette.link.unmarked,
     }
   },
+  noResults: {
+    marginLeft: theme.spacing.unit,
+    fontStyle: "italic",
+    color: theme.palette.text.dim4,
+  }
 });
 
 const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {

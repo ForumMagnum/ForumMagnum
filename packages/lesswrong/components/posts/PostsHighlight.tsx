@@ -1,14 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, {useState, useCallback} from 'react';
-import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    ...postHighlightStyles(theme),
-  },
   highlightContinue: {
     marginTop:theme.spacing.unit*2
   }
@@ -35,7 +32,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
     ev.preventDefault();
   }, []);
   
-  return <div className={classes.root}>
+  return <Components.ContentStyles contentType="postHighlight">
     <Components.LinkPostMessage post={post} />
     <Components.ContentItemTruncated
       maxLengthWords={maxLengthWords}
@@ -54,9 +51,10 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
       </div>}
       dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
       description={`post ${post._id}`}
+      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />
     {loading && expanded && <Components.Loading/>}
-  </div>
+  </Components.ContentStyles>
 };
 
 const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});

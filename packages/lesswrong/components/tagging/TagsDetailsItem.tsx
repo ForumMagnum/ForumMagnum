@@ -10,12 +10,12 @@ import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    borderBottom: "solid 1px rgba(0,0,0,.1)"
+    borderBottom: theme.palette.border.faint,
   },
   description: {
     maxWidth: 580,

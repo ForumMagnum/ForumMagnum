@@ -16,9 +16,9 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   paddingLeft: 6,
   paddingRight: 6,
   marginBottom: 8,
-  backgroundColor: theme.palette.grey[200],
-  border: `solid 1px ${theme.palette.grey[200]}`,
-  color: 'rgba(0,0,0,.9)',
+  backgroundColor: theme.palette.tag.background,
+  border: theme.palette.tag.border,
+  color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer"
@@ -31,7 +31,7 @@ const newTagStyle = (theme: ThemeType): JssStyles => ({
   paddingRight: 7,
   marginBottom: 8,
   borderRadius: 4,
-  boxShadow: '1px 2px 5px rgba(0,0,0,.2)',
+  boxShadow: theme.palette.tag.boxShadow,
   color: theme.palette.primary.main,
   fontSize: 15
 })
@@ -57,13 +57,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     )
   },
   core: {
-    backgroundColor: "white",
-    border: "solid 1px rgba(0,0,0,.12)",
-    color: theme.palette.grey[600]
+    backgroundColor: theme.palette.tag.hollowTagBackground,
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.text.dim3,
   },
   score:  {
     paddingLeft: 5,
-    color: 'rgba(0,0,0,0.7)',
+    color: theme.palette.text.slightlyDim2,
   },
   name: {
     display: 'inline-block',
@@ -75,14 +75,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   topTag: {
     background: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     border: 'none',
     padding: '6px 12px',
     fontWeight: 600,
     '& svg': {
       height: 22,
       width: 20,
-      fill: '#fff',
+      fill: theme.palette.icon.inverted,
       padding: '1px 0px'
     },
     marginBottom: 16,
@@ -127,7 +127,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
-      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
+      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />
         </div>

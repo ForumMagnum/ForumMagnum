@@ -35,7 +35,9 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    
+    coauthorStatuses
+    hasCoauthorPermission
+
     commentCount
     voteCount
     baseScore
@@ -50,6 +52,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    commentsLockedToAccountsCreatedAfter
 
     # questions
     question
@@ -163,6 +166,10 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle
@@ -366,10 +373,7 @@ registerFragment(`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
-      _id
-      title
-      draft
-      userId
+      ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
       _id
@@ -377,7 +381,7 @@ registerFragment(`
       slug
       commentCount
       baseScore
-      sequence(sequenceId: $sequenceId) {
+      sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
@@ -387,7 +391,7 @@ registerFragment(`
       slug
       commentCount
       baseScore
-      sequence(sequenceId: $sequenceId) {
+      sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
     }
@@ -407,7 +411,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
-    coauthorUserIds
+    coauthorStatuses
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -468,6 +472,10 @@ registerFragment(`
     
     user {
       ...UsersMinimumInfo
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle

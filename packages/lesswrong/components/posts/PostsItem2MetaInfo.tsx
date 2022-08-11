@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metaInfo: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     fontSize: "1.1rem",
     textAlign: "center",
     flexShrink: 0,
@@ -33,4 +33,3 @@ declare global {
     PostsItem2MetaInfo: typeof PostsItem2MetaInfoComponent
   }
 }
-

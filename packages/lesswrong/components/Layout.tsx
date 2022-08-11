@@ -19,9 +19,10 @@ import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import { globalStyles } from '../lib/globalStyles';
+import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -33,11 +34,11 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 // like to include
 const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
-    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
+    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Codex', 'bestoflesswrong',
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
-  'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary'],
+  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -52,8 +53,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
+      paddingLeft: 8,
+      paddingRight: 8,
     },
   },
   gridActivated: {
@@ -81,11 +82,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'sunshine'
   },
   whiteBackground: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
   },
   '@global': {
     ...globalStyles(theme),
-    p: pBodyStyle,
+    p: pBodyStyle(theme),
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
@@ -100,6 +101,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
+    ...(theme.palette.intercom ? {
+      '.intercom-launcher': {
+        backgroundColor: theme.palette.intercom.buttonBackground
+      }
+    } : null),
   },
   searchResultsArea: {
     position: "absolute",
@@ -234,6 +240,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
+    
+    const showSunshineSidebar = (currentRoute?.sunshineSidebar && userCanDo(currentUser, 'posts.moderate.all')) || currentUser?.groups?.includes('alignmentForumAdmins')
         
     const shouldUseGridLayout = standaloneNavigation
 
@@ -265,7 +273,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -316,10 +324,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <Footer />
                 </div>
-                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
-                    <SunshineSidebar/>
-                  </div>
-                  }
+                {showSunshineSidebar && <div className={classes.sunshine}>
+                  <Components.SunshineSidebar/>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>

@@ -19,6 +19,7 @@ import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+import classNames from 'classnames';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
@@ -96,14 +97,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   hr: {
     height: 0,
     borderTop: "none",
-    borderBottom: "1px solid #ccc"
+    borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
   },
   editIcon: {
     width: 20,
     color: theme.palette.grey[400]
   },
   notes: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
     borderRadius: 2,
     paddingLeft: 8,
     paddingRight: 8,
@@ -112,12 +113,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     marginBottom: 8
   },
-  defaultMessage: {
+  defaultMessage: { //UNUSED
     maxWidth: 500,
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     padding:12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.5)"
-  }
+    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
+  },
+  sortButton: {
+    marginLeft: 6,
+    cursor: "pointer"
+  },
+  sortSelected: {
+    color: theme.palette.grey[900]
+  },
+  bio: {
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
+  website: {
+    color: theme.palette.primary.main,
+  },
+  info: {
+    '& > * + *': {
+      marginTop: 8,
+    },
+  },
 })
 const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   user: SunshineUsersList,
@@ -127,6 +148,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const currentUser = useCurrentUser();
 
   const [notes, setNotes] = useState(user.sunshineNotes || "")
+  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
@@ -248,11 +270,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     limit: 50
   });
 
+  const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
+  const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
 
-  const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
-
-  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults } = Components
+  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -288,20 +309,23 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
-            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
-            {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-            <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-            <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-            <div className={classes.notes}>
-              <Input 
-                value={notes} 
-                fullWidth
-                onChange={e => setNotes(e.target.value)}
-                onClick={e => handleClick()}
-                disableUnderline 
-                placeholder="Notes for other moderators"
-                multiline
-              />
+            <div className={classes.info}>
+              {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
+              {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
+              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+              <div className={classes.notes}>
+                <Input 
+                  value={notes} 
+                  fullWidth
+                  onChange={e => setNotes(e.target.value)}
+                  onClick={e => handleClick()}
+                  disableUnderline 
+                  placeholder="Notes for other moderators"
+                  multiline
+                />
+              </div>
             </div>
             <div className={classes.row}>
               <div className={classes.row}>
@@ -360,6 +384,14 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                   { user.bigDownvoteCount || 0 }
                 </span>
               </LWTooltip>
+            </div>
+            <div>
+              Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
+                karma
+              </span>
+              <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
+                postedAt
+              </span>
             </div>
             <div>
               <LWTooltip title="Post count">

@@ -6,11 +6,15 @@ import CreateIcon from '@material-ui/icons/Create';
 import PeopleIcon from '@material-ui/icons/People';
 import LaptopIcon from '@material-ui/icons/LaptopMac';
 import ViewListIcon from '@material-ui/icons/ViewList';
+import ClockIcon from '@material-ui/icons/AccessTime';
+import LocationIcon from '@material-ui/icons/LocationOn'
+import MailIcon from '@material-ui/icons/MailOutline'
 import LocalActivityIcon from '@material-ui/icons/LocalActivity';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
@@ -18,10 +22,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing.unit*2,
     ...theme.typography.postStyle,
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
     [theme.breakpoints.down('xs')]: {
       display: 'block',
     },
+  },
+  iconRow: {
+    display: 'flex',
+    columnGap: 8,
+  },
+  iconWrapper: {
+    paddingTop: forumTypeSetting.get() === 'EAForum' ? 3 : 2
+  },
+  icon: {
+    fontSize: 16,
+  },
+  location: {
+    color: theme.palette.primary.main
   },
   onlineEventLocation: {
     display: 'block',
@@ -35,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: 'flex',
     alignItems: 'center',
-    color: '#c0a688',
+    color: theme.palette.text.eventType,
     fontSize: 12,
     letterSpacing: 0.2,
     marginTop: 12
@@ -88,7 +105,7 @@ const PostsPageEventData = ({classes, post}: {
   
   // event location - for online events, attempt to show the meeting link
   let locationNode = location && <div>
-    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}>
+    <a className={classes.location} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}>
       {location}
     </a>
   </div>
@@ -187,9 +204,19 @@ const PostsPageEventData = ({classes, post}: {
   
   return <Components.Typography variant="body2" className={classes.metadata}>
       <div>
-        <Components.EventTime post={post} dense={false} />
-        { locationNode }
-        { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
+        <div className={classes.iconRow}>
+          <div className={classes.iconWrapper}><ClockIcon className={classes.icon} /></div>
+          <Components.EventTime post={post} dense={false} />
+        </div>
+        <div className={classes.iconRow}>
+          <div className={classes.iconWrapper}><LocationIcon className={classes.icon} /></div>
+          {locationNode}
+        </div>
+        {contactInfo && <div className={classes.iconRow}>
+          <div className={classes.iconWrapper}><MailIcon className={classes.icon} /></div>
+          <div className={classes.eventContact}>{contactInfo}</div>
+        </div>}
+        
         { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType], eventType) }
         {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
           {eventCTA}

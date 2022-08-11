@@ -29,8 +29,28 @@ registerFragment(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    bio
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionDisplay
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
     frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
@@ -39,6 +59,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
+    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -61,6 +82,10 @@ registerFragment(`
     paymentEmail
     paymentInfo
     goodHeartTokens
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
   }
 `);
 
@@ -89,7 +114,9 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    bio
+    biography {
+      ...RevisionEdit
+    }
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -128,10 +155,8 @@ registerFragment(`
     recommendationSettings
 
     bookmarkedPostsMetadata
-    bookmarkedPosts {
-      ...PostsList
-    }
 
+    hiddenPostsMetadata
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -153,6 +178,15 @@ registerFragment(`
     petrovLaunchCodeDate
     lastUsedTimezone
     ...SharedUserBooleans
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarkedPosts on User {
+    _id
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 
@@ -202,8 +236,8 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
-    bio
     htmlBio
+    website
     createdAt
     email
     commentCount
@@ -258,6 +292,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -365,5 +402,36 @@ registerFragment(`
     ...UsersMinimumInfo
     reviewVoteCount
     email
+  }
+`)
+
+registerFragment(`
+  fragment UsersProfileEdit on User {
+    _id
+    slug
+    jobTitle
+    organization
+    careerStage
+    profileImageId
+    biography {
+      ...RevisionEdit
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
+    mapLocation
+    website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
   }
 `)

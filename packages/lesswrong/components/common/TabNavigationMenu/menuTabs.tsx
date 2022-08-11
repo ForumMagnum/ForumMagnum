@@ -86,6 +86,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      icon: allPostsIcon,
+      tooltip: 'See all posts, filtered and sorted however you like.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'concepts',
       title: 'Concepts',
       mobileTitle: 'Concepts',
@@ -105,6 +113,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     // next 3 are subItems
+    }, {
+      id: 'highlights',
+      title: 'Sequence Highlights',
+      link: '/highlights',
+      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong community (50 posts, approx. 7 hour read)",
+      subItem: true,
     }, {
       id: 'r-az',
       title: 'Rationality: A-Z',
@@ -149,36 +163,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'eventsList',
       customComponentName: "EventsList",
     }, {
-      id: 'allPosts',
-      title: 'All Posts',
-      link: '/allPosts',
-      icon: allPostsIcon,
-      tooltip: 'See all posts, filtered and sorted however you like.',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
     }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
-    }, {
-      id: 'questions',
-      title: 'Open Questions',
-      mobileTitle: 'Questions',
-      link: '/questions',
-      tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
-      </div>,
-      subItem: true
-    }, {
-      id: 'contact',
-      title: 'Contact Us',
-      link: '/contact',
-      subItem: true,
     }, {
       id: 'about',
       title: 'About',
@@ -191,11 +181,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
-    }, {
-      id: 'donate',
-      title: "Donate",
-      link: '/donate',
-      subItem: true
     }
   ],
   AlignmentForum: [
@@ -266,11 +251,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
-      title: taggingNamePluralCapitalSetting.get(),
+      title: taggingNamePluralCapitalSetting.get() + " Wiki",
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
-      tooltip: `EA concepts directory that anyone can edit. Each ${taggingNameSetting.get()} also has a list of posts that have been tagged with it.`,
+      tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
+      ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

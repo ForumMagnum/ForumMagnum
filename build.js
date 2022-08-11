@@ -46,11 +46,11 @@ if (opts.mongoUrl) {
 
 const clientBundleBanner = `/*
  * LessWrong 2.0 (client JS bundle)
- * Copyright (c) 2020 the LessWrong development team. See http://github.com/LessWrong2/Lesswrong2
+ * Copyright (c) 2022 the LessWrong development team. See https://github.com/ForumMagnum/ForumMagnum
  * for source and license details.
  *
  * Includes CkEditor.
- * Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * Copyright (c) 2003-2022, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see https://github.com/ckeditor/ckeditor5/blob/master/LICENSE.md
  */`
 
@@ -149,6 +149,11 @@ async function asyncSleep(durationMs) {
   });
 }
 
+function getClientBundleTimestamp() {
+  const stats = fs.statSync('./build/client/js/bundle.js');
+  return stats.mtime.toISOString();
+}
+
 function generateBuildId() {
   return crypto.randomBytes(12).toString('base64');
 }
@@ -168,7 +173,7 @@ async function initiateRefresh() {
     await waitForServerReady();
     console.log("Notifying connected browser windows to refresh");
     for (let connection of openWebsocketConnections) {
-      connection.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
+      connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
     }
     refreshIsPending = false;
   }
@@ -189,7 +194,7 @@ function startWebsocketServer() {
         openWebsocketConnections.splice(connectionIndex, 1);
       }
     });
-    ws.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
+    ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
   });
 }
 

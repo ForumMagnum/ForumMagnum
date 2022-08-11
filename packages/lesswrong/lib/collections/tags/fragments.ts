@@ -3,23 +3,25 @@ import { registerFragment } from '../../vulcan-lib';
 registerFragment(`
   fragment TagBasicInfo on Tag {
     _id
+    userId
     name
     slug
     core
     postCount
     adminOnly
+    canEditUserIds
     suggestedAsFilter
     needsReview
     descriptionTruncationCount
     createdAt
     wikiOnly
+    deleted
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
-    deleted
     oldSlugs
     isRead
     defaultOrder
@@ -45,6 +47,13 @@ registerFragment(`
       plaintextDescription
       version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithTocFragment on Tag {
+    ...TagFragment
+    descriptionHtmlWithToc
   }
 `);
 
@@ -131,6 +140,7 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -149,6 +159,7 @@ registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -183,6 +194,7 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
     tagFlagsIds
+    postsDefaultSortOrder
     description {
       ...RevisionEdit
     }

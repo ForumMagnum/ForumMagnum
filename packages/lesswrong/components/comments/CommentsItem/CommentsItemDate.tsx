@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "& a:hover, & a:active": {
       "& $icon": {
-        color: "rgba(0,0,0,0.3) !important",
+        color: `${theme.palette.icon.dim5} !important`,
       },
     },
     
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   answerDate: {},
   date: {
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
   },
   postTitle: {
     marginRight: 5,
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "0.9rem",
     transform: "rotate(-45deg)",
     verticalAlign: "middle",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.icon.dim,
     margin: "0 2px",
     position: "relative",
     top: -2
