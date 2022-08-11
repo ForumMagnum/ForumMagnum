@@ -153,14 +153,6 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
-  const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    await Users.rawUpdateOne({_id:author._id}, {$set:{needsReview: true}})
-  }
-  return document
-}
-
 getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
   if (!document.draft) {
     triggerReviewIfNeeded(document.userId)
@@ -170,7 +162,7 @@ getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
 
 getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
 
-  await newDocumentMaybeTriggerReview(newPost)
+  await triggerReviewIfNeeded(newPost.userId)
   
   if (newPost.draft) return 
   

@@ -255,10 +255,9 @@ registerFragment(`
     signUpReCaptchaRating
     
     needsReview
-    sunshineSnoozed
     sunshineNotes
     sunshineFlagged
-    nextReviewContentCount
+    snoozedUntilContentCount
   }
 `);
 

@@ -8,6 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import FlagIcon from '@material-ui/icons/Flag';
 import SnoozeIcon from '@material-ui/icons/Snooze';
+import AddAlarmIcon from '@material-ui/icons/AddAlarm';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
@@ -140,6 +141,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
 })
+
+export interface UserContentCountPartial {
+  postCount?: number,
+  commentCount?: number
+}
+
+export function getCurrentContentCount(user: UserContentCountPartial) {
+  const postCount = user.postCount || 0
+  const commentCount = user.commentCount || 0
+  return postCount + commentCount;
+}
+
+export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: any) {
+  return getCurrentContentCount(user) + contentCount;
+}
+
 const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
@@ -177,9 +194,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           sunshineFlagged: false,
           reviewedByUserId: currentUser!._id,
           reviewedAt: new Date(),
-          sunshineSnoozed: false,
           needsReview: false,
-          sunshineNotes: notes
+          sunshineNotes: notes,
+          snoozedUntilContentCount: null
         }
       })
     }
@@ -192,13 +209,12 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
-        sunshineSnoozed: true,
         sunshineNotes: notes,
-        nextReviewContentCount: user.postCount + user.commentCount + contentCount
+        snoozedUntilContentCount: getNewSnoozeUntilContentCount(user, contentCount)
       }
     })
 
-    setNotes( signatureWithNote("Snooze")+notes )
+    setNotes( signatureWithNote(`Snooze ${contentCount}`)+notes )
   }
 
   const banMonths = 3
@@ -314,6 +330,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
               <div className={classes.notes}>
                 <Input 
@@ -334,9 +351,14 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                     <DoneIcon/>
                   </Button>
                 </LWTooltip>
-                <LWTooltip title="Snooze (approve all posts)">
-                  <Button title="Snooze" onClick={handleSnooze}>
+                <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)">
+                  <Button title="Snooze" onClick={() => handleSnooze(1)}>
                     <SnoozeIcon />
+                  </Button>
+                </LWTooltip>
+                <LWTooltip title="Snooze 1 (Appear in sidebar after 10 posts and/or comment)">
+                  <Button title="Snooze 10" onClick={() => handleSnooze(10)}>
+                    <AddAlarmIcon />
                   </Button>
                 </LWTooltip>
                 <LWTooltip title="Ban for 3 months">
@@ -436,3 +458,5 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
+
+
