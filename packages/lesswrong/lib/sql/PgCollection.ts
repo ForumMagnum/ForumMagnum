@@ -1,5 +1,6 @@
 import { MongoCollection, getSqlClient } from "../mongoCollection";
 import Table from "./Table";
+import Select from "./Select";
 
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
   pgTable: Table;
@@ -29,7 +30,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
-    throw new Error("PgCollection: findOne not yet implemented");
+    const select = new Select(this.pgTable, selector);
+    const result = await select.toSQL(this.getSqlClient());
+    return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {

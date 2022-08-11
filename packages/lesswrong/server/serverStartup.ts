@@ -1,6 +1,8 @@
 import { MongoClient } from 'mongodb';
 import postgres from 'postgres';
 import { setDatabaseConnection, setSqlConnection } from '../lib/mongoCollection';
+import PgCollection from '../lib/sql/PgCollection';
+import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
@@ -56,7 +58,9 @@ async function serverStartup() {
 
   try {
     // eslint-disable-next-line no-console
-    console.log("Connecting to postgres");
+    console.log("Connecting to postgres", {
+      debug: console.log,
+    });
     const sql = postgres(commandLineArguments.postgresUrl);
     setSqlConnection(sql);
   } catch(err) {
@@ -64,6 +68,14 @@ async function serverStartup() {
     console.error("Failed to connect to postgres: ", err);
     process.exit(1);
     return;
+  }
+
+  // eslint-disable-next-line no-console
+  console.log("Building postgres tables");
+  for (const collection of Collections) {
+    if (collection instanceof PgCollection) {
+      collection.buildPostgresTable();
+    }
   }
 
   // eslint-disable-next-line no-console

@@ -197,10 +197,6 @@ export const createCollection = <
     return parameters;
   }) as any;
 
-  if (collection instanceof PgCollection) {
-    collection.buildPostgresTable();
-  }
-
   registerCollection(collection);
 
   return collection;

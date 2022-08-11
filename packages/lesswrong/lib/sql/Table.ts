@@ -7,8 +7,16 @@ class Table {
 
   constructor(private name: string) {}
 
+  getName() {
+    return this.name;
+  }
+
   addField(name: string, type: Type) {
     this.fields[name] = type;
+  }
+
+  getField(name: string) {
+    return this.fields[name];
   }
 
   addIndex(index: string[]) {
