@@ -42,6 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "no-wrap",
     display: "inline-block",
     fontSize: theme.typography.body2.fontSize,
+    "@media print": { display: "none" },
   },
   wordCount: {
     display: 'inline-block',
@@ -49,10 +50,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
+    "@media print": { display: "none" },
   },
   actions: {
     display: 'inline-block',
     color: theme.palette.icon.dim600,
+    "@media print": { display: "none" },
   },
   authors: {
     display: 'inline-block',

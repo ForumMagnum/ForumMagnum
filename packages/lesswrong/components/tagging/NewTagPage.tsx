@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
-import { tagMinimumKarmaPermissions, Tags } from '../../lib/collections/tags/collection';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const NewTagPage = () => {
@@ -22,7 +22,7 @@ const NewTagPage = () => {
     );
   }
   
-  if (currentUser.karma < tagMinimumKarmaPermissions.new) {
+  if (!tagUserHasSufficientKarma(currentUser, "new")) {
     return (
       <SingleColumnSection>
         <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>

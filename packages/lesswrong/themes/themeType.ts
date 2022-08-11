@@ -1,6 +1,8 @@
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
+import type { ThemeOptions } from './themeNames';
+import type { ForumTypeString } from '../lib/instanceSettings';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
@@ -344,6 +346,8 @@ declare global {
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
   type ThemeType = {
+    forumType: ForumTypeString,
+    
     breakpoints: {
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,
