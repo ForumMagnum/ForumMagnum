@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -74,6 +75,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1rem",
     ...commentBodyStyles(theme),
     color: theme.palette.grey[500],
+    '& a': {
+      color: theme.palette.primary.main
+    }
   }
 });
 
@@ -81,9 +85,15 @@ export const CollectionsItem = ({classes, collection}: {
   collection: CoreReadingCollection,
   classes: ClassesType,
 }) => {
-  const { Typography, LinkCard, ContentStyles, ContentItemBody } = Components
+  const { Typography, LinkCard, ContentStyles, ContentItemBody, PostsItemTooltipWrapper } = Components
 
   const currentUser = useCurrentUser()
+
+  const { document: post } = useSingle({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    documentId: collection.firstPostId,
+  });
   
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
@@ -108,8 +118,11 @@ export const CollectionsItem = ({classes, collection}: {
             />}
           </div>
         </ContentStyles>
-        {<div className={classes.firstPost}>
-          First Post: <Link to={"/highlights/the-lens-that-sees-its-flaws"}>The Lens that Sees Its Flaws</Link>
+        {collection.firstPostId && <div className={classes.firstPost}>
+          First Post: <PostsItemTooltipWrapper post={post}>
+            <Link to={`/s/${collection.id}/${collection.firstPostId}`}>{post.title}</Link>
+          </PostsItemTooltipWrapper>
+          {collection.firstPost}
         </div>}
       </div>
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}

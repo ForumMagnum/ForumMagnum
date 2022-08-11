@@ -12,7 +12,7 @@ import { CoreReadingCollection } from '../sequences/LWCoreReading';
 
 const sequenceHighlights: CoreReadingCollection = {
   title: "The Sequences Highlights",
-  id: "dummyId4",
+  id: "NBDFAKt3GbFwnwzQF",
   userId: "nmk3nLpQE89dMRzzN",
   summary: `<div>How can we think better on purpose? Why should we think better on purpose?<br/>
     Read up on the core concepts that underly the LessWrong community.
@@ -20,7 +20,8 @@ const sequenceHighlights: CoreReadingCollection = {
   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660104605/collection-cover-image_zx9h8s.jpg",
   color: "#757AA7",
   big: false,
-  url: "/highlights"
+  url: "/highlights",
+  firstPostId: "46qnWRSR7L2eyNbMA"
 }
 
 export const curatedUrl = "/recommendations"
