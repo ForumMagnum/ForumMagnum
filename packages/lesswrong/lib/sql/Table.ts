@@ -1,16 +1,23 @@
-import { getCollection } from "../vulcan-lib";
 import { Type, IdType } from "./Type";
+import { expectedIndexes } from "../collectionUtils";
 
 class Table {
+  private rawName: string;
   private name: string;
   private fields: Record<string, Type> = {};
+  private indexes: string[][] = [];
 
   constructor(name: string) {
+    this.rawName = name;
     this.name = `"${name}"`;
   }
 
   addField(name: string, type: Type) {
     this.fields[name] = type;
+  }
+
+  addIndex(index: string[]) {
+    this.indexes.push(index);
   }
 
   getName() {
@@ -26,13 +33,16 @@ class Table {
     return result + "\n);";
   }
 
-  static fromCollectionName(collectionName: CollectionNameString) {
-    const collection = getCollection(collectionName);
-    if (!collection) {
-      throw new Error(`Invalid collection: ${collectionName}`);
-    }
+  toCreateIndexSQL() {
+    return this.indexes.map((index) => {
+      const name = `idx_${this.rawName}_${index.join("_")}`;
+      const fields = index.join(", ");
+      return `CREATE INDEX IF NOT EXISTS ${name} ON ${this.name} USING btree(${fields})`;
+    });
+  }
 
-    const table = new Table(collectionName);
+  static fromCollection<T extends DbObject>(collection: CollectionBase<T>) {
+    const table = new Table(collection.collectionName);
 
     const schema = collection._schemaFields;
     for (const field of Object.keys(schema)) {
@@ -45,6 +55,11 @@ class Table {
           table.addField(field, Type.fromSchema(fieldSchema, indexSchema));
         }
       }
+    }
+
+    const indexes = expectedIndexes[collection.collectionName] ?? [];
+    for (const index of indexes) {
+      table.addIndex(Object.keys(index.key));
     }
 
     return table;
