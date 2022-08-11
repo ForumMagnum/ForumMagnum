@@ -52,11 +52,10 @@ Utils.getUnusedSlugByCollectionName = async function (collectionName: Collection
   return await Utils.getUnusedSlug(collection, slug, useOldSlugs, documentId)
 };
 
-Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string, idToAllowOldSlugsFor?: string): Promise<boolean> => {
+Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): Promise<boolean> => {
   const collection = getCollection(collectionName)
   const existingUserWithSlug = await collection.findOne({$or: [
-    {slug: slug},
-    {$and: [{ oldSlugs: slug }, { _id: { $ne: idToAllowOldSlugsFor }}]}
+    {slug: slug}, {oldSlugs: slug}
   ]});
   return !!existingUserWithSlug
 }

@@ -1435,7 +1435,7 @@ addFieldsDict(Users, {
       // The next three lines are copy-pasted from slug.onUpdate
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (!await Utils.slugIsUsed("Users", slugForNewName, oldDocument._id)) {
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
           // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
           return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
         }
