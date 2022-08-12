@@ -100,7 +100,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
       </div>
       <div className={classes.checkboxContainer}>
         <Components.LWTooltip
-          title='If this box is left unchecked then these users will be asked if they want to be co-authors when the post is published'
+          title='If this box is left unchecked then these users will be asked if they want to be co-authors. If you click Publish with pending co-authors, publishing will be delayed for up to 24 hours to allow for co-authors to give permission.'
           placement='left'
         >
           <Checkbox className={classes.checkbox} checked={hasPermission} onChange={toggleHasPermission} />

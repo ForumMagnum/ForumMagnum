@@ -40,7 +40,7 @@ export type NotificationTypeSettings = {
   channel: "none"|"onsite"|"email"|"both",
   batchingFrequency: "realtime"|"daily"|"weekly",
   timeOfDayGMT: number,
-  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
+  dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
 };
 
 export const defaultNotificationTypeSettings: NotificationTypeSettings = {

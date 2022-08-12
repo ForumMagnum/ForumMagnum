@@ -22,6 +22,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -239,6 +240,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
+    
+    const showSunshineSidebar = (currentRoute?.sunshineSidebar && userCanDo(currentUser, 'posts.moderate.all')) || currentUser?.groups?.includes('alignmentForumAdmins')
         
     const shouldUseGridLayout = standaloneNavigation
 
@@ -321,7 +324,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <Footer />
                 </div>
-                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
+                {showSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>
                 </div>}
               </div>
