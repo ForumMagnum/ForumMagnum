@@ -1,10 +1,8 @@
 import classNames from 'classnames';
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { useCurrentUser } from '../common/withUser';
 import { CoreReadingCollection } from './LWCoreReading';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';

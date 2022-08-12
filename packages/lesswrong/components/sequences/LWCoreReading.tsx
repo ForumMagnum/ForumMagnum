@@ -52,7 +52,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       url: '/rationality',
     },
     {
-      title: "The Sequences: Highlights",
+      title: "The Sequences Highlights",
       id: "dummyId4",
       userId: "nmk3nLpQE89dMRzzN",
       summary: `<div>
