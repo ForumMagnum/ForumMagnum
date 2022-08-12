@@ -6,13 +6,14 @@ import { useMessages } from '../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reportUserSection: {
-    marginTop: 60
+    marginTop: 60,
+    textAlign: "right",
   },
   reportUserBtn: {
     ...theme.typography.commentStyle,
+    ...theme.typography.body2,
     background: 'none',
     color: theme.palette.primary.main,
-    fontSize: 13,
     padding: 0,
     '&:hover': {
       color: theme.palette.primary.dark,
