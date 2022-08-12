@@ -36,6 +36,7 @@ interface DbBook extends DbObject {
   sequenceIds: Array<string>
   showChapters: boolean
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface ChaptersCollection extends CollectionBase<DbChapter, "Chapters"> {
@@ -50,6 +51,7 @@ interface DbChapter extends DbObject {
   sequenceId: string
   postIds: Array<string>
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface CollectionsCollection extends CollectionBase<DbCollection, "Collections"> {
@@ -65,6 +67,7 @@ interface DbCollection extends DbObject {
   firstPageLink: string
   hideStartReadingButton: boolean
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface CommentsCollection extends CollectionBase<DbComment, "Comments"> {
@@ -114,6 +117,7 @@ interface DbComment extends DbObject {
   hideAuthor: boolean
   moderatorHat: boolean
   contents: EditableFieldContents
+  contents_latest: string
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -208,6 +212,7 @@ interface DbGardenCode extends DbObject {
   deleted: boolean
   afOnly: boolean
   contents: EditableFieldContents
+  contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
@@ -260,6 +265,7 @@ interface DbLocalgroup extends DbObject {
   inactive: boolean
   deleted: boolean
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface MessagesCollection extends CollectionBase<DbMessage, "Messages"> {
@@ -272,6 +278,7 @@ interface DbMessage extends DbObject {
   conversationId: string
   noEmail: boolean
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface MigrationsCollection extends CollectionBase<DbMigration, "Migrations"> {
@@ -469,9 +476,12 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   contents: EditableFieldContents
+  contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
   customHighlight: EditableFieldContents
+  customHighlight_latest: string
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -590,6 +600,7 @@ interface DbSequence extends DbObject {
   hidden: boolean
   hideFromAuthorPage: boolean
   contents: EditableFieldContents
+  contents_latest: string
   af: boolean
 }
 
@@ -618,6 +629,7 @@ interface DbTagFlag extends DbObject {
   slug: string
   order: number
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface TagRelsCollection extends CollectionBase<DbTagRel, "TagRels"> {
@@ -675,6 +687,7 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   description: EditableFieldContents
+  description_latest: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -919,9 +932,13 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
   howOthersCanHelpMe: EditableFieldContents
+  howOthersCanHelpMe_latest: string
   howICanHelpOthers: EditableFieldContents
+  howICanHelpOthers_latest: string
   biography: EditableFieldContents
+  biography_latest: string
   recommendationSettings: {
     frontpage: {
       method: string,

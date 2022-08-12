@@ -160,7 +160,13 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         hideControls,
       },
     },
-    
+
+    [`${fieldName || "contents"}_latest`]: {
+      type: String,
+      viewableBy: ['guests'],
+      optional: true,
+    },
+
     [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],
