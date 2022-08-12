@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
     '&:hover $closeButton': {
-      color: theme.palette.grey[700],
+      color: theme.palette.grey[100],
     }
   },
   linkCard: {
