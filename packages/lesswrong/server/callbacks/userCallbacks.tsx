@@ -9,7 +9,7 @@ import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
@@ -91,8 +91,8 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
-  return triggerReviewIfNeeded(newUser._id)
+getCollectionHooks("Users").updateAsync.add(function mapLocationMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
+  triggerReviewIfNeeded(document._id)
 })
 
 // When the very first user account is being created, add them to Sunshine

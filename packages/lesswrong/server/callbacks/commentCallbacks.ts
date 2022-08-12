@@ -11,7 +11,7 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -440,15 +440,14 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 });
 
 // This function and the latter function seem redundant. TODO decide whether/where the karma < 100 clause should live
-getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview (comment: DbComment) {
-  const user = await Users.findOne({_id:comment.userId})
+getCollectionHooks("Comments").createAsync.add(async function NewCommentNeedsReview ({document}: CreateCallbackProperties<DbComment>) {
+  const user = await Users.findOne({_id:document.userId})
   const karma = user?.karma || 0
   if (karma < 100) {
-    await triggerReviewIfNeeded(comment.userId);
+    await triggerReviewIfNeeded(document.userId);
   }
 });
 
-getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
+getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
   await triggerReviewIfNeeded(document.userId);
-  return document;
 })

@@ -8,7 +8,7 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
-import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
+import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -153,24 +153,23 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
   if (!document.draft) {
     await triggerReviewIfNeeded(document.userId)
   }
-  return document;
 });
 
-getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
 
-  await triggerReviewIfNeeded(newPost.userId)
+  await triggerReviewIfNeeded(oldDocument.userId)
   
-  if (newPost.draft) return 
+  if (document.draft) return 
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
   // then we consider this "publishing" the post
-  if ((oldPost.draft && !newPost.authorIsUnreviewed) || (oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([newPost]);
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    await postPublishedCallback.runCallbacksAsync([document]);
   }
 });
 

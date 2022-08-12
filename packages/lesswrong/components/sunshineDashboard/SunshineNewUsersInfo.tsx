@@ -148,7 +148,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export interface UserContentCountPartial {
+interface UserContentCountPartial {
   postCount?: number,
   commentCount?: number
 }
@@ -212,7 +212,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handleSnooze = (contentCount) => {
+  const handleSnooze = (contentCount: number) => {
     updateUser({
       selector: {_id: user._id},
       data: {
