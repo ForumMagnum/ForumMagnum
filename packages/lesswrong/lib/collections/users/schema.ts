@@ -205,8 +205,9 @@ const schema: SchemaType<DbUser> = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
-    onUpdate: ({data, oldDocument}) => {
-      if (oldDocument.email?.length && !data.email) {
+    onUpdate: (props) => {
+      const {data, document, oldDocument} = props;
+      if (oldDocument.email?.length && !document.email) {
         throw new Error("You cannot remove your email address");
       }
       return data.email;
