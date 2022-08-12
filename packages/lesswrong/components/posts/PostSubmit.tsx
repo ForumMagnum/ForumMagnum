@@ -51,8 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
-const coauthorTooltip = 'Your post will be scheduled so your co-authors can give their permission. If they do not respond, your post will be automatically published in 24 hours.';
-
 interface PostSubmitProps {
   submitLabel?: string,
   cancelLabel?: string,
@@ -77,17 +75,7 @@ const PostSubmit = ({
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
-  const waitForCoauthors = !document.hasCoauthorPermission &&
-    document.coauthorStatuses?.findIndex?.(({ confirmed }) => !confirmed) >= 0;
-
   const { LWTooltip } = Components;
-  const SubmitTooltip = waitForCoauthors
-    ? ({ children }) => (
-      <LWTooltip title={coauthorTooltip} placement="top">
-        {children}
-      </LWTooltip>
-    )
-    : ({ children }) => children;
 
   return (
     <React.Fragment>
@@ -139,9 +127,7 @@ const PostSubmit = ({
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
           variant={collectionName=="users" ? "outlined" : undefined}
         >
-          <SubmitTooltip>
-            {submitLabel}
-          </SubmitTooltip>
+          {submitLabel}
         </Button>
       </div>
     </React.Fragment>

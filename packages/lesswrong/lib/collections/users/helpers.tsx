@@ -5,8 +5,9 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
+import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -168,6 +169,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
 
   if (!post) return true
   if (post.commentsLocked) return false
+  if (post?.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
@@ -184,27 +186,32 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   return true
 }
 
-export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): string => {
+export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): JSX.Element => {
   if (!user) {
-    return "Can't recognize user"
+    return <>Can't recognize user</>
   }
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
-    return "This post's author has blocked you from commenting."
+    return <>This post's author has blocked you from commenting.</>
   }
 
   if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-    return "This post's author has blocked you from commenting."
+    return <>This post's author has blocked you from commenting.</>
   }
 
   if (userIsBannedFromAllPersonalPosts(user, post, postAuthor)) {
-    return "This post's author has blocked you from commenting on any of their personal blog posts."
+    return <>This post's author has blocked you from commenting on any of their personal blog posts.</>
   }
 
-  if (post.commentsLocked) {
-    return "Comments on this post are disabled."
+  if (post?.commentsLocked) {
+    return <>Comments on this post are disabled.</>
   }
-  return "You cannot comment at this time"
+
+  if (post?.commentsLockedToAccountsCreatedAfter) {
+    return <>Comments on this post are disabled to accounts created after <Components.CalendarDate date={post.commentsLockedToAccountsCreatedAfter}/></>
+  }
+
+  return <>You cannot comment at this time</>
 }
 
 // Return true if the user's account has at least one verified email address.

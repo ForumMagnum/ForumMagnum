@@ -3,6 +3,7 @@ import { baseTheme } from './createThemeDefaults';
 import { createMuiTheme, Theme as MuiThemeType } from '@material-ui/core/styles';
 import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
+import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 
 const themeCache = new Map<string,ThemeType>();
@@ -19,14 +20,14 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
   if (!themeCache.has(themeCacheKey)) {
     const siteTheme = getSiteTheme(forumType);
     const userTheme = getUserTheme(themeOptions.name);
-    const theme = buildTheme(userTheme, siteTheme);
+    const theme = buildTheme(userTheme, siteTheme, forumType);
     themeCache.set(themeCacheKey, theme);
   }
   
   return themeCache.get(themeCacheKey)! as any;
 }
 
-const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification): ThemeType => {
+const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification, forumType: ForumTypeString): ThemeType => {
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
   if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
@@ -41,6 +42,10 @@ const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpeci
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
-  let themeWithPalette = {...combinedTheme, palette};
+  let themeWithPalette = {
+    forumType,
+    ...combinedTheme,
+    palette
+  };
   return createMuiTheme(themeWithPalette as any) as any;
 }

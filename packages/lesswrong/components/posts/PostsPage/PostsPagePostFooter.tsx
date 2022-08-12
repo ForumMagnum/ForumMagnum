@@ -20,7 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 40
+    marginBottom: 40,
+    "@media print": { display: "none" },
   },
   bottomNavigation: {
     width: 640,
