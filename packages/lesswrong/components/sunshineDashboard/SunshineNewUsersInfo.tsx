@@ -1,6 +1,6 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
@@ -15,7 +15,6 @@ import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
-import Button from '@material-ui/core/Button';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
@@ -59,7 +58,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    // border: `solid 2px ${theme.palette.error.dark}`
   },
   downvotes: {
     color: theme.palette.error.dark,
@@ -69,7 +67,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    // border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
     color: theme.palette.primary.dark,
@@ -79,7 +76,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    // border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
     color: theme.palette.primary.dark,
@@ -89,7 +85,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    // border: `solid 2px ${theme.palette.primary.dark}`
   },
   votesRow: {
     marginTop: 12,
@@ -161,19 +156,23 @@ export interface UserContentCountPartial {
 export function getCurrentContentCount(user: UserContentCountPartial) {
   const postCount = user.postCount ?? 0
   const commentCount = user.commentCount ?? 0
-  return postCount + commentCount;
+  return postCount + commentCount
 }
 
-export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: any) {
-  return getCurrentContentCount(user) + contentCount;
+export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: number) {
+  return getCurrentContentCount(user) + contentCount
 }
 
-const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
+const SunshineNewUsersInfo = ({ user, classes }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any
 }) => {
   const currentUser = useCurrentUser();
+
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  })
 
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
@@ -445,10 +444,6 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
   styles,
   hocs: [
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'SunshineUsersList',
-    }),
     withErrorBoundary,
   ]
 });
