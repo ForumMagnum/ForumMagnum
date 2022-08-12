@@ -20,11 +20,10 @@ class Table {
   }
 
   addIndex(index: string[]) {
-    this.indexes.push(index.map((field) => field === "_id" ? "id" : field));
+    this.indexes.push(index);
   }
 
   hasIndex(index: string[]) {
-    index = index.map((field) => field === "_id" ? "id" : field);
     for (const ind of this.indexes) {
       if (index.length !== ind.length) {
         continue;
@@ -40,7 +39,7 @@ class Table {
 
   toCreateSQL(sql: SqlClient) {
     let query = `CREATE TABLE IF NOT EXISTS "${this.name}" (\n`;
-    query += `  id ${this.fields["id"].toString()} PRIMARY KEY`;
+    query += `  _id ${this.fields["_id"].toString()} PRIMARY KEY`;
     for (const field of Object.keys(this.fields).filter((field) => field !== "id")) {
       query += `,\n  "${field}" ${this.fields[field].toString()}`;
     }
@@ -49,7 +48,6 @@ class Table {
   }
 
   buildCreateIndexSQL(sql: SqlClient, index: string[]) {
-    index = index.map((field) => field === "_id" ? "id" : field);
     const name = `"idx_${this.name}_${index.join("_")}"`;
     const fields = index.map((field) => `"${field}"`).join(", ");
     const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
@@ -65,7 +63,6 @@ class Table {
     for (const field in this.fields) {
       inserter[field] = data[field] ?? null;
     }
-    inserter["id"] = data["_id"];
     return sql`INSERT INTO ${sql(this.name)} ${sql(inserter)}
       ${ignoreConflicts ? sql`ON CONFLICT DO NOTHING` : sql``}`;
   }
@@ -76,7 +73,7 @@ class Table {
     const schema = collection._schemaFields;
     for (const field of Object.keys(schema)) {
       if (field === "_id") {
-        table.addField("id", new IdType(collection));
+        table.addField("_id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
         if (!isResolverOnly(fieldSchema)) {

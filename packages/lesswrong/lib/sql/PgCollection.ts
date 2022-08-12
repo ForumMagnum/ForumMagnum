@@ -1,6 +1,6 @@
 import { MongoCollection, getSqlClient } from "../mongoCollection";
 import Table from "./Table";
-import Select from "./Select";
+import Query from "./Query";
 
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
   pgTable: Table;
@@ -26,27 +26,28 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
-    const select = new Select(this.pgTable, selector, options);
     return {
       fetch: async () => {
+        const select = Query.select(this.pgTable, selector, options);
         const result = await select.toSQL(this.getSqlClient());
         return result as unknown as T[];
       },
       count: async () => {
-        const result = await select.toCountSQL(this.getSqlClient());
+        const select = Query.select(this.pgTable, selector, options, true);
+        const result = await select.toSQL(this.getSqlClient());
         return result?.count ?? 0;
       },
     };
   }
 
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
-    const select = new Select(this.pgTable, selector, {limit: 1, ...options});
+    const select = Query.select(this.pgTable, selector, {limit: 1, ...options});
     const result = await select.toSQL(this.getSqlClient());
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
-    const select = new Select(this.pgTable, undefined, {limit: 1});
+    const select = Query.select(this.pgTable, undefined, {limit: 1});
     const result = await select.toSQL(this.getSqlClient());
     return result ? result[0] as unknown as T : null;
   }

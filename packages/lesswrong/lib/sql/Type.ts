@@ -8,6 +8,10 @@ export const isResolverOnly = <T extends DbObject>(schema: CollectionFieldSpecif
 export abstract class Type {
   abstract toString() : string;
 
+  toConcrete(): Type {
+    return this;
+  }
+
   static fromSchema<T extends DbObject>(
     schema: CollectionFieldSpecification<T>,
     indexSchema?: CollectionFieldSpecification<T>,
@@ -16,7 +20,7 @@ export abstract class Type {
       throw new Error("Can't generate type for resolver-only field");
     }
 
-    if (schema.defaultValue !== undefined) {
+    if (schema.defaultValue !== undefined && schema.defaultValue !== null) {
       const {defaultValue, ...rest} = schema;
       return new DefaultValueType(Type.fromSchema(rest, indexSchema), defaultValue);
     }
@@ -96,8 +100,11 @@ export class JsonType extends Type {
 }
 
 export class ArrayType extends Type {
-  constructor(private subtype: Type) {
+  private subtype: Type;
+
+  constructor(subtype: Type) {
     super();
+    this.subtype = subtype.toConcrete();
   }
 
   toString() {
@@ -119,6 +126,10 @@ export class NotNullType extends Type {
   toString() {
     return `${this.subtype.toString()} NOT NULL`;
   }
+
+  toConcrete() {
+    return this.subtype.toConcrete();
+  }
 }
 
 export class DefaultValueType extends Type {
@@ -127,6 +138,19 @@ export class DefaultValueType extends Type {
   }
 
   toString() {
-    return `${this.subtype.toString()} DEFAULT ${this.value}`;
+    return `${this.subtype.toString()} DEFAULT ${this.valueToString()}`;
+  }
+
+  private valueToString() {
+    if (Array.isArray(this.value) && this.value.length === 0) {
+      return `'{}'::${this.subtype.toString()}[]`;
+    } else if (typeof this.value === "string") {
+      return `'${this.value}'`;
+    }
+    return `${this.value}`;
+  }
+
+  toConcrete() {
+    return this.subtype.toConcrete();
   }
 }

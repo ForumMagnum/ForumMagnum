@@ -1,6 +1,5 @@
 import "./Table";
 import "./Type";
-import "./Select";
-import "./Clause";
+import "./Query";
 import "./PgCollection";
 import "./mongoToSql";

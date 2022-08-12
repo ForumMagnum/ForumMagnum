@@ -3,6 +3,16 @@ import Table from "./Table";
 import { getSqlClient } from "../mongoCollection";
 import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
 
+// A place for nasty hacks to live...
+const formatters = {
+  Posts: (document: DbPost): DbPost => {
+    if (typeof document.scoreExceeded75Date === "boolean") {
+      document.scoreExceeded75Date = new Date(Date.now());
+    }
+    return document;
+  },
+};
+
 Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   console.log(`=== Migrating collection '${collectionName}' from Mongo to Postgres ===`);
 
@@ -20,8 +30,14 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   if (!sql) {
     throw new Error("SQL client not initialized");
   }
-  const createQuery = table.toCreateSQL(sql);
-  await createQuery;
+  try {
+    const createQuery = table.toCreateSQL(sql);
+    await createQuery;
+  } catch (e) {
+    console.error("Failed to create table");
+    console.log(table);
+    throw e;
+  }
 
   console.log("...Creating indexes");
   const indexQueries = table.toCreateIndexSQL(sql);
@@ -35,6 +51,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   console.log("...Copying data");
   const batchSize = 200;
   const errorIds: string[] = [];
+  const formatData = formatters[collectionName] ?? ((document) => document);
   let count = 0;
   await forEachDocumentBatchInCollection({
     collection,
@@ -44,7 +61,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
       count += batchSize;
       const queries = documents.map(async (document) => {
         try {
-          await table.toInsertSQL(sql, document, true);
+          await table.toInsertSQL(sql, formatData(document), true);
         } catch (e) {
           console.error(`ERROR IMPORTING DOCUMENT ${document._id}`);
           console.error(e);
