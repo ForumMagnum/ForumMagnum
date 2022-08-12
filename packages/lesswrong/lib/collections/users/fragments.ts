@@ -316,6 +316,7 @@ registerFragment(`
     emailSubscribedToCurated
     subscribedToDigest
     unsubscribeFromAll
+    hasAuth0Id
 
     # Moderation
     moderatorAssistance

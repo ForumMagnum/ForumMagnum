@@ -429,3 +429,11 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
 export const isMod = (user: UsersProfile|DbUser): boolean => {
   return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }
+
+export const getAuth0Id = (user: DbUser) => {
+  const id = user.services?.auth0?.id ?? user.services?.auth0?.user_id;
+  if (!id) {
+    throw new Error("User does not have an Auth0 user ID");
+  }
+  return id;
+}
