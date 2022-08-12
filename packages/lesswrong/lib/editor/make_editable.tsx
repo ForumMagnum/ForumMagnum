@@ -139,30 +139,15 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
+        resolver: async (doc: T, args: {version?: string}, context: ResolverContext): Promise<DbRevision|null> => {
           const { version } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
-          if (version) {
-            const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            if (!revision) return null;
-            return await checkAccess(currentUser, revision, context) ? revision : null
-          }
-          const docField = doc[field];
-          if (!docField) return null
-          return {
-            _id: `${doc._id}_${fieldName}`, //HACK
-            editedAt: (docField?.editedAt) || new Date(),
-            userId: docField?.userId,
-            commitMessage: docField?.commitMessage,
-            originalContents: (docField?.originalContents) || {},
-            html: docField?.html,
-            updateType: docField?.updateType,
-            version: docField?.version,
-            wordCount: docField?.wordCount,
-          } as DbRevision;
-          //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
+          const revision = await (version
+            ? Revisions.findOne({documentId: doc._id, version, fieldName: field})
+            : Revisions.findOne({documentId: doc._id, fieldName: field}, {sort: {version: -1}}));
+          return revision && await checkAccess(currentUser, revision, context) ? revision : null;
         }
       },
       form: {

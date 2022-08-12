@@ -1,7 +1,7 @@
 class Compiler {
   private argCount = 0;
 
-  compile({sql, args}: SqlClause) {
+  compile({sql, args}: Clause) {
     const result : { sql: string[], args: any[] } = { sql: [], args: [] };
     for (let i = 0; i < sql.length; ++i) {
       result.sql.push(sql[i]);
@@ -9,7 +9,7 @@ class Compiler {
         break;
       }
       const arg = args[i];
-      if (arg instanceof SqlClause) {
+      if (arg instanceof Clause) {
         const subclause = this.compile(arg);
         result.sql.push(subclause.sql);
         result.args = result.args.concat(subclause.args);
@@ -22,12 +22,16 @@ class Compiler {
   }
 }
 
-class SqlClause {
+class Clause {
   constructor(public sql: string[] = [], public args: any[] = []) {}
 
   compile() {
     return new Compiler().compile(this);
   }
+
+  static join(clauses: Clause[], separator: string, prefix = "") {
+    return new Clause([prefix, ...new Array(clauses.length - 1).fill(separator)], clauses);
+  }
 }
 
-export default SqlClause
+export default Clause;

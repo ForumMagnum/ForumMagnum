@@ -33,16 +33,31 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   }
 
   console.log("...Copying data");
+  const batchSize = 200;
+  const errorIds: string[] = [];
+  let count = 0;
   await forEachDocumentBatchInCollection({
     collection,
-    batchSize: 200,
+    batchSize,
     callback: async (documents: Array<DbObject>) => {
-      for (const document of documents) {
-        const insertQuery = table.toInsertSQL(sql, document, true);
-        await insertQuery;
-      }
+      console.log(`......Migrating documents from index ${count}`);
+      count += batchSize;
+      const queries = documents.map((document) => async () => {
+        try {
+          await table.toInsertSQL(sql, document, true);
+        } catch (e) {
+          console.error(`ERROR IMPORTING DOCUMENT ${document._id}`);
+          console.error(e);
+          errorIds.push(document._id);
+        }
+      });
+      await Promise.all(queries);
     },
   });
+
+  if (errorIds.length) {
+    console.log(`...${errorIds.length} import errors:`, errorIds);
+  }
 
   console.log(`=== Finished migrating collection '${collectionName}' ===`);
 }

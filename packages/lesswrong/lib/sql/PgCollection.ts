@@ -30,7 +30,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
-    const select = new Select(this.pgTable, selector);
+    const select = new Select(this.pgTable, selector, options);
     const result = await select.toSQL(this.getSqlClient());
     return result ? result[0] as unknown as T : null;
   }

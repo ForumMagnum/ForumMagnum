@@ -8,6 +8,7 @@ import { makeVoteable } from '../../make_voteable';
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
+  postgres: true,
   schema,
   resolvers: getDefaultResolvers('Revisions'),
   // No mutations (revisions are insert-only immutable, and are created as a

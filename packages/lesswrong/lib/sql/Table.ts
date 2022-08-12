@@ -20,10 +20,11 @@ class Table {
   }
 
   addIndex(index: string[]) {
-    this.indexes.push(index);
+    this.indexes.push(index.map((field) => field === "_id" ? "id" : field));
   }
 
   hasIndex(index: string[]) {
+    index = index.map((field) => field === "_id" ? "id" : field);
     for (const ind of this.indexes) {
       if (index.length !== ind.length) {
         continue;
@@ -48,6 +49,7 @@ class Table {
   }
 
   buildCreateIndexSQL(sql: SqlClient, index: string[]) {
+    index = index.map((field) => field === "_id" ? "id" : field);
     const name = `"idx_${this.name}_${index.join("_")}"`;
     const fields = index.map((field) => `"${field}"`).join(", ");
     const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
