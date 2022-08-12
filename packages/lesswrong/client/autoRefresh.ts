@@ -1,10 +1,10 @@
-import { onStartup } from '../lib/executionEnvironment';
+import { onStartup, getWebsocketPort } from '../lib/executionEnvironment';
 import type { MessageEvent, OpenEvent, CloseEvent } from 'ws';
 
 // In development, make a websocket connection (on a different port) to get
 // notified when the server has restarted with a new version.
 
-const websocketPort = 3001;
+const websocketPort = getWebsocketPort();
 let connectedWebsocket: any = null;
 let buildTimestamp: string|null = null;
 

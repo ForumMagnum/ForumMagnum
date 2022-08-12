@@ -5,12 +5,21 @@ const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
 
+const defaultServerPort = 3000;
+
+const getServerPort = () => {
+  const port = parseInt(process.env.SERVER_PORT ?? "");
+  return Number.isNaN(port) ? defaultServerPort : port;
+}
+
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
 let clientRebuildInProgress = false;
 let serverRebuildInProgress = false;
-const serverPort = 3000;
-const websocketPort = 3001;
+const serverPort = getServerPort();
+const websocketPort = serverPort + 1;
+
+const outputDir = `build${serverPort === defaultServerPort ? "" : serverPort}`;
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
@@ -60,6 +69,7 @@ const bundleDefinitions = {
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
+  "serverPort": getServerPort(),
 };
 
 build({
@@ -67,7 +77,7 @@ build({
   bundle: true,
   target: "es6",
   sourcemap: true,
-  outfile: "./build/client/js/bundle.js",
+  outfile: `./${outputDir}/client/js/bundle.js`,
   minify: isProduction,
   banner: clientBundleBanner,
   treeShaking: "ignore-annotations",
@@ -94,14 +104,14 @@ build({
   },
 });
 
-let serverCli = ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile]
+let serverCli = ["node", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
 
 build({
   entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
   bundle: true,
-  outfile: './build/server/js/serverBundle.js',
+  outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",
   sourcemap: true,
   minify: false,
@@ -150,7 +160,7 @@ async function asyncSleep(durationMs) {
 }
 
 function getClientBundleTimestamp() {
-  const stats = fs.statSync('./build/client/js/bundle.js');
+  const stats = fs.statSync(`./${outputDir}/client/js/bundle.js`);
   return stats.mtime.toISOString();
 }
 
