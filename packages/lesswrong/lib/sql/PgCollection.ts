@@ -26,14 +26,13 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
+    const select = new Select(this.pgTable, selector, options);
     return {
       fetch: async () => {
-        const select = new Select(this.pgTable, selector, options);
         const result = await select.toSQL(this.getSqlClient());
         return result as unknown as T[];
       },
       count: async () => {
-        const select = new Select(this.pgTable, selector, options);
         const result = await select.toCountSQL(this.getSqlClient());
         return result?.count ?? 0;
       },

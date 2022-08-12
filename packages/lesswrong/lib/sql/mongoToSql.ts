@@ -40,9 +40,9 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     collection,
     batchSize,
     callback: async (documents: Array<DbObject>) => {
-      console.log(`......Migrating documents from index ${count}`);
+      console.log(`......Migrating ${documents.length} documents from index ${count}`);
       count += batchSize;
-      const queries = documents.map((document) => async () => {
+      const queries = documents.map(async (document) => {
         try {
           await table.toInsertSQL(sql, document, true);
         } catch (e) {

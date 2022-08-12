@@ -143,10 +143,16 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           const { version } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
+          const latestField = `${field}_latest`;
           const { checkAccess } = Revisions
-          const revision = await (version
-            ? Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            : Revisions.findOne({documentId: doc._id, fieldName: field}, {sort: {version: -1}}));
+          let revision;
+          if (version) {
+            revision = Revisions.findOne({documentId: doc._id, version, fieldName: field});
+          } else if (doc[latestField]) {
+            revision = Revisions.findOne({_id: doc[latestField]});
+          } else {
+            revision = Revisions.findOne({documentId: doc._id, fieldName: field}, {sort: {version: -1}});
+          }
           return revision && await checkAccess(currentUser, revision, context) ? revision : null;
         }
       },

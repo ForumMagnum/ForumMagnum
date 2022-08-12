@@ -30,7 +30,17 @@ class Clause {
   }
 
   static join(clauses: Clause[], separator: string, prefix = "") {
-    return new Clause([prefix, ...new Array(clauses.length - 1).fill(separator)], clauses);
+    switch (clauses.length) {
+      case 0:
+        return new Clause();
+      case 1:
+        if (prefix.length) {
+          clauses[0].sql[0] = prefix + " " + clauses[0].sql[0];
+        }
+        return clauses[0];
+      default:
+        return new Clause([prefix, ...new Array(clauses.length - 1).fill(separator)], clauses);
+    }
   }
 }
 
