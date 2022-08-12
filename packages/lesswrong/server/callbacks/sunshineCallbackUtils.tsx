@@ -2,8 +2,9 @@ import Users from "../../lib/collections/users/collection";
 import { getCurrentContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
+ * 
+ * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-
 export async function triggerReviewIfNeeded(userId: string) {
   const user = await Users.findOne({ _id: userId });
   if (!user)
