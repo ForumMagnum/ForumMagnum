@@ -570,6 +570,20 @@ addFieldsDict(Users, {
     foreignKey: "Posts",
     optional: true
   },
+  
+  /*pinnedToProfilePosts: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "postIds",
+      resolverName: "posts",
+      collectionName: "Posts",
+      type: "Post"
+    }),
+    optional: true,
+    viewableBy: ["guests"],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    insertableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    control: 'PostsListEditor',
+  },*/
 
   // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
   // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead

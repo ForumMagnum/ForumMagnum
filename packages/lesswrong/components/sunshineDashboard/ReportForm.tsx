@@ -3,10 +3,11 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import Reports from '../../lib/collections/reports/collection'
 import DialogContent from '@material-ui/core/DialogContent';
 
-const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
+const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, title, link }: {
   userId: string,
-  postId: string,
+  postId?: string,
   commentId?: string,
+  reportedUserId?: string,
   onClose?: ()=>void,
   title?: string,
   link: string,
@@ -24,6 +25,7 @@ const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
           prefilledProps={{
             userId: userId,
             postId: postId,
+            reportedUserId: reportedUserId,
             commentId: commentId,
             link: link
           }}

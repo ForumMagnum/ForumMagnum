@@ -20,9 +20,9 @@ import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { useDialog } from '../common/withDialog';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -85,19 +85,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
-  reportUserSection: {
-    marginTop: 60
-  },
-  reportUserBtn: {
-    ...theme.typography.commentStyle,
-    background: 'none',
-    color: theme.palette.primary.main,
-    fontSize: 13,
-    padding: 0,
-    '&:hover': {
-      color: theme.palette.primary.dark,
-    }
-  },
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -110,6 +97,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   slug: string,
   classes: ClassesType,
 }) => {
+  const { openDialog } = useDialog();
   const [showSettings, setShowSettings] = useState(false);
 
   const { mutate: updateUser } = useUpdate({
@@ -135,13 +123,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
     }
-  }
-
-  const { flash } = useMessages()
-  const reportUser = async () => {
-    if (!user) return
-    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
-    flash({messageString: "Your report has been sent to the moderators"})
   }
 
   const renderMeta = () => {
@@ -206,7 +187,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
       SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles } = Components
+      Typography, ContentStyles, ReportUserButton } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -401,11 +382,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </SingleColumnSection>
           </AnalyticsContext>
 
-          {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
-            <SingleColumnSection className={classes.reportUserSection}>
-              <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
-            </SingleColumnSection>
-          }
+          <ReportUserButton user={user}/>
         </AnalyticsContext>
       </div>
     )
