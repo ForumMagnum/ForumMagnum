@@ -3,7 +3,7 @@ import { Components, registerComponent, useStyles } from '../../lib/vulcan-lib/c
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers'
 import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
-import { Editor, EditorContents, EditorChangeEvent, getUserDefaultEditor, getBlankEditorContents, styles } from '../editor/Editor';
+import { Editor, EditorContents, EditorChangeEvent, getUserDefaultEditor, getBlankEditorContents, styles, EditorTypeString } from '../editor/Editor';
 import { useCurrentUser } from '../common/withUser';
 
 const formEditorStyles = (theme: ThemeType): JssStyles => ({
@@ -19,12 +19,18 @@ export function FormEditor<T, FN extends keyof T>({form, fieldName, placeholder,
 }) {
   const classes = useStyles(styles, "FormEditor");
   const {value,setValue,collectionName} = useFormComponentContext<RevisionEdit,T>(form, fieldName);
-  const [initialValue] = useState(value.originalContents); //FIXME: Requires conversion
-  const [contents,setContents] = useState<EditorContents>(initialValue);
+
+  const convertOriginalContents = (originalContents: RevisionEdit['originalContents']) => ({
+    type: originalContents.type as EditorTypeString,
+    value: originalContents.data
+  });
+
+  const [initialValue] = useState(convertOriginalContents(value.originalContents)); //FIXME: Requires conversion
+  const [contents,setContents] = useState(initialValue);
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
-  
-  const initialEditorType = initialValue?.originalContents?.type || getUserDefaultEditor(currentUser); //FIXME: Requires conversion
+
+  const initialEditorType = initialValue?.type || getUserDefaultEditor(currentUser); //FIXME: Requires conversion
   
   const getLocalStorageHandlers = useCallback((editorType: string) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
@@ -32,6 +38,7 @@ export function FormEditor<T, FN extends keyof T>({form, fieldName, placeholder,
       getLSKeyPrefix(editorType)
     );
   }, [collectionName, fieldName]);
+
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
     setContents(newState);
