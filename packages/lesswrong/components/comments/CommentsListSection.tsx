@@ -27,6 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline',
     color: theme.palette.text.secondary,
   },
+  clickToHighlightNewSince: {
+    display: 'inline',
+    color: theme.palette.text.secondary,
+    "@media print": { display: "none" },
+  },
   button: {
     color: theme.palette.lwTertiary.main,
   },
@@ -116,7 +121,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       {post && <Typography
         variant="body2"
         component='span'
-        className={classes.inline}
+        className={classes.clickToHighlightNewSince}
       >
         {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
         {highlightDate && !newCommentsSinceDate && "No new comments since "}
