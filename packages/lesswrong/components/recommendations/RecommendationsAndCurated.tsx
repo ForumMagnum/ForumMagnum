@@ -17,7 +17,8 @@ const sequenceHighlights: CoreReadingCollection = {
   summary: `<div>How can we think better on purpose? Why should we think better on purpose?<br/>
     Read up on the core concepts that underly the LessWrong community.
     </div>`,
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660183285/collection-cover-image-03_pca1jo.jpg",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660242128/coverimage-03_rza7oo.jpg",
+  imageWidth: 200,
   color: "#757AA7",
   big: false,
   url: "/highlights",
@@ -182,7 +183,7 @@ const RecommendationsAndCurated = ({
 
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage && !isLW && 
+          {!settings.hideFrontpage && 
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
@@ -192,7 +193,7 @@ const RecommendationsAndCurated = ({
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
               showLoadMore={false}
-              // hideLastUnread={true}
+              hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />

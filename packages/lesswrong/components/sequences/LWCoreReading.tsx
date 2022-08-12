@@ -22,6 +22,7 @@ export interface CoreReadingCollection {
   summary: string,
   mobileSummary?: string,
   imageId?: string,
+  imageWidth?: number,
   imageUrl?: string,
   color: string,
   big?: boolean,

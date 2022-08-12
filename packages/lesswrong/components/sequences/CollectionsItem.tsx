@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
     '&:hover $closeButton': {
-      color: theme.palette.grey[500],
+      color: theme.palette.grey[700],
     }
   },
   linkCard: {
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: '.75em',
     minWidth: '.75em',
     position: 'absolute',
-    color: theme.palette.grey[300],
+    color: theme.palette.grey[500],
     top: 0,
     right: 0
   },
@@ -65,7 +65,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .6
   },
   image: {
-    width: 130,
     objectFit: "cover",
     [theme.breakpoints.down('xs')]: {
       width: 96
@@ -152,7 +151,9 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
           </LWTooltip>
         </div>}
       </div>
-      {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
+      
+      {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} style={{width: collection.imageWidth || 130}}/>}
+
       {showCloseIcon && <Tooltip title="Hide this for the next month">
         <Button className={classes.closeButton} onClick={hideBanner}>
           <CloseIcon className={classes.closeIcon} />
