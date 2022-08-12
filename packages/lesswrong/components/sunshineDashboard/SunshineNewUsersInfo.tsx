@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    border: `solid 2px ${theme.palette.error.dark}`
+    // border: `solid 2px ${theme.palette.error.dark}`
   },
   downvotes: {
     color: theme.palette.error.dark,
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    border: `solid 1px ${theme.palette.error.dark}`
+    // border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
     color: theme.palette.primary.dark,
@@ -79,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    border: `solid 1px ${theme.palette.primary.dark}`
+    // border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
     color: theme.palette.primary.dark,
@@ -89,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    border: `solid 2px ${theme.palette.primary.dark}`
+    // border: `solid 2px ${theme.palette.primary.dark}`
   },
   votesRow: {
     marginTop: 12,
@@ -140,6 +140,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     },
   },
+  modButton:{
+    marginTop: 6,
+    marginRight: 16,
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
+  },
+  snooze10: {
+    color: theme.palette.primary.main
+  }
 })
 
 export interface UserContentCountPartial {
@@ -148,8 +159,8 @@ export interface UserContentCountPartial {
 }
 
 export function getCurrentContentCount(user: UserContentCountPartial) {
-  const postCount = user.postCount || 0
-  const commentCount = user.commentCount || 0
+  const postCount = user.postCount ?? 0
+  const commentCount = user.commentCount ?? 0
   return postCount + commentCount;
 }
 
@@ -347,45 +358,34 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
             <div className={classes.row}>
               <div className={classes.row}>
                 <LWTooltip title="Approve">
-                  <Button onClick={handleReview} className={canReview ? null : classes.disabled }>
-                    <DoneIcon/>
-                  </Button>
+                  <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
                 </LWTooltip>
                 <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)">
-                  <Button title="Snooze" onClick={() => handleSnooze(1)}>
-                    <SnoozeIcon />
-                  </Button>
+                  <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
                 </LWTooltip>
                 <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)">
-                  <Button title="Snooze 10" onClick={() => handleSnooze(10)}>
-                    <AddAlarmIcon />
-                  </Button>
+                  <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
                 </LWTooltip>
                 <LWTooltip title="Ban for 3 months">
-                  <Button onClick={handleBan}>
-                    <RemoveCircleOutlineIcon />
-                  </Button>
+                  <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
                 </LWTooltip>
                 <LWTooltip title="Purge (delete and ban)">
-                  <Button onClick={handlePurge}>
-                    <DeleteForeverIcon />
-                  </Button>
+                  <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
                 </LWTooltip>
                 <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
-                  <div>Flag this user for more review</div>
-                  <div><em>(This will not remove them from sidebar)</em></div>
-                </div>}>
-                  <Button onClick={handleFlag}>
+                    <div>Flag this user for more review</div>
+                    <div><em>(This will not remove them from sidebar)</em></div>
+                  </div>}>
+                  <div onClick={handleFlag} className={classes.modButton} >
                     {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
-                  </Button>
+                  </div>
                 </LWTooltip>
               </div>
-              <div className={classes.row}>
-                <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
-              </div>
+              <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
             </div>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
+              <span>Votes: </span>
               <LWTooltip title="Big Upvotes">
                 <span className={classes.bigUpvotes}>
                   { user.bigUpvoteCount || 0 }

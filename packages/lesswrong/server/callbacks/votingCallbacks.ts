@@ -3,7 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
-import { triggerReviewIfNeeded } from './userCallbacks';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 /**
  * @summary Update the karma of the item's owner
@@ -45,7 +45,7 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
 });
 
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
-  triggerReviewIfNeeded(document.vote.userId)
+  return triggerReviewIfNeeded(document.vote.userId)
 });
 
 

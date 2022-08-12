@@ -26,7 +26,7 @@ import { EventDebouncer } from '../debouncer';
 import { Components } from '../../lib/vulcan-lib/components';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
-import { getCurrentContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
+import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -91,44 +91,8 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-/** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
- */
-
-export async function triggerReviewIfNeeded(userId: string) {
-  const user = await Users.findOne({_id: userId})
-  if (!user) throw new Error("user is null")
-
-  let needsReview = false
-
-  const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
-  const neverReviewed = !user.reviewedByUserId;
-  const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
-
-  if (fullyReviewed) {
-    needsReview = false
-  } else if (neverReviewed) {
-    needsReview = Boolean((user.voteCount > 20) || user.mapLocation || user.postCount || user.commentCount || user.biography?.html || user.profileImageId)
-  } else if (snoozed) {
-    const contentCount = getCurrentContentCount(user)
-    needsReview = contentCount >= user.snoozedUntilContentCount
-  }
-
-  void Users.rawUpdateOne({_id:user._id}, {$set:{needsReview: needsReview}})
-}
-
 getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
-  // on the EA Forum, we are testing out reviewing all unreviewed users who add a bio
-  const addedBio = !oldUser.biography?.html && newUser.biography?.html && forumTypeSetting.get() === 'EAForum'
-  
-  // on the EA Forum, we are reviewing all unreviewed users who add a profile photo
-  const addedProfilePhoto = !oldUser.profileImageId && newUser.profileImageId && forumTypeSetting.get() === 'EAForum'
-
-  // if the user has a mapLocation and they have not been reviewed, mark them for review
-  if ((addedBio || addedProfilePhoto || newUser.mapLocation) && !newUser.reviewedByUserId && !newUser.needsReview) {
-    void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
-  }
-  // todo!!
-  triggerReviewIfNeeded(newUser._id)
+  return triggerReviewIfNeeded(newUser._id)
 })
 
 // When the very first user account is being created, add them to Sunshine

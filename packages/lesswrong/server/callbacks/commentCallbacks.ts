@@ -14,7 +14,7 @@ import { recalculateAFCommentMetadata } from './alignment-forum/alignmentComment
 import { getCollectionHooks } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
-import { triggerReviewIfNeeded } from './userCallbacks';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 
 const MINIMUM_APPROVAL_KARMA = 5

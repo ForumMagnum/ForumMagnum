@@ -11,7 +11,7 @@ import cheerio from 'cheerio'
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
-import { triggerReviewIfNeeded } from './userCallbacks';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -155,7 +155,7 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
 
 getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
   if (!document.draft) {
-    triggerReviewIfNeeded(document.userId)
+    await triggerReviewIfNeeded(document.userId)
   }
   return document;
 });
