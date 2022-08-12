@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const defaultServerPort = 3000;
 
 const getServerPort = () => {
-  const port = parseInt(process.env.SERVER_PORT ?? "");
+  const port = parseInt(process.env.PORT ?? "");
   return Number.isNaN(port) ? defaultServerPort : port;
 }
 
