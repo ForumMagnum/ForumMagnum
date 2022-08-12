@@ -39,7 +39,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: 16,
     paddingRight: 35,
-    paddingBottom: 12
+    paddingBottom: 12,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between"
   },
   description: {
     marginTop: 14,
