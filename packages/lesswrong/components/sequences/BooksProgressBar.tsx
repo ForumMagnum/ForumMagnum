@@ -54,6 +54,8 @@ const BooksProgressBar = ({ book, classes }: {
 
   const postsReadText = `${readPosts} / ${totalPosts} posts read`;
 
+  if (book.hideProgressBar) return null
+
   return <div key={book._id} className={classes.root}>
     <div className={classes.bookProgress}>
       {
