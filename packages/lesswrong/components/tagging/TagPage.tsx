@@ -15,6 +15,7 @@ import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { renderToString } from "react-dom/server";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -261,7 +262,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if(isEAForum) {
@@ -373,16 +374,12 @@ const TagPage = ({classes}: {
         </div>}
         welcomeBox={null}
       >
-        {(tag.parentTag || tag.subTags.length) && 
+        {tag.parentTag &&
         <div className={classNames(classes.subHeading,classes.centralColumn)}>
           <div className={classes.subHeadingInner}>
-            {tag.parentTag && <div className={classes.relatedTag}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-topics:&nbsp;{tag.subTags.map((subTag, idx) => {
-              return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
-            })}</span></div> : <></>}
+            {tag.parentTag && <div className={classes.relatedTag}>Parent topic: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           </div>
-        </div>
-        }
+        </div>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>

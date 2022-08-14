@@ -10,6 +10,7 @@ import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
+import Tags from './collection';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -469,6 +470,27 @@ export const schema: SchemaType<DbTag> = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     group: formGroups.advancedOptions,
+    onInsert: async (tag) => {
+      if (tag.parentTagId) {
+        // don't allow chained parent tag relationships
+        if ((await Tags.find({parentTagId: tag._id}).count())) {
+          throw Error(`Tag ${tag.name} is a parent tag of another tag.`);
+        }
+      }
+      return tag.parentTagId
+    },
+    onUpdate: async ({data, oldDocument}) => {
+      if (data.parentTagId) {
+        if (data.parentTagId === oldDocument._id) {
+          throw Error(`Can't set self as parent tag.`);
+        }
+        // don't allow chained parent tag relationships
+        if ((await Tags.find({parentTagId: oldDocument._id}).count())) {
+          throw Error(`Tag ${oldDocument.name} is a parent tag of another tag.`);
+        }
+      }
+      return data.parentTagId
+    },
   },
   subTags: resolverOnlyField({
     type: Array,

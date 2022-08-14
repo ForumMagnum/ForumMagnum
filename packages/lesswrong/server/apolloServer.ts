@@ -248,6 +248,7 @@ export function startWebserver() {
     }
     
     const renderResult = await renderWithCache(request, response, user);
+    console.log("HERE")
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
 

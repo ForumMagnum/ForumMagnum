@@ -52,8 +52,7 @@ const TagSearchHit = ({hit, onClick, classes}: {
         </div>
       </PopperCard>
       <span className={classes.root} onClick={onClick} >
-        {/* TODO would prefer to have subTags.length on algolia hit object to avoid lag */}
-        {hit.name} {tag && tag.subTags.length ? <span className={classes.postCount}>(+{tag.subTags.length} Sub-topic{tag.subTags.length > 1 ? "s": ""})&nbsp;</span> : <></>}<span className={classes.postCount}>({hit.postCount || 0})</span>
+        {hit.name} <span className={classes.postCount}>({hit.postCount || 0})</span>
       </span>
     </span>
   );

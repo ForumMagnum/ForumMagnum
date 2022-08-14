@@ -75,13 +75,13 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
     {loading && <Loading />}
     {tag && <>
       <TagPreviewDescription tag={tag}/>
-      {(tag.parentTag || tag.subTags.length) && 
+      {(tag.parentTag || tag.subTags.length) ?
         <div className={classes.relatedTags}>
           {tag.parentTag && <div className={classes.relatedTag}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-topics:&nbsp;{tag.subTags.map((subTag, idx) => {
             return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
           })}</span></div> : <></>}
-        </div>
+        </div> : <></>
       }
       {!tag.wikiOnly && <>
         {results ? <div className={classes.posts}>
