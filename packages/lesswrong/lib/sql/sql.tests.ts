@@ -4,6 +4,18 @@ import Query from "./Query";
 
 testStartup();
 
+type DbTestObject = {
+  _id: string,
+  a?: number,
+  b?: string,
+  c?: {
+    d: {
+      e: string,
+    },
+  },
+  schemaVersion: number,
+}
+
 const TestCollection = {
   collectionName: "TestCollection",
   _schemaFields: {
@@ -19,8 +31,11 @@ const TestCollection = {
     c: {
       type: Object,
     },
+    schemaVersion: {
+      type: Number,
+    },
   },
-} as unknown as CollectionBase<DbObject>;
+} as unknown as CollectionBase<DbTestObject>;
 
 const testTable = Table.fromCollection(TestCollection);
 
@@ -29,7 +44,7 @@ const normalizeWhitespace = (s: string) => s.replace(/\s+/g, " ");
 describe("Query", () => {
   type TestCase = {
     name: string,
-    getQuery: () => Query<DbObject>,
+    getQuery: () => Query<DbTestObject>,
     expectedSql: string,
     expectedArgs: any[],
   };
@@ -60,8 +75,14 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
-      name: "can build select query with $and selector",
+      name: "can build select query with $and object selector",
       getQuery: () => Query.select(testTable, {$and: {a: 3, b: "b"}}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
+      expectedArgs: [3, "b"],
+    },
+    {
+      name: "can build select query with $and array selector",
+      getQuery: () => Query.select(testTable, {$and: [{a: 3}, {b: "b"}]}),
       expectedSql: 'SELECT * FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
       expectedArgs: [3, "b"],
     },
@@ -72,10 +93,22 @@ describe("Query", () => {
       expectedArgs: [3, "b"],
     },
     {
-      name: "can build select query with $or selector",
+      name: "can build select query with $or object selector",
       getQuery: () => Query.select(testTable, {$or: {a: 3, b: "b"}}),
       expectedSql: 'SELECT * FROM "TestCollection" WHERE ( "a" = $1 OR "b" = $2 )',
       expectedArgs: [3, "b"],
+    },
+    {
+      name: "can build select query with $or array selector",
+      getQuery: () => Query.select(testTable, {$or: [{a: 3}, {b: "b"}]}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE ( "a" = $1 OR "b" = $2 )',
+      expectedArgs: [3, "b"],
+    },
+    {
+      name: "can build select query with nested boolean combiners",
+      getQuery: () => Query.select(testTable, {a: 3, $or: [{b: "hello"}, {c: {$exists: false}}]}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE ( "a" = $1 AND ( "b" = $2 OR "c" IS NULL ) )',
+      expectedArgs: [3, "hello"],
     },
     {
       name: "can build select query with comparison against null",
@@ -132,6 +165,18 @@ describe("Query", () => {
       expectedArgs: [[1, 2, 3]],
     },
     {
+      name: "can build select query with exists check",
+      getQuery: () => Query.select(testTable, {a: {$exists: true}}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" IS NOT NULL',
+      expectedArgs: [],
+    },
+    {
+      name: "can build select query with not-exists check",
+      getQuery: () => Query.select(testTable, {a: {$exists: false}}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" IS NULL',
+      expectedArgs: [],
+    },
+    {
       name: "can build select query with json fields",
       getQuery: () => Query.select(testTable, {"c.d.e": 3}),
       expectedSql: 'SELECT * FROM "TestCollection" WHERE ("c"->\'d\'->\'e\')::INTEGER = $1',
@@ -160,6 +205,24 @@ describe("Query", () => {
       getQuery: () => Query.select(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
       expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 OFFSET $3',
       expectedArgs: [3, 10, 20],
+    },
+    {
+      name: "can build select query with comment",
+      getQuery: () => Query.select(testTable, {a: 3, $comment: "Test comment"}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE ( "a" = $1 )',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build insert query",
+      getQuery: () => Query.insert<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
+      expectedArgs: ["abc", 3, "test", null, 1],
+    },
+    {
+      name: "can build insert query allowing conflicts",
+      getQuery: () => Query.insert<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}, true),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT DO NOTHING',
+      expectedArgs: ["abc", 3, "test", null, 1],
     },
   ];
 

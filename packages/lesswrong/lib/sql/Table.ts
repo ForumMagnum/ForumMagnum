@@ -15,6 +15,10 @@ class Table {
     this.fields[name] = type;
   }
 
+  getFields() {
+    return this.fields;
+  }
+
   getField(name: string) {
     return this.fields[name];
   }
@@ -40,7 +44,7 @@ class Table {
   toCreateSQL(sql: SqlClient) {
     let query = `CREATE TABLE IF NOT EXISTS "${this.name}" (\n`;
     query += `  _id ${this.fields["_id"].toString()} PRIMARY KEY`;
-    for (const field of Object.keys(this.fields).filter((field) => field !== "id")) {
+    for (const field of Object.keys(this.fields).filter((field) => field !== "_id")) {
       query += `,\n  "${field}" ${this.fields[field].toString()}`;
     }
     query += "\n);";
@@ -48,6 +52,10 @@ class Table {
   }
 
   buildCreateIndexSQL(sql: SqlClient, index: string[]) {
+    index = index.map((field) => {
+      const index = field.indexOf(".");
+      return index >= 0 ? field.slice(0, index) : field;
+    });
     const name = `"idx_${this.name}_${index.join("_")}"`;
     const fields = index.map((field) => `"${field}"`).join(", ");
     const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
@@ -56,15 +64,6 @@ class Table {
 
   toCreateIndexSQL(sql: SqlClient) {
     return this.indexes.map((index) => this.buildCreateIndexSQL(sql, index));
-  }
-
-  toInsertSQL<T extends {}>(sql: SqlClient, data: T, ignoreConflicts = false) {
-    const inserter = {};
-    for (const field in this.fields) {
-      inserter[field] = data[field] ?? null;
-    }
-    return sql`INSERT INTO ${sql(this.name)} ${sql(inserter)}
-      ${ignoreConflicts ? sql`ON CONFLICT DO NOTHING` : sql``}`;
   }
 
   static fromCollection<T extends DbObject>(collection: CollectionBase<T>) {
@@ -76,9 +75,9 @@ class Table {
         table.addField("_id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
-        if (!isResolverOnly(fieldSchema)) {
+        if (!isResolverOnly(field, fieldSchema)) {
           const indexSchema = schema[`${field}.$`];
-          table.addField(field, Type.fromSchema(fieldSchema, indexSchema));
+          table.addField(field, Type.fromSchema(field, fieldSchema, indexSchema));
         }
       }
     }

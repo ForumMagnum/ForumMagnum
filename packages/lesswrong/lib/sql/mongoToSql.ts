@@ -1,7 +1,9 @@
 import { Vulcan, getCollection } from "../vulcan-lib";
 import Table from "./Table";
+import Query from "./Query";
 import { getSqlClient } from "../mongoCollection";
 import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
+import util from "util";
 
 // A place for nasty hacks to live...
 const formatters = {
@@ -12,6 +14,8 @@ const formatters = {
     return document;
   },
 };
+
+const showArray = <T>(array: T[]) => util.inspect(array, {maxArrayLength: null});
 
 Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   console.log(`=== Migrating collection '${collectionName}' from Mongo to Postgres ===`);
@@ -24,6 +28,13 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
 
   console.log("...Building schema");
   const table = Table.fromCollection(collection);
+  const schemaFields = Object.keys(collection._schemaFields);
+  const tableFields = Object.keys(table.getFields());
+  console.log("...Migrating fields:", showArray(tableFields));
+  const skippedFields = schemaFields.filter((field) => tableFields.indexOf(field) < 0);
+  if (skippedFields.length) {
+    console.warn("......Warning: Skipped fields:", showArray(skippedFields));
+  }
 
   console.log("...Creating table");
   const sql = getSqlClient();
@@ -61,7 +72,8 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
       count += batchSize;
       const queries = documents.map(async (document) => {
         try {
-          await table.toInsertSQL(sql, formatData(document), true);
+          const query = Query.insert(table, formatData(document), true);
+          await query.toSQL(sql);
         } catch (e) {
           console.error(`ERROR IMPORTING DOCUMENT ${document._id}`);
           console.error(e);

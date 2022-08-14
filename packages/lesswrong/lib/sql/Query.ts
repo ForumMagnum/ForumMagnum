@@ -13,9 +13,11 @@ const comparisonOps = {
   $lte: "<=",
   $gt: ">",
   $gte: ">=",
-  $in: "IN",
-  $nin: "NOT IN",
+  $in: "=",
+  $nin: "<>",
 };
+
+const isArrayOp = (op: string) => ["$in", "$nin"].indexOf(op) > -1;
 
 class Query<T extends DbObject> {
   private constructor(
@@ -28,14 +30,14 @@ class Query<T extends DbObject> {
     return sql.unsafe(sqlString, args);
   }
 
-  compile() {
+  compile(): {sql: string, args: any[]} {
     let argCount = 0;
     const strings: string[] = [];
     const args: any[] = [];
     for (const atom of this.atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argCount}`);
-        args.push(atom.value);
+        args.push(atom.value ?? null);
       } else {
         strings.push(atom);
       }
@@ -46,15 +48,19 @@ class Query<T extends DbObject> {
     };
   }
 
-  private getTypeHint(typeHint?: any) {
+  private getTypeHint(typeHint?: any): string {
     switch (typeof typeHint) {
       case "number":
         return Number.isInteger(typeHint) ? "::INTEGER" : "::REAL";
       case "string":
         return "::TEXT";
-      default:
-        return "";
+      case "boolean":
+        return "::BOOL";
     }
+    if (typeHint instanceof Date) {
+      return "::TIMESTAMPTZ";
+    }
+    return "";
   }
 
   private resolveFieldName(field: string, typeHint?: any): string {
@@ -80,26 +86,37 @@ class Query<T extends DbObject> {
   }
 
   private linkChain(chain: Atom[][], separator: string, prefix = "(", suffix = ")"): Atom[] {
-    return [prefix, ...chain.flatMap((item) => [separator, ...item]).slice(1), suffix];
+    return [
+      prefix,
+      ...chain.filter((a) => a.length).flatMap((item) => [separator, ...item]).slice(1),
+      suffix,
+    ];
   }
 
   private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom[] {
-    const chain = Object.keys(multiSelector).map(
-      (key) => this.compileSelector({[key]: multiSelector[key]})
-    );
+    const chain = Array.isArray(multiSelector)
+      ? multiSelector.map((selector) => this.compileSelector(selector))
+      : Object.keys(multiSelector).map(
+        (key) => this.compileSelector({[key]: multiSelector[key]})
+      );
     return this.linkChain(chain, separator);
   }
 
-  private compileComparison(field: string, value: any) {
+  private compileComparison(field: string, value: any): Atom[] {
     field = this.resolveFieldName(field, value);
     if (typeof value === "object") {
       if (value === null) {
         return [`${field} IS NULL`];
       }
       const comparer = Object.keys(value)[0];
+      if (comparer === "$exists") {
+        return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+      }
       const op = comparisonOps[comparer];
       if (op) {
-        return [`${field} ${op} `, new Arg(value[comparer])];
+        return isArrayOp(op)
+          ? [`${field} ${op} ANY(`, new Arg(value[comparer]), ")"]
+          : [`${field} ${op} `, new Arg(value[comparer])];
       } else {
         throw new Error(`Invalid comparison selector: ${field}: ${JSON.stringify(value)}`);
       }
@@ -122,23 +139,27 @@ class Query<T extends DbObject> {
         return this.compileMultiSelector(value, "AND");
       case "$or":
         return this.compileMultiSelector(value, "OR");
+      case "$comment":
+        return [];
     }
 
     return this.compileComparison(key, value);
   }
 
-  private appendSelector(selector: MongoSelector<T>) {
+  private appendSelector(selector: MongoSelector<T>): void {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
-  private appendOptions(options: MongoFindOptions<T>) {
+  private appendOptions(options: MongoFindOptions<T>): void {
     const {sort, limit, skip} = options;
 
     if (sort) {
       this.atoms.push("ORDER BY");
+      const sorts: string[] = [];
       for (const field in sort) {
-        this.atoms.push(`${this.resolveFieldName(field)} ${sort[field] > 0 ? "ASC" : "DESC"}`);
+        sorts.push(`${this.resolveFieldName(field)} ${sort[field] > 0 ? "ASC" : "DESC"}`);
       }
+      this.atoms.push(sorts.join(", "));
     }
 
     if (limit) {
@@ -152,12 +173,40 @@ class Query<T extends DbObject> {
     }
   }
 
+  private appendValuesList(data: T): void {
+    const fields = this.table.getFields();
+    const keys = Object.keys(fields);
+    this.atoms.push("(");
+    let prefix = "";
+    for (const key of keys) {
+      this.atoms.push(`${prefix}"${key}"`);
+      prefix = ", ";
+    }
+    this.atoms.push(") VALUES (");
+    prefix = "";
+    for (const key of keys) {
+      this.atoms.push(prefix);
+      this.atoms.push(new Arg(data[key] ?? null));
+      prefix = ", ";
+    }
+    this.atoms.push(")");
+  }
+
+  static insert<T extends DbObject>(table: Table, data: T, allowConflicts = false): Query<T> {
+    const query = new Query(table, [`INSERT INTO "${table.getName()}"`]);
+    query.appendValuesList(data);
+    if (allowConflicts) {
+      query.atoms.push("ON CONFLICT DO NOTHING");
+    }
+    return query;
+  }
+
   static select<T extends DbObject>(
     table: Table,
     selector?: MongoSelector<T>,
     options?: MongoFindOptions<T>,
     count: boolean = false,
-  ) {
+  ): Query<T> {
     const fields = count ? "count(*)" : "*";
     const query = new Query(table, [`SELECT ${fields} FROM "${table.getName()}"`]);
 

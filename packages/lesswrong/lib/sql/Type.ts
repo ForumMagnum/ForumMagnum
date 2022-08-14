@@ -2,8 +2,11 @@ import { getCollection } from "../vulcan-lib";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 
-export const isResolverOnly = <T extends DbObject>(schema: CollectionFieldSpecification<T>) =>
-  schema.resolveAs && !schema.resolveAs.addOriginalField;
+const forceNonResolverFields = ["contents"];
+
+export const isResolverOnly =
+  <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
+    schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 
 export abstract class Type {
   abstract toString() : string;
@@ -13,20 +16,21 @@ export abstract class Type {
   }
 
   static fromSchema<T extends DbObject>(
+    fieldName: string,
     schema: CollectionFieldSpecification<T>,
     indexSchema?: CollectionFieldSpecification<T>,
   ) {
-    if (isResolverOnly(schema)) {
+    if (isResolverOnly(fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }
 
     if (schema.defaultValue !== undefined && schema.defaultValue !== null) {
       const {defaultValue, ...rest} = schema;
-      return new DefaultValueType(Type.fromSchema(rest, indexSchema), defaultValue);
+      return new DefaultValueType(Type.fromSchema(fieldName, rest, indexSchema), defaultValue);
     }
 
     if (!schema.optional) {
-      return new NotNullType(Type.fromSchema({...schema, optional: true}, indexSchema));
+      return new NotNullType(Type.fromSchema(fieldName, {...schema, optional: true}, indexSchema));
     }
 
     switch (schema.type) {
@@ -48,7 +52,7 @@ export abstract class Type {
         if (!indexSchema) {
           throw new Error("No schema type provided for array member");
         }
-        return new ArrayType(Type.fromSchema(indexSchema));
+        return new ArrayType(Type.fromSchema(fieldName + ".$", indexSchema));
     }
 
     if (schema.type instanceof SimpleSchema) {
@@ -77,7 +81,7 @@ export class BoolType extends Type {
 
 export class IntType extends Type {
   toString() {
-    return "INT";
+    return "INTEGER";
   }
 }
 
