@@ -50,9 +50,10 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       />
       {isCrosspost && !currentUser?.fmCrosspostProfile &&
         <iframe
-          src={`http://localhost:4000/?token=${token}`}
+          src={`http://localhost:4000/crosspostLogin?token=${token}`}
           scrolling="no"
           className={classes.frame}
+          height={270}
         />
       }
     </div>

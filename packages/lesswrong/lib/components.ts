@@ -158,6 +158,7 @@ importComponent("UsersViewABTests", () => require('../components/users/UsersView
 importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage'));
 importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox'));
 importComponent("LoginPage", () => require('../components/users/LoginPage'));
+importComponent("CrosspostLoginPage", () => require('../components/users/CrosspostLoginPage'));
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton'));
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
 importComponent("KarmaChangeNotifier", () => require('../components/users/KarmaChangeNotifier'));
