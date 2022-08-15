@@ -1051,7 +1051,7 @@ interface unclaimedReportsList { // fragment on Reports
   readonly comment: unclaimedReportsList_comment|null,
   readonly postId: string,
   readonly post: unclaimedReportsList_post|null,
-  readonly reportedUser: SunshineUsersList,
+  readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date,
   readonly createdAt: Date,
   readonly claimedUserId: string,

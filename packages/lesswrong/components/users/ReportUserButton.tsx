@@ -6,7 +6,7 @@ import { useMessages } from '../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reportUserSection: {
-    marginTop: 60,
+    marginTop: 80,
     textAlign: "right",
   },
   reportUserBtn: {
@@ -27,24 +27,26 @@ const ReportUserButton = ({user, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { SingleColumnSection } = Components;
-
   const { flash } = useMessages()
-  const reportUser = async () => {
-    if (!currentUser) return;
+
+  const reportUser = () => {
+    if (!currentUser) return
     if (!user) return
+  
     openDialog({
       componentName: "ReportForm",
       componentProps: {
         reportedUserId: user._id,
         link: `/users/${user.slug}`,
         userId: currentUser._id,
-        onClose: () => {
+        onSubmit: () => {
           flash({messageString: "Your report has been sent to the moderators"})
         }
       }
-    });
+    })
   }
+  
+  const { SingleColumnSection } = Components
 
   if (currentUser && user.karma < 50 && (currentUser._id !== user._id)) {
     return <SingleColumnSection className={classes.reportUserSection}>

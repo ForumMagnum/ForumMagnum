@@ -11,12 +11,14 @@ import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = (theme: ThemeType): JssStyles => ({
+  reportedUser: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: 4
+  },
   reportedUserIcon: {
-    height: 10,
-    verticalAlign: "middle",
-    width: 10,
-    marginTop: -2,
-    marginLeft: 4,
+    height: 12,
+    width: 12,
   },
 });
 
@@ -106,13 +108,12 @@ const SunshineReportedItem = ({report, updateReport, classes}: {
             <strong>{ post?.title }</strong>
             <br/>
           </>}
-          {reportedUser && <>
-            <Link to={report.link}>
+          {reportedUser && <div>
+            <Link to={report.link} className={classes.reportedUser}>
               <strong>{ reportedUser?.displayName }</strong>
               <PersonOutlineIcon className={classes.reportedUserIcon}/>
             </Link>
-            <br/>
-          </>}
+          </div>}
           <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <FormatDate date={report.createdAt}/>
         </SidebarInfo>
         {hover && <SidebarActionMenu>

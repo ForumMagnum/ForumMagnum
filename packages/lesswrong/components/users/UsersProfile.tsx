@@ -19,10 +19,8 @@ import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, tagging
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { userCanPost } from '../../lib/collections/posts';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { useDialog } from '../common/withDialog';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -97,13 +95,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   slug: string,
   classes: ClassesType,
 }) => {
-  const { openDialog } = useDialog();
   const [showSettings, setShowSettings] = useState(false);
-
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-  })
 
   const currentUser = useCurrentUser();
   
