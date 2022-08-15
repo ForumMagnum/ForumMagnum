@@ -1748,7 +1748,23 @@ addFieldsDict(Users, {
     group: formGroups.aboutMe,
     order: 9
   },
-  
+
+  fmCrosspostProfile: {
+    type: new SimpleSchema({
+      userId: {
+        type: String,
+      },
+      confirmed: {
+        type: Boolean,
+      },
+    }),
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+
   linkedinProfileURL: {
     type: String,
     hidden: true,

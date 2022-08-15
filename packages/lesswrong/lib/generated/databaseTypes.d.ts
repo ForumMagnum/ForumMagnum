@@ -418,6 +418,11 @@ interface DbPost extends DbObject {
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
+  fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean,
+    foreignPostId: string,
+  }
   canonicalSequenceId: string
   canonicalCollectionSlug: string
   canonicalBookId: string
@@ -912,6 +917,10 @@ interface DbUser extends DbObject {
   organizerOfGroupIds: Array<string>
   programParticipation: Array<string>
   website: string
+  fmCrosspostProfile: {
+    userId: string,
+    confirmed: boolean,
+  }
   linkedinProfileURL: string
   facebookProfileURL: string
   twitterProfileURL: string

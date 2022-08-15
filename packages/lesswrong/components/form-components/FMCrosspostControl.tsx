@@ -1,25 +1,32 @@
-import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { fmCrosspostSiteName } from '../../lib/publicSettings';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
+import React, { useState } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { fmCrosspostSiteName } from "../../lib/publicSettings";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
+import classNames from "classnames";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    display: "flex",
+    flexDirection: "column",
   },
-  linkAccount: {
+  frame: {
+    border: "none",
   },
 });
 
-const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
+const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentUser}: {
   updateCurrentValues: Function,
   classes: ClassesType,
   value: {isCrosspost: boolean, hostedHere?: boolean, foreignPostId?: string},
   path: string,
+  currentUser: UsersCurrent,
 }) => {
   const {isCrosspost} = value ?? {};
+
+  const token = "THE_TOKEN";
 
   return (
     <div className={classes.root}>
@@ -41,12 +48,12 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
           />
         }
       />
-      {isCrosspost &&
-        <div className={classes.linkAccount}>
-          <Components.Typography className={classes.inline} variant="body2" component="label">
-            Link your account
-          </Components.Typography>
-        </div>
+      {isCrosspost && !currentUser?.fmCrosspostProfile &&
+        <iframe
+          src={`http://localhost:4000/?token=${token}`}
+          scrolling="no"
+          className={classes.frame}
+        />
       }
     </div>
   );

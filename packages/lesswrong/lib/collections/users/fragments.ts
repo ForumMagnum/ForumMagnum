@@ -153,6 +153,7 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
+    fmCrosspostProfile
 
     bookmarkedPostsMetadata
 

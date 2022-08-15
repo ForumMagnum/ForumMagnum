@@ -1764,6 +1764,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
       onlyUnread: boolean,
     },
   },
+  readonly fmCrosspostProfile: {
+    userId: string,
+    confirmed: boolean,
+  },
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
