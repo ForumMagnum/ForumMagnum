@@ -186,6 +186,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   }
 
   const handleSnooze = () => {
+    const newNotes = signatureWithNote("Snooze") + notes;
     updateUser({
       selector: {_id: user._id},
       data: {
@@ -193,16 +194,16 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
         sunshineSnoozed: true,
-        sunshineNotes: notes
+        sunshineNotes: newNotes
       }
     })
-
-    setNotes( signatureWithNote("Snooze")+notes )
+    setNotes( newNotes )
   }
 
   const banMonths = 3
 
   const handleBan = async () => {
+    const newNotes = signatureWithNote("Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
       await updateUser({
         selector: {_id: user._id},
@@ -213,10 +214,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           needsReview: false,
           reviewedAt: new Date(),
           banned: moment().add(banMonths, 'months').toDate(),
-          sunshineNotes: notes
+          sunshineNotes: newNotes
         }
       })
-      setNotes( signatureWithNote("Ban")+notes )
+      setNotes( newNotes )
     }
   }
 
@@ -251,6 +252,58 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
     const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
     setNotes( signatureWithNote(flagStatus)+notes )
+  }
+
+  const handleDisablePosting = async () => {
+    const abled = !user.postingDisabled ? 'enabled' : 'disabled';
+    const newNotes = signatureWithNote(`posting disabled ${abled}`) + notes;
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        postingDisabled: !user.postingDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
+  }
+
+  const handleDisableAllCommenting = async () => {
+    const abled = !user.allCommentingDisabled ? 'enabled' : 'disabled';
+    const newNotes = signatureWithNote(`all commenting ${abled}`) + notes;
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        postingDisabled: !user.allCommentingDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
+  }
+
+  const handleDisableCommentingOnOtherUsers = async () => {
+    const abled = !user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
+    const newNotes = signatureWithNote(`commenting on other's ${abled}`) + notes;
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        postingDisabled: !user.commentingOnOtherUsersDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
+  }
+
+  const handleDisableConversations = async () => {
+    const abled = !user.conversationsDisabled ? 'enabled' : 'disabled'
+    const newNotes = signatureWithNote(`conversations ${abled}`) + notes;
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        postingDisabled: !user.conversationsDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
   }
 
   const { results: posts, loading: postsLoading } = useMulti({
@@ -360,6 +413,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               <div className={classes.row}>
                 <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
               </div>
+            </div>
+            <div className={classes.row}>
+
             </div>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>

@@ -257,6 +257,10 @@ registerFragment(`
     sunshineSnoozed
     sunshineNotes
     sunshineFlagged
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
   }
 `);
 
