@@ -179,9 +179,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
-  const handleNotes = () => {
+  const handleNotes = async () => {
     if (notes != user.sunshineNotes) {
-      updateUser({
+      await updateUser({
         selector: {_id: user._id},
         data: {
           sunshineNotes: notes
@@ -196,9 +196,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   });
 
-  const handleReview = () => {
+  const handleReview = async () => {
     if (canReview) {
-      updateUser({
+      await updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -212,8 +212,8 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handleSnooze = (contentCount: number) => {
-    updateUser({
+  const handleSnooze = async (contentCount: number) => {
+    await updateUser({
       selector: {_id: user._id},
       data: {
         needsReview: false,
@@ -267,8 +267,8 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handleFlag = () => {
-    updateUser({
+  const handleFlag = async () => {
+    await updateUser({
       selector: {_id: user._id},
       data: {
         sunshineFlagged: !user.sunshineFlagged,
