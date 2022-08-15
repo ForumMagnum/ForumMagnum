@@ -8,9 +8,10 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
-import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
+import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -152,35 +153,23 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
-  const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    await Users.rawUpdateOne({_id:author._id}, {$set:{needsReview: true}})
-  }
-  return document
-}
-
-getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
   if (!document.draft) {
-    await newDocumentMaybeTriggerReview(document);
+    await triggerReviewIfNeeded(document.userId)
   }
-  return document;
 });
 
-getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
-  // ignore draft posts
-  if (newPost.draft) return
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
 
-  // Is this a post being undrafted?
-  if (oldPost.draft) {
-    await newDocumentMaybeTriggerReview(newPost)
-  }
+  await triggerReviewIfNeeded(oldDocument.userId)
+  
+  if (document.draft) return 
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
   // then we consider this "publishing" the post
-  if ((oldPost.draft && !newPost.authorIsUnreviewed) || (oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([newPost]);
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    await postPublishedCallback.runCallbacksAsync([document]);
   }
 });
 

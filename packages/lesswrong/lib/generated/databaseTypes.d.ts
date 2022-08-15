@@ -859,7 +859,7 @@ interface DbUser extends DbObject {
   sunshineNotes: string
   sunshineFlagged: boolean
   needsReview: boolean
-  sunshineSnoozed: boolean
+  snoozedUntilContentCount: number
   reviewedByUserId: string
   reviewedAt: Date
   afKarma: number
