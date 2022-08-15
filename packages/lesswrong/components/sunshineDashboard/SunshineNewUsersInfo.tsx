@@ -1,6 +1,6 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
@@ -8,13 +8,13 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import FlagIcon from '@material-ui/icons/Flag';
 import SnoozeIcon from '@material-ui/icons/Snooze';
+import AddAlarmIcon from '@material-ui/icons/AddAlarm';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
-import Button from '@material-ui/core/Button';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
@@ -58,7 +58,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    border: `solid 2px ${theme.palette.error.dark}`
   },
   downvotes: {
     color: theme.palette.error.dark,
@@ -68,7 +67,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
     color: theme.palette.primary.dark,
@@ -78,7 +76,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
     color: theme.palette.primary.dark,
@@ -88,7 +85,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    border: `solid 2px ${theme.palette.primary.dark}`
   },
   votesRow: {
     marginTop: 12,
@@ -139,13 +135,44 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     },
   },
+  modButton:{
+    marginTop: 6,
+    marginRight: 16,
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
+  },
+  snooze10: {
+    color: theme.palette.primary.main
+  }
 })
-const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
+
+interface UserContentCountPartial {
+  postCount?: number,
+  commentCount?: number
+}
+
+export function getCurrentContentCount(user: UserContentCountPartial) {
+  const postCount = user.postCount ?? 0
+  const commentCount = user.commentCount ?? 0
+  return postCount + commentCount
+}
+
+export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: number) {
+  return getCurrentContentCount(user) + contentCount
+}
+
+const SunshineNewUsersInfo = ({ user, classes }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any
 }) => {
   const currentUser = useCurrentUser();
+
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  })
 
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
@@ -177,24 +204,24 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           sunshineFlagged: false,
           reviewedByUserId: currentUser!._id,
           reviewedAt: new Date(),
-          sunshineSnoozed: false,
           needsReview: false,
-          sunshineNotes: notes
+          sunshineNotes: notes,
+          snoozedUntilContentCount: null
         }
       })
     }
   }
 
-  const handleSnooze = () => {
-    const newNotes = signatureWithNote("Snooze") + notes;
+  const handleSnooze = (contentCount: number) => {
+    const newNotes = signatureWithNote(`Snooze ${contentCount}`)+notes;
     updateUser({
       selector: {_id: user._id},
       data: {
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
-        sunshineSnoozed: true,
-        sunshineNotes: newNotes
+        sunshineNotes: newNotes,
+        snoozedUntilContentCount: getNewSnoozeUntilContentCount(user, contentCount)
       }
     })
     setNotes( newNotes )
@@ -366,6 +393,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
               <div className={classes.notes}>
                 <Input 
@@ -382,43 +410,36 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
             <div className={classes.row}>
               <div className={classes.row}>
                 <LWTooltip title="Approve">
-                  <Button onClick={handleReview} className={canReview ? null : classes.disabled }>
-                    <DoneIcon/>
-                  </Button>
+                  <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
                 </LWTooltip>
-                <LWTooltip title="Snooze (approve all posts)">
-                  <Button title="Snooze" onClick={handleSnooze}>
-                    <SnoozeIcon />
-                  </Button>
+                <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)">
+                  <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
+                </LWTooltip>
+                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)">
+                  <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
                 </LWTooltip>
                 <LWTooltip title="Ban for 3 months">
-                  <Button onClick={handleBan}>
-                    <RemoveCircleOutlineIcon />
-                  </Button>
+                  <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
                 </LWTooltip>
                 <LWTooltip title="Purge (delete and ban)">
-                  <Button onClick={handlePurge}>
-                    <DeleteForeverIcon />
-                  </Button>
+                  <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
                 </LWTooltip>
                 <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
-                  <div>Flag this user for more review</div>
-                  <div><em>(This will not remove them from sidebar)</em></div>
-                </div>}>
-                  <Button onClick={handleFlag}>
+                    <div>Flag this user for more review</div>
+                    <div><em>(This will not remove them from sidebar)</em></div>
+                  </div>}>
+                  <div onClick={handleFlag} className={classes.modButton} >
                     {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
-                  </Button>
+                  </div>
                 </LWTooltip>
               </div>
               <div className={classes.row}>
                 <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
               </div>
             </div>
-            <div className={classes.row}>
-
-            </div>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
+              <span>Votes: </span>
               <LWTooltip title="Big Upvotes">
                 <span className={classes.bigUpvotes}>
                   { user.bigUpvoteCount || 0 }
@@ -478,10 +499,6 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
   styles,
   hocs: [
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'SunshineUsersList',
-    }),
     withErrorBoundary,
   ]
 });
@@ -491,3 +508,5 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
+
+

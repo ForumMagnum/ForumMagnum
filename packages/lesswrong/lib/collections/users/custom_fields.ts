@@ -1160,14 +1160,21 @@ addFieldsDict(Users, {
     optional: true,
     ...schemaDefaultValue(false),
   },
-
-  sunshineSnoozed: {
-    type: Boolean,
+  // Deprecated in favor of snoozedUntilContentCount
+  // sunshineSnoozed: {
+  //   type: Boolean,
+  //   canRead: ['admins', 'sunshineRegiment'],
+  //   canUpdate: ['admins', 'sunshineRegiment'],
+  //   group: formGroups.adminOptions,
+  //   optional: true,
+  //   ...schemaDefaultValue(false),
+  // },
+  snoozedUntilContentCount: {
+    type: Number,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
-    optional: true,
-    ...schemaDefaultValue(false),
+    optional: true
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does

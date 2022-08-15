@@ -11,10 +11,10 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { newDocumentMaybeTriggerReview } from './postCallbacks';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -324,14 +324,6 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   return {...comment, ...votedComment} as DbComment;
 });
 
-getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview (comment: DbComment) {
-  const user = await Users.findOne({_id:comment.userId})
-  const karma = user?.karma || 0
-  if (karma < 100) {
-    await Comments.rawUpdateOne({_id:comment._id}, {$set: {needsReview: true}});
-  }
-});
-
 getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
   if (modifier.$set) {
     const { deleted, deletedPublic, deletedReason } = modifier.$set
@@ -447,7 +439,15 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
-  await newDocumentMaybeTriggerReview(document);
-  return document;
+// This function and the latter function seem redundant. TODO decide whether/where the karma < 100 clause should live
+getCollectionHooks("Comments").createAsync.add(async function NewCommentNeedsReview ({document}: CreateCallbackProperties<DbComment>) {
+  const user = await Users.findOne({_id:document.userId})
+  const karma = user?.karma || 0
+  if (karma < 100) {
+    await triggerReviewIfNeeded(document.userId);
+  }
+});
+
+getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
+  await triggerReviewIfNeeded(document.userId);
 })
