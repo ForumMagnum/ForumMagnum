@@ -102,3 +102,5 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
+
+export const fmCrosspostSiteName = new DatabasePublicSetting<string | null>("fmCrosspostSiteName", null);

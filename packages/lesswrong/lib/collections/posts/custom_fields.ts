@@ -5,6 +5,7 @@ import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
+import { fmCrosspostSiteName } from '../../../lib/publicSettings';
 import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
@@ -305,6 +306,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     control: "FMCrosspostControl",
     group: formGroups.advancedOptions,
+    hidden: () => !fmCrosspostSiteName.get(),
     ...schemaDefaultValue({
       isCrosspost: false,
     }),

@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import { fmCrosspostSiteName } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,7 +33,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
         }}
         disableRipple
       />
-      <Components.Typography className={classes.inline} variant="body2" component="label">Crosspost</Components.Typography>
+      <Components.Typography className={classes.inline} variant="body2" component="label">Crosspost to {fmCrosspostSiteName.get()}</Components.Typography>
     </div>
   );
 };
