@@ -222,7 +222,7 @@ interface BooksDefaultFragment { // fragment on Books
   readonly number: number,
   readonly postIds: Array<string>,
   readonly sequenceIds: Array<string>,
-  readonly sequencesGridDisplay: boolean,
+  readonly displaySequencesAsGrid: boolean,
   readonly hideProgressBar: boolean,
   readonly showChapters: boolean,
 }
@@ -1033,6 +1033,7 @@ interface RSSFeedMutationFragment { // fragment on RSSFeeds
 
 interface ReportsDefaultFragment { // fragment on Reports
   readonly userId: string,
+  readonly reportedUserId: string,
   readonly commentId: string,
   readonly postId: string,
   readonly link: string,
@@ -1052,6 +1053,7 @@ interface unclaimedReportsList { // fragment on Reports
   readonly comment: unclaimedReportsList_comment|null,
   readonly postId: string,
   readonly post: unclaimedReportsList_post|null,
+  readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date,
   readonly createdAt: Date,
   readonly claimedUserId: string,
@@ -1343,7 +1345,7 @@ interface BookPageFragment { // fragment on Books
   readonly postIds: Array<string>,
   readonly posts: Array<PostsList>,
   readonly collectionId: string,
-  readonly sequencesGridDisplay: boolean,
+  readonly displaySequencesAsGrid: boolean,
   readonly hideProgressBar: boolean,
   readonly showChapters: boolean,
 }
@@ -1822,9 +1824,9 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly reviewedAt: Date,
   readonly signUpReCaptchaRating: number,
   readonly needsReview: boolean,
-  readonly sunshineSnoozed: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
+  readonly snoozedUntilContentCount: number,
 }
 
 interface SharedUserBooleans { // fragment on Users
