@@ -92,7 +92,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
 });
 
 getCollectionHooks("Users").updateAsync.add(function mapLocationMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
-  triggerReviewIfNeeded(document._id)
+  void triggerReviewIfNeeded(document._id)
 })
 
 // When the very first user account is being created, add them to Sunshine

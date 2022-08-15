@@ -179,9 +179,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
-  const handleNotes = async () => {
+  const handleNotes = () => {
     if (notes != user.sunshineNotes) {
-      await updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineNotes: notes
@@ -196,9 +196,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   });
 
-  const handleReview = async () => {
+  const handleReview = () => {
     if (canReview) {
-      await updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -212,8 +212,8 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handleSnooze = async (contentCount: number) => {
-    await updateUser({
+  const handleSnooze = (contentCount: number) => {
+    void updateUser({
       selector: {_id: user._id},
       data: {
         needsReview: false,
@@ -229,9 +229,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const banMonths = 3
 
-  const handleBan = async () => {
+  const handleBan = () => {
     if (confirm(`Ban this user for ${banMonths} months?`)) {
-      await updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -247,9 +247,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handlePurge = async () => {
+  const handlePurge = () => {
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
-      await updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -267,8 +267,8 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handleFlag = async () => {
-    await updateUser({
+  const handleFlag = () => {
+    void updateUser({
       selector: {_id: user._id},
       data: {
         sunshineFlagged: !user.sunshineFlagged,
