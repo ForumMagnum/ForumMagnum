@@ -56,7 +56,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
 getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
   const newEmail = modifier.$set?.email;
   const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail) {
+  if (newEmail && newEmail !== oldEmail && forumTypeSetting.get() === "EAForum") {
     await updateAuth0Email(user, newEmail);
     /*
      * Be careful here: DbUser does NOT includes services, so overwriting
