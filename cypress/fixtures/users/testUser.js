@@ -105,7 +105,7 @@ module.exports = {
     nearbyEventsNotifications: false,
     sunshineNotes: "",
     sunshineFlagged: false,
-    sunshineSnoozed: false,
+    snoozedUntilContentCount: null,
     maxPostCount: 0,
     maxCommentCount: 0,
     schemaVersion: 1,
