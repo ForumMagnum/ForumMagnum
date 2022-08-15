@@ -1,4 +1,4 @@
-import { isServer } from './executionEnvironment';
+import { isServer, getServerPort } from './executionEnvironment';
 import qs from 'qs';
 import React, { useContext } from 'react';
 import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
@@ -135,8 +135,7 @@ const LwAfDomainWhitelist: Array<string> = [
   "alignmentforum.org",
   "alignment-forum.com",
   "greaterwrong.com",
-  "localhost:3000",
-  "localhost:8300"
+  `localhost:${getServerPort()}`,
 ]
 
 const forumDomainWhitelist: ForumOptions<Array<string>> = {
@@ -146,12 +145,10 @@ const forumDomainWhitelist: ForumOptions<Array<string>> = {
     'forum.effectivealtruism.org',
     'forum-staging.effectivealtruism.org',
     'ea.greaterwrong.com',
-    'localhost:3000',
-    'localhost:8300'
+    `localhost:${getServerPort()}`,
   ],
   default: [
-    'localhost:3000',
-    'localhost:8300',
+    `localhost:${getServerPort()}`,
   ],
 }
 
