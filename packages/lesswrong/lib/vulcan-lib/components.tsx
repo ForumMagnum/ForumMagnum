@@ -109,6 +109,8 @@ const addClassnames = (componentName: string, styles: any) => {
   })
 }
 
+type DistributiveOmit<T, K> = T extends any ? Omit<T, Extract<keyof T, K>> : never;
+
 // Register a component. Takes a name, a raw component, and ComponentOptions
 // (see above). Components should be in their own file, imported with
 // `importComponent`, and registered in that file; components that are
@@ -119,7 +121,7 @@ const addClassnames = (componentName: string, styles: any) => {
 // ComponentTypes interface to type-check usages of the component in other
 // files.
 export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>,
-  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
+  options?: ComponentOptions): React.ComponentType<DistributiveOmit<PropType,"classes">>
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
@@ -148,7 +150,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   // ones required to be passed in by parent components. It doesn't work for
   // hocs that share prop names that overlap with actually passed-in props, like
   // `location`.
-  return (null as any as React.ComponentType<Omit<PropType,"classes">>);
+  return (null as any as React.ComponentType<DistributiveOmit<PropType,"classes">>);
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until

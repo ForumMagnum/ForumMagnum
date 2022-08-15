@@ -641,6 +641,23 @@ interface DbTagRel extends DbObject {
   inactive: boolean
 }
 
+interface TagReportsCollection extends CollectionBase<DbTagReport, "TagReports"> {
+}
+
+interface DbTagReport extends DbObject {
+  __collectionName?: "TagReports"
+  userId: string
+  tagId: string
+  tagRevisionId: string
+  link: string
+  claimedUserId: string
+  description: string
+  createdAt: Date
+  closedAt: Date
+  markedAsSpam: boolean
+  reportedAsSpam: boolean
+}
+
 interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
 }
 
@@ -1014,6 +1031,7 @@ interface CollectionsByName {
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
+  TagReports: TagReportsCollection
   Tags: TagsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1049,6 +1067,7 @@ interface ObjectsByCollectionName {
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
   TagRels: DbTagRel
+  TagReports: DbTagReport
   Tags: DbTag
   Users: DbUser
   Votes: DbVote

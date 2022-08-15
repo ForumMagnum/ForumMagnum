@@ -3,14 +3,40 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import Reports from '../../lib/collections/reports/collection'
 import DialogContent from '@material-ui/core/DialogContent';
 
-const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
-  userId: string,
-  postId: string,
-  commentId?: string,
-  onClose?: ()=>void,
-  title?: string,
-  link: string,
-}) => {
+export type ReportFormProps = {
+  userId: string;
+  onClose?: () => void;
+  title?: string;
+  link: string;
+} & ({
+  tagId: string;
+  tagRevisionId?: string;
+  reportType: 'tag';
+} | {
+  postId: string;
+  commentId?: string;
+  reportType: 'post';
+});
+
+const ReportForm = (props: ReportFormProps) => {
+  const { userId, onClose, title, link, reportType } = props;
+  const prefilledProps = reportType === 'post' ? {
+    userId,
+    link,
+    postId: props.postId,
+    commentId: props.commentId,
+  } : {
+    userId,
+    link,
+    tagId: props.tagId,
+    tagRevisionId: props.tagRevisionId
+  };
+
+  const mutationFragment = reportType === 'post'
+    ? getFragment('unclaimedReportsList')
+    // TODO
+    : getFragment('');
+
   return (
     <Components.LWDialog
       title={title}
@@ -20,13 +46,8 @@ const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
       <DialogContent>
         <Components.WrappedSmartForm
           collection={Reports}
-          mutationFragment={getFragment('unclaimedReportsList')}
-          prefilledProps={{
-            userId: userId,
-            postId: postId,
-            commentId: commentId,
-            link: link
-          }}
+          mutationFragment={mutationFragment}
+          prefilledProps={prefilledProps}
           successCallback={onClose}
         />
       </DialogContent>

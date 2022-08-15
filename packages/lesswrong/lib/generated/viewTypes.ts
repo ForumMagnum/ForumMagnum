@@ -27,6 +27,7 @@ type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"cu
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
+type TagReportsViewName = never
 type TagsViewName = "allTagsAlphabetical"|"userTags"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags";
 type UsersViewName = "usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"usersWithBannedUsers"|"sunshineNewUsers"|"allUsers"|"usersMapLocations"|"reviewAdminUsers"|"usersWithPaymentInfo"|"walledGardenInvitees"|"alignmentSuggestedUsers";
 type VotesViewName = "tagVotes"|"userPostVotes";
@@ -61,6 +62,7 @@ interface ViewTermsByCollectionName {
   Subscriptions: SubscriptionsViewTerms
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
+  TagReports: ViewTermsBase
   Tags: TagsViewTerms
   Users: UsersViewTerms
   Votes: VotesViewTerms

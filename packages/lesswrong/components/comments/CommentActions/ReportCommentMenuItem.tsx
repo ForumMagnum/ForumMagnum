@@ -23,6 +23,7 @@ const ReportCommentMenuItem = ({comment}: {
         postId: comment.postId,
         link: "/posts/" + comment.postId + "/a/" + comment._id,
         userId: currentUser._id,
+        reportType: 'post'
       }
     });
   }

@@ -22,6 +22,7 @@ const ReportPostMenuItem = ({post}: {
         postId: post._id,
         link: "/posts/" + post._id,
         userId: currentUser._id,
+        reportType: 'post'
       }
     });
   }

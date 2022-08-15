@@ -45,6 +45,9 @@ import './collections/reports/collection'
 import './collections/reports/views'
 import './collections/reports/fragments'
 
+// TagReports
+import './collections/tagReports/collection'
+
 // LWEvents
 import './collections/lwevents/index';
 
