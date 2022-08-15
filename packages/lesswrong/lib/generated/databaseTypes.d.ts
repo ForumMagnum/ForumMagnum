@@ -34,7 +34,7 @@ interface DbBook extends DbObject {
   number: number
   postIds: Array<string>
   sequenceIds: Array<string>
-  sequencesGridDisplay: boolean
+  displaySequencesAsGrid: boolean
   hideProgressBar: boolean
   showChapters: boolean
   contents: EditableFieldContents
