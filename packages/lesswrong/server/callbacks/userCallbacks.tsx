@@ -91,7 +91,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function mapLocationMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
   void triggerReviewIfNeeded(document._id)
 })
 

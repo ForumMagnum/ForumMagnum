@@ -440,13 +440,13 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 });
 
 // This function and the latter function seem redundant. TODO decide whether/where the karma < 100 clause should live
-getCollectionHooks("Comments").createAsync.add(async function NewCommentNeedsReview ({document}: CreateCallbackProperties<DbComment>) {
-  const user = await Users.findOne({_id:document.userId})
-  const karma = user?.karma || 0
-  if (karma < 100) {
-    await triggerReviewIfNeeded(document.userId);
-  }
-});
+// getCollectionHooks("Comments").createAsync.add(async function NewCommentNeedsReview ({document}: CreateCallbackProperties<DbComment>) {
+//   const user = await Users.findOne({_id:document.userId})
+//   const karma = user?.karma || 0
+//   if (karma < 100) {
+//     await triggerReviewIfNeeded(document.userId);
+//   }
+// });
 
 getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
   await triggerReviewIfNeeded(document.userId);
