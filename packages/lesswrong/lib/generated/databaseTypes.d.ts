@@ -519,6 +519,7 @@ interface ReportsCollection extends CollectionBase<DbReport, "Reports"> {
 interface DbReport extends DbObject {
   __collectionName?: "Reports"
   userId: string
+  reportedUserId: string
   commentId: string
   postId: string
   link: string
