@@ -438,9 +438,12 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
 }
 
 export const getAuth0Id = (user: DbUser) => {
-  const id = user.services?.auth0?.id ?? user.services?.auth0?.user_id;
-  if (!id) {
-    throw new Error("User does not have an Auth0 user ID");
+  const auth0 = user.services?.auth0;
+  if (auth0 && auth0.provider === "auth0") {
+    const id = auth0.id ?? auth0.user_id;
+    if (id) {
+      return id;
+    }
   }
-  return id;
+  throw new Error("User does not have an Auth0 user ID");
 }

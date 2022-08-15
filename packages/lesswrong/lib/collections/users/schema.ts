@@ -213,7 +213,7 @@ const schema: SchemaType<DbUser> = {
       return data.email;
     },
     form: {
-      disabled: ({document}) => !document.hasAuth0Id,
+      disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
