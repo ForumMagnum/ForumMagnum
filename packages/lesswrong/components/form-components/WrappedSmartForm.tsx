@@ -30,7 +30,7 @@ function WrappedSmartForm(props) {
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
             (originalContents?.data) ? // Ensure that we have data
               { originalContents, updateType, commitMessage } : // If so, constrain it to correct shape
-              undefined // If not, set field to undefined
+              {} // If not, set field to an empty object
           ]
         }))
         return {...data, ...editableFields}
