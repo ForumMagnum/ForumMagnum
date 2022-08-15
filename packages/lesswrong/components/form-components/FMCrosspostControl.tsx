@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { fmCrosspostSiteName } from '../../lib/publicSettings';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { fmCrosspostSiteName } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+  },
+  linkAccount: {
   },
 });
 
@@ -20,20 +23,31 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
 
   return (
     <div className={classes.root}>
-      <Checkbox
-        className={classes.size}
-        checked={isCrosspost}
-        onChange={(event, checked) => {
-          updateCurrentValues({
-            [path]: {
-              ...value,
-              isCrosspost: checked,
-            },
-          })
-        }}
-        disableRipple
+      <FormControlLabel
+        label={`Crosspost to ${fmCrosspostSiteName.get()}`}
+        control={
+          <Checkbox
+            className={classes.size}
+            checked={isCrosspost}
+            onChange={(event, checked) => {
+              updateCurrentValues({
+                [path]: {
+                  ...value,
+                  isCrosspost: checked,
+                },
+              })
+            }}
+            disableRipple
+          />
+        }
       />
-      <Components.Typography className={classes.inline} variant="body2" component="label">Crosspost to {fmCrosspostSiteName.get()}</Components.Typography>
+      {isCrosspost &&
+        <div className={classes.linkAccount}>
+          <Components.Typography className={classes.inline} variant="body2" component="label">
+            Link your account
+          </Components.Typography>
+        </div>
+      }
     </div>
   );
 };
