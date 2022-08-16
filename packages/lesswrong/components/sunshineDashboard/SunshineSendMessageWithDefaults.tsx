@@ -13,6 +13,10 @@ import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSe
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    display: "flex",
+    alignItems: "center"
+  },
   editIcon: {
     width: 20,
     color: theme.palette.grey[400]
@@ -25,12 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sendMessageButton: {
     marginLeft: 8,
-    marginRight: 4,
-    marginTop: 16,
-    // marginBottom: 16,
-    width: 64,
-    height: 32,
+    marginRight: 12,
     padding: 8,
+    height: 32,
     fontSize: "1rem",
     color: theme.palette.grey[500],
     '&:hover': {
@@ -64,7 +65,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
   if (!(user && currentUser)) return null
   
   return (
-    <div>
+    <div className={classes.root}>
       <span
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}

@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptions } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
@@ -283,7 +283,7 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = process.env.PORT || 3000
+  const port = getServerPort();
   const env = process.env.NODE_ENV || 'production'
   const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console

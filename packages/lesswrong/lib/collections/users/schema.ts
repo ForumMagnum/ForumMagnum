@@ -236,7 +236,7 @@ const schema: SchemaType<DbUser> = {
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
         const slugLower = data.slug.toLowerCase();
-        const slugIsUsed = await Utils.slugIsUsed("Users", slugLower)
+        const slugIsUsed = !oldDocument.oldSlugs?.includes(slugLower) && await Utils.slugIsUsed("Users", slugLower)
         if (slugIsUsed) {
           throw Error(`Specified slug is already used: ${slugLower}`)
         }
@@ -244,7 +244,7 @@ const schema: SchemaType<DbUser> = {
       }
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
           return slugForNewName;
         }
       }
