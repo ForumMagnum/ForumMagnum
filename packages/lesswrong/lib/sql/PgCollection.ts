@@ -27,7 +27,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     try {
       return await this.getSqlClient().unsafe(sql, args) as unknown as R[]|null;
     } catch (error) {
-      console.error(`SQL Error: ${error.message}: ${sql}: ${args}: ${util.inspect(selector)}`);
+      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${util.inspect(selector, {depth: null})}`);
       throw error;
     }
   }

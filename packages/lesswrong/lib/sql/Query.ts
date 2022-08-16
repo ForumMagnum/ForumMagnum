@@ -17,7 +17,7 @@ const comparisonOps = {
   $nin: "<>",
 };
 
-const isArrayOp = (op: string) => ["$in", "$nin"].indexOf(op) > -1;
+const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 
 class Query<T extends DbObject> {
   private constructor(
@@ -37,7 +37,7 @@ class Query<T extends DbObject> {
     for (const atom of this.atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argCount}`);
-        args.push(atom.value ?? null);
+        args.push(atom.value);
       } else {
         strings.push(atom);
       }
@@ -85,24 +85,23 @@ class Query<T extends DbObject> {
     throw new Error(`Cannot resolve ${this.table.getName()} field name: ${field}`);
   }
 
-  private linkChain(chain: Atom[][], separator: string, prefix = "(", suffix = ")"): Atom[] {
-    return [
-      prefix,
-      ...chain.filter((a) => a.length).flatMap((item) => [separator, ...item]).slice(1),
-      suffix,
-    ];
-  }
-
   private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom[] {
-    const chain = Array.isArray(multiSelector)
+    const result = Array.isArray(multiSelector)
       ? multiSelector.map((selector) => this.compileSelector(selector))
       : Object.keys(multiSelector).map(
         (key) => this.compileSelector({[key]: multiSelector[key]})
       );
-    return this.linkChain(chain, separator);
+    return [
+      "(",
+      ...result.filter((a) => a.length).flatMap((item) => [separator, ...item]).slice(1),
+      ")",
+    ];
   }
 
   private compileComparison(field: string, value: any): Atom[] {
+    if (value === undefined) {
+      return [];
+    }
     field = this.resolveFieldName(field, value);
     if (typeof value === "object") {
       if (value === null) {
@@ -114,7 +113,7 @@ class Query<T extends DbObject> {
       }
       const op = comparisonOps[comparer];
       if (op) {
-        return isArrayOp(op)
+        return isArrayOp(comparer)
           ? [`${field} ${op} ANY(`, new Arg(value[comparer]), ")"]
           : [`${field} ${op} `, new Arg(value[comparer])];
       } else {
@@ -153,7 +152,7 @@ class Query<T extends DbObject> {
   private appendOptions(options: MongoFindOptions<T>): void {
     const {sort, limit, skip} = options;
 
-    if (sort) {
+    if (sort && Object.keys(sort).length) {
       this.atoms.push("ORDER BY");
       const sorts: string[] = [];
       for (const field in sort) {
