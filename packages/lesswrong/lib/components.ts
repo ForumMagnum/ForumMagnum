@@ -49,6 +49,7 @@ importComponent("LocalStorageCheck", () => require('../components/editor/LocalSt
 importComponent("EditorTypeSelect", () => require('../components/editor/EditorTypeSelect'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
+importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
@@ -154,8 +155,6 @@ importComponent("BannedNotice", () => require('../components/users/BannedNotice'
 importComponent("DraftsPage", () => require('../components/users/DraftsPage'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
-importComponent("NewUsersEditForm", () => require('../components/users/NewUsersEditForm'));
-importComponent("TabBar", () => require('../components/users/TabBar'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
 importComponent("UsersProfile", () => require('../components/users/UsersProfile'));
@@ -574,18 +573,6 @@ importComponent("Codex", () => require('../components/sequences/Codex'));
 importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
 importComponent("CuratedSequences", () => require('../components/sequences/CuratedSequences'));
 importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIntroCurriculum'));
-
-importComponent("FormCheckbox", () => require('../components/forms/FormCheckbox'));
-importComponent("FormDate", () => require('../components/forms/FormDate'));
-importComponent("FormDropdown", () => require('../components/forms/FormDropdown'));
-importComponent("FormEditor", () => require('../components/forms/FormEditor'));
-importComponent("FormLocation", () => require('../components/forms/FormLocation'));
-importComponent("FormTextbox", () => require('../components/forms/FormTextbox'));
-importComponent("FormNotificationTypeSettings", () => require('../components/forms/FormNotificationTypeSettings'));
-importComponent("FormMultilineText", () => require('../components/forms/FormMultilineText'));
-importComponent(["EditableUsersList", "FormUsersList"], () => require('../components/forms/FormUsersList'));
-importComponent("FormUserPermissionGroupMemberships", () => require('../components/forms/FormUserPermissionGroupMemberships'));
-importComponent("FormKarmaChangeNotifierSettings", () => require('../components/forms/FormKarmaChangeNotifierSettings'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));

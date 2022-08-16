@@ -1,12 +1,9 @@
 import React from 'react';
 import { registerComponent, useStyles, Components } from '../../lib/vulcan-lib/components';
-import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
-import { makeSortableListComponent } from './sortableList';
+import { makeSortableListComponent } from '../form-components/sortableList';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  ...formCommonStyles(theme),
-  
   listEditor: {
     display: "flex"
   },
@@ -55,33 +52,10 @@ export function EditableUsersList({value, setValue, label, classes}: {
   </span>
 }
 
-// An editable users list, with all of the wiring to put it in a
-// form and enforce it being a valid part of the fragment.
-export function FormUsersList<T, FN extends keyof T>({form, fieldName, label}: {
-  form: LWForm<T>,
-  fieldName: NameOfFieldWithType<T,FN,string[]>,
-  label: string,
-}) {
-  const {value,setValue} = useFormComponentContext<string[],T>(form, fieldName);
-  const classes = useStyles(styles, "FormUsersList");
-  return <div className={classes.formField}>
-    <span className={classes.leftColumn}>{label}</span>
-    <span className={classes.rightColumn}>
-      <Components.EditableUsersList
-        value={value}
-        setValue={setValue}
-        label={label}
-      />
-    </span>
-  </div>
-}
-
 const EditableUsersListComponent = registerComponent('EditableUsersList', EditableUsersList, {styles});
-registerComponent('FormUsersList', FormUsersList, {styles});
 
 declare global {
   interface ComponentTypes {
     EditableUsersList: typeof EditableUsersListComponent
-    FormUsersList: typeof FormUsersList
   }
 }
