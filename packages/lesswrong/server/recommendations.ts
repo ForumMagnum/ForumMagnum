@@ -92,7 +92,6 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
     return {
       $or: [
         {"tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0}}, // rationality tag
-        {canonicalCollectionSlug: "rationality"}, // posts from the rationality a-z collection (some of which are not tagged rationality)
       ]
     }
   }
