@@ -4,7 +4,7 @@ class Arg {
   constructor(public value: any) {}
 }
 
-type Atom = string | Arg;
+type Atom = string | Arg | Query | Table;
 
 const comparisonOps = {
   $eq: "=",
@@ -21,23 +21,36 @@ const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 
 class Query<T extends DbObject> {
   private constructor(
-    private table: Table,
+    private table: Table | Query,
     private atoms: Atom[] = [],
   ) {}
+
+  getField(name: string) {
+    return this.table.getField(name);
+  }
 
   toSQL(sql: SqlClient) {
     const {sql: sqlString, args} = this.compile();
     return sql.unsafe(sqlString, args);
   }
 
-  compile(): {sql: string, args: any[]} {
-    let argCount = 0;
+  compile(argOffset = 0): {sql: string, args: any[]} {
+    let argCount = argOffset;
     const strings: string[] = [];
-    const args: any[] = [];
+    let args: any[] = [];
     for (const atom of this.atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argCount}`);
         args.push(atom.value);
+      } else if (atom instanceof Query) {
+        strings.push("(");
+        const result = atom.compile(argOffset);
+        strings.push(result.sql);
+        args = args.concat(result.args);
+        argCount += result.args.length;
+        strings.push(")");
+      } else if (atom instanceof Table) {
+        strings.push(`"${atom.getName()}"`);
       } else {
         strings.push(atom);
       }
@@ -82,7 +95,7 @@ class Query<T extends DbObject> {
       return `"${field}"`;
     }
 
-    throw new Error(`Cannot resolve ${this.table.getName()} field name: ${field}`);
+    throw new Error(`Cannot resolve field name: ${field}`);
   }
 
   private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom[] {
@@ -201,13 +214,13 @@ class Query<T extends DbObject> {
   }
 
   static select<T extends DbObject>(
-    table: Table,
+    table: Table | Query,
     selector?: MongoSelector<T>,
     options?: MongoFindOptions<T>,
     count: boolean = false,
   ): Query<T> {
     const fields = count ? "count(*)" : "*";
-    const query = new Query(table, [`SELECT ${fields} FROM "${table.getName()}"`]);
+    const query = new Query(table, [`SELECT ${fields} FROM`, table]);
 
     if (selector && Object.keys(selector).length > 0) {
       query.atoms.push("WHERE");

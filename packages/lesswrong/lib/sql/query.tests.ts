@@ -224,6 +224,12 @@ describe("Query", () => {
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT DO NOTHING',
       expectedArgs: ["abc", 3, "test", null, 1],
     },
+    {
+      name: "can build select from a subquery",
+      getQuery: () => Query.select(Query.select(testTable, {a: 3}), {b: "test"}),
+      expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ) WHERE "b" = $2',
+      expectedArgs: [3, "test"],
+    },
   ];
 
   for (const test of tests) {

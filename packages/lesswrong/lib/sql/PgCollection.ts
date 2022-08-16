@@ -1,6 +1,7 @@
 import { MongoCollection, getSqlClient } from "../mongoCollection";
 import Table from "./Table";
 import Query from "./Query";
+import Pipeline from "./Pipeline";
 import util from "util";
 
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
@@ -92,6 +93,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   aggregate = (pipeline, options) => {
+    console.log("AGGREGATION", util.inspect(pipeline, {depth: null}));
+    const compiled = new Pipeline(pipeline);
     throw new Error("PgCollection: aggregate not yet implemented");
   }
 
