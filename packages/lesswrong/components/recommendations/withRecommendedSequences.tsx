@@ -40,6 +40,7 @@ export const useRecommendedSequences = (algorithm: RecommendedSequencesAlgorithm
   loading: boolean,
   results: SequencesPageFragment[]|undefined
 } => {
+  console.log("useRecommendedSequences")
   const { data, loading} = useQuery(gql`
     query RecommendedSequencesQuery($count: Int) {
       RecommendedSequences(count: $count) {

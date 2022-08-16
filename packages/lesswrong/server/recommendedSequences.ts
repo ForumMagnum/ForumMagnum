@@ -49,6 +49,7 @@ const sampleSequences = async ({count}: {
 addGraphQLResolvers({
   Query: {
     async RecommendedSequences(root: void, {count}: {count: number}, context: ResolverContext) {
+      console.log("addGraphQLResolvers RecommendedSequences")
       const { currentUser } = context;
       const recommendedSequences = await sampleSequences({count})
       const accessFilteredSequences = await accessFilterMultiple(currentUser, Sequences, recommendedSequences, context);
