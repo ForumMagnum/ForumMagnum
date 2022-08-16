@@ -19,7 +19,6 @@ const MINIMUM_BASE_SCORE = 50
 // from the database.
 const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
 
-
 // Returns part of a mongodb aggregate pipeline, which will join against the
 // ReadStatuses collection and filter out any posts which have been read by the
 // current user. Returns as an array, so you can spread this into a pipeline
@@ -379,3 +378,7 @@ addGraphQLSchema(`
 addGraphQLQuery("ContinueReading: [RecommendResumeSequence!]");
 addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
 addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
+
+
+
+

@@ -121,7 +121,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CollectionsItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CollectionsItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2, CuratedSequences } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -178,16 +178,17 @@ const RecommendationsAndCurated = ({
           <CollectionsItem collection={sequenceHighlights} showCloseIcon/>
         </AnalyticsContext>}
 
-        {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
-          {/* <div className={classes.largeScreenLoggedOutSequences}>
+        <CuratedSequences />
+        {/* {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
+          <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
               <CuratedSequences />
             </AnalyticsContext>
           </div>
           <div className={classes.smallScreenLoggedOutSequences}>
             <ContinueReadingList continueReading={continueReading} />
-          </div> */}
-        </div>}
+          </div>
+        </div>} */}
 
         <div className={classes.subsection}>
           <div className={classes.posts}>

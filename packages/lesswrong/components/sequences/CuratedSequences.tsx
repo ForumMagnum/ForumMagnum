@@ -1,11 +1,17 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useRecommendedSequences } from '../recommendations/withRecommendedSequences';
 
 export const CuratedSequences = () => {
-  return <Components.SequencesGridWrapper
-      terms={{'view':'curatedSequences', limit:3}}
+  const {loading, results} = useRecommendedSequences({count: 3})
+
+  console.log(results)
+
+  if (!results) return null
+
+  return <Components.SequencesGrid
+      sequences={results}
       showAuthor={true}
-      showLoadMore={false}
     />
 }
 
