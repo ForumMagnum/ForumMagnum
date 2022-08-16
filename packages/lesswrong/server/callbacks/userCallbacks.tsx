@@ -26,6 +26,7 @@ import { EventDebouncer } from '../debouncer';
 import { Components } from '../../lib/vulcan-lib/components';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
+import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -51,6 +52,21 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
+});
+
+getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
+  const newEmail = modifier.$set?.email;
+  const oldEmail = user.email;
+  if (newEmail && newEmail !== oldEmail && forumTypeSetting.get() === "EAForum") {
+    await updateAuth0Email(user, newEmail);
+    /*
+     * Be careful here: DbUser does NOT includes services, so overwriting
+     * modifier.$set.services is both very easy and very bad (amongst other
+     * things, it will invalidate the user's session)
+     */
+    modifier.$set["services.auth0"] = await getAuth0Profile(user);
+  }
+  return modifier;
 });
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
@@ -91,7 +107,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function mapLocationMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
   void triggerReviewIfNeeded(document._id)
 })
 

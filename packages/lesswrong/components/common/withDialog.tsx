@@ -25,10 +25,11 @@ export const DialogManager = ({children}: {
   const isOpen = !!componentName;
   
   const closeDialog = useCallback(() => {
+    (typeof componentProps.onClose === 'function') && componentProps.onClose()
     captureEvent("dialogBox", {open: false, dialogName: componentName})
     setComponentName(null);
     setComponentProps(null);
-  }, [captureEvent, componentName]);
+  }, [captureEvent, componentName, componentProps]);
 
   const ModalComponent = isOpen ? (Components[componentName as string]) : null;
   
