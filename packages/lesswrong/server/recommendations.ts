@@ -90,9 +90,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
   }
   if (algorithm.lwRationalityOnly) {
     return {
-      $or: [
-        {"tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0}}, // rationality tag
-      ]
+      "tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0} // rationality tag
     }
   }
   if (algorithm.reviewNominations) {
