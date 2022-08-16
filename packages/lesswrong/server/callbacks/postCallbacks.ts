@@ -160,10 +160,9 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+  if (document.draft) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
-  
-  if (document.draft) return 
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,

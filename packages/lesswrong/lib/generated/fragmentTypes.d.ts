@@ -1049,6 +1049,7 @@ interface RSSFeedMutationFragment { // fragment on RSSFeeds
 
 interface ReportsDefaultFragment { // fragment on Reports
   readonly userId: string,
+  readonly reportedUserId: string,
   readonly commentId: string,
   readonly postId: string,
   readonly link: string,
@@ -1068,6 +1069,7 @@ interface unclaimedReportsList { // fragment on Reports
   readonly comment: unclaimedReportsList_comment|null,
   readonly postId: string,
   readonly post: unclaimedReportsList_post|null,
+  readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date,
   readonly createdAt: Date,
   readonly claimedUserId: string,
@@ -1883,6 +1885,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
+  readonly hasAuth0Id: boolean,
   readonly moderatorAssistance: boolean,
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
