@@ -4,6 +4,7 @@ import { fmCrosspostSiteName } from "../../lib/publicSettings";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
+import Button from '@material-ui/core/Button';
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 
@@ -28,6 +29,10 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
 
   const token = "THE_TOKEN";
 
+  const onClickLogin = () => {
+    window.open(`http://localhost:4000/crosspostLogin?token=${token}`, "_blank").focus();
+  }
+
   return (
     <div className={classes.root}>
       <FormControlLabel
@@ -49,12 +54,9 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
         }
       />
       {isCrosspost && !currentUser?.fmCrosspostProfile &&
-        <iframe
-          src={`http://localhost:4000/crosspostLogin?token=${token}`}
-          scrolling="no"
-          className={classes.frame}
-          height={270}
-        />
+        <Button onClick={onClickLogin} className={classes.button}>
+          Login to {fmCrosspostSiteName.get()} to enable crossposting
+        </Button>
       }
     </div>
   );

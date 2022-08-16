@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    margin: '-3em 0 1.5em 0',
+    marginTop: '1.5em',
   },
   headingText: {
     fontSize: 20,
@@ -24,9 +24,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   button: {
     marginTop: '1.5em',
-  },
-  loginForm: {
-    marginTop: '-2.5em',
   },
 });
 
@@ -61,9 +58,7 @@ const CrosspostLoginPage = ({classes}: {
           </>
         )
         : (
-          <div className={classes.loginForm}>
-            <WrappedLoginForm />
-          </div>
+          <WrappedLoginForm />
         )
       }
     </div>
