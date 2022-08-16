@@ -88,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectFit: "cover"
   },
   chapterTitle: {
-    fontSize: "20px !important",
+    fontSize: "1.25rem !important",
   },
   postIcon: {
     height: 12,
