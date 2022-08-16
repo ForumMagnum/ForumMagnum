@@ -1868,6 +1868,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
+  readonly hasAuth0Id: boolean,
   readonly moderatorAssistance: boolean,
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
