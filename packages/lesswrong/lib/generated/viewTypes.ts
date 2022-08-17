@@ -1,3 +1,4 @@
+type AdvisorRequestsViewName = never
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
@@ -32,6 +33,7 @@ type UsersViewName = "usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUse
 type VotesViewName = "tagVotes"|"userPostVotes";
 
 interface ViewTermsByCollectionName {
+  AdvisorRequests: ViewTermsBase
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms

@@ -116,6 +116,8 @@ import './collections/sequences/permissions';
 import './collections/collections/permissions';
 import './collections/books/permissions';
 
+import './collections/advisorRequests/collection';
+
 
 // Subscriptions
 import './collections/subscriptions';
