@@ -21,36 +21,47 @@ const schema: SchemaType<DbAdvisorRequest> = {
     type: Date,
     viewableBy: ['guests'],
     onInsert: (document, currentUser) => new Date(),
+    hidden: true,
   },
   timezone: {
     optional: true,
     type: String,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
+    control: "select",
+    form: {
+      options: () => new Array(24).fill(0).map((n, i) => ({value: i - 11, label: `UTC ${i - 11 >= 0 ? "+" : ""}${i - 11}`})),
+    },
   },
   availability: {
     optional: true,
     type: String,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
   questions: {
     optional: true,
     type: String,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
   linkedinProfile: {
     optional: true,
     type: String,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
   previousExperience: {
     optional: true,
     type: String,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
   selectedAdvisors: {
     optional: true,
     type: Array,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
   'selectedAdvisors.$': {
     optional: true,
@@ -61,6 +72,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
     optional: true,
     type: String,
     viewableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
 };
 
