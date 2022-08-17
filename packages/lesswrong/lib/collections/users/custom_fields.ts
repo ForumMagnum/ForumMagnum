@@ -1160,15 +1160,15 @@ addFieldsDict(Users, {
     optional: true,
     ...schemaDefaultValue(false),
   },
-  // Deprecated in favor of snoozedUntilContentCount
-  // sunshineSnoozed: {
-  //   type: Boolean,
-  //   canRead: ['admins', 'sunshineRegiment'],
-  //   canUpdate: ['admins', 'sunshineRegiment'],
-  //   group: formGroups.adminOptions,
-  //   optional: true,
-  //   ...schemaDefaultValue(false),
-  // },
+  // DEPRECATED in favor of snoozedUntilContentCount
+  sunshineSnoozed: {
+    type: Boolean,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
   snoozedUntilContentCount: {
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],

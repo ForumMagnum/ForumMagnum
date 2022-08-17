@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
-import { userGetProfileUrl } from "./helpers";
+import { resolverOnlyField } from '../../utils/schemaUtils';
+import { userGetProfileUrl, getAuth0Id } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -139,6 +140,18 @@ const schema: SchemaType<DbUser> = {
     blackbox: true,
     canRead: ownsOrIsAdmin
   },
+  hasAuth0Id: resolverOnlyField({
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    resolver: (user: DbUser) => {
+      try {
+        getAuth0Id(user);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  }),
   // The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
@@ -192,8 +205,15 @@ const schema: SchemaType<DbUser> = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
+    onUpdate: (props) => {
+      const {data, document, oldDocument} = props;
+      if (oldDocument.email?.length && !document.email) {
+        throw new Error("You cannot remove your email address");
+      }
+      return data.email;
+    },
     form: {
-      disabled: forumTypeSetting.get() === 'EAForum'
+      disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },

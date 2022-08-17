@@ -181,7 +181,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
-      updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineNotes: notes
@@ -198,7 +198,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const handleReview = () => {
     if (canReview) {
-      updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -214,7 +214,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const handleSnooze = (contentCount: number) => {
     const newNotes = signatureWithNote(`Snooze ${contentCount}`)+notes;
-    updateUser({
+    void updateUser({
       selector: {_id: user._id},
       data: {
         needsReview: false,
@@ -229,10 +229,10 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
   const banMonths = 3
 
-  const handleBan = async () => {
+  const handleBan = () => {
     const newNotes = signatureWithNote("Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
-      await updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -248,9 +248,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     }
   }
 
-  const handlePurge = async () => {
+  const handlePurge = () => {
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
-      await updateUser({
+      void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
@@ -269,7 +269,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   }
 
   const handleFlag = () => {
-    updateUser({
+    void updateUser({
       selector: {_id: user._id},
       data: {
         sunshineFlagged: !user.sunshineFlagged,
@@ -392,7 +392,6 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
               <div className={classes.notes}>

@@ -34,7 +34,7 @@ interface DbBook extends DbObject {
   number: number
   postIds: Array<string>
   sequenceIds: Array<string>
-  sequencesGridDisplay: boolean
+  displaySequencesAsGrid: boolean
   hideProgressBar: boolean
   showChapters: boolean
   contents: EditableFieldContents
@@ -519,6 +519,7 @@ interface ReportsCollection extends CollectionBase<DbReport, "Reports"> {
 interface DbReport extends DbObject {
   __collectionName?: "Reports"
   userId: string
+  reportedUserId: string
   commentId: string
   postId: string
   link: string
@@ -859,6 +860,7 @@ interface DbUser extends DbObject {
   sunshineNotes: string
   sunshineFlagged: boolean
   needsReview: boolean
+  sunshineSnoozed: boolean
   snoozedUntilContentCount: number
   reviewedByUserId: string
   reviewedAt: Date
