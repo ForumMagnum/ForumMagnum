@@ -9,10 +9,7 @@ import { taglineSetting } from '../common/HeadTags';
 import { siteNameWithArticleSetting  } from '../../lib/instanceSettings';
 import StarIcon from '@material-ui/icons/Star'
 import Button from '@material-ui/core/Button';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useDialog } from '../common/withDialog';
-import AdvisorRequests from '../../lib/collections/advisorRequests/collection';
-import { useNavigation } from '../../lib/routeUtil';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -50,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AdvisorsPage = ({classes}: {
+const AdvisorsRequestPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
@@ -61,28 +58,6 @@ const AdvisorsPage = ({classes}: {
 
   // const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
-  const { create: createAdvisorRequest } = useCreate({
-    collection: AdvisorRequests,
-    fragmentName: 'AdvisorRequestsMinimumInfo',
-  });
-
-  const { openDialog } = useDialog();
-  const { history } = useNavigation();
-
-  const onRequest = async () => {
-    if (currentUser) {
-      const request = await createAdvisorRequest({
-        data: {userId: currentUser._id},
-      });
-      console.log("result", request);
-      history.push("/advisor-request");
-    } else {
-      openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      });
-    }
-  }
 
   return <div>
     {/* <HeadTags
@@ -94,10 +69,7 @@ const AdvisorsPage = ({classes}: {
         <div className={classes.root}>
           <h1 className={classes.headline}>Chat with a Biosecurity Professional</h1>
           <Typography variant="body1" className={classes.descriptionRow}>
-            Interested in using your career to
-            mitigate <a href="https://80000hours.org/problem-profiles/preventing-catastrophic-pandemics/" target="_blank" className={classes.link}>
-              global catastrophic biological risks
-            </a>? Get some personalized advice from a professional in this field.
+            HELLO WORLD
           </Typography>
           <Typography variant="body1" className={classes.descriptionRow}>
             Request a one-on-one 30 minute chat with a GCBR advisor.
@@ -117,7 +89,7 @@ const AdvisorsPage = ({classes}: {
             As an early access beta, this service is free. We will ask for your feedback after the chat.
           </Typography>
           
-          <Button color="primary" variant="contained" className={classes.requestBtn} onClick={onRequest}>
+          <Button color="primary" variant="contained" href={'/'} className={classes.requestBtn}>
             Request a chat
           </Button>
           <Typography variant="body2" className={classes.requestBtnCancelText}>
@@ -133,7 +105,7 @@ const AdvisorsPage = ({classes}: {
           }} />
           
           
-          <Button color="primary" variant="contained" className={classes.requestBtn} onClick={onRequest}>
+          <Button color="primary" variant="contained" href={'/'} className={classes.requestBtn}>
             Request a chat
           </Button>
           <Typography variant="body2" className={classes.requestBtnCancelText}>
@@ -145,12 +117,12 @@ const AdvisorsPage = ({classes}: {
   </div>
 }
 
-const AdvisorsPageComponent = registerComponent(
-  'AdvisorsPage', AdvisorsPage, {styles}
+const AdvisorsRequestPageComponent = registerComponent(
+  'AdvisorsRequestPage', AdvisorsRequestPage, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    AdvisorsPage: typeof AdvisorsPageComponent
+    AdvisorsRequestPage: typeof AdvisorsRequestPageComponent
   }
 }

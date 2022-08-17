@@ -14,6 +14,13 @@ interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   userId: string
   createdAt: Date
+  timezone: string
+  availability: string
+  questions: string
+  linkedinProfile: string
+  previousExperience: string
+  selectedAdvisors: Array<string>
+  referrer: string
 }
 
 interface BansCollection extends CollectionBase<DbBan, "Bans"> {

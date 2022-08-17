@@ -1583,6 +1583,26 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
   readonly createdAt: Date,
+  readonly timezone: string,
+  readonly availability: string,
+  readonly questions: string,
+  readonly linkedinProfile: string,
+  readonly previousExperience: string,
+  readonly selectedAdvisors: Array<string>,
+  readonly referrer: string,
+}
+
+interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
+  readonly _id: string,
+  readonly userId: string,
+  readonly createdAt: Date,
+  readonly timezone: string,
+  readonly availability: string,
+  readonly questions: string,
+  readonly linkedinProfile: string,
+  readonly previousExperience: string,
+  readonly selectedAdvisors: Array<string>,
+  readonly referrer: string,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -2225,6 +2245,7 @@ interface FragmentTypes {
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
+  AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   UsersMinimumInfo: UsersMinimumInfo
@@ -2374,6 +2395,7 @@ interface CollectionNamesByFragmentName {
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
+  AdvisorRequestsMinimumInfo: "AdvisorRequests"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   UsersMinimumInfo: "Users"

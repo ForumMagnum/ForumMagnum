@@ -684,6 +684,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'GCBR Advisors'
     },
     {
+      name: 'AdvisorsRequestPage',
+      path: '/advisor-request',
+      componentName: 'AdvisorsRequestPage',
+      title: 'GCBR Advisors Request'
+    },
+    {
       name: 'wikiTopisRedirect',
       path: '/wiki',
       redirect: () => '/topics/all'
