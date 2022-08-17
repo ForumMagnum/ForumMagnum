@@ -4,7 +4,7 @@ class Arg {
   constructor(public value: any) {}
 }
 
-type Atom = string | Arg | Query | Table;
+type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
 const comparisonOps = {
   $eq: "=",
@@ -19,14 +19,28 @@ const comparisonOps = {
 
 const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 
+export type SelectFieldSpec = Record<string, 0 | 1>;
+
+export type SelectSqlOptions = {
+  count?: boolean,
+  fields?: SelectFieldSpec[],
+  join?: any,
+  unwind?: any,
+}
+
 class Query<T extends DbObject> {
   private constructor(
-    private table: Table | Query,
-    private atoms: Atom[] = [],
+    private table: Table | Query<T>,
+    private atoms: Atom<T>[] = [],
   ) {}
 
   getField(name: string) {
     return this.table.getField(name);
+  }
+
+  getFields() {
+    if (this.table instanceof Query) throw new Error("TODO: getFields for Query");
+    return this.table.getFields();
   }
 
   toSQL(sql: SqlClient) {
@@ -98,7 +112,7 @@ class Query<T extends DbObject> {
     throw new Error(`Cannot resolve field name: ${field}`);
   }
 
-  private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom[] {
+  private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom<T>[] {
     const result = Array.isArray(multiSelector)
       ? multiSelector.map((selector) => this.compileSelector(selector))
       : Object.keys(multiSelector).map(
@@ -111,7 +125,7 @@ class Query<T extends DbObject> {
     ];
   }
 
-  private compileComparison(field: string, value: any): Atom[] {
+  private compileComparison(field: string, value: any): Atom<T>[] {
     if (value === undefined) {
       return [];
     }
@@ -136,7 +150,7 @@ class Query<T extends DbObject> {
     return [`${field} = `, new Arg(value)];
   }
 
-  private compileSelector(selector: MongoSelector<T>): Atom[] {
+  private compileSelector(selector: MongoSelector<T>): Atom<T>[] {
     const keys = Object.keys(selector);
     if (keys.length === 0) {
       return [];
@@ -214,12 +228,12 @@ class Query<T extends DbObject> {
   }
 
   static select<T extends DbObject>(
-    table: Table | Query,
+    table: Table | Query<T>,
     selector?: MongoSelector<T>,
     options?: MongoFindOptions<T>,
-    count: boolean = false,
+    sqlOptions?: SelectSqlOptions,
   ): Query<T> {
-    const fields = count ? "count(*)" : "*";
+    const fields = sqlOptions?.count ? "count(*)" : "*";
     const query = new Query(table, [`SELECT ${fields} FROM`, table]);
 
     if (selector && Object.keys(selector).length > 0) {

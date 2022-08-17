@@ -45,7 +45,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
         return result as unknown as T[];
       },
       count: async () => {
-        const select = Query.select(this.pgTable, selector, options, true);
+        const select = Query.select(this.pgTable, selector, options, {count: true});
         const result = await this.executeQuery<{count: number}>(select, selector);
         return result?.[0].count ?? 0;
       },
@@ -93,9 +93,13 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   aggregate = (pipeline, options) => {
-    console.log("AGGREGATION", util.inspect(pipeline, {depth: null}));
-    const compiled = new Pipeline(pipeline);
-    throw new Error("PgCollection: aggregate not yet implemented");
+    return {
+      toArray: async () => {
+        const query = new Pipeline(this.table, pipeline, options).toQuery();
+        const result = await this.executeQuery<T>(pipeline);
+        return result as unknown as T[];
+      },
+    };
   }
 
   rawCollection = () => ({

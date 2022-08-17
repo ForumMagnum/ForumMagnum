@@ -1,55 +1,11 @@
 import { testStartup } from "../../testing/testMain";
-import Table from "./Table";
+import { DbTestObject, testTable, runTestCases } from "./testHelpers";
 import Query from "./Query";
 
 testStartup();
 
-type DbTestObject = {
-  _id: string,
-  a?: number,
-  b?: string,
-  c?: {
-    d: {
-      e: string,
-    },
-  },
-  schemaVersion: number,
-}
-
-const TestCollection = {
-  collectionName: "TestCollection",
-  _schemaFields: {
-    _id: {
-      type: String,
-    },
-    a: {
-      type: Number,
-    },
-    b: {
-      type: String,
-    },
-    c: {
-      type: Object,
-    },
-    schemaVersion: {
-      type: Number,
-    },
-  },
-} as unknown as CollectionBase<DbTestObject>;
-
-const testTable = Table.fromCollection(TestCollection);
-
-const normalizeWhitespace = (s: string) => s.replace(/\s+/g, " ");
-
 describe("Query", () => {
-  type TestCase = {
-    name: string,
-    getQuery: () => Query<DbTestObject>,
-    expectedSql: string,
-    expectedArgs: any[],
-  };
-
-  const tests: TestCase[] = [
+  runTestCases([
     {
       name: "can build simple select query",
       getQuery: () => Query.select(testTable),
@@ -58,7 +14,7 @@ describe("Query", () => {
     },
     {
       name: "can build simple count query",
-      getQuery: () => Query.select(testTable, {}, {}, true),
+      getQuery: () => Query.select(testTable, {}, {}, {count: true}),
       expectedSql: 'SELECT count(*) FROM "TestCollection"',
       expectedArgs: [],
     },
@@ -70,7 +26,7 @@ describe("Query", () => {
     },
     {
       name: "can build count query with where clause",
-      getQuery: () => Query.select(testTable, {a: 3}, {}, true),
+      getQuery: () => Query.select(testTable, {a: 3}, {}, {count: true}),
       expectedSql: 'SELECT count(*) FROM "TestCollection" WHERE "a" = $1',
       expectedArgs: [3],
     },
@@ -230,15 +186,5 @@ describe("Query", () => {
       expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ) WHERE "b" = $2',
       expectedArgs: [3, "test"],
     },
-  ];
-
-  for (const test of tests) {
-    it(test.name, () => {
-      const query = test.getQuery();
-      const {sql, args} = query.compile();
-      const normalizedSql = normalizeWhitespace(sql);
-      expect(normalizedSql).toBe(test.expectedSql);
-      expect(args).toStrictEqual(test.expectedArgs);
-    });
-  }
+  ]);
 });
