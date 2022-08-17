@@ -47,7 +47,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -95,6 +95,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </span>
           </AnalyticsContext>
         </div>
+        {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
         <AnalyticsContext listContext={"latestPosts"}>
           {/* Allow hiding posts from the front page*/}
           <AllowHidingFrontPagePostsContext.Provider value={true}>
