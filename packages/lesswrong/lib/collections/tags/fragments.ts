@@ -39,6 +39,14 @@ registerFragment(`
 registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     
     description {
       _id
@@ -152,18 +160,9 @@ registerFragment(`
   }
 `);
 
-//, FIXME refactor parentTag and subTags to put them in fewer fragments
 registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
-    parentTag {
-      name
-      slug
-    }
-    subTags {
-      name
-      slug
-    }
     tableOfContents
     postsDefaultSortOrder
     contributors(limit: $contributorsLimit) {

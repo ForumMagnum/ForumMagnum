@@ -1441,7 +1441,19 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
+  readonly parentTag: TagFragment_parentTag|null,
+  readonly subTags: Array<TagFragment_subTags>,
   readonly description: TagFragment_description|null,
+}
+
+interface TagFragment_parentTag { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
+}
+
+interface TagFragment_subTags { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -1536,21 +1548,9 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 }
 
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
-  readonly parentTag: TagPageFragment_parentTag|null,
-  readonly subTags: Array<TagPageFragment_subTags>,
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
-}
-
-interface TagPageFragment_parentTag { // fragment on Tags
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagPageFragment_subTags { // fragment on Tags
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -16,40 +17,43 @@ const TagSelectStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagSelect = ({ value, path, document, classes, label, currentUser, updateCurrentValues, type }: {
+const TagSelect = ({ value, path, document, classes, label, updateCurrentValues }: {
   value: string,
   path: string,
   document: any,
   classes: ClassesType,
   label?: string,
-  currentUser: DbUser | null,
   updateCurrentValues<T extends {}>(values: T): void,
-  type: any
 }) => {
-  const [ valueEverSet, setValueEverSet ] = useState(false);
+  const [currentId, setCurrentId] = useState(document.parentTag?._id);
   const { document: parentTag, loading } = useSingle({
-    documentId: valueEverSet ? value : document.parentTag?._id,
+    skip: !currentId,
+    documentId: currentId,
     collectionName: "Tags",
     fragmentName: 'TagBasicInfo',
   });
 
-  const setValue = (newValue: string|null) => {
-    updateCurrentValues({[path]: newValue});
-    setValueEverSet(true);
-  }
+  useEffect(() => {
+    // updateCurrentValues needs to be called after loading the TagBasicInfo query because
+    // when the query returns `value` gets set back to undefined for some reason. I think this
+    // is probably because it updates local storage somehow, but I'm not sure. This fixes it anyway
+    if (!loading && value !== currentId) {
+      updateCurrentValues({ [path]: currentId });
+    }
+  }, [currentId, value, updateCurrentValues, path, loading]);
 
   return (
     <>
       <div className={classes.root}>
         <Components.ErrorBoundary>
           <Components.TagsSearchAutoComplete
-            clickAction={setValue}
+            clickAction={(id: string) => setCurrentId(id)}
             placeholder={label}
           />
         </Components.ErrorBoundary>
         {(!loading && parentTag?.name) ?
           <Chip
-            onDelete={(_: string) => setValue(null)}
+            onDelete={(_: string) => setCurrentId(null)}
             className={classes.chip}
             label={parentTag?.name}
           />: <></>}

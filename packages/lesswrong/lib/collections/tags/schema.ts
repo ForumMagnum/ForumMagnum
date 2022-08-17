@@ -501,8 +501,7 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     resolver: async (tag, args: void, context: ResolverContext) => {
       const { currentUser, Tags } = context;
-      // TODO try and do it this way
-      // const tags = await getWithLoader(context, Tags, 'tags', { parentTagId: tag._id }, 'name');
+
       const tags = await Tags.find({
         parentTagId: tag._id
       }, {

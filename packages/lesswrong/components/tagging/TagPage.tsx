@@ -14,8 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { renderToString } from "react-dom/server";
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -374,12 +373,22 @@ const TagPage = ({classes}: {
         </div>}
         welcomeBox={null}
       >
-        {tag.parentTag &&
+        {(tag.parentTag || tag.subTags.length) ?
         <div className={classNames(classes.subHeading,classes.centralColumn)}>
           <div className={classes.subHeadingInner}>
-            {tag.parentTag && <div className={classes.relatedTag}>Parent topic: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+            {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+            {/* For subtags it would be better to:
+                 - put them at the bottom of the page
+                 - truncate the list
+                for our first use case we only need a small number of subtags though, so I'm leaving it for now
+             */}
+            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+                tag.subTags.map((subTag, idx) => {
+                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+              })}</span>
+            </div> : <></>}
           </div>
-        </div>}
+        </div>: <></>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>

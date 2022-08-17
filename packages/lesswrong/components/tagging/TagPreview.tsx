@@ -4,6 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relatedTag: {
@@ -78,7 +79,7 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
       {(tag.parentTag || tag.subTags.length) ?
         <div className={classes.relatedTags}>
           {tag.parentTag && <div className={classes.relatedTag}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-topics:&nbsp;{tag.subTags.map((subTag, idx) => {
+          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
             return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
           })}</span></div> : <></>}
         </div> : <></>
