@@ -20,6 +20,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { Button } from '@material-ui/core';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
@@ -44,7 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom: 8
   },
   disabled: {
     opacity: .2,
@@ -94,10 +96,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 0,
     borderTop: "none",
     borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
-  },
-  editIcon: {
-    width: 20,
-    color: theme.palette.grey[400]
   },
   notes: {
     border: theme.palette.border.normal,
@@ -281,9 +279,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     setNotes( signatureWithNote(flagStatus)+notes )
   }
 
-  const handleDisablePosting = async () => {
-    const abled = !user.postingDisabled ? 'enabled' : 'disabled';
-    const newNotes = signatureWithNote(`posting disabled ${abled}`) + notes;
+  const handleDisablePosting = () => {
+    const abled = user.postingDisabled ? 'enabled' : 'disabled';
+    const newNotes = signatureWithNote(`posting ${abled}`) + notes;
     updateUser({
       selector: {_id: user._id},
       data: {
@@ -294,39 +292,39 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     setNotes( newNotes )
   }
 
-  const handleDisableAllCommenting = async () => {
-    const abled = !user.allCommentingDisabled ? 'enabled' : 'disabled';
+  const handleDisableAllCommenting = () => {
+    const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
     const newNotes = signatureWithNote(`all commenting ${abled}`) + notes;
     updateUser({
       selector: {_id: user._id},
       data: {
-        postingDisabled: !user.allCommentingDisabled,
+        allCommentingDisabled: !user.allCommentingDisabled,
         sunshineNotes: newNotes
       }
     })
     setNotes( newNotes )
   }
 
-  const handleDisableCommentingOnOtherUsers = async () => {
-    const abled = !user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
+  const handleDisableCommentingOnOtherUsers = () => {
+    const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
     const newNotes = signatureWithNote(`commenting on other's ${abled}`) + notes;
     updateUser({
       selector: {_id: user._id},
       data: {
-        postingDisabled: !user.commentingOnOtherUsersDisabled,
+        commentingOnOtherUsersDisabled: !user.commentingOnOtherUsersDisabled,
         sunshineNotes: newNotes
       }
     })
     setNotes( newNotes )
   }
 
-  const handleDisableConversations = async () => {
-    const abled = !user.conversationsDisabled ? 'enabled' : 'disabled'
+  const handleDisableConversations = () => {
+    const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
     const newNotes = signatureWithNote(`conversations ${abled}`) + notes;
     updateUser({
       selector: {_id: user._id},
       data: {
-        postingDisabled: !user.conversationsDisabled,
+        conversationsDisabled: !user.conversationsDisabled,
         sunshineNotes: newNotes
       }
     })
@@ -405,6 +403,28 @@ const SunshineNewUsersInfo = ({ user, classes }: {
                   multiline
                 />
               </div>
+            </div>
+            <div className={classes.row}>
+              <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
+                <Button onClick={handleDisablePosting} variant={user.postingDisabled ? "flat" : "outlined"}>
+                  Posts
+                </Button>
+              </LWTooltip>
+              <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
+                <Button onClick={handleDisableAllCommenting} variant={user.allCommentingDisabled ? "flat" : "outlined"}>
+                  All Comments
+                </Button>
+              </LWTooltip>
+              <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
+                <Button onClick={handleDisableCommentingOnOtherUsers} variant={user.commentingOnOtherUsersDisabled ? "flat" : "outlined"}>
+                  Other Comments
+                </Button>
+              </LWTooltip>
+              <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
+                <Button onClick={handleDisableConversations} variant={user.conversationsDisabled ? "flat" : "outlined"}>
+                  Conversations
+                </Button>
+              </LWTooltip>
             </div>
             <div className={classes.row}>
               <div className={classes.row}>
