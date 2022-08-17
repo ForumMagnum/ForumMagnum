@@ -95,71 +95,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 
-export const CollectionsItem = ({classes, showCloseIcon, collection}: {
-  collection: CoreReadingCollection,
-  showCloseIcon?: boolean,
+export const CuratedContentItem = ({classes, content}: {
+  content: CuratedContent,
   classes: ClassesType,
 }) => {
-  const { Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle } = Components
-
-  const { firstPost } = collection;
+  const {Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle} = Components
   
-  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
-  const [cookies, setCookie] = useCookies([cookieName]);
-
-  if (cookies[cookieName]) {
-    return null;
-  }
-
-  const hideBanner = () => setCookie(
-    cookieName,
-    "true", {
-    expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
-    path: "/"
-  });
-
-  const description = <ContentItemBody
-    dangerouslySetInnerHTML={{__html: collection.summary}}
-    description={`sequence ${collection.id}`}
-  />
-
-  return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
-    <LinkCard to={collection.url} className={classes.linkCard}>
-      <div className={classes.content}>
-        <Typography variant="title" className={classes.title}>
-          <Link to={collection.url}>{collection.title}</Link>
-        </Typography>
-        {collection.subtitle && <div  className={classes.subtitle}>
-          {collection.subtitle}
-        </div>}
-        <ContentStyles contentType="postHighlight" className={classes.description}>
-          {collection.hideSummaryOnMobile ? <div className={classes.hideOnMobile}>
-            {description}
-          </div> : description}
-        </ContentStyles>
-        {firstPost && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost.postId}/>} tooltip={false}>
-            <Link to={firstPost.postUrl}>{firstPost.postTitle}</Link>
-          </LWTooltip>
-        </div>}
-      </div>
-      
-      {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} style={{width: collection.imageWidth || 130}}/>}
-
-      {showCloseIcon && <Tooltip title="Hide this for the next month">
-        <Button className={classes.closeButton} onClick={hideBanner}>
-          <CloseIcon className={classes.closeIcon} />
-        </Button>
-      </Tooltip>}
-    </LinkCard>
-  </div>
+  
+  
 }
 
-const CollectionsItemComponent = registerComponent('CollectionsItem', CollectionsItem, {styles});
+const CuratedContentItemComponent = registerComponent('CuratedContentItem', CuratedContentItem, {styles});
 
 declare global {
   interface ComponentTypes {
-    CollectionsItem: typeof CollectionsItemComponent
+    CuratedContentItem: typeof CuratedContentItemComponent
   }
 }
 
