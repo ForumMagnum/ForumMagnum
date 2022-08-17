@@ -137,7 +137,6 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
   readonly canVoteOnRels: Array<string>,
-  readonly parentTagId: string,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels

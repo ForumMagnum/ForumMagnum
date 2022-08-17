@@ -659,8 +659,8 @@ interface DbTag extends DbObject {
   introSequenceId: string
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
-  parentTagId: string
   description: EditableFieldContents
+  parentTagId: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
