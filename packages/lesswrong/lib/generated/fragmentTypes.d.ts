@@ -1564,9 +1564,16 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
+  readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
+}
+
+interface TagEditFragment_parentTag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
 }
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags

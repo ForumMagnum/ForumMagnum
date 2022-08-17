@@ -218,6 +218,11 @@ registerFragment(`
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
+    parentTag {
+      _id
+      name
+      slug
+    }
     tagFlagsIds
     postsDefaultSortOrder
     description {

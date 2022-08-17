@@ -469,7 +469,10 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Parent Tag",
+    tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
     group: formGroups.advancedOptions,
+    control: 'TagSelect',
     onInsert: async (tag) => {
       if (tag.parentTagId) {
         // don't allow chained parent tag relationships
