@@ -212,6 +212,8 @@ export function startWebserver() {
   })
 
   app.get('*', async (request, response) => {
+    response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+
     const {bundleHash} = getClientBundle();
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
