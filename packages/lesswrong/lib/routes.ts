@@ -678,6 +678,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
+      name: 'AdvisorsPage',
+      path: '/advisors',
+      componentName: 'AdvisorsPage',
+      title: 'GCBR Advisors'
+    },
+    {
       name: 'wikiTopisRedirect',
       path: '/wiki',
       redirect: () => '/topics/all'

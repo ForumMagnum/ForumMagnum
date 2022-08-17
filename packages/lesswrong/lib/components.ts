@@ -27,6 +27,8 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+  importComponent("AdvisorsPage", () => require('../components/ea-forum/AdvisorsPage'))
+  importComponent("AdvisorCard", () => require('../components/ea-forum/AdvisorCard'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
