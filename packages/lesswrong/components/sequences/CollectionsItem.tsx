@@ -77,13 +77,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     }
   },
-  desktop: {
+  hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
-      display: "none"
-    }
-  },
-  mobile: {
-    [theme.breakpoints.up('sm')]: {
       display: "none"
     }
   },
@@ -138,7 +133,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
           {collection.subtitle}
         </div>}
         <ContentStyles contentType="postHighlight" className={classes.description}>
-          {collection.hideSummaryOnMobile ? <div className={classes.desktop}>
+          {collection.hideSummaryOnMobile ? <div className={classes.hideOnMobile}>
             {description}
           </div> : description}
         </ContentStyles>
