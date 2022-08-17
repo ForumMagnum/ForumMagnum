@@ -174,9 +174,9 @@ const RecommendationsAndCurated = ({
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
 
-        {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+        {/* {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
           <CollectionsItem collection={sequenceHighlights} showCloseIcon/>
-        </AnalyticsContext>}
+        </AnalyticsContext>} */}
 
         <CuratedSequences />
         {/* {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>

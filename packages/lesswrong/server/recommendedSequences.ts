@@ -4,12 +4,8 @@ import { Sequences } from '../lib/collections/sequences/collection';
 import { Collections } from '../lib/collections/collections/collection';
 import { ensureIndex } from '../lib/collectionUtils';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
+import { addGraphQLQuery, addGraphQLResolvers } from './vulcan-lib';
 import { WeightedList } from './weightedList';
-import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../lib/instanceSettings';
-import { RecommendedSequencesAlgorithm } from '../components/recommendations/withRecommendedSequences';
 
 /**
  * Returns all curated sequences, stripping away all information except their _id and curatedOrder
@@ -29,15 +25,12 @@ const sampleSequences = async ({count}: {
   count: number
 }) => {
   const recommendableSequencesMetadata  = await allRecommendableSequences();
-  console.log("recommendableSequencesMetadata", recommendableSequencesMetadata)
 
   const numSequencesToReturn = Math.max(0, Math.min(recommendableSequencesMetadata.length, count))
 
   const sampledSequences = new WeightedList(
-    _.map(recommendableSequencesMetadata, sequence => [sequence._id, sequence.curatedOrder])
+    _.map(recommendableSequencesMetadata, sequence => [sequence._id, 1])
   ).pop(Math.max(numSequencesToReturn, 0))
-
-  console.log("sampledSequences", sampledSequences)
 
   const recommendedSequences = _.first(sampledSequences, numSequencesToReturn)
 
