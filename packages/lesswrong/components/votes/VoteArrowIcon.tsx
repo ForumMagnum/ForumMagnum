@@ -1,5 +1,5 @@
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';

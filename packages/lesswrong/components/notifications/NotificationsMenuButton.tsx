@@ -7,7 +7,6 @@ import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import classNames from 'classnames';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({

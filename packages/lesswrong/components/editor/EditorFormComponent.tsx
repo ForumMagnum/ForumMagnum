@@ -1,4 +1,4 @@
-import React, { Component, Ref } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';

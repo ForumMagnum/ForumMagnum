@@ -1,6 +1,5 @@
 import Localgroups from "./collection"
 import { ensureIndex } from '../../collectionUtils';
-import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {

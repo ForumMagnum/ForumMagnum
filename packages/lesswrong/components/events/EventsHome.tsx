@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import FilterIcon from '@material-ui/icons/FilterList';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
