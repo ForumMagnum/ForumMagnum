@@ -681,14 +681,14 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'AdvisorsPage',
       path: '/advisors',
       componentName: 'AdvisorsPage',
-      title: 'GCBR Advisors'
+      title: 'Biosecurity Advisors'
     },
-    {
-      name: 'AdvisorsRequestPage',
-      path: '/advisor-request',
-      componentName: 'AdvisorsRequestPage',
-      title: 'GCBR Advisors Request'
-    },
+    // {
+    //   name: 'AdvisorsRequestPage',
+    //   path: '/advisor-request',
+    //   componentName: 'AdvisorsRequestPage',
+    //   title: 'Biosecurity Advisors Request'
+    // },
     {
       name: 'wikiTopisRedirect',
       path: '/wiki',

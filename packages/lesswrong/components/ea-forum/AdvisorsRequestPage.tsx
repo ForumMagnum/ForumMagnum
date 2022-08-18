@@ -42,6 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+
+// TODO: we decided not to implement this part for the beta test,
+//       so either finish or delete this after the test
 const AdvisorsRequestPage = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -49,16 +52,13 @@ const AdvisorsRequestPage = ({classes}: {
   // const { query } = useLocation()
   // const [showPostSettings, setShowPostSetttings] = useState(false)
 
-  const { SingleColumnSection, HeadTags, ContentStyles, Typography, AdvisorCard, WrappedSmartForm } = Components
+  const { SingleColumnSection, HeadTags, ContentStyles, AdvisorCard, WrappedSmartForm } = Components
 
   // const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
-
-  const terms = {userId: currentUser._id};
 
   return <div>
     {/* <HeadTags
       description={metaDescription}
-      image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
     /> */}
     <AnalyticsContext pageContext="advisorPage">
       <SingleColumnSection>
@@ -68,7 +68,7 @@ const AdvisorsRequestPage = ({classes}: {
             documentId={"PK9TvjiAzRuj45toq"}
             collection={AdvisorRequests}
             successCallback={async (user) => {
-              console.log("SUCCESS");
+              // console.log("SUCCESS");
             }}
             queryFragment={getFragment('AdvisorRequestsMinimumInfo')}
             mutationFragment={getFragment('AdvisorRequestsMinimumInfo')}

@@ -118,6 +118,7 @@ import './collections/books/permissions';
 
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
+import './collections/advisorRequests/views';
 
 
 // Subscriptions

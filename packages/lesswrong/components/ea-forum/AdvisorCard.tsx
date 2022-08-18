@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
     lineHeight: '19px',
     paddingInlineStart: '16px',
-    marginTop: 0
+    margin: 0
   }
 })
 
@@ -102,10 +102,10 @@ const AdvisorCard = ({user, classes}: {
         {user.location}
       </div>
       <div className={classes.socialMediaIcons}>
-        <a href={`https://linkedin.com/in/${user.linkedinProfileSlug}}`} target="_blank" rel="noopener noreferrer">
+        <a href={`https://linkedin.com/in/${user.linkedinProfileSlug}`} target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths.linkedinProfileURL}</svg>
         </a>
-        <a href={`https://twitter.com/${user.twitterProfileSlug}}`} target="_blank" rel="noopener noreferrer">
+        <a href={`https://twitter.com/${user.twitterProfileSlug}`} target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths.twitterProfileURL}</svg>
         </a>
       </div>
