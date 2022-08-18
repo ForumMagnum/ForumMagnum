@@ -101,7 +101,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   promoted: {
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
-  }
+  },
+  isPinned: {
+    borderColor: theme.palette.primary.main,
+  },
 });
 
 const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, children, classes}: {
@@ -135,6 +138,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
+      [classes.isPinned]: comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,

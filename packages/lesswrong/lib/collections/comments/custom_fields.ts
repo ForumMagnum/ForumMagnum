@@ -201,6 +201,17 @@ addFieldsDict(Comments, {
     ...schemaDefaultValue(false),
     hidden: true,
   },
+
+  isPinnedOnProfile: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  }
 });
 
 makeEditable({
