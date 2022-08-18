@@ -241,7 +241,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
     
-    const showSunshineSidebar = (currentRoute?.sunshineSidebar && userCanDo(currentUser, 'posts.moderate.all')) || currentUser?.groups?.includes('alignmentForumAdmins')
+    const showSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
