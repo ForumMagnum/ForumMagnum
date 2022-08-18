@@ -268,6 +268,9 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
 }
 
 export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
+  if (post.hasCoauthorPermission) {
+    return false;
+  }
   const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
   return status && !status.confirmed;
 }
