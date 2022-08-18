@@ -48,18 +48,18 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
+          {/* twitter */}
+          <meta name='twitter:card' content='summary_large_image'/>
+          {image && <meta name='twitter:image:src' content={image}/>}
+          { /* <meta name='twitter:title' content={title}/> */ }
+          <meta name='twitter:description' content={description}/>
+
           {/* facebook */}
           <meta property='og:type' content='article'/>
           <meta property='og:url' content={ogUrl}/>
           {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
-
-          {/* twitter */}
-          <meta name='twitter:card' content='summary_large_image'/>
-          {image && <meta name='twitter:image:src' content={image}/>}
-          { /* <meta name='twitter:title' content={title}/> */ }
-          <meta name='twitter:description' content={description}/>
 
           {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>

@@ -253,10 +253,11 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    
     needsReview
-    sunshineSnoozed
     sunshineNotes
     sunshineFlagged
+    snoozedUntilContentCount
   }
 `);
 
@@ -316,6 +317,7 @@ registerFragment(`
     emailSubscribedToCurated
     subscribedToDigest
     unsubscribeFromAll
+    hasAuth0Id
 
     # Moderation
     moderatorAssistance

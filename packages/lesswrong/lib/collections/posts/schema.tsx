@@ -55,6 +55,7 @@ const rsvpType = new SimpleSchema({
   userId: {
     type: String,
     optional: true,
+    nullable: true
   },
   createdAt: {
     type: Date,

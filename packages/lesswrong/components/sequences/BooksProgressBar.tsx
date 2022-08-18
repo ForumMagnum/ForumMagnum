@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../common/withRecordPostView';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,8 +19,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
   },
   read: {
-    backgroundColor: theme.palette.primary.light,
-    border: theme.palette.primary.main,
+    ...(
+      forumTypeSetting.get() === "EAForum"
+        ? {
+          backgroundColor: theme.palette.primary.main,
+          border: theme.palette.primary.dark,
+        }
+        : {
+          backgroundColor: theme.palette.primary.light,
+          border: theme.palette.primary.main,
+        }
+    ),
     opacity: .6
   },
   bookProgress: {
@@ -53,6 +63,8 @@ const BooksProgressBar = ({ book, classes }: {
   const totalPosts = bookPosts.length;
 
   const postsReadText = `${readPosts} / ${totalPosts} posts read`;
+
+  if (book.hideProgressBar) return null
 
   return <div key={book._id} className={classes.root}>
     <div className={classes.bookProgress}>

@@ -9,7 +9,7 @@ import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
@@ -26,6 +26,8 @@ import { EventDebouncer } from '../debouncer';
 import { Components } from '../../lib/vulcan-lib/components';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
+import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
+import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -50,6 +52,21 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
+});
+
+getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
+  const newEmail = modifier.$set?.email;
+  const oldEmail = user.email;
+  if (newEmail && newEmail !== oldEmail && forumTypeSetting.get() === "EAForum") {
+    await updateAuth0Email(user, newEmail);
+    /*
+     * Be careful here: DbUser does NOT includes services, so overwriting
+     * modifier.$set.services is both very easy and very bad (amongst other
+     * things, it will invalidate the user's session)
+     */
+    modifier.$set["services.auth0"] = await getAuth0Profile(user);
+  }
+  return modifier;
 });
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
@@ -90,17 +107,8 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
-  // on the EA Forum, we are testing out reviewing all unreviewed users who add a bio
-  const addedBio = !oldUser.biography?.html && newUser.biography?.html && forumTypeSetting.get() === 'EAForum'
-  
-  // on the EA Forum, we are reviewing all unreviewed users who add a profile photo
-  const addedProfilePhoto = !oldUser.profileImageId && newUser.profileImageId && forumTypeSetting.get() === 'EAForum'
-
-  // if the user has a mapLocation and they have not been reviewed, mark them for review
-  if ((addedBio || addedProfilePhoto || newUser.mapLocation) && !newUser.reviewedByUserId && !newUser.needsReview) {
-    void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
-  }
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
+  void triggerReviewIfNeeded(document._id)
 })
 
 // When the very first user account is being created, add them to Sunshine

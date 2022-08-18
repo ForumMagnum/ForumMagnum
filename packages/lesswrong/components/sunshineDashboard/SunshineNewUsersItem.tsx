@@ -29,8 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 const SunshineNewUsersItem = ({ user, classes }: {
   user: SunshineUsersList,
-  classes: ClassesType,
-  updateUser?: any
+  classes: ClassesType
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 

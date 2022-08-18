@@ -26,7 +26,7 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from './graphqlTemplates';
-import type { GraphQLScalarType } from 'graphql';
+import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -453,7 +453,7 @@ export const initGraphQL = () => {
   return executableSchema;
 };
 
-let executableSchema: any = null;
+let executableSchema: GraphQLSchema | null = null;
 export const getExecutableSchema = () => {
   if (!executableSchema) {
     throw new Error('Warning: trying to access executable schema before it has been created by the server.');
