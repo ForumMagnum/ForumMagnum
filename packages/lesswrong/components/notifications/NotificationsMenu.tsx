@@ -85,7 +85,7 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
     enableTotal: false,
   });
 
-  const lastNotificationsCheck = currentUser?.lastNotificationsCheck ?? "";
+  const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
   const newMessages = results && _.filter(results, (x) => x.createdAt > lastNotificationsCheck);
   if (!currentUser) {
     return null;
