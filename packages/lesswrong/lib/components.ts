@@ -619,6 +619,7 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("CuratedContentItem", () => require('../components/recommendations/CuratedContentItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

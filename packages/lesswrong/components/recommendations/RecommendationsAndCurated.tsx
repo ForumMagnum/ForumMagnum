@@ -8,25 +8,23 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { CoreReadingCollection } from '../sequences/LWCoreReading';
+import { CuratedContent } from './CuratedContentItem';
 
-const sequenceHighlights: CoreReadingCollection = {
-  title: "The Sequences Highlights",
-  id: "NBDFAKt3GbFwnwzQF",
-  userId: "nmk3nLpQE89dMRzzN",
-  summary: `<div>How can we think better on purpose? Why should we think better on purpose?<br/>
-    Read up on the core concepts that underly the LessWrong community.
+const sequenceHighlights: CuratedContent = {
+  documentType: "Collection",
+  document: {
+    _id: "NBDFAKt3GbFwnwzQF",
+    title: "The Sequences Highlights",
+    slug: "highlights"
+  },
+  description: `<div>How can we think better on purpose? Why should we think better on purpose?<br/> Read up on the core concepts that underly the LessWrong community.
     </div>`,
-  hideSummaryOnMobile: true,
+  // hideSummaryOnMobile: true,
   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660339717/coverimage-05_qvc8ca.png",
-  imageWidth: 200,
-  color: "#757AA7",
-  big: false,
-  url: "/highlights",
   firstPost: {
-    postId: "46qnWRSR7L2eyNbMA",
-    postUrl: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-    postTitle: "The Lens That Sees Its Flaws"
+    _id: "46qnWRSR7L2eyNbMA",
+    url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+    title: "The Lens That Sees Its Flaws"
   }
 }
 
@@ -122,7 +120,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CollectionsItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CuratedContentItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -176,7 +174,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CollectionsItem collection={sequenceHighlights} showCloseIcon/>
+          <CuratedContentItem content={sequenceHighlights} />
         </AnalyticsContext>}
 
         {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
