@@ -151,7 +151,13 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
 
 
   const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
-  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
+  const [
+    totalWordCount,
+    totalReadTime,
+  ] = posts.reduce(([wordCount, readTime], curr) => ([
+    wordCount + (curr?.contents?.wordCount ?? 0),
+    readTime + (curr?.readTimeMinutes ?? 0),
+  ]), [0, 0]);
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
@@ -195,8 +201,8 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
-            <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+          <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
+            <div className={classes.wordcount}>{totalReadTime} min read</div>
           </LWTooltip>
         </div>
       </div>
