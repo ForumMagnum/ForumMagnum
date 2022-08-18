@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -15,7 +15,6 @@ import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagMinimumKarmaPermissions } from "../../lib/collections/tags/collection";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -216,12 +215,14 @@ const TagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
-  if (editing && currentUser && currentUser.karma < tagMinimumKarmaPermissions.edit) {
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
     throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+  if (query.sortedBy || tag.postsDefaultSortOrder) {
+    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+  }
 
   const terms = {
     ...tagPostTerms(tag, query),

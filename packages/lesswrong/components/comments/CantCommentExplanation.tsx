@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { userBlockedCommentingReason } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { moderationEmail } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({

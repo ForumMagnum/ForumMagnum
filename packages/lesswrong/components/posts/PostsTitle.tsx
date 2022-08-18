@@ -5,7 +5,6 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { userHasBoldPostItems } from '../../lib/betas';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
 
@@ -124,6 +123,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
+    {post.isFuture && <span className={classes.tag}>[Pending]</span>}
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}

@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

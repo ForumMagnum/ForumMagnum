@@ -64,3 +64,18 @@ export const welcomeBoxABTest = new ABTest({
     }
   }
 });
+
+export const twoLineEventsSidebarABTest = new ABTest({
+  name: "twoLineEventsSidebar",
+  description: "Events sidebar shows more information",
+  groups: {
+    control: {
+      description: "One line per event",
+      weight: 1,
+    },
+    expanded: {
+      description: "Two lines per event",
+      weight: 1,
+    },
+  },
+});

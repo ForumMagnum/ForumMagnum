@@ -22,6 +22,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -239,6 +240,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
+    
+    const showSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
@@ -274,16 +277,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
-                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-                { theme.typography.fontDownloads &&
-                    theme.typography.fontDownloads.map(
-                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                    )
+                {theme.typography.fontDownloads &&
+                  theme.typography.fontDownloads.map(
+                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                  )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-                <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
               <AnalyticsClient/>
@@ -321,7 +320,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <Footer />
                 </div>
-                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
+                {showSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>
                 </div>}
               </div>

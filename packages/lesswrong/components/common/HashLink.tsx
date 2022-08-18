@@ -3,7 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
-import { Link, LinkProps } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+// eslint-disable-next-line no-restricted-imports
+import type { LinkProps } from 'react-router-dom';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 

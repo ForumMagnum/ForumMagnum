@@ -1,10 +1,11 @@
 import * as _ from 'underscore';
 
 declare global {
-  var bundleIsServer: boolean
-  var bundleIsTest: boolean
-  var bundleIsProduction: boolean
-  var defaultSiteAbsoluteUrl: string
+  let bundleIsServer: boolean;
+  let bundleIsTest: boolean;
+  let bundleIsProduction: boolean;
+  let defaultSiteAbsoluteUrl: string;
+  let serverPort: number;
 }
 
 export const isClient = !bundleIsServer
@@ -61,7 +62,7 @@ export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
   if (defaultSiteAbsoluteUrl?.length>0) {
     return defaultSiteAbsoluteUrl;
   } else {
-    return "http://localhost:3000/"
+    return `http://localhost:${getServerPort()}/`
   }
 }
 
@@ -69,6 +70,8 @@ export const addGlobalForShell = (name: string, value: any) => {
   // TODO
 }
 
+export const getServerPort = () => serverPort;
+export const getWebsocketPort = () => serverPort + 1;
 
 // Polyfill
 import 'setimmediate';
