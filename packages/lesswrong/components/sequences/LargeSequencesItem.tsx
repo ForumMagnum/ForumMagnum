@@ -89,6 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   chapterTitle: {
     fontSize: "1.25rem !important",
+    margin: "8px 0 -8px 0 !important",
   },
   postIcon: {
     height: 12,
@@ -206,7 +207,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
       <div className={classes.right}>
         {sequence.chapters?.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
-            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} />}
+            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
