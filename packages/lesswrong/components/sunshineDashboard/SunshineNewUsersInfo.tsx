@@ -282,7 +282,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
     const newNotes = signatureWithNote(`posting ${abled}`) + notes;
-    updateUser({
+    void updateUser({
       selector: {_id: user._id},
       data: {
         postingDisabled: !user.postingDisabled,
@@ -295,7 +295,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   const handleDisableAllCommenting = () => {
     const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
     const newNotes = signatureWithNote(`all commenting ${abled}`) + notes;
-    updateUser({
+    void updateUser({
       selector: {_id: user._id},
       data: {
         allCommentingDisabled: !user.allCommentingDisabled,
@@ -308,7 +308,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
     const newNotes = signatureWithNote(`commenting on other's ${abled}`) + notes;
-    updateUser({
+    void updateUser({
       selector: {_id: user._id},
       data: {
         commentingOnOtherUsersDisabled: !user.commentingOnOtherUsersDisabled,
@@ -321,7 +321,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   const handleDisableConversations = () => {
     const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
     const newNotes = signatureWithNote(`conversations ${abled}`) + notes;
-    updateUser({
+    void updateUser({
       selector: {_id: user._id},
       data: {
         conversationsDisabled: !user.conversationsDisabled,
