@@ -42,27 +42,38 @@ import { getMergedStylesheet } from './styleGeneration';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
+  const bundleBrotliPath = `${bundlePath}.br`;
+
+  const lastModified = fs.statSync(bundlePath).mtimeMs;
+  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
+  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
+
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
+  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
+
   // Store the bundle in memory as UTF-8 (the format it will be sent in), to
   // save a conversion and a little memory
   const bundleBuffer = Buffer.from(bundleText, 'utf8');
-  const lastModified = fs.statSync(bundlePath).mtimeMs;
   return {
     bundlePath,
     bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
     lastModified,
     bundleBuffer,
+    bundleBrotliBuffer,
   };
 }
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer}|null = null;
+let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
 const getClientBundle = () => {
   if (!clientBundle) {
     clientBundle = loadClientBundle();
     return clientBundle;
   }
   
+  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
   const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  if (clientBundle.lastModified !== lastModified) {
+  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
+  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
+  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
     clientBundle = loadClientBundle();
     return clientBundle;
   }
@@ -153,23 +164,38 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer} = getClientBundle();
-    if (query.hash && query.hash !== bundleHash) {
+    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
+    let headers = {}
+    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
+
+    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
       // version upgrade in progress, and the SSR and the bundle were handled by servers
       // on different versions. Serve whatever bundle we have (there's really not much
       // else to do), but set the Cache-Control header differently so that it will be
       // fixed on the next refresh.
-      res.writeHead(200, {
+      //
+      // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
+      // that either means we are running locally (in which case chache control isn't important), or that
+      // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
+      // from serving the uncompressed bundle for too long).
+      headers = {
         "Cache-Control": "public, max-age=60",
         "Content-Type": "text/javascript; charset=utf-8"
-      });
-      res.end(bundleBuffer);
+      }
     } else {
-      res.writeHead(200, {
+      headers = {
         "Cache-Control": "public, max-age=604800, immutable",
         "Content-Type": "text/javascript; charset=utf-8"
-      });
+      }
+    }
+
+    if (bundleBrotliBuffer !== null && acceptBrotli) {
+      headers["Content-Encoding"] = "br";
+      res.writeHead(200, headers);
+      res.end(bundleBrotliBuffer);
+    } else {
+      res.writeHead(200, headers);
       res.end(bundleBuffer);
     }
   });
