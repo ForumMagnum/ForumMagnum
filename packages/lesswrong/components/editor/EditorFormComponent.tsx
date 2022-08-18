@@ -415,10 +415,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     }
     return {
       ...submission,
-      [fieldName]: data ? {
+      [fieldName]: {
         originalContents: {type, data},
         commitMessage, updateType,
-      } : null
+      }
     }
   }
 
