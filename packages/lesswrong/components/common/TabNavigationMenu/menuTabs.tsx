@@ -14,6 +14,7 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
+import VoiceChatIcon from '@material-ui/icons/VoiceChat';
 import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
@@ -292,6 +293,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
+    }, {
+      id: 'advisors',
+      title: 'Get Advice [BETA]',
+      link: `/advisors`,
+      iconComponent: VoiceChatIcon,
+      tooltip: "Chat with someone in the community"
     }, {
       id: 'events',
       title: 'Events',

@@ -19,10 +19,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[0],
     padding: '24px 32px',
   },
+  betaFlag: {
+    display: 'inline-block',
+    backgroundColor: theme.palette.background.primaryDim,
+    color: theme.palette.primary.main,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 600,
+    padding: '6px 10px',
+    borderRadius: '3px 9px 3px 3px',
+    marginTop: 8
+  },
   headline: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 38,
-    fontWeight: 700
+    fontWeight: 700,
+    marginTop: 14
   },
   descriptionRow: {
     marginTop: 20
@@ -46,7 +58,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     paddingBottom: 10,
     borderBottom: `2px solid ${theme.palette.primary.main}`,
-    marginTop: 30
+    marginTop: 30,
+  },
+  advisors: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '10px',
+    marginTop: 10
   }
 })
 
@@ -74,7 +92,6 @@ const AdvisorsPage = ({classes}: {
       const request = await createAdvisorRequest({
         data: {userId: currentUser._id},
       });
-      console.log("result", request);
       history.push("/advisor-request");
     } else {
       openDialog({
@@ -92,6 +109,7 @@ const AdvisorsPage = ({classes}: {
     <AnalyticsContext pageContext="advisorPage">
       <SingleColumnSection>
         <div className={classes.root}>
+          <div className={classes.betaFlag}>Beta</div>
           <h1 className={classes.headline}>Chat with a Biosecurity Professional</h1>
           <Typography variant="body1" className={classes.descriptionRow}>
             Interested in using your career to
@@ -100,12 +118,9 @@ const AdvisorsPage = ({classes}: {
             </a>? Get some personalized advice from a professional in this field.
           </Typography>
           <Typography variant="body1" className={classes.descriptionRow}>
-            Request a one-on-one 30 minute chat with a GCBR advisor.
-          </Typography>
-          <Typography variant="body1" className={classes.descriptionRow}>
-            You'll be matched with an advisor based on relevance and availability.
-            They are in a variety of career stages, so if you're just getting started
-            we can match you with someone more junior.
+            After you submit your request, we'll match you with an advisor based on fit and availability.
+            They are in a variety of career stages, including some current students, so if you're just getting started
+            we can match you with someone more junior. They'll meet with you for a one-on-one 30 minute video chat.
           </Typography>
           <Typography variant="body1" className={classes.descriptionRow}>
             To get the most out of this service, we recommend you be familiar
@@ -125,12 +140,43 @@ const AdvisorsPage = ({classes}: {
           </Typography>
           
           <Typography variant="headline" className={classes.advisorsHeadline}>Meet the advisors</Typography>
-          <AdvisorCard user={{
-            profileImageId: 'v1645651807/amy-presentation.png',
-            name: 'Simon Grimm',
-            jobTitle: 'Researcher',
-            organization: 'Sculpting Evolution'
-          }} />
+          <div className={classes.advisors}>
+            <AdvisorCard user={{
+              profileImageId: 'v1645651807/amy-presentation.png',
+              name: 'Simon Grimm',
+              jobTitle: 'Researcher',
+              organization: 'Sculpting Evolution',
+              location: 'Boston, MA, USA',
+              linkedinProfileSlug: 'sarahycheng',
+              twitterProfileSlug: '',
+              askMeAbout: [
+                'Pathogen evolution and biophysics',
+                'Applying to grad school',
+                'Working at the United Nations',
+                'Organizing EA workshops'
+              ]
+            }} />
+            <AdvisorCard user={{
+              profileImageId: 'v1645651807/amy-presentation.png',
+              name: 'Phoenix Wright',
+              jobTitle: 'Grad student',
+              organization: 'MIT',
+              location: 'Cambridge, MA, USA',
+              linkedinProfileSlug: '',
+              twitterProfileSlug: '',
+              askMeAbout: ['Stepladders']
+            }} />
+            <AdvisorCard user={{
+              profileImageId: 'v1645651807/amy-presentation.png',
+              name: 'Miles Edgeworth',
+              jobTitle: 'Prosecutor',
+              organization: 'Old Bailey',
+              location: 'London, UK',
+              linkedinProfileSlug: '',
+              twitterProfileSlug: '',
+              askMeAbout: ['Cravats']
+            }} />
+          </div>
           
           
           <Button color="primary" variant="contained" className={classes.requestBtn} onClick={onRequest}>

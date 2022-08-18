@@ -315,6 +315,7 @@ declare global {
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
+      primaryDim: ColorString,
     },
     header: {
       text: ColorString,
