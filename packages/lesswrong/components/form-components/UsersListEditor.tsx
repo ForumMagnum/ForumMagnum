@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import PropTypes from 'prop-types';
-import { makeSortableListComponent } from '../forms/sortableList';
+import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';

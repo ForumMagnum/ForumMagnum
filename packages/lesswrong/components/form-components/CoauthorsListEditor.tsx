@@ -3,7 +3,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import withUser from '../common/withUser';
-import { makeSortableListComponent } from '../forms/sortableList';
+import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
 
 const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
