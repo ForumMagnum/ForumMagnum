@@ -20,7 +20,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import { Button } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
