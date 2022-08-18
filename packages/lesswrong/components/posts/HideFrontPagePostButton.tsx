@@ -1,4 +1,4 @@
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
+import { registerComponent, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -6,7 +6,6 @@ import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMutation, gql } from '@apollo/client';
 import map from 'lodash/map';

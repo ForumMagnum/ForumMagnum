@@ -6,7 +6,7 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
-import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';

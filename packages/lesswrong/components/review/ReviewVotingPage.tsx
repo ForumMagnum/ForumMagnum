@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import sumBy from 'lodash/sumBy'
+import React, { useState, useEffect, useCallback } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
@@ -19,7 +16,6 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
-import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'

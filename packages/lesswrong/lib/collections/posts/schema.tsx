@@ -1,5 +1,3 @@
-import React from 'react'
-import { userOwns } from '../../vulcan-users/permissions';
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
@@ -16,8 +14,6 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
-import { SORT_ORDER_OPTIONS, SettingsOption } from './sortOrderOptions';
-import { Link } from '../../reactRouterWrapper';
 
 const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
 const isEAForum = (forumTypeSetting.get() === 'EAForum')

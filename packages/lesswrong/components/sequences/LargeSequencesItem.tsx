@@ -87,6 +87,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 125,
     objectFit: "cover"
   },
+  chapterTitle: {
+    fontSize: "1.25rem !important",
+    margin: "8px 0 -8px 0 !important",
+  },
   postIcon: {
     height: 12,
     width: 12,
@@ -143,7 +147,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, ContentItemBody, LWTooltip } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, SectionTitle, LWTooltip } = Components
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -201,13 +205,9 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters?.flatMap(({posts, title, contents}) =>
-          <>
-            {showChapters && contents?.htmlHighlight && (
-              <ContentStyles contentType="postHighlight">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: title ?? contents.htmlHighlight}} />
-              </ContentStyles>
-            )}
+        {sequence.chapters?.flatMap(({posts, title}, index) =>
+          <React.Fragment key={index}>
+            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
@@ -215,7 +215,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
                 sequenceId={sequence._id}
               />
             ))}
-          </>
+          </React.Fragment>
         )}
       </div>
     </div>

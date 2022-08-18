@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { FilterSettings, useFilterSettings } from './filterSettings'
+import { useFilterSettings } from './filterSettings'
 import { testStartup } from "../testing/testMain"
 
 testStartup()

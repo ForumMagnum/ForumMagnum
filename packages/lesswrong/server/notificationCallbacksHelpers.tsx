@@ -17,7 +17,6 @@ import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
-import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import Localgroups from '../lib/collections/localgroups/collection';
 
 /**
