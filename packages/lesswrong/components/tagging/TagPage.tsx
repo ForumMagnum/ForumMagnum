@@ -14,7 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
