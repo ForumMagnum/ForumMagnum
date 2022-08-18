@@ -28,6 +28,16 @@ const sequenceHighlights: CuratedContent = {
   }
 }
 
+const multiagentmodels: CuratedContent = {
+  documentType: "Sequence",
+  document: {
+    _id: "asdf",
+    title: "Multiagent Models of Mind",
+  },
+  description: "Can we think model the functioning of the brain into a number of subsystems, which communicate in part through the global neuronal workspace of consciousness.",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660784419/multiagentmodels_o8yaxe.png"
+}
+
 export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -175,6 +185,7 @@ const RecommendationsAndCurated = ({
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
           <CuratedContentItem content={sequenceHighlights} />
+          <CuratedContentItem content={multiagentmodels} />
         </AnalyticsContext>}
 
         {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
