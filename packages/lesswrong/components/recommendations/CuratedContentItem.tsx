@@ -36,11 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   linkCard: {
-    // display: "flex",
     boxShadow: theme.palette.boxShadow.default,
     background: theme.palette.panelBackground.default,
-    // justifyContent: "space-between",
-    // width: "100%",
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     }
