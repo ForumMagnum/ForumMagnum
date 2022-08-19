@@ -81,7 +81,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    marginRight: 150
+    marginRight: 150,
+    position: "relative",
+    zIndex: theme.zIndexes.curatedContentItem,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 100
+    }
+    // height: 150
   },
   description: {
     marginTop: 14,
