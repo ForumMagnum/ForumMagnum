@@ -158,6 +158,10 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
   algorithm: RecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
+  // const curatedPosts = await Posts.find({ curatedDate: { $gt: new Date(0) }}).fetch();
+  // const data = Object.fromEntries(curatedPosts.map(p => [p.title, p._id]));
+  // require('fs').writeFileSync('./curatedPosts.json', JSON.stringify(data));
+
   return await Posts.aggregate([
     // Filter to recommendable posts
     { $match: {
