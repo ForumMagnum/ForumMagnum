@@ -1,5 +1,3 @@
-import deepmerge from 'deepmerge';
-import isPlainObject from 'is-plain-object';
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,

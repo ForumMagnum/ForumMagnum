@@ -1,5 +1,5 @@
 import React from 'react'
-import { EditorContents, EditorTypeString, EditorChangeEvent, serializeEditorContents, deserializeEditorContents, nonAdminEditors, adminEditors, editorTypeToDisplay } from './Editor';
+import { EditorContents, EditorTypeString, EditorChangeEvent, nonAdminEditors, adminEditors, editorTypeToDisplay } from './Editor';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@material-ui/core/Select';

@@ -1,9 +1,5 @@
 import type { PartialDeep } from 'type-fest'
-import deepmerge from 'deepmerge';
-// eslint-disable-next-line no-restricted-imports
-import type { Color as MuiColorShades } from '@material-ui/core';
-import { defaultComponentPalette } from '../defaultPalette';
-import { invertHexColor, parseColor, colorToString, invertColor } from '../colorUtil';
+import { invertHexColor, invertColor } from '../colorUtil';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey

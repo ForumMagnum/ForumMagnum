@@ -7,7 +7,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
-import { commentsNodeRootMarginBottom } from '../../themes/globalStyles/globalStyles';
 
 export const POST_PREVIEW_WIDTH = 400
 

@@ -12,7 +12,6 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isCollaborative } from '../editor/EditorFormComponent';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
@@ -60,7 +59,7 @@ const PostsEditForm = ({ documentId, classes }: {
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
   if (document
-    && document.userId!==currentUser?._id
+    && document.userId!==currentUser._id
     && document.sharingSettings
     && !userIsAdmin(currentUser)
     && !currentUser.groups?.includes('sunshineRegiment')

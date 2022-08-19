@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
-import type { ThemeOptions } from './themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 
 declare global {
