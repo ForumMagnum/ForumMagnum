@@ -10,38 +10,37 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { CuratedContent } from './CuratedContentItem';
 
-const sequenceHighlights: CuratedContent = {
-  documentType: "Collection",
-  document: {
-    _id: "NBDFAKt3GbFwnwzQF",
-    title: "The Sequences Highlights",
-    slug: "highlights"
-  },
-  description: `<div>How can we think better on purpose? Why should we think better on purpose?<br/> Read up on the core concepts that underly the LessWrong community.
-    </div>`,
-  // hideSummaryOnMobile: true,
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660339717/coverimage-05_qvc8ca.png",
-  firstPost: {
-    _id: "46qnWRSR7L2eyNbMA",
-    url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-    title: "The Lens That Sees Its Flaws"
-  }
-}
+// const sequenceHighlights: CuratedContent = {
+//   documentType: "Collection",
+//   document: {
+//     _id: "NBDFAKt3GbFwnwzQF",
+//     title: "The Sequences Highlights",
+//     slug: "highlights"
+//   },
+//   description: `<div>How can we think better on purpose? Why should we think better on purpose?<br/> Read up on the core concepts that underly the LessWrong community.
+//     </div>`,
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660339717/coverimage-05_qvc8ca.png",
+//   firstPost: {
+//     _id: "46qnWRSR7L2eyNbMA",
+//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+//     title: "The Lens That Sees Its Flaws"
+//   }
+// }
 
-const multiagentmodels: CuratedContent = {
-  documentType: "Sequence",
-  document: {
-    _id: "asdf1",
-    title: "Multiagent Models of Mind",
-  },
-  description: "Can we think model the functioning of the brain into a number of subsystems, which communicate in part through the global neuronal workspace of consciousness.",
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660861487/DALL_E_2022-08-18_15.08.28_-_multiagent_models_of_mind_aquarelle_painting_by_Thomas_Schaller_as_digital_art_edited_j9bttt.png",
-  firstPost: {
-    _id: "46qnWRSR7L2eyNbMA",
-    url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-    title: "The Lens That Sees Its Flaws"
-  }
-}
+// const multiagentmodels: CuratedContent = {
+//   documentType: "Sequence",
+//   document: {
+//     _id: "asdf1",
+//     title: "Multiagent Models of Mind",
+//   },
+//   description: "Can we think model the functioning of the brain into a number of subsystems, which communicate in part through the global neuronal workspace of consciousness.",
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660861487/DALL_E_2022-08-18_15.08.28_-_multiagent_models_of_mind_aquarelle_painting_by_Thomas_Schaller_as_digital_art_edited_j9bttt.png",
+//   firstPost: {
+//     _id: "46qnWRSR7L2eyNbMA",
+//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+//     title: "The Lens That Sees Its Flaws"
+//   }
+// }
 
 const replacingGuilt: CuratedContent = {
   documentType: "Sequence",
@@ -73,20 +72,20 @@ const babbleAndPrune: CuratedContent = {
   }
 }
 
-const cfarHandbook: CuratedContent = {
-  documentType: "Sequence",
-  document: {
-    _id: "asdf4",
-    title: "CFAR Handbook",
-  },
-  description: "The Center for Applied Rationality set out to develop simple, concrete concepts and techniques that could be applied to anyone's problems and goals.",
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660869601/DALL_E_2022-08-18_17.31.52_-_students_sitting_on_bean_bags_in_front_of_teacher_by_whiteboard_with_math_aquarelle_painting_by_JMW_Turner_-_edited2_zm0x5r.png",
-  firstPost: {
-    _id: "46qnWRSR7L2eyNbMA",
-    url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-    title: "CFAR Handbook: Introduction"
-  }
-}
+// const cfarHandbook: CuratedContent = {
+//   documentType: "Sequence",
+//   document: {
+//     _id: "asdf4",
+//     title: "CFAR Handbook",
+//   },
+//   description: "The Center for Applied Rationality set out to develop simple, concrete concepts and techniques that could be applied to anyone's problems and goals.",
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660869601/DALL_E_2022-08-18_17.31.52_-_students_sitting_on_bean_bags_in_front_of_teacher_by_whiteboard_with_math_aquarelle_painting_by_JMW_Turner_-_edited2_zm0x5r.png",
+//   firstPost: {
+//     _id: "46qnWRSR7L2eyNbMA",
+//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+//     title: "CFAR Handbook: Introduction"
+//   }
+// }
 
 export const curatedUrl = "/recommendations"
 
