@@ -678,6 +678,7 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   description: EditableFieldContents
+  parentTagId: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
