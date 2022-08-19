@@ -2,9 +2,6 @@ import React, {useCallback} from 'react';
 import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { useCurrentUser } from '../common/withUser';
-import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

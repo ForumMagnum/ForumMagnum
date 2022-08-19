@@ -1,6 +1,5 @@
 import { getCollection } from '../../vulcan-lib/getCollection';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
-import { userIsPostGroupOrganizer } from './helpers';
 import * as _ from 'underscore';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";

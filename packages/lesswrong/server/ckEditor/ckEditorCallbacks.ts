@@ -1,13 +1,12 @@
 import { randomSecret } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { postCanEdit } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isCollaborative } from '../../components/editor/EditorFormComponent';
 import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { buildRevision, revisionIsChange } from '../editor/make_editable_callbacks';
+import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { pushRevisionToCkEditor } from './ckEditorWebhook';
 import * as _ from 'underscore';
