@@ -20,6 +20,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import Button from '@material-ui/core/Button';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
@@ -44,7 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom: 8
   },
   disabled: {
     opacity: .2,
@@ -94,10 +96,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 0,
     borderTop: "none",
     borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
-  },
-  editIcon: {
-    width: 20,
-    color: theme.palette.grey[400]
   },
   notes: {
     border: theme.palette.border.normal,
@@ -213,23 +211,24 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   }
 
   const handleSnooze = (contentCount: number) => {
+    const newNotes = signatureWithNote(`Snooze ${contentCount}`)+notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
-        sunshineNotes: notes,
+        sunshineNotes: newNotes,
         snoozedUntilContentCount: getNewSnoozeUntilContentCount(user, contentCount)
       }
     })
-
-    setNotes( signatureWithNote(`Snooze ${contentCount}`)+notes )
+    setNotes( newNotes )
   }
 
   const banMonths = 3
 
   const handleBan = () => {
+    const newNotes = signatureWithNote("Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
       void updateUser({
         selector: {_id: user._id},
@@ -240,10 +239,10 @@ const SunshineNewUsersInfo = ({ user, classes }: {
           needsReview: false,
           reviewedAt: new Date(),
           banned: moment().add(banMonths, 'months').toDate(),
-          sunshineNotes: notes
+          sunshineNotes: newNotes
         }
       })
-      setNotes( signatureWithNote("Ban")+notes )
+      setNotes( newNotes )
     }
   }
 
@@ -278,6 +277,58 @@ const SunshineNewUsersInfo = ({ user, classes }: {
 
     const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
     setNotes( signatureWithNote(flagStatus)+notes )
+  }
+
+  const handleDisablePosting = () => {
+    const abled = user.postingDisabled ? 'enabled' : 'disabled';
+    const newNotes = signatureWithNote(`posting ${abled}`) + notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        postingDisabled: !user.postingDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
+  }
+
+  const handleDisableAllCommenting = () => {
+    const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
+    const newNotes = signatureWithNote(`all commenting ${abled}`) + notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        allCommentingDisabled: !user.allCommentingDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
+  }
+
+  const handleDisableCommentingOnOtherUsers = () => {
+    const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
+    const newNotes = signatureWithNote(`commenting on other's ${abled}`) + notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        commentingOnOtherUsersDisabled: !user.commentingOnOtherUsersDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
+  }
+
+  const handleDisableConversations = () => {
+    const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
+    const newNotes = signatureWithNote(`conversations ${abled}`) + notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        conversationsDisabled: !user.conversationsDisabled,
+        sunshineNotes: newNotes
+      }
+    })
+    setNotes( newNotes )
   }
 
   const { results: posts, loading: postsLoading } = useMulti({
@@ -354,6 +405,28 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               </div>
             </div>
             <div className={classes.row}>
+              <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
+                <Button onClick={handleDisablePosting} variant={user.postingDisabled ? "flat" : "outlined"}>
+                  Posts
+                </Button>
+              </LWTooltip>
+              <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
+                <Button onClick={handleDisableAllCommenting} variant={user.allCommentingDisabled ? "flat" : "outlined"}>
+                  All Comments
+                </Button>
+              </LWTooltip>
+              <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
+                <Button onClick={handleDisableCommentingOnOtherUsers} variant={user.commentingOnOtherUsersDisabled ? "flat" : "outlined"}>
+                  Other Comments
+                </Button>
+              </LWTooltip>
+              <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
+                <Button onClick={handleDisableConversations} variant={user.conversationsDisabled ? "flat" : "outlined"}>
+                  Conversations
+                </Button>
+              </LWTooltip>
+            </div>
+            <div className={classes.row}>
               <div className={classes.row}>
                 <LWTooltip title="Approve">
                   <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
@@ -379,7 +452,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
                   </div>
                 </LWTooltip>
               </div>
-              <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
+              <div className={classes.row}>
+                <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
+              </div>
             </div>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
