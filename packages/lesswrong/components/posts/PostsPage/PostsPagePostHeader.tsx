@@ -214,19 +214,6 @@ const PostsPagePostHeader = ({post, classes}: {
         <PostsVote post={post} />
       </div>}
     </div>
-    {/* <NoSSR>
-      <div id="buzzsprout-player-11155706" />
-      <script src="https://www.buzzsprout.com/2036194/11155706-go-forth-and-create-the-art.js?container_id=buzzsprout-player-11155706&amp;player=small" type="text/javascript" charSet="utf-8" defer>
-        console.log('foobar');
-        {`if (buzzsproutPlayerContainer) {
-          console.log({ buzzsproutPlayerContainer });
-          buzzsproutPlayerContainer.innerHTML = renderBuzzsproutPlayerHTML();
-        } else {
-          console.log('Container div not captured');
-          document.write(renderBuzzsproutPlayerHTML());
-        }`}
-      </script>
-    </NoSSR> */}
     {podcastEpisode && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       {isClient && <NoSSR>
         <div
@@ -236,8 +223,8 @@ const PostsPagePostHeader = ({post, classes}: {
         {embedScriptFunction(podcastEpisode.episodeLink, window, document)}
       </NoSSR>}
       <ul className={classes.podcastIconList}>
-        {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}>{applePodcastIcon}</li>}
-        {podcastEpisode.podcast.spotifyPodcastLink &&<li className={classes.podcastIcon}>{spotifyPodcastIcon}</li>}
+        {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.applePodcastLink}>{applePodcastIcon}</a></li>}
+        {podcastEpisode.podcast.spotifyPodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.spotifyPodcastLink}>{spotifyPodcastIcon}</a></li>}
       </ul>
     </div>}
     {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
