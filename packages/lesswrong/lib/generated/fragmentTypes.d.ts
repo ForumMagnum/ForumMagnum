@@ -383,7 +383,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
-  readonly podcastEpisode: PodcastEpisodeFragment|null,
+  readonly podcastEpisode: PostsBase_podcastEpisode|null,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -445,6 +445,19 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
+}
+
+interface PostsBase_podcastEpisode { // fragment on PodcastEpisodes
+  readonly title: string,
+  readonly podcast: PostsBase_podcastEpisode_podcast,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PostsBase_podcastEpisode_podcast { // fragment on Podcasts
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -1616,14 +1629,6 @@ interface PodcastEpisodesDefaultFragment { // fragment on PodcastEpisodes
   readonly externalEpisodeId: string,
 }
 
-interface PodcastEpisodeFragment { // fragment on PodcastEpisodes
-  readonly _id: string,
-  readonly podcast: PodcastsDefaultFragment,
-  readonly title: string,
-  readonly episodeLink: string,
-  readonly externalEpisodeId: string,
-}
-
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
@@ -2246,7 +2251,6 @@ interface FragmentTypes {
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
-  PodcastEpisodeFragment: PodcastEpisodeFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -2397,7 +2401,6 @@ interface CollectionNamesByFragmentName {
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
-  PodcastEpisodeFragment: "PodcastEpisodes"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
