@@ -104,8 +104,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit/2
   },
   pinnedIcon: {
-    color: theme.palette.grey[700],
-    paddingTop: 8
+    color: theme.palette.grey[400],
+    paddingTop: 10,
+    marginBottom: '-3px'
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -127,7 +128,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -139,6 +140,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   toggleCollapse?: ()=>void,
   setSingleLine?: (boolean)=>void,
   truncated: boolean,
+  showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
   classes: ClassesType,
 }) => {
@@ -301,7 +303,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
         
-        {comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
+        {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
           {stickyIcon()}
         </div>}
 

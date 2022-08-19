@@ -1,23 +1,14 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import MenuItem from '@material-ui/core/MenuItem';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { useDialog } from '../../common/withDialog'
-import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { stickyIcon } from '../../posts/PostsTitle';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  sticky: {
 
-  },
-})
-
-const PinToProfileMenuItem = ({ comment, classes }: {
+const PinToProfileMenuItem = ({ comment }: {
   comment: CommentsList,
-  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
 
@@ -45,7 +36,7 @@ const PinToProfileMenuItem = ({ comment, classes }: {
   </MenuItem>
 }
 
-const PinToProfileMenuItemComponent = registerComponent('PinToProfileMenuItem', PinToProfileMenuItem, {styles});
+const PinToProfileMenuItemComponent = registerComponent('PinToProfileMenuItem', PinToProfileMenuItem);
 
 declare global {
   interface ComponentTypes {
