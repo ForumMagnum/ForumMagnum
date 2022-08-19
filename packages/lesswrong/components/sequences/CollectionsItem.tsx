@@ -104,7 +104,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
 
   const { firstPost } = collection;
   
-  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`;
+  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookies([cookieName]);
 
   if (cookies[cookieName]) {
@@ -114,7 +114,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   const hideBanner = () => setCookie(
     cookieName,
     "true", {
-    expires: moment().add(30, 'days').toDate(),
+    expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
     path: "/"
   });
 
