@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute, capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';

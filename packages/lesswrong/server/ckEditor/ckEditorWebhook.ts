@@ -1,6 +1,6 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
-import { getCkEditorApiPrefix, getCkEditorEnvironmentId, getCkEditorSecretKey, getCkEditorApiSecretKey } from './ckEditorServerConfig';
+import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
 import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';

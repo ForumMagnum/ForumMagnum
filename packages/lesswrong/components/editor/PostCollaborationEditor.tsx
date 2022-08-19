@@ -1,10 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useSingle } from '../../lib/crud/withSingle';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
-import { editorStyles, postBodyStyles, ckEditorStyles } from '../../themes/stylePiping'
+import { postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';

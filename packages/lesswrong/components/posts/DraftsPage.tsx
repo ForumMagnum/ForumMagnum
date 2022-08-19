@@ -1,13 +1,8 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
-import { useContinueReading } from '../recommendations/withContinueReading';
-import Tooltip from "@material-ui/core/Tooltip";
-import {QueryLink} from "../../lib/reactRouterWrapper";
-import {DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD} from "../../lib/collections/posts/views";
-import Checkbox from "@material-ui/core/Checkbox";
 import {useLocation} from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -26,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const DraftsPage = ({classes}) => {
-  const {SingleColumnSection, SectionTitle, DraftsList } = Components
+  const {SingleColumnSection, DraftsList } = Components
   
   const currentUser = useCurrentUser()
   const { query } = useLocation();

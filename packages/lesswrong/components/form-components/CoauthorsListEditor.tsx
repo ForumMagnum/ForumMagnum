@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { arrayMove } from 'react-sortable-hoc';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import withUser from '../common/withUser';
