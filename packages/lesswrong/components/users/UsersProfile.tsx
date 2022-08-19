@@ -371,7 +371,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <SectionTitle title={"Comments"} />
               </Link>
               <Components.RecentComments
-                terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile
               />
             </SingleColumnSection>

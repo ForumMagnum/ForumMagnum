@@ -202,13 +202,13 @@ addFieldsDict(Comments, {
     hidden: true,
   },
 
+  // whether this comment is pinned on the author's profile
   isPinnedOnProfile: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    control: "checkbox",
     hidden: true,
     ...schemaDefaultValue(false),
   }

@@ -188,10 +188,18 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
   };
 })
 
-Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
+Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+  };
+})
+ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
+
+Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
+  return {
+    selector: {deletedPublic: false},
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
 

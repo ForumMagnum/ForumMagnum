@@ -441,7 +441,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
           showPinnedOnProfile
         />
       </AnalyticsContext>
