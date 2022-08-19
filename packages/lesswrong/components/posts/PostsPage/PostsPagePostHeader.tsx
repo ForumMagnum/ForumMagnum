@@ -91,13 +91,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderLeft: 'transparent'
   },
   embeddedPlayer: {
-    marginBottom: '10px'
+    marginBottom: '2px'
   },
   hideEmbeddedPlayer: {
     display: "none"
   },
   podcastIconList: {
-    paddingLeft: '0px'
+    paddingLeft: '0px',
+    marginTop: '0px'
   },
   podcastIcon: {
     display: 'inline-block',
