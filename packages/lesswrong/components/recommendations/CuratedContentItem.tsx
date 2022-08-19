@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -8,8 +7,6 @@ import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
-import { string } from 'prop-types';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import {useTracking} from "../../lib/analyticsEvents";
 
 type CuratedContentDocType = "Sequence"|"Collection"
