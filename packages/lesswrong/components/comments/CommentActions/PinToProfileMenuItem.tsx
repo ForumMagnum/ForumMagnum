@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { stickyIcon } from '../../posts/PostsTitle';
+import { StickyIcon } from '../../posts/PostsTitle';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
@@ -30,7 +30,7 @@ const PinToProfileMenuItem = ({ comment }: {
 
   return <MenuItem onClick={togglePinned}>
     <ListItemIcon>
-      {stickyIcon("MuiSvgIcon-root MuiListItemIcon-root")}
+      <StickyIcon className="MuiSvgIcon-root" />
     </ListItemIcon>
     {comment.isPinnedOnProfile ? `Unpin from ${username} profile` : `Pin to ${username} profile`}
   </MenuItem>

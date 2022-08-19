@@ -14,7 +14,7 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { stickyIcon } from '../../posts/PostsTitle';
+import { StickyIcon } from '../../posts/PostsTitle';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -304,7 +304,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         )}
         
         {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
-          {stickyIcon()}
+          <StickyIcon />
         </div>}
 
         {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
