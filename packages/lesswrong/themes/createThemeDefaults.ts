@@ -1,7 +1,3 @@
-import { createMuiTheme } from '@material-ui/core/styles';
-import { getForumType, ThemeOptions } from './themeNames';
-import deepmerge from 'deepmerge';
-import isPlainObject from 'is-plain-object';
 import type { PartialDeep } from 'type-fest'
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 

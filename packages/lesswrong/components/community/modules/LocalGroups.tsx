@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';

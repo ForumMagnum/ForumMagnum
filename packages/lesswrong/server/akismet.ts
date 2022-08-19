@@ -1,6 +1,5 @@
 import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
-import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
 import { updateMutator } from './vulcan-lib';

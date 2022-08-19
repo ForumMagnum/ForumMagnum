@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useContinueReading } from '../recommendations/withContinueReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   pageTitle: {

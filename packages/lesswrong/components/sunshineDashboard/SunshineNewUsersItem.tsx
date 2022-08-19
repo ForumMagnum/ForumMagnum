@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';

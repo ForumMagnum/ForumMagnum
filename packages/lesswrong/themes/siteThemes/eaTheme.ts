@@ -1,6 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import type { PartialDeep } from 'type-fest'
-import { themeMetadata } from '../themeNames';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently

@@ -7,7 +7,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { getUserFromReq, computeContextFromUser, configureSentryScope } from '../apollo-server/context';
+import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
