@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
 import { Podcasts } from '../../lib/collections/podcasts/collection';
-import { PodcastEpisodes } from '../../lib/collections/podcastepisodes/collection';
+import { PodcastEpisodes } from '../../lib/collections/podcastEpisodes/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 
 import razPostToBuzzsproutMappings from './resources/razPostToBuzzsproutMappings.json';

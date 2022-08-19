@@ -170,15 +170,6 @@ const PostsPagePostHeader = ({post, classes}: {
   const wordCount = post.contents?.wordCount || 0
   const { podcastEpisode } = post
 
-  // const { document: podcastEpisode } = useSingle({
-  //   collectionName: "PodcastEpisodes",
-  //   fragmentName: "PodcastEpisodesDefaultFragment",
-  //   documentId: '62fead7ab3899c61b629aba7'
-  // })
-
-  console.log({ podcastEpisode });
-  // console.log({ podcastEpisode });
-  
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
@@ -243,47 +234,15 @@ const PostsPagePostHeader = ({post, classes}: {
     </NoSSR> */}
     {podcastEpisode && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       {isClient && <NoSSR>
-        {/* <div
-          className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}
-          data-bt-embed="https://player.backtracks.fm/backtracks/backtracks/m/player-example"
-          data-bt-theme="light"
-          data-bt-primary-color="#5f9b65"
-          data-bt-show-comments="false"
-          data-bt-show-art-cover="false"
-          data-bt-preview="false">
-        </div>
-        {embedScriptFunction('https://player.backtracks.fm/embedder.js', window, document)} */}
         <div
           id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
           className={classes.embeddedPlayer}
         />
         {embedScriptFunction(podcastEpisode.episodeLink, window, document)}
-        {/* {embedScriptFunction('https://www.buzzsprout.com/2036194/11155706-go-forth-and-create-the-art.js?container_id=buzzsprout-player-11155706&amp;player=small', window, document)} */}
-        {/* <iframe
-          className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}
-          title="Embed Player"
-          src="//play.libsyn.com/embed/destination/id/3505820/height/192/theme/modern/size//thumbnail/no/custom-color/ffffff/hide-show/yes/hide-playlist/yes/hide-subscribe/yes/hide-share/yes"
-          height="192"
-          width="100%"
-          scrolling="no"
-          allowFullScreen={false}
-          style={{border: 'none'}}
-        />
-        <iframe
-          className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}
-          src='https://share.transistor.fm/e/build-your-saas/latest'
-          width='100%'
-          height='180'
-          frameBorder='0'
-          scrolling='no'
-          seamless
-          style={{ width:'100%', height:'180px' }}
-        /> */}
       </NoSSR>}
       <ul className={classes.podcastIconList}>
         {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}>{applePodcastIcon}</li>}
         {podcastEpisode.podcast.spotifyPodcastLink &&<li className={classes.podcastIcon}>{spotifyPodcastIcon}</li>}
-        {/* <li className={classes.podcastIcon}>{googlePodcastIcon}</li> */}
       </ul>
     </div>}
     {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">

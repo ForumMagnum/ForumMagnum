@@ -124,7 +124,6 @@ import './collections/subscriptions';
 import './collections/podcasts/collection';
 // Podcast episodes
 import './collections/podcastEpisodes/collection';
-import './collections/podcastEpisodes/fragments';
 
 // Posts
 import './collections/posts/custom_fields';
