@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { SerializedEditorContents, EditorChangeEvent, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({

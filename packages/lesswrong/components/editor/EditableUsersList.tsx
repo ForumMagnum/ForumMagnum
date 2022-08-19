@@ -1,7 +1,6 @@
 import React from 'react';
-import { registerComponent, useStyles, Components } from '../../lib/vulcan-lib/components';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { makeSortableListComponent } from '../form-components/sortableList';
-import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   listEditor: {

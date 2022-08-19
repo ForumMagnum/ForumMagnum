@@ -19,7 +19,6 @@ import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, tagging
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
-import { userCanPost } from '../../lib/collections/posts';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {

@@ -1,6 +1,5 @@
 import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../algoliaUtil'
 import {promisify} from '../utils/asyncUtils'
-import React from 'react'
 import {getSiteUrl} from '../vulcan-lib'
 
 interface SearchHit {

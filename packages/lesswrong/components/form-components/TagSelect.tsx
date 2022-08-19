@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
