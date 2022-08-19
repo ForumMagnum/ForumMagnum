@@ -10,6 +10,7 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import { string } from 'prop-types';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import {useTracking} from "../../lib/analyticsEvents";
 
 type CuratedContentDocType = "Sequence"|"Collection"
 
@@ -27,33 +28,15 @@ export interface CuratedContent {
     title: string,
     url: string
   }
-
-  // title: string,
-  // subtitle?: string,
-  // id: string,
-  // userId: string,
-  // summary: string,
-  // hideSummaryOnMobile?: boolean,
-  // imageId?: string,
-  // imageWidth?: number,
-  // imageUrl?: string,
-  // color: string,
-  // big?: boolean,
-  // url: string,
-  // firstPost?: {
-  //   postId: string,
-  //   postTitle: string,
-  //   postUrl: string
-  // }
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
-    overflow: "hidden"
-    // '&:hover $closeButton': {
-    //   color: theme.palette.grey[100],
-    // }
+    overflow: "hidden",
+    '&:hover $closeButton': {
+      color: theme.palette.grey[100],
+    }
   },
   linkCard: {
     // display: "flex",
@@ -65,15 +48,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     }
   },
-  // closeButton: {
-  //   padding: '.5em',
-  //   minHeight: '.75em',
-  //   minWidth: '.75em',
-  //   position: 'absolute',
-  //   color: theme.palette.grey[300],
-  //   top: 0,
-  //   right: 0
-  // },
+  closeButton: {
+    padding: '.5em',
+    minHeight: '.75em',
+    minWidth: '.75em',
+    position: 'absolute',
+    color: theme.palette.grey[300],
+    top: 0,
+    right: 0
+  },
   content: {
     padding: 16,
     paddingRight: 35,
@@ -84,10 +67,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 150,
     position: "relative",
     zIndex: theme.zIndexes.curatedContentItem,
+    [theme.breakpoints.up('sm')]: {
+      minHeight: 100
+    },
     [theme.breakpoints.down('xs')]: {
       marginRight: 100
     }
-    // height: 150
   },
   description: {
     marginTop: 14,
@@ -108,29 +93,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: "small-caps",
     lineHeight: "1.2em"
   },
-  // subtitle: {
-  //   ...theme.typography.body2,
-  //   ...theme.typography.postStyle,
-  //   display: "inline-block",
-  //   opacity: .6
-  // },
   image: {
     position: "absolute",
     top: 0,
     right: 0,
     height: "100%",
   },
-  // small: {
-  //   width: 'calc(50% - 8px)',
-  //   [theme.breakpoints.down('sm')]: {
-  //     width: "100%"
-  //   }
-  // },
-  // hideOnMobile: {
-  //   [theme.breakpoints.down('xs')]: {
-  //     display: "none"
-  //   }
-  // },
   firstPost: {
     ...theme.typography.body2,
     fontSize: "1rem",
@@ -157,31 +125,57 @@ export const CuratedContentItem = ({classes, content}: {
   content: CuratedContent,
   classes: ClassesType,
 }) => {
-  const { LinkCard, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle} = Components
+  const { AnalyticsTracker, LinkCard, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle} = Components
   
-  const url = getUrlFromDocument(content.document, content.documentType) 
+  const { captureEvent } = useTracking()
+  const url = getUrlFromDocument(content.document, content.documentType)
+  
+  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${content.document._id}`; //hiding in one place, hides everywhere
+  const [cookies, setCookie] = useCookies([cookieName]);
+  
+  const hideBanner = () => {
+    setCookie(
+      cookieName,
+      "true", {
+        expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
+        path: "/"
+      });
+    captureEvent("spotlightItemHideItemClicked", { document: content.document})
+  }
+  
+  
+  // if (cookies[cookieName]) {
+  //   return null;
+  // }
 
-  return <div className={classes.root}>
-    <LinkCard to={url} className={classes.linkCard}>
-      <div className={classes.content}>
-        <Link to={url} className={classes.title}>
-          {content.document.title}
-        </Link>
-        <div className={classes.description}>
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: content.description}}
-            description={`${content.documentType} ${content.document._id}`}
-          />
+  return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
+    <div className={classes.root}>
+      <LinkCard to={url} className={classes.linkCard}>
+        <div className={classes.content}>
+          <Link to={url} className={classes.title}>
+            {content.document.title}
+          </Link>
+          <div className={classes.description}>
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: content.description}}
+              description={`${content.documentType} ${content.document._id}`}
+            />
+          </div>
+          {content.firstPost && <div className={classes.firstPost}>
+            First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
+              <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
+            </LWTooltip>
+          </div>}
         </div>
-        {content.firstPost && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
-            <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
-          </LWTooltip>
-        </div>}
-      </div>
-      {content.imageUrl && <img src={content.imageUrl} className={classes.image}/>}
-    </LinkCard>
-  </div>
+        {content.imageUrl && <img src={content.imageUrl} className={classes.image}/>}
+        <Tooltip title="Hide this item for the next month">
+          <Button className={classes.closeButton} onClick={hideBanner}>
+            <CloseIcon className={classes.closeIcon} />
+          </Button>
+        </Tooltip>
+      </LinkCard>
+    </div>
+  </AnalyticsTracker>
 }
 
 const CuratedContentItemComponent = registerComponent('CuratedContentItem', CuratedContentItem, {styles});
