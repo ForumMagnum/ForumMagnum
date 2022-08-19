@@ -3,7 +3,6 @@ import Books from '../books/collection';
 import { sequenceGetAllPostIDs } from '../sequences/helpers';
 import toDictionary from '../../utils/toDictionary';
 import * as _ from 'underscore';
-import fs from 'fs';
 
 export const collectionGetAllPostIDs = async (collectionID: string, context: ResolverContext): Promise<Array<string>> => {
   const books = await Books.find({collectionId: collectionID}).fetch();

@@ -8,10 +8,8 @@ import classNames from 'classnames';
 import { isClient, isServer } from '../../../lib/executionEnvironment';
 import HeadsetIcon from '@material-ui/icons/Headset';
 import NoSSR from '@material-ui/core/NoSsr';
-import { googlePodcastIcon } from '../../icons/GooglePodcastIcon';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
-import { useSingle } from '../../../lib/crud/withSingle';
 
 const SECONDARY_SPACING = 20
 
@@ -59,12 +57,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     "@media print": { display: "none" },
   },
   podcast: {
-    // display: 'inline-flex',
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.icon.dim600,
     height: '24px'
-    // fontSize: theme.typography.body2.fontSize,
   },
   actions: {
     display: 'inline-block',
@@ -101,7 +97,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "none"
   },
   podcastIconList: {
-    // display: 'inline-block'
     paddingLeft: '0px'
   },
   podcastIcon: {
