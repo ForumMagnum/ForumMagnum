@@ -143,10 +143,9 @@ export const CuratedContentItem = ({classes, content}: {
     captureEvent("spotlightItemHideItemClicked", { document: content.document})
   }
   
-  
-  // if (cookies[cookieName]) {
-  //   return null;
-  // }
+  if (cookies[cookieName]) {
+    return null;
+  }
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
