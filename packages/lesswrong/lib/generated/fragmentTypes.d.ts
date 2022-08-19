@@ -211,6 +211,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly onlyVisibleToLoggedIn: boolean,
   readonly onlyVisibleToEstablishedAccounts: boolean,
   readonly votingSystem: string,
+  readonly podcastEpisodeId: string | null,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -382,6 +383,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
+  readonly podcastEpisode: PodcastEpisodeFragment|null,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -1601,6 +1603,27 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts",
 }
 
+interface PodcastsDefaultFragment { // fragment on Podcasts
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
+}
+
+interface PodcastEpisodesDefaultFragment { // fragment on PodcastEpisodes
+  readonly podcastId: string,
+  readonly title: string,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PodcastEpisodeFragment { // fragment on PodcastEpisodes
+  readonly _id: string,
+  readonly podcast: PodcastsDefaultFragment,
+  readonly title: string,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
@@ -2221,6 +2244,9 @@ interface FragmentTypes {
   SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
+  PodcastsDefaultFragment: PodcastsDefaultFragment
+  PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
+  PodcastEpisodeFragment: PodcastEpisodeFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -2369,6 +2395,9 @@ interface CollectionNamesByFragmentName {
   SunshineTagFragment: "Tags"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
+  PodcastsDefaultFragment: "Podcasts"
+  PodcastEpisodesDefaultFragment: "PodcastEpisodes"
+  PodcastEpisodeFragment: "PodcastEpisodes"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
@@ -2392,5 +2421,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

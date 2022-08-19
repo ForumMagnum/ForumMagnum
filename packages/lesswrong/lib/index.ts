@@ -120,6 +120,11 @@ import './collections/books/permissions';
 // Subscriptions
 import './collections/subscriptions';
 
+// Podcasts
+import './collections/podcasts/collection';
+// Podcast episodes
+import './collections/podcastEpisodes/collection';
+import './collections/podcastEpisodes/fragments';
 
 // Posts
 import './collections/posts/custom_fields';

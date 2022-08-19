@@ -54,6 +54,18 @@ registerFragment(`
     commentsLocked
     commentsLockedToAccountsCreatedAfter
 
+    # does this go here??? *voiceless screaming*
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+
     # questions
     question
     hiddenRelatedQuestion
