@@ -258,6 +258,10 @@ registerFragment(`
     needsReview
     sunshineNotes
     sunshineFlagged
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
     snoozedUntilContentCount
   }
 `);
