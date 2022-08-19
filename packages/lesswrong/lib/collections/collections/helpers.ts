@@ -22,7 +22,6 @@ export const collectionGetAllPostIDs = async (collectionID: string, context: Res
     else
       return postsInSequencesInBook;
   }));
-
   return posts;
 };
 
