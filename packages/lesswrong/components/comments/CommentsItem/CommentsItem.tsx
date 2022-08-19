@@ -14,6 +14,7 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { stickyIcon } from '../../posts/PostsTitle';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -101,6 +102,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1rem",
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit/2
+  },
+  pinnedIcon: {
+    color: theme.palette.grey[700],
+    paddingTop: 8
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -295,6 +300,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             />
           </div>
         )}
+        
+        {comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
+          {stickyIcon()}
+        </div>}
 
         {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
             <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
