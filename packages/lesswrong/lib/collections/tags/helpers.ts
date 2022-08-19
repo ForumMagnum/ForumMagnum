@@ -19,7 +19,7 @@ type GetUrlOptions = {
   flagId?: string
 }
 
-export const tagGetUrl = (tag: DbTag|TagBasicInfo|AlgoliaTag, urlOptions?: GetUrlOptions) => {
+export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
   const { flagId, edit } = urlOptions || {};
   const url = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`
   if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
