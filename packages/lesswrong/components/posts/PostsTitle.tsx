@@ -68,6 +68,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: -1,
     marginRight: 6
   },
+  strikethroughTitle: {
+    textDecoration: "line-through"
+}
 })
 
 const stickyIcon = <svg fill="currentColor" height="15" viewBox="0 0 10 15" width="10" xmlns="http://www.w3.org/2000/svg">
@@ -90,19 +93,36 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true, showLinkTag=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true}: {
+const PostsTitle = ({
+  post, 
+  postLink, 
+  classes, 
+  sticky, 
+  read, 
+  showQuestionTag=true, 
+  showPersonalIcon=true, 
+  showLinkTag=true, 
+  showDraftTag=true, 
+  wrap=false, 
+  showIcons=true, 
+  isLink=true, 
+  curatedIconLeft=true, 
+  strikethroughTitle=false
+}:{
   post: PostsBase|PostsListBase,
   postLink?: string,
   classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showQuestionTag?: boolean,
+  showPersonalIcon?: boolean
   showLinkTag?: boolean,
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
   isLink?: boolean,
   curatedIconLeft?: boolean
+  strikethroughTitle?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
@@ -141,7 +161,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
       </span>}
       {isLink ? <Link to={url}>{title}</Link> : title }
       {showIcons && <span className={classes.hideSmDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft}/>
+        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
       </span>}
     </span>
   )

@@ -33,7 +33,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
-import { ckEditorTokenHandler } from './ckEditorToken';
+import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
@@ -121,6 +121,7 @@ export function startWebserver() {
   }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);

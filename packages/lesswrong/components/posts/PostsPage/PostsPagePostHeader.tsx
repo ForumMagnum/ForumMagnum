@@ -125,6 +125,9 @@ const PostsPagePostHeader = ({post, classes}: {
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
   
+  // TODO: If we are not the primary author of this post, but it was shared with
+  // us as a draft, display a notice and a link to the collaborative editor.
+  
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">

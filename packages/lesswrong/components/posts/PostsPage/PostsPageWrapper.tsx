@@ -30,15 +30,24 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   })
 
   const { Error404, Loading, PostsPage } = Components;
-  if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
+  
+  if (post) {
+    return <PostsPage post={post} refetch={refetch} />
+  } else if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
-  } else if (!post) {
+  } else if (error) {
+    if (isMissingDocumentError(error)) {
+      return <Error404/>
+    } else if (isOperationNotAllowedError(error)) {
+      return <Components.ErrorAccessDenied/>
+    } else {
+      throw new Error(error.message);
+    }
+  } else {
     return <Error404/>
   }
-  
-  return <PostsPage post={post} refetch={refetch} />
 }
 
 const PostsPageWrapperComponent = registerComponent("PostsPageWrapper", PostsPageWrapper);

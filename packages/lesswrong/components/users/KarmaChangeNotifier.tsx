@@ -13,7 +13,6 @@ import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import MenuItem from '@material-ui/core/MenuItem';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
@@ -89,6 +88,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 });
+
+export const karmaNotificationTimingChoices = {
+  disabled: {
+    label: "Disabled",
+    infoText: "Karma changes are disabled",
+    emptyText: "Karma changes are disabled"
+  },
+  daily: {
+    label: "Batched daily (default)",
+    infoText: "Karma Changes (batched daily):",
+    emptyText: "No karma changes yesterday"
+  },
+  weekly: {
+    label: "Batched weekly",
+    infoText: "Karma Changes (batched weekly):",
+    emptyText: "No karma changes last week"
+  },
+  realtime: {
+    label: "Realtime",
+    infoText: "Recent Karma Changes",
+    emptyText: "No karma changes since you last checked"
+  },
+};
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and

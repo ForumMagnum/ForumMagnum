@@ -1,11 +1,11 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { userHasCkCollaboration } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
-import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
+import * as _ from 'underscore';
+import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -37,12 +37,23 @@ export const userOwnsAndInGroup = (group: string) => {
 
 export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
-  return document.shareWithUsers?.includes(currentUser._id) ||
-    document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0;
-}
-
-export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
-  return userHasCkCollaboration(currentUser) && userIsSharedOn(currentUser, document)
+  
+  // Shared as a coauthor? Always give access
+  if (document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  
+  // Explicitly shared?
+  if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {
+    return !document.sharingSettings || document.sharingSettings.explicitlySharedUsersCan !== "none";
+  } else {
+    // If not individually shared with this user, still counts if shared if
+    // (1) link sharing is enabled and (2) the user's ID is in
+    // linkSharingKeyUsedBy.
+    return (
+      document.sharingSettings?.anyoneWithLinkCan
+      && document.sharingSettings.anyoneWithLinkCan !== "none"
+      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+    )
+  }
 }
 
 export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {
@@ -168,7 +179,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
 
   if (!post) return true
   if (post.commentsLocked) return false
-  if (post?.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
+  if (post.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false

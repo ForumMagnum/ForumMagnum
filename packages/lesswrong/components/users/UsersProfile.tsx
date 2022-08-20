@@ -19,7 +19,6 @@ import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, tagging
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
-import { userCanPost } from '../../lib/collections/posts';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
@@ -178,7 +177,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
-      SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
       Typography, ContentStyles, ReportUserButton } = Components
 
     if (loading) {
@@ -211,7 +210,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
 
-    const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+    const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
@@ -225,6 +224,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
     terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    
+    //Terms for Drafts List
+    const currentDraftSorting = query.sortDraftsBy || query.view || currentUser?.draftsListSorting || "lastModified"
+    const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived
+    const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false)
+    draftTerms.includeArchived = currentIncludeArchived
+    draftTerms.sortDraftsBy = currentDraftSorting
+    draftTerms.includeShared = currentIncludeShared
+    
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -296,15 +304,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
-            <SectionTitle title="My Drafts">
-              {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
-                <SectionButton>
-                  <DescriptionIcon /> New Blog Post
-                </SectionButton>
-              </Link>}
-            </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
+              <Components.DraftsList terms={draftTerms}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList
