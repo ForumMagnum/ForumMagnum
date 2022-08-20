@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { Posts, userCanPost } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
@@ -81,14 +81,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     "& .form-submit": {
       textAlign: "right",
-    },
-    
-    "& .form-input.input-url": {
-      margin: 0,
-    },
-    "& .form-input.input-contents": {
-      marginTop: 0,
-    },
+    }
   },
   formSubmit: {
     display: "flex",
@@ -207,18 +200,13 @@ const PostsNewForm = ({classes}: {
             collection={Posts}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
-            successCallback={(post, options) => {
+            successCallback={post => {
               if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-              if (options?.submitOptions?.redirectToEditor) {
-                history.push(postGetEditUrl(post._id));
-              } else {
-                history.push({pathname: postGetPageUrl(post)})
-                flash({ messageString: "Post created.", type: 'success'});
-              }
+              history.push({pathname: postGetPageUrl(post)})
+              flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}
             repeatErrors
-            noSubmitOnCmdEnter
             formComponents={{
               FormSubmit: NewPostsSubmit
             }}

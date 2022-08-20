@@ -9,6 +9,8 @@ import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 
 
+// EXAMPLE-FORUM Helpers
+
 //////////////////
 // Link Helpers //
 //////////////////
@@ -118,15 +120,6 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSharingKey?: string): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  if (linkSharingKey) {
-    return `${prefix}/editPost?postId=${postId}&key=${linkSharingKey}`;
-  } else {
-    return `${prefix}/editPost?postId=${postId}`;
-  }
-}
-
 export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
@@ -179,8 +172,8 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
-export const postCanEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  const organizerIds = (post as PostsBase)?.group?.organizerIds;
+export const postCanEdit = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
+  const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
   return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all') || isPostGroupOrganizer;
 }

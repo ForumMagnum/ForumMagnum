@@ -41,7 +41,7 @@ declare global {
     lat?: number,
     lng?: number,
     slug?: string,
-    sortDraftsBy?: string,
+    sortDrafts?: string,
     forum?: boolean,
     question?: boolean,
     tagId?: string,
@@ -54,9 +54,6 @@ declare global {
     postIds?: Array<string>,
     reviewYear?: number,
     excludeContents?: boolean,
-    includeArchived?: boolean,
-    includeDraftEvents?: boolean
-    includeShared?: boolean
     distance?: number,
   }
 }
@@ -662,7 +659,7 @@ Posts.addView("scheduled", (terms: PostsViewTerms) => ({
  * @summary Draft view
  */
 Posts.addView("drafts", (terms: PostsViewTerms) => {
-  let query: any = {
+  let query = {
     selector: {
       userId: viewFieldAllowAny,
       $or: [
@@ -671,46 +668,20 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
         {"coauthorStatuses.userId": terms.userId},
       ],
       draft: true,
+      deletedDraft: false,
       hideAuthor: false,
       unlisted: null,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       authorIsUnreviewed: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
-      deletedDraft: false,
     },
     options: {
       sort: {}
     }
   }
-  
-  if (terms.includeDraftEvents) {
-    query.selector.isEvent = viewFieldAllowAny
-  }
-  if (terms.includeArchived) {
-    query.selector.deletedDraft = viewFieldAllowAny
-  }
-  if (!terms.includeShared) {
-    query.selector.userId = terms.userId
-  }
-  if (terms.userId) {
-    query.selector.hideAuthor = false
-  }
-  
-  switch (terms.sortDraftsBy) {
-    case 'wordCountAscending': {
-      query.options.sort = {"contents.wordCount": 1, modifiedAt: -1, createdAt: -1}
-      break
-    }
-    case 'wordCountDescending': {
-      query.options.sort = {"contents.wordCount": -1, modifiedAt: -1, createdAt: -1}
-      break
-    }
-    case 'lastModified': {
-      query.options.sort = {modifiedAt: -1, createdAt: -1}
-      break
-    }
-    case 'newest': {
-      query.options.sort = {createdAt: -1, modifiedAt: -1}
+  switch (terms.sortDrafts) {
+    case 'wordCount': {
+      query.options.sort = {wordCount: -1, modifiedAt: -1, createdAt: -1}
       break
     }
     default: {
@@ -1104,7 +1075,7 @@ Posts.addView("postsWithBannedUsers", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ bannedUserIds:1, createdAt: 1 }),
+  augmentForDefaultView({ bannedUserIds:1 }),
   { name: "posts.postsWithBannedUsers" }
 );
 

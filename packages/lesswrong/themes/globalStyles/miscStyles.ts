@@ -156,7 +156,6 @@ select.form-control{
 
 .form-component-EditTitle {
   margin:0;
-  flex-grow:1;
 }
 
 .form-group.row {

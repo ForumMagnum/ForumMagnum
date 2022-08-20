@@ -1,21 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { arrayMove } from 'react-sortable-hoc';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import withUser from '../common/withUser';
-import { makeSortableListComponent } from './sortableList';
-import find from 'lodash/find';
+import { SortableList, shouldCancelStart } from './UsersListEditor';
 
 const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
-  },
-  list: {
-    display: "flex",
-    flexWrap: "wrap"
-  },
-  item: {
-    listStyle: "none",
-    fontFamily: theme.typography.fontFamily
   },
   checkbox: {
     padding: '6px',
@@ -27,22 +19,8 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type CoauthorListItem = {
-  userId: string
-  confirmed: boolean
-  requested: boolean
-}
-
-const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
-    return <li className={classes.item}>
-      <Components.SingleUsersItemWrapper documentId={contents} removeItem={removeItem} />
-    </li>
-  }
-});
-
 const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
-  value: CoauthorListItem[],
+  value: { userId: string, confirmed: boolean, requested: boolean }[],
   path: string,
   document: Partial<DbPost>,
   classes: ClassesType,
@@ -50,9 +28,8 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
   currentUser: DbUser|null,
   updateCurrentValues<T extends {}>(values: T) : void,
 }) => {
-  const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;
-  
+
   const toggleHasPermission = () => {
     const newValue = value.map((author) => ({ ...author, confirmed: !hasPermission }));
     updateCurrentValues({
@@ -61,40 +38,34 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
     });
   }
 
-  // Note: currently broken. This component needs to somehow deal with lists of objects instead of strings
+  const onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
+    const newValue = arrayMove(value, oldIndex, newIndex);
+    updateCurrentValues({ [path]: newValue });
+  }
+
   const addUserId = (userId: string) => {
     const newValue = [...value, { userId, confirmed: hasPermission, requested: false }];
     updateCurrentValues({ [path]: newValue });
   }
 
-  const setValue = useCallback((newValue: any[]) => {
-    updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+  const removeUserId = (userId: string) => {
+    const authors = value.filter((author) => author.userId !== userId);
+    updateCurrentValues({ [path]: authors });
+  }
 
   return (
     <>
       <div className={classes.root}>
         <Components.ErrorBoundary>
-          <Components.UsersSearchAutoComplete 
-            clickAction={addUserId} 
-            label={label} 
-            />
+          <Components.UsersSearchAutoComplete clickAction={addUserId} label={label} />
         </Components.ErrorBoundary>
         <SortableList
-          axis="xy"
-          value={value.map(v=>v.userId)}
-          setValue={(newValue) => {
-            setValue(newValue.map(userId => {
-              const userWithStatus = find(initialValue, u=>u.userId===userId);
-              return {
-                userId,
-                confirmed: userWithStatus?.confirmed||false,
-                requested: userWithStatus?.confirmed||false,
-              };
-            }));
-          }}
-          className={classes.list}
-          classes={classes}
+          axis='xy'
+          items={value.map(({ userId }) => userId)}
+          onSortEnd={onSortEnd}
+          currentUser={currentUser}
+          removeItem={removeUserId}
+          shouldCancelStart={shouldCancelStart}
         />
       </div>
       <div className={classes.checkboxContainer}>

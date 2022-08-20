@@ -14,9 +14,7 @@ import './server/karmaInflation/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
-import './server/ckEditor/ckEditorToken';
-import './server/ckEditor/ckEditorWebhook';
-import './server/ckEditor/ckEditorCallbacks';
+import './server/ckEditorToken';
 
 // Scripts
 import './server/scripts/sscImport';

@@ -34,9 +34,6 @@ const highlightStyles = (theme: ThemeType) => ({
   '& h3': {
     fontSize: "1.1rem"
   },
-  '& li': {
-    fontSize: "1.1rem"
-  },
   ...highlightSimplifiedStyles
 })
 

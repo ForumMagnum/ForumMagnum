@@ -120,10 +120,7 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
   fieldName: string
 ): Promise<void> {
   const latestRevision = await Revisions.findOne(
-    {
-      documentId: document._id,
-      draft: false
-    },
+    {documentId: document._id,},
     { sort: { version: -1 } }
   )
   if (!latestRevision) {
