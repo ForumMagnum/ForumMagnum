@@ -18,7 +18,6 @@
   },
   "include": [
     "packages/lesswrong",
-    "public/lesswrong-editor/src/editorConfigs.js",
     "cypress"
   ],
   "exclude": [

@@ -5,9 +5,10 @@ import { useLocation } from '../../lib/routeUtil'
 const PostsEditPage = () => {
   const { query } = useLocation();
   const postId = query.postId;
+  const eventForm = !!(query.eventForm === "true");
   
   return <div>
-    <Components.PostsEditForm documentId={postId}/>
+    <Components.PostsEditForm documentId={postId} eventForm={eventForm}/>
   </div>
 }
 

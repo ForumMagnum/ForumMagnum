@@ -87,14 +87,6 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
-export const makeAbsolute = function (url: string): string {
-  const baseUrl = getSiteUrl();
-  if (url.startsWith("/"))
-    return baseUrl+url.substr(1);
-  else
-    return baseUrl+url;
-}
-
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect

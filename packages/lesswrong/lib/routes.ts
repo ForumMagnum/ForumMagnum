@@ -143,13 +143,6 @@ addRoute(
     background: "white"
   },
   {
-    name:'users.drafts',
-    path:'/drafts',
-    componentName: 'DraftsPage',
-    title: "Drafts & Unpublished",
-    background: "white"
-  },
-  {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
@@ -226,7 +219,6 @@ addRoute(
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
-    background: "white",
   },
   // disabled except during review voting phase
   {

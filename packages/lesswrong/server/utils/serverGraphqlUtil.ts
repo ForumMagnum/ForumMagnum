@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery, addGraphQLMutation } from '../../lib/vulcan-lib';
+import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from '../../lib/vulcan-lib';
 
 // Defines a graphql query. Use this for queries which don't fit well into the
 // CRUD framework; for queries that just retrieve and sort a subset of a
@@ -18,14 +18,17 @@ import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery, addGraphQLMutat
 //     add to the schema, provided for convenience so you can define the types
 //     referenced in resultType and argTypes in the same place.
 //   fn: ((root,args,context)=>resultType). The GraphQL resolver.
-export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: {
+export const defineQuery = ({name, resultType, argTypes=null, schema, fn}: {
   name: string,
   resultType: string,
   argTypes?: string|null,
-  schema?: string|null,
-  fn: (root: any, args: any, context: ResolverContext)=>any,
+  schema?: string,
+  fn: any,
 }) => {
   if (schema) {
+    if (typeof(schema) !== 'string') {
+      throw new Error(`Incorrect type for schema in defineQuery: expected string, was ${typeof(schema)}. (Don't use graphql-tag here)`);
+    }
     addGraphQLSchema(schema);
   }
   
@@ -36,24 +39,4 @@ export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: 
   });
   
   addGraphQLQuery(`${name}${argTypes ? argTypes : ""}: ${resultType}`);
-}
-
-export const defineMutation = ({name, resultType, argTypes=null, schema=null, fn}: {
-  name: string,
-  resultType: string,
-  argTypes?: string|null,
-  schema?: string|null,
-  fn: (root: any, args: any, context: ResolverContext)=>any,
-}) => {
-  if (schema) {
-    addGraphQLSchema(schema);
-  }
-  
-  addGraphQLResolvers({
-    Mutation: {
-      [name]: fn
-    }
-  });
-  
-  addGraphQLMutation(`${name}${argTypes ? argTypes : ""}: ${resultType}`);
 }

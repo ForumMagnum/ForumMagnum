@@ -237,7 +237,6 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
-      restoreSavedContentNotice: ColorString,
     },
     boxShadow: {
       default: string,
@@ -322,12 +321,6 @@ declare global {
     },
     datePicker: {
       selectedDate: ColorString,
-    },
-    editor: {
-      commentPanelBackground: ColorString,
-      sideCommentEditorBackground: ColorString,
-      commentMarker: ColorString,
-      commentMarkerActive: ColorString,
     },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,

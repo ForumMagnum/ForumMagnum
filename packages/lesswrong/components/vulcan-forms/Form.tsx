@@ -270,11 +270,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacksList({
-      callbacks: this.submitFormCallbacks,
-      iterator: data,
-      properties: [this],
-    });
+    data = runCallbacksList({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
 
     return data;
   };
@@ -294,11 +290,10 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   */
   getFieldGroups = () => {
-    let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
     let fields: Array<any> = this.getFieldNames(this.props).map((fieldName: string) => {
       // get schema for the current field
-      return this.createField(fieldName, this.state.schema, mutableFields);
+      return this.createField(fieldName, this.state.schema);
     });
 
     fields = _.sortBy(fields, 'order');
@@ -448,14 +443,14 @@ class Form<T extends DbObject> extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, mutableFields: any) => {
+  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, schema: SchemaType<T>) => {
     // if field is not creatable/updatable, disable it
-    if (!mutableFields.includes(fieldName)) {
+    if (!this.getMutableFields(schema).includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, mutableFields: any, schema: any) => {
+  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, schema: any) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -463,7 +458,7 @@ class Form<T extends DbObject> extends Component<any,any> {
       field.arrayField = this.createArraySubField(
         fieldName,
         field.arrayFieldSchema,
-        mutableFields
+        schema
       );
 
       //field.nestedInput = true
@@ -481,7 +476,6 @@ class Form<T extends DbObject> extends Component<any,any> {
         return this.createField(
           subFieldName,
           field.nestedSchema,
-          mutableFields,
           fieldName,
           field.path
         );
@@ -494,25 +488,25 @@ class Form<T extends DbObject> extends Component<any,any> {
    * Given a field's name, the containing schema, and parent, create the
    * complete form-field object to be passed to the component
    */
-  createField = (fieldName: string, schema: any, mutableFields: any, parentFieldName?: string, parentPath?: string) => {
+  createField = (fieldName: string, schema: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
     let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
-    field = this.handlePermissions(field, fieldName, mutableFields);
-    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields, schema);
+    field = this.handlePermissions(field, fieldName, schema);
+    field = this.handleFieldChildren(field, fieldName, fieldSchema, schema);
     // Now that it's done being constructed, all the required fields will be set
     return field as FormField<T>;
   };
-  createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
+  createArraySubField = (fieldName, subFieldSchema, schema) => {
     const subFieldName = `${fieldName}.$`;
     let subField = this.initField(subFieldName, subFieldSchema);
     // array subfield has the same path and permissions as its parent
     // so we use parent name (fieldName) and not subfieldName
     subField = this.handleFieldPath(subField, fieldName);
-    subField = this.handlePermissions(subField, fieldName, mutableFields);
+    subField = this.handlePermissions(subField, fieldName, schema);
     // we do not allow nesting yet
-    //subField = this.handleFieldChildren(field, fieldSchema, mutableFields, schema)
+    //subField = this.handleFieldChildren(field, fieldSchema)
     return subField;
   };
 
@@ -587,41 +581,36 @@ class Form<T extends DbObject> extends Component<any,any> {
     }));
   };
 
-  // Add a callback to the form submission. Return a cleanup function which,
-  // when run, removes that callback.
+  // add a callback to the form submission
   addToSubmitForm = callback => {
     this.submitFormCallbacks.push(callback);
-    return () => {
-      const index = this.submitFormCallbacks.indexOf(callback);
-      if (index >= 0)
-        this.submitFormCallbacks.splice(index, 1);
-    };
   };
 
-  // Add a callback to form submission success. Return a cleanup function which,
-  // when run, removes that callback.
+  // add a callback to form submission success
   addToSuccessForm = callback => {
     this.successFormCallbacks.push(callback);
-    return () => {
-      const index = this.successFormCallbacks.indexOf(callback);
-      if (index >= 0)
-        this.successFormCallbacks.splice(index, 1);
-    };
   };
 
-  // Add a callback to form submission failure. Return a cleanup function which,
-  // when run, removes that callback.
+  // add a callback to form submission failure
   addToFailureForm = callback => {
     this.failureFormCallbacks.push(callback);
-    return () => {
-      const index = this.failureFormCallbacks.indexOf(callback);
-      if (index >= 0)
-        this.failureFormCallbacks.splice(index, 1);
-    };
   };
 
   setFormState = fn => {
     this.setState(fn);
+  };
+
+  submitFormContext = newValues => {
+    // keep the previous ones and extend (with possible replacement) with new ones
+    this.setState(
+      prevState => ({
+        currentValues: {
+          ...prevState.currentValues,
+          ...newValues
+        } // Submit form after setState update completed
+      }),
+      () => this.submitForm()
+    );
   };
 
   // pass on context to all child components
@@ -631,7 +620,7 @@ class Form<T extends DbObject> extends Component<any,any> {
       clearForm: this.clearForm,
       refetchForm: this.refetchForm,
       isChanged: this.isChanged,
-      submitForm: this.submitForm, //Change in name because we already have a function
+      submitForm: this.submitFormContext, //Change in name because we already have a function
       // called submitForm, but no reason for the user to know
       // about that
       addToDeletedValues: this.addToDeletedValues,
@@ -668,54 +657,58 @@ class Form<T extends DbObject> extends Component<any,any> {
     }
   }
 
-  // Manually update the current values of one or more fields(i.e. on change or blur).
-  // Return a promise that resolves when the change is fully applied. Since this is
-  // a React state update, this is not immediate.
-  updateCurrentValues = async (newValues, options: any = {}) => {
+  /*
+
+  Manually update the current values of one or more fields(i.e. on change or blur).
+
+  */
+  updateCurrentValues = (newValues, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
     const { changeCallback } = this.props;
 
     // keep the previous ones and extend (with possible replacement) with new ones
-    return new Promise<void>((resolve, reject) => {
-      this.setState(prevState => {
-        // keep only the relevant properties
-        const newState = {
-          currentValues: cloneDeep(prevState.currentValues),
-          currentDocument: cloneDeep(prevState.currentDocument),
-          deletedValues: prevState.deletedValues,
-        };
-  
-        Object.keys(newValues).forEach(key => {
-          const path = key;
-          let value = newValues[key];
-  
-          if (isEmptyValue(value)) {
-            // delete value
-            unset(newState.currentValues, path);
-            set(newState.currentDocument, path, null);
-            newState.deletedValues = [...prevState.deletedValues, path];
+    this.setState(prevState => {
+      // keep only the relevant properties
+      const { currentValues, currentDocument, deletedValues } = cloneDeep(
+        prevState
+      );
+      const newState = {
+        currentValues,
+        currentDocument,
+        deletedValues,
+        foo: {}
+      };
+
+      Object.keys(newValues).forEach(key => {
+        const path = key;
+        let value = newValues[key];
+
+        if (isEmptyValue(value)) {
+          // delete value
+          unset(newState.currentValues, path);
+          set(newState.currentDocument, path, null);
+          newState.deletedValues = [...prevState.deletedValues, path];
+        } else {
+
+          // 1. update currentValues
+          set(newState.currentValues, path, value);
+
+          // 2. update currentDocument
+          // For arrays and objects, give option to merge instead of overwrite
+          if (mode === 'merge' && (Array.isArray(value) || isObject(value))) {
+            const oldValue = get(newState.currentDocument, path);
+            set(newState.currentDocument, path, merge(oldValue, value));
           } else {
-  
-            // 1. update currentValues
-            set(newState.currentValues, path, value);
-  
-            // 2. update currentDocument
-            // For arrays and objects, give option to merge instead of overwrite
-            if (mode === 'merge' && (Array.isArray(value) || isObject(value))) {
-              const oldValue = get(newState.currentDocument, path);
-              set(newState.currentDocument, path, merge(oldValue, value));
-            } else {
-              set(newState.currentDocument, path, value);
-            }
-  
-            // 3. in case value had previously been deleted, "undelete" it
-            newState.deletedValues = _.without(prevState.deletedValues, path);
+            set(newState.currentDocument, path, value);
           }
-        });
-        if (changeCallback) changeCallback(newState.currentDocument);
-        return newState;
-      }, resolve)
+
+          // 3. in case value had previously been deleted, "undelete" it
+          newState.deletedValues = _.without(prevState.deletedValues, path);
+        }
+      });
+      if (changeCallback) changeCallback(newState.currentDocument);
+      return newState;
     });
   };
 
@@ -776,10 +769,8 @@ class Form<T extends DbObject> extends Component<any,any> {
   }
   // check for browser closing
   checkBrowserClosing = () => {
-    if (this.getWarnUnsavedChanges()) {
-      //check for closing the browser with unsaved changes too
-      (window as any).onbeforeunload = this.handlePageLeave;
-    }
+    //check for closing the browser with unsaved changes too
+    (window as any).onbeforeunload = this.handlePageLeave;
   }
 
   /*
@@ -878,23 +869,20 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   */
   formKeyDown = event => {
-    //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      if (!this.props.noSubmitOnCmdEnter) {
-        void this.submitForm();
-      }
+      this.submitForm();
     }
   };
 
-  newMutationSuccessCallback = (result, submitOptions) => {
-    this.mutationSuccessCallback(result, 'new', submitOptions);
+  newMutationSuccessCallback = result => {
+    this.mutationSuccessCallback(result, 'new');
   };
 
-  editMutationSuccessCallback = (result, submitOptions) => {
-    this.mutationSuccessCallback(result, 'edit', submitOptions);
+  editMutationSuccessCallback = result => {
+    this.mutationSuccessCallback(result, 'edit');
   };
 
-  mutationSuccessCallback = (result, mutationType, submitOptions) => {
+  mutationSuccessCallback = (result, mutationType) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -910,19 +898,10 @@ class Form<T extends DbObject> extends Component<any,any> {
     }
 
     // run document through mutation success callbacks
-    document = runCallbacksList({
-      callbacks: this.successFormCallbacks,
-      iterator: document,
-      properties: [this, submitOptions],
-    });
+    document = runCallbacksList({ callbacks: this.successFormCallbacks, iterator: document, properties: { form: this } });
 
     // run success callback if it exists
-    if (this.props.successCallback) {
-      this.props.successCallback(document, {
-        form: this,
-        submitOptions
-      });
-    }
+    if (this.props.successCallback) this.props.successCallback(document, { form: this });
   };
 
   // catch graphql errors
@@ -945,11 +924,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     ))
   
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
-    runCallbacksList({
-      callbacks: this.failureFormCallbacks,
-      iterator: error,
-      properties: [error, this],
-    });
+    runCallbacksList({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
 
     if (!_.isEmpty(error)) {
       // add error to state
@@ -971,7 +946,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   Submit form handler
 
   */
-  submitForm = async (event?: any, submitOptions?: any) => {
+  submitForm = (event?: any) => {
 
     event && event.preventDefault();
 
@@ -994,24 +969,18 @@ class Form<T extends DbObject> extends Component<any,any> {
 
     if (this.getFormType() === 'new') {
       // create document form
-      try {
-        const result = await this.props[`create${this.props.typeName}`]({ data });
-        this.newMutationSuccessCallback(result, submitOptions);
-      } catch(error) {
-        this.mutationErrorCallback(document, error);
-      }
+      this.props[`create${this.props.typeName}`]({ data })
+        .then(this.newMutationSuccessCallback)
+        .catch(error => this.mutationErrorCallback(document, error));
     } else {
       // update document form
       const documentId = this.getDocument()._id;
-      try {
-        const result = await this.props[`update${this.props.typeName}`]({
-          selector: { documentId },
-          data
-        });
-        this.editMutationSuccessCallback(result, submitOptions);
-      } catch(error) {
-        this.mutationErrorCallback(document, error);
-      }
+      this.props[`update${this.props.typeName}`]({
+        selector: { documentId },
+        data
+      })
+        .then(this.editMutationSuccessCallback)
+        .catch(error => this.mutationErrorCallback(document, error));
     }
   };
 
@@ -1146,7 +1115,6 @@ class Form<T extends DbObject> extends Component<any,any> {
   cancelLabel: PropTypes.node,
   revertLabel: PropTypes.node,
   repeatErrors: PropTypes.bool,
-  noSubmitOnCmdEnter: PropTypes.bool,
   warnUnsavedChanges: PropTypes.bool,
   formComponents: PropTypes.object,
 
@@ -1160,7 +1128,6 @@ class Form<T extends DbObject> extends Component<any,any> {
   layout: 'horizontal',
   prefilledProps: {},
   repeatErrors: false,
-  noSubmitOnCmdEnter: false,
   showRemove: true
 };
 

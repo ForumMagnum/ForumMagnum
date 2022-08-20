@@ -53,18 +53,12 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
           collection={Posts}
           documentId={postId}
           fields={['moderationGuidelines', 'moderationStyle']}
-          queryFragment={getFragment("PostsEditQueryFragment")}
+          queryFragment={getFragment("PostsEdit")}
           mutationFragment={getFragment("PostsPage")}
           successCallback={onClose}
           formComponents={{
             FormSubmit: SubmitComponent,
             FormGroupLayout: Components.DefaultStyleFormGroup
-          }}
-          extraVariables={{
-            version: 'String'
-          }}
-          extraVariablesValues={{
-            version: 'draft'
           }}
         />
       </DialogContent>

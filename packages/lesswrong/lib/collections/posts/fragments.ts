@@ -32,7 +32,6 @@ registerFragment(`
     status
     frontpageDate
     meta
-    deletedDraft
 
     shareWithUsers
     sharingSettings
@@ -212,7 +211,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
-    deletedDraft
     contents {
       _id
       htmlHighlight
@@ -407,42 +405,23 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
-    myEditorAccess
-    linkSharingKey
   }
 `)
 
 registerFragment(`
   fragment PostsEdit on Post {
-    ...PostsDetails
-    myEditorAccess
-    linkSharingKey
-    version
+    ...PostsPage
     coauthorStatuses
     moderationGuidelines {
+      ...RevisionEdit
+    }
+    contents {
       ...RevisionEdit
     }
     customHighlight {
       ...RevisionEdit
     }
     tableOfContents
-  }
-`);
-
-registerFragment(`
-  fragment PostsEditQueryFragment on Post {
-    ...PostsEdit
-    contents(version: $version) {
-      ...RevisionEdit
-    }
-  }
-`);
-registerFragment(`
-  fragment PostsEditMutationFragment on Post {
-    ...PostsEdit
-    contents {
-      ...RevisionEdit
-    }
   }
 `);
 

@@ -10,7 +10,7 @@ import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../.
 import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
 import { separatorBulletStyles } from '../../common/SectionFooter';
 import { taglineSetting } from '../../common/HeadTags';
-import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
+import { getBrowserLocalStorage } from '../../async/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
@@ -291,7 +291,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     }
   }
   
-  const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
+  const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
   const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}

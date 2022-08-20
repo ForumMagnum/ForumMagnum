@@ -3,8 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
-import { userIsSharedOn } from '../../lib/collections/users/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -12,16 +11,17 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 
-const PostsEditForm = ({ documentId, classes }: {
+const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
+  eventForm: boolean,
   classes: ClassesType,
 }) => {
-  const { location, query } = useLocation();
+  const { location } = useLocation();
   const { history } = useNavigation();
   const { flash } = useMessages();
-  const { document, loading } = useSingle({
+  const { document } = useSingle({
     documentId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
@@ -32,78 +32,46 @@ const PostsEditForm = ({ documentId, classes }: {
   const isDraft = document && document.draft;
 
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
-  
-  const saveDraftLabel: string = ((post) => {
-    if (!post) return "Save Draft"
-    if (!post.draft) return "Move to Drafts"
-    return "Save Draft"
-  })(document)
+  const EditPostsSubmit = (props) => {
+    return <div className={classes.formSubmit}>
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit
+        saveDraftLabel={isDraft ? "Save as draft" : "Move to Drafts"}
+        feedbackLabel={"Get Feedback"}
+        {...props}
+      />
+    </div>
+  }
   
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
   
-  // If logged out, show a login form. (Even if link-sharing is enabled, you still
-  // need to be logged into LessWrong with some account.)
-  if (!currentUser) {
+  function isCollaborative(post): boolean {
+    if (!post) return false;
+    if (!post._id) return false;
+    if (post?.shareWithUsers) return true;
+    if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+      return true;
+    return false;
+  }
+  
+  
+  if (
+    !testServerSetting.get() &&
+    isCollaborative(document) &&
+    ['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+  ) {
     return <Components.SingleColumnSection>
-      <Components.WrappedLoginForm/>
+      <p>This post has experimental collaborative editing enabled.</p>
+      <p>It can only be edited on the development server.</p>
+      <a className={classes.collaborativeRedirectLink} href={`https://www.lessestwrong.com/editPost?postId=${document?._id}`}>
+        <h1>EDIT THE POST HERE</h1>
+      </a>     
     </Components.SingleColumnSection>
   }
-  
-  if (!document && loading) {
-    return <Components.Loading/>
-  }
-
-  // If we only have read access to this post, but it's shared with us,
-  // redirect to the collaborative editor.
-  if (document
-    && document.userId!==currentUser._id
-    && document.sharingSettings
-    && !userIsAdmin(currentUser)
-    && !currentUser.groups?.includes('sunshineRegiment')
-  ) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}${query.key ? "&key="+query.key : ""}`} status={302}/>
-  }
-  
-  // If we don't have access at all but a link-sharing key was provided, redirect to the
-  // collaborative editor
-  if (!document && !loading && query?.key) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}&key=${query.key}`} status={302}/>
-  }
-  
-  // If the post has a link-sharing key which is not in the URL, redirect to add
-  // the link-sharing key to the URL. (linkSharingKey has field-level
-  // permissions so it will only be present if we've either already used the
-  // link-sharing key, or have access through something other than link-sharing.)
-  if (document?.linkSharingKey && !(query?.key)) {
-    return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
-  }
-  
-  // If we don't have the post and none of the earlier cases applied, we either
-  // have an invalid post ID or the post is a draft that we don't have access
-  // to.
-  if (!document) {
-    return <Components.Error404/>
-  }
-  
-  // If we have access to the post but only readonly access and only because
-  // it's published, don't show the edit form.
-  if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document) && !userIsAdmin(currentUser)) {
-    return <Components.ErrorAccessDenied/>
-  }
-  
-  const EditPostsSubmit = (props) => {
-    return <div className={classes.formSubmit}>
-      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit
-        saveDraftLabel={saveDraftLabel} 
-        feedbackLabel={"Get Feedback"}
-        {...props}
-      />
-    </div>
-  }
+      
   
   return (
     <div className={classes.postForm}>
@@ -112,19 +80,15 @@ const PostsEditForm = ({ documentId, classes }: {
         <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
-          queryFragment={getFragment('PostsEditQueryFragment')}
-          mutationFragment={getFragment('PostsEditMutationFragment')}
-          successCallback={(post, options) => {
+          queryFragment={getFragment('PostsEdit')}
+          mutationFragment={getFragment('PostsEdit')}
+          successCallback={post => {
             const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
             if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
-            if (options?.submitOptions?.redirectToEditor) {
-              history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
-            } else {
-              history.push({pathname: postGetPageUrl(post)})
-              flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
-            }
+            flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
+            history.push({pathname: postGetPageUrl(post)});
           }}
-          eventForm={document.isEvent}
+          eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)
@@ -142,8 +106,6 @@ const PostsEditForm = ({ documentId, classes }: {
           extraVariables={{
             version: 'String'
           }}
-          version="draft"
-          noSubmitOnCmdEnter
           repeatErrors
         />
       </NoSsr>

@@ -68,7 +68,7 @@ const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   },
   flex: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     flexWrap: "wrap"
   }
 });
