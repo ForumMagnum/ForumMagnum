@@ -199,22 +199,12 @@ module.exports = {
     // including interface points with libraries that might not have type
     // annotations available.
     "@typescript-eslint/no-explicit-any": 0,
-
-    // no-unnecessary-type-constraint: This one warns about declarations where a
-    // type parameter extends any, eg
-    //   const fn = <T extends any>(arg: T) => {/*...*/}
-    // This is disabled because we occasionally use this as a way of dealing
-    // with ambiguity between type parameters and TSX react elements, so that
-    // just deleting the "extends any" actually turns it into a syntax error.
-    "@typescript-eslint/no-unnecessary-type-constraint": 0,
     
     // no-unused-vars: Currently disabled due to excessive false positives which
     // are hard to resolve (this counts things as unused when they actually are
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
-
-    "unused-imports/no-unused-imports": "error",
   },
   "env": {
     "browser": true,
@@ -227,8 +217,7 @@ module.exports = {
     "babel",
     "react",
     "react-hooks",
-    "import",
-    "unused-imports",
+    "import"
   ],
   "settings": {
     "import/core-modules": [
