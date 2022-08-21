@@ -147,14 +147,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   snooze10: {
     color: theme.palette.primary.main,
-    fontSize: 28
+    fontSize: 32,
+    marginTop: 2
   },
   permissionsButton: {
     fontSize: 10,
     padding: 6,
     paddingTop: 3,
     paddingBottom: 3,
-    border: theme.palette.border.commentBorder,
+    border: theme.palette.border.normal,
     borderRadius: 2,
     marginRight: 10,
     cursor: "pointer"
