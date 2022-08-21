@@ -20,7 +20,6 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import Button from '@material-ui/core/Button';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
@@ -454,9 +453,6 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               </div>
             </div>
             <div className={classes.permissionsRow}>
-              <div className={classNames(classes.permissionsbutton, classes.permissionDisabled)}>
-                Permissions:
-              </div>
               <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
                 <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.postingDisabled})} onClick={handleDisablePosting}>
                   Posts
