@@ -425,11 +425,11 @@ const SunshineNewUsersInfo = ({ user, classes }: {
             </div>
             <div className={classes.row}>
               <div className={classes.row}>
+                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
+                  <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
+                </LWTooltip>
                 <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
                   <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
-                </LWTooltip>
-                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)">
-                  <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
                 </LWTooltip>
                 <LWTooltip title="Approve" placement="top">
                   <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
