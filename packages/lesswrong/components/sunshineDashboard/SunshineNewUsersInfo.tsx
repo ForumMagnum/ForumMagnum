@@ -147,8 +147,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   snooze10: {
     color: theme.palette.primary.main,
-    fontSize: 32,
-    marginTop: 2
+    fontSize: 34,
+    marginTop: 4
   },
   permissionsButton: {
     fontSize: 10,
