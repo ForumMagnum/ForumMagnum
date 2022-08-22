@@ -127,8 +127,8 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
     return null;
   
   return <LWTooltip title="Share this document (Beta)">
-      <PersonAddIcon className={classes.buttonIcon} onClick={onClickShare}/>
-    </LWTooltip>
+    <PersonAddIcon className={classes.buttonIcon} onClick={onClickShare}/>
+  </LWTooltip>
 }
 
 (PostSharingSettings as any).contextTypes = {
