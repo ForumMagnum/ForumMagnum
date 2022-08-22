@@ -432,9 +432,12 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     viewableBy: ['guests'],
     resolver: ({readTimeMinutesOverride, contents}: DbPost) =>
-      Math.round(typeof readTimeMinutesOverride === "number"
-        ? readTimeMinutesOverride
-        : (contents?.wordCount ?? 0) / 250),
+      Math.max(
+        1,
+        Math.round(typeof readTimeMinutesOverride === "number"
+          ? readTimeMinutesOverride
+          : (contents?.wordCount ?? 0) / 250)
+      ),
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
