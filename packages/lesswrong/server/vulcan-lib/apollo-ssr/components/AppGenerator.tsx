@@ -6,7 +6,6 @@ import { Components } from '../../../../lib/vulcan-lib/components';
 import { CookiesProvider } from 'react-cookie';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
-import type { CompleteTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import type { TimeOverride } from '../../../../lib/utils/timeUtil';
 

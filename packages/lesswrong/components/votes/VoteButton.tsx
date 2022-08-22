@@ -1,5 +1,5 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { isMobile } from '../../lib/utils/isMobile'
 import { useTheme } from '../themes/useTheme';
 import type { VoteArrowIconProps } from './VoteArrowIcon';

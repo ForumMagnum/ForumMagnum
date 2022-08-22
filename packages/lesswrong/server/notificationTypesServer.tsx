@@ -19,7 +19,7 @@ import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
+import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 
 interface ServerNotificationType {
