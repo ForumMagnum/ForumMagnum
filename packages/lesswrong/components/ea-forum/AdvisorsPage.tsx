@@ -208,6 +208,7 @@ const AdvisorsPage = ({classes}: {
   })
 
   const onRequest = async () => {
+    captureEvent('advisorRequestBtnClicked')
     // track that the current user requested a chat
     if (currentUser && !count) {
       await createAdvisorRequest({
