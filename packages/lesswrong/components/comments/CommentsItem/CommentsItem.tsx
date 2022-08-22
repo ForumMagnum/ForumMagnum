@@ -125,7 +125,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
-  }
+  },
+  titleRow: {
+    display: 'flex',
+    columnGap: 20,
+    
+  },
 })
 
 export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, classes }: {
@@ -303,29 +308,30 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
         
-        {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
-          <StickyIcon />
-        </div>}
+        <div className={classes.titleRow}>
+          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
+            <StickyIcon />
+          </div>}
 
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-              {comment.post.draft && "[Draft] "}
-              {comment.post.title}
-            </Link>
-          </LWTooltip>}
-        {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
-
-        <div className={classes.body}>
-          <div className={classes.meta}>
-            { !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            {post && <CommentShortformIcon comment={comment} post={post} />}
-            { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment}
-                active={showParentState}
-                onClick={toggleShowParent}
+          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                {comment.post.draft && "[Draft] "}
+                {comment.post.title}
+              </Link>
+            </LWTooltip>}
+          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+        </div>
+          <div className={classes.body}>
+            <div className={classes.meta}>
+              { !parentCommentId && !comment.parentCommentId && isParentComment &&
+                <div className={classes.usernameSpacing}>○</div>
+              }
+              {post && <CommentShortformIcon comment={comment} post={post} />}
+              { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+                <ShowParentComment
+                  comment={comment}
+                  active={showParentState}
+                  onClick={toggleShowParent}
               />
             }
             { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
