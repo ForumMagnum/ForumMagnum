@@ -678,16 +678,16 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
-      name: 'AdvisorsPage',
-      path: '/advisors',
+      name: 'advice',
+      path: '/advice',
       componentName: 'AdvisorsPage',
-      title: 'Biosecurity Advisors'
+      title: 'Book a 1:1'
     },
     // {
-    //   name: 'AdvisorsRequestPage',
+    //   name: 'advisorRequest',
     //   path: '/advisor-request',
     //   componentName: 'AdvisorsRequestPage',
-    //   title: 'Biosecurity Advisors Request'
+    //   title: 'My 1:1 Request'
     // },
     {
       name: 'wikiTopisRedirect',

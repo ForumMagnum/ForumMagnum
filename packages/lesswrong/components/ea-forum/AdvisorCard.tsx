@@ -1,15 +1,17 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 16
+    maxWidth: 290
   },
   profileImage: {
+    width: 96,
+    height: 96,
+    background: theme.palette.grey[100],
     'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
     '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
     '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
@@ -20,22 +22,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     fontWeight: 700
   },
-  roleAndOrg: {
+  role: {
+    fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     marginTop: 4
   },
-  // careerStage: {
-  //   color: theme.palette.grey[600],
-  //   fontSize: 11,
-  //   marginTop: 4
-  // },
+  org: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 11,
+    marginTop: 4
+  },
   locationRow: {
     display: 'flex',
     alignItems: 'baseline',
     columnGap: 20,
     color: theme.palette.grey[700],
     fontSize: 12,
-    marginTop: 6
+    marginTop: 9
   },
   location: {
     display: 'flex',
@@ -77,7 +80,8 @@ const AdvisorCard = ({user, classes}: {
     organization: string,
     location: string,
     linkedinProfileSlug: string,
-    twitterProfileSlug: string,
+    twitterProfileSlug?: string,
+    website?: string,
     askMeAbout: Array<string>,
   },
   classes: ClassesType,
@@ -86,16 +90,17 @@ const AdvisorCard = ({user, classes}: {
 
   return <div className={classes.root}>
     {user.profileImageId && <CloudinaryImage2
-      height={96}
-      width={96}
-      imgProps={{q: '100'}}
+      imgProps={{q: '100', w: '150', h: '150'}}
       publicId={user.profileImageId}
       className={classes.profileImage}
     />}
     <Typography variant="headline" className={classes.name}>{user.name}</Typography>
-    <ContentStyles contentType="comment" className={classes.roleAndOrg}>
-      {user.jobTitle} @ {user.organization}
-    </ContentStyles>
+    <div className={classes.role}>
+      {user.jobTitle}
+    </div>
+    <div className={classes.org}>
+      @ {user.organization}
+    </div>
     <ContentStyles contentType="comment" className={classes.locationRow}>
       <div className={classes.location}>
         <LocationIcon className={classes.locationIcon} />
@@ -105,9 +110,12 @@ const AdvisorCard = ({user, classes}: {
         <a href={`https://linkedin.com/in/${user.linkedinProfileSlug}`} target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths.linkedinProfileURL}</svg>
         </a>
-        <a href={`https://twitter.com/${user.twitterProfileSlug}`} target="_blank" rel="noopener noreferrer">
+        {user.twitterProfileSlug && <a href={`https://twitter.com/${user.twitterProfileSlug}`} target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths.twitterProfileURL}</svg>
-        </a>
+        </a>}
+        {user.website && <a href={`http://${user.website}`} target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths.website}</svg>
+        </a>}
       </div>
     </ContentStyles>
     

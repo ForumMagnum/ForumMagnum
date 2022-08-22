@@ -38,7 +38,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'AdvisorsPage', 'AdvisorsRequestPage'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 

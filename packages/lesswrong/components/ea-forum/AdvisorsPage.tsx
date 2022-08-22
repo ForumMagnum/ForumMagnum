@@ -79,8 +79,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   advisors: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
-    padding: '10px 0',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(212px, 1fr))',
+    padding: '30px 10px',
+    columnGap: 20,
+    rowGap: '30px',
     borderTop: `2px solid ${theme.palette.primary.main}`,
     borderBottom: `2px solid ${theme.palette.primary.main}`,
     marginTop: 10,
@@ -97,6 +99,92 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6
   }
 })
+
+const advisors = [
+  {
+    profileImageId: 'v1661205655/advisors/1605745710517.jpg',
+    name: 'Ryan Teo',
+    jobTitle: 'Political Affairs Intern',
+    organization: 'UN Biological Weapons Convention',
+    location: 'United Kingdom',
+    linkedinProfileSlug: 'teojcryan',
+    twitterProfileSlug: 'teojcryan',
+    website: 'teojcryan.com',
+    askMeAbout: [
+      'Infectious disease modelling',
+      'Applying to grad school',
+      'Working at the United Nations',
+    ]
+  }, {
+    profileImageId: 'v1661205259/advisors/WhatsApp_Image_2022-08-19_at_9.50.47_PM_-_Caitlin_Walker.jpg',
+    name: 'Caitlin Walker',
+    jobTitle: 'Health Security PhD Student',
+    organization: 'Johns Hopkins',
+    location: 'Baltimore, MD, USA',
+    linkedinProfileSlug: 'caitlin-walker-a0a812171',
+    askMeAbout: [
+      'Biosecurity and global health policy',
+      'PhD/masters options and applications',
+    ]
+  }, {
+    profileImageId: 'v1661205262/advisors/Screen_Shot_2022-06-02_at_6.35.17_AM_-_Adin_Richards.png',
+    name: 'Adin Richards',
+    jobTitle: 'Biosecurity Fellow',
+    organization: 'Institute for Progress',
+    location: 'Providence, RI, USA',
+    linkedinProfileSlug: 'adin-richards-2b49a7220',
+    askMeAbout: [
+      'Biosecurity field building',
+      'Organizing university discussion groups',
+      'Policy research',
+      'Pandemic preparedness (e.g. continuity of operation plans, critical infrastructure resilience)',
+    ]
+  }, {
+    profileImageId: 'v1661205259/advisors/729C728E-6348-4CDE-99BA-171A0A123F1B_1_105_c_-_Noga_Aharony.jpg',
+    name: 'Noga Aharony',
+    jobTitle: 'PhD Student',
+    organization: 'Columbia University',
+    location: 'New York, USA',
+    linkedinProfileSlug: 'nogaaharony',
+    twitterProfileSlug: 'nongiga',
+    website: 'noga.science',
+    askMeAbout: [
+      'Metagenomics & microbiology',
+      'Machine learning & algorithms in biology',
+      'Graduate school & applying',
+      'Working at the Center for Health Security',
+    ]
+  }, {
+    profileImageId: 'v1661205260/advisors/dan_headshot_2_cropped_-_Daniel_Greene.png',
+    name: 'Dan Greene',
+    jobTitle: 'Postdoctoral Scholar',
+    organization: 'Stanford University',
+    location: 'Santa Cruz, CA, USA',
+    linkedinProfileSlug: 'daniel-greene-725ab258',
+    website: 'danielgreene.net',
+    askMeAbout: [
+      'Laboratory biorisk management',
+      'DURC policy',
+      'Social-science applications to biosecurity',
+      'Risk management training',
+    ]
+  }, {
+    profileImageId: 'v1661205260/advisors/241668439_368152568131819_8579005214601011924_n_3_-_Oliver_Crook.jpg',
+    name: 'Oliver Crook',
+    jobTitle: 'Todd-Bird Junior Research Fellow',
+    organization: 'University of Oxford',
+    location: 'Oxford, UK',
+    linkedinProfileSlug: 'oliver-m-crook-1844a17a',
+    twitterProfileSlug: 'OllyMCrook',
+    askMeAbout: [
+      'Mathematical biology',
+      'Computational biochemistry',
+      'Applying for research positions',
+      'Academia',
+      'Genetic engineering',
+    ]
+  },
+]
 
 const AdvisorsPage = ({classes}: {
   classes: ClassesType,
@@ -137,7 +225,7 @@ const AdvisorsPage = ({classes}: {
     formLink += `&entry.2006908680=${encodeURIComponent(query.ref)}`
   }
   // link that gets copied to clipboard when clicking the "Share" button
-  const shareLink = `${getSiteUrl()}/advisors${currentUser ? `?ref=${encodeURIComponent(currentUser.displayName)}` : ''}`
+  const shareLink = `${getSiteUrl()}advice${currentUser ? `?ref=${encodeURIComponent(currentUser.displayName)}` : ''}`
   
   const btnsNode = <>
     <div className={classes.btnsRow}>
@@ -179,48 +267,23 @@ const AdvisorsPage = ({classes}: {
           <div className={classes.descriptionRow}>
             <span className={classes.bold}>
               Interested in using your career to
-              mitigate <a href="/topics/biosecurity" target="_blank" rel="noopener noreferrer" className={classes.link}>
+              mitigate <a href="https://80000hours.org/problem-profiles/preventing-catastrophic-pandemics/" target="_blank" rel="noopener noreferrer" className={classes.link}>
                 global catastrophic biological risks
               </a>? Get some personalized advice from a professional in this field.
             </span>
           </div>
           <div className={classes.descriptionRow}>
-            The 30-minute meeting will allow you to get career advice, learn about the professional's experience,
-            and ask questions about topics of common interest.
+            The 30-minute meeting with an advisor will allow you to get career advice,
+            learn about their experience, and ask questions about topics of common interest.
           </div>
           <div className={classes.descriptionRow}>
-            <div className={classes.bold}>Who is this for?</div>
-            <div>
-              Anyone seriously interested in working on
-              mitigating <a href="/topics/global-catastrophic-biological-risk" target="_blank" rel="noopener noreferrer" className={classes.link}>
-                catastrophic biological risks
-              </a>, like the risk of an engineered pandemic. If you're unsure, you can read
-              the <a href="https://80000hours.org/problem-profiles/preventing-catastrophic-pandemics/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-                80,000 Hours problem profile on this here
-              </a>.
-            </div>
-            <div>
-              Note that <span className={classes.bold}>you don't have to have any experience</span> in the field;
-              we have advisors prepared to talk to people at different career stages.
-            </div>
+            This service is free, and you don't have to have any prior experience in the field to use it.
+            Advisors have limited time so we will priortize advisees based on their background and stated interest.
           </div>
           <div className={classes.descriptionRow}>
-            <div className={classes.bold}>If in doubt, request a call!</div>
-            <div>
-              You won't be wasting anyone's time. The advisors here have decided that this is a good use
-              of their time — if a call gets set up, you can assume everyone wants to be there.
-              And the form is quick — less than 5 minutes to fill out.
-            </div>
-          </div>
-          <div className={classes.descriptionRow}>
-            <div className={classes.bold}>We'll prioritize based on your interests and CV</div>
-            Advisors have limited availability so we'll prioritize people based on relevance to their
-            stated interests and background.
-          </div>
-          <div className={classes.descriptionRow}>
-            As an early access beta, this service is free. We will ask for your feedback after the
-            chat. <span className={classes.italic}>
-              <a href="/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            <span className={classes.italic}>
+              We are currently testing out this service in beta mode - we'll ask for your feedback after the
+              call. <a href="/" target="_blank" rel="noopener noreferrer" className={classes.link}>
                 You can find additional information and an FAQ here.
               </a>
             </span>
@@ -230,51 +293,7 @@ const AdvisorsPage = ({classes}: {
           
           <h2 className={classes.advisorsHeadline}>Meet the advisors</h2>
           <div className={classes.advisors}>
-            <AdvisorCard user={{
-              profileImageId: 'v1645651807/amy-presentation.png',
-              name: 'Simon Grimm',
-              jobTitle: 'Researcher',
-              organization: 'Sculpting Evolution',
-              location: 'Boston, MA, USA',
-              linkedinProfileSlug: 'sarahycheng',
-              twitterProfileSlug: '',
-              askMeAbout: [
-                'Pathogen evolution and biophysics',
-                'Applying to grad school',
-                'Working at the United Nations',
-                'Organizing EA workshops'
-              ]
-            }} />
-            <AdvisorCard user={{
-              profileImageId: 'v1649941603/Most_Important_Century_Statues.jpg',
-              name: 'Phoenix Wright',
-              jobTitle: 'Grad student',
-              organization: 'MIT',
-              location: 'Cambridge, MA, USA',
-              linkedinProfileSlug: '',
-              twitterProfileSlug: '',
-              askMeAbout: ['Stepladders']
-            }} />
-            <AdvisorCard user={{
-              profileImageId: 'v1534973232/sample.jpg',
-              name: 'Miles Edgeworth',
-              jobTitle: 'Prosecutor',
-              organization: 'Old Bailey',
-              location: 'London, UK',
-              linkedinProfileSlug: '',
-              twitterProfileSlug: '',
-              askMeAbout: ['Cravats']
-            }} />
-            <AdvisorCard user={{
-              profileImageId: 'v1534973232/sample.jpg',
-              name: 'Maya Fey',
-              jobTitle: 'Medium-in-training',
-              organization: 'Kurain Village',
-              location: 'Sydney, Australia',
-              linkedinProfileSlug: '',
-              twitterProfileSlug: '',
-              askMeAbout: ['Ladders']
-            }} />
+            {advisors.map(advisor => <AdvisorCard key={advisor.name} user={advisor} />)}
           </div>
           
           {btnsNode}

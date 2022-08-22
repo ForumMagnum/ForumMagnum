@@ -294,12 +294,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
     }, {
-      id: 'advisors',
-      title: 'Get Advice [BETA]',
-      link: `/advisors`,
-      iconComponent: VoiceChatIcon,
-      tooltip: "Chat with someone in the community"
-    }, {
       id: 'events',
       title: 'Events',
       link: '/events',
@@ -332,6 +326,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'community-members',
       title: 'Community Members',
       link: '/community#individuals',
+      subItem: true,
+    }, {
+      id: 'advice',
+      title: 'Book a 1:1 [BETA]',
+      link: `/advice`,
+      tooltip: "Chat with community members in career paths you're interested in exploring",
       subItem: true,
     }, {
       id: 'divider',
