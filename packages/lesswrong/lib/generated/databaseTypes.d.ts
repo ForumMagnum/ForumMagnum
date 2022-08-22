@@ -355,6 +355,7 @@ interface DbPost extends DbObject {
   userId: string
   question: boolean
   authorIsUnreviewed: boolean
+  readTimeMinutesOverride: number
   submitToFrontpage: boolean
   hiddenRelatedQuestion: boolean
   originalPostRelationSourceId: string

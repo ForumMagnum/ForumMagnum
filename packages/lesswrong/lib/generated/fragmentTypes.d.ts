@@ -171,6 +171,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly userId: string,
   readonly question: boolean,
   readonly authorIsUnreviewed: boolean,
+  readonly readTimeMinutesOverride: number,
   readonly submitToFrontpage: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -480,6 +481,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+  readonly readTimeMinutes: number,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -665,6 +667,7 @@ interface PostsEdit extends PostsPage { // fragment on Posts
     confirmed: boolean,
     requested: boolean,
   }>,
+  readonly readTimeMinutesOverride: number,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
