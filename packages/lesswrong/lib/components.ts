@@ -77,7 +77,6 @@ importComponent("FormatDate", () => require('../components/common/FormatDate'));
 importComponent("BetaTag", () => require('../components/common/BetaTag'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages'));
 importComponent("Header", () => require('../components/common/Header'));
-importComponent("HeaderWithBackButton", () => require('../components/common/HeaderWithBackButton'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle'));
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
 importComponent("Home2", () => require('../components/common/Home2'));
