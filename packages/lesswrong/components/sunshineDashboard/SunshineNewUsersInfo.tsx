@@ -20,7 +20,6 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import Button from '@material-ui/core/Button';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
@@ -46,7 +45,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8
+  },
+  permissionsRow: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 8,
+    marginTop: 8
   },
   disabled: {
     opacity: .2,
@@ -142,7 +146,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   snooze10: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    fontSize: 34,
+    marginTop: 4
+  },
+  permissionsButton: {
+    fontSize: 10,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    border: theme.palette.border.normal,
+    borderRadius: 2,
+    marginRight: 10,
+    cursor: "pointer"
+  },
+  permissionDisabled: {
+    border: "none"
   }
 })
 
@@ -405,48 +424,26 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               </div>
             </div>
             <div className={classes.row}>
-              <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
-                <Button onClick={handleDisablePosting} variant={user.postingDisabled ? "flat" : "outlined"}>
-                  Posts
-                </Button>
-              </LWTooltip>
-              <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
-                <Button onClick={handleDisableAllCommenting} variant={user.allCommentingDisabled ? "flat" : "outlined"}>
-                  All Comments
-                </Button>
-              </LWTooltip>
-              <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
-                <Button onClick={handleDisableCommentingOnOtherUsers} variant={user.commentingOnOtherUsersDisabled ? "flat" : "outlined"}>
-                  Other Comments
-                </Button>
-              </LWTooltip>
-              <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
-                <Button onClick={handleDisableConversations} variant={user.conversationsDisabled ? "flat" : "outlined"}>
-                  Conversations
-                </Button>
-              </LWTooltip>
-            </div>
-            <div className={classes.row}>
               <div className={classes.row}>
-                <LWTooltip title="Approve">
-                  <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
-                </LWTooltip>
-                <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)">
-                  <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
-                </LWTooltip>
-                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)">
+                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
                   <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
                 </LWTooltip>
-                <LWTooltip title="Ban for 3 months">
+                <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
+                  <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
+                </LWTooltip>
+                <LWTooltip title="Approve" placement="top">
+                  <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
+                </LWTooltip>
+                <LWTooltip title="Ban for 3 months" placement="top">
                   <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
                 </LWTooltip>
-                <LWTooltip title="Purge (delete and ban)">
+                <LWTooltip title="Purge (delete and ban)" placement="top">
                   <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
                 </LWTooltip>
                 <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
                     <div>Flag this user for more review</div>
                     <div><em>(This will not remove them from sidebar)</em></div>
-                  </div>}>
+                  </div>} placement="top">
                   <div onClick={handleFlag} className={classes.modButton} >
                     {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
                   </div>
@@ -455,6 +452,28 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               <div className={classes.row}>
                 <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
               </div>
+            </div>
+            <div className={classes.permissionsRow}>
+              <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
+                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.postingDisabled})} onClick={handleDisablePosting}>
+                  Posts
+                </div>
+              </LWTooltip>
+              <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
+                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
+                  All Comments
+                </div>
+              </LWTooltip>
+              <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
+                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.commentingOnOtherUsersDisabled})} onClick={handleDisableCommentingOnOtherUsers}>
+                  Other Comments
+                </div>
+              </LWTooltip>
+              <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
+                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.conversationsDisabled})}onClick={handleDisableConversations}>
+                  Conversations
+                </div>
+              </LWTooltip>
             </div>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
