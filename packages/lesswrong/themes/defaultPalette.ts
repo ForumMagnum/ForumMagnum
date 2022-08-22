@@ -1,8 +1,3 @@
-import type { PartialDeep } from 'type-fest'
-import deepmerge from 'deepmerge';
-// eslint-disable-next-line no-restricted-imports
-import type { Color as MuiColorShades } from '@material-ui/core';
-
 //
 // All About the Themes, the Theme Palette and Colors
 // ==================================================

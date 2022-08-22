@@ -109,6 +109,7 @@ import './collections/tags/collection';
 import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
+import './collections/tags/custom_fields';
 
 import './collections/chapters/views';
 

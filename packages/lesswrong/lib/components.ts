@@ -400,6 +400,8 @@ importComponent("PostsSearchAutoComplete", () => require('../components/search/P
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
+importComponent("TagsSearchAutoComplete", () => require('../components/search/TagsSearchAutoComplete'));
+importComponent("TagsListEditorSearchHit", () => require('../components/search/TagsListEditorSearchHit'));
 importComponent("SequencesSearchHit", () => require('../components/search/SequencesSearchHit'));
 importComponent("SequencesSearchAutoComplete", () => require('../components/search/SequencesSearchAutoComplete'));
 importComponent("UsersSearchAutoComplete", () => require('../components/search/UsersSearchAutoComplete'));
@@ -546,6 +548,7 @@ importComponent("BooksNewForm", () => require('../components/sequences/BooksNewF
 importComponent("BooksEditForm", () => require('../components/sequences/BooksEditForm'));
 importComponent("BooksItem", () => require('../components/sequences/BooksItem'));
 importComponent("BooksProgressBar", () => require('../components/sequences/BooksProgressBar'));
+importComponent("LoginToTrack", () => require('../components/sequences/LoginToTrack'));
 importComponent("EACoreReading", () => require('../components/sequences/EACoreReading'));
 importComponent("LWCoreReading", () => require('../components/sequences/LWCoreReading'));
 
@@ -570,6 +573,7 @@ importComponent("FormSubmit", () => require('../components/form-components/FormS
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
 importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
+importComponent("TagSelect", () => require('../components/form-components/TagSelect'));
 importComponent("CoauthorsListEditor", () => require('../components/form-components/CoauthorsListEditor'));
 importComponent("MuiInput", () => require('../components/form-components/MuiInput'));
 importComponent("LocationFormComponent", () => require('../components/form-components/LocationFormComponent'));
@@ -622,6 +626,7 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("CuratedContentItem", () => require('../components/recommendations/CuratedContentItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

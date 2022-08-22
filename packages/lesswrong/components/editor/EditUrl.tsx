@@ -5,7 +5,6 @@ import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
-import { sleep } from '../../lib/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

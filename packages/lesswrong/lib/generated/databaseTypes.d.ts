@@ -371,6 +371,7 @@ interface DbPost extends DbObject {
   userId: string
   question: boolean
   authorIsUnreviewed: boolean
+  readTimeMinutesOverride: number
   submitToFrontpage: boolean
   hiddenRelatedQuestion: boolean
   originalPostRelationSourceId: string
@@ -694,6 +695,7 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   description: EditableFieldContents
+  parentTagId: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {

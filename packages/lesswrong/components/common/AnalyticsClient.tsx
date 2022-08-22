@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useMutation, gql } from '@apollo/client';
 import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import { useCookies } from 'react-cookie'

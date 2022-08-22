@@ -124,7 +124,8 @@ const PostsPagePostHeader = ({post, classes}: {
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
-  
+  const readTime = post.readTimeMinutes ?? 1
+
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
@@ -146,9 +147,8 @@ const PostsPagePostHeader = ({post, classes}: {
               </a>
             </LWTooltip>
           }
-          {/* NB: Currently display:none'd */}
-          {!!wordCount && !post.isEvent && <LWTooltip title={`${wordCount} words`}>
-            <span className={classes.wordCount}>{Math.floor(wordCount/200) || 1 } min read</span>
+          {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
+            <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}
           {!post.isEvent && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />

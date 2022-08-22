@@ -1,5 +1,4 @@
 import { testStartup } from './testMain';
-import chai from 'chai';
 import { Routes } from '../lib/vulcan-lib/routes';
 
 testStartup();

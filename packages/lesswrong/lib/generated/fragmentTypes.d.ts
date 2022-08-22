@@ -171,6 +171,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly userId: string,
   readonly question: boolean,
   readonly authorIsUnreviewed: boolean,
+  readonly readTimeMinutesOverride: number,
   readonly submitToFrontpage: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -480,6 +481,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+  readonly readTimeMinutes: number,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -665,6 +667,7 @@ interface PostsEdit extends PostsPage { // fragment on Posts
     confirmed: boolean,
     requested: boolean,
   }>,
+  readonly readTimeMinutesOverride: number,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
@@ -1479,7 +1482,19 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
+  readonly parentTag: TagFragment_parentTag|null,
+  readonly subTags: Array<TagFragment_subTags>,
   readonly description: TagFragment_description|null,
+}
+
+interface TagFragment_parentTag { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
+}
+
+interface TagFragment_subTags { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -1508,8 +1523,20 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
 }
 
 interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
+  readonly parentTag: TagRevisionFragment_parentTag|null,
+  readonly subTags: Array<TagRevisionFragment_subTags>,
   readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
+}
+
+interface TagRevisionFragment_parentTag { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
+}
+
+interface TagRevisionFragment_subTags { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
@@ -1522,7 +1549,19 @@ interface TagRevisionFragment_description { // fragment on Revisions
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly parentTag: TagPreviewFragment_parentTag|null,
+  readonly subTags: Array<TagPreviewFragment_subTags>,
   readonly description: TagPreviewFragment_description|null,
+}
+
+interface TagPreviewFragment_parentTag { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
+}
+
+interface TagPreviewFragment_subTags { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -1566,9 +1605,16 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
+  readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
+}
+
+interface TagEditFragment_parentTag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
 }
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
@@ -1851,6 +1897,10 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly needsReview: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
+  readonly postingDisabled: boolean,
+  readonly allCommentingDisabled: boolean,
+  readonly commentingOnOtherUsersDisabled: boolean,
+  readonly conversationsDisabled: boolean,
   readonly snoozedUntilContentCount: number,
 }
 

@@ -5,7 +5,6 @@ import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
-import Public from '@material-ui/icons/Public'
 import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
