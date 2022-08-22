@@ -5,6 +5,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 
+const isEAForum = forumTypeSetting.get() === "EAForum"
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 40,
@@ -87,10 +89,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 125,
     objectFit: "cover"
   },
-  chapterTitle: {
-    fontSize: "1.25rem !important",
-    margin: "8px 0 -8px 0 !important",
-  },
   postIcon: {
     height: 12,
     width: 12,
@@ -112,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: forumTypeSetting.get() === "EAForum" ? "flex-start" : "center",
+    justifyContent: isEAForum ? "flex-start" : "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -147,12 +145,11 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, SectionTitle, LWTooltip } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
-
 
   const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
@@ -207,7 +204,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
       <div className={classes.right}>
         {sequence.chapters?.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
-            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
+            <ChapterTitle title={title}/>
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}

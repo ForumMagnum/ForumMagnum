@@ -368,6 +368,7 @@ declare global {
       display2: JssStyles,
       display3: JssStyles,
       display4: JssStyles,
+      postsItemTitle: JssStyles,
       body1: JssStyles,
       body2: JssStyles,
       headline: JssStyles,
