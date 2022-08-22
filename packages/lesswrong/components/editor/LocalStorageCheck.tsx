@@ -33,7 +33,7 @@ const restorableStateHasMetadata = (savedState) => {
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
-  for (let editorType of editors) {
+  for (const editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();
     if (savedState) {
       if (restorableStateHasMetadata(savedState)) {
