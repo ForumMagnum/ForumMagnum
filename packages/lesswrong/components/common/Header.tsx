@@ -18,7 +18,7 @@ import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSetti
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 
-// Shared with HeaderWIthBackButton
+// Shared with HeaderWithBackButton
 export const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
