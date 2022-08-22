@@ -7,8 +7,7 @@ const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontSize: isEAForum ? "1.25rem" : "1.4em",
-    fontStyle: isEAForum ? "unset" : "italic",
+    ...theme.typography.chapterTitle,
     margin: "1em 0",
   }
 });

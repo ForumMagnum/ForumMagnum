@@ -154,7 +154,11 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         uiSecondary: {
           sansSerifStack
-        }
+        },
+        chapterTitle: {
+          fontSize: "1.25em",
+          fontStyle: "unset",
+        },
       },
       overrides: {
         MuiTooltip: {
