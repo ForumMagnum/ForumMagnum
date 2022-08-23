@@ -1,3 +1,4 @@
+type AdvisorRequestsViewName = "requestsByUser";
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
@@ -32,6 +33,7 @@ type UsersViewName = "usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUse
 type VotesViewName = "tagVotes"|"userPostVotes";
 
 interface ViewTermsByCollectionName {
+  AdvisorRequests: AdvisorRequestsViewTerms
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
@@ -67,4 +69,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"

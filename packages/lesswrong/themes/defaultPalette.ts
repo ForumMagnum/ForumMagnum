@@ -284,6 +284,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
+    primaryDim: '#d3edf2'
   },
   panelBackground: {
     default: shades.grey[0],
