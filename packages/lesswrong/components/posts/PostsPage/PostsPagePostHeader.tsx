@@ -10,6 +10,7 @@ import HeadsetIcon from '@material-ui/icons/Headset';
 import NoSSR from '@material-ui/core/NoSsr';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
+import { useCookies } from 'react-cookie';
 
 const SECONDARY_SPACING = 20
 
@@ -123,7 +124,7 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-
+const HIDE_PODCAST_PLAYER_COOKIE = 'hide_post_podcast_player';
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
@@ -134,30 +135,27 @@ const PostsPagePostHeader = ({post, classes}: {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
-    PostsPodcastPlayer} = Components;
+    PostsPodcastPlayer, NewFeatureTooltip} = Components;
 
   const { captureEvent } = useTracking();
+  const [cookies, setCookie] = useCookies();
 
-  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(false);
+  const hideEmbeddedPlayerCookie = cookies[HIDE_PODCAST_PLAYER_COOKIE] === "true";
+
+  // Show the podcast player on posts that have it by default, until the user hides it once
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(!hideEmbeddedPlayerCookie);
 
   const toggleEmbeddedPlayer = () => {
     const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "true" : "false";
     captureEvent("toggleAudioPlayer", { action });
+    setCookie(
+      HIDE_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   };
-
-  const embedScriptFunction = (src: string, clientWindow: Window & typeof globalThis, clientDocument: Document) => <script>{
-    function(p,l,a,y,s?: HTMLScriptElement) {
-      if(p[a]) return;
-      if(p[y]) return p[y]();
-      s=l.createElement('script');
-      l.head.appendChild((
-        s.async=p[a]=true,
-        s.src=src,
-        s
-      ));
-    }(clientWindow,clientDocument,'__btL','__btR')
-  }</script>;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -199,7 +197,9 @@ const PostsPagePostHeader = ({post, classes}: {
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           {podcastEpisode && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
-              <a href="#" onClick={toggleEmbeddedPlayer}><HeadsetIcon/></a>
+            <a href="#" onClick={toggleEmbeddedPlayer}>
+              <HeadsetIcon/>
+            </a>
           </LWTooltip>}
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
