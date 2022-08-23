@@ -23,11 +23,11 @@ export const getEAGApplicationData = async (email: string) => {
   }
   
   // if no application data found in EAG 2022, check 2022 EAGx events
-  ['EAGxRotterdam', 'EAGxBerlin', 'EAGxSingapore'].forEach(async event => {
+  for (let event of ['EAGxRotterdam', 'EAGxBerlin', 'EAGxSingapore']) {
     if (eagAppResponse.status === 204) {
       eagAppResponse = await getZohoDataEAGx(event, email)
     }
-  })
+  }
 
   // finally, check EAG 2021
   if (eagAppResponse.status === 204) {
