@@ -141,6 +141,11 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
+// FM Crossposting
+export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
+export const fmCrosspostBaseUrlSetting = new PublicInstanceSetting<string|null>("fmCrosspost.baseUrl", null, "optional");
+export const fmCrosspostUseAuth0Setting = new PublicInstanceSetting<boolean>("fmCrosspost.useAuth0", false, "optional");
+
 // Stripe setting
 
 //Test vs Production Setting

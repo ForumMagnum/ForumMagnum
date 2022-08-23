@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { fmCrosspostSiteName } from "../../lib/publicSettings";
+import {
+  fmCrosspostSiteNameSetting,
+  fmCrosspostBaseUrlSetting,
+  fmCrosspostUseAuth0Setting,
+} from "../../lib/instanceSettings";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
@@ -30,13 +34,17 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
   const token = "THE_TOKEN";
 
   const onClickLogin = () => {
-    window.open(`http://localhost:4000/crosspostLogin?token=${token}`, "_blank")?.focus();
+    if (fmCrosspostUseAuth0Setting.get()) {
+      alert("TODO: Implement Auth0 redirect");
+    } else {
+      window.open(`${fmCrosspostBaseUrlSetting.get()}crosspostLogin?token=${token}`, "_blank")?.focus();
+    }
   }
 
   return (
     <div className={classes.root}>
       <FormControlLabel
-        label={`Crosspost to ${fmCrosspostSiteName.get()}`}
+        label={`Crosspost to ${fmCrosspostSiteNameSetting.get()}`}
         control={
           <Checkbox
             className={classes.size}
@@ -55,7 +63,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       />
       {isCrosspost && !currentUser?.fmCrosspostProfile &&
         <Button onClick={onClickLogin} className={classes.button}>
-          Login to {fmCrosspostSiteName.get()} to enable crossposting
+          Login to {fmCrosspostSiteNameSetting.get()} to enable crossposting
         </Button>
       }
     </div>
