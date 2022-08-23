@@ -204,6 +204,7 @@ importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
+importComponent("PostsItemIntroSequence", () => require('../components/posts/PostsItemIntroSequence.tsx'));
 importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));

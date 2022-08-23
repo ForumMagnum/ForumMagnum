@@ -67,5 +67,8 @@ export const defineSchema = schema => {
 		if (context.endsWith(ELEMENTS.footnoteContent) && childDefinition.name === ELEMENTS.footnoteSection) {
 			return false;
 		}
+		if (context.endsWith(ELEMENTS.footnoteContent) && childDefinition.name === 'listItem') {
+			return false;
+		}
 	});
 }
