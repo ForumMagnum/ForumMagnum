@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useGetParameter } from '../common/withGetParameter';
 import { forumHeaderTitleSetting } from '../common/Header';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { gql, useMutation, useApolloClient } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,6 +28,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const connectCrossposterMutation = gql`
+  mutation connectCrossposter($userId: String) {
+    connectCrossposter(userId: $userId)
+  }
+`;
+
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -34,9 +41,21 @@ const CrosspostLoginPage = ({classes}: {
   const token = useGetParameter('token');
   const hasLogo = forumTypeSetting.get() === 'EAForum';
 
+  const [mutate, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+
   const {WrappedLoginForm, SiteLogo, Typography} = Components;
 
-  const onConfirm = () => {}
+  const onConfirm = async () => {
+    if (!currentUser) {
+      throw new Error("Can't connect crosspost account whilst logged out");
+    }
+    const result = await mutate({
+      variables: {
+        userId: currentUser._id,
+      },
+    });
+    console.log("result", result);
+  }
 
   return (
     <div className={classes.root}>
