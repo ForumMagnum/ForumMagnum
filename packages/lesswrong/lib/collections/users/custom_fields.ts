@@ -1687,7 +1687,15 @@ addFieldsDict(Users, {
     optional: true,
     hidden: true,
   },
-  
+
+  fmCrosspostUserId: {
+    type: String,
+    optional: true,
+    canCreate: ['members'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+
   // These are the groups displayed in the user's profile (i.e. this field is informational only).
   // This does NOT affect permissions - use the organizerIds field on localgroups for that.
   organizerOfGroupIds: {
