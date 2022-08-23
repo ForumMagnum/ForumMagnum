@@ -348,6 +348,7 @@ importComponent("DeleteCommentMenuItem", () => require('../components/comments/C
 importComponent("DeleteCommentDialog", () => require('../components/comments/CommentActions/DeleteCommentDialog'));
 importComponent("EditCommentMenuItem", () => require('../components/comments/CommentActions/EditCommentMenuItem'));
 importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
+importComponent("PinToProfileMenuItem", () => require('../components/comments/CommentActions/PinToProfileMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));

@@ -786,6 +786,7 @@ interface CommentsList { // fragment on Comments
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
   readonly votingSystem: string,
+  readonly isPinnedOnProfile: boolean,
 }
 
 interface CommentsList_contents { // fragment on Revisions
