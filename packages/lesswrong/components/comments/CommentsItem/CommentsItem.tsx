@@ -128,8 +128,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   titleRow: {
     display: 'flex',
-    columnGap: 20,
-    
+    columnGap: 8,
   },
 })
 
