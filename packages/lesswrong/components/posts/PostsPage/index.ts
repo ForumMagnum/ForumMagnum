@@ -4,6 +4,7 @@ importComponent("PostsPage", () => require('./PostsPage'));
 importComponent("PostsPageDate", () => require('./PostsPageDate'));
 importComponent("PostsPagePostFooter", () => require('./PostsPagePostFooter'));
 importComponent("PostsPagePostHeader", () => require('./PostsPagePostHeader'));
+importComponent("PostsPodcastPlayer", () => require('./PostsPodcastPlayer'));
 importComponent("PostCoauthorRequest", () => require('./PostCoauthorRequest'));
 importComponent("PostsPageWrapper", () => require('./PostsPageWrapper'));
 importComponent("PostBodyPrefix", () => require('./PostBodyPrefix'));

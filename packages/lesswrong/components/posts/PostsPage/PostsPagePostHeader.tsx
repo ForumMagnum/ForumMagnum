@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
@@ -56,10 +56,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
-  podcast: {
+  togglePodcastIcon: {
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
     color: theme.palette.icon.dim600,
+    // color: theme.palette.primary.main,
     height: '24px'
   },
   actions: {
@@ -90,20 +91,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'
   },
-  embeddedPlayer: {
-    marginBottom: '2px'
-  },
   hideEmbeddedPlayer: {
     display: "none"
   },
-  podcastIconList: {
-    paddingLeft: '0px',
-    marginTop: '0px'
-  },
-  podcastIcon: {
-    display: 'inline-block',
-    marginRight: '8px'
-  }
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -143,9 +133,19 @@ const PostsPagePostHeader = ({post, classes}: {
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
+    PostsPodcastPlayer} = Components;
+
+  const { captureEvent } = useTracking();
 
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(false);
+
+  const toggleEmbeddedPlayer = () => {
+    const action = showEmbeddedPlayer ? "close" : "open";
+    captureEvent("toggleAudioPlayer", { action });
+    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+  };
+
   const embedScriptFunction = (src: string, clientWindow: Window & typeof globalThis, clientDocument: Document) => <script>{
     function(p,l,a,y,s?: HTMLScriptElement) {
       if(p[a]) return;
@@ -198,8 +198,8 @@ const PostsPagePostHeader = ({post, classes}: {
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
-          {podcastEpisode && <LWTooltip title={'Listen to this post'} className={classes.podcast}>
-              <a href="#" onClick={() => setShowEmbeddedPlayer(!showEmbeddedPlayer)}><HeadsetIcon/></a>
+          {podcastEpisode && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+              <a href="#" onClick={toggleEmbeddedPlayer}><HeadsetIcon/></a>
           </LWTooltip>}
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
@@ -216,17 +216,7 @@ const PostsPagePostHeader = ({post, classes}: {
       </div>}
     </div>
     {podcastEpisode && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-      {isClient && <NoSSR>
-        <div
-          id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
-          className={classes.embeddedPlayer}
-        />
-        {embedScriptFunction(podcastEpisode.episodeLink, window, document)}
-      </NoSSR>}
-      <ul className={classes.podcastIconList}>
-        {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.applePodcastLink}>{applePodcastIcon}</a></li>}
-        {podcastEpisode.podcast.spotifyPodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.spotifyPodcastLink}>{spotifyPodcastIcon}</a></li>}
-      </ul>
+      <PostsPodcastPlayer podcastEpisode={podcastEpisode} />
     </div>}
     {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
