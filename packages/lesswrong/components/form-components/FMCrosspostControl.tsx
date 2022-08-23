@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
@@ -31,7 +31,17 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
 }) => {
   const {isCrosspost} = value ?? {};
 
-  const token = "THE_TOKEN";
+  const [token, setToken] = useState("");
+  console.log("token", token);
+
+  useEffect(() => {
+    const callback = async () => {
+      const result = await fetch("/api/crosspostToken");
+      const json = await result.json();
+      setToken(json.token);
+    }
+    callback();
+  }, []);
 
   const onClickLogin = () => {
     if (fmCrosspostUseAuth0Setting.get()) {
@@ -40,6 +50,16 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       window.open(`${fmCrosspostBaseUrlSetting.get()}crosspostLogin?token=${token}`, "_blank")?.focus();
     }
   }
+
+  useEffect(() => {
+    const handler = () => {
+      if (!document.hidden) {
+        // TODO
+      }
+    }
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  });
 
   return (
     <div className={classes.root}>
