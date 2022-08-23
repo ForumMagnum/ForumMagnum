@@ -786,6 +786,7 @@ interface CommentsList { // fragment on Comments
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
   readonly votingSystem: string,
+  readonly isPinnedOnProfile: boolean,
 }
 
 interface CommentsList_contents { // fragment on Revisions
@@ -1626,6 +1627,31 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
 }
 
+interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
+  readonly userId: string,
+  readonly createdAt: Date,
+  readonly timezone: string,
+  readonly availability: string,
+  readonly questions: string,
+  readonly linkedinProfile: string,
+  readonly previousExperience: string,
+  readonly selectedAdvisors: Array<string>,
+  readonly referrer: string,
+}
+
+interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
+  readonly _id: string,
+  readonly userId: string,
+  readonly createdAt: Date,
+  readonly timezone: string,
+  readonly availability: string,
+  readonly questions: string,
+  readonly linkedinProfile: string,
+  readonly previousExperience: string,
+  readonly selectedAdvisors: Array<string>,
+  readonly referrer: string,
+}
+
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly createdAt: Date,
   readonly userId: string,
@@ -2269,6 +2295,8 @@ interface FragmentTypes {
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
+  AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
+  AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   UsersMinimumInfo: UsersMinimumInfo
@@ -2417,6 +2445,8 @@ interface CollectionNamesByFragmentName {
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"
+  AdvisorRequestsDefaultFragment: "AdvisorRequests"
+  AdvisorRequestsMinimumInfo: "AdvisorRequests"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   UsersMinimumInfo: "Users"
@@ -2442,5 +2472,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

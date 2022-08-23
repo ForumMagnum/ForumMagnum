@@ -27,6 +27,9 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+  importComponent("AdvisorsPage", () => require('../components/ea-forum/AdvisorsPage'))
+  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/AdvisorsRequestPage'))
+  importComponent("AdvisorCard", () => require('../components/ea-forum/AdvisorCard'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -348,6 +351,7 @@ importComponent("DeleteCommentMenuItem", () => require('../components/comments/C
 importComponent("DeleteCommentDialog", () => require('../components/comments/CommentActions/DeleteCommentDialog'));
 importComponent("EditCommentMenuItem", () => require('../components/comments/CommentActions/EditCommentMenuItem'));
 importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
+importComponent("PinToProfileMenuItem", () => require('../components/comments/CommentActions/PinToProfileMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));

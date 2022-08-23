@@ -272,6 +272,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentBorder: "1px solid rgba(72,94,144,0.16)",
     answerBorder: "2px solid rgba(72,94,144,0.16)",
     tooltipHR: "solid 1px rgba(255,255,255,.2)",
+    primaryHighlight: '#88c9d4',
+    primaryHighlight2: '#bae2e8',
+    secondaryHighlight: '#aedba3',
+    secondaryHighlight2: '#d8edd3',
   },
   background: {
     default: shades.grey[60],
@@ -280,6 +284,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
+    primaryDim: '#d3edf2'
   },
   panelBackground: {
     default: shades.grey[0],

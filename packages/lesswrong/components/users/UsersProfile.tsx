@@ -370,7 +370,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Link to={`${userGetProfileUrl(user)}/replies`}>
                 <SectionTitle title={"Comments"} />
               </Link>
-              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
+              <Components.RecentComments
+                terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                showPinnedOnProfile
+              />
             </SingleColumnSection>
           </AnalyticsContext>
 
