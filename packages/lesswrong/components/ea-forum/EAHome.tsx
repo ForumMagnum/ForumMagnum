@@ -14,15 +14,17 @@ const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated,
-    SmallpoxBanner, StickiedPosts, EventBanner, FrontpageReviewWidget, SingleColumnSection
+    SmallpoxBanner, StickiedPosts, EventBanner, MaintenanceBanner, FrontpageReviewWidget, SingleColumnSection
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
   const shouldRenderEventBanner = showEventBannerSetting.get()
+  const shouldRenderMaintenanceBanner = true
   const shouldRenderSmallpox = showSmallpoxSetting.get()
 
   return (
     <React.Fragment>
+      {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
       
