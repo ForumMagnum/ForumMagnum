@@ -1,22 +1,31 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useRef } from "react";
 
 export type HideRepeatedPostsPayload = {
-  isPostRepeated: (postId: string) => boolean,
-  addPost: (postId: string) => void,
+  isPostRepeated: (ownerId: string, postId: string) => boolean,
+  addPost: (ownerId: string, postId: string) => void,
 }
 
 const HideRepeatedPostsContext = createContext<HideRepeatedPostsPayload>({
-  isPostRepeated: (postId: string) => false,
-  addPost: (postId: string) => {},
+  isPostRepeated: (ownerId: string, postId: string) => false,
+  addPost: (ownerId: string, postId: string) => {},
 });
 
-export const useHideRepeatedPosts = () => useContext(HideRepeatedPostsContext);
+export const useHideRepeatedPosts = () => {
+  const id = useRef("hrp" + Math.floor(Math.random() * 1e8));
+  const {isPostRepeated, addPost} = useContext(HideRepeatedPostsContext);
+  return {
+    isPostRepeated: isPostRepeated.bind(null, id.current),
+    addPost: addPost.bind(null, id.current),
+  };
+}
 
 export const HideRepeatedPostsProvider = ({children}) => {
-  const postIds: string[] = [];
+  const postIds: Record<string, string> = {};
 
-  const isPostRepeated = (postId: string) => postIds.indexOf(postId) >= 0;
-  const addPost = (postId: string) => postIds.push(postId);
+  const isPostRepeated = (ownerId: string, postId: string) =>
+    !!postIds[postId] && postIds[postId] !== ownerId;
+  const addPost = (ownerId: string, postId: string) =>
+    postIds[postId] = ownerId;
 
   return (
     <HideRepeatedPostsContext.Provider value={{isPostRepeated, addPost}}>
