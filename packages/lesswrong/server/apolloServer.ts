@@ -244,6 +244,7 @@ export function startWebserver() {
   })
 
   app.get(crosspostTokenApiRoute, onCrosspostTokenRequest);
+  app.use(connectCrossposterApiRoute, bodyParser.json({ limit: "1mb" }));
   app.post(connectCrossposterApiRoute, onConnectCrossposterRequest);
 
   app.get('*', async (request, response) => {

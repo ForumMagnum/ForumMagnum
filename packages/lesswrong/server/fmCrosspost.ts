@@ -11,6 +11,10 @@ export const connectCrossposterApiRoute = "/api/connectCrossposter";
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
 
 type ConnectCrossposterArgs = {
+  token: string,
+}
+
+type ConnectCrossposterPayload = {
   userId: string,
 }
 
@@ -18,7 +22,7 @@ const crosspostResolvers = {
   Mutation: {
     connectCrossposter: async (
       root: void,
-      {userId}: ConnectCrossposterArgs,
+      {token}: ConnectCrossposterArgs,
       {req, res}: ResolverContext,
     ) => {
       const apiUrl = fmCrosspostBaseUrlSetting.get() + connectCrossposterApiRoute.slice(1);
@@ -27,7 +31,7 @@ const crosspostResolvers = {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({userId}),
+        body: JSON.stringify({token}),
       });
       const json = await result.json();
       console.log("JSON RESULT", json);
@@ -37,10 +41,7 @@ const crosspostResolvers = {
 };
 
 addGraphQLResolvers(crosspostResolvers);
-addGraphQLMutation("connectCrossposter(userId: String): String");
-
-const algorithm = "HS256";
-const expiresIn = "15m";
+addGraphQLMutation("connectCrossposter(token: String): String");
 
 export const onCrosspostTokenRequest = async (req: Request, res: Response) => {
   const {user} = req;
@@ -48,17 +49,32 @@ export const onCrosspostTokenRequest = async (req: Request, res: Response) => {
     res.status(403).send("Unauthorized");
     return;
   }
-  const payload = {userId: user._id};
   const secret = crosspostSigningKeySetting.get();
   if (!secret?.length) {
     res.status(500).send("Missing crosspost signing secret env var");
     return;
   }
-  const token = jwt.sign(payload, secret, {algorithm, expiresIn});
+  const payload: ConnectCrossposterPayload = {userId: user._id};
+  const token = jwt.sign(payload, secret, {algorithm: "HS256", expiresIn: "15m"});
   res.send({token});
 }
 
 export const onConnectCrossposterRequest = async (req: Request, res: Response) => {
-  console.log("Connecting crossposter");
-  res.send({ status: "connected" });
+  const {token} = req.body;
+  if (!token?.length) {
+    res.status(400).send("Missing token");
+    return;
+  }
+  const secret = crosspostSigningKeySetting.get();
+  if (!secret?.length) {
+    res.status(500).send("Missing crosspost signing secret env var");
+    return;
+  }
+  const payload = jwt.verify(token, secret) as ConnectCrossposterPayload;
+  if (!payload?.userId?.length) {
+    res.status(403).send("Unauthorized");
+    return;
+  }
+  const {userId} = payload;
+  res.send({status: "connected", userId});
 }

@@ -29,8 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const connectCrossposterMutation = gql`
-  mutation connectCrossposter($userId: String) {
-    connectCrossposter(userId: $userId)
+  mutation connectCrossposter($token: String) {
+    connectCrossposter(token: $token)
   }
 `;
 
@@ -50,9 +50,7 @@ const CrosspostLoginPage = ({classes}: {
       throw new Error("Can't connect crosspost account whilst logged out");
     }
     const result = await mutate({
-      variables: {
-        userId: currentUser._id,
-      },
+      variables: {token},
     });
     console.log("result", result);
   }
