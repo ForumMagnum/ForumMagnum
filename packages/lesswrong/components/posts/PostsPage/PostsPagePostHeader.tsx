@@ -5,11 +5,8 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { isClient, isServer } from '../../../lib/executionEnvironment';
+import { isServer } from '../../../lib/executionEnvironment';
 import HeadsetIcon from '@material-ui/icons/Headset';
-import NoSSR from '@material-ui/core/NoSsr';
-import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
-import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useCookies } from 'react-cookie';
 
 const SECONDARY_SPACING = 20
@@ -135,7 +132,7 @@ const PostsPagePostHeader = ({post, classes}: {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
-    PostsPodcastPlayer, NewFeatureTooltip} = Components;
+    PostsPodcastPlayer} = Components;
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookies();
