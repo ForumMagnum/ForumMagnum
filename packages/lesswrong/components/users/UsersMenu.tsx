@@ -82,6 +82,7 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
   
   return (
       <div className={classes.root} {...eventHandlers}>
@@ -138,14 +139,14 @@ const UsersMenu = ({classes}: {
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
-            <Link to={'/drafts'}>
+            {!isEAForum && <Link to={'/drafts'}>
               <MenuItem>
                 <ListItemIcon>
                   <EditIcon className={classes.icon}/>
                 </ListItemIcon>
                 My Drafts
               </MenuItem>
-            </Link>
+            </Link>}
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
               <MenuItem>
                 <ListItemIcon>
