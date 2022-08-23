@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import * as _ from 'underscore';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';

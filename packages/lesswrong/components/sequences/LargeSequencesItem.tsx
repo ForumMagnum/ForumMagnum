@@ -87,6 +87,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 125,
     objectFit: "cover"
   },
+  chapterTitle: {
+    fontSize: "1.25rem !important",
+    margin: "8px 0 -8px 0 !important",
+  },
   postIcon: {
     height: 12,
     width: 12,
@@ -143,7 +147,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, ContentItemBody, LWTooltip } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, SectionTitle, LWTooltip } = Components
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -151,7 +155,13 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
 
 
   const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
-  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
+  const [
+    totalWordCount,
+    totalReadTime,
+  ] = posts.reduce(([wordCount, readTime], curr) => ([
+    wordCount + (curr?.contents?.wordCount ?? 0),
+    readTime + (curr?.readTimeMinutes ?? 0),
+  ]), [0, 0]);
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
@@ -195,19 +205,15 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
-            <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+          <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
+            <div className={classes.wordcount}>{totalReadTime} min read</div>
           </LWTooltip>
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters?.flatMap(({posts, title, contents}) =>
-          <>
-            {showChapters && contents?.htmlHighlight && (
-              <ContentStyles contentType="postHighlight">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: title ?? contents.htmlHighlight}} />
-              </ContentStyles>
-            )}
+        {sequence.chapters?.flatMap(({posts, title}, index) =>
+          <React.Fragment key={index}>
+            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
@@ -215,7 +221,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
                 sequenceId={sequence._id}
               />
             ))}
-          </>
+          </React.Fragment>
         )}
       </div>
     </div>

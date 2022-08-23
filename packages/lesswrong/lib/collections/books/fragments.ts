@@ -19,7 +19,7 @@ registerFragment(`
       ...PostsList
     }
     collectionId
-    sequencesGridDisplay
+    displaySequencesAsGrid
     hideProgressBar
     showChapters
   }

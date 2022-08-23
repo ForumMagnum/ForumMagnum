@@ -4,6 +4,7 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
+const { zlib } = require("mz");
 
 const defaultServerPort = 3000;
 
@@ -72,12 +73,13 @@ const bundleDefinitions = {
   "serverPort": getServerPort(),
 };
 
+const clientOutfilePath = `./${outputDir}/client/js/bundle.js`;
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
   sourcemap: true,
-  outfile: `./${outputDir}/client/js/bundle.js`,
+  outfile: clientOutfilePath,
   minify: isProduction,
   banner: clientBundleBanner,
   treeShaking: "ignore-annotations",
@@ -92,6 +94,16 @@ build({
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
+      // Creating brotli compressed version of bundle.js to save on client download size:
+      const brotliOutfilePath = `${clientOutfilePath}.br`;
+      // Always delete compressed version if it exists, to avoid stale files
+      if (fs.existsSync(brotliOutfilePath)) {
+        fs.unlinkSync(brotliOutfilePath);
+      }
+      if (isProduction) {
+        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(clientOutfilePath, 'utf8')));
+      }
+
       latestCompletedBuildId = inProgressBuildId;
       initiateRefresh();
     }
@@ -132,7 +144,7 @@ build({
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql",
     "bcrypt", "node-pre-gyp", "@lesswrong", "intercom-client",
-    "fsevents", "chokidar",
+    "fsevents", "chokidar", "auth0",
   ],
 })
 

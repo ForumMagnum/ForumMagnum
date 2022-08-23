@@ -34,7 +34,7 @@ interface DbBook extends DbObject {
   number: number
   postIds: Array<string>
   sequenceIds: Array<string>
-  sequencesGridDisplay: boolean
+  displaySequencesAsGrid: boolean
   hideProgressBar: boolean
   showChapters: boolean
   contents: EditableFieldContents
@@ -355,6 +355,7 @@ interface DbPost extends DbObject {
   userId: string
   question: boolean
   authorIsUnreviewed: boolean
+  readTimeMinutesOverride: number
   submitToFrontpage: boolean
   hiddenRelatedQuestion: boolean
   originalPostRelationSourceId: string
@@ -524,6 +525,7 @@ interface ReportsCollection extends CollectionBase<DbReport, "Reports"> {
 interface DbReport extends DbObject {
   __collectionName?: "Reports"
   userId: string
+  reportedUserId: string
   commentId: string
   postId: string
   link: string
@@ -682,6 +684,7 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   description: EditableFieldContents
+  parentTagId: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -865,6 +868,7 @@ interface DbUser extends DbObject {
   sunshineFlagged: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
+  snoozedUntilContentCount: number
   reviewedByUserId: string
   reviewedAt: Date
   afKarma: number

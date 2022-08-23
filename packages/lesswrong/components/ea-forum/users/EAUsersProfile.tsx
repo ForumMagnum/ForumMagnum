@@ -3,8 +3,6 @@ import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { useLocation } from '../../../lib/routeUtil';
-import { useUpdate } from '../../../lib/crud/withUpdate';
-import { useMessages } from '../../common/withMessages';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -199,19 +197,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
-  reportUserSection: {
-    marginTop: 60
-  },
-  reportUserBtn: {
-    ...theme.typography.commentStyle,
-    background: 'none',
-    color: theme.palette.primary.main,
-    fontSize: 13,
-    padding: 0,
-    '&:hover': {
-      color: theme.palette.primary.dark,
-    }
-  },
 })
 
 const EAUsersProfile = ({terms, slug, classes}: {
@@ -219,11 +204,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   slug: string,
   classes: ClassesType,
 }) => {
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-  })
-
   const currentUser = useCurrentUser()
   
   const {loading, results} = useMulti({
@@ -277,18 +257,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
     skip: !user
   })
 
-  const { flash } = useMessages()
-  const reportUser = async () => {
-    if (!user) return
-    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
-    flash({messageString: "Your report has been sent to the moderators"})
-  }
-
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
-    RecentComments, SectionButton, SequencesGridWrapper } = Components
+    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton } = Components
 
   if (loading) {
     return <Loading/>
@@ -621,11 +594,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
       </SingleColumnSection>
 
-      {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
-        <SingleColumnSection className={classes.reportUserSection}>
-          <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
-        </SingleColumnSection>
-      }
+      <ReportUserButton user={user}/>
     </AnalyticsContext>
   </div>
 }

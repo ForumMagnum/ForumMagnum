@@ -77,13 +77,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     }
   },
-  desktop: {
+  hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
-      display: "none"
-    }
-  },
-  mobile: {
-    [theme.breakpoints.up('sm')]: {
       display: "none"
     }
   },
@@ -109,7 +104,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
 
   const { firstPost } = collection;
   
-  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`;
+  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookies([cookieName]);
 
   if (cookies[cookieName]) {
@@ -119,9 +114,14 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   const hideBanner = () => setCookie(
     cookieName,
     "true", {
-    expires: moment().add(30, 'days').toDate(),
+    expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
     path: "/"
   });
+
+  const description = <ContentItemBody
+    dangerouslySetInnerHTML={{__html: collection.summary}}
+    description={`sequence ${collection.id}`}
+  />
 
   return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
@@ -133,18 +133,9 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
           {collection.subtitle}
         </div>}
         <ContentStyles contentType="postHighlight" className={classes.description}>
-          <div className={classes.desktop}>
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: collection.summary}}
-              description={`sequence ${collection.id}`}
-            />
-          </div>
-          <div className={classes.mobile}>
-            {collection.mobileSummary && <ContentItemBody
-              dangerouslySetInnerHTML={{__html: collection.mobileSummary}}
-              description={`sequence ${collection.id}`}
-            />}
-          </div>
+          {collection.hideSummaryOnMobile ? <div className={classes.hideOnMobile}>
+            {description}
+          </div> : description}
         </ContentStyles>
         {firstPost && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost.postId}/>} tooltip={false}>

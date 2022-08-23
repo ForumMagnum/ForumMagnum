@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import moment from '../moment-timezone';
-import { isClient } from '../executionEnvironment';
 
 export interface TimeOverride {
   currentTime: Date|null;

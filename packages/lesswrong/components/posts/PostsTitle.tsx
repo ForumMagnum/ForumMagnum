@@ -5,7 +5,6 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { userHasBoldPostItems } from '../../lib/betas';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
 

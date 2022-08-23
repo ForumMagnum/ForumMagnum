@@ -13,7 +13,6 @@ import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import moment from '../../lib/moment-timezone';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';

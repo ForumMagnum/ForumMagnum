@@ -8,26 +8,84 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { CoreReadingCollection } from '../sequences/LWCoreReading';
+import { CuratedContent } from './CuratedContentItem';
 
-const sequenceHighlights: CoreReadingCollection = {
-  title: "The Sequences Highlights",
-  id: "NBDFAKt3GbFwnwzQF",
-  userId: "nmk3nLpQE89dMRzzN",
-  summary: `<div>How can we think better on purpose? Why should we think better on purpose?<br/>
-    Read up on the core concepts that underly the LessWrong community.
-    </div>`,
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660339717/coverimage-05_qvc8ca.png",
-  imageWidth: 200,
-  color: "#757AA7",
-  big: false,
-  url: "/highlights",
+// const sequenceHighlights: CuratedContent = {
+//   documentType: "Collection",
+//   document: {
+//     _id: "NBDFAKt3GbFwnwzQF",
+//     title: "The Sequences Highlights",
+//     slug: "highlights"
+//   },
+//   description: `<div>How can we think better on purpose? Why should we think better on purpose?<br/> Read up on the core concepts that underly the LessWrong community.
+//     </div>`,
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660339717/coverimage-05_qvc8ca.png",
+//   firstPost: {
+//     _id: "46qnWRSR7L2eyNbMA",
+//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+//     title: "The Lens That Sees Its Flaws"
+//   }
+// }
+
+// const multiagentmodels: CuratedContent = {
+//   documentType: "Sequence",
+//   document: {
+//     _id: "asdf1",
+//     title: "Multiagent Models of Mind",
+//   },
+//   description: "Can we think model the functioning of the brain into a number of subsystems, which communicate in part through the global neuronal workspace of consciousness.",
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660861487/DALL_E_2022-08-18_15.08.28_-_multiagent_models_of_mind_aquarelle_painting_by_Thomas_Schaller_as_digital_art_edited_j9bttt.png",
+//   firstPost: {
+//     _id: "46qnWRSR7L2eyNbMA",
+//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+//     title: "The Lens That Sees Its Flaws"
+//   }
+// }
+
+const replacingGuilt: CuratedContent = {
+  documentType: "Sequence",
+  document: {
+    _id: "pFatcKW3JJhTSxqAF",
+    title: "Replacing Guilt",
+  },
+  description: "A sequence about replacing guilt with other feelings and finding better ways to self-motivate, so that you can build a better future without falling apart in the process.",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660865781/DALL_E_2022-08-18_16.23.11_-_a_young_man_removing_the_guilt_from_his_heart_starry_sky_backdrop_on_a_white_background_aquarelle_painting_by_Thomas_Schaller_as_digital_art_-_edited_fga7cd.png",
   firstPost: {
-    postId: "46qnWRSR7L2eyNbMA",
-    postUrl: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-    postTitle: "The Lens That Sees Its Flaws"
+    _id: "ijYCZSQvgNeaQqcHN",
+    url: "/s/pFatcKW3JJhTSxqAF/p/ijYCZSQvgNeaQqcHN",
+    title: "Half-assing it with everything you've got"
   }
 }
+
+const babbleAndPrune: CuratedContent = {
+  documentType: "Sequence",
+  document: {
+    _id: "asdf3",
+    title: "Babble & Prune",
+  },
+  description: "Two Gods - Babble and Prune, Artist and Critic, Generator and Discriminator - are locked in eternal conflict over your mind. Only you, chosen hero, can restore the balance between these two ancient deities, and in doing so maximize your creative output.",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,g_east,w_1024,x_232/v1660868045/DALL_E_2022-08-18_17.04.09_-_a_pair_of_pruning_shears_next_to_giant_soap_bubbles_aquarelle_painting_by_Thomas_Schaller_and_Da_Vinci_as_digital_art_on_white_background_rdwrb8.png",
+  firstPost: {
+    _id: "46qnWRSR7L2eyNbMA",
+    url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+    title: "Babble"
+  }
+}
+
+// const cfarHandbook: CuratedContent = {
+//   documentType: "Sequence",
+//   document: {
+//     _id: "asdf4",
+//     title: "CFAR Handbook",
+//   },
+//   description: "The Center for Applied Rationality set out to develop simple, concrete concepts and techniques that could be applied to anyone's problems and goals.",
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660869601/DALL_E_2022-08-18_17.31.52_-_students_sitting_on_bean_bags_in_front_of_teacher_by_whiteboard_with_math_aquarelle_painting_by_JMW_Turner_-_edited2_zm0x5r.png",
+//   firstPost: {
+//     _id: "46qnWRSR7L2eyNbMA",
+//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
+//     title: "CFAR Handbook: Introduction"
+//   }
+// }
 
 export const curatedUrl = "/recommendations"
 
@@ -89,6 +147,13 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
       count: haveCurrentUser ? 3 : 5
     }
   }
+  if (forumTypeSetting.get() === "LessWrong") {
+    return {
+      lwRationalityOnly: true,
+      method: 'sample',
+      count: haveCurrentUser ? 3 : 2
+    }
+  }
   return {
     method: 'sample',
     count: haveCurrentUser ? 3 : 2
@@ -114,7 +179,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CollectionsItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CuratedContentItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -149,93 +214,98 @@ const RecommendationsAndCurated = ({
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
     return <SingleColumnSection className={classes.section}>
-      <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
-        <Link to={"/recommendations"}>Recommendations</Link>
-      </LWTooltip>}>
-        {currentUser &&
-          <LWTooltip title="Customize your recommendations">
-            <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
-          </LWTooltip>
-        }
-      </SectionTitle>
-
-      {showSettings &&
-        <RecommendationsAlgorithmPicker
-          configName={configName}
-          settings={frontpageRecommendationSettings}
-          onChange={(newSettings) => setSettings(newSettings)}
-        /> }
-
-      {isLW && <AnalyticsContext pageSectionContext="frontpageCuratedCollections">
-        <CollectionsItem collection={sequenceHighlights} showCloseIcon/>
-      </AnalyticsContext>}
-
-      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
-        {/* <div className={classes.largeScreenLoggedOutSequences}>
-          <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
-            <CuratedSequences />
-          </AnalyticsContext>
-        </div>
-        <div className={classes.smallScreenLoggedOutSequences}>
-          <ContinueReadingList continueReading={continueReading} />
-        </div> */}
-      </div>}
-
-      <div className={classes.subsection}>
-        <div className={classes.posts}>
-          {!settings.hideFrontpage && 
-            <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-              <RecommendationsList algorithm={frontpageRecommendationSettings} />
-            </AnalyticsContext>
+      <AnalyticsContext pageSectionContext="recommendations">
+        <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
+          <Link to={"/recommendations"}>Recommendations</Link>
+        </LWTooltip>}>
+          {currentUser &&
+            <LWTooltip title="Customize your recommendations">
+              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
+            </LWTooltip>
           }
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2
-              terms={{view:"curated", limit: currentUser ? 3 : 2}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              curatedIconLeft={true}
-            />
-          </AnalyticsContext>
-        </div>
-      </div>
+        </SectionTitle>
 
-      {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
-          <LWTooltip placement="top-start" title={continueReadingTooltip}>
-            <Link to={"/library"}>
-              <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
-                 Continue Reading
-              </SectionSubtitle>
-            </Link>
-          </LWTooltip>
-          <ContinueReadingList continueReading={continueReading} />
+        {showSettings &&
+          <RecommendationsAlgorithmPicker
+            configName={configName}
+            settings={frontpageRecommendationSettings}
+            onChange={(newSettings) => setSettings(newSettings)}
+          /> }
+
+        {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+          <CuratedContentItem content={replacingGuilt} />
+        </AnalyticsContext>}
+  
+        {/*Delete after the dust has settled on other Recommendations stuff*/}
+        {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
+        {/* <div className={classes.largeScreenLoggedOutSequences}>
+            <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+              <CuratedSequences />
+            </AnalyticsContext>
+          </div>
+          <div className={classes.smallScreenLoggedOutSequences}>
+            <ContinueReadingList continueReading={continueReading} />
+          </div> */}
         </div>}
 
-      {renderBookmarks && <div className={classes.subsection}>
-        <LWTooltip placement="top-start" title={bookmarksTooltip}>
-          <Link to={"/bookmarks"}>
-            <SectionSubtitle>
-              Bookmarks
-            </SectionSubtitle>
-          </Link>
-        </LWTooltip>
-        <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
-        </AnalyticsContext>
-      </div>}
-
-      {/* disabled except during review */}
-      {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
-        <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
-      </AnalyticsContext> */}
-
-      {/* disabled except during coronavirus times */}
-      {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
         <div className={classes.subsection}>
-          <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
+          <div className={classes.posts}>
+            {!settings.hideFrontpage && 
+              <AnalyticsContext listContext="frontpageFromTheArchives" pageSubSectionContext="frontpageFromTheArchives" capturePostItemOnMount>
+                <RecommendationsList algorithm={frontpageRecommendationSettings} />
+              </AnalyticsContext>
+            }
+            <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
+              <PostsList2
+                terms={{view:"curated", limit: currentUser ? 3 : 2}}
+                showNoResults={false}
+                showLoadMore={false}
+                hideLastUnread={true}
+                boxShadow={false}
+                curatedIconLeft={true}
+              />
+            </AnalyticsContext>
+          </div>
         </div>
-      </AnalyticsContext> */}
+
+        {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
+          <AnalyticsContext pageSubSectionContext="continueReading">
+            <LWTooltip placement="top-start" title={continueReadingTooltip}>
+              <Link to={"/library"}>
+                <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
+                  Continue Reading
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            <ContinueReadingList continueReading={continueReading} />
+          </AnalyticsContext>
+        </div>}
+
+        {renderBookmarks && <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="frontpageBookmarksList" listContext={"frontpageBookmarksList"} capturePostItemOnMount>
+            <LWTooltip placement="top-start" title={bookmarksTooltip}>
+              <Link to={"/bookmarks"}>
+                <SectionSubtitle>
+                  Bookmarks
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
+          </AnalyticsContext>
+        </div>}
+
+        {/* disabled except during review */}
+        {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
+          <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
+        </AnalyticsContext> */}
+
+        {/* disabled except during coronavirus times */}
+        {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
+          <div className={classes.subsection}>
+            <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
+          </div>
+        </AnalyticsContext> */}
+      </AnalyticsContext>
     </SingleColumnSection>
   }
 

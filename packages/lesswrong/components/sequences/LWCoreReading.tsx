@@ -20,7 +20,7 @@ export interface CoreReadingCollection {
   id: string,
   userId: string,
   summary: string,
-  mobileSummary?: string,
+  hideSummaryOnMobile?: boolean,
   imageId?: string,
   imageWidth?: number,
   imageUrl?: string,

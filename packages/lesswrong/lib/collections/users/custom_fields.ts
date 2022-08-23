@@ -7,7 +7,6 @@ import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
-import Tags from "../tags/collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
@@ -1160,7 +1159,7 @@ addFieldsDict(Users, {
     optional: true,
     ...schemaDefaultValue(false),
   },
-
+  // DEPRECATED in favor of snoozedUntilContentCount
   sunshineSnoozed: {
     type: Boolean,
     canRead: ['admins', 'sunshineRegiment'],
@@ -1168,6 +1167,13 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  snoozedUntilContentCount: {
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does
