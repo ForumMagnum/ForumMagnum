@@ -30,7 +30,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
   const token = "THE_TOKEN";
 
   const onClickLogin = () => {
-    window.open(`http://localhost:4000/crosspostLogin?token=${token}`, "_blank").focus();
+    window.open(`http://localhost:4000/crosspostLogin?token=${token}`, "_blank")?.focus();
   }
 
   return (
