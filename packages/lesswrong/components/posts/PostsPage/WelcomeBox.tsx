@@ -1,6 +1,5 @@
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
-import moment from 'moment';
 import React, { ComponentProps } from 'react';
 import { useCookies } from 'react-cookie';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';

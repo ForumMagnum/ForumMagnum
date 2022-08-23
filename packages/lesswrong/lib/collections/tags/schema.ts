@@ -10,15 +10,7 @@ import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
-
-const formGroups: Partial<Record<string,FormGroup>> = {
-  advancedOptions: {
-    name: "advancedOptions",
-    order: 20,
-    label: "Advanced Options",
-    startCollapsed: true,
-  },
-};
+import { formGroups } from './formGroups';
 
 addGraphQLSchema(`
   type TagContributor {

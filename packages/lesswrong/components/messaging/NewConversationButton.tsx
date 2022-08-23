@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import Conversations, { userCanStartConversations } from '../../lib/collections/conversations/collection';
