@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '@material-ui/core/Button';
+import type { Advisor } from './AdvisorCard';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     fontWeight: 600,
     padding: '6px 10px',
-    borderRadius: '3px 9px 3px 3px',
+    borderRadius: 3,
     marginTop: 8
   },
   headline: {
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 14,
     lineHeight: '24px',
-    marginTop: 20
+    marginTop: 16
   },
   bold: {
     fontWeight: 600,
@@ -76,11 +77,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 22,
     fontWeight: 700,
     marginTop: 30,
+    marginBottom: 14
   },
   advisors: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(212px, 1fr))',
-    padding: '30px 10px',
+    padding: '35px 10px',
     columnGap: 20,
     rowGap: '30px',
     borderTop: `2px solid ${theme.palette.primary.main}`,
@@ -100,13 +102,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const advisors = [
+const advisors: Array<Advisor> = [
   {
     profileImageId: 'v1661205655/advisors/1605745710517.jpg',
     name: 'Ryan Teo',
     jobTitle: 'Political Affairs Intern',
     organization: 'UN Biological Weapons Convention',
-    location: 'United Kingdom',
+    location: 'London / Singapore',
     linkedinProfileSlug: 'teojcryan',
     twitterProfileSlug: 'teojcryan',
     website: 'teojcryan.com',
@@ -127,6 +129,34 @@ const advisors = [
       'PhD/masters options and applications',
     ]
   }, {
+    profileImageId: 'v1661272032/advisors/1645151898861_-_Ryan_Duncombe.jpg',
+    name: 'Ryan Duncombe',
+    jobTitle: 'Scientist',
+    organization: 'Alvea',
+    location: 'San Francisco, CA, USA',
+    linkedinProfileSlug: 'ryan-duncombe',
+    askMeAbout: [
+      'GCBRs',
+      'Graduate school',
+      'Immunology',
+      'Vaccines',
+    ]
+  }, {
+    profileImageId: 'v1661205259/advisors/729C728E-6348-4CDE-99BA-171A0A123F1B_1_105_c_-_Noga_Aharony.jpg',
+    name: 'Noga Aharony',
+    jobTitle: 'PhD Student',
+    organization: 'Columbia University',
+    location: 'New York City, USA',
+    linkedinProfileSlug: 'nogaaharony',
+    twitterProfileSlug: 'nongiga',
+    website: 'noga.science',
+    askMeAbout: [
+      'Metagenomics & microbiology',
+      'Machine learning & algorithms in biology',
+      'Graduate school & applying',
+      'Working at the Center for Health Security',
+    ]
+  }, {
     profileImageId: 'v1661205262/advisors/Screen_Shot_2022-06-02_at_6.35.17_AM_-_Adin_Richards.png',
     name: 'Adin Richards',
     jobTitle: 'Biosecurity Fellow',
@@ -138,35 +168,6 @@ const advisors = [
       'Organizing university discussion groups',
       'Policy research',
       'Pandemic preparedness (e.g. continuity of operation plans, critical infrastructure resilience)',
-    ]
-  }, {
-    profileImageId: 'v1661205259/advisors/729C728E-6348-4CDE-99BA-171A0A123F1B_1_105_c_-_Noga_Aharony.jpg',
-    name: 'Noga Aharony',
-    jobTitle: 'PhD Student',
-    organization: 'Columbia University',
-    location: 'New York, USA',
-    linkedinProfileSlug: 'nogaaharony',
-    twitterProfileSlug: 'nongiga',
-    website: 'noga.science',
-    askMeAbout: [
-      'Metagenomics & microbiology',
-      'Machine learning & algorithms in biology',
-      'Graduate school & applying',
-      'Working at the Center for Health Security',
-    ]
-  }, {
-    profileImageId: 'v1661205260/advisors/dan_headshot_2_cropped_-_Daniel_Greene.png',
-    name: 'Dan Greene',
-    jobTitle: 'Postdoctoral Scholar',
-    organization: 'Stanford University',
-    location: 'Santa Cruz, CA, USA',
-    linkedinProfileSlug: 'daniel-greene-725ab258',
-    website: 'danielgreene.net',
-    askMeAbout: [
-      'Laboratory biorisk management',
-      'DURC policy',
-      'Social-science applications to biosecurity',
-      'Risk management training',
     ]
   }, {
     profileImageId: 'v1661205260/advisors/241668439_368152568131819_8579005214601011924_n_3_-_Oliver_Crook.jpg',
@@ -182,6 +183,20 @@ const advisors = [
       'Applying for research positions',
       'Academia',
       'Genetic engineering',
+    ]
+  }, {
+    profileImageId: 'v1661205260/advisors/dan_headshot_2_cropped_-_Daniel_Greene.png',
+    name: 'Dan Greene',
+    jobTitle: 'Postdoctoral Scholar',
+    organization: 'Stanford University',
+    location: 'Santa Cruz, CA, USA',
+    linkedinProfileSlug: 'daniel-greene-725ab258',
+    website: 'danielgreene.net',
+    askMeAbout: [
+      'Laboratory biorisk management',
+      'DURC policy',
+      'Social-science applications to biosecurity',
+      'Risk management training',
     ]
   },
 ]
@@ -270,7 +285,7 @@ const AdvisorsPage = ({classes}: {
               Interested in using your career to
               mitigate <a href="https://80000hours.org/problem-profiles/preventing-catastrophic-pandemics/" target="_blank" rel="noopener noreferrer" className={classes.link}>
                 global catastrophic biological risks
-              </a>? Get some personalized advice from a professional in this field.
+              </a>? Get some personalized advice from someone working in the field.
             </span>
           </div>
           <div className={classes.descriptionRow}>
@@ -279,12 +294,12 @@ const AdvisorsPage = ({classes}: {
           </div>
           <div className={classes.descriptionRow}>
             This service is free, and you don't have to have any prior experience in the field to use it.
-            Advisors have limited time so we will priortize advisees based on their background and stated interest.
+            Advisors have limited time so we will prioritize advisees based on their background and stated interest.
           </div>
           <div className={classes.descriptionRow}>
             <span className={classes.italic}>
               We are currently testing out this service in beta mode - we'll ask for your feedback after the
-              call. <a href="/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+              call. <a href="/posts/5rdwbfEAPoXtukvk3/get-advice-from-a-biosecurity-professional" target="_blank" rel="noopener noreferrer" className={classes.link}>
                 You can find additional information and an FAQ here.
               </a>
             </span>

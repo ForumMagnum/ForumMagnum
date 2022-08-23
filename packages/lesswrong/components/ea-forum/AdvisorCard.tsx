@@ -72,18 +72,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+export type Advisor = {
+  profileImageId: string,
+  name: string,
+  jobTitle: string,
+  organization: string,
+  location: string,
+  linkedinProfileSlug: string,
+  twitterProfileSlug?: string,
+  website?: string,
+  askMeAbout: Array<string>,
+}
+
 const AdvisorCard = ({user, classes}: {
-  user: {
-    profileImageId: string,
-    name: string,
-    jobTitle: string,
-    organization: string,
-    location: string,
-    linkedinProfileSlug: string,
-    twitterProfileSlug?: string,
-    website?: string,
-    askMeAbout: Array<string>,
-  },
+  user: Advisor,
   classes: ClassesType,
 }) => {
   const { CloudinaryImage2, ContentStyles, Typography } = Components
