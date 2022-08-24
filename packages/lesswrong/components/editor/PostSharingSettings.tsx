@@ -12,6 +12,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import { moderationEmail } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -211,7 +212,10 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
-      <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email us at team@lesswrong.com if you experience issues</p>
+      <p className={classes.warning}>
+        Collaborative Editing features are in beta. Message us on Intercom or email us at{' '}
+        {moderationEmail.get()} if you experience issues
+      </p>
 
       <div className={classes.buttonRow}>
         {(sharingSettings.anyoneWithLinkCan!=="none" && postId)
