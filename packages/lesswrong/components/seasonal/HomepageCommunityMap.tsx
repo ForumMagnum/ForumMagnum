@@ -3,6 +3,7 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
+import {useLocation} from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,6 +18,9 @@ export const HomepageCommunityMap = ({classes}: {
 }) => {
   const { CommunityMapWrapper } = Components
 
+  const { location } = useLocation()
+  const currentRoute = location.currentRoute
+  
   const currentUser = useCurrentUser()
   const currentUserLocation = useUserLocation(currentUser)
   const mapEventTerms: PostsViewTerms = {
@@ -24,7 +28,7 @@ export const HomepageCommunityMap = ({classes}: {
     filters: [],
   }
 
-  if (forumTypeSetting.get() !== "LessWrong") return null
+  if ((forumTypeSetting.get() !== "LessWrong") || (currentRoute?.name !=='home')) return null
 
   return <div className={classes.root}>
     <CommunityMapWrapper
