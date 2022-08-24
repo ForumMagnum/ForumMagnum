@@ -1,9 +1,9 @@
 import React from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useLocation } from '../../lib/routeUtil';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import {useLocation} from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,8 +18,7 @@ export const HomepageCommunityMap = ({classes}: {
 }) => {
   const { CommunityMapWrapper } = Components
 
-  const { location } = useLocation()
-  const currentRoute = location.currentRoute
+  const { currentRoute } = useLocation()
   
   const currentUser = useCurrentUser()
   const currentUserLocation = useUserLocation(currentUser)
