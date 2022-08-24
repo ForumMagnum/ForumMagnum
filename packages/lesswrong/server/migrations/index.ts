@@ -5,8 +5,7 @@
 
 // to run a migration, first start a server, 
 // then execute the following in a terminal for each migration you wish to run:
-// scripts/serverShellCommand.sh Global.migrations.nameOfMigration()
-// note that if you're using Windows or WSL, you'll need to wrap the second part in quotes.
+// scripts/serverShellCommand.sh "Globals.migrations.nameOfMigration()"
 
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';
@@ -98,3 +97,4 @@ import './2022-07-07-allowMultipleVoteAuthors'
 import './2022-07-07-removeVoteAuthorId'
 import './2022-07-19-makeRelativeUrlsAbsolute'
 import './2022-08-11-snoozeUntilContentCount'
+import './2022-08-22-defaultCommentIsPinnedOnProfileFill'

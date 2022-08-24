@@ -410,7 +410,33 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
-  
+
+  // By default, the read time for a post is calculated automatically from the word count.
+  // Sometimes this incorrect (often due to link posts, videos, etc.) so it can be overridden
+  // manually by setting this field.
+  readTimeMinutesOverride: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+    control: 'FormComponentNumber',
+    label: 'Read time (minutes)',
+    tooltip: 'By default, this is calculated from the word count. Enter a value to override.',
+  },
+  readTimeMinutes: resolverOnlyField({
+    type: Number,
+    viewableBy: ['guests'],
+    resolver: ({readTimeMinutesOverride, contents}: DbPost) =>
+      Math.max(
+        1,
+        Math.round(typeof readTimeMinutesOverride === "number"
+          ? readTimeMinutesOverride
+          : (contents?.wordCount ?? 0) / 250)
+      ),
+  }),
+
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
