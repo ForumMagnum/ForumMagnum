@@ -211,6 +211,8 @@ const RecommendationsAndCurated = ({
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
+    const renderRecommendations = !settings.hideFrontpage && forumTypeSetting.get() !== "LessWrong" // temporarily hiding from LessWrong during ACX Everywhere season
+
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
     return <SingleColumnSection className={classes.section}>
@@ -250,7 +252,7 @@ const RecommendationsAndCurated = ({
 
         <div className={classes.subsection}>
           <div className={classes.posts}>
-            {!settings.hideFrontpage && 
+            {renderRecommendations && 
               <AnalyticsContext listContext="frontpageFromTheArchives" pageSubSectionContext="frontpageFromTheArchives" capturePostItemOnMount>
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
