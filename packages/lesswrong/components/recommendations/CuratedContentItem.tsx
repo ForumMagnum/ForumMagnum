@@ -9,7 +9,7 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import {useTracking} from "../../lib/analyticsEvents";
 
-type CuratedContentDocType = "Sequence"|"Collection"
+type CuratedContentDocType = "Sequence"|"Collection"|"Post"
 
 export interface CuratedContent {
   documentType: CuratedContentDocType,
@@ -110,6 +110,8 @@ const getUrlFromDocument = (document: any, documentType: CuratedContentDocType) 
       return `/s/${document._id}`;
     case "Collection":
       return `/${document.slug}`
+    case "Post":
+      return `/posts/${document._id}/${document.slug}`
   }
 }
 
