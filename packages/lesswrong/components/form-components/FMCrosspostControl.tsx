@@ -41,7 +41,10 @@ const FMCrosspostView = ({fmCrosspostUserId, loading, onClickLogin, classes}: {
 
   if (fmCrosspostUserId) {
     return (
-      <p>{fmCrosspostUserId}</p>
+      <div>
+        This post will be crossposted to {fmCrosspostSiteNameSetting.get()} on
+        your account with user ID &quot;{fmCrosspostUserId}&quot;
+      </div>
     );
   }
 
@@ -77,7 +80,6 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
 
   useOnTabView(() => {
     if (!document?.fmCrosspostUserId) {
-      console.log("refetching");
       refetch();
     }
   });
