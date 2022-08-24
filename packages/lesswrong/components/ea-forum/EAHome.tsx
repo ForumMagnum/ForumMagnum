@@ -1,5 +1,4 @@
 import React from 'react'
-import { userHasEAHomeHandbook } from '../../lib/betas'
 import { PublicInstanceSetting } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'

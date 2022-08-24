@@ -3,7 +3,6 @@ import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { useLocation } from '../../../lib/routeUtil';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -440,7 +439,10 @@ const EAUsersProfile = ({terms, slug, classes}: {
       label: 'Comments',
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
-        <RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
+        <RecentComments
+          terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          showPinnedOnProfile
+        />
       </AnalyticsContext>
     })
   }

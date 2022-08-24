@@ -14,6 +14,7 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { StickyIcon } from '../../posts/PostsTitle';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -102,6 +103,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit/2
   },
+  pinnedIcon: {
+    color: theme.palette.grey[400],
+    paddingTop: 10,
+    marginBottom: '-3px'
+  },
   postTitle: {
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
@@ -119,10 +125,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
-  }
+  },
+  titleRow: {
+    display: 'flex',
+    columnGap: 8,
+  },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -134,6 +144,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   toggleCollapse?: ()=>void,
   setSingleLine?: (boolean)=>void,
   truncated: boolean,
+  showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
   classes: ClassesType,
 }) => {
@@ -295,26 +306,31 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             />
           </div>
         )}
+        
+        <div className={classes.titleRow}>
+          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
+            <StickyIcon />
+          </div>}
 
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-              {comment.post.draft && "[Draft] "}
-              {comment.post.title}
-            </Link>
-          </LWTooltip>}
-        {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
-
-        <div className={classes.body}>
-          <div className={classes.meta}>
-            { !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            {post && <CommentShortformIcon comment={comment} post={post} />}
-            { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment}
-                active={showParentState}
-                onClick={toggleShowParent}
+          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                {comment.post.draft && "[Draft] "}
+                {comment.post.title}
+              </Link>
+            </LWTooltip>}
+          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+        </div>
+          <div className={classes.body}>
+            <div className={classes.meta}>
+              { !parentCommentId && !comment.parentCommentId && isParentComment &&
+                <div className={classes.usernameSpacing}>○</div>
+              }
+              {post && <CommentShortformIcon comment={comment} post={post} />}
+              { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+                <ShowParentComment
+                  comment={comment}
+                  active={showParentState}
+                  onClick={toggleShowParent}
               />
             }
             { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
