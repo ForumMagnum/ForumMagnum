@@ -10,6 +10,22 @@ const HideRepeatedPostsContext = createContext<HideRepeatedPostsPayload>({
   addPost: (ownerId: string, postId: string) => {},
 });
 
+/**
+ * Internally, we assign a random ID (which is stable between renders) to each
+ * list component. When a post is rendered, the ID of it's parent list is
+ * memoized as it's "owner" in the provider. Any post that is already "owned"
+ * inside the provider is skipped (see usage in PostsList2). In subsequent
+ * renders, a post is shown iff it is being displayed by it's original
+ * "owner" from the initial render.
+ *
+ * Components can implement this functionality by doing something like:
+ * const {isPostRepeated, addPost} = useHideRepeatedPosts();
+ * ...
+ * if (!isPostRepeated(postId)) {
+ *   addPost(postId);
+ *   return renderPost(postId);
+ * }
+ */
 export const useHideRepeatedPosts = () => {
   const id = useRef("hrp" + Math.floor(Math.random() * 1e8));
   const {isPostRepeated, addPost} = useContext(HideRepeatedPostsContext);
@@ -19,6 +35,14 @@ export const useHideRepeatedPosts = () => {
   };
 }
 
+/**
+ * This provider can be used to wrap an arbitrary number of posts
+ * lists, making sure that no post is ever repeated between them.
+ *
+ * This is automatically handled in the PostsList2 component, and
+ * can be easily implemented in other components with the
+ * useHideRepeatedPosts hook
+ */
 export const HideRepeatedPostsProvider = ({children}) => {
   const postIds: Record<string, string> = {};
 
