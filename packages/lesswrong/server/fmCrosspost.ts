@@ -187,7 +187,10 @@ export const addCrosspostRoutes = (app: Application) => {
   app.post(crosspostApiRoute, onCrosspostRequest);
 }
 
-export const performCrosspost = async (post: DbPost): Promise<DbPost> => {
+export const performCrosspost = (post: DbPost): DbPost => {
+  return post;
+}
+export const performCrosspost1 = async (post: DbPost): Promise<DbPost> => {
   if (!post.fmCrosspost || !post.userId || post.draft) {
     return post;
   }
@@ -196,6 +199,8 @@ export const performCrosspost = async (post: DbPost): Promise<DbPost> => {
   if (!isCrosspost || !hostedHere || foreignPostId) {
     return post;
   }
+
+  console.log("POST", post);
 
   const user = await Users.findOne({_id: post.userId});
   if (!user || !user.fmCrosspostUserId) {

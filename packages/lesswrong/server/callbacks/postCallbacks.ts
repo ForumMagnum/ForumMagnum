@@ -283,4 +283,14 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
 });
 
 getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
-getCollectionHooks("Posts").updateBefore.add((post: DbPost, {document}: UpdateCallbackProperties<DbPost>) => performCrosspost(document));
+/**
+ * updateBefore only gets (and should return) a partial DbPost with the fields being updated, but we
+ * still need to make sure that we're passing in the important fields that we need to make a crosspost
+ */
+getCollectionHooks("Posts").updateBefore.add((data: Partial<DbPost>, {document}: UpdateCallbackProperties<DbPost>) =>
+  performCrosspost({
+    _id: document._id,
+    title: document.title,
+    userId: document.userId,
+    ...data,
+  }));
