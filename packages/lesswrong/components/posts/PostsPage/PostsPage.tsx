@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -6,7 +6,7 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
@@ -15,6 +15,7 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
+import { useCookies } from 'react-cookie';
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -126,8 +127,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
   headerImage: {
     width: '100vw',
     maxWidth: 682,
-  }
+  },
+  hideEmbeddedPlayer: {
+    display: "none"
+  },
 })
+
+const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
@@ -137,6 +143,26 @@ const PostsPage = ({post, refetch, classes}: {
   const location = useLocation();
   const currentUser = useCurrentUser();
   const { recordPostView } = useRecordPostView(post);
+
+  const { captureEvent } = useTracking();
+  const [cookies, setCookie] = useCookies();
+
+  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
+
+  // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+
+  const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
+    const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    captureEvent("toggleAudioPlayer", { action });
+    setCookie(
+      SHOW_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
+    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+  } : undefined;
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
   
@@ -158,7 +184,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
+    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
 
   useEffect(() => {
     recordPostView({
@@ -216,7 +242,7 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post}/>
+        <PostsPagePostHeader post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -234,6 +260,9 @@ const PostsPage = ({post, refetch, classes}: {
     >
       <div className={classes.centralColumn}>
         {/* Body */}
+        {post.podcastEpisode && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} />
+        </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         <ContentStyles contentType="post" className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>

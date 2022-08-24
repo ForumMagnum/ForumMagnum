@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import { useCookies } from 'react-cookie';
 
 const SECONDARY_SPACING = 20
 
@@ -57,8 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   togglePodcastIcon: {
     marginRight: SECONDARY_SPACING,
     verticalAlign: 'middle',
-    color: theme.palette.icon.dim600,
-    // color: theme.palette.primary.main,
+    color: theme.palette.primary.main,
     height: '24px'
   },
   actions: {
@@ -89,9 +87,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'
   },
-  hideEmbeddedPlayer: {
-    display: "none"
-  },
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -121,45 +116,24 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, classes}: {
+const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  toggleEmbeddedPlayer?: () => void,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
-    PostsPodcastPlayer} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
 
-  const { captureEvent } = useTracking();
-  const [cookies, setCookie] = useCookies();
-
-  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
-
-  // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
-  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-
-  const toggleEmbeddedPlayer = () => {
-    const action = showEmbeddedPlayer ? "close" : "open";
-    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
-    captureEvent("toggleAudioPlayer", { action });
-    setCookie(
-      SHOW_PODCAST_PLAYER_COOKIE,
-      newCookieValue, {
-      path: "/"
-    });
-    setShowEmbeddedPlayer(!showEmbeddedPlayer);
-  };
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
-  const { podcastEpisode } = post
   const readTime = post.readTimeMinutes ?? 1
 
   return <>
@@ -193,7 +167,7 @@ const PostsPagePostHeader = ({post, classes}: {
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
-          {podcastEpisode && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+          {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
             <a href="#" onClick={toggleEmbeddedPlayer}>
               <VolumeUpIcon />
             </a>
@@ -212,9 +186,6 @@ const PostsPagePostHeader = ({post, classes}: {
         <PostsVote post={post} />
       </div>}
     </div>
-    {podcastEpisode && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-      <PostsPodcastPlayer podcastEpisode={podcastEpisode} />
-    </div>}
     {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
