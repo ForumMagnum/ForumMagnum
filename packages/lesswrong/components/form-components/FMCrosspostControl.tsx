@@ -30,15 +30,14 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
   currentUser: UsersCurrent,
 }) => {
   const {isCrosspost} = value ?? {};
-
   const [token, setToken] = useState("");
-  console.log("token", token);
 
   useEffect(() => {
     const callback = async () => {
+      // TODO: Error handling here
       const result = await fetch("/api/crosspostToken");
-      const json = await result.json();
-      setToken(json.token);
+      const {token} = await result.json();
+      setToken(token);
     }
     void callback();
   }, []);

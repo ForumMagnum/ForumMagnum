@@ -51,7 +51,7 @@ const crosspostResolvers = {
           fmCrosspostUserId: foreignUserId,
         },
       });
-      return "Successfully connected crosspost account";
+      return "success";
     },
   },
 };
