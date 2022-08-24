@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
@@ -12,7 +12,6 @@ import TextField from "@material-ui/core/TextField";
 import Button from '@material-ui/core/Button';
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
-import { useAsyncEffect } from "../common/withAsyncEffect";
 import { useOnTabView } from "../common/withOnTabView";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -72,11 +71,14 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     notifyOnNetworkStatusChange: true,
   });
 
-  useAsyncEffect(async () => {
-    // TODO: Error handling here
-    const result = await fetch("/api/crosspostToken");
-    const {token} = await result.json();
-    setToken(token);
+  useEffect(() => {
+    const getToken = async () => {
+      // TODO: Error handling here
+      const result = await fetch("/api/crosspostToken");
+      const {token} = await result.json();
+      setToken(token);
+    }
+    void getToken();
   }, []);
 
   useOnTabView(() => {

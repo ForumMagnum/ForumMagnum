@@ -56,7 +56,7 @@ const CrosspostLoginPage = ({classes}: {
       window.close();
     } else {
       // TODO: Proper error handling
-      console.error("Error:", result);
+      alert(`Error: ${JSON.stringify(result)}`);
     }
   }
 

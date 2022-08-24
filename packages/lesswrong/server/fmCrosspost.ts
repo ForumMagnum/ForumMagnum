@@ -1,7 +1,6 @@
 import { DatabaseServerSetting } from "./databaseSettings";
-import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from "../lib/vulcan-lib";
+import { Utils, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from "../lib/vulcan-lib";
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
-import { Utils } from '../lib/vulcan-lib';
 import Users from "../lib/collections/users/collection";
 import Posts from "../lib/collections/posts/collection";
 import fetch from "node-fetch";

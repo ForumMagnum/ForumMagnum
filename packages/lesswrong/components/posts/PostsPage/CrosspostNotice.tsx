@@ -28,7 +28,7 @@ const CrosspostNotice = ({post, classes}: {
 
   return (
     <div className={classes.root}>
-      <a href={href} target="_blank">
+      <a href={href} target="_blank" rel="noreferrer">
         <LWTooltip title={tip}>
           <TransformIcon fontSize="inherit" />
         </LWTooltip>
