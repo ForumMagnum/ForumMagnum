@@ -54,18 +54,6 @@ registerFragment(`
     commentsLocked
     commentsLockedToAccountsCreatedAfter
 
-    # does this go here??? *voiceless screaming*
-    podcastEpisode {
-      title
-      podcast {
-        title
-        applePodcastLink
-        spotifyPodcastLink
-      }
-      episodeLink
-      externalEpisodeId
-    }
-
     # questions
     question
     hiddenRelatedQuestion
@@ -275,6 +263,18 @@ registerFragment(`
     canonicalCollection {
       _id
       title
+    }
+
+    # Podcast
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
     }
 
     # Moderation stuff

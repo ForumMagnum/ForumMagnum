@@ -4,10 +4,17 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { isClient } from '../../../lib/executionEnvironment';
+import { useCurrentUser } from '../../common/withUser';
+import { getThemeOptions, isValidSerializedThemeOptions } from '../../../themes/themeNames';
+import { useCookies } from 'react-cookie';
+import classNames from 'classnames';
 
 const styles = (): JssStyles => ({
   embeddedPlayer: {
     marginBottom: '2px'
+  },
+  playerDarkMode: {
+    opacity: 0.85
   },
   podcastIconList: {
     paddingLeft: '0px',
@@ -20,9 +27,16 @@ const styles = (): JssStyles => ({
 });
 
 const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
-  podcastEpisode: PostsBase_podcastEpisode,
+  podcastEpisode: PostsDetails_podcastEpisode,
   classes: ClassesType
 }) => {
+  const currentUser = useCurrentUser();
+  const [cookies] = useCookies();
+  const themeCookie = cookies['theme'];
+
+  const themeOptions = getThemeOptions(themeCookie, currentUser);
+  const isDarkMode = themeOptions.name === 'dark';
+
   const embedScriptFunction = (src: string, clientDocument: Document) => <>{
     ((doc) => {
       const playerScript = doc.getElementById('buzzsproutPlayerScript');
@@ -38,7 +52,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
   return <>
     <div
       id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
-      className={classes.embeddedPlayer}
+      className={classNames(classes.embeddedPlayer, { [classes.playerDarkMode]: isDarkMode })}
     />
     {isClient && <NoSSR>
       {embedScriptFunction(podcastEpisode.episodeLink, document)}

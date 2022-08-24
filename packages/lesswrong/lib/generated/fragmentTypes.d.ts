@@ -384,7 +384,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
-  readonly podcastEpisode: PostsBase_podcastEpisode|null,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -446,19 +445,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
-}
-
-interface PostsBase_podcastEpisode { // fragment on PodcastEpisodes
-  readonly title: string,
-  readonly podcast: PostsBase_podcastEpisode_podcast,
-  readonly episodeLink: string,
-  readonly externalEpisodeId: string,
-}
-
-interface PostsBase_podcastEpisode_podcast { // fragment on Podcasts
-  readonly title: string,
-  readonly applePodcastLink: string | null,
-  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -549,6 +535,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSequence: PostsDetails_canonicalSequence|null,
   readonly canonicalBook: PostsDetails_canonicalBook|null,
   readonly canonicalCollection: PostsDetails_canonicalCollection|null,
+  readonly podcastEpisode: PostsDetails_podcastEpisode|null,
   readonly showModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
@@ -582,6 +569,19 @@ interface PostsDetails_canonicalBook { // fragment on Books
 interface PostsDetails_canonicalCollection { // fragment on Collections
   readonly _id: string,
   readonly title: string,
+}
+
+interface PostsDetails_podcastEpisode { // fragment on PodcastEpisodes
+  readonly title: string,
+  readonly podcast: PostsDetails_podcastEpisode_podcast,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
@@ -1866,6 +1866,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
       onlyUnread: boolean,
     },
   },
+  readonly theme: string,
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
