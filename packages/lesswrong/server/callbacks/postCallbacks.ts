@@ -12,6 +12,7 @@ import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties 
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { performCrosspost } from "../fmCrosspost";
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -280,3 +281,6 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
   }
   return post;
 });
+
+getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
+getCollectionHooks("Posts").updateBefore.add((post: DbPost) => performCrosspost(post));

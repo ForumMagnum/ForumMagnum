@@ -110,3 +110,18 @@ export const onConnectCrossposterRequest = async (req: Request, res: Response) =
     res.status(403).send("Unauthorized");
   }
 }
+
+export const performCrosspost = async (post: DbPost): Promise<DbPost> => {
+  if (!post.fmCrosspost) {
+    return post;
+  }
+
+  const {isCrosspost, hostedHere, foreignPostId} = post.fmCrosspost;
+  if (!isCrosspost || !hostedHere || foreignPostId) {
+    return post;
+  }
+
+  // TODO: Send the post to the foreign server
+
+  return post;
+}
