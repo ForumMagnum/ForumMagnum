@@ -97,3 +97,5 @@ import './2022-07-07-removeVoteAuthorId'
 import './2022-07-19-makeRelativeUrlsAbsolute'
 import './2022-08-11-snoozeUntilContentCount'
 import './2022-08-22-defaultCommentIsPinnedOnProfileFill'
+import './2022-08-24-importACXMeetups2022'
+
