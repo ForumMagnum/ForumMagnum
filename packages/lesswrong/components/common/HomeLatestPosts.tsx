@@ -10,6 +10,7 @@ import moment from '../../lib/moment-timezone';
 import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
+import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -46,7 +47,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -94,14 +95,17 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </span>
           </AnalyticsContext>
         </div>
-        <AnalyticsContext listContext={"latestPosts"}>
-          {/* Allow hiding posts from the front page*/}
-          <AllowHidingFrontPagePostsContext.Provider value={true}>
-            <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
-              <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-            </PostsList2>
-          </AllowHidingFrontPagePostsContext.Provider>
-        </AnalyticsContext>
+        <HideRepeatedPostsProvider>
+          {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
+          <AnalyticsContext listContext={"latestPosts"}>
+            {/* Allow hiding posts from the front page*/}
+            <AllowHidingFrontPagePostsContext.Provider value={true}>
+              <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+                <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+              </PostsList2>
+            </AllowHidingFrontPagePostsContext.Provider>
+          </AnalyticsContext>
+        </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>
   )

@@ -187,6 +187,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    readTimeMinutes
     moderationGuidelines {
       _id
       html
@@ -419,6 +420,7 @@ registerFragment(`
     linkSharingKey
     version
     coauthorStatuses
+    readTimeMinutesOverride
     moderationGuidelines {
       ...RevisionEdit
     }
