@@ -198,6 +198,19 @@ const advisors: Array<Advisor> = [
       'Social-science applications to biosecurity',
       'Risk management training',
     ]
+  }, {
+    profileImageId: 'v1661379536/advisors/1653408925284_-_Simon_Grimm.jpg',
+    name: 'Simon Grimm',
+    jobTitle: 'Visiting Researcher',
+    organization: 'MIT Media Lab, Nucleic Acid Observatory',
+    location: 'Cambridge, MA, USA',
+    linkedinProfileSlug: 'simon-grimm-7962311a8',
+    twitterProfileSlug: 'simon__Grimm',
+    askMeAbout: [
+      'Biosecurity / Biomonitoring / DURC policy',
+      'Career steps after graduation',
+      'Thinking through the merits of different biosecurity interventions',
+    ]
   },
 ]
 
