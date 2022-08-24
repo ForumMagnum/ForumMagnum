@@ -283,4 +283,4 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
 });
 
 getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
-getCollectionHooks("Posts").updateBefore.add((post: DbPost) => performCrosspost(post));
+getCollectionHooks("Posts").updateBefore.add((post: DbPost, {document}: UpdateCallbackProperties<DbPost>) => performCrosspost(document));
