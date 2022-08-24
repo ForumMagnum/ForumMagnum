@@ -24,17 +24,15 @@ const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
   classes: ClassesType
 }) => {
   const embedScriptFunction = (src: string, clientDocument: Document) => <>{
-    function(d) {
-      const x = d.getElementById('buzzsproutPlayerScript');
-      if (x) x.parentNode?.removeChild(x);
-      const s=d.createElement('script');
-      d.head.appendChild((
-        s.async=true,
-        s.src=src,
-        s.id='buzzsproutPlayerScript',
-        s
-      ));
-    }(clientDocument)
+    ((doc) => {
+      const playerScript = doc.getElementById('buzzsproutPlayerScript');
+      if (playerScript) playerScript.parentNode?.removeChild(playerScript);
+      const newScript = doc.createElement('script');
+      newScript.async=true;
+      newScript.src=src;
+      newScript.id='buzzsproutPlayerScript';
+      doc.head.appendChild(newScript);
+    })(clientDocument)
   }</>;
 
   return <>
