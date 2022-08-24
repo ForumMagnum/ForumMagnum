@@ -918,13 +918,10 @@ interface DbUser extends DbObject {
   jobTitle: string
   organization: string
   careerStage: Array<string>
+  fmCrosspostUserId: string
   organizerOfGroupIds: Array<string>
   programParticipation: Array<string>
   website: string
-  fmCrosspostProfile: {
-    userId: string,
-    confirmed: boolean,
-  }
   linkedinProfileURL: string
   facebookProfileURL: string
   twitterProfileURL: string

@@ -130,6 +130,7 @@ type TLoadingReturn = {loading: true, error: undefined, document: undefined};
 
 type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<FragmentTypeName> | TErrorReturn | TLoadingReturn) & {
   refetch: any,
+  networkStatus?: number,
   data?: {
     refetch: any,
   }
@@ -140,6 +141,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   fragmentName, fragment,
   extraVariables,
   fetchPolicy,
+  notifyOnNetworkStatusChange,
   propertyName,
   extraQueries,
   documentId,
@@ -151,6 +153,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   fragment?: any,
   extraVariables?: Record<string,any>,
   fetchPolicy?: WatchQueryFetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
   propertyName?: string,
   extraQueries?: any,
   documentId: string|undefined,
@@ -169,6 +172,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
       ...extraVariablesValues
     },
     fetchPolicy,
+    notifyOnNetworkStatusChange,
     ssr: true,
     skip: skip || !documentId,
   })

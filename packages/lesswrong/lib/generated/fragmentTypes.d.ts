@@ -1812,10 +1812,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
       onlyUnread: boolean,
     },
   },
-  readonly fmCrosspostProfile: {
-    userId: string,
-    confirmed: boolean,
-  },
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
@@ -2081,6 +2077,11 @@ interface UsersProfileEdit { // fragment on Users
   readonly githubProfileURL: string,
 }
 
+interface UsersCrosspostInfo { // fragment on Users
+  readonly _id: string,
+  readonly fmCrosspostUserId: string,
+}
+
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
@@ -2288,6 +2289,7 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   UsersWithReviewInfo: UsersWithReviewInfo
   UsersProfileEdit: UsersProfileEdit
+  UsersCrosspostInfo: UsersCrosspostInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -2436,6 +2438,7 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   UsersWithReviewInfo: "Users"
   UsersProfileEdit: "Users"
+  UsersCrosspostInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"

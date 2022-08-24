@@ -153,7 +153,6 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
-    fmCrosspostProfile
 
     bookmarkedPostsMetadata
 
@@ -438,5 +437,12 @@ registerFragment(`
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    fmCrosspostUserId
   }
 `)
