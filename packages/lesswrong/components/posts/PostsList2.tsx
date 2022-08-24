@@ -7,6 +7,7 @@ import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
+import { useHideRepeatedPosts } from '../posts/HideRepeatedPostsContext';
 import * as _ from 'underscore';
 
 const Error = ({error}) => <div>
@@ -87,6 +88,8 @@ const PostsList2 = ({
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
 }) => {
+  const {isPostRepeated, addPost} = useHideRepeatedPosts();
+
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
   const tagVariables = tagId ? {
@@ -177,6 +180,11 @@ const PostsList2 = ({
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
+          if (isPostRepeated(post._id)) {
+            return null;
+          }
+          addPost(post._id);
+
           const props = {
             post,
             index: i,
