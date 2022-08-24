@@ -5,7 +5,7 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { useCurrentUser } from './withUser';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, CommunityMapWrapper } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
 
   const currentUser = useCurrentUser()
 
@@ -14,7 +14,7 @@ const Home2 = () => {
         <React.Fragment>
 
           {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
-          
+        
           {reviewIsActive() && currentUser && <SingleColumnSection>
             <FrontpageReviewWidget />
           </SingleColumnSection>}
