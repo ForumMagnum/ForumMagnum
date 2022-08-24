@@ -552,6 +552,11 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     createdAt: Date,
   }>,
   readonly activateRSVPs: boolean,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean,
+    foreignPostId: string,
+  },
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences

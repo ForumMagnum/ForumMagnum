@@ -115,7 +115,7 @@ const PostsPagePostHeader = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostNotice,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
   
@@ -147,6 +147,7 @@ const PostsPagePostHeader = ({post, classes}: {
               </a>
             </LWTooltip>
           }
+          {post.fmCrosspost?.isCrosspost && <CrosspostNotice post={post} />}
           {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}

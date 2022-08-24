@@ -296,6 +296,9 @@ registerFragment(`
     }
     rsvps
     activateRSVPs
+
+    # Crossposting
+    fmCrosspost
   }
 `);
 
