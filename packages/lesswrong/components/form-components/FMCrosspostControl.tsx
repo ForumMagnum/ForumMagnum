@@ -40,7 +40,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       const json = await result.json();
       setToken(json.token);
     }
-    callback();
+    void callback();
   }, []);
 
   const onClickLogin = () => {
