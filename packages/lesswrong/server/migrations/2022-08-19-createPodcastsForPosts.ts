@@ -18,15 +18,15 @@ interface CreateEpisodeData {
 // TODO: external links
 const RAZ_PODCAST = {
   title: 'Rationality: From AI to Zombies',
-  applePodcastLink: '',
-  spotifyPodcastLink: ''
+  // applePodcastLink: '',
+  // spotifyPodcastLink: ''
 };
 
 // TODO: external links
 const CURATED_PODCAST = {
   title: 'LessWrong Curated Podcast',
-  applePodcastLink: '',
-  spotifyPodcastLink: ''
+  // applePodcastLink: '',
+  // spotifyPodcastLink: ''
 };
 
 const convertEpisodeData = (podcastId: string, episodeData: EpisodeMapping[keyof EpisodeMapping]): CreateEpisodeData => ({

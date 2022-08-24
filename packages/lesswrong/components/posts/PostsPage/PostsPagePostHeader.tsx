@@ -6,7 +6,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import HeadsetIcon from '@material-ui/icons/Headset';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 
 const SECONDARY_SPACING = 20
@@ -121,8 +121,6 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const HIDE_PODCAST_PLAYER_COOKIE = 'hide_post_podcast_player';
-
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, classes}: {
@@ -135,22 +133,11 @@ const PostsPagePostHeader = ({post, classes}: {
     PostsPodcastPlayer} = Components;
 
   const { captureEvent } = useTracking();
-  const [cookies, setCookie] = useCookies();
-
-  const hideEmbeddedPlayerCookie = cookies[HIDE_PODCAST_PLAYER_COOKIE] === "true";
-
-  // Show the podcast player on posts that have it by default, until the user hides it once
-  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(!hideEmbeddedPlayerCookie);
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(false);
 
   const toggleEmbeddedPlayer = () => {
     const action = showEmbeddedPlayer ? "close" : "open";
-    const newCookieValue = showEmbeddedPlayer ? "true" : "false";
     captureEvent("toggleAudioPlayer", { action });
-    setCookie(
-      HIDE_PODCAST_PLAYER_COOKIE,
-      newCookieValue, {
-      path: "/"
-    });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   };
   
@@ -195,7 +182,7 @@ const PostsPagePostHeader = ({post, classes}: {
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           {podcastEpisode && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
             <a href="#" onClick={toggleEmbeddedPlayer}>
-              <HeadsetIcon/>
+              <VolumeUpIcon />
             </a>
           </LWTooltip>}
           <div className={classes.commentsLink}>
