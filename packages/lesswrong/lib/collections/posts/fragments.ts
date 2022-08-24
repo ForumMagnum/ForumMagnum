@@ -414,6 +414,7 @@ registerFragment(`
     ...PostsPage
     coauthorStatuses
     readTimeMinutesOverride
+    fmCrosspost
     moderationGuidelines {
       ...RevisionEdit
     }

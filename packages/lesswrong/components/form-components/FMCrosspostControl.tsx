@@ -63,6 +63,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
   currentUser: UsersCurrent,
 }) => {
   const {isCrosspost} = value ?? {};
+
   const [token, setToken] = useState<string | null>(null);
   const {document, refetch, loading} = useSingle({
     documentId: currentUser._id,
@@ -107,8 +108,8 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
             onChange={(event, checked) => {
               updateCurrentValues({
                 [path]: {
-                  ...value,
                   isCrosspost: checked,
+                  hostedHere: true,
                 },
               })
             }}

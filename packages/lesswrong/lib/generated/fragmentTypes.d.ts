@@ -668,6 +668,11 @@ interface PostsEdit extends PostsPage { // fragment on Posts
     requested: boolean,
   }>,
   readonly readTimeMinutesOverride: number,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean,
+    foreignPostId: string,
+  },
   readonly moderationGuidelines: RevisionEdit|null,
   readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
