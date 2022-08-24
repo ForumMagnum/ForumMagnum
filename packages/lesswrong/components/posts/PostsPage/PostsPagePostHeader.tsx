@@ -121,6 +121,8 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
+const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, classes}: {
@@ -133,11 +135,22 @@ const PostsPagePostHeader = ({post, classes}: {
     PostsPodcastPlayer} = Components;
 
   const { captureEvent } = useTracking();
-  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(false);
+  const [cookies, setCookie] = useCookies();
+
+  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
+
+  // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
   const toggleEmbeddedPlayer = () => {
     const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
+    setCookie(
+      SHOW_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   };
   

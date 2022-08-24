@@ -23,26 +23,27 @@ const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
   podcastEpisode: PostsBase_podcastEpisode,
   classes: ClassesType
 }) => {
-  const embedScriptFunction = (src: string, clientWindow: Window & typeof globalThis, clientDocument: Document) => <script>{
-    function(p,l,a,y,s?: HTMLScriptElement) {
-      if(p[a]) return;
-      if(p[y]) return p[y]();
-      s=l.createElement('script');
-      l.head.appendChild((
-        s.async=p[a]=true,
+  const embedScriptFunction = (src: string, clientDocument: Document) => <>{
+    function(d) {
+      const x = d.getElementById('buzzsproutPlayerScript');
+      if (x) x.parentNode?.removeChild(x);
+      const s=d.createElement('script');
+      d.head.appendChild((
+        s.async=true,
         s.src=src,
+        s.id='buzzsproutPlayerScript',
         s
       ));
-    }(clientWindow,clientDocument,'__btL','__btR')
-  }</script>;
+    }(clientDocument)
+  }</>;
 
   return <>
+    <div
+      id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
+      className={classes.embeddedPlayer}
+    />
     {isClient && <NoSSR>
-      <div
-        id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
-        className={classes.embeddedPlayer}
-      />
-      {embedScriptFunction(podcastEpisode.episodeLink, window, document)}
+      {embedScriptFunction(podcastEpisode.episodeLink, document)}
     </NoSSR>}
     <ul className={classes.podcastIconList}>
       {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.applePodcastLink}>{applePodcastIcon}</a></li>}
