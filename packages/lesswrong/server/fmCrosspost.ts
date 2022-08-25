@@ -1,6 +1,7 @@
 import { DatabaseServerSetting } from "./databaseSettings";
 import { Utils, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from "../lib/vulcan-lib";
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
+import { randomId } from "../lib/random";
 import Users from "../lib/collections/users/collection";
 import Posts from "../lib/collections/posts/collection";
 import fetch from "node-fetch";
@@ -283,6 +284,10 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     foreignUserId: user.fmCrosspostUserId,
   };
   const token = jwt.sign(payload, secret, {algorithm, expiresIn});
+
+  if (!post._id) {
+    post._id = randomId();
+  }
 
   const apiUrl = makeApiUrl(crosspostApiRoute);
   const result = await fetch(apiUrl, {
