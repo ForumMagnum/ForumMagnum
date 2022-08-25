@@ -9,15 +9,21 @@ import jwt from "jsonwebtoken";
 import bodyParser from "body-parser";
 import type { Application, Request, Response } from "express";
 
-const crosspostTokenApiRoute = "/api/crosspostToken";
-const connectCrossposterApiRoute = "/api/connectCrossposter";
-const unlinkCrossposterApiRoute = "/api/unlinkCrossposter";
-const crosspostApiRoute = "/api/crosspost";
-
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
 
-const algorithm = "HS256";
-const expiresIn = "30m";
+const jwtSigningOptions = {
+  algorithm: "HS256",
+  expiresIn: "30m",
+} as const;
+
+const apiRoutes = {
+  crosspostToken: "/api/crosspostToken",
+  connectCrossposter: "/api/connectCrossposter",
+  unlinkCrossposter: "/api/unlinkCrossposter",
+  crosspost: "/api/crosspost",
+} as const;
+
+type ApiRoute = typeof apiRoutes[keyof typeof apiRoutes];
 
 type ConnectCrossposterArgs = {
   token: string,
@@ -36,18 +42,64 @@ type CrosspostPayload = {
   foreignUserId: string,
 }
 
+type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;
+
+class ApiError extends Error {
+  constructor(public code: number, message: string) {
+    super(message);
+  }
+}
+
+class UnauthorizedError extends ApiError {
+  constructor() {
+    super(403, "You must login to do this");
+  }
+}
+
+class MissingSecretError extends ApiError {
+  constructor() {
+    super(500, "Missing crosspost signing secret env var");
+  }
+}
+
+class MissingParametersError extends ApiError {
+  constructor(expectedParams: string[], body: any) {
+    super(400, `Missing parameters: expected ${JSON.stringify(expectedParams)} but received ${JSON.stringify(body)}`);
+  }
+}
+
+class InvalidTokenError extends ApiError {
+  constructor() {
+    super(400, "Invalid token");
+  }
+}
+
+class InvalidUserError extends ApiError {
+  constructor() {
+    super(400, "Invalid user");
+  }
+}
+
+const getSecret = () => {
+  const secret = crosspostSigningKeySetting.get();
+  if (!secret) {
+    throw new MissingSecretError();
+  }
+  return secret;
+}
+
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
   if (!userId) {
-    throw new Error("You must login to do this");
+    throw new UnauthorizedError();
   }
   return userId;
 }
 
-const makeApiUrl = (route: string) => fmCrosspostBaseUrlSetting.get() + route.slice(1)
+const makeApiUrl = (route: ApiRoute) => fmCrosspostBaseUrlSetting.get() + route.slice(1);
 
-const makeInternalRequest = async <T extends {}>(
-  route: string,
+const makeCrossSiteRequest = async <T extends {}>(
+  route: ApiRoute,
   body: T,
   expectedStatus: string,
   onErrorMessage: string,
@@ -61,10 +113,16 @@ const makeInternalRequest = async <T extends {}>(
   });
   const json = await result.json();
   if (json.status !== expectedStatus) {
-    throw new Error(onErrorMessage);
+    throw new ApiError(500, onErrorMessage);
   }
   return json;
 }
+
+const signToken = <T extends {}>(payload: T): string =>
+  jwt.sign(payload, getSecret(), jwtSigningOptions);
+
+const verifyToken = <T extends {}>(token: string): T =>
+  jwt.verify(token, getSecret()) as T;
 
 const crosspostResolvers = {
   Mutation: {
@@ -74,8 +132,8 @@ const crosspostResolvers = {
       {req, res}: ResolverContext,
     ) => {
       const localUserId = getUserId(req);
-      const {foreignUserId} = await makeInternalRequest(
-        connectCrossposterApiRoute,
+      const {foreignUserId} = await makeCrossSiteRequest(
+        apiRoutes.connectCrossposter,
         {token, localUserId},
         "connected",
         "Failed to connect accounts for crossposting",
@@ -89,13 +147,9 @@ const crosspostResolvers = {
       const localUserId = getUserId(req);
       const foreignUserId = req?.user?.fmCrosspostUserId;
       if (foreignUserId) {
-        const secret = crosspostSigningKeySetting.get();
-        if (!secret) {
-          throw new Error("Missing crosspost signing secret env var");
-        }
-        const token = jwt.sign({userId: foreignUserId}, secret, {algorithm, expiresIn});
-        await makeInternalRequest(
-          unlinkCrossposterApiRoute,
+        const token = signToken<UnlinkCrossposterPayload>({userId: foreignUserId});
+        await makeCrossSiteRequest(
+          apiRoutes.unlinkCrossposter,
           {token},
           "unlinked",
           "Failed to unlink crossposting accounts",
@@ -113,152 +167,115 @@ addGraphQLResolvers(crosspostResolvers);
 addGraphQLMutation("connectCrossposter(token: String): String");
 addGraphQLMutation("unlinkCrossposter: String");
 
-const onCrosspostTokenRequest = async (req: Request, res: Response) => {
+const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
+  async (req: Request, res: Response) => {
+    try {
+      await callback(req, res);
+    } catch (e) {
+      res
+        .status(e instanceof ApiError ? e.code : 500)
+        .send({error: e.message ?? "An unknown error occurred"})
+    }
+  }
+
+const getPostParams = (req: Request, paramNames: string[]) => {
+  const params = paramNames.map((name) => req.body[name])
+  if (params.some((param) => !param)) {
+    throw new MissingParametersError(paramNames, req.body);
+  }
+  return params;
+}
+
+const onCrosspostTokenRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const {user} = req;
   if (!user) {
-    res.status(403).send({error: "Unauthorized"});
-    return;
+    throw new UnauthorizedError();
   }
 
-  const secret = crosspostSigningKeySetting.get();
-  if (!secret) {
-    res.status(500).send({error: "Missing crosspost signing secret env var"});
-    return;
-  }
-
-  const payload: ConnectCrossposterPayload = {userId: user._id};
-  const token = jwt.sign(payload, secret, {algorithm, expiresIn});
+  const token = signToken<ConnectCrossposterPayload>({userId: user._id});
   res.send({token});
-}
+});
 
-const onConnectCrossposterRequest = async (req: Request, res: Response) => {
-  const {token, localUserId} = req.body;
-  if (!token || !localUserId) {
-    res.status(400).send({error: "Missing parameters", body: req.body});
-    return;
+const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
+  const [token, localUserId] = getPostParams(req, ["token", "localUserId"]);
+  const payload = verifyToken<ConnectCrossposterPayload>(token);
+  if (!payload?.userId) {
+    throw new InvalidTokenError();
+  }
+  const {userId: foreignUserId} = payload;
+  await Users.rawUpdateOne({_id: foreignUserId}, {
+    $set: {fmCrosspostUserId: localUserId},
+  });
+  res.send({
+    status: "connected",
+    foreignUserId,
+    localUserId,
+  });
+});
+
+const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
+  const [token] = getPostParams(req, ["token"]);
+  const payload = verifyToken<UnlinkCrossposterPayload>(token);
+  if (!payload?.userId) {
+    throw new InvalidTokenError();
+  }
+  const {userId} = payload;
+  await Users.rawUpdateOne({_id: userId}, {
+    $unset: {fmCrosspostUserId: ""},
+  });
+  res.send({status: "unlinked"});
+});
+
+const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
+  const [token, postId, postTitle] = getPostParams(req, ["token", "postId", "postTitle"]);
+  const payload = verifyToken<CrosspostPayload>(token);
+  const {localUserId, foreignUserId} = payload;
+  if (!localUserId || !foreignUserId) {
+    throw new InvalidTokenError();
   }
 
-  const secret = crosspostSigningKeySetting.get();
-  if (!secret) {
-    res.status(500).send({error: "Missing crosspost signing secret env var"});
-    return;
+  const user = await Users.findOne({_id: foreignUserId});
+  if (!user) {
+    throw new InvalidUserError();
   }
 
-  try {
-    const payload = jwt.verify(token, secret) as ConnectCrossposterPayload;
-    if (!payload?.userId) {
-      throw new Error("Missing user id");
-    }
-    const {userId: foreignUserId} = payload;
-    await Users.rawUpdateOne({_id: foreignUserId}, {
-      $set: {
-        fmCrosspostUserId: localUserId,
-      },
-    });
-    res.send({
-      status: "connected",
-      foreignUserId,
-      localUserId,
-    });
-  } catch (e) {
-    res.status(403).send({error: `Unauthorized: ${e.message}`});
-  }
-}
+  const document: Partial<DbPost> = {
+    title: postTitle,
+    userId: user._id,
+    fmCrosspost: {
+      isCrosspost: true,
+      hostedHere: false,
+      foreignPostId: postId,
+    },
+  };
 
-const onUnlinkCrossposterRequest = async (req: Request, res: Response) => {
-  const {token} = req.body;
-  if (!token) {
-    res.status(400).send({error: "Missing parameters", body: req.body});
-    return;
-  }
-
-  const secret = crosspostSigningKeySetting.get();
-  if (!secret) {
-    res.status(500).send({error: "Missing crosspost signing secret env var"});
-    return;
-  }
-
-  try {
-    const payload = jwt.verify(token, secret) as UnlinkCrossposterPayload;
-    if (!payload?.userId) {
-      throw new Error("Missing user id");
-    }
-    const {userId} = payload;
-    await Users.rawUpdateOne({_id: userId}, {
-      $unset: {fmCrosspostUserId: ""},
-    });
-    res.send({status: "unlinked"});
-  } catch (e) {
-    res.status(403).send({error: `Unauthorized: ${e.message}`});
-  }
-}
-
-const onCrosspostRequest = async (req: Request, res: Response) => {
-  const {token, postId, postTitle} = req.body;
-  if (!token || !postId || !postTitle) {
-    res.status(400).send({error: "Missing parameters", body: req.body});
-    return;
-  }
-
-  const secret = crosspostSigningKeySetting.get();
-  if (!secret) {
-    res.status(500).send({error: "Missing crosspost signing secret env var"});
-    return;
-  }
-
-  try {
-    const payload = jwt.verify(token, secret) as CrosspostPayload;
-    const {localUserId, foreignUserId} = payload;
-    if (!localUserId || !foreignUserId) {
-      throw new Error("Invalid token");
-    }
-
-    const user = await Users.findOne({_id: foreignUserId});
-    if (!user) {
-      throw new Error("Invalid user");
-    }
-
-    const document: Partial<DbPost> = {
-      title: postTitle,
-      userId: user._id,
-      fmCrosspost: {
-        isCrosspost: true,
-        hostedHere: false,
-        foreignPostId: postId,
-      },
-    };
-
-    const {data: post} = await Utils.createMutator({
-      document,
-      collection: Posts,
-      validate: true,
+  const {data: post} = await Utils.createMutator({
+    document,
+    collection: Posts,
+    validate: true,
+    currentUser: user,
+    context: {
       currentUser: user,
-      context: {
-        currentUser: user,
-        Users,
-      },
-    });
+      Users,
+    },
+  });
 
-    res.send({
-      status: "posted",
-      postId: post._id,
-    });
-  } catch (e) {
-    res.status(403).send({error: `Unauthorized: ${e.message}`});
-  }
-}
+  res.send({
+    status: "posted",
+    postId: post._id,
+  });
+});
 
 export const addCrosspostRoutes = (app: Application) => {
-  app.get(crosspostTokenApiRoute, onCrosspostTokenRequest);
-  app.use(connectCrossposterApiRoute, bodyParser.json({ limit: "1mb" }));
-  app.post(connectCrossposterApiRoute, onConnectCrossposterRequest);
-  app.use(unlinkCrossposterApiRoute, bodyParser.json({ limit: "1mb" }));
-  app.post(unlinkCrossposterApiRoute, onUnlinkCrossposterRequest);
-  app.use(crosspostApiRoute, bodyParser.json({ limit: "1mb" }));
-  app.post(crosspostApiRoute, onCrosspostRequest);
+  const addPostRoute = (route: string, callback: (req: Request, res: Response) => Promise<void>) => {
+    app.use(route, bodyParser.json({ limit: "1mb" }));
+    app.post(route, callback);
+  }
+  app.get(apiRoutes.crosspostToken, onCrosspostTokenRequest);
+  addPostRoute(apiRoutes.connectCrossposter, onConnectCrossposterRequest);
+  addPostRoute(apiRoutes.unlinkCrossposter, onUnlinkCrossposterRequest);
+  addPostRoute(apiRoutes.crosspost, onCrosspostRequest);
 }
-
-export type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
   if (!post.fmCrosspost || !post.userId || post.draft) {
@@ -275,21 +292,17 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     throw new Error("You have not connected a crossposting account yet");
   }
 
-  const secret = crosspostSigningKeySetting.get();
-  if (!secret) {
-    throw new Error("Missing crosspost signing secret env var");
-  }
-  const payload: CrosspostPayload = {
+  const token = signToken<CrosspostPayload>({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
-  };
-  const token = jwt.sign(payload, secret, {algorithm, expiresIn});
+  });
 
+  // If we're creating a new post without making a draft first then we won't have an ID yet
   if (!post._id) {
     post._id = randomId();
   }
 
-  const apiUrl = makeApiUrl(crosspostApiRoute);
+  const apiUrl = makeApiUrl(apiRoutes.crosspost);
   const result = await fetch(apiUrl, {
     method: "POST",
     headers: {
