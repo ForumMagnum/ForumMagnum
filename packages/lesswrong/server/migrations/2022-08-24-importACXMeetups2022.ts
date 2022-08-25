@@ -27,92 +27,98 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log(`Beginning to import ${Object.keys(acxData).length}`)
     for (const row of acxData) {
-      let eventOrganizer
-      // Figure out whether user with emailAddress already exists
-      const existingUser = row.emailAddress ? await userFindByEmail(row.emailAddress) : undefined
-      // If not, create them (and send them an email, maybe?)
-      if (existingUser) {
-        eventOrganizer = existingUser
-      } else {
-        const { data: newUser } = await createMutator({
-          collection: Users,
-          document: {
-            username: await Utils.getUnusedSlugByCollectionName("Users", row.nameInitialsHandle.toLowerCase()),
-            displayName: row.nameInitialsHandle,
-            email: row.emailAddress,
-            reviewedByUserId: "XtphY3uYHwruKqDyG",
-            reviewedAt: new Date()
-          },
-          validate: false,
-          currentUser: null
-        })
-        eventOrganizer = newUser
-      }
-      
-      let googleLocation
-      if (row["lat"] && row['lng']) {
-        googleLocation = await coordinatesToGoogleLocation({lat: row["lat"], lng: row["lng"]})
-      }
-      const eventTimePretendingItsUTC = new Date(`${row["dateMMDDYYYY"]} ${row["Time"]} UTC`)
-      const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
-      const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
-      // Then create event post with that user as owner, if it doesn't exist yet
-      const title = `${row["City"]} – ACX Meetups Everywhere 2022`
-      
-      const existingPost = await Posts.findOne({ title });
-      if (!existingPost) {
-        const newPostData = {
-          title,
-          postedAt: new Date(),
-          userId: eventOrganizer._id,
-          submitToFrontpage: true,
-          activateRSVPs: true,
-          draft: false,
-          meta: false,
-          isEvent: true,
-          frontpageDate: new Date(),
-          reviewedByUserId: "r38pkCm7wF4M44MDQ",
-          authorIsUnreviewed: false,
-          contactInfo: row.emailAddress,
-          location: `${row.City}`,
-          startTime: eventTimePretendingItsUTC.getTime() ? actualTime : undefined,
-          meetupLink: row.Meetup,
-          facebookLink: row.FB,
-          googleLocation,
-          contents: {
-            originalContents: {
-              type: 'ckEditorMarkup',
-              data: `<p>This year's ACX Meetup everywhere in ${row.City}.</p>
-                <p>Location: ${row.locationDescription} – <a href="https://plus.codes/${row.Pluscodes}">${row.Pluscodes}</a></p>
-                ${row["Notes"] ? `<p>${row["Notes"]}</p>` : ""}
-                <p>Contact: ${row["emailAddress"]} ${row.additionalContactInfo ? `– ${row.additionalContactInfo}` : ""}</p>
-                ${row.GroupInfo && 
-                  `<h3>Group Info</h3>
-                  <p>${row.GroupInfo}</p>
-                  `
-                }`
+      try {
+        let eventOrganizer
+        // Figure out whether user with emailAddress already exists
+        const existingUser = row.emailAddress ? await userFindByEmail(row.emailAddress) : undefined
+        // If not, create them (and send them an email, maybe?)
+        if (existingUser) {
+          eventOrganizer = existingUser
+        } else {
+          const { data: newUser } = await createMutator({
+            collection: Users,
+            document: {
+              username: await Utils.getUnusedSlugByCollectionName("Users", row.nameInitialsHandle.toLowerCase()),
+              displayName: row.nameInitialsHandle,
+              email: row.emailAddress,
+              reviewedByUserId: "XtphY3uYHwruKqDyG",
+              reviewedAt: new Date()
             },
-            updateType: 'minor',
-            commitMessage: ''
-          },
-          moderationStyle: 'easy-going',
-          af: false,
-          types: [
-            'SSC'
-          ],
-        };
-        const { data: newPost } = await createMutator({
-          collection: Posts,
-          document: newPostData,
-          currentUser: eventOrganizer,
-          validate: false
-        })
-        // eslint-disable-next-line no-console
-        console.log("Created new ACX Meetup: ", newPost.title)
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("Meetup with this name already existed: ", title)
-      }
+            validate: false,
+            currentUser: null
+          })
+          eventOrganizer = newUser
+        }
+        
+        let googleLocation
+        if (row["lat"] && row['lng']) {
+          googleLocation = await coordinatesToGoogleLocation({lat: row["lat"], lng: row["lng"]})
+        }
+        const eventTimePretendingItsUTC = new Date(`${row["dateMMDDYYYY"]} ${row["Time"]} UTC`)
+        const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
+        const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
+        // Then create event post with that user as owner, if it doesn't exist yet
+        const title = `${row["City"]} – ACX Meetups Everywhere 2022`
+        
+        const existingPost = await Posts.findOne({ title });
+        if (!existingPost) {
+          const newPostData = {
+            title,
+            postedAt: new Date(),
+            userId: eventOrganizer._id,
+            submitToFrontpage: true,
+            activateRSVPs: true,
+            draft: false,
+            meta: false,
+            isEvent: true,
+            frontpageDate: new Date(),
+            reviewedByUserId: "r38pkCm7wF4M44MDQ",
+            authorIsUnreviewed: false,
+            contactInfo: row.emailAddress,
+            location: `${row.City}`,
+            startTime: eventTimePretendingItsUTC.getTime() ? actualTime : undefined,
+            meetupLink: row.Meetup,
+            facebookLink: row.FB,
+            googleLocation,
+            contents: {
+              originalContents: {
+                type: 'ckEditorMarkup',
+                data: `<p>This year's ACX Meetup everywhere in ${row.City}.</p>
+                  <p>Location: ${row.locationDescription} – <a href="https://plus.codes/${row.Pluscodes}">${row.Pluscodes}</a></p>
+                  ${row["Notes"] ? `<p>${row["Notes"]}</p>` : ""}
+                  <p>Contact: ${row["emailAddress"]} ${row.additionalContactInfo ? `– ${row.additionalContactInfo}` : ""}</p>
+                  ${row.GroupInfo && 
+                    `<h3>Group Info</h3>
+                    <p>${row.GroupInfo}</p>
+                    `
+                  }`
+              },
+              updateType: 'minor',
+              commitMessage: ''
+            },
+            moderationStyle: 'easy-going',
+            af: false,
+            types: [
+              'SSC'
+            ],
+          };
+          const { data: newPost } = await createMutator({
+            collection: Posts,
+            document: newPostData,
+            currentUser: eventOrganizer,
+            validate: false
+          })
+          // eslint-disable-next-line no-console
+          console.log("Created new ACX Meetup: ", newPost.title)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("Meetup with this name already existed: ", title)
+        }
+  
+      } catch (err) {
+        console.log("Error creating LW Event")
+        console.log(err)
+      }  
     }
   }
 })
