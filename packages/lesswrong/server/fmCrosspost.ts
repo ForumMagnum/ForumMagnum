@@ -10,6 +10,7 @@ import type { Application, Request, Response } from "express";
 
 const crosspostTokenApiRoute = "/api/crosspostToken";
 const connectCrossposterApiRoute = "/api/connectCrossposter";
+const unlinkCrossposterApiRoute = "/api/unlinkCrossposter";
 const crosspostApiRoute = "/api/crosspost";
 
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
@@ -25,12 +26,44 @@ type ConnectCrossposterPayload = {
   userId: string,
 }
 
+type UnlinkCrossposterPayload = {
+  userId: string,
+}
+
 type CrosspostPayload = {
   localUserId: string,
   foreignUserId: string,
 }
 
+const getUserId = (req?: Request) => {
+  const userId = req?.user?._id;
+  if (!userId) {
+    throw new Error("You must login to do this");
+  }
+  return userId;
+}
+
 const makeApiUrl = (route: string) => fmCrosspostBaseUrlSetting.get() + route.slice(1)
+
+const makeInternalRequest = async <T extends {}>(
+  route: string,
+  body: T,
+  expectedStatus: string,
+  onErrorMessage: string,
+) => {
+  const result = await fetch(makeApiUrl(route), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const json = await result.json();
+  if (json.status !== expectedStatus) {
+    throw new Error(onErrorMessage);
+  }
+  return json;
+}
 
 const crosspostResolvers = {
   Mutation: {
@@ -39,31 +72,37 @@ const crosspostResolvers = {
       {token}: ConnectCrossposterArgs,
       {req, res}: ResolverContext,
     ) => {
-      const localUserId = req?.user?._id;
-      if (!localUserId) {
-        throw new Error("You must login to do this");
-      }
-      const apiUrl = makeApiUrl(connectCrossposterApiRoute);
-      const result = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          localUserId,
-        }),
-      });
-      const json = await result.json();
-      if (json.status !== "connected") {
-        throw new Error("Couldn't connect accounts");
-      }
-      const {foreignUserId} = json;
+      const localUserId = getUserId(req);
+      const {foreignUserId} = await makeInternalRequest(
+        connectCrossposterApiRoute,
+        {token, localUserId},
+        "connected",
+        "Failed to connect accounts for crossposting",
+      );
       await Users.rawUpdateOne({_id: localUserId}, {
-        $set: {
-          fmCrosspostUserId: foreignUserId,
-        },
+        $set: {fmCrosspostUserId: foreignUserId},
       });
+      return "success";
+    },
+    unlinkCrossposter: async (root: void, {}: {}, {req, res}: ResolverContext) => {
+      const localUserId = getUserId(req);
+      const foreignUserId = req?.user?.fmCrosspostUserId;
+      if (foreignUserId) {
+        const secret = crosspostSigningKeySetting.get();
+        if (!secret) {
+          throw new Error("Missing crosspost signing secret env var");
+        }
+        const token = jwt.sign({userId: foreignUserId}, secret, {algorithm, expiresIn});
+        await makeInternalRequest(
+          unlinkCrossposterApiRoute,
+          {token},
+          "unlinked",
+          "Failed to unlink crossposting accounts",
+        );
+        await Users.rawUpdateOne({_id: localUserId}, {
+          $unset: {fmCrosspostUserId: ""},
+        });
+      }
       return "success";
     },
   },
@@ -71,6 +110,7 @@ const crosspostResolvers = {
 
 addGraphQLResolvers(crosspostResolvers);
 addGraphQLMutation("connectCrossposter(token: String): String");
+addGraphQLMutation("unlinkCrossposter: String");
 
 const onCrosspostTokenRequest = async (req: Request, res: Response) => {
   const {user} = req;
@@ -119,6 +159,34 @@ const onConnectCrossposterRequest = async (req: Request, res: Response) => {
       foreignUserId,
       localUserId,
     });
+  } catch (e) {
+    res.status(403).send({error: `Unauthorized: ${e.message}`});
+  }
+}
+
+const onUnlinkCrossposterRequest = async (req: Request, res: Response) => {
+  const {token} = req.body;
+  if (!token) {
+    res.status(400).send({error: "Missing parameters", body: req.body});
+    return;
+  }
+
+  const secret = crosspostSigningKeySetting.get();
+  if (!secret) {
+    res.status(500).send({error: "Missing crosspost signing secret env var"});
+    return;
+  }
+
+  try {
+    const payload = jwt.verify(token, secret) as UnlinkCrossposterPayload;
+    if (!payload?.userId) {
+      throw new Error("Missing user id");
+    }
+    const {userId} = payload;
+    await Users.rawUpdateOne({_id: userId}, {
+      $unset: {fmCrosspostUserId: ""},
+    });
+    res.send({status: "unlinked"});
   } catch (e) {
     res.status(403).send({error: `Unauthorized: ${e.message}`});
   }
@@ -183,6 +251,8 @@ export const addCrosspostRoutes = (app: Application) => {
   app.get(crosspostTokenApiRoute, onCrosspostTokenRequest);
   app.use(connectCrossposterApiRoute, bodyParser.json({ limit: "1mb" }));
   app.post(connectCrossposterApiRoute, onConnectCrossposterRequest);
+  app.use(unlinkCrossposterApiRoute, bodyParser.json({ limit: "1mb" }));
+  app.post(unlinkCrossposterApiRoute, onUnlinkCrossposterRequest);
   app.use(crosspostApiRoute, bodyParser.json({ limit: "1mb" }));
   app.post(crosspostApiRoute, onCrosspostRequest);
 }

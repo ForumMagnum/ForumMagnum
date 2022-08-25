@@ -5,7 +5,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useGetParameter } from "../common/withGetParameter";
 import { forumHeaderTitleSetting } from "../common/Header";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { gql, useMutation, useApolloClient } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
