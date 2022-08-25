@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
-import type { ThemeOptions } from './themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 
 declare global {
@@ -188,6 +187,10 @@ declare global {
       commentBorder: string,
       answerBorder: string,
       tooltipHR: string,
+      primaryHighlight: string,
+      primaryHighlight2: string,
+      secondaryHighlight: string,
+      secondaryHighlight2: string,
     },
     panelBackground: {
       default: ColorString,
@@ -315,6 +318,7 @@ declare global {
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
+      primaryDim: ColorString,
     },
     header: {
       text: ColorString,

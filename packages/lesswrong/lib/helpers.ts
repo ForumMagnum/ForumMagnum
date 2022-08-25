@@ -54,7 +54,9 @@ Utils.getUnusedSlugByCollectionName = async function (collectionName: Collection
 
 Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): Promise<boolean> => {
   const collection = getCollection(collectionName)
-  const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
+  const existingUserWithSlug = await collection.findOne({$or: [
+    {slug: slug}, {oldSlugs: slug}
+  ]});
   return !!existingUserWithSlug
 }
 

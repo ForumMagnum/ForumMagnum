@@ -14,7 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -104,6 +104,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+  },
+  subHeading: {
+    paddingLeft: 42,
+    paddingRight: 42,
+    marginTop: -2,
+    background: theme.palette.panelBackground.default,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+  },
+  subHeadingInner: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    borderTop: theme.palette.border.extraFaint,
+    borderBottom: theme.palette.border.extraFaint,
+  },
+  relatedTagLink : {
+    color: theme.palette.lwTertiary.dark
   },
   tagHeader: {
     display: "flex",
@@ -246,7 +263,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if(isEAForum) {
@@ -358,6 +375,22 @@ const TagPage = ({classes}: {
         </div>}
         welcomeBox={null}
       >
+        {(tag.parentTag || tag.subTags.length) ?
+        <div className={classNames(classes.subHeading,classes.centralColumn)}>
+          <div className={classes.subHeadingInner}>
+            {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+            {/* For subtags it would be better to:
+                 - put them at the bottom of the page
+                 - truncate the list
+                for our first use case we only need a small number of subtags though, so I'm leaving it for now
+             */}
+            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+                tag.subTags.map((subTag, idx) => {
+                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+              })}</span>
+            </div> : <></>}
+          </div>
+        </div>: <></>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>

@@ -1,7 +1,3 @@
-import { createMuiTheme } from '@material-ui/core/styles';
-import { getForumType, ThemeOptions } from './themeNames';
-import deepmerge from 'deepmerge';
-import isPlainObject from 'is-plain-object';
 import type { PartialDeep } from 'type-fest'
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 
@@ -24,6 +20,7 @@ export const zIndexes = {
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   singleColumnSection: 1,
+  curatedContentItem: 1,
   commentsMenu: 2,
   sequencesPageContent: 2,
   sequencesImageScrim: 2,

@@ -11,7 +11,6 @@ import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
 import { Globals } from '../lib/vulcan-lib/config';
 import process from 'process';
-import readline from 'readline';
 import chokidar from 'chokidar';
 import fs from 'fs';
 
