@@ -85,7 +85,7 @@ const crosspostResolvers = {
       });
       return "success";
     },
-    unlinkCrossposter: async (root: void, {}: {}, {req, res}: ResolverContext) => {
+    unlinkCrossposter: async (root: void, args: {}, {req, res}: ResolverContext) => {
       const localUserId = getUserId(req);
       const foreignUserId = req?.user?.fmCrosspostUserId;
       if (foreignUserId) {

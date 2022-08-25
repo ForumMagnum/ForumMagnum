@@ -31,8 +31,6 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
     contents: document.contents,
   };
 
-  console.log("result", );
-
   return <PostsPage post={result} refetch={refetch} />
 }
 
