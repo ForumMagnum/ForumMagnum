@@ -7,7 +7,7 @@ const algoliaAutoSyncIndexesSetting = new DatabasePublicSetting<boolean>('algoli
 
 addCronJob({
   name: 'updateAlgoliaIndex',
-  interval: 'every 24 hours',
+  interval: 'every 7 days',
   job: async () => {
     if (algoliaAutoSyncIndexesSetting.get()) {
       await algoliaExportAll();
