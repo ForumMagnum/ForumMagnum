@@ -111,8 +111,10 @@ function getHostname(url: string): string {
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, classes}: {
+const PostsPagePostHeader = ({post, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  hideMenu?: boolean,
+  hideTags?: boolean,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostNotice,
@@ -161,11 +163,13 @@ const PostsPagePostHeader = ({post, classes}: {
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
-          <span className={classes.actions}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostsPageActions post={post} />
-            </AnalyticsContext>
-          </span>
+          {!hideMenu &&
+            <span className={classes.actions}>
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostsPageActions post={post} />
+              </AnalyticsContext>
+            </span>
+          }
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
@@ -173,7 +177,7 @@ const PostsPagePostHeader = ({post, classes}: {
       </div>}
     </div>
     
-    {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
