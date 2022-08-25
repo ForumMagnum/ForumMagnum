@@ -292,5 +292,7 @@ getCollectionHooks("Posts").updateBefore.add((data: Partial<DbPost>, {document}:
     _id: document._id,
     title: document.title,
     userId: document.userId,
+    draft: document.draft,
+    fmCrosspost: document.fmCrosspost,
     ...data,
   }));

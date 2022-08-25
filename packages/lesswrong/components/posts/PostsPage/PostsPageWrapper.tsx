@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSingle } from '../../../lib/crud/withSingle';
+import { useSingle, UseSingleProps } from '../../../lib/crud/withSingle';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
@@ -8,9 +8,8 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   version?: string,
   documentId: string,
 }) => {
-  const { document: post, refetch, loading, error } = useSingle({
+  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
     collectionName: "Posts",
-    
     ...(version ? {
       fragmentName: 'PostsWithNavigationAndRevision',
       extraVariables: {
@@ -25,19 +24,22 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
       },
       extraVariablesValues: { sequenceId },
     }),
-    
-    documentId
-  })
+    documentId,
+  };
 
-  const { Error404, Loading, PostsPage } = Components;
+  const { document: post, refetch, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
+
+  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
   } else if (!post) {
     return <Error404/>
+  } else if (post.fmCrosspost?.isCrosspost && !post.fmCrosspost?.hostedHere) {
+    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
   }
-  
+
   return <PostsPage post={post} refetch={refetch} />
 }
 

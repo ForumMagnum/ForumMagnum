@@ -1,4 +1,4 @@
-import { ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
@@ -136,18 +136,7 @@ type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<Fra
   }
 }
 
-export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
-  collectionName,
-  fragmentName, fragment,
-  extraVariables,
-  fetchPolicy,
-  notifyOnNetworkStatusChange,
-  propertyName,
-  extraQueries,
-  documentId,
-  extraVariablesValues,
-  skip=false
-}: {
+export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = {
   collectionName: CollectionNameString,
   fragmentName?: FragmentTypeName,
   fragment?: any,
@@ -159,7 +148,22 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   documentId: string|undefined,
   extraVariablesValues?: any,
   skip?: boolean,
-}): TReturn<FragmentTypeName> {
+  apolloClient?: ApolloClient<NormalizedCacheObject>,
+}
+
+export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
+  collectionName,
+  fragmentName, fragment,
+  extraVariables,
+  fetchPolicy,
+  notifyOnNetworkStatusChange,
+  propertyName,
+  extraQueries,
+  documentId,
+  extraVariablesValues,
+  skip=false,
+  apolloClient,
+}: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
   const collection = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
@@ -175,6 +179,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     notifyOnNetworkStatusChange,
     ssr: true,
     skip: skip || !documentId,
+    client: apolloClient,
   })
   if (error) {
     // This error was already caught by the apollo middleware, but the
