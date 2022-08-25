@@ -24,6 +24,7 @@ registerMigration({
   dateWritten: "2022-08-22",
   idempotent: true,
   action: async () => {
+    // eslint-disable-next-line no-console
     console.log(`Beginning to import ${Object.keys(acxData).length}`)
     for (const row of acxData) {
       let eventOrganizer
@@ -53,8 +54,6 @@ registerMigration({
         googleLocation = await coordinatesToGoogleLocation({lat: row["lat"], lng: row["lng"]})
       }
       const eventTimePretendingItsUTC = new Date(`${row["dateMMDDYYYY"]} ${row["Time"]} UTC`)
-      console.log("datetime", row["dateMMDDYYYY"], row["Time"])
-      console.log("eventTimePretendingItsUTC", eventTimePretendingItsUTC)
       const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
       const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
       // Then create event post with that user as owner, if it doesn't exist yet
