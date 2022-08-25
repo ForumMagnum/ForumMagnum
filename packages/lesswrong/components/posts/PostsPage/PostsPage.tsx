@@ -128,6 +128,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: '100vw',
     maxWidth: 682,
   },
+  embeddedPlayer: {
+    marginBottom: "30px"
+  },
   hideEmbeddedPlayer: {
     display: "none"
   },
@@ -260,7 +263,7 @@ const PostsPage = ({post, refetch, classes}: {
     >
       <div className={classes.centralColumn}>
         {/* Body */}
-        {post.podcastEpisode && <div className={classNames({ [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+        {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
