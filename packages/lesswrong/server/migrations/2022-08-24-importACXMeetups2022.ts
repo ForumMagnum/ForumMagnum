@@ -35,10 +35,11 @@ registerMigration({
         if (existingUser) {
           eventOrganizer = existingUser
         } else {
+          const username = await Utils.getUnusedSlugByCollectionName("Users", row.nameInitialsHandle.toLowerCase())
           const { data: newUser } = await createMutator({
             collection: Users,
             document: {
-              username: await Utils.getUnusedSlugByCollectionName("Users", row.nameInitialsHandle.toLowerCase()),
+              username: username,
               displayName: row.nameInitialsHandle,
               email: row.emailAddress,
               reviewedByUserId: "XtphY3uYHwruKqDyG",
@@ -116,15 +117,46 @@ registerMigration({
         }
   
       } catch (err) {
-        console.log("Error creating LW Event")
-        console.log(err)
+        console.log("Error creating LWvent")
+        console.log(row, err)
       }  
     }
   }
 })
 
 
-const acxData = [{'City': 'Bryan/College Station, TX',
+const acxData = [
+  {'City': 'Oslo, Norway',
+'nameInitialsHandle': 'Hans Andreas & Jonas',
+'emailAddress': 'acxoslomeetup@gmail.com',
+'dateMMDDYYYY': '9/17/2022',
+'Time': '1:00 PM',
+'lat': '59.9294375',
+'lng': '10.7143125',
+'locationDescription': 'Look for the sign of Moloch at Café Billabong - Bogstadveien 53B 0366 Oslo',
+'Notes': "The cafe has historically been accepting of guests' not ordering--please don't let fiundefinedcial reasons keep you away!",
+'additionalContactInfo': undefined,
+'Pluscodes': '9FFGWPH7+QP',
+'FB': undefined,
+'Meetup': 'https://www.meetup.com/acx-oslo/events/287948206/',
+'GroupInfo': "We're hoping to do at least a quarterly meetup, but we'll base it on the turnout and enthusiasm of this event."},
+{'City': 'Istanbul, Turkey',
+'nameInitialsHandle': 'Jinai',
+'emailAddress': 'jinai.jyap@gmail.com',
+'dateMMDDYYYY': '9/25/2022',
+'Time': '4:00 PM',
+'lat': '41.0475875',
+'lng': '29.025203125',
+'locationDescription': "The House Cafe in Ortaköy. I am a young Asian woman and imagine I'll be easy to spot, but will also try to bring a sign with ACX MEETUP on it.",
+'Notes': 'Please RSVP via the Partiful link (you can RSVP as a Maybe)!',
+'additionalContactInfo': undefined,
+'Pluscodes': '8GHF22XG+23P',
+'FB': undefined,
+'Meetup': undefined,
+'GroupInfo': "I do not live here; I am just digital nomading for an indefinite amount of time and would like to meet anyone who's here!"},
+]
+
+const completedAcxData = [{'City': 'Bryan/College Station, TX',
 'nameInitialsHandle': 'Kenny',
 'emailAddress': 'easwaran@gmail.com',
 'dateMMDDYYYY': '9/9/2022',
