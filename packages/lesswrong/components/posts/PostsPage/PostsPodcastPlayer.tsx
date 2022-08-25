@@ -5,7 +5,7 @@ import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { isClient } from '../../../lib/executionEnvironment';
 import { useCurrentUser } from '../../common/withUser';
-import { getThemeOptions, isValidSerializedThemeOptions } from '../../../themes/themeNames';
+import { getThemeOptions } from '../../../themes/themeNames';
 import { useCookies } from 'react-cookie';
 import classNames from 'classnames';
 
@@ -37,8 +37,14 @@ const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
   const themeOptions = getThemeOptions(themeCookie, currentUser);
   const isDarkMode = themeOptions.name === 'dark';
 
+  /**
+   * We need to embed a reference to the generated-per-episode buzzsprout script, which is responsible for hydrating the player div (with the id `buzzsprout-player-${externalEpisodeId}`).
+   */
   const embedScriptFunction = (src: string, clientDocument: Document) => <>{
     ((doc) => {
+      // First we check if such a script is already on the document.
+      // That happens when navigating between posts, since the client doesn't render an entirely new page
+      // In that case, we want to delete the previous one before adding the new one
       const playerScript = doc.getElementById('buzzsproutPlayerScript');
       if (playerScript) playerScript.parentNode?.removeChild(playerScript);
       const newScript = doc.createElement('script');
