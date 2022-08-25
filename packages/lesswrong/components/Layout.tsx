@@ -301,7 +301,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              <HomepageCommunityMap />
+              {forumTypeSetting.get() === "LessWrong" && currentRoute?.name === 'home' && <HomepageCommunityMap />}
               {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
