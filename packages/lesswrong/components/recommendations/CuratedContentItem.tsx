@@ -9,15 +9,14 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import {useTracking} from "../../lib/analyticsEvents";
 
-type CuratedContentDocType = "Sequence"|"Collection"|"Post"|"Link"
+type CuratedContentDocType = "Sequence"|"Collection"|"Post"
 
 export interface CuratedContent {
   documentType: CuratedContentDocType,
   document: {
     _id?: string,
     title: string,
-    slug?: string,
-    url?: string
+    slug?: string
   },
   imageUrl: string,
   description: string,
