@@ -1,17 +1,25 @@
 import React from "react";
-import TransformIcon from '@material-ui/icons/Transform';
+import TransformIcon from "@material-ui/icons/Transform";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import {
+  forumTypeSetting,
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../../lib/instanceSettings";
+import { compassIcon } from "../../icons/compassIcon";
+import { lightbulbIcon } from "../../icons/lightbulbIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
-    fontSize: 18,
-    margin: "0 9px 0 -6px",
-    transform: "translateY(4px)",
+  },
+  icon: {
+    color: theme.palette.text.dim3,
+    display: "inline-block",
+    width: 20,
+    marginLeft: -6,
+    marginRight: 14,
+    verticalAlign: "sub",
   },
 });
 
@@ -20,7 +28,7 @@ const CrosspostNotice = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const {LWTooltip} = Components;
-
+  const icon = forumTypeSetting.get() === "LessWrong" ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
     : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;
@@ -30,7 +38,7 @@ const CrosspostNotice = ({post, classes}: {
     <div className={classes.root}>
       <a href={href} target="_blank" rel="noreferrer">
         <LWTooltip title={tip}>
-          <TransformIcon fontSize="inherit" />
+          <span className={classes.icon}>{icon}</span>
         </LWTooltip>
       </a>
     </div>
