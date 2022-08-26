@@ -49,7 +49,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     color: theme.palette.grey[300],
     top: 0,
-    right: 0
+    right: 0,
+    zIndex: theme.zIndexes.curatedContentItemCloseButton,
   },
   content: {
     padding: 16,
