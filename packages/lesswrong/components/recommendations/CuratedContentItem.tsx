@@ -66,6 +66,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginRight: 100
+    },
+    '& br': {
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
     }
   },
   description: {
