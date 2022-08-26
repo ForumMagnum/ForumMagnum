@@ -195,6 +195,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     red: "#ff0000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: "rgba(255,255,255,.5)",
+
+    eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
