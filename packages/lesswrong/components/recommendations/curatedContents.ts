@@ -8,7 +8,7 @@ export const acxEverywhere: CuratedContent = {
     title: "ACX Meetups Everywhere",
   },
   description: "Thanks to everyone who responded to the request for ACX meetup organizers. Volunteers have arranged meetups in 205 cities around the world, including Penryn, Cornwall and Baghdad, Iraq. You can find the list below... <em>(read more)</em>",
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1661537548/dalle-park_vyfchm2_dkm9jr.png"
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1661540334/dalle-park3_wnn96k.png"
 }
 
 export const replacingGuilt: CuratedContent = {
