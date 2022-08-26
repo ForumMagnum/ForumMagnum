@@ -575,6 +575,7 @@ importComponent("FormSubmit", () => require('../components/form-components/FormS
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
 importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
+importComponent("TagMultiselect", () => require('../components/form-components/TagMultiselect'));
 importComponent("TagSelect", () => require('../components/form-components/TagSelect'));
 importComponent("CoauthorsListEditor", () => require('../components/form-components/CoauthorsListEditor'));
 importComponent("MuiInput", () => require('../components/form-components/MuiInput'));

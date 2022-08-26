@@ -991,7 +991,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: forumTypeSetting.get() === "EAForum" ? 9 : 101,
+    order: forumTypeSetting.get() === "EAForum" ? 5 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1674,72 +1674,7 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-
-  bio: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    hidden: true,
-  },
-  htmlBio: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    hidden: true,
-  },
   
-  // These are the groups displayed in the user's profile (i.e. this field is informational only).
-  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
-  organizerOfGroupIds: {
-    ...arrayOfForeignKeysField({
-      idFieldName: "organizerOfGroupIds",
-      resolverName: "organizerOfGroups",
-      collectionName: "Localgroups",
-      type: "Localgroup"
-    }),
-    hidden: true,
-    optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    group: formGroups.aboutMe,
-    order: 7,
-    control: "SelectLocalgroup",
-    label: "Organizer of",
-    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
-    form: {
-      useDocumentAsUser: true,
-      separator: '\r\n',
-      multiselect: true
-    },
-  },
-  'organizerOfGroupIds.$': {
-    type: String,
-    foreignKey: "Localgroups",
-    optional: true,
-  },
-  
-  programParticipation: {
-    type: Array,
-    hidden: true,
-    optional: true,
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
-    order: 8,
-    control: 'FormComponentMultiSelect',
-    placeholder: "Which of these programs have you participated in?",
-    form: {
-      separator: '\r\n',
-      options: PROGRAM_PARTICIPATION
-    },
-  },
-  'programParticipation.$': {
-    type: String,
-    optional: true,
-  },
-
   website: {
     type: String,
     hidden: true,
@@ -1752,7 +1687,20 @@ addFieldsDict(Users, {
       inputPrefix: 'https://'
     },
     group: formGroups.aboutMe,
-    order: 9
+    order: 6
+  },
+
+  bio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  htmlBio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
   },
   
   linkedinProfileURL: {
@@ -1807,6 +1755,85 @@ addFieldsDict(Users, {
     },
     group: formGroups.socialMedia
   },
+  
+  tagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "tagIds",
+      resolverName: "tags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.activity,
+    order: 1,
+    control: "TagMultiselect",
+    label: "Topics I'm interested in",
+    tooltip: "This will also update your frontpage topic weightings.",
+    placeholder: 'Search for topics'
+  },
+  'tagIds.$': {
+    type: String,
+    foreignKey: "Tags",
+    optional: true,
+  },
+  
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
+  organizerOfGroupIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerOfGroupIds",
+      resolverName: "organizerOfGroups",
+      collectionName: "Localgroups",
+      type: "Localgroup"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.activity,
+    order: 2,
+    control: "SelectLocalgroup",
+    label: "Organizer of",
+    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+    form: {
+      useDocumentAsUser: true,
+      separator: '\r\n',
+      multiselect: true
+    },
+  },
+  'organizerOfGroupIds.$': {
+    type: String,
+    foreignKey: "Localgroups",
+    optional: true,
+  },
+  
+  programParticipation: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.activity,
+    order: 3,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Which of these programs have you participated in?",
+    form: {
+      separator: '\r\n',
+      options: PROGRAM_PARTICIPATION
+    },
+  },
+  'programParticipation.$': {
+    type: String,
+    optional: true,
+  },
+  
+  
   postingDisabled: {
     type: Boolean,
     optional: true,
@@ -1874,7 +1901,7 @@ makeEditable({
     commentStyles: true,
     formGroup: formGroups.aboutMe,
     hidden: true,
-    order: 5,
+    order: 7,
     fieldName: 'howOthersCanHelpMe',
     label: "How others can help me",
     hintText: "Ex: I am looking for opportunities to do...",
@@ -1893,7 +1920,7 @@ makeEditable({
     commentStyles: true,
     formGroup: formGroups.aboutMe,
     hidden: true,
-    order: 6,
+    order: 8,
     fieldName: 'howICanHelpOthers',
     label: "How I can help others",
     hintText: "Ex: Reach out to me if you have questions about...",
@@ -1916,7 +1943,7 @@ makeEditable({
     commentEditor: true,
     commentStyles: true,
     hidden: forumTypeSetting.get() === "EAForum",
-    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    order: forumTypeSetting.get() === "EAForum" ? 6 : 40,
     formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",
