@@ -12,7 +12,7 @@ import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties 
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { performCrosspost } from "../fmCrosspost";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -283,16 +283,7 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
 });
 
 getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
-/**
- * updateBefore only gets (and should return) a partial DbPost with the fields being updated, but we
- * still need to make sure that we're passing in the important fields that we need to make a crosspost
- */
-getCollectionHooks("Posts").updateBefore.add((data: Partial<DbPost>, {document}: UpdateCallbackProperties<DbPost>) =>
-  performCrosspost({
-    _id: document._id,
-    title: document.title,
-    userId: document.userId,
-    draft: document.draft,
-    fmCrosspost: document.fmCrosspost,
-    ...data,
-  }));
+getCollectionHooks("Posts").updateBefore.add((
+  data: Partial<DbPost>,
+  {document}: UpdateCallbackProperties<DbPost>,
+) => handleCrosspostUpdate(document, data));

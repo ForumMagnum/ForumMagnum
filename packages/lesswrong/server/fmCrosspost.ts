@@ -21,6 +21,7 @@ const apiRoutes = {
   connectCrossposter: "/api/connectCrossposter",
   unlinkCrossposter: "/api/unlinkCrossposter",
   crosspost: "/api/crosspost",
+  crosspostDraftStatus: "/api/crosspostDraftStatus",
 } as const;
 
 type ApiRoute = typeof apiRoutes[keyof typeof apiRoutes];
@@ -35,6 +36,12 @@ type ConnectCrossposterPayload = {
 
 type UnlinkCrossposterPayload = {
   userId: string,
+}
+
+type CrosspostDraftStatusPayload = {
+  postId: string,
+  draft: boolean,
+  deletedDraft: boolean,
 }
 
 type CrosspostPayload = {
@@ -167,6 +174,23 @@ addGraphQLResolvers(crosspostResolvers);
 addGraphQLMutation("connectCrossposter(token: String): String");
 addGraphQLMutation("unlinkCrossposter: String");
 
+const updateCrosspostDraftStatus = async (post: DbPost) => {
+  if (!post.fmCrosspost?.foreignPostId || post.fmCrosspost?.hostedHere) {
+    return;
+  }
+  const token = signToken<CrosspostDraftStatusPayload>({
+    postId: post.fmCrosspost.foreignPostId,
+    draft: post.draft,
+    deletedDraft: post.deletedDraft,
+  });
+  await makeCrossSiteRequest(
+    apiRoutes.crosspostDraftStatus,
+    {token},
+    "updated",
+    "Failed to update crosspost draft status",
+  );
+}
+
 const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
   async (req: Request, res: Response) => {
     try {
@@ -266,6 +290,17 @@ const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Respon
   });
 });
 
+const onCrosspostDraftStatusRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
+  const [token] = getPostParams(req, ["token"]);
+  const payload = verifyToken<CrosspostDraftStatusPayload>(token);
+  const {postId, draft, deletedDraft} = payload;
+  if (!postId || typeof draft !== "boolean" || typeof deletedDraft !== "boolean") {
+    throw new InvalidTokenError();
+  }
+  await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft}});
+  res.send({status: "updated"});
+});
+
 export const addCrosspostRoutes = (app: Application) => {
   const addPostRoute = (route: string, callback: (req: Request, res: Response) => Promise<void>) => {
     app.use(route, bodyParser.json({ limit: "1mb" }));
@@ -275,6 +310,7 @@ export const addCrosspostRoutes = (app: Application) => {
   addPostRoute(apiRoutes.connectCrossposter, onConnectCrossposterRequest);
   addPostRoute(apiRoutes.unlinkCrossposter, onUnlinkCrossposterRequest);
   addPostRoute(apiRoutes.crosspost, onCrosspostRequest);
+  addPostRoute(apiRoutes.crosspostDraftStatus, onCrosspostDraftStatusRequest);
 }
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
@@ -321,4 +357,23 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
 
   post.fmCrosspost.foreignPostId = json.postId;
   return post;
+}
+
+export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
+  if (data.draft !== undefined || data.deletedDraft !== undefined) {
+    await updateCrosspostDraftStatus({
+      ...document,
+      draft: data.draft ?? document.draft,
+      deletedDraft: data.deletedDraft ?? document.deletedDraft,
+    });
+  }
+
+  return performCrosspost({
+    _id: document._id,
+    title: document.title,
+    userId: document.userId,
+    draft: document.draft,
+    fmCrosspost: document.fmCrosspost,
+    ...data,
+  });
 }
