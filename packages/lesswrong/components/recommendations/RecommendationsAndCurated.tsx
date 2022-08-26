@@ -102,7 +102,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CuratedContentItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CuratedContentItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -180,16 +180,7 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             }
-            <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
-              <PostsList2
-                terms={{view:"curated", limit: currentUser ? 3 : 2}}
-                showNoResults={false}
-                showLoadMore={false}
-                hideLastUnread={true}
-                boxShadow={false}
-                curatedIconLeft={true}
-              />
-            </AnalyticsContext>
+            {forumTypeSetting.get() !== "EAForum" && <CuratedPostsList />}
           </div>
         </div>
 
