@@ -137,7 +137,8 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     terms: {view: "usersMapLocations"},
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
-    limit: 500
+    limit: 500,
+    skip: !showIndividuals
   })
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';

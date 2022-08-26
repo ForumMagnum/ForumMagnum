@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    marginTop: 50,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
