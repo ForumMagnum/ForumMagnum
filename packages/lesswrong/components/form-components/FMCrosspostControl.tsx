@@ -10,6 +10,8 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import LoginIcon from "@material-ui/icons/LockOpen"
+import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import classNames from "classnames";
 import { gql, useMutation } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
@@ -19,12 +21,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     flexDirection: "column",
-  },
-  frame: {
-    border: "none",
+    margin: 8,
   },
   link: {
     color: theme.palette.primary.main,
+  },
+  crosspostMessage: {
+    marginBottom: 12,
+  },
+  button: {
+    background: theme.palette.buttons.imageUpload.background,
+    "&:hover": {
+      background: theme.palette.buttons.imageUpload.hoverBackground,
+    },
+    color: theme.palette.text.invertedBackgroundText,
+  },
+  buttonIcon: {
+    fontSize: 18,
+    marginRight: theme.spacing.unit,
   },
 });
 
@@ -45,8 +59,8 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   const {Loading} = Components;
   return document
     ? (
-      <div>
-        This post will be crossposted to {fmCrosspostSiteNameSetting.get()} on
+      <div className={classes.crosspostMessage}>
+        This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
         your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
           {document.username}
         </a>
@@ -77,14 +91,18 @@ const FMCrosspostView = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
       <div>
         <FMCrosspostAccount fmCrosspostUserId={fmCrosspostUserId} classes={classes} />
         <Button onClick={onClickUnlink} className={classes.button}>
+          <UnlinkIcon className={classes.buttonIcon} />
           Unlink this account
         </Button>
       </div>
     )
     :(
-      <Button onClick={onClickLogin} className={classes.button}>
-        Login to {fmCrosspostSiteNameSetting.get()} to enable crossposting
-      </Button>
+      <div>
+        <Button onClick={onClickLogin} className={classes.button}>
+          <LoginIcon className={classes.buttonIcon} />
+          Login to {fmCrosspostSiteNameSetting.get()} to enable crossposting
+        </Button>
+      </div>
     );
 }
 
