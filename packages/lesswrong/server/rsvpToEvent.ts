@@ -67,10 +67,7 @@ addGraphQLResolvers({
     async CancelRSVPToEvent(root: void, {postId, name, userId}: {postId: string, name: string, userId: string}, context: ResolverContext) {
       const { currentUser } = context;
       const post = await context.loaders.Posts.load(postId);
-      console.log("currentUser", currentUser?._id)
-      console.log(currentUser?._id, userId, post.userId)
-      console.log(currentUser?._id !== userId)
-      console.log(userId !== post.userId)
+
       if (currentUser?._id !== userId && currentUser?._id !== post.userId) {
         throw new Error("user does not have permission to remove rsvps of this userId")
       }

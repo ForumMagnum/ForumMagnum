@@ -8,14 +8,16 @@ import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
     marginBottom: 12
   },
   rsvpItem: {
-    // width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",
+    width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -24,12 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "top",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    // [theme.breakpoints.down('sm')]: {
-    //   width: "33.3%"
-    // },
-    // [theme.breakpoints.down('xs')]: {
-    //   width: "50%"
-    // }
+    [theme.breakpoints.down('sm')]: {
+      width: "33.3%"
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: "50%"
+    }
   },
   response: {
     marginTop: -4,
@@ -50,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 8
   },
   goingIcon: {
-    height: 12,
+    height: 14,
     color: theme.palette.primary.main
   },
   maybeButton: {
@@ -59,14 +61,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 8
   },
   maybeIcon: {
-    height: 12,
+    height: 14,
     color: theme.palette.text.eventMaybe
+  },
+  noIcon: {
+    height: 14,
+    color: theme.palette.grey[500]
   },
   cantGoButton: {
     color: theme.palette.grey[800]
-  },
-  cantGoIcon: {
-    height: 12,
   },
   email: {
     ...theme.typography.smallText,
@@ -134,7 +137,7 @@ const RSVPs = ({post, classes}: {
           <HelpOutlineIcon className={classes.maybeIcon} /> Maybe
         </Button>
         <Button variant="outlined" className={classes.button} onClick={() => openRSVPForm("no")}>
-          Can't Go
+          <HighlightOffIcon className={classes.noIcon} /> Can't Go
         </Button>
       </span>
     </div>
@@ -146,6 +149,7 @@ const RSVPs = ({post, classes}: {
             <div>
               {responseToText[rsvp.response] === "Going" && <CheckCircleOutlineIcon className={classes.goingIcon} />}
               {responseToText[rsvp.response] === "Maybe" && <HelpOutlineIcon className={classes.maybeIcon} />}
+              {responseToText[rsvp.response] === "Can't Go" && <HighlightOffIcon className={classes.noIcon} />}
               <span className={classes.rsvpName}>{rsvp.name}</span>
                   {canCancel && <span className={classes.remove} onClick={() => cancelRSVP(rsvp)}>
                     x
