@@ -7,8 +7,8 @@ export const acxEverywhere: CuratedContent = {
     slug: "meetups-everywhere-2022-times-and",
     title: "ACX Meetups Everywhere",
   },
-  description: "Thanks to everyone who responded to the request for ACX meetup organizers. Volunteers have arranged meetups in 205 cities around the world, including Penryn, Cornwall and Baghdad, Iraq. You can find the list below... <em>(read more)</em>",
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1661540334/dalle-park3_wnn96k.png"
+  description: "September is meetups month on LessWrong! Over the coming weeks there will be <br/>Astral Codex Ten and rationality meetups in 200+ cities around the world, from Aachen, Germany to Zagreb, Croatia... <em>(see meetup list)</em>",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1661543662/dalle-park4_pzf5rn.png"
 }
 
 export const replacingGuilt: CuratedContent = {
