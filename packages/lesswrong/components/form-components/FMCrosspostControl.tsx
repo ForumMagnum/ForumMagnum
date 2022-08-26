@@ -47,7 +47,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
     ? (
       <div>
         This post will be crossposted to {fmCrosspostSiteNameSetting.get()} on
-        your account <a className={classes.link} href={link} target="_blank" rel="nofollow">
+        your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
           {document.username}
         </a>
       </div>
