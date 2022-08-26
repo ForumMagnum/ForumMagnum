@@ -72,12 +72,7 @@ addGraphQLResolvers({
         throw new Error("user does not have permission to remove rsvps of this userId")
       }
 
-      // eslint-disable-next-line no-console
-      console.log("old rsvps", post.rsvps)
       const rsvps = post.rsvps.filter(rsvp => rsvp.name !== name)
-
-      // eslint-disable-next-line no-console
-      console.log("new rsvps", rsvps)
 
       const updatedPost = (await updateMutator({
         collection: Posts,
