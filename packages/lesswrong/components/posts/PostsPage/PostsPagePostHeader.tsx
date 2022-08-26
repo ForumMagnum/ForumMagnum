@@ -6,6 +6,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 
 const SECONDARY_SPACING = 20
 
@@ -51,6 +52,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
+  },
+  togglePodcastIcon: {
+    marginRight: SECONDARY_SPACING,
+    verticalAlign: 'middle',
+    color: theme.palette.primary.main,
+    height: '24px'
   },
   actions: {
     display: 'inline-block',
@@ -109,15 +116,18 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, classes}: {
+const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  toggleEmbeddedPlayer?: () => void,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
+
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -160,6 +170,11 @@ const PostsPagePostHeader = ({post, classes}: {
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
+          {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+            <a href="#" onClick={toggleEmbeddedPlayer}>
+              <VolumeUpIcon />
+            </a>
+          </LWTooltip>}
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
@@ -174,7 +189,6 @@ const PostsPagePostHeader = ({post, classes}: {
         <PostsVote post={post} />
       </div>}
     </div>
-    
     {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}

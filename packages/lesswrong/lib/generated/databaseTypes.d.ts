@@ -335,6 +335,27 @@ interface DbPetrovDayLaunch extends DbObject {
   userId: string
 }
 
+interface PodcastEpisodesCollection extends CollectionBase<DbPodcastEpisode, "PodcastEpisodes"> {
+}
+
+interface DbPodcastEpisode extends DbObject {
+  __collectionName?: "PodcastEpisodes"
+  podcastId: string
+  title: string
+  episodeLink: string
+  externalEpisodeId: string
+}
+
+interface PodcastsCollection extends CollectionBase<DbPodcast, "Podcasts"> {
+}
+
+interface DbPodcast extends DbObject {
+  __collectionName?: "Podcasts"
+  title: string
+  applePodcastLink: string | null
+  spotifyPodcastLink: string | null
+}
+
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
 }
 
@@ -414,6 +435,7 @@ interface DbPost extends DbObject {
   onlyVisibleToLoggedIn: boolean
   onlyVisibleToEstablishedAccounts: boolean
   votingSystem: string
+  podcastEpisodeId: string | null
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -1038,6 +1060,8 @@ interface CollectionsByName {
   Migrations: MigrationsCollection
   Notifications: NotificationsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
+  PodcastEpisodes: PodcastEpisodesCollection
+  Podcasts: PodcastsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1074,6 +1098,8 @@ interface ObjectsByCollectionName {
   Migrations: DbMigration
   Notifications: DbNotification
   PetrovDayLaunchs: DbPetrovDayLaunch
+  PodcastEpisodes: DbPodcastEpisode
+  Podcasts: DbPodcast
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed

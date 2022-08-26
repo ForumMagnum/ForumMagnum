@@ -125,6 +125,10 @@ import './collections/advisorRequests/views';
 // Subscriptions
 import './collections/subscriptions';
 
+// Podcasts
+import './collections/podcasts/collection';
+// Podcast episodes
+import './collections/podcastEpisodes/collection';
 
 // Posts
 import './collections/posts/custom_fields';

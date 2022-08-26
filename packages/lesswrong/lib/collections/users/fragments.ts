@@ -155,6 +155,7 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
+    theme
 
     bookmarkedPostsMetadata
 
