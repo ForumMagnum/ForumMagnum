@@ -61,6 +61,7 @@ addGraphQLResolvers({
   }
 });
 
+// TODO: Currently there is a bug where if you cancel an RSVP that shares a name with another RSVP, you may accidentally delete the wrong RSVP. We decided to merge this anyway because this feature isn't used much and overall seemed low priority, but if we ever put more time into the event system we should redo the architecture here.
 addGraphQLMutation('CancelRSVPToEvent(postId: String, name: String, userId: String): Post');
 addGraphQLResolvers({
   Mutation: {
