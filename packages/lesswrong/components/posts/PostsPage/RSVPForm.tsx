@@ -33,7 +33,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
   const { history } = useNavigation()
   const currentUser = useCurrentUser()
   const [name, setName] = useState(currentUser?.displayName || "")
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState(currentUser?.email ?? "")
   const [response, setResponse] = useState(initialResponse)
   const [error, setError] = useState("")
 
