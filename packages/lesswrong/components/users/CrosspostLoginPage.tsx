@@ -89,7 +89,7 @@ const CrosspostLoginPage = ({classes}: {
           </>
         )
         : (
-          <WrappedLoginForm />
+          <WrappedLoginForm immediateRedirect />
         )
       }
     </div>

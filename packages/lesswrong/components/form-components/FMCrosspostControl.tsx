@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
-  fmCrosspostUseAuth0Setting,
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -106,14 +105,12 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
   });
 
   const onClickLogin = () => {
-    if (fmCrosspostUseAuth0Setting.get()) {
-      alert("TODO: Implement Auth0 redirect");
-    } else if (!token?.length) {
-      // TODO Proper error handling
-      throw new Error("Invalid token");
-    } else {
+    if (token?.length) {
       const url = `${fmCrosspostBaseUrlSetting.get()}crosspostLogin?token=${token}`;
       window.open(url, "_blank")?.focus();
+    } else {
+      // TODO Better error handling here
+      throw new Error("Invalid token");
     }
   }
 
