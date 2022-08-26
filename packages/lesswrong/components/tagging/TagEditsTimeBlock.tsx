@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
@@ -23,27 +23,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
-  const { data, loading } = useQuery(gql`
-    query getTagUpdates($before: Date!, $after: Date!) {
-      TagUpdatesInTimeBlock(before: $before, after: $after) {
-        tag {
-          ...TagBasicInfo
-        }
-        revisionIds
-        commentCount
-        commentIds
-        lastRevisedAt
-        lastCommentedAt
-        added
-        removed
-        users {
-          ...UsersMinimumInfo
-        }
-      }
-    }
-    ${fragmentTextForQuery('TagBasicInfo')}
-    ${fragmentTextForQuery('UsersMinimumInfo')}
-  `, {
+  const { data, loading } = useQuery("TagUpdatesInTimeBlock", {
     variables: {
       before, after,
     },

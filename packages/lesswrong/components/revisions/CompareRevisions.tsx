@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   differences: {
@@ -36,11 +36,7 @@ const CompareRevisions = ({
   
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
-  const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
-    query RevisionsDiff($collectionName: String!, $fieldName: String!, $id: String!, $beforeRev: String, $afterRev: String!, $trim: Boolean) {
-      RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)
-    }
-  `, {
+  const { data: diffResult, loading: loadingDiff, error } = useQuery("RevisionsDiff", {
     variables: {
       collectionName: collectionName,
       fieldName: fieldName,

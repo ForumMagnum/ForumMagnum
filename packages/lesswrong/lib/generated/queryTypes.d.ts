@@ -12,8 +12,86 @@ interface QueryRecommendationsQueryResult {
 }
 
 
-interface QueryResultTypes {
-  RecommendationsQuery: QueryRecommendationsQueryResult
+interface QueryMozillaHubsRoomDataResult {
+  readonly MozillaHubsRoomData: any,
 }
 
-type QueryName = "RecommendationsQuery"
+
+interface QueryEmailPreviewQueryResult {
+  readonly EmailPreview: any,
+}
+
+
+interface QueryArbitalPageRequestResult {
+  readonly ArbitalPageData: any,
+}
+
+
+interface QueryGetRandomTagResult {
+  readonly RandomTag: any,
+}
+
+
+interface QueryAdminMetadataQueryResult {
+  readonly AdminMetadata: any,
+}
+
+
+interface QueryMigrationsDashboardQueryResult {
+  readonly MigrationsDashboard: any,
+}
+
+
+interface QueryElicitQueryResult {
+  readonly ElicitBlockData: any,
+}
+
+
+interface QueryPostAnalyticsQueryResult {
+  readonly PostAnalytics: any,
+}
+
+
+interface QueryCoronaVirusDataResult {
+  readonly CoronaVirusData: any,
+}
+
+
+interface QueryTagUpdatesInTimeBlockResult {
+  readonly TagUpdatesInTimeBlock: any,
+}
+
+
+interface QueryContinueReadingQueryResult {
+  readonly ContinueReading: any,
+}
+
+
+interface QueryPetrovDayLaunchResolversResult {
+  readonly PetrovDayCheckIfIncoming: any,
+}
+
+
+interface QueryRevisionsDiffResult {
+  readonly RevisionsDiff: any,
+}
+
+
+interface QueryResultTypes {
+  RecommendationsQuery: QueryRecommendationsQueryResult
+  MozillaHubsRoomData: QueryMozillaHubsRoomDataResult
+  EmailPreviewQuery: QueryEmailPreviewQueryResult
+  ArbitalPageRequest: QueryArbitalPageRequestResult
+  GetRandomTag: QueryGetRandomTagResult
+  AdminMetadataQuery: QueryAdminMetadataQueryResult
+  MigrationsDashboardQuery: QueryMigrationsDashboardQueryResult
+  ElicitQuery: QueryElicitQueryResult
+  PostAnalyticsQuery: QueryPostAnalyticsQueryResult
+  CoronaVirusData: QueryCoronaVirusDataResult
+  TagUpdatesInTimeBlock: QueryTagUpdatesInTimeBlockResult
+  ContinueReadingQuery: QueryContinueReadingQueryResult
+  PetrovDayLaunchResolvers: QueryPetrovDayLaunchResolversResult
+  RevisionsDiff: QueryRevisionsDiffResult
+}
+
+type QueryName = "RecommendationsQuery"|"MozillaHubsRoomData"|"EmailPreviewQuery"|"ArbitalPageRequest"|"GetRandomTag"|"AdminMetadataQuery"|"MigrationsDashboardQuery"|"ElicitQuery"|"PostAnalyticsQuery"|"CoronaVirusData"|"TagUpdatesInTimeBlock"|"ContinueReadingQuery"|"PetrovDayLaunchResolvers"|"RevisionsDiff"

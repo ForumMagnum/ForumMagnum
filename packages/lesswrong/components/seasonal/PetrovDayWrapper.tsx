@@ -1,6 +1,6 @@
 import { registerComponent, Components} from '../../lib/vulcan-lib';
 import React, {useEffect, useState} from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 import moment from '../../lib/moment-timezone';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
@@ -12,25 +12,11 @@ const PetrovDayWrapper = () => {
   const [timeTillForeignMissileArrival, setTimeTillForeignMissileArrival] = useState<number|undefined>(undefined)
   
   
-  const { data: externalData } = useQuery(gql` 
-    query petrovDayLaunchResolvers {
-      PetrovDayCheckIfIncoming(external: true) {
-        launched
-        createdAt
-      }
-    }
-  `, {
+  const { data: externalData } = useQuery("PetrovDayLaunchResolvers", {
     ssr: true
   });
   
-  const { data: internalData } = useQuery(gql`
-    query petrovDayLaunchResolvers {
-      PetrovDayCheckIfIncoming(external: false) {
-        launched
-        createdAt
-      }
-    }
-  `, {
+  const { data: internalData } = useQuery("PetrovDayLaunchResolvers", {
     ssr: true
   });
   

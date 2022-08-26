@@ -3,50 +3,17 @@ import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
-import { useMutation, useQuery, gql } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 import { useDialog } from '../common/withDialog';
+import { elicitDataFragment } from '../../lib/queries';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
-
-const elicitDataFragment = `
-  _id
-  title
-  notes
-  resolvesBy
-  resolution
-  predictions {
-    _id,
-    predictionId,
-    prediction,
-    createdAt,
-    notes,
-    sourceUrl,
-    sourceId,
-    binaryQuestionId
-    creator {
-      _id,
-      displayName,
-      sourceUserId
-      lwUser {
-        ...UsersMinimumInfo
-      }
-    }
-  }
-`
-
-const elicitQuery = gql`
-  query ElicitBlockData($questionId: String) {
-    ElicitBlockData(questionId: $questionId) {
-     ${elicitDataFragment}
-    }
-  }
-  ${getFragment("UsersMinimumInfo")}
-`;
 
 const rootHeight = 50
 const rootPaddingTop = 12
@@ -191,7 +158,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
   const { UsersName, ContentStyles } = Components;
-  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
+  const { data, loading } = useQuery("ElicitQuery", { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {

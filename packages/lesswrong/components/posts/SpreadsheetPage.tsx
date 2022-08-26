@@ -8,7 +8,7 @@ import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
 import * as _ from 'underscore';
 import classNames from 'classnames';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
@@ -376,37 +376,13 @@ const SpreadsheetPage = ({classes}:{
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components
-  const { data, loading } = useQuery(gql`
-    query CoronaVirusData {
-      CoronaVirusData {
-        range
-        majorDimension
-        values {
-          accepted
-          imp
-          link
-          shortDescription
-          url
-          description
-          domain
-          type
-          reviewerThoughts
-          foundVia
-          sourceLink
-          sourceLinkDomain
-          lastUpdated
-          title
-          dateAdded
-          category
-        } 
-      }
-    }
-  `, {
+  const { data, loading } = useQuery("CoronaVirusData", {
     ssr: true
   });
   
 
-  if (loading) return <Loading />
+  if (loading || !data)
+    return <Loading />
 
   const dataRows = _.filter(data.CoronaVirusData.values, (row: any): boolean => row.accepted === "Accept")
   const sortedRowsAdded = _.sortBy(dataRows, (row: any) => -row.dateAdded)

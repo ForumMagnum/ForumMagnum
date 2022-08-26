@@ -1,4 +1,3 @@
-import { gql, useQuery } from '@apollo/client';
 import Card from '@material-ui/core/Card';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import React from 'react';
@@ -9,6 +8,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
+import { useQuery } from '../../lib/crud/useQuery';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -462,20 +462,10 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   id?: string,
 }) => {
   const roomId = href.split("/")[3]
-  const { data: rawData, loading } = useQuery(gql`
-    query MozillaHubsRoomData {
-      MozillaHubsRoomData(roomId: "${roomId || 'asdasd'}") {
-        id
-        previewImage
-        lobbyCount
-        memberCount
-        roomSize
-        description
-        url
-        name
-      }
-    }
-  `, {
+  const { data: rawData, loading } = useQuery("MozillaHubsRoomData", {
+    variables: {
+      roomId: roomId||'asdasd',
+    },
     ssr: true
   });
   
@@ -730,14 +720,8 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
-  const { data: rawData, loading } = useQuery(gql`
-    query ArbitalPageRequest {
-      ArbitalPageData(pageAlias: "${arbitalSlug}") {
-        title
-        html
-      }
-    }
-  `, {
+  const { data: rawData, loading } = useQuery("ArbitalPageRequest", {
+    variables: {arbitalSlug},
     ssr: true,
     skip: !arbitalSlug,
   });

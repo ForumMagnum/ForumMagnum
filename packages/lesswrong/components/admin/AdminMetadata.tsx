@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   indexesTable: {
@@ -16,14 +16,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const adminMetadataQuery = gql`query AdminMetadataQuery {
-  AdminMetadata
-}`;
-
 const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
-  const { data, loading } = useQuery(adminMetadataQuery, { ssr: true });
-  if (loading)
+  const { data, loading } = useQuery("AdminMetadataQuery", { ssr: true });
+  if (loading || !data) {
     return <Components.Loading/>
+  }
   
   const adminMetadata = JSON.parse(data.AdminMetadata);
   const {missingIndexes, extraIndexes, serverInfo} = adminMetadata;

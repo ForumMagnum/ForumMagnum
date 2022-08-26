@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '../../lib/crud/useQuery';
 
 const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
@@ -15,11 +15,7 @@ const NotificationEmailPreviewPage = () => {
   const { query } = useLocation();
   const notificationIds = parseIds(query?.notificationIds);
   const postId = query?.postId;
-  const { data, loading } = useQuery(gql`
-      query EmailPreviewQuery($notificationIds: [String], $postId: String) {
-        EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }
-      }
-  `, {
+  const { data, loading } = useQuery("EmailPreviewQuery", {
     variables: {notificationIds, postId},
     ssr: true
   });
