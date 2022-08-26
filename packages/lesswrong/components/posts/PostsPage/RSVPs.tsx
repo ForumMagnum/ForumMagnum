@@ -6,7 +6,6 @@ import { registerComponent, Components, getFragment } from '../../../lib/vulcan-
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { gql, useMutation } from '@apollo/client';
@@ -46,14 +45,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   goingButton: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    marginRight: 8
   },
   goingIcon: {
     height: 12,
     color: theme.palette.primary.main
   },
   maybeButton: {
-    color: theme.palette.text.eventMaybe
+    color: theme.palette.text.eventMaybe,
+    borderColor: theme.palette.text.eventMaybe,
+    marginRight: 8
   },
   maybeIcon: {
     height: 12,
@@ -64,6 +67,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   cantGoIcon: {
     height: 12,
+  },
+  email: {
+    ...theme.typography.smallText,
+    color: theme.palette.text.dim3,
+    marginLeft: 24
   },
   remove: {
     color: theme.palette.grey[500],
@@ -90,7 +98,7 @@ const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType
 }) => {
-  const { ContentStyles, LWTooltip } = Components;
+  const { ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -119,13 +127,13 @@ const RSVPs = ({post, classes}: {
     <div className={classes.topRow}>
       <i>The host has requested RSVPs for this event</i>
       <span className={classes.buttons}>
-        <Button color="primary" className={classes.goingButton} onClick={() => openRSVPForm("yes")}>
-          Going <CheckCircleOutlineIcon className={classes.goingIcon} />
+        <Button color="primary" variant="outlined" className={classes.goingButton} onClick={() => openRSVPForm("yes")}>
+          <CheckCircleOutlineIcon className={classes.goingIcon} /> Going
         </Button>
-        <Button className={classes.maybeButton} onClick={() => openRSVPForm("maybe")}>
-          Maybe <HelpOutlineIcon className={classes.maybeIcon} />
+        <Button variant="outlined" className={classes.maybeButton} onClick={() => openRSVPForm("maybe")}>
+          <HelpOutlineIcon className={classes.maybeIcon} /> Maybe
         </Button>
-        <Button className={classes.button} onClick={() => openRSVPForm("no")}>
+        <Button variant="outlined" className={classes.button} onClick={() => openRSVPForm("no")}>
           Can't Go
         </Button>
       </span>
@@ -135,10 +143,6 @@ const RSVPs = ({post, classes}: {
         {post.rsvps.map((rsvp:RSVPType) => {
           const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
           return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
-          <LWTooltip title={<div>
-            {responseToText[rsvp.response]}
-            {currentUser?._id === post.userId && <p>{rsvp.email}</p>}
-          </div>}>
             <div>
               {responseToText[rsvp.response] === "Going" && <CheckCircleOutlineIcon className={classes.goingIcon} />}
               {responseToText[rsvp.response] === "Maybe" && <HelpOutlineIcon className={classes.maybeIcon} />}
@@ -147,7 +151,9 @@ const RSVPs = ({post, classes}: {
                     x
                   </span>}
             </div>
-          </LWTooltip>
+            {currentUser?._id === post.userId && <div className={classes.email}>
+              {rsvp.email}
+            </div>}
         </span>
         })}
       </div>
