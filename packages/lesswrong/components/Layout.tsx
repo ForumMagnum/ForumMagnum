@@ -256,7 +256,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && currentTime < afterTime
     }
     
-    const renderCommunityMap = forumTypeSetting.get() === "LessWrong" && currentRoute?.name === 'home'
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap)
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -304,7 +304,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              {renderCommunityMap && <HomepageCommunityMap />}
+              {renderCommunityMap && <HomepageCommunityMap/>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
