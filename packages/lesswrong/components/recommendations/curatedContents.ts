@@ -1,9 +1,10 @@
 import { CuratedContent } from "./CuratedContentItem"
 
 export const acxEverywhere: CuratedContent = {
-  documentType: "Link",
+  documentType: "Post",
   document: {
-    url: "https://astralcodexten.substack.com/p/meetups-everywhere-2022-times-and",
+    _id: "fLdADsBLAMuGvky2M",
+    slug: "meetups-everywhere-2022-times-and",
     title: "ACX Meetups Everywhere",
   },
   description: "Thanks to everyone who responded to the request for ACX meetup organizers. Volunteers have arranged meetups in 205 cities around the world, including Penryn, Cornwall and Baghdad, Iraq. You can find the list below... <em>(read more)</em>",
