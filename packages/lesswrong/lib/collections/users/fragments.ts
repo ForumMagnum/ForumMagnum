@@ -443,6 +443,8 @@ registerFragment(`
 registerFragment(`
   fragment UsersCrosspostInfo on User {
     _id
+    username
+    slug
     fmCrosspostUserId
   }
 `)

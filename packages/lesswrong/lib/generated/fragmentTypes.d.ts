@@ -2089,6 +2089,8 @@ interface UsersProfileEdit { // fragment on Users
 
 interface UsersCrosspostInfo { // fragment on Users
   readonly _id: string,
+  readonly username: string,
+  readonly slug: string,
   readonly fmCrosspostUserId: string,
 }
 

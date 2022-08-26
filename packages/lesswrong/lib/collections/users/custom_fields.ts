@@ -1691,8 +1691,9 @@ addFieldsDict(Users, {
   fmCrosspostUserId: {
     type: String,
     optional: true,
+    hidden: true,
     canCreate: ['members'],
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
 

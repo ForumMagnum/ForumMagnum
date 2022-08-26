@@ -5,6 +5,7 @@ import {
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
+import { useCrosspostApolloClient } from "../posts/PostsPage/withCrosspostApolloClient";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
@@ -22,7 +23,39 @@ const styles = (theme: ThemeType): JssStyles => ({
   frame: {
     border: "none",
   },
+  link: {
+    color: theme.palette.primary.main,
+  },
 });
+
+const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
+  fmCrosspostUserId: string,
+  classes: ClassesType,
+}) => {
+  const apolloClient = useCrosspostApolloClient();
+  const {document, refetch, loading: loadingDocument} = useSingle({
+    documentId: fmCrosspostUserId,
+    collectionName: "Users",
+    fragmentName: "UsersCrosspostInfo",
+    apolloClient,
+  });
+
+  const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
+
+  const {Loading} = Components;
+  return document
+    ? (
+      <div>
+        This post will be crossposted to {fmCrosspostSiteNameSetting.get()} on
+        your account <a className={classes.link} href={link} target="_blank" rel="nofollow">
+          {document.username}
+        </a>
+      </div>
+    )
+    : (
+      <Loading />
+    );
+}
 
 const FMCrosspostView = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlink, classes}: {
   fmCrosspostUserId?: string,
@@ -39,25 +72,20 @@ const FMCrosspostView = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
     );
   }
 
-  if (fmCrosspostUserId) {
-    return (
+  return fmCrosspostUserId
+    ? (
       <div>
-        <div>
-          This post will be crossposted to {fmCrosspostSiteNameSetting.get()} on
-          your account with user ID &quot;{fmCrosspostUserId}&quot;
-        </div>
+        <FMCrosspostAccount fmCrosspostUserId={fmCrosspostUserId} classes={classes} />
         <Button onClick={onClickUnlink} className={classes.button}>
           Unlink this account
         </Button>
       </div>
+    )
+    :(
+      <Button onClick={onClickLogin} className={classes.button}>
+        Login to {fmCrosspostSiteNameSetting.get()} to enable crossposting
+      </Button>
     );
-  }
-
-  return (
-    <Button onClick={onClickLogin} className={classes.button}>
-      Login to {fmCrosspostSiteNameSetting.get()} to enable crossposting
-    </Button>
-  );
 }
 
 const unlinkCrossposterMutation = gql`
