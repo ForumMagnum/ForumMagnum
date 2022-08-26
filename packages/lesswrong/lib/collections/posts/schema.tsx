@@ -960,8 +960,7 @@ const schema: SchemaType<DbPost> = {
       }
     },
     ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
-  },
-  
+  },  
   myEditorAccess: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
@@ -973,6 +972,18 @@ const schema: SchemaType<DbPost> = {
       });
     }
   }),
+  podcastEpisodeId: {
+    ...foreignKeyField({
+      idFieldName: 'podcastEpisodeId',
+      resolverName: 'podcastEpisode',
+      collectionName: 'PodcastEpisodes',
+      type: 'PodcastEpisode',
+      nullable: true
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    nullable: true
+  }
 };
 
 export default schema;

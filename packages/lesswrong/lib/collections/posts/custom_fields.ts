@@ -154,8 +154,8 @@ addFieldsDict(Posts, {
     control: 'datetime',
     optional: true,
     viewableBy: ['guests'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-    editableBy: ['sunshineRegiment', 'admins'],
+    editableBy: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+    insertableBy: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
   },
   // metaDate: Date at which the post was marked as meta (null or false if it
@@ -797,8 +797,8 @@ addFieldsDict(Posts, {
     foreignKey: "Users",
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+    insertableBy: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
     label: "Curated Review UserId"
   },

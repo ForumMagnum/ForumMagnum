@@ -267,6 +267,18 @@ registerFragment(`
       title
     }
 
+    # Podcast
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+
     # Moderation stuff
     showModerationGuidelines
     bannedUserIds
