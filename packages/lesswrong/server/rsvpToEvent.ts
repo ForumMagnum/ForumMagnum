@@ -78,7 +78,7 @@ addGraphQLResolvers({
         collection: Posts,
         documentId: postId,
         set: {
-          // maybe analagous race condition? - Ray
+          // maybe analagous race condition? See RSVPToEvent comments- Ray
           rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0 )
         },
         validate: false
