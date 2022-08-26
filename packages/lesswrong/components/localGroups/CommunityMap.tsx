@@ -64,7 +64,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', defaultShowGroups, defaultShowUsers, showHideMap = false, hideLegend, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
@@ -73,8 +73,8 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   zoom: number,
   classes: ClassesType,
   className?: string,
-  defaultShowUsers?: boolean,
-  defaultShowGroups?: boolean,
+  showUsersByDefault?: boolean,
+  showGroupsByDefault?: boolean,
   showHideMap?: boolean,
   hideLegend?: boolean,
   petrovButton?: boolean,
@@ -93,8 +93,8 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   )
 
   const [ showEvents, setShowEvents ] = useState(true)
-  const [ showGroups, setShowGroups ] = useState(!!defaultShowGroups)
-  const [ showUsers, setShowUsers ] = useState(!!defaultShowUsers)
+  const [ showGroups, setShowGroups ] = useState(!!showGroupsByDefault)
+  const [ showUsers, setShowUsers ] = useState(!!showUsersByDefault)
   const [ showMap, setShowMap ] = useState(true)
 
   const [ viewport, setViewport ] = useState({
