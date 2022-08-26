@@ -254,7 +254,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
           mapOptions={userLocation.known ? {center: userLocation, zoom: 5} : {zoom: 1}}
           keywordSearch={keywordSearch}
           hideLegend
-          showUsers={false}
+          showUsersByDefault={false}
         />
       </div>
     </div>
