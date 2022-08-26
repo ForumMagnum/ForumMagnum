@@ -212,6 +212,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly onlyVisibleToLoggedIn: boolean,
   readonly onlyVisibleToEstablishedAccounts: boolean,
   readonly votingSystem: string,
+  readonly podcastEpisodeId: string | null,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -534,6 +535,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSequence: PostsDetails_canonicalSequence|null,
   readonly canonicalBook: PostsDetails_canonicalBook|null,
   readonly canonicalCollection: PostsDetails_canonicalCollection|null,
+  readonly podcastEpisode: PostsDetails_podcastEpisode|null,
   readonly showModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
@@ -567,6 +569,19 @@ interface PostsDetails_canonicalBook { // fragment on Books
 interface PostsDetails_canonicalCollection { // fragment on Collections
   readonly _id: string,
   readonly title: string,
+}
+
+interface PostsDetails_podcastEpisode { // fragment on PodcastEpisodes
+  readonly title: string,
+  readonly podcast: PostsDetails_podcastEpisode_podcast,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
@@ -1673,6 +1688,19 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts",
 }
 
+interface PodcastsDefaultFragment { // fragment on Podcasts
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
+}
+
+interface PodcastEpisodesDefaultFragment { // fragment on PodcastEpisodes
+  readonly podcastId: string,
+  readonly title: string,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
@@ -1838,6 +1866,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
       onlyUnread: boolean,
     },
   },
+  readonly theme: string,
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
@@ -2299,6 +2328,8 @@ interface FragmentTypes {
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
+  PodcastsDefaultFragment: PodcastsDefaultFragment
+  PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -2449,6 +2480,8 @@ interface CollectionNamesByFragmentName {
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
+  PodcastsDefaultFragment: "Podcasts"
+  PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
@@ -2472,5 +2505,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 
