@@ -112,8 +112,6 @@ const getUrlFromDocument = (document: any, documentType: CuratedContentDocType) 
       return `/${document.slug}`
     case "Post":
       return `/posts/${document._id}/${document.slug}`
-    case "Link":
-      return document.url
   }
 }
 
