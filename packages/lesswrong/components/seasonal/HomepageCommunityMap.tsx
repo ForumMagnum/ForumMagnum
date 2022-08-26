@@ -30,7 +30,6 @@ export const HomepageCommunityMap = ({classes}: {
   return <div className={classes.root}>
     <CommunityMapWrapper
       terms={mapEventTerms}
-      mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
       showHideMap
       showGroupsByDefault={false}
     />
