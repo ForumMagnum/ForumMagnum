@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles } = Components
+  const { SingleColumnSection, Loading, ContentStyles, Typography, WrappedLoginForm } = Components
   const currentUser = useCurrentUser();
   const [editorLoaded, setEditorLoaded] = useState(false)
 
@@ -59,12 +59,12 @@ const PostCollaborationEditor = ({ classes }: {
   // If logged out, show a login form. (Even if link-sharing is enabled, you still
   // need to be logged into LessWrong with some account.)
   if (!currentUser) {
-    return <Components.SingleColumnSection>
-      <div>
+    return <SingleColumnSection>
+      <Typography variant="body1">
         Please log in to access this draft
-      </div>
-      <Components.WrappedLoginForm/>
-    </Components.SingleColumnSection>
+      </Typography>
+      <WrappedLoginForm/>
+    </SingleColumnSection>
   }
   
   // Error handling and loading state
@@ -121,4 +121,3 @@ declare global {
     PostCollaborationEditor: typeof PostCollaborationEditorComponent
   }
 }
-

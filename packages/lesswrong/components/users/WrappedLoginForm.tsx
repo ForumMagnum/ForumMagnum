@@ -53,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     '&.ea-forum': {
+      maxWidth: 400,
       justifyContent: 'space-around',
       padding: '8px 20px',
     }
@@ -197,7 +198,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   </Components.ContentStyles>;
 }
 
-const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
+const WrappedLoginFormEA = ({startingState='login', classes}: WrappedLoginFormProps) => {
   const { pathname } = useLocation()
   
   return <Components.ContentStyles contentType="commentExceptPointerEvents">
