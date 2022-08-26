@@ -74,7 +74,7 @@ addGraphQLResolvers({
 
       // eslint-disable-next-line no-console
       console.log("old rsvps", post.rsvps)
-      let rsvps = post.rsvps.filter(rsvp => rsvp.name !== name) || []
+      const rsvps = post.rsvps.filter(rsvp => rsvp.name !== name)
 
       // eslint-disable-next-line no-console
       console.log("new rsvps", rsvps)
@@ -90,7 +90,7 @@ addGraphQLResolvers({
       })).data
 
       await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id})
-      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return accessFilterSingle(currentUser, Posts, updatedPost, context);
     }
   }
 });
