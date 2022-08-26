@@ -21,6 +21,7 @@ export const zIndexes = {
   sequenceBanner: 0,
   singleColumnSection: 1,
   curatedContentItem: 1,
+  curatedContentItemCloseButton: 2,
   commentsMenu: 2,
   sequencesPageContent: 2,
   sequencesImageScrim: 2,
