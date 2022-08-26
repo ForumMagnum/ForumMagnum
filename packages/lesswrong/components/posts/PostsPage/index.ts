@@ -7,6 +7,7 @@ importComponent("PostsPagePostHeader", () => require('./PostsPagePostHeader'));
 importComponent("PostCoauthorRequest", () => require('./PostCoauthorRequest'));
 importComponent("PostsPageWrapper", () => require('./PostsPageWrapper'));
 importComponent("PostsPageCrosspostWrapper", () => require('./PostsPageCrosspostWrapper'));
+importComponent("PostsPageCrosspostComments", () => require('./PostsPageCrosspostComments'));
 importComponent("PostBodyPrefix", () => require('./PostBodyPrefix'));
 importComponent("PostsAuthors", () => require('./PostsAuthors'));
 importComponent("PostsPageTitle", () => require('./PostsPageTitle'));

@@ -157,8 +157,9 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
+    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles, PostsPageCrosspostComments
+  } = Components
 
   useEffect(() => {
     recordPostView({
@@ -246,6 +247,11 @@ const PostsPage = ({post, refetch, classes}: {
       </div>
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+        {post.fmCrosspost?.isCrosspost &&
+          <div className={classes.centralColumn}>
+            <PostsPageCrosspostComments />
+          </div>
+        }
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>

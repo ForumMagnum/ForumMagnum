@@ -36,7 +36,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     return <div><Loading/></div>
   } else if (!post) {
     return <Error404/>
-  } else if (post.fmCrosspost?.isCrosspost && !post.fmCrosspost?.hostedHere) {
+  } else if (post.fmCrosspost?.isCrosspost) {
     return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
   }
 

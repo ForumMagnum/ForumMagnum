@@ -1,11 +1,24 @@
-import React from "react";
+import React, { createContext, useContext } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle, UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useCrosspostApolloClient } from "./withCrosspostApolloClient";
 
+type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
+
+export type CrosspostContext = {
+  hostedHere: boolean,
+  localPost: PostType,
+  foreignPost: PostType,
+  combinedPost?: PostType,
+}
+
+const crosspostContext = createContext<CrosspostContext | null>(null);
+
+export const useCrosspostContext = () => useContext(crosspostContext);
+
 const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostType,
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
@@ -25,13 +38,25 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
     return <Error404/>
   }
 
-  const result = {
-    ...document,
-    ...post,
-    contents: document.contents,
+  const contextValue: CrosspostContext = {
+    hostedHere: post.fmCrosspost.hostedHere,
+    localPost: post,
+    foreignPost: document,
   };
 
-  return <PostsPage post={result} refetch={refetch} />
+  if (!contextValue.hostedHere) {
+    contextValue.combinedPost = {
+      ...document,
+      ...post,
+      contents: document.contents,
+    };
+  }
+
+  return (
+    <crosspostContext.Provider value={contextValue}>
+      <PostsPage post={contextValue.combinedPost ?? post} refetch={refetch} />
+    </crosspostContext.Provider>
+  );
 }
 
 const PostsPageCrosspostWrapperComponent = registerComponent("PostsPageCrosspostWrapper", PostsPageCrosspostWrapper);
