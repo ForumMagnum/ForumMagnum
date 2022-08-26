@@ -1,4 +1,4 @@
-import { CuratedContent } from "./CuratedContentItem"
+import type { CuratedContent } from "./CuratedContentItem"
 
 export const acxEverywhere: CuratedContent = {
   documentType: "Post",
