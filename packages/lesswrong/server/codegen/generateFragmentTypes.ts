@@ -130,7 +130,7 @@ function getSpreadFragments(parsedFragment): Array<string> {
   return spreadFragmentNames;
 }
 
-function getFragmentFieldType(fragmentName: string, parsedFragmentField, collection):
+export function getFragmentFieldType(fragmentName: string, parsedFragmentField, collection):
   { fieldType: string, subfragment: string|null }
 {
   const fieldName: string = parsedFragmentField.name.value;

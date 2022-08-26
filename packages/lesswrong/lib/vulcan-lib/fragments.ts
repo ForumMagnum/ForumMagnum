@@ -17,18 +17,26 @@ export const extractFragmentName = (fragmentText: string): FragmentName => {
   return match[1] as FragmentName;
 }
 
+export const removeCommentsFromGraphQL = (graphql: string): string => {
+  return graphql.replace(/#.*\n/g, '\n');
+}
+
+export const getSubfragmentsFromGraphQL = (graphql: string): string[] => {
+  const matchedSubFragments = graphql.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
+  return _.unique(matchedSubFragments.map(f => f.replace('...', '')));
+}
+
 
 // Register a fragment, including its text, the text of its subfragments, and the fragment object
 export const registerFragment = (fragmentTextSource: string): void => {
   // remove comments
-  const fragmentText = fragmentTextSource.replace(/#.*\n/g, '\n');
+  const fragmentText = removeCommentsFromGraphQL(fragmentTextSource);
 
   // extract name from fragment text
   const fragmentName = extractFragmentName(fragmentText) as FragmentName;
 
   // extract subFragments from text
-  const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
-  const subFragments = _.unique(matchedSubFragments.map(f => f.replace('...', '')));
+  const subFragments = getSubfragmentsFromGraphQL(fragmentText);
   
   // register fragment
   Fragments[fragmentName] = {
@@ -131,7 +139,11 @@ export const getAllFragmentNames = (): Array<FragmentName> => {
 const addFragmentDependencies = (fragments: Array<FragmentName>): Array<FragmentName> => {
   const result = [...fragments];
   for (let i=0; i<result.length; i++) {
-    const dependencies = Fragments[result[i]].subFragments;
+    const fragment = Fragments[result[i]];
+    if (!fragment) {
+      throw new Error(`Subfragment not found: ${result[i]}`);
+    }
+    const dependencies = fragment.subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
         if (!_.find(result, (s: FragmentName)=>s==subfragment))
