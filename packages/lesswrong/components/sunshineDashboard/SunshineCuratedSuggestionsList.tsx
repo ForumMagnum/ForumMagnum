@@ -10,6 +10,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCurrent | null) => {
+  if (forumTypeSetting.get() === "EAForum") {
+    return !belowFold && currentUser?.isAdmin;
+  } else {
+    const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));
+    return belowFold || (curatedDate <= twoAndAHalfDaysAgo);
+  }
+}
+
 const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   terms: PostsViewTerms,
   belowFold?: boolean,
@@ -33,10 +42,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate) : new Date();
   const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));
 
-  if (
-    (!belowFold && (curatedDate > twoAndAHalfDaysAgo)) ||
-    (forumTypeSetting.get() === "EAForum" && !currentUser?.isAdmin)
-  ) {
+  if (!shouldShow(!!belowFold, curatedDate, currentUser)) {
     return null
   }
 
