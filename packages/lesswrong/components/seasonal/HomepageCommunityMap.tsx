@@ -30,6 +30,7 @@ export const HomepageCommunityMap = ({classes}: {
   return <div className={classes.root}>
     <CommunityMapWrapper
       terms={mapEventTerms}
+      showHideMap
       showGroupsByDefault={false}
     />
   </div>;
