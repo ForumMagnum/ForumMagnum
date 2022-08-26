@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMorePadding: {
@@ -13,6 +15,8 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   belowFold?: boolean,
   classes: ClassesType,
 }) => {
+  const currentUser = useCurrentUser();
+
   const { results, loadMoreProps, showLoadMore } = useMulti({
     terms,
     collectionName: "Posts",
@@ -29,8 +33,13 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate) : new Date();
   const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));
 
-  if (!belowFold && (curatedDate > twoAndAHalfDaysAgo)) return null
-  
+  if (
+    (!belowFold && (curatedDate > twoAndAHalfDaysAgo)) ||
+    (forumTypeSetting.get() === "EAForum" && !currentUser?.isAdmin)
+  ) {
+    return null
+  }
+
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore } = Components
     
   if (results && results.length) {
