@@ -4,7 +4,7 @@ import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 
 const ErrorAccessDenied = () => {
-  const { SingleColumnSection } = Components;
+  const { SingleColumnSection, Typography } = Components;
   const serverRequestStatus = useServerRequestStatus()
   const currentUser = useCurrentUser();
   if (serverRequestStatus) serverRequestStatus.status = 403
@@ -15,7 +15,9 @@ const ErrorAccessDenied = () => {
     </SingleColumnSection>
   } else {
     return <SingleColumnSection>
-      <div>Please log in to access this page.</div>
+      <Typography variant='body1'>
+        Please log in to access this page.
+      </Typography>
       <Components.WrappedLoginForm/>
     </SingleColumnSection>
   }
