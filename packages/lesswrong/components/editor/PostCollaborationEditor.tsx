@@ -63,7 +63,7 @@ const PostCollaborationEditor = ({ classes }: {
       <Typography variant="body1">
         Please log in to access this draft
       </Typography>
-      <WrappedLoginForm/>
+      <WrappedLoginForm startingState='login'/>
     </SingleColumnSection>
   }
   

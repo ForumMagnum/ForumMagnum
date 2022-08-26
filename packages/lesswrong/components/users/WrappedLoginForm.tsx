@@ -198,7 +198,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   </Components.ContentStyles>;
 }
 
-const WrappedLoginFormEA = ({startingState='login', classes}: WrappedLoginFormProps) => {
+const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
   const { pathname } = useLocation()
   
   return <Components.ContentStyles contentType="commentExceptPointerEvents">
