@@ -1,14 +1,13 @@
 import { CuratedContent } from "./CuratedContentItem"
 
 export const acxEverywhere: CuratedContent = {
-  documentType: "Post",
+  documentType: "Link",
   document: {
-    _id: "aan3jPEEwPhrcGZjj",
-    slug: "acx-meetups-everywhere",
+    url: "https://astralcodexten.substack.com/p/meetups-everywhere-2022-times-and",
     title: "ACX Meetups Everywhere",
   },
-  description: "Find a meetup near you, and get involved with the Astral Codex Ten community",
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1661327927/dalle-park_vyfchm.jpg"
+  description: "Thanks to everyone who responded to the request for ACX meetup organizers. Volunteers have arranged meetups in 205 cities around the world, including Penryn, Cornwall and Baghdad, Iraq. You can find the list below... <em>(read more)</em>",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1661537548/dalle-park_vyfchm2_dkm9jr.png"
 }
 
 export const replacingGuilt: CuratedContent = {
