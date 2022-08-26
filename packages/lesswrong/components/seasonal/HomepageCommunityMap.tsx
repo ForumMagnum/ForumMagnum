@@ -18,7 +18,10 @@ export const HomepageCommunityMap = ({classes}: {
   const { CommunityMapWrapper } = Components
   
   const currentUser = useCurrentUser()
-  const currentUserLocation = useUserLocation(currentUser)
+ 
+  // this is unused, but for Meetup Month it seems good to force the prompt to enter location.
+  useUserLocation(currentUser)
+
   const mapEventTerms: PostsViewTerms = {
     view: 'events',
     filters: [],
@@ -27,7 +30,7 @@ export const HomepageCommunityMap = ({classes}: {
   return <div className={classes.root}>
     <CommunityMapWrapper
       terms={mapEventTerms}
-      mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
+      defaultShowGroups={false}
     />
   </div>;
 }
