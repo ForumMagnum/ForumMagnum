@@ -60,3 +60,40 @@ addGraphQLResolvers({
     }
   }
 });
+
+addGraphQLMutation('CancelRSVPToEvent(postId: String, name: String, userId: String): Post');
+addGraphQLResolvers({
+  Mutation: {
+    async CancelRSVPToEvent(root: void, {postId, name, userId}: {postId: string, name: string, userId: string}, context: ResolverContext) {
+      const { currentUser } = context;
+      const post = await context.loaders.Posts.load(postId);
+      console.log("currentUser", currentUser?._id)
+      console.log(currentUser?._id, userId, post.userId)
+      console.log(currentUser?._id !== userId)
+      console.log(userId !== post.userId)
+      if (currentUser?._id !== userId && currentUser?._id !== post.userId) {
+        throw new Error("user does not have permission to remove rsvps of this userId")
+      }
+
+      // eslint-disable-next-line no-console
+      console.log("old rsvps", post.rsvps)
+      let rsvps = post.rsvps.filter(rsvp => rsvp.name !== name) || []
+
+      // eslint-disable-next-line no-console
+      console.log("new rsvps", rsvps)
+
+      const updatedPost = (await updateMutator({
+        collection: Posts,
+        documentId: postId,
+        set: {
+          // maybe analagous race condition? - Ray
+          rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0 )
+        },
+        validate: false
+      })).data
+
+      await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id})
+      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
+    }
+  }
+});

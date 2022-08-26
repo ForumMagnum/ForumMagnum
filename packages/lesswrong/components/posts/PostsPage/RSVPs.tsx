@@ -2,13 +2,14 @@ import Button from '@material-ui/core/Button';
 import React, { useCallback, useEffect } from 'react';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useLocation } from '../../../lib/routeUtil';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent, Components, getFragment } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import { gql, useMutation } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
@@ -44,16 +45,36 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "block"
     },
   },
-  icon: {
-    height: 12
+  goingButton: {
+    color: theme.palette.primary.main
   },
-  button: {
-
-  }, 
-  close: {
+  goingIcon: {
+    height: 12,
+    color: theme.palette.primary.main
+  },
+  maybeButton: {
+    color: theme.palette.text.eventMaybe
+  },
+  maybeIcon: {
+    height: 12,
+    color: theme.palette.text.eventMaybe
+  },
+  cantGoButton: {
+    color: theme.palette.grey[800]
+  },
+  cantGoIcon: {
+    height: 12,
+  },
+  remove: {
     color: theme.palette.grey[500],
     marginLeft: 12,
-    cursor: "pointer"
+    cursor: "pointer",
+    position: "relative",
+    top: -2
+  },
+  rsvpName: {
+    position: "relative",
+    top: -1
   },
   topRow: {
     display: "flex",
@@ -84,16 +105,25 @@ const RSVPs = ({post, classes}: {
       openRSVPForm("yes")
     }
   })
+  const [cancelMutation] = useMutation(gql`
+    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {
+        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {
+        ...PostsDetails
+        }
+    }
+    ${getFragment("PostsDetails")}
+  `)
+  const cancelRSVP = async (rsvp) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
 
   return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>
       <i>The host has requested RSVPs for this event</i>
       <span className={classes.buttons}>
-        <Button color="primary" className={classes.button} onClick={() => openRSVPForm("yes")}>
-          Going <CheckCircleOutlineIcon className={classes.icon} />
+        <Button color="primary" className={classes.goingButton} onClick={() => openRSVPForm("yes")}>
+          Going <CheckCircleOutlineIcon className={classes.goingIcon} />
         </Button>
-        <Button className={classes.button} onClick={() => openRSVPForm("maybe")}>
-          Maybe <HelpOutlineIcon className={classes.icon} />
+        <Button className={classes.maybeButton} onClick={() => openRSVPForm("maybe")}>
+          Maybe <HelpOutlineIcon className={classes.maybeIcon} />
         </Button>
         <Button className={classes.button} onClick={() => openRSVPForm("no")}>
           Can't Go
@@ -104,17 +134,18 @@ const RSVPs = ({post, classes}: {
       <div className={classes.rsvpBlock}>
         {post.rsvps.map((rsvp:RSVPType) => {
           const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
-
           return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
           <LWTooltip title={<div>
             {responseToText[rsvp.response]}
             {currentUser?._id === post.userId && <p>{rsvp.email}</p>}
           </div>}>
             <div>
-              {rsvp.name}
-              {responseToText[rsvp.response] === "Going" && <CheckCircleOutlineIcon className={classes.icon} />}
-              {responseToText[rsvp.response] === "Maybe" && <HelpOutlineIcon className={classes.icon} />}
-              {canCancel && <span className={classes.delete}>x</span>}
+              {responseToText[rsvp.response] === "Going" && <CheckCircleOutlineIcon className={classes.goingIcon} />}
+              {responseToText[rsvp.response] === "Maybe" && <HelpOutlineIcon className={classes.maybeIcon} />}
+              <span className={classes.rsvpName}>{rsvp.name}</span>
+                  {canCancel && <span className={classes.remove} onClick={() => cancelRSVP(rsvp)}>
+                    x
+                  </span>}
             </div>
           </LWTooltip>
         </span>
