@@ -9,7 +9,7 @@ import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import PersonIcon from '@material-ui/icons/PersonPin';
+import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -138,7 +138,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
     limit: 500,
-    skip: !showUsers
+    skip: !showIndividuals
   })
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';

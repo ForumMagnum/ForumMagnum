@@ -423,10 +423,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eaForumGroupsMobileImg: '#e2f1f4',
   
   contrastText: shades.grey[0],
-  event: '#2b6a99',
-  group: '#588f27',
-  individual: '#3f51b5',
-  
+  event: 'rgba(67,151,71,.65)',
+  group: 'rgba(24,68,155,.65)',
+  individual: 'rgba(90,90,90,.65)',
   primary: {
     main: "#5f9b65",
     dark: "#426c46",
