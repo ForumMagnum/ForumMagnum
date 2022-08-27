@@ -1091,8 +1091,8 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 44,
-    group: formGroups.default,
-    hidden: true,
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'LessWrong',
     label: "Hide the frontpage map"
   },
 
@@ -1102,7 +1102,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     label: "Hide the tagging progress bar",
     order: 45,
     group: formGroups.siteCustomizations
@@ -1116,7 +1116,7 @@ addFieldsDict(Users, {
     // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 46,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
@@ -1128,7 +1128,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 47,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
@@ -1559,6 +1559,7 @@ addFieldsDict(Users, {
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
+    hidden: forumTypeSetting.get() !== "EAForum",
     order: 73,
   },
   walledGardenInvite: {

@@ -4,8 +4,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-export const userCanStartConversations = (user: DbUser|UsersCurrent|null) => {
-  if (!user) return false
+export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
   if (user.deleted) return false
   if (user.conversationsDisabled) return false;
   return true
