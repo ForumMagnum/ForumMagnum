@@ -1756,10 +1756,10 @@ addFieldsDict(Users, {
     group: formGroups.socialMedia
   },
   
-  tagIds: {
+  tagsInterestedInIds: {
     ...arrayOfForeignKeysField({
-      idFieldName: "tagIds",
-      resolverName: "tags",
+      idFieldName: "tagsInterestedInIds",
+      resolverName: "tagsInterestedIn",
       collectionName: "Tags",
       type: "Tag"
     }),
@@ -1775,7 +1775,7 @@ addFieldsDict(Users, {
     tooltip: "This will also update your frontpage topic weightings.",
     placeholder: 'Search for topics'
   },
-  'tagIds.$': {
+  'tagsInterestedInIds.$': {
     type: String,
     foreignKey: "Tags",
     optional: true,

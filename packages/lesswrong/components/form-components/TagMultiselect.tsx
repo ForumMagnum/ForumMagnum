@@ -15,12 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 10,
     marginBottom: 8
   },
-  chip: {
-    marginLeft: 4,
-    marginRight: 4,
-    marginBottom: 4,
-    backgroundColor: theme.palette.background.usersListItem,
-  },
 });
 
 const TagMultiselect = ({ value, path, document, classes, label, placeholder, updateCurrentValues }: {
@@ -32,14 +26,6 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
   placeholder?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-  console.log('value', value)
-  // const [currentId, setCurrentId] = useState(document.parentTag?._id)
-  const { results, loading } = useMulti({
-    terms: {view: 'tagsByIds', ids: value},
-    collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
-  })
-  console.log(results)
 
   // useEffect(() => {
   //   // updateCurrentValues needs to be called after loading the TagBasicInfo query because
@@ -61,19 +47,6 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
     if (value.includes(id))
       updateCurrentValues({ [path]: value.filter(tag => tag !== id) })
   }
-  
-  let tagsNode: ReactNode = loading && <Components.Loading />
-  if (results) {
-    tagsNode = <>
-      {results.map(tag => {
-        return <Chip
-          onDelete={(_: string) => removeTag(tag._id)}
-          className={classes.chip}
-          label={tag}
-        />
-      })}
-    </>
-  }
 
   return (
     <FormControl className={classes.root}>
@@ -85,7 +58,13 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
             placeholder={placeholder}
           />
         </Components.ErrorBoundary>
-        {tagsNode}
+        {value.map(tagId => {
+          return <Components.SingleTagItem
+            key={tagId}
+            documentId={tagId}
+            onDelete={(_: string) => removeTag(tagId)}
+          />
+        })}
       </div>
     </FormControl>
   )

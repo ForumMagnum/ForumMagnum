@@ -107,7 +107,7 @@ const EditProfileForm = ({classes}: {
           'facebookProfileURL',
           'twitterProfileURL',
           'githubProfileURL',
-          'tagIds',
+          'tagsInterestedInIds',
           'organizerOfGroupIds',
           'programParticipation',
         ]}

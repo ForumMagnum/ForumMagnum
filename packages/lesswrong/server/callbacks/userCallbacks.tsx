@@ -28,6 +28,10 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
+import { includes } from 'underscore';
+import { FilterSettings, getDefaultFilterSettings } from '../../lib/filterSettings';
+import Tags from '../../lib/collections/tags/collection';
+import keyBy from 'lodash/keyBy';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -109,6 +113,43 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
 
 getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
   void triggerReviewIfNeeded(document._id)
+})
+
+getCollectionHooks("Users").updateBefore.add(async function updateTagsInterestedInSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
+  const tagIdsAdded = newDocument.tagsInterestedInIds?.filter(tagId => !includes(oldDocument.tagsInterestedInIds || [], tagId)) || []
+  
+  if (tagIdsAdded.length > 0) {
+    const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()
+    const tagsById = keyBy(tagsAdded, tag => tag._id)
+    
+    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings || getDefaultFilterSettings()
+    for (let addedTag of tagIdsAdded) {
+      const tagName = tagsById[addedTag].name
+      const existingFilter = newFrontpageFilterSettings.tags?.find(tag => tag.tagId === addedTag)
+      if (existingFilter) {
+        if (includes([0, 'Default', 'TagDefault'], existingFilter.filterMode)) {
+          newFrontpageFilterSettings = {
+            ...newFrontpageFilterSettings,
+            tags: [
+              ...newFrontpageFilterSettings.tags.filter(tag => tag.tagId !== addedTag),
+              {tagId: addedTag, tagName: tagName, filterMode: 'Subscribed'}
+            ]
+          }
+        }
+      } else {
+        newFrontpageFilterSettings = {
+          ...newFrontpageFilterSettings,
+          tags: [
+            ...newFrontpageFilterSettings.tags,
+            {tagId: addedTag, tagName: tagName, filterMode: 'Subscribed'}
+          ]
+        }
+      }
+    }
+    
+    return {...data, frontpageFilterSettings: newFrontpageFilterSettings}
+  }
+  return data
 })
 
 // When the very first user account is being created, add them to Sunshine
