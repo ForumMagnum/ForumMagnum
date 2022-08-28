@@ -26,7 +26,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     boxShadow: theme.palette.boxShadow.default,
     
     "& .mapboxgl-popup-content": {
-      background: theme.palette.background.default,
+      background: theme.palette.panelBackground.default,
     },
   },
   communityMap: {},
