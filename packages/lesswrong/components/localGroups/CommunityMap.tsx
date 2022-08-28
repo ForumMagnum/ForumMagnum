@@ -24,6 +24,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
+    
+    "& .mapboxgl-popup-content": {
+      background: theme.palette.background.default,
+    },
   },
   communityMap: {},
   mapButton: {
