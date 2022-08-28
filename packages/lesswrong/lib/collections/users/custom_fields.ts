@@ -1127,7 +1127,7 @@ addFieldsDict(Users, {
     optional: true,
     order: 44,
     group: formGroups.siteCustomizations,
-    hidden: false,
+    hidden: forumTypeSetting.get() !== 'LessWrong',
     label: "Hide the frontpage map"
   },
 
