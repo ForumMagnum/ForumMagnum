@@ -28,6 +28,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "& .mapboxgl-popup-content": {
       background: theme.palette.panelBackground.default,
     },
+    "& .StyledMapPopup-markerPageLink": {
+      color: theme.palette.text.normal,
+    },
   },
   communityMap: {},
   mapButton: {
