@@ -115,12 +115,6 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
-    query: `
-      SiteData{
-        logoUrl
-        title
-      }
-    `,
     inputProperties: {
       labels: {
         inactive: 'Link-post?',
