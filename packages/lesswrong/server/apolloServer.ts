@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptions } from './vulcan-lib/apollo-ssr/renderPage';
+import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
@@ -257,7 +257,7 @@ export function startWebserver() {
     const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
-    const themeOptions = getThemeOptions(request, user);
+    const themeOptions = getThemeOptionsFromReq(request, user);
     const stylesheet = getMergedStylesheet(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`

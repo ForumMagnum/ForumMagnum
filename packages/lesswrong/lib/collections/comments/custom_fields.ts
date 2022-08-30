@@ -201,6 +201,17 @@ addFieldsDict(Comments, {
     ...schemaDefaultValue(false),
     hidden: true,
   },
+
+  // whether this comment is pinned on the author's profile
+  isPinnedOnProfile: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  }
 });
 
 makeEditable({

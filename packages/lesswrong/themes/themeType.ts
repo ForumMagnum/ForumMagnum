@@ -114,6 +114,7 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       
+      eventMaybe: ColorString,
       aprilFools: {
         orange: ColorString,
         yellow: ColorString,
@@ -187,6 +188,10 @@ declare global {
       commentBorder: string,
       answerBorder: string,
       tooltipHR: string,
+      primaryHighlight: string,
+      primaryHighlight2: string,
+      secondaryHighlight: string,
+      secondaryHighlight2: string,
     },
     panelBackground: {
       default: ColorString,
@@ -314,6 +319,7 @@ declare global {
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
+      primaryDim: ColorString,
     },
     header: {
       text: ColorString,

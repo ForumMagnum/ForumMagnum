@@ -238,7 +238,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         {/* TODO: Forum digest */}
-        {!isEAForum && <MenuItem value="curated">Curated</MenuItem>}
+        <MenuItem value="curated">Curated</MenuItem>
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
       </Select>

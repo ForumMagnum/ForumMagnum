@@ -349,6 +349,18 @@ export const NewRSVPNotification = registerNotificationType({
   }
 })
 
+export const CancelledRSVPNotification = registerNotificationType({
+  name: "cancelledRSVP",
+  userSettingField: "notificationRSVPs",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost
+    return `Someone cancelled their RSVP to your event ${document.title}`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})
+
 export const NewGroupOrganizerNotification = registerNotificationType({
   name: "newGroupOrganizer",
   userSettingField: "notificationGroupAdministration",

@@ -38,7 +38,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -206,7 +206,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -241,18 +241,22 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
     
-    const showSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
+    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
-    const currentTime = new Date()
-    const beforeTime = petrovBeforeTime.get()
-    const afterTime = petrovAfterTime.get()
-
-    const renderPetrovDay = 
-      currentRoute?.name === "home"
-      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
-      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+    const renderPetrovDay = () => {
+      const currentTime = (new Date()).valueOf()
+      const beforeTime = petrovBeforeTime.get()
+      const afterTime = petrovAfterTime.get()
+    
+      return currentRoute?.name === "home"
+        && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
+        && beforeTime < currentTime 
+        && currentTime < afterTime
+    }
+    
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap)
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -300,7 +304,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              {renderPetrovDay && <PetrovDayWrapper/>}
+              {renderCommunityMap && <HomepageCommunityMap/>}
+              {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
@@ -320,7 +325,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <Footer />
                 </div>
-                {showSunshineSidebar && <div className={classes.sunshine}>
+                {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>
                 </div>}
               </div>
