@@ -1,55 +1,51 @@
-import React from 'react'
-import { createStyles } from '@material-ui/core/styles'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
-import { Link } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
-import { useCurrentUser } from '../common/withUser';
+import React from "react";
+import { createStyles } from "@material-ui/core/styles";
+import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { ExpandedDate } from "../common/FormatDate";
 
-// const eventBannerMobileImageSetting = new DatabasePublicSetting<string | null>('eventBannerMobileImage', null)
-// const eventBannerDesktopImageSetting = new DatabasePublicSetting<string | null>('eventBannerDesktopImage', null)
-// const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBannerLink', null)
+export const maintenanceTime = new DatabasePublicSetting<string | null>('maintenanceBannerTime', null)
+const explanationText = new DatabasePublicSetting<string>('maintenanceBannerExplanationText', '')
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
-  root: {
-    padding: 20,
-    width: '100%',
-    objectFit: 'cover',
-    ...theme.typography.display1,
-    marginTop: '0.5em',
-    border: theme.palette.border.commentBorder,
-    borderWidth: 2,
-    borderRadius: 2,
-    borderColor: theme.palette.primary.main,
-    background: theme.palette.background.pageActiveAreaBackground,
-  }
-}))
+const styles = createStyles(
+  (theme: ThemeType): JssStyles => ({
+    root: {
+      padding: 20,
+      width: "100%",
+      fontFamily: theme.typography.postStyle.fontFamily,
+      fontSize: "1.5rem",
+      marginTop: "0.5em",
+      border: theme.palette.border.commentBorder,
+      borderWidth: 2,
+      borderRadius: 2,
+      borderColor: theme.palette.error.main,
+      background: theme.palette.background.pageActiveAreaBackground,
+    },
+    buttonRow: {
+      marginLeft: "auto",
+      width: "fit-content",
+    },
+  })
+);
 
 const MaintenanceBanner = ({ classes }) => {
-  const currentUser = useCurrentUser()
-  const { SingleColumnSection } = Components
+  const maintenanceTimeValue = maintenanceTime.get()
+  if (!maintenanceTimeValue) return <></>;
+  const { SingleColumnSection } = Components;
 
-  return <SingleColumnSection className={classes.root}>
-    <div>
-      The EA Forum will be undergoing scheduled maintenance at TIME on DATE, we anticipate this will take around TIME
-    </div>
-    {currentUser ? <Button
-      type="submit"
-      id="new-comment-submit"
-      onClick={() => { }}
-    >
-      Dismiss
-    </Button> : <></>}
-  </SingleColumnSection>
-}
+  return (
+    <SingleColumnSection className={classes.root}>
+      <div>
+        The EA Forum will be undergoing scheduled maintenance on <ExpandedDate date={maintenanceTimeValue}/>{explanationText.get()}
+      </div>
+    </SingleColumnSection>
+  );
+};
 
-const MaintenanceBannerComponent = registerComponent(
-  'MaintenanceBanner', MaintenanceBanner, { styles },
-)
+const MaintenanceBannerComponent = registerComponent("MaintenanceBanner", MaintenanceBanner, { styles });
 
 declare global {
   interface ComponentTypes {
-    MaintenanceBanner: typeof MaintenanceBannerComponent
+    MaintenanceBanner: typeof MaintenanceBannerComponent;
   }
 }
