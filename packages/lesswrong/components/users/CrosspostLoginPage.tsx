@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
-import { useGetParameter } from "../common/withGetParameter";
+import { useGetParameter } from "../hooks/useGetParameter";
 import { forumHeaderTitleSetting } from "../common/Header";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { gql, useMutation } from "@apollo/client";

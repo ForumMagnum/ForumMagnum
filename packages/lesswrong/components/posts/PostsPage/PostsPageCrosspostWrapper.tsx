@@ -2,7 +2,7 @@ import React, { createContext, useContext } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle, UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
-import { useCrosspostApolloClient } from "./withCrosspostApolloClient";
+import { useCrosspostApolloClient } from "../../hooks/useCrosspostApolloClient";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 

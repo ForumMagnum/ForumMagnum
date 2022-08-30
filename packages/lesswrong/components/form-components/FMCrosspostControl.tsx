@@ -5,7 +5,7 @@ import {
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
-import { useCrosspostApolloClient } from "../posts/PostsPage/withCrosspostApolloClient";
+import { useCrosspostApolloClient } from "../hooks/useCrosspostApolloClient";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
@@ -15,7 +15,7 @@ import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import classNames from "classnames";
 import { gql, useMutation } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
-import { useOnTabView } from "../common/withOnTabView";
+import { useOnTabView } from "../hooks/useOnTabView";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
