@@ -28,15 +28,19 @@ const SingleTagItem = ({documentId, onDelete, classes}: {
     collectionName: "Tags",
     fragmentName: 'TagBasicInfo',
   })
+  
+  if (loading) {
+    return <Components.Loading />
+  }
 
-  if (document && !loading) {
+  if (document) {
     return <div className={classes.tag}>
       {document.name}
       <button className={classes.removeTag} onClick={() => onDelete(document._id)}>x</button>
     </div>
-  } else {
-    return <Components.Loading />
   }
+  
+  return null
 };
 
 const SingleTagItemComponent = registerComponent('SingleTagItem', SingleTagItem, {styles});
