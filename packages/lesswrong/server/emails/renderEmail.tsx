@@ -238,8 +238,11 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   subject: string,
   body: React.ReactNode}
 ): Promise<boolean> => {
+  console.log({user, to, from, subject, body})
+  console.log('in wrapAndSendEmail')
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
   const destinationAddress = to || userGetEmail(user!);
+  console.log({destinationAddress})
   if (!destinationAddress) throw new Error("No destination email address for user email");
   
   try {

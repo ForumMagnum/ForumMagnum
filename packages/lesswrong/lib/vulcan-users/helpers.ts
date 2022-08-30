@@ -74,7 +74,6 @@ export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>
 
 export const userFindByEmail = async function(email: string): Promise<DbUser|null> {
   const userByPlainEmail = await mongoFindOne("Users", { email: email });
-  if (userByPlainEmail) return userByPlainEmail;
-  const userByEmailsArray = await mongoFindOne("Users", { 'emails.address': email });
-  return userByEmailsArray;
+  if (userByPlainEmail) return userByPlainEmail
+  return null
 };

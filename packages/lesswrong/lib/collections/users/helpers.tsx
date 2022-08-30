@@ -229,11 +229,11 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
-  return !!(user?.emails && user.emails.length > 0);
+  return !!user?.email
 }
 
 export function getUserEmail (user: UsersCurrent | DbUser): string | undefined {
-  return user.email || user.emails?.[0]?.address
+  return user.email
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.

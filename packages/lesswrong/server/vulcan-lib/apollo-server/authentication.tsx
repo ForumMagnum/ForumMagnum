@@ -42,7 +42,7 @@ async function comparePasswords(password: string, hash: string) {
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
-  if (!user) return done(null, false, { message: 'Incorrect username.' });
+  if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
   // passwords hashed differently.
@@ -261,9 +261,10 @@ const authenticationResolvers = {
     },
     async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
-      const user = (await Users.findOne({email})) ?? (await Users.findOne({'emails.address': email}));
+      const user = (await Users.findOne({email})) ?? (await Users.findOne({'emails.address': email})); //TODO: Ideally this only uses email, but seems too risky to remove it here
       if (!user) throw Error("Can't find user with given email address")
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
+      console.log({user})
       const emailSucceeded = await wrapAndSendEmail({
         user,
         subject: "Password Reset Request",

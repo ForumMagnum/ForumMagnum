@@ -88,9 +88,9 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          const matchingUsers = await Users.find({email}, {collation: {locale: 'en', strength: 2}}).fetch() //TODO: figure out the case-insensitive index
           if (matchingUsers.length > 1) {
-            throw new Error(`Multiple users found with email ${email}, please contact support`)
+            throw new Error(`Multiple existing users found with email ${email}, please contact support`)
           }
           const user = matchingUsers[0]
           if (user) {
@@ -283,7 +283,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       services: {
         google: profile
       },
-      emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
+      emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [], //TODO: Depprecate emails field entirele
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
       displayName: profile.displayName,
       emailSubscribedToCurated: true

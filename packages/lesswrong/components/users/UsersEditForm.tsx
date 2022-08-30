@@ -72,7 +72,7 @@ const UsersEditForm = ({terms, classes}: {
   // all in admin mode unfortunately. In the fullness of time we could fix that,
   // currently we disable it below
   const requestPasswordReset = async () => {
-    const { data } = await mutate({variables: { email: currentUser?.emails[0]?.address }})
+    const { data } = await mutate({variables: { email: currentUser?.email }})
     flash(data?.resetPassword)
   } 
 
