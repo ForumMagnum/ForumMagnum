@@ -11,12 +11,13 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log(`setting emails for ${usersMissingEmail.length} users`)
 
-    let syncedUserCount = 0
+    let syncedUserCount = 0 
 
-    let duplicateEmails: Array<string> = [] 
+    const duplicateEmails: Array<string> = [] 
 
     for (const user of usersMissingEmail) {
-      const email = user.emails && (user.emails[0]?.address || user.emails[0]?.value) as string
+      const firstEmail = user.emails?.[0]
+      const email = firstEmail?.address ?? firstEmail?.value
       if (email) {
         const duplicateUsers = await Users.find({email}).fetch()
         if (duplicateUsers.length === 0) {
