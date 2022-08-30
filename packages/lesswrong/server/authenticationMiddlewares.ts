@@ -78,7 +78,6 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         throw new Error('OAuth profile does not have a profile ID')
       }
       let user = await Users.findOne({[`${profilePath}.id`]: profileId})
-
       if (!user) {
         const email = profile.emails?.[0]?.value 
         
