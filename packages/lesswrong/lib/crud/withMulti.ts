@@ -365,14 +365,17 @@ export function useMulti<
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
       history.push({...location, search: `?${qs.stringify(newQuery)}`})
     }
+
+    const variables = {
+      ...graphQLVariables,
+      input: {
+        ...graphQLVariables.input,
+        terms: {...graphQLVariables.input.terms, limit: newLimit}
+      }
+    };
+
     void fetchMore({
-      variables: {
-        ...graphQLVariables,
-        input: {
-          ...graphQLVariables.input,
-          terms: {...graphQLVariables.input.terms, limit: newLimit}
-        }
-      },
+      variables,
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return fetchMoreResult

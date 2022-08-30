@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button';
 import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
+import { ExecutionResult } from 'graphql';
 
 export const responseToText = {
   yes: "Going",
@@ -82,7 +83,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
           color="primary"
           onClick={async () => {
             if (name) {
-              const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}})
+              const { errors }: ExecutionResult = await registerRSVP({variables: {postId: post._id, name, email, response}})
               if (errors) {
                 setError(`Oops, something went wrong: ${errors[0].message}`)
               } else if (onClose) {
