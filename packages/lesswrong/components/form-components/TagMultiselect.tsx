@@ -1,19 +1,26 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
-import { useSingle } from '../../lib/crud/withSingle';
-import Chip from '@material-ui/core/Chip/Chip';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  fieldRow: {
-    display: 'flex',
-  },
   label: {
+    display: 'block',
     fontSize: 10,
     marginBottom: 8
+  },
+  inputContainer: {
+    display: 'inline-block',
+    width: '100%',
+    maxWidth: 350,
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 8,
+    '& input': {
+      width: '100%'
+    }
   },
 });
 
@@ -26,21 +33,12 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
   placeholder?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-
-  // useEffect(() => {
-  //   // updateCurrentValues needs to be called after loading the TagBasicInfo query because
-  //   // when the query returns `value` gets set back to undefined for some reason. I think this
-  //   // is probably because it updates local storage somehow, but I'm not sure. This fixes it anyway
-  //   if (!loading && value !== currentId) {
-  //     updateCurrentValues({ [path]: currentId })
-  //   }
-  // }, [currentId, value, updateCurrentValues, path, loading])
   
   const addTag = (id: string) => {
-    console.log('addTag', id)
-    if (!value.includes(id))
+    if (!value.includes(id)) {
       value.push(id)
       updateCurrentValues({ [path]: value })
+    }
   }
   
   const removeTag = (id: string) => {
@@ -49,15 +47,9 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
   }
 
   return (
-    <FormControl className={classes.root}>
+    <div className={classes.root}>
       <FormLabel className={classes.label}>{label}</FormLabel>
-      <div className={classes.fieldRow}>
-        <Components.ErrorBoundary>
-          <Components.TagsSearchAutoComplete
-            clickAction={(id: string) => addTag(id)}
-            placeholder={placeholder}
-          />
-        </Components.ErrorBoundary>
+      <div className={classes.tags}>
         {value.map(tagId => {
           return <Components.SingleTagItem
             key={tagId}
@@ -66,7 +58,15 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
           />
         })}
       </div>
-    </FormControl>
+      <Components.ErrorBoundary>
+        <div className={classes.inputContainer}>
+          <Components.TagsSearchAutoComplete
+            clickAction={(id: string) => addTag(id)}
+            placeholder={placeholder}
+          />
+        </div>
+      </Components.ErrorBoundary>
+    </div>
   )
 }
 

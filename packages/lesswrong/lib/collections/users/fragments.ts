@@ -41,7 +41,10 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
-    tagsInterestedInIds
+    profileTagIds
+    profileTags {
+      ...TagBasicInfo
+    }
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -428,7 +431,7 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
-    tagsInterestedInIds
+    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase

@@ -184,13 +184,5 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
 
 ensureIndex(Tags, {name: 1});
 
-Tags.addView("tagsByIds", (terms: TagsViewTerms) => {
-  return {
-    selector: {
-      _id: {$in: terms.ids}
-    },
-  };
-});
-
 // Used in packages/lesswrong/server/defaultTagWeights/cache.ts
 ensureIndex(Tags, {defaultFilterMode: 1});

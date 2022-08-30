@@ -1,18 +1,20 @@
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import React from 'react';
-import Chip from '@material-ui/core/Chip';
+import { tagStyle } from '../tagging/FooterTag';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  chip: {
-    marginLeft: 4,
-    marginRight: 4,
-    marginBottom: 4,
-    backgroundColor: theme.palette.background.usersListItem,
+  tag: {
+    display: 'inline-flex',
+    alignItems: 'baseline',
+    columnGap: 4,
+    ...tagStyle(theme),
+    cursor: 'default'
   },
-  wrapper: {
-    display: 'flex',
-    flexWrap: 'wrap',
+  removeTag: {
+    '&:hover': {
+      opacity: 0.5
+    }
   },
 });
 
@@ -28,11 +30,10 @@ const SingleTagItem = ({documentId, onDelete, classes}: {
   })
 
   if (document && !loading) {
-    return <Chip
-        onDelete={() => onDelete(document._id)}
-        className={classes.chip}
-        label={document.name}
-      />
+    return <div className={classes.tag}>
+      {document.name}
+      <button className={classes.removeTag} onClick={() => onDelete(document._id)}>x</button>
+    </div>
   } else {
     return <Components.Loading />
   }

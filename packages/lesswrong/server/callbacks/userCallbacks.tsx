@@ -115,8 +115,8 @@ getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview(
   void triggerReviewIfNeeded(document._id)
 })
 
-getCollectionHooks("Users").updateBefore.add(async function updateTagsInterestedInSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
-  const tagIdsAdded = newDocument.tagsInterestedInIds?.filter(tagId => !includes(oldDocument.tagsInterestedInIds || [], tagId)) || []
+getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
+  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !includes(oldDocument.profileTagIds || [], tagId)) || []
   
   if (tagIdsAdded.length > 0) {
     const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()

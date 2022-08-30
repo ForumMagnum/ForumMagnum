@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { getDefaultFilterSettings } from '../../filterSettings';
-import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
@@ -1757,10 +1757,10 @@ addFieldsDict(Users, {
     group: formGroups.socialMedia
   },
   
-  tagsInterestedInIds: {
+  profileTagIds: {
     ...arrayOfForeignKeysField({
-      idFieldName: "tagsInterestedInIds",
-      resolverName: "tagsInterestedIn",
+      idFieldName: "profileTagIds",
+      resolverName: "profileTags",
       collectionName: "Tags",
       type: "Tag"
     }),
@@ -1772,11 +1772,11 @@ addFieldsDict(Users, {
     group: formGroups.activity,
     order: 1,
     control: "TagMultiselect",
-    label: "Topics I'm interested in",
-    tooltip: "This will also update your frontpage topic weightings.",
-    placeholder: 'Search for topics'
+    label: `${taggingNamePluralCapitalSetting.get()} I'm interested in`,
+    tooltip: `This will also update your frontpage ${taggingNameSetting.get()} weightings.`,
+    placeholder: `Search for ${taggingNamePluralSetting.get()}`
   },
-  'tagsInterestedInIds.$': {
+  'profileTagIds.$': {
     type: String,
     foreignKey: "Tags",
     optional: true,

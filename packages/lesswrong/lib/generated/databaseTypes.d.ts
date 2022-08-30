@@ -957,7 +957,7 @@ interface DbUser extends DbObject {
   facebookProfileURL: string
   twitterProfileURL: string
   githubProfileURL: string
-  tagsInterestedInIds: Array<string>
+  profileTagIds: Array<string>
   organizerOfGroupIds: Array<string>
   programParticipation: Array<string>
   postingDisabled: boolean
