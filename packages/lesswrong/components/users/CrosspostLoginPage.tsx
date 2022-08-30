@@ -1,5 +1,5 @@
-import { Components, registerComponent, } from "../../lib/vulcan-lib";
-import React, { Component } from "react";
+import React, { useState } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
 import { useGetParameter } from "../common/withGetParameter";
@@ -26,6 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   buttonContainer: {
     marginTop: "1.5em",
   },
+  error: {
+    color: theme.palette.error.main,
+    marginTop: 16,
+  },
 });
 
 const connectCrossposterMutation = gql`
@@ -37,13 +41,11 @@ const connectCrossposterMutation = gql`
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType,
 }) => {
+  const [mutate, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+  const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const token = useGetParameter("token");
   const hasLogo = forumTypeSetting.get() === "EAForum";
-
-  const [mutate, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
-
-  const {WrappedLoginForm, SiteLogo, Loading, Typography} = Components;
 
   const onConfirm = async () => {
     if (!currentUser) {
@@ -53,12 +55,14 @@ const CrosspostLoginPage = ({classes}: {
       variables: {token},
     });
     if (result?.data?.connectCrossposter === "success") {
+      setError(null);
       window.close();
     } else {
-      // TODO: Proper error handling
-      alert(`Error: ${JSON.stringify(result)}`);
+      setError("Failed to connect accounts");
     }
   }
+
+  const {WrappedLoginForm, SiteLogo, Loading, Typography} = Components;
 
   return (
     <div className={classes.root}>
@@ -68,6 +72,7 @@ const CrosspostLoginPage = ({classes}: {
           {forumHeaderTitleSetting.get()}
         </Typography>
       </div>
+      {error && <div className={classes.error}>Error: {error}</div>}
       {currentUser
         ? (
           <>

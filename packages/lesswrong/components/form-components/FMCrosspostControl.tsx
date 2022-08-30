@@ -40,6 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 18,
     marginRight: theme.spacing.unit,
   },
+  error: {
+    color: theme.palette.error.main,
+    margin: "8px 0",
+  },
 });
 
 const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
@@ -129,16 +133,21 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     notifyOnNetworkStatusChange: true,
   });
   const [token, setToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const loading = loadingUnlink || loadingDocument;
 
   useEffect(() => {
     const getToken = async () => {
-      // TODO: Error handling here
       if (!document?.fmCrosspostUserId) {
-        const result = await fetch("/api/crosspostToken");
-        const {token} = await result.json();
-        setToken(token);
+        try {
+          const result = await fetch("/api/crosspostToken");
+          const {token} = await result.json();
+          setToken(token);
+          setError(null);
+        } catch {
+          setError("Couldn't create login token");
+        }
       }
     }
     void getToken();
@@ -155,8 +164,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       const url = `${fmCrosspostBaseUrlSetting.get()}crosspostLogin?token=${token}`;
       window.open(url, "_blank")?.focus();
     } else {
-      // TODO Better error handling here
-      throw new Error("Invalid token");
+      setError("Invalid login token - please try again");
     }
   }
 
@@ -185,7 +193,8 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
           />
         }
       />
-      {isCrosspost &&
+      {error && <div className={classes.error}>Error: {error}</div>}
+      {!error && isCrosspost &&
         <FMCrosspostView
           fmCrosspostUserId={document?.fmCrosspostUserId}
           loading={loading}
