@@ -1,7 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
-import { gql, useMutation, DocumentNode } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
+import type { DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
