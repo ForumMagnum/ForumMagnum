@@ -21,7 +21,7 @@ const apiRoutes = {
   connectCrossposter: "/api/connectCrossposter",
   unlinkCrossposter: "/api/unlinkCrossposter",
   crosspost: "/api/crosspost",
-  crosspostDraftStatus: "/api/crosspostDraftStatus",
+  updateCrosspost: "/api/updateCrosspost",
 } as const;
 
 type ApiRoute = typeof apiRoutes[keyof typeof apiRoutes];
@@ -38,10 +38,11 @@ type UnlinkCrossposterPayload = {
   userId: string,
 }
 
-type CrosspostDraftStatusPayload = {
+type UpdateCrosspostPayload = {
   postId: string,
   draft: boolean,
   deletedDraft: boolean,
+  title: string,
 }
 
 type CrosspostPayload = {
@@ -174,21 +175,21 @@ addGraphQLResolvers(crosspostResolvers);
 addGraphQLMutation("connectCrossposter(token: String): String");
 addGraphQLMutation("unlinkCrossposter: String");
 
-const updateCrosspostDraftStatus = async (post: DbPost) => {
-  if (!post.fmCrosspost?.foreignPostId || post.fmCrosspost?.hostedHere) {
-    return;
+const updateCrosspost = async (post: DbPost) => {
+  if (post.fmCrosspost?.foreignPostId) {
+    const token = signToken<UpdateCrosspostPayload>({
+      postId: post.fmCrosspost.foreignPostId,
+      draft: post.draft,
+      deletedDraft: post.deletedDraft,
+      title: post.title,
+    });
+    await makeCrossSiteRequest(
+      apiRoutes.updateCrosspost,
+      {token},
+      "updated",
+      "Failed to update crosspost draft status",
+    );
   }
-  const token = signToken<CrosspostDraftStatusPayload>({
-    postId: post.fmCrosspost.foreignPostId,
-    draft: post.draft,
-    deletedDraft: post.deletedDraft,
-  });
-  await makeCrossSiteRequest(
-    apiRoutes.crosspostDraftStatus,
-    {token},
-    "updated",
-    "Failed to update crosspost draft status",
-  );
 }
 
 const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
@@ -290,14 +291,14 @@ const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Respon
   });
 });
 
-const onCrosspostDraftStatusRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
+const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = verifyToken<CrosspostDraftStatusPayload>(token);
-  const {postId, draft, deletedDraft} = payload;
-  if (!postId || typeof draft !== "boolean" || typeof deletedDraft !== "boolean") {
+  const payload = verifyToken<UpdateCrosspostPayload>(token);
+  const {postId, draft, deletedDraft, title} = payload;
+  if (!postId || typeof draft !== "boolean" || typeof deletedDraft !== "boolean" || typeof title !== "string") {
     throw new InvalidTokenError();
   }
-  await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft}});
+  await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft, title}});
   res.send({status: "updated"});
 });
 
@@ -310,7 +311,7 @@ export const addCrosspostRoutes = (app: Application) => {
   addPostRoute(apiRoutes.connectCrossposter, onConnectCrossposterRequest);
   addPostRoute(apiRoutes.unlinkCrossposter, onUnlinkCrossposterRequest);
   addPostRoute(apiRoutes.crosspost, onCrosspostRequest);
-  addPostRoute(apiRoutes.crosspostDraftStatus, onCrosspostDraftStatusRequest);
+  addPostRoute(apiRoutes.updateCrosspost, onUpdateCrosspostRequest);
 }
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
@@ -360,11 +361,12 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
 }
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
-  if (data.draft !== undefined || data.deletedDraft !== undefined) {
-    await updateCrosspostDraftStatus({
+  if (data.draft !== undefined || data.deletedDraft !== undefined || data.title !== undefined) {
+    await updateCrosspost({
       ...document,
       draft: data.draft ?? document.draft,
       deletedDraft: data.deletedDraft ?? document.deletedDraft,
+      title: data.title ?? document.title,
     });
   }
 
