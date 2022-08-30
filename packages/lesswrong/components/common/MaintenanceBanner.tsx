@@ -6,7 +6,7 @@ import { ExpandedDate } from "../common/FormatDate";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isMobile } from "../../lib/utils/isMobile";
 import classNames from "classnames";
-import { startCase } from "lodash";
+import startCase from "lodash/startCase";
 
 export const maintenanceTime = new DatabasePublicSetting<string | null>("maintenanceBannerTime", null);
 const explanationText = new DatabasePublicSetting<string>("maintenanceBannerExplanationText", "");
