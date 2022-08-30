@@ -1,4 +1,5 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql } from '@apollo/client';
+import { useQuery, NetworkStatus, gql } from '@apollo/client';
+import type { ApolloError, WatchQueryFetchPolicy } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
 import { useState } from 'react';

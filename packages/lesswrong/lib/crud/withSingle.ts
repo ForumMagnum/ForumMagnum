@@ -1,4 +1,5 @@
-import { ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
+import type { ApolloError, WatchQueryFetchPolicy } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
