@@ -13,8 +13,10 @@ registerMigration({
 
     let syncedUserCount = 0
 
+    let duplicateEmails: Array<string> = [] 
+
     for (const user of usersMissingEmail) {
-      const email = user.emails && (user.emails[0]?.address || user.emails[0]?.value)
+      const email = user.emails && (user.emails[0]?.address || user.emails[0]?.value) as string
       if (email) {
         const duplicateUsers = await Users.find({email}).fetch()
         if (duplicateUsers.length === 0) {
@@ -22,6 +24,8 @@ registerMigration({
           // eslint-disable-next-line no-console
           console.log("setting email to:", email)
           syncedUserCount += 1
+        } else {
+          duplicateEmails.push(email)
         }
       }
     }
@@ -29,5 +33,6 @@ registerMigration({
     console.log(`Synced users: ${syncedUserCount}`)
     // eslint-disable-next-line no-console
     console.log(`Users who were not synced due to duplicate emails: ${usersMissingEmail.length - syncedUserCount}`)
+    console.log(duplicateEmails)
   }  
 })
