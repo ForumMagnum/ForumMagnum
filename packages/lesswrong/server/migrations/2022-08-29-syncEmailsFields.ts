@@ -34,6 +34,7 @@ registerMigration({
     console.log(`Synced users: ${syncedUserCount}`)
     // eslint-disable-next-line no-console
     console.log(`Users who were not synced due to duplicate emails: ${usersMissingEmail.length - syncedUserCount}`)
+    // eslint-disable-next-line no-console
     console.log(duplicateEmails)
   }  
 })
