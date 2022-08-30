@@ -36,7 +36,7 @@ const MaintenanceBanner = ({ classes }) => {
   return (
     <SingleColumnSection className={classes.root}>
       <div>
-        The EA Forum will be undergoing scheduled maintenance on <ExpandedDate date={maintenanceTimeValue}/>{explanationText.get()}
+        The EA Forum will be undergoing scheduled maintenance on <ExpandedDate date={maintenanceTimeValue}/>{explanationText.get() || ''}
       </div>
     </SingleColumnSection>
   );
