@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button';
 import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
-import { ExecutionResult } from 'graphql';
+import type { ExecutionResult } from 'graphql';
 
 export const responseToText = {
   yes: "Going",
