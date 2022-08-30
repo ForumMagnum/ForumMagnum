@@ -117,6 +117,51 @@ const mergeReadStatus = async ({sourceUserId, targetUserId, postOrTagSelector}: 
   }
 }
 
+const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: boolean) => {
+  // eslint-disable-next-line no-unused-vars
+  console.log(`transferring services from ${sourceUser._id} to ${targetUser._id}`)
+
+  // we copy services for github, facebook and google 
+  const profilePaths = ["github", "facebook", "google"]
+
+  for (const profilePath of profilePaths) {
+    const sourceProfile = sourceUser.services[profilePath]
+    if (sourceProfile && !targetUser.services[profilePath]) {
+      // eslint-disable-next-line no-unused-vars
+      console.log(`  Copying ${profilePath} profile from ${sourceUser._id} to ${targetUser._id}`)
+      if (!dryRun) {
+
+        // if we don't remove the profile from the old account, we'll get a duplicate key error
+        await updateMutator({
+          collection: Users,
+          documentId: sourceUser._id,
+          unset: {[`services.${profilePath}`]: null} as any,
+          // Normal updates are not supposed to update services
+          validate: false
+        })
+        await updateMutator({
+          collection: Users,
+          documentId: targetUser._id,
+          set: {[`services.${profilePath}`]: sourceProfile} as any,
+          // Normal updates are not supposed to update services
+          validate: false
+        })
+      } 
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      console.log(`  Not copying ${profilePath}`)
+    }
+  }
+}
+
+Vulcan.transferServices = async (sourceUserId: string, targetUserId: string) => {
+  const sourceUser = await Users.findOne({_id: sourceUserId})
+  const targetUser = await Users.findOne({_id: targetUserId})
+  if (sourceUser && targetUser) {
+    transferServices(sourceUser, targetUser, false)
+  }
+}
+
 Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun: boolean) => {
   if (typeof dryRun !== "boolean") throw Error("dryRun value missing")
 
@@ -269,6 +314,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     console.log(err)
   }
 
+  await transferServices(sourceUser, targetUser, dryRun)
   
   // Change slug of source account by appending "old" and reset oldSlugs array
   // eslint-disable-next-line no-console
@@ -318,7 +364,10 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     await updateMutator({
       collection: Users,
       documentId: sourceUserId,
-      set: {deleted: true},
+      set: {
+        deleted: true
+      },
+      unset: {'services.resume':1},
       validate: false
     })
   }
