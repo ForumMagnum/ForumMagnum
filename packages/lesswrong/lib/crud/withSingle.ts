@@ -17,7 +17,7 @@ import { camelCaseify } from '../vulcan-lib/utils';
 //   }
 // }
 // LESSWRONG: Add extraVariables String
-const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
+const singleClientTemplate = ({ typeName, fragmentName, extraVariablesString }) =>
 `query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(typeName)}(input: $input) {
     result {
@@ -25,10 +25,9 @@ const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVaria
     }
     __typename
   }
-  ${extraQueries ? extraQueries : ''}
 }`;
 
-function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
+function getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName }) {
   const collectionName = collection.collectionName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
   const typeName = collection.options.typeName;
@@ -40,7 +39,7 @@ function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, 
   }
   
   const query = gql`
-    ${singleClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
+    ${singleClientTemplate({ typeName, fragmentName, extraVariablesString })}
     ${fragment}
   `;
   
@@ -55,7 +54,7 @@ function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBa
 export function withSingle({
   collectionName, collection,
   fragmentName, fragment,
-  extraVariables, fetchPolicy, propertyName = 'document', extraQueries
+  extraVariables, fetchPolicy, propertyName = 'document',
 }: {
   collectionName?: CollectionNameString,
   collection?: any,
@@ -64,12 +63,11 @@ export function withSingle({
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   propertyName?: string,
-  extraQueries?: any,
 }) {
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
 
-  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
+  const query = getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
   const typeName = collection.options.typeName
   
@@ -141,7 +139,6 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables,
   fetchPolicy,
   propertyName,
-  extraQueries,
   documentId,
   extraVariablesValues,
   skip=false
@@ -152,13 +149,12 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables?: Record<string,any>,
   fetchPolicy?: WatchQueryFetchPolicy,
   propertyName?: string,
-  extraQueries?: any,
   documentId: string|undefined,
   extraVariablesValues?: any,
   skip?: boolean,
 }): TReturn<FragmentTypeName> {
   const collection = getCollection(collectionName);
-  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
+  const query = getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
   // TODO: Properly type this generic query
   const { data, error, ...rest } = useQuery(query, {
