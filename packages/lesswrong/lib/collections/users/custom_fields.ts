@@ -1665,7 +1665,8 @@ addFieldsDict(Users, {
     group: formGroups.aboutMe,
     order: 4,
     control: 'FormComponentMultiSelect',
-    placeholder: "Career stage",
+    label: "Career stage",
+    placeholder: 'Select all that apply',
     form: {
       separator: '\r\n',
       options: CAREER_STAGES
@@ -1800,6 +1801,7 @@ addFieldsDict(Users, {
     order: 2,
     control: "SelectLocalgroup",
     label: "Organizer of",
+    placeholder: 'Select groups to display',
     tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
     form: {
       useDocumentAsUser: true,

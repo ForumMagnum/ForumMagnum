@@ -1,7 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import withUser from '../common/withUser';
-import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -24,10 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagMultiselect = ({ value, path, document, classes, label, placeholder, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurrentValues }: {
   value: Array<string>,
   path: string,
-  document: any,
   classes: ClassesType,
   label?: string,
   placeholder?: string,
@@ -48,7 +45,7 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
 
   return (
     <div className={classes.root}>
-      <FormLabel className={classes.label}>{label}</FormLabel>
+      {label && <FormLabel className={classes.label}>{label}</FormLabel>}
       <div className={classes.tags}>
         {value.map(tagId => {
           return <Components.SingleTagItem
@@ -70,10 +67,7 @@ const TagMultiselect = ({ value, path, document, classes, label, placeholder, up
   )
 }
 
-const TagMultiselectComponent = registerComponent('TagMultiselect', TagMultiselect, {
-  styles: styles,
-  hocs: [withUser],
-});
+const TagMultiselectComponent = registerComponent('TagMultiselect', TagMultiselect, {styles});
 
 declare global {
   interface ComponentTypes {
