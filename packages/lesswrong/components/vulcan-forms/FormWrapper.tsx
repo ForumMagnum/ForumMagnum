@@ -186,7 +186,7 @@ class FormWrapper extends PureComponent<any> {
     } = this.getFragments();
 
     // LESSWRONG: ADDED extraVariables option
-    const { extraVariables = {} } = this.props
+    const { extraVariables = {}, extraVariablesValues } = this.props
 
     // props to pass on to child component (i.e. <Form />)
     const childProps = {
@@ -199,6 +199,7 @@ class FormWrapper extends PureComponent<any> {
       queryName: `${prefix}FormQuery`,
       collection: this.props.collection,
       fragment: queryFragment,
+      extraVariables,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
       pollInterval: 0 // no polling, only load data once
     };

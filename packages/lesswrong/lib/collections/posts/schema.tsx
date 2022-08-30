@@ -11,6 +11,7 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
 
@@ -136,7 +137,7 @@ const schema: SchemaType<DbPost> = {
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
-    group: formGroups.default,
+    group: formGroups.title,
   },
   // Slug
   slug: {
@@ -953,8 +954,18 @@ const schema: SchemaType<DbPost> = {
       }
     },
     ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
-  },
-
+  },  
+  myEditorAccess: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+      return getCollaborativeEditorAccess({
+        formType: "edit",
+        post, user: context.currentUser,
+        useAdminPowers: false,
+      });
+    }
+  }),
   podcastEpisodeId: {
     ...foreignKeyField({
       idFieldName: 'podcastEpisodeId',
