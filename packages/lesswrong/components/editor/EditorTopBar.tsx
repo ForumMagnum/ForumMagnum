@@ -16,17 +16,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   presenceList: {
     flexGrow: 1,
+    //create stacking context
+    position: "relative",
+    zIndex: theme.zIndexes.editorPresenceList,
     
     "& .ck-presence-list": {
       marginBottom: "0 !important",
     },
-    
+
     '& .ck-user__name': {
       color: 'unset !important',
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
       fontSize: '1.2rem'
     },
-    
+
     "& .ck-tooltip": {
       transform: "initial !important",
       bottom: "initial !important",
