@@ -184,7 +184,7 @@ const schema: SchemaType<DbUser> = {
   */
   email: {
     type: String,
-    optional: false,
+    optional: true,
     regEx: SimpleSchema.RegEx.Email,
     input: 'text',
     canCreate: ['members'],
