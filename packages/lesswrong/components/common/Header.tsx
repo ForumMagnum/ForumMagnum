@@ -298,7 +298,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                     </AnalyticsContext>
                   </div>}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
+                {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
