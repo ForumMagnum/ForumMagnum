@@ -114,6 +114,7 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       
+      eventMaybe: ColorString,
       aprilFools: {
         orange: ColorString,
         yellow: ColorString,
