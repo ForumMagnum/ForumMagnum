@@ -280,11 +280,6 @@ const PostsPage = ({post, refetch, classes}: {
       </div>
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
-        {post.fmCrosspost?.isCrosspost &&
-          <div className={classes.centralColumn}>
-            <PostsPageCrosspostComments />
-          </div>
-        }
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -294,6 +289,7 @@ const PostsPage = ({post, refetch, classes}: {
         </div>}
         {/* Comments Section */}
         <div className={classes.commentsSection}>
+          {post.fmCrosspost?.isCrosspost && <PostsPageCrosspostComments />}
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
             {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}

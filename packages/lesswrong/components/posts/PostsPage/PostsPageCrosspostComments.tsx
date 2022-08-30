@@ -8,6 +8,8 @@ import { useCrosspostContext, CrosspostContext } from "./PostsPageCrosspostWrapp
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    maxWidth: 720,
+    margin: "0 auto",
     border: theme.palette.border.commentBorder,
     borderRadius: 3,
     padding: 12,
