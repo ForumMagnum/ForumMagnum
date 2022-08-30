@@ -11,24 +11,26 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { newDocumentMaybeTriggerReview } from './postCallbacks';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ensureIndex } from '../../lib/collectionUtils';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
+// This should get refactored someday to be more forum-neutral
+const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
   {
     username: "AdminTeam",
     email: "forum@effectivealtruism.org"
   } :
   {
-    username: "LessWrong",
-    email: "lesswrong@lesswrong.com"
+    username: forumTypeSetting.get(),
+    email: "team@lesswrong.com"
   }
 
-const getLessWrongAccount = async () => {
+export const getAdminTeamAccount = async () => {
   let account = await Users.findOne({username: adminTeamUserData.username});
   if (!account) {
     const newAccount = await createMutator({
@@ -199,6 +201,7 @@ getCollectionHooks("Comments").newValidate.add(async function CommentsNewRateLim
   return comment;
 });
 
+ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////
 // LessWrong callbacks                              //
@@ -250,7 +253,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         : null
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
-    const lwAccount = await getLessWrongAccount();
+    const lwAccount = await getAdminTeamAccount();
 
     const conversationData = {
       participantIds: [comment.userId, lwAccount._id],
@@ -321,24 +324,12 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   return {...comment, ...votedComment} as DbComment;
 });
 
-getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview (comment: DbComment) {
-  const user = await Users.findOne({_id:comment.userId})
-  const karma = user?.karma || 0
-  if (karma < 100) {
-    await Comments.rawUpdateOne({_id:comment._id}, {$set: {needsReview: true}});
-  }
-});
-
 getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
   if (modifier.$set) {
     const { deleted, deletedPublic, deletedReason } = modifier.$set
     if (deleted || deletedPublic || deletedReason) {
       if (deletedPublic && !deleted) {
         throw new Error("You cannot publicly delete a comment without also deleting it")
-      }
-
-      if (deletedPublic && !deletedReason) {
-        throw new Error("Publicly deleted comments need to have a deletion reason");
       }
 
       if (
@@ -448,7 +439,15 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
-  await newDocumentMaybeTriggerReview(document);
-  return document;
+// This function and the latter function seem redundant. TODO decide whether/where the karma < 100 clause should live
+// getCollectionHooks("Comments").createAsync.add(async function NewCommentNeedsReview ({document}: CreateCallbackProperties<DbComment>) {
+//   const user = await Users.findOne({_id:document.userId})
+//   const karma = user?.karma || 0
+//   if (karma < 100) {
+//     await triggerReviewIfNeeded(document.userId);
+//   }
+// });
+
+getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
+  await triggerReviewIfNeeded(document.userId);
 })

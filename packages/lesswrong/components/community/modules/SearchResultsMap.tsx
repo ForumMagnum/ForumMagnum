@@ -7,13 +7,12 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Hit } from 'react-instantsearch-core';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
-    height: 440,
   },
   icon: {
     height: 20,
@@ -22,11 +21,24 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     opacity: 0.8,
     cursor: 'pointer'
   },
+  popupTitle: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center'
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+  },
   popupAddress: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     fontSize: 12,
     fontStyle: 'italic',
+    fontWeight: 'normal',
+    marginTop: 2
   },
   popupBio: {
     ...theme.typography.commentStyle,
@@ -37,16 +49,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    marginTop: 12,
   }
 }))
 
-const defaultCenter = {lat: 39.5, lng: -43.636047}
+const defaultCenter = {lat: 18.586392, lng: -11.334020}
 
-const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
+const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
   center: {lat: number, lng: number},
   zoom: number,
   hits: Array<Hit<AlgoliaUser>>,
+  className?: string,
   classes: ClassesType,
 }) => {
   const [activeResultId, setActiveResultId] = useState('')
@@ -89,7 +101,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
   
   const isEAForum = forumTypeSetting.get() === 'EAForum'
   
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, className)}>
     <Helmet>
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
     </Helmet>
@@ -116,12 +128,23 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
           {(activeResultId === hit._id) && <StyledMapPopup
             lat={markerLocations[hit._id].lat}
             lng={markerLocations[hit._id].lng}
-            link={userGetProfileUrl(hit)}
-            title={hit.displayName}
+            link={`/users/${hit.slug}?from=community_members_tab`}
+            title={<div className={classes.popupTitle}>
+              {hit.profileImageId && <Components.CloudinaryImage2
+                height={50}
+                width={50}
+                imgProps={{q: '100'}}
+                publicId={hit.profileImageId}
+                className={classes.profileImage}
+              />}
+              <div>
+                <div>{hit.displayName}</div>
+                <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
+              </div>
+            </div>}
             onClose={() => setActiveResultId('')}
             hideBottomLinks
           >
-            <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
             {hit.htmlBio && <div className={classes.popupBio} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
           </StyledMapPopup>}
         </React.Fragment>
@@ -133,7 +156,14 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
 // connectHits is probably nothing but a consumer acting as a HoC, like this:
 // const connectHits = (C) => { const hits = useHits(); return (args) => C({...args, hits}); }
 // It consumes the data provided by InstantSearch, which should be a parent of us
-const SearchResultsMapComponent = registerComponent("SearchResultsMap", connectHits(SearchResultsMap), { styles });
+type SearchResultsMapProps = {
+  center?: {lat: number, lng: number},
+  zoom?: number,
+  hits?: Array<Hit<AlgoliaUser>>,
+  className?: string
+}
+const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
+const SearchResultsMapComponent = registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
 
 declare global {
   interface ComponentTypes {

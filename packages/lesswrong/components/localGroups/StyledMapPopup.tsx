@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
@@ -28,11 +28,11 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginBottom: "10px",
     marginTop: "10px",
     fontWeight: 400,
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
   },
   markerPageLink: {
     fontWeight: 400,
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.link.dim3,
     flex: 'none'
   },
   linksWrapper: {
@@ -46,10 +46,10 @@ const StyledMapPopup = ({
   metaInfo, cornerLinks, lat, lng,
   onClose, offsetTop=-20, hideBottomLinks
 }: {
-  children?: React.ReactNode,
+  children?: ReactNode,
   classes: ClassesType,
   link: string,
-  title: string,
+  title: string|ReactNode,
   metaInfo?: any,
   cornerLinks?: any,
   lat: number,

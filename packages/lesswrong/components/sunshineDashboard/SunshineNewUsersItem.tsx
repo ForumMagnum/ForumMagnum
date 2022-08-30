@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -6,13 +5,12 @@ import { Link } from '../../lib/reactRouterWrapper'
 
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import red from '@material-ui/core/colors/red';
 import DescriptionIcon from '@material-ui/icons/Description'
 import FlagIcon from '@material-ui/icons/Flag'
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
-     color: red['A100']
+     color: theme.palette.text.negativeKarmaRed,
   },
   info: {
     // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
@@ -26,13 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 3
   },
   flagged: {
-    background: "rgba(150,0,0,.05)"
+    background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
 const SunshineNewUsersItem = ({ user, classes }: {
   user: SunshineUsersList,
-  classes: ClassesType,
-  updateUser?: any
+  classes: ClassesType
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 

@@ -7,20 +7,20 @@ import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor:"rgba(80,80,0,.08)"
+    backgroundColor: theme.palette.panelBackground.sunshineNewTags,
   }
 })
 
 const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
-  const { results, totalCount } = useMulti({
+  const { results, totalCount, loadMoreProps } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
     collectionName: "Tags",
     fragmentName: "SunshineTagFragment",
-    enableTotal: true,
+    enableTotal: true, itemsPerPage: 30,
   });
   const currentUser = useCurrentUser();
   
-  const { SunshineListCount, SunshineListTitle, SunshineNewTagsItem } = Components
+  const { SunshineListCount, SunshineListTitle, SunshineNewTagsItem, LoadMore } = Components
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div className={classes.root}>
@@ -32,6 +32,7 @@ const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
             <SunshineNewTagsItem tag={tag}/>
           </div>
         )}
+        <LoadMore {...loadMoreProps}/>
       </div>
     )
   } else {

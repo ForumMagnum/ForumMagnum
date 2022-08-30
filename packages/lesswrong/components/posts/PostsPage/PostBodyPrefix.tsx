@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 16,
     marginLeft: theme.spacing.unit,
     verticalAlign: "top",
-    color: "rgba(0,0,0,.4)",
+    color: theme.palette.icon.dim2,
   },
   reviewVoting: {
     textAlign: "center",

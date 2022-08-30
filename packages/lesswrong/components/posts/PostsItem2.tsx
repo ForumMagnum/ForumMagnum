@@ -16,8 +16,6 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
-const COMMENTS_BACKGROUND_COLOR = "#fafafa"
-
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
@@ -30,11 +28,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   background: {
     width: "100%",
-    background: "white"
+    background: theme.palette.panelBackground.default,
   },
   translucentBackground: {
     width: "100%",
-    background: "rgba(255,255,255,.87)",
+    background: theme.palette.panelBackground.translucent,
     backdropFilter: "blur(1px)"
   },
   postsItem: {
@@ -53,7 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: "#fafafa" // note: this is not intended to be the same as the COMMENTS_BACKGROUND_COLOR, it just happens to be
+      backgroundColor: theme.palette.panelBackground.postsItemHover,
     },
   },
   hasSmallSubtitle: {
@@ -62,10 +60,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   bottomBorder: {
-    borderBottom: theme.itemBorderBottom,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
   },
   commentsBackground: {
-    backgroundColor: COMMENTS_BACKGROUND_COLOR,
+    backgroundColor: theme.palette.panelBackground.postsItemExpandedComments,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2
@@ -83,8 +81,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     minHeight: 26,
-    flexGrow: 1,
-    flexShrink: 1,
+    flex: 1500,
+    maxWidth: "fit-content",
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
@@ -97,11 +95,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
       height: "unset",
       maxWidth: "unset",
       width: "100%",
-      paddingRight: theme.spacing.unit
+      paddingRight: theme.spacing.unit,
+      flex: "unset",
     },
     '&:hover': {
       opacity: 1,
     }
+  },
+  spacer: {
+    flex: 1,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
   },
   author: {
     justifyContent: "flex",
@@ -110,6 +115,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     zIndex: theme.zIndexes.postItemAuthor,
+    flex: 1000,
+    maxWidth: "fit-content",
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -236,7 +243,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       height: "100%",
       left: 0,
       top: 0,
-      background: "linear-gradient(to right, white 0%, rgba(255,255,255,.8) 60%, transparent 100%)",
+      background: `linear-gradient(to right, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent2} 60%, transparent 100%)`,
     }
   },
   sequenceImageImg: {
@@ -489,6 +496,9 @@ const PostsItem2 = ({
                   <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 
+                {/* space in-between title and author if there is width remaining */}
+                <span className={classes.spacer} />
+
                 { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
                 </PostsItem2MetaInfo>}
@@ -570,6 +580,7 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
+  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",

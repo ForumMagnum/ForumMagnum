@@ -39,7 +39,7 @@ const schema: SchemaType<DbMessage> = {
     viewableBy: ['admins'],
     insertableBy: ['admins'],
     ...schemaDefaultValue(false)
-  }
+  },
 };
 
 export default schema;

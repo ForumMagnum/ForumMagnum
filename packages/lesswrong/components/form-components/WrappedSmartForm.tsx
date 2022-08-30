@@ -1,7 +1,6 @@
 /*
- * This component wraps SmartForm (see below for why), which is defined in
- * FormWrapper.tsx (where it calls itself FormWrapper), which itself wraps Form,
- * which is defined in Form.tsx (where it calls itself SmartForm).
+ * This component wraps FormWrapper (see below for why), which is defined in
+ * FormWrapper.tsx, which itself wraps Form, which is defined in Form.tsx.
  */
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -29,7 +28,7 @@ function WrappedSmartForm(props) {
           const { originalContents, updateType, commitMessage } = (data && data[fieldName]) || {}
           return [
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
-            (originalContents?.data) ? // Ensure that we have data
+            (originalContents?.data !== undefined && originalContents?.data !== null) ? // Ensure that we have data
               { originalContents, updateType, commitMessage } : // If so, constrain it to correct shape
               undefined // If not, set field to undefined
           ]

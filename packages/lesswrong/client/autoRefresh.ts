@@ -1,15 +1,12 @@
-import { onStartup } from '../lib/executionEnvironment';
+import { onStartup, getWebsocketPort } from '../lib/executionEnvironment';
 import type { MessageEvent, OpenEvent, CloseEvent } from 'ws';
-
-declare global {
-  var buildId: string; //Preprocessor-replaced with an ID in the bundle
-}
 
 // In development, make a websocket connection (on a different port) to get
 // notified when the server has restarted with a new version.
 
-const websocketPort = 3001;
+const websocketPort = getWebsocketPort();
 let connectedWebsocket: any = null;
+let buildTimestamp: string|null = null;
 
 function connectWebsocket() {
   if (connectedWebsocket) return;
@@ -18,10 +15,12 @@ function connectWebsocket() {
   connectedWebsocket.addEventListener("message", (event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data+"");
-      if (data.latestBuildId) {
-        if (data.latestBuildId !== buildId) {
+      if (data.latestBuildTimestamp) {
+        if (!buildTimestamp) {
+          buildTimestamp = data.latestBuildTimestamp;
+        } else if (data.latestBuildTimestamp !== buildTimestamp) {
           // eslint-disable-next-line no-console
-          console.log(`There is a newer build (my build: ${buildId}; new build: ${data.latestBuildId}. Refreshing.`);
+          console.log(`There is a newer build (my build: ${buildTimestamp}; new build: ${data.latestBuildTimestamp}. Refreshing.`);
           window.location.reload();
         }
       } else {

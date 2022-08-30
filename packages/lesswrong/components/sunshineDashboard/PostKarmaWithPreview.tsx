@@ -33,12 +33,6 @@ const PostKarmaWithPreview = ({ post, classes }: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
       >
         <div>
           <PostsPreviewTooltip post={post}/>

@@ -3,13 +3,12 @@ import React from 'react';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    borderTop: "solid 1px rgba(0,0,0,.2)",
-    padding: theme.spacing.unit*1.5,
+    borderTop: theme.palette.border.normal,
+    padding: 12,
     fontWeight: 600,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    width: 210
   }
 })
 

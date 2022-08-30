@@ -1,6 +1,8 @@
 import React from 'react';
-import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -35,26 +37,36 @@ const SubscribeButton = ({
   className?: string,
   classes: ClassesType,
 }) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
   const { LWTooltip, NotifyMeButton } = Components
-  
+
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       e.preventDefault();
-      const newMode = isSubscribed ? "Default" : "Subscribed"
-      captureEvent('newSubscribeClicked', {tagId: tag._id, newMode})
-      subscribeUserToTag(tag, newMode)
-      
-      flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
+
+      const newMode = isSubscribed ? "Default" : "Subscribed";
+      captureEvent('newSubscribeClicked', {tagId: tag._id, newMode});
+
+      if (currentUser) {
+        subscribeUserToTag(tag, newMode);
+        flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
+      } else {
+        openDialog({
+          componentName: "LoginPopup",
+          componentProps: {}
+        });
+      }
     } catch(error) {
       flash({messageString: error.message});
     }
   }
-  
+
   const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
-  
+
   return <div className={classNames(className, classes.root)}>
     <LWTooltip title={isSubscribed ?
       `Remove homepage boost for ${postsWording}` :

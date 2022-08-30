@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     fontWeight: 600,
     fontSize: "1.16rem",
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
     marginRight: 12
   }
 });

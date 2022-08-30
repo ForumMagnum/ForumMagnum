@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useOnNavigate } from '../common/NavigationEventSender';
+import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import * as _ from 'underscore';
-import { getHeaderTextColor } from "../common/Header";
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: getHeaderTextColor(theme),
+    color: theme.palette.header.text,
     fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,
@@ -25,41 +26,45 @@ const styles = (theme: ThemeType): JssStyles => ({
     pointerEvents: "none",
   },
   buttonOpen: {
-    backgroundColor: "rgba(0,0,0,0.4)"
+    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
+    color: theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
-    backgroundColor: "rgba(0,0,0,0)"
+    backgroundColor: "transparent",
+    color: theme.palette.header.text,
   },
 });
 
-const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
   open: boolean,
-  color?: string,
   toggle: any,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
+  const { results, refetch } = useMulti({
     terms: {
       view: 'userNotifications',
       userId: currentUser._id
     },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
-    pollInterval: 0,
     limit: 20,
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
   });
+  
+  useOnNavigate(useCallback(() => {
+    refetch();
+  }, [refetch]));
+  useOnFocusTab(useCallback(() => {
+    refetch();
+  }, [refetch]));
   
   let filteredResults: Array<NotificationsList> | undefined = results && _.filter(results,
     (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
   );
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
-  const notificationIconStyle = {
-    color: open ? "#FFFFFF" : (color || "rgba(0,0,0,0.6)"),
-  }
 
   return (
     <Badge
@@ -67,9 +72,8 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
       badgeContent={(filteredResults && filteredResults.length) || ""}
     >
       <IconButton
-          classes={{ root: buttonClass }}
-          onClick={toggle}
-          style={ notificationIconStyle }
+        classes={{ root: buttonClass }}
+        onClick={toggle}
       >
         {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
       </IconButton>
@@ -77,7 +81,10 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
   )
 }
 
-const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {styles});
+const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {
+  styles,
+  areEqual: "auto",
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,5 @@
 import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
@@ -15,7 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   userButton: {
     fontSize: '14px',
     fontWeight: 400,
-    opacity: .8
+    opacity: .8,
+    color: theme.palette.header.text,
   },
   signUpButton: {
     display: 'inline-block',
@@ -27,7 +27,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface UsersAccountMenuProps extends WithStylesProps {
   captureEvent?: any,
-  color?: string,
   location?: RouterLocation
 }
 interface UsersAccountMenuState {
@@ -61,7 +60,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
   }
 
   render() {
-    const { color, classes, location } = this.props
+    const { classes, location } = this.props
     // Location is always passed in by hoc. We can't make it a required prop due
     // to a limitation in our typings
     const { pathname } = location!
@@ -70,20 +69,20 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
       <div className={classes.root}>
         {forumTypeSetting.get() === 'EAForum' ? <>
           <Button href={`/auth/auth0?returnTo=${pathname}`}>
-            <span className={classes.userButton} style={{ color: color }}>
+            <span className={classes.userButton}>
               Login
             </span>
           </Button>
           <div className={classes.signUpButton}>
             <Button href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>
-              <span className={classes.userButton} style={{ color: color }}>
+              <span className={classes.userButton}>
                 Sign Up
               </span>
             </Button>
           </div>
         </> : <>
           <Button onClick={this.handleClick}>
-            <span className={classes.userButton} style={{ color: color }}>
+            <span className={classes.userButton}>
               Login
             </span>
           </Button>
@@ -99,14 +98,6 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
       </div>
     )
   }
-};
-
-(UsersAccountMenu as any).propTypes = {
-  color: PropTypes.string,
-};
-
-(UsersAccountMenu as any).defaultProps = {
-  color: "rgba(0, 0, 0, 0.6)"
 };
 
 const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, {

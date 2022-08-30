@@ -22,6 +22,7 @@ import { withTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum";
 
@@ -48,39 +49,63 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2
   },
   errorMsg: {
-    color: "#9b5e5e"
+    color: theme.palette.text.error,
   },
   link: {
     textDecoration: "underline"
   },
 });
 
-// Estimated number of hours of reading per week in a frontpage/community feed
-// with the given karma threshold. Calculated based on the average number of
-// words posted per week on LW2 as of August 2018.
-const hoursPerWeek = {
-  2: "3 hours",
-  30: "2 hours",
-  45: "1 hour",
-  75: "half an hour"
-};
+const thresholds = forumSelect({
+  LessWrong: [2, 30, 45, 75, 125],
+  AlignmentForum: [2, 30, 45],
+  EAForum: [2, 30, 75, 125, 200],
+  // We default you off pretty low, you can add more once you get more high
+  // karma posts
+  default: [2, 30, 45, 75]
+})
 
-// Estimated number of posts per week in a frontpage/community feed with the
-// given karma threshold. Calculated based on the average number of posts per
-// week on LW2 as of August 2018.
-// ^^^ Lol
-const postsPerWeek = {
-  2: 20,
-  30: 11,
-  45: 7,
-  75: 3
-};
+/**
+ * Calculated based on the average number of words posted per post on LW2 as of
+ * August 2018.
+ */
+function timePerWeekFromPosts(posts: number) {
+  const minutes = posts * 11
+  if (minutes < 60) {
+    return `${minutes} minutes`
+  }
+  return `${Math.round(minutes / 60)} hours`
+}
+
+/** Posts per week as of May 2022 */
+const postsPerWeek = forumSelect({
+  EAForum: {
+    2: 119,
+    30: 24,
+    45: 20,
+    75: 10,
+    125: 4,
+    200: 1,
+  },
+  // (JP) I eyeballed these, you could query your db for better numbers
+  LessWrong: {
+    2: 80,
+    30: 16,
+    45: 13,
+    75: 7,
+    125: 2,
+  },
+  AlignmentForum: {
+    2: 10,
+    30: 2,
+    45: 1,
+  },
+});
 
 const viewNames = {
   'frontpage': 'Frontpage',
   'curated': 'Curated Content',
   'community': 'All Posts',
-  'meta': 'Meta',
   'pending': 'pending posts',
   'rejected': 'rejected posts',
   'scheduled': 'scheduled posts',
@@ -213,10 +238,9 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         {/* TODO: Forum digest */}
-        {!isEAForum && <MenuItem value="curated">Curated</MenuItem>}
+        <MenuItem value="curated">Curated</MenuItem>
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
-        {!isEAForum && <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>}
       </Select>
     </FormControl>
 
@@ -249,17 +273,19 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
-                { [2, 30, 45, 75].map(t => t.toString()).map(threshold =>
+                { thresholds.map(t => t.toString()).map(threshold =>
                   <FormControlLabel
-                      control={<Radio />}
-                      label={threshold}
-                      value={threshold}
-                      key={`labelKarmaThreshold${threshold}`}
-                      className={classes.thresholdButton} />
+                    control={<Radio />}
+                    label={threshold}
+                    value={threshold}
+                    key={`labelKarmaThreshold${threshold}`}
+                    className={classes.thresholdButton}
+                  />
                 ) }
               </RadioGroup>
               <DialogContentText className={classes.estimate}>
-                That's roughly { postsPerWeek[threshold] } posts per week ({ hoursPerWeek[threshold] } of reading)
+                That's roughly { postsPerWeek[threshold] } posts per week
+                ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)
               </DialogContentText>
             </div>}
 

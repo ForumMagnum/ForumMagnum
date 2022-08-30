@@ -4,7 +4,6 @@ import { RouterLocation } from '../../lib/vulcan-lib';
 declare global {
 
 type ClassesType = Record<string,any>
-type ThemeType = any
 type JssStyles = any
 
 interface WithStylesProps {

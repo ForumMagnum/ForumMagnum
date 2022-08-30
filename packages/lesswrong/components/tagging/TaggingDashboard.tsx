@@ -47,14 +47,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-},
+  },
   navigationLinks: {
     ...theme.typography.commentStyle,
     display: "block",
     paddingBottom: 3,
     opacity: 1,
-    color: "black",
-    textShadow: "0 0 0 rgba(0,0,0,1].87)",
+    color: theme.palette.icon.maxIntensity,
     lineHeight: "0.9em",
     fontWeight: 300,
     fontSize: "1.5rem"
@@ -62,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   navigationLinksDivider: {
     display: "block",
     width: "260px",
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
     marginRight: "auto",
     marginBottom: "4px",
     // paddingBottom: "8px"

@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -10,16 +9,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   comment: {
     marginTop: 4,
     marginBottom: 4,
-    color: "rgba(0,0,0,.7)",
-    border: "solid 1px rgba(0,0,0,.15)",
+    color: theme.palette.text.slightlyDim2,
+    border: theme.palette.border.slightlyFaint,
     marginLeft: -12,
     marginRight: -12,
     padding: 12,
     paddingTop: 8,
     paddingBottom: 8
-  },
-  commentStyle: {
-    ...commentBodyStyles(theme),
   },
   meta: {
     display: "inline-block"

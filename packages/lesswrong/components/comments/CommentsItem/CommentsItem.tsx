@@ -14,6 +14,7 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { StickyIcon } from '../../posts/PostsTitle';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -39,7 +40,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 5,
     display: "inline",
-    color: "rgba(0,0,0,.5)",
+    color: theme.palette.link.dim,
     "@media print": {
       display: "none",
     },
@@ -68,12 +69,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
 
     marginBottom: 8,
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     paddingTop: ".6em",
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: "rgba(0,0,0,0.3) !important",
+      color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   bottom: {
@@ -84,10 +85,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyForm: {
     marginTop: 2,
     marginBottom: 8,
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
   },
   deleted: {
-    backgroundColor: "#ffefef",
+    backgroundColor: theme.palette.panelBackground.deletedComment,
   },
   moderatorHat: {
     marginRight: 8,
@@ -102,14 +103,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit/2
   },
+  pinnedIcon: {
+    color: theme.palette.grey[400],
+    paddingTop: 10,
+    marginBottom: '-3px'
+  },
   postTitle: {
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
     display: "block",
-    color: theme.palette.grey[600]
+    color: theme.palette.link.dim2,
   },
   reviewVotingButtons: {
-    borderTop: "solid 1px rgba(0,0,0,.2)",
+    borderTop: theme.palette.border.normal,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -119,10 +125,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
-  }
+  },
+  titleRow: {
+    display: 'flex',
+    columnGap: 8,
+  },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -134,6 +144,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   toggleCollapse?: ()=>void,
   setSingleLine?: (boolean)=>void,
   truncated: boolean,
+  showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
   classes: ClassesType,
 }) => {
@@ -295,26 +306,31 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             />
           </div>
         )}
+        
+        <div className={classes.titleRow}>
+          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
+            <StickyIcon />
+          </div>}
 
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-              {comment.post.draft && "[Draft] "}
-              {comment.post.title}
-            </Link>
-          </LWTooltip>}
-        {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
-
-        <div className={classes.body}>
-          <div className={classes.meta}>
-            { !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            {post && <CommentShortformIcon comment={comment} post={post} />}
-            { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment}
-                active={showParentState}
-                onClick={toggleShowParent}
+          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                {comment.post.draft && "[Draft] "}
+                {comment.post.title}
+              </Link>
+            </LWTooltip>}
+          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+        </div>
+          <div className={classes.body}>
+            <div className={classes.meta}>
+              { !parentCommentId && !comment.parentCommentId && isParentComment &&
+                <div className={classes.usernameSpacing}>○</div>
+              }
+              {post && <CommentShortformIcon comment={comment} post={post} />}
+              { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+                <ShowParentComment
+                  comment={comment}
+                  active={showParentState}
+                  onClick={toggleShowParent}
               />
             }
             { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>

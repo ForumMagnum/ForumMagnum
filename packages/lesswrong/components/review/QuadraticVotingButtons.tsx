@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote } from './ReviewVotingPage';
 
 const styles = (theme: ThemeType) => ({
   root: {

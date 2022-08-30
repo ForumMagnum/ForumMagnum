@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -30,15 +29,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   onlineGroups: {
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   onlineGroup: {
     height: 116,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: "rgba(0, 0, 0, 0.1)",
+    borderColor: theme.palette.greyAlpha(.1),
     '&:last-of-type': {
       borderBottom: 'none'
     },
@@ -49,7 +48,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: '#e2f1f4',
+    backgroundColor: theme.palette.eaForumGroupsMobileImg,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -61,7 +60,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 115,
-    background: 'white',
+    background: theme.palette.panelBackground.default,
     backgroundRepeat: 'no-repeat',
     backgroundPositionY: 'center',
     padding: '15px 20px 15px 204px',
@@ -77,7 +76,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
   },
   onlineGroupText: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     minWidth: 0,
     padding: '6px 15px',
   },
@@ -99,7 +98,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   onlineGroupDescription: {
     ...theme.typography.commentStyle,
-    color: "rgba(0, 0, 0, 0.6)",
+    color: theme.palette.text.dim60,
     fontSize: 14,
     lineHeight: '1.6em',
     display: '-webkit-box',
@@ -178,7 +177,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
       <div className={classes.onlineGroupsList}>
         {onlineGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
-            backgroundImage: `linear-gradient(to right, transparent, white 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
+            backgroundImage: `linear-gradient(to right, transparent, white 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
           } : {
             backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 200px)'
           }

@@ -9,7 +9,6 @@ import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
-import { defineQuery } from '../utils/serverGraphqlUtil';
 import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 

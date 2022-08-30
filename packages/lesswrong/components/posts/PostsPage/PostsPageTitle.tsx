@@ -5,7 +5,7 @@ import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-export const postPageTitleStyles = theme => ({
+export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
@@ -23,10 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...postPageTitleStyles(theme)
   },
   draft: {
-    color: theme.palette.grey[500]
+    color: theme.palette.text.dim4
   },
   question: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     display: "block",
   },
   link: {

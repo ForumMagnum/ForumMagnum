@@ -2,6 +2,7 @@ import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
+import { sleep } from '../../lib/helpers';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -17,7 +18,14 @@ export const migrationRunners: Record<string,any> = {};
 // things non-relatively there.
 Vulcan.migrations = migrationRunners;
 
-export function registerMigration({ name, dateWritten, idempotent, action })
+interface RegisterMigrationProps {
+  name: string;
+  dateWritten: string;
+  idempotent: boolean;
+  action: () => Promise<void>;
+}
+
+export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps)
 {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)
@@ -76,11 +84,6 @@ export async function runMigration(name: string)
       finished: true, succeeded: false,
     }});
   }
-}
-
-function sleep(ms: number)
-{
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Run a function, timing how long it took, then sleep for an amount of time

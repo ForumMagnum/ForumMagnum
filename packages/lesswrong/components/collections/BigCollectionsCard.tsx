@@ -1,19 +1,19 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width:"100%",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginBottom: 12,
     [theme.breakpoints.down('sm')]: {
       maxWidth: 347,
       marginRight: 12,
     },
     "&:hover": {
-      boxShadow: "0 0 3px rgba(0,0,0,.1)"
+      boxShadow: theme.palette.boxShadow.collectionsCardHover,
     },
   },
   card: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:theme.spacing.unit*2,
     width: "100%",
     maxWidth: 307,
-    borderTop: "solid 4px black",
+    borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This color gets overwritten by a content-specific color from the database
     paddingTop: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
@@ -74,9 +74,9 @@ const BigCollectionsCard = ({ collection, url, classes }: {
 
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
-      <div className={classes.media}>
+      {collection.imageId && <div className={classes.media}>
         <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
-      </div>
+      </div>}
       <div className={classes.content} style={cardContentStyle}>
         <Typography variant="title" className={classes.title}>
           <Link to={url}>{collection.title}</Link>

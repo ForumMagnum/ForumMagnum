@@ -10,7 +10,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
     height: 15, 
     width: 15,
-    fill: "#588f27",
+    fill: theme.palette.group,
     opacity: 0.8
   },
   eaIcon: {

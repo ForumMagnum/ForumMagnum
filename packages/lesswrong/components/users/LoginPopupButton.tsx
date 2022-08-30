@@ -10,10 +10,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const LoginPopupButton = ({classes, children, title}: {
+const LoginPopupButton = ({classes, children, title, className}: {
   classes: ClassesType,
   children: React.ReactNode,
   title?: string,
+  className?: string
 }) => {
   const currentUser = useCurrentUser();
   // This component is intended only for buttons whose sole purpose is logging a user in 
@@ -26,7 +27,7 @@ const LoginPopupButton = ({classes, children, title}: {
 
   return (
     <LWTooltip title={title}>
-      <a className={classes.root} onClick={(ev) => {
+      <a className={className ? className : classes.root} onClick={(ev) => {
           if (!currentUser) {
             openDialog({
               componentName: "LoginPopup",

@@ -266,3 +266,21 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   const endYear = (now.isSame(end, 'year') || end.isBefore(sixMonthsFromNow)) ? '' : `, ${end.format('YYYY')}`
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
+
+export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
+  if (post.hasCoauthorPermission) {
+    return false;
+  }
+  const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
+  return status && !status.confirmed;
+}
+
+export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
+  let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+  if (!coauthorStatuses) return []
+
+  if (!hasCoauthorPermission) {
+    coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
+  }
+  return coauthorStatuses.map(({ userId }) => userId);
+}

@@ -14,7 +14,7 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -80,7 +80,11 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 }): Partial<DbVote> => {
   if (!document.userId)
     throw new Error("Voted-on document does not have an author userId?");
-  
+
+  const coauthors = collectionName === "Posts"
+    ? getConfirmedCoauthorIds(document as DbPost)
+    : [];
+
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
     ...(voteId ? {_id:voteId} : undefined),
@@ -92,7 +96,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
     votedAt: new Date(),
-    authorId: document.userId,
+    authorIds: [document.userId, ...coauthors],
     cancelled: false,
     documentIsAf: !!(document.af),
   }
@@ -267,7 +271,7 @@ const checkRateLimit = async ({ document, collection, voteType, user }: {
   const oneDayAgo = moment().subtract(1, 'days').toDate();
   const votesInLastDay = await Votes.find({
     userId: user._id,
-    authorId: {$ne: user._id}, // Self-votes don't count
+    authorIds: {$ne: user._id}, // Self-votes don't count
     votedAt: {$gt: oneDayAgo},
     cancelled:false
   }).fetch();
@@ -283,7 +287,7 @@ const checkRateLimit = async ({ document, collection, voteType, user }: {
     throw new Error("Voting rate limit exceeded: too many votes in one hour");
   }
 
-  const votesOnThisAuthor = _.filter(votesInLastDay, vote=>vote.authorId===document.userId);
+  const votesOnThisAuthor = _.filter(votesInLastDay, vote=>vote.authorIds.includes(document.userId));
   if (votesOnThisAuthor.length >= rateLimits.perUserPerDay) {
     throw new Error("Voting rate limit exceeded: too many votes today on content by this author");
   }
@@ -312,7 +316,8 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   ).fetch() || [];
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-  const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
+  // make sure that votes associated with users that no longer exist get ignored for the AF score
+  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted))?.filter(u=>!!u);
   const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));

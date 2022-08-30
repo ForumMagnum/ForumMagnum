@@ -1,5 +1,5 @@
 import compose from 'lodash/flowRight';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
@@ -14,6 +14,11 @@ interface ComponentOptions {
   // JSS styles for this component. These will generate class names, which will
   // be passed as an extra prop named "classes".
   styles?: any
+  
+  // Whether to ignore the presence of colors that don't come from the theme in
+  // the component's stylesheet. Use for things that don't change color with
+  // dark mode.
+  allowNonThemeColors?: boolean,
   
   // Default is 0. If classes with overlapping attributes from two different
   // components' styles wind up applied to the same node, the one with higher
@@ -73,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,()=>void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -93,15 +98,15 @@ const addClassnames = (componentName: string, styles: any) => {
         return `${componentName}-invalid`;
     }
   });
-  return (WrappedComponent: any) => (props: any) => {
+  return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
       const withStylesHoc = withStyles(styles, {name: componentName})
       const StylesWrappedComponent = withStylesHoc(WrappedComponent)
       return <StylesWrappedComponent {...props}/>
     }
-    return <WrappedComponent {...props} classes={classesProxy}/>
-  }
+    return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
+  })
 }
 
 // Register a component. Takes a name, a raw component, and ComponentOptions
@@ -118,7 +123,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window as any).missingMainStylesheet) {
+    if (isClient && window?.missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));

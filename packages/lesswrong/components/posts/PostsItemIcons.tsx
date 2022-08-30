@@ -4,17 +4,19 @@ import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
-import DetailsIcon from '@material-ui/icons/Details';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
     lineHeight: "1.0rem",
+    '&:empty': {
+      display: 'none',
+    },
   },
   postIcon: {
     marginRight: 4,
@@ -24,14 +26,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     // not sure if this is best way to do this
     '&&': {
       fontSize: "1.2rem",
-      color: theme.palette.grey[500],
+      color: theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     }
   },
   question: {
     fontSize: "1.2rem",
-    color: theme.palette.grey[500],
+    color: theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -41,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   linkIcon: {
     fontSize: "1.2rem",
-    color: theme.palette.grey[500],
+    color: theme.palette.icon.dim4,
     transform: 'rotate(-45deg)',
     position: "relative",
     top: 3
@@ -87,14 +89,6 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
     {!post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
-      </LWTooltip>
-    </span>}
-
-    {post.meta && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Meta <div><em>(Click to view all meta content)</em></div></div>} placement="right">
-        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/site-meta`}>
-          <DetailsIcon className={classes.icon}/>
-        </Link>
       </LWTooltip>
     </span>}
 

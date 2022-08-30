@@ -13,7 +13,6 @@ import MailIcon from '@material-ui/icons/Mail';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import grey from '@material-ui/core/colors/grey';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -23,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   drawerPaper: {
     width: 270,
-    boxShadow: "rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px",
+    boxShadow: theme.palette.boxShadow.notificationsDrawer,
     zIndex: theme.zIndexes.notificationsMenu,
   },
   badgeContainer: {
@@ -32,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.notificationCount,
     fontSize: "12px",
     fontWeight: 500,
     right: "-15px",
@@ -40,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     pointerEvents: "none",
   },
   icon: {
-    color: "rgba(0,0,0,0.8)",
+    color: theme.palette.icon.slightlyDim,
   },
   hideButton: {
     position: "absolute",
@@ -48,15 +47,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 5,
   },
   cancel: {
-    color: "rgba(0,0,0,0.3)",
+    color: theme.palette.icon.dim5,
     margin: "10px",
     cursor: "pointer",
   },
   tabBar: {
-    background: grey[100],
+    background: theme.palette.panelBackground.notificationMenuTabBar,
   },
   tabLabel: {
-    color: "rgba(0,0,0,0.8)",
+    color: theme.palette.text.slightlyDim,
     minWidth: "auto",
   },
   hiddenTab: {
@@ -82,12 +81,11 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
     },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
-    pollInterval: 0,
     limit: 20,
     enableTotal: false,
   });
 
-  const lastNotificationsCheck = currentUser?.lastNotificationsCheck ?? "";
+  const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
   const newMessages = results && _.filter(results, (x) => x.createdAt > lastNotificationsCheck);
   if (!currentUser) {
     return null;
@@ -143,7 +141,11 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
               value={tab}
               className={classes.tabBar}
               onChange={(event, tabIndex) => {
-                setTab(tabIndex);
+                if (tabIndex >= notificationCategoryTabs.length) {
+                  setIsOpen(false);
+                } else {
+                  setTab(tabIndex);
+                }
               }}
             >
               {notificationCategoryTabs.map(notificationCategory =>
@@ -158,8 +160,11 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
                 />
               )}
               
-              {/* Include an extra, hidden tab to reserve space for the
-                  close/X button (which hovers over the tabs). */}
+              {/* Include an extra, hidden tab to reserve space for the close/X
+                * button (which hovers over the tabs). Selecting this "tab"
+                * (with a keyboard shortcut) closes the drawer (with a special
+                * case in onChange).
+                */}
               <Tab className={classes.hiddenTab} />
             </Tabs>
             <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />

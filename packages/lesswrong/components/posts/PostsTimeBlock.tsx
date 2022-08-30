@@ -35,10 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   noPosts: {
     marginLeft: "23px",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
   },
   posts: {
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   },
   frontpageSubtitle: {
     marginBottom: 6

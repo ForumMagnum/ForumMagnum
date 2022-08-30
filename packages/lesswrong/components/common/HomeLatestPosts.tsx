@@ -5,11 +5,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import * as _ from 'underscore';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
+import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
+import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -46,7 +47,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -94,22 +95,17 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </span>
           </AnalyticsContext>
         </div>
-        <AnalyticsContext listContext={"latestPosts"}>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2
-              terms={{view:"curated", limit: currentUser ? 3 : 2}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              curatedIconLeft={true}
-              showFinalBottomBorder={true}
-            />
+        <HideRepeatedPostsProvider>
+          {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
+          <AnalyticsContext listContext={"latestPosts"}>
+            {/* Allow hiding posts from the front page*/}
+            <AllowHidingFrontPagePostsContext.Provider value={true}>
+              <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+                <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+              </PostsList2>
+            </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-          <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore={true}>
-            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-          </PostsList2>
-        </AnalyticsContext>
+        </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>
   )

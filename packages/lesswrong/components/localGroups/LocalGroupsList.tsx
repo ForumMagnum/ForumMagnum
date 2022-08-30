@@ -5,7 +5,7 @@ import { createStyles } from '@material-ui/core/styles'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   localGroups: {
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   }
 }))
 

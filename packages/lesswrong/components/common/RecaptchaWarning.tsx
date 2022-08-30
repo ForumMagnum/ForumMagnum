@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   warningText: {
     margin: 10,
     padding: 20,
-    border: '1px solid #ccc',
+    border: theme.palette.border.slightlyIntense,
     ...theme.typography.body2
   },
   link: {

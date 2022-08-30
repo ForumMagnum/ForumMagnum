@@ -13,8 +13,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginBottom: 10,
     [theme.breakpoints.down('sm')]: {
       backgroundImage: `linear-gradient(to right, rgba(8, 93, 108, 1) 200px, rgba(8, 93, 108, 0.4)), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_300,w_1000,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     },
     [theme.breakpoints.down('xs')]: {
       height: 'auto',
@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   bannerText: {
     maxWidth: 1200,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     margin: '0 auto'
   },
   bannerQuote: {
@@ -70,7 +70,12 @@ const CommunityBanner = ({classes}: {
   </div>
 }
 
-const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityBanner, {styles});
+const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityBanner, {
+  styles,
+  
+  // This is based around an image, so it doesn't get inverted in dark mdoe
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

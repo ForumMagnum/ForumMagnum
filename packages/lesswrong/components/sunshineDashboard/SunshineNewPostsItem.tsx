@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
-import { postHighlightStyles } from '../../themes/stylePiping'
+import { Posts } from '../../lib/collections/posts';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -22,16 +22,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   buttonRow: {
     ...theme.typography.commentStyle
   },
-  post: {
-    ...postHighlightStyles(theme)
-  },
   title: {
-    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderTop: theme.palette.border.faint,
     paddingTop: 12,
     marginTop: 12
   },
   moderation: {
     marginBottom: 12
+  },
+  vote: {
+    marginBottom: 8
   }
 })
 
@@ -105,7 +105,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -115,10 +115,10 @@ const SunshineNewPostsItem = ({post, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
+          <FooterTagList post={post} />
           <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
             setSelectedTags(selectedTags);
           }}/>
-          <FooterTagList post={post} />
           <div className={classes.buttonRow}>
               <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal
@@ -135,6 +135,7 @@ const SunshineNewPostsItem = ({post, classes}: {
                 { post.title }
               </Link>
             </Typography>
+            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
             {moderationSection && <div className={classes.moderation}>
               {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>
@@ -150,10 +151,10 @@ const SunshineNewPostsItem = ({post, classes}: {
                 </MetaInfo>
               </div>}
             </div>}
-            <div className={classes.post}>
+            <ContentStyles contentType="postHighlight">
               <LinkPostMessage post={post} />
               <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
-            </div>
+            </ContentStyles>
         </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}>
           {post.title}

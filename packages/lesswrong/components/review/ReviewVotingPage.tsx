@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import sumBy from 'lodash/sumBy'
+import React, { useState, useEffect, useCallback } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import { commentBodyStyles } from '../../themes/stylePiping';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
@@ -20,7 +16,6 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
-import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
@@ -43,12 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   instructions: {
-    ...theme.typography.body2,
-    ...commentBodyStyles(theme),
     padding: 16,
     marginBottom: 24,
-    background: "white",
-    boxShadow: theme.boxShadow,
+    background: theme.palette.panelBackground.default,
+    boxShadow: theme.palette.boxShadow.default,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -99,11 +92,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.reviewVotingMenu,
     padding: theme.spacing.unit,
-    background: "#ddd",
-    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    background: theme.palette.grey[310],
+    borderBottom: theme.palette.border.slightlyFaint,
     flexWrap: "wrap"
   },
   menuIcon: {
@@ -173,7 +166,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   faqCard: {
     width: 400,
     padding: 16,
-    ...commentBodyStyles(theme)
   },
   faqQuestion: {
     color: theme.palette.primary.main
@@ -210,9 +202,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     borderRadius: 3,
     marginRight: 6,
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
     "&:hover": {
-      background: "rgba(0,0,0,.2)",
+      background: theme.palette.panelBackground.darken20,
     }
   },
   votingTitle: {
@@ -223,8 +215,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   postList: {
-    boxShadow: "0 1px 5px 0px rgba(0,0,0,.2)",
-    background: "white",
+    boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
+    background: theme.palette.panelBackground.default,
     [theme.breakpoints.down('sm')]: {
       boxShadow: "unset"
     }
@@ -327,7 +319,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }, [submitVote, postsResults]);
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles } = Components
 
   const canInitialResort = !!postsResults
 
@@ -413,33 +405,41 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
 
+  const FaqCard = ({linkText, children}) => (
+    <LWTooltip tooltip={false} title={
+      <Card className={classes.faqCard}>
+        <ContentStyles contentType="comment">
+          {children}
+        </ContentStyles>
+      </Card>}
+    >
+      {linkText}
+    </LWTooltip>
+  )
+  
   const instructions = isEAForum ?
-    <div className={classes.instructions}>
+    <ContentStyles contentType="comment" className={classes.instructions}>
       <p>This is the Final Voting phase. During this phase, you'll read reviews, reconsider posts in the context of today, and cast or update your votes. At the end we'll have a final ordering of the Forum's favorite EA writings of all time.</p>
       
       <p><b>FAQ</b></p>
       
       <p className={classes.faqQuestion}>
-        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+        <FaqCard linkText="How exactly do the votes work?">
           <p>If you intuitively sort posts into "good", "important", "crucial", etc., you'll probably do fine. But here are some details on how it works under the hood:</p>
 
           <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
-        </Card>}>
-          How exactly do the votes work?
-        </LWTooltip>
+        </FaqCard>
       </p>
 
       <p className={classes.faqQuestion}>
-        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+        <FaqCard linkText="Submitting reviews">
           <p>The Review phase involves writing reviews of posts, with the advantage of hindsight. They can be brief or very detailed. You can write multiple reviews if your thoughts evolve over the course of the event.</p>
-        </Card>}>
-          Submitting reviews
-        </LWTooltip>
+        </FaqCard>
       </p>
       
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
-    </div> :
-    <div className={classes.instructions}>
+    </ContentStyles>
+  : <ContentStyles contentType="comment" className={classes.instructions}>
       {getReviewPhase() === "NOMINATIONS" && <><p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
       <ul>
         <li>
@@ -461,28 +461,24 @@ const ReviewVotingPage = ({classes}: {
       <p><b>FAQ</b></p>
 
       <p className={classes.faqQuestion}>
-        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+        <FaqCard linkText="How exactly do Preliminary Votes work?">
           <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
           <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly.</p>
           <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
           <p>You can change your votes during the Final Voting Phase.</p>
-        </Card>}>
-          How exactly do Preliminary Votes work?
-        </LWTooltip>
+        </FaqCard>
       </p>
 
       <p className={classes.faqQuestion}>
-        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+        <FaqCard linkText="Who is eligible?">
           <ul>
             <li>Any user registered before {REVIEW_YEAR} can vote on posts.</li>
             <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
             <li>Any user can write reviews.</li>
           </ul>
-          </Card>}>
-            Who is eligible?
-        </LWTooltip>
+        </FaqCard>
       </p>
-    </div>
+    </ContentStyles>
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 

@@ -1,11 +1,25 @@
+import { forumSelect } from "../../forumTypeUtils";
 import { taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+
+export const tagMinimumKarmaPermissions = forumSelect({
+  // Topic spampocalypse defense
+  EAForum: {
+    new: 10,
+    edit: 10,
+  },
+  // Default is to allow all users to create/edit tags
+  default: {
+    new: -1000,
+    edit: -1000,
+  }
+})
 
 type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
 }
 
-export const tagGetUrl = (tag: DbTag|TagBasicInfo|AlgoliaTag, urlOptions?: GetUrlOptions) => {
+export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
   const { flagId, edit } = urlOptions || {};
   const url = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`
   if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
@@ -24,4 +38,11 @@ export const tagGetCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): s
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
   return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}?version=${versionNumber}`;
+}
+
+export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
+  if (!user) return false
+  if (user.isAdmin) return true
+  if ((user.karma ?? 0) >= tagMinimumKarmaPermissions[action]) return true
+  return false
 }

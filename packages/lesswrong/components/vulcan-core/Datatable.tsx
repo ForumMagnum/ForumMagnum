@@ -7,6 +7,7 @@ import { getSchema } from '../../lib/utils/getSchema';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
+import classNames from 'classnames';
 
 /*
 
@@ -171,19 +172,19 @@ const DatatableHeaderCellLayoutComponent = registerComponent('DatatableHeaderCel
 
 const SortNone = () =>
   <svg width='16' height='16' viewBox='0 0 438 438' fill='none' xmlns='http://www.w3.org/2000/svg'>
-    <path d='M25.7368 247.243H280.263C303.149 247.243 314.592 274.958 298.444 291.116L171.18 418.456C161.128 428.515 144.872 428.515 134.926 418.456L7.55631 291.116C-8.59221 274.958 2.85078 247.243 25.7368 247.243ZM298.444 134.884L171.18 7.54408C161.128 -2.51469 144.872 -2.51469 134.926 7.54408L7.55631 134.884C-8.59221 151.042 2.85078 178.757 25.7368 178.757H280.263C303.149 178.757 314.592 151.042 298.444 134.884Z' transform='translate(66 6)' fill='#000' fillOpacity='0.2' />
+    <path d='M25.7368 247.243H280.263C303.149 247.243 314.592 274.958 298.444 291.116L171.18 418.456C161.128 428.515 144.872 428.515 134.926 418.456L7.55631 291.116C-8.59221 274.958 2.85078 247.243 25.7368 247.243ZM298.444 134.884L171.18 7.54408C161.128 -2.51469 144.872 -2.51469 134.926 7.54408L7.55631 134.884C-8.59221 151.042 2.85078 178.757 25.7368 178.757H280.263C303.149 178.757 314.592 151.042 298.444 134.884Z' transform='translate(66 6)' fill='currentColor' fillOpacity='0.2' />
   </svg>;
 
 const SortDesc = () =>
   <svg width="16" height="16" viewBox="0 0 438 438" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M25.7368 0H280.263C303.149 0 314.592 27.7151 298.444 43.8734L171.18 171.213C161.128 181.272 144.872 181.272 134.926 171.213L7.55631 43.8734C-8.59221 27.7151 2.85078 0 25.7368 0Z" transform="translate(66 253.243)" fill="black" fillOpacity="0.7"/>
-    <path d="M171.18 7.54408L298.444 134.884C314.592 151.042 303.149 178.757 280.263 178.757H25.7368C2.85078 178.757 -8.59221 151.042 7.55631 134.884L134.926 7.54408C144.872 -2.51469 161.128 -2.51469 171.18 7.54408Z" transform="translate(66 6)" fill="black" fillOpacity="0.2"/>
+    <path d="M25.7368 0H280.263C303.149 0 314.592 27.7151 298.444 43.8734L171.18 171.213C161.128 181.272 144.872 181.272 134.926 171.213L7.55631 43.8734C-8.59221 27.7151 2.85078 0 25.7368 0Z" transform="translate(66 253.243)" fill="currentColor" fillOpacity="0.7"/>
+    <path d="M171.18 7.54408L298.444 134.884C314.592 151.042 303.149 178.757 280.263 178.757H25.7368C2.85078 178.757 -8.59221 151.042 7.55631 134.884L134.926 7.54408C144.872 -2.51469 161.128 -2.51469 171.18 7.54408Z" transform="translate(66 6)" fill="currentColor" fillOpacity="0.2"/>
   </svg>;
 
 const SortAsc = () =>
   <svg width="16" height="16" viewBox="0 0 438 438" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M298.444 134.884L171.18 7.54408C161.128 -2.51469 144.872 -2.51469 134.926 7.54408L7.55631 134.884C-8.59221 151.042 2.85078 178.757 25.7368 178.757H280.263C303.149 178.757 314.592 151.042 298.444 134.884Z" transform="translate(66 6)" fill="black" fillOpacity="0.7"/>
-    <path d="M280.263 0H25.7368C2.85078 0 -8.59221 27.7151 7.55631 43.8734L134.926 171.213C144.872 181.272 161.128 181.272 171.18 171.213L298.444 43.8734C314.592 27.7151 303.149 0 280.263 0Z" transform="translate(66 253.243)" fill="black" fillOpacity="0.2"/>
+    <path d="M298.444 134.884L171.18 7.54408C161.128 -2.51469 144.872 -2.51469 134.926 7.54408L7.55631 134.884C-8.59221 151.042 2.85078 178.757 25.7368 178.757H280.263C303.149 178.757 314.592 151.042 298.444 134.884Z" transform="translate(66 6)" fill="currentColor" fillOpacity="0.7"/>
+    <path d="M280.263 0H25.7368C2.85078 0 -8.59221 27.7151 7.55631 43.8734L134.926 171.213C144.872 181.272 161.128 181.272 171.18 171.213L298.444 43.8734C314.592 27.7151 303.149 0 280.263 0Z" transform="translate(66 253.243)" fill="currentColor" fillOpacity="0.2"/>
   </svg>;
 
 const DatatableSorter = ({ name, label, toggleSort, currentSort }) => 
@@ -218,6 +219,8 @@ const DatatableContents = (props) => {
     count, totalCount, networkStatus, currentUser, emptyState, 
     toggleSort, currentSort } = props;
 
+  const { DatatableHeader, DatatableContentsHeadLayout, DatatableTitle, DatatableContentsLayout, DatatableContentsInnerLayout, DatatableContentsBodyLayout, LoadMore } = Components
+
   if (loading) {
     return <div className="datatable-list datatable-list-loading"><Components.Loading /></div>;
   } else if (!results || !results.length) {
@@ -228,36 +231,34 @@ const DatatableContents = (props) => {
   const hasMore = totalCount > results.length;
   const sortedColumns = _sortBy(columns, column => column.order);
   return (
-    <Components.DatatableContentsLayout>
-      {title && <Components.DatatableTitle title={title}/>}
-      <Components.DatatableContentsInnerLayout>
-        <Components.DatatableContentsHeadLayout>
+    <DatatableContentsLayout>
+      {title && <DatatableTitle title={title}/>}
+      <DatatableContentsInnerLayout>
+        <DatatableContentsHeadLayout>
           {
             sortedColumns
               .map((column, index) => (
-                <Components.DatatableHeader
+                <DatatableHeader
                   key={index} collection={collection} column={column}
                   toggleSort={toggleSort} currentSort={currentSort} />)
               )
           }
-        </Components.DatatableContentsHeadLayout>
-        <Components.DatatableContentsBodyLayout>
+        </DatatableContentsHeadLayout>
+        <DatatableContentsBodyLayout>
           {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} currentUser={currentUser} />)}
-        </Components.DatatableContentsBodyLayout>
-      </Components.DatatableContentsInnerLayout>
+        </DatatableContentsBodyLayout>
+      </DatatableContentsInnerLayout>
       {hasMore &&
         <Components.DatatableContentsMoreLayout>
           {isLoadingMore
             ? <Components.Loading />
             : (
-            <Components.DatatableLoadMoreButton onClick={e => { e.preventDefault(); loadMore(); }}>
-                Load More ({count}/{totalCount})
-            </Components.DatatableLoadMoreButton>
+            <LoadMore count={count} totalCount={totalCount} loadMore={loadMore} />
             )
           }
         </Components.DatatableContentsMoreLayout>
       }
-    </Components.DatatableContentsLayout>
+    </DatatableContentsLayout>
   );
 };
 DatatableContents.propTypes = {
@@ -294,10 +295,6 @@ const DatatableContentsMoreLayout = ({ children }) => (
   </div>
 );
 const DatatableContentsMoreLayoutComponent = registerComponent('DatatableContentsMoreLayout', DatatableContentsMoreLayout);
-const DatatableLoadMoreButton = ({ count, totalCount, children, ...otherProps }) => (
-  <Components.Button variant="primary" {...otherProps}>{children}</Components.Button>
-);
-const DatatableLoadMoreButtonComponent = registerComponent('DatatableLoadMoreButton', DatatableLoadMoreButton);
 
 /*
 
@@ -350,20 +347,26 @@ const DatatableRowLayoutComponent = registerComponent('DatatableRowLayout', Data
 DatatableCell Component
 
 */
-const DatatableCell = ({ column, document, currentUser }) => {
+
+const cellStyles = theme => ({
+  cell: {
+    padding: 4
+  }
+})
+const DatatableCell = ({ classes, column, document, currentUser }) => {
   const Component = column.component 
   || (column.componentName && Components[column.componentName])
   || Components.DatatableDefaultCell;
   const columnName = getColumnName(column);
   return (
-    <Components.DatatableCellLayout className={`datatable-item-${columnName.toLowerCase().replace(/\s/g, '-')}`}>
+    <Components.DatatableCellLayout className={classNames(`datatable-item-${columnName.toLowerCase().replace(/\s/g, '-')}`, classes.cell)}>
       <Component column={column} document={document} currentUser={currentUser} />
     </Components.DatatableCellLayout>
   );
 };
 DatatableCell.propTypes = {
 };
-const DatatableCellComponent = registerComponent('DatatableCell', DatatableCell);
+const DatatableCellComponent = registerComponent('DatatableCell', DatatableCell, {styles: cellStyles});
 
 const DatatableCellLayout = ({ children, ...otherProps }) => (
   <td {...otherProps}>{children}</td>
@@ -394,7 +397,6 @@ declare global {
     DatatableContentsHeadLayout: typeof DatatableContentsHeadLayoutComponent,
     DatatableContentsBodyLayout: typeof DatatableContentsBodyLayoutComponent,
     DatatableContentsMoreLayout: typeof DatatableContentsMoreLayoutComponent,
-    DatatableLoadMoreButton: typeof DatatableLoadMoreButtonComponent,
     DatatableTitle: typeof DatatableTitleComponent,
     DatatableRow: typeof DatatableRowComponent,
     DatatableRowLayout: typeof DatatableRowLayoutComponent,

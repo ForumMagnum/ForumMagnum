@@ -7,16 +7,10 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
-import { forumTypeSetting } from '../../instanceSettings';
-
-const formGroups: Partial<Record<string,FormGroup>> = {
-  advancedOptions: {
-    name: "advancedOptions",
-    order: 20,
-    label: "Advanced Options",
-    startCollapsed: true,
-  },
-};
+import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
+import omit from 'lodash/omit';
+import { formGroups } from './formGroups';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -30,6 +24,11 @@ addGraphQLSchema(`
     totalCount: Int!
   }
 `);
+
+export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
+  relevance: { label: 'Most Relevant' },
+  ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
+}
 
 export const schema: SchemaType<DbTag> = {
   createdAt: {
@@ -110,6 +109,7 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
+    tooltip: `Rank this ${taggingNameSetting.get()} higher in lists of ${taggingNamePluralSetting.get()}?`
   },
   descriptionTruncationCount: {
     // number of paragraphs to display above-the-fold
@@ -120,6 +120,12 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
+  },
+  descriptionHtmlWithToc: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    // See resolveAs in server/resolvers/tagResolvers.ts
   },
   postCount: {
     ...denormalizedCountOfReferences({
@@ -153,6 +159,22 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  canEditUserIds: {
+    type: Array,
+    viewableBy: ['guests'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    optional: true,
+    label: "Restrict to these authors",
+    tooltip: "Only these authors will be able to edit the topic",
+    control: "UsersListEditor",
+    group: formGroups.advancedOptions,
+  },
+  'canEditUserIds.$': {
+    type: String,
+    foreignKey: 'Users',
+    optional: true,
   },
   charsAdded: {
     type: Number,
@@ -400,6 +422,32 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
+  },
+  
+  postsDefaultSortOrder: {
+    type: String,
+    optional: true,
+    group: formGroups.advancedOptions,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: 'select',
+    options: () => Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).map(([key, val]) => ({
+      value: key,
+      label: val.label
+    })),
+  },
+
+  canVoteOnRels: {
+    type: Array,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.advancedOptions,
+  },
+  'canVoteOnRels.$': {
+    type: String,
   },
 }
 

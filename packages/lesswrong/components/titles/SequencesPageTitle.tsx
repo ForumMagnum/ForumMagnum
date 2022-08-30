@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 
@@ -25,8 +25,8 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   const titleString = `${sequence.title} - ${siteName}`
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
-      <Link to={sequenceGetPageUrl(sequence, false)}>
-        {sequence.title}
+      <Link to={getCollectionOrSequenceUrl(sequence)}>
+        {sequence.canonicalCollection?.title ?? sequence.title}
       </Link>
     </span>);
   } else {
@@ -48,4 +48,5 @@ declare global {
     SequencesPageTitle: typeof SequencesPageTitleComponent
   }
 }
+
 

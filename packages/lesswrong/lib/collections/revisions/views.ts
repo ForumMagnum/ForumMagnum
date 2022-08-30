@@ -12,6 +12,7 @@ declare global {
   }
 }
 
+// NB: Includes revisions on deleted tags
 Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
   return {
     selector: {

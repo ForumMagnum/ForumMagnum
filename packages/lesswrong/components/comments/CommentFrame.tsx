@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -9,7 +10,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -22,9 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
-    borderLeft: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderLeft: theme.palette.border.commentBorder,
+    borderTop: theme.palette.border.commentBorder,
+    borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
     borderRadius: "2px 0 0 2px"
   },
@@ -38,17 +39,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   deleted: {},
   isAnswer: {
-    border: `solid 2px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.answerBorder,
   },
   answerChildComment: {
     marginBottom: theme.spacing.unit,
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
   },
   childAnswerComment: {
     borderRight: "none"
   },
   oddAnswerComment: {
-    backgroundColor: 'white'
+    backgroundColor: theme.palette.panelBackground.default,
   },
   answerLeafComment: {
     paddingBottom: 0
@@ -56,10 +57,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   isSingleLine: {
     marginBottom: 0,
     borderBottom: "none",
-    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderTop: theme.palette.border.commentBorder,
     '&.comments-node-root':{
       marginBottom: CONDENSED_MARGIN_BOTTOM,
-      borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
+      borderBottom: theme.palette.border.commentBorder,
     }
   },
   condensed: {
@@ -74,24 +75,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   hoverPreview: {
-    marginBottom: 0
+    '&&': {
+      marginBottom: 0
+    }
   },
   moderatorHat: {
     "&.comments-node-even": {
-      background: "#5f9b651c",
+      background: theme.palette.panelBackground.commentModeratorHat,
     },
     "&.comments-node-odd": {
-      background: "#5f9b651c",
+      background: theme.palette.panelBackground.commentModeratorHat,
     },
   },
   '@keyframes higlight-animation': {
     from: {
-      backgroundColor: theme.palette.grey[300],
-      borderColor: "black"
+      backgroundColor: theme.palette.panelBackground.commentHighlightAnimation,
+      border: theme.palette.border.maxIntensity,
     },
     to: {
       backgroundColor: "none",
-      borderColor: "rgba(0,0,0,.15)"
+      border: theme.palette.border.commentBorder,
     }
   },
   highlightAnimation: {
@@ -99,10 +102,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   promoted: {
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
-  }
+  },
+  isPinnedOnProfile: {
+    borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
+    borderImageSlice: '1',
+    '&.CommentFrame-isAnswer': {
+      borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
+      borderImageSlice: '1',
+    }
+  },
 });
 
-const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, children, classes}: {
+const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, showPinnedOnProfile, children, classes}: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any)=>void,
@@ -117,6 +128,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
   isReplyToAnswer?: boolean,
   hoverPreview?: boolean,
   shortform?: boolean,
+  showPinnedOnProfile?: boolean,
   
   children: React.ReactNode,
   classes: ClassesType,
@@ -133,6 +145,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
+      [classes.isPinnedOnProfile]: forumTypeSetting.get() === 'EAForum' && showPinnedOnProfile && comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,

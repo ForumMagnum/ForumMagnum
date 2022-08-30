@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: POSTED_AT_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
+      color: theme.palette.text.slightlyIntense2,
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: START_TIME_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
+      color: theme.palette.text.slightlyIntense2,
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }

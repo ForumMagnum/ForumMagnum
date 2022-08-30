@@ -1,16 +1,11 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { FilterSettings, useFilterSettings } from './filterSettings'
+import { useFilterSettings } from './filterSettings'
 import { testStartup } from "../testing/testMain"
 
 testStartup()
 
 jest.mock('../components/common/withUser', () => ({
-  useCurrentUser: () => ({
-    frontpageFilterSettings: {
-      personalBlog: 'Hidden',
-      tags: [],
-    } as FilterSettings
-  }),
+  useCurrentUser: () => ({}),
 }))
 
 jest.mock('../components/hooks/useUpdateCurrentUser', () => ({
@@ -35,6 +30,19 @@ jest.mock('./crud/withMulti', () => ({
     })
 }))
 
+jest.mock('./publicSettings', () => {
+  const originalModule = jest.requireActual('./publicSettings');
+  return {
+    __esModule: true,
+    ...originalModule,
+    defaultVisibilityTags: {
+      get: jest.fn().mockReturnValue([
+        {tagId: '0', tagName: 'Communes', filterMode: 0.5}
+      ])
+    }
+  }
+})
+
 describe('useFilterSettings', () => {
   it('useFilterSettings', () => {
     // initial return, loading state
@@ -42,7 +50,9 @@ describe('useFilterSettings', () => {
     expect(filterSettingsResults.current).toMatchObject({
       filterSettings: {
         personalBlog: 'Hidden',
-        tags: [],
+        tags: [
+          {tagId: '0', tagName: 'Communes', filterMode: "TagDefault"}
+        ],
       },
       loadingSuggestedTags: true,
     })
@@ -57,7 +67,10 @@ describe('useFilterSettings', () => {
       filterSettings: {
         personalBlog: 'Reduced',
         // These get set because of suggested tags
-        tags: [{tagId: '1', tagName: 'Paperclips', filterMode: 'Default'}],
+        tags: [
+          {tagId: '0', tagName: 'Communes', filterMode: "TagDefault"},
+          {tagId: '1', tagName: 'Paperclips', filterMode: 'Default'}
+        ],
       },
     })
     
@@ -70,6 +83,7 @@ describe('useFilterSettings', () => {
       filterSettings: {
         personalBlog: 'Reduced',
         tags: [
+          {tagId: '0', tagName: 'Communes', filterMode: "TagDefault"},
           {tagId: '1', tagName: 'Paperclips', filterMode: 'Default'},
           {tagId: '2', tagName: 'Dank Memes', filterMode: 'Subscribed'}
         ],
@@ -96,6 +110,7 @@ describe('useFilterSettings', () => {
       filterSettings: {
         personalBlog: 'Reduced',
         tags: [
+          {tagId: '0', tagName: 'Communes', filterMode: "TagDefault"},
           {tagId: '1', tagName: 'Paperclips', filterMode: 'Default'},
           {tagId: '2', tagName: 'Dank Memes', filterMode: 'Hidden'}
         ],
@@ -110,7 +125,10 @@ describe('useFilterSettings', () => {
     expect(filterSettingsResults.current).toMatchObject({
       filterSettings: {
         personalBlog: 'Reduced',
-        tags: [{tagId: '1', tagName: 'Paperclips', filterMode: 'Default'}],
+        tags: [
+          {tagId: '0', tagName: 'Communes', filterMode: "TagDefault"},
+          {tagId: '1', tagName: 'Paperclips', filterMode: 'Default'}
+        ],
       },
     })
     

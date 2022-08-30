@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { getLSHandlers } from '../async/localStorageHandlers'
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -17,6 +16,8 @@ import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/b
 import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import FormLabel from '@material-ui/core/FormLabel';
+import { markdownToHtmlSimple } from '../../lib/editor/utils';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -25,11 +26,20 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
 const styles = (theme: ThemeType): JssStyles => ({
+  label: {
+    display: 'block',
+    fontSize: 10,
+    marginBottom: 6
+  },
   editor: {
     position: 'relative',
   },
+  markdownEditor: {
+    fontFamily: "inherit",
+    fontSize: "inherit",
+  },
   postBodyStyles: {
-    ...editorStyles(theme, postBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     padding: 0,
     '& li .public-DraftStyleDefault-block': {
@@ -38,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   answerStyles: {
-    ...editorStyles(theme, answerStyles),
+    ...editorStyles(theme),
     cursor: "text",
     maxWidth:620,
     '& li .public-DraftStyleDefault-block': {
@@ -47,12 +57,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   commentBodyStyles: {
-    ...editorStyles(theme, commentBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     marginTop: 0,
     marginBottom: 0,
     padding: 0,
     pointerEvents: 'auto'
+  },
+  ckEditorStyles: {
+    ...ckEditorStyles(theme),
   },
   questionWidth: {
     width: 640,
@@ -114,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
     marginRight: 8,
     ...theme.typography.commentStyle,
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
   },
   changeDescriptionInput: {
     flexGrow: 1,
@@ -152,7 +165,9 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   placeholder: string,
   label: string,
   commentStyles: boolean,
-  collectionName: string
+  collectionName: string,
+  addToSubmitForm?: Function,
+  addToSuccessForm?: Function,
 }
 interface EditorFormComponentState {
   editorOverride: any,
@@ -165,7 +180,7 @@ interface EditorFormComponentState {
   ckEditorValue: any,
   markdownValue: any,
   htmlValue: any,
-  markdownImgErrs: boolean
+  markdownImgErrs: boolean,
 }
 
 class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
@@ -187,7 +202,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       ckEditorReference: null,
       loading: true,
       ...this.getEditorStatesFromType(editorType),
-      markdownImgErrs: false
+      markdownImgErrs: false,
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
@@ -199,9 +214,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   async componentDidMount() {
     const { form } = this.props
 
-    this.context.addToSubmitForm(this.submitData);
+    this.context.addToSubmitForm && this.context.addToSubmitForm(this.submitData);
+    this.context.addToSuccessForm && this.context.addToSuccessForm((result) => {
+      this.resetEditor();
+      return result;
+    });
 
-    this.context.addToSuccessForm((result) => {
+    this.props.addToSubmitForm && this.props.addToSubmitForm(this.submitData)
+    this.props.addToSuccessForm && this.props.addToSuccessForm((result) => {
       this.resetEditor();
       return result;
     });
@@ -221,11 +241,21 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const Editor = EditorModule.default
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
-    
+
     if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
+  }
+
+  setEditorValue(newValue: string) {
+    const html = markdownToHtmlSimple(newValue)
+    this.setState({
+      markdownValue: newValue,
+      htmlValue: html,
+      ckEditorValue: html
+    })
+    this.state.ckEditorReference?.setData(html)
   }
 
   getEditorStatesFromType = (editorType: string, contents?: any) => {
@@ -297,7 +327,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.setState(savedState);
     }
   }
-  
+
   isEmpty = (): boolean => {
     switch(this.getCurrentEditorType()) {
       case "draftJS": {
@@ -330,7 +360,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   getStorageHandlers = () => {
     const { fieldName, form } = this.props
     const collectionName = form.collectionName;
-    
+
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId)
   }
@@ -370,7 +400,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-        if (!this.isDocumentCollaborative()) {
+        if (!this.isDocumentCollaborative() && this.context.addToSuccessForm) {
           this.context.addToSuccessForm((s) => {
             this.state.ckEditorReference.setData('')
           })
@@ -385,16 +415,17 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     }
     return {
       ...submission,
-      [fieldName]: data ? {
+      [fieldName]: {
         originalContents: {type, data},
         commitMessage, updateType,
-      } : undefined
+      }
     }
   }
 
   resetEditor = () => {
     const { name, document } = this.props;
     // On Form submit, create a new empty editable
+    this.state.ckEditorReference?.setData("");
     this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
     this.setState({
       draftJSValue: EditorState.createEmpty(),
@@ -475,14 +506,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.hasUnsavedData = false;
     } else {
       const serialized = this.editorContentsToJson();
-  
+
       const success = this.getStorageHandlers().set({
         state: serialized,
         doc: document,
         name,
         prefix: this.getLSKeyPrefix()
       });
-  
+
       if (success) {
         this.hasUnsavedData = false;
       }
@@ -543,7 +574,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   getCurrentEditorType = () => {
     // Tags can only be edited via CKEditor
     if (this.props.collectionName === 'Tags') return "ckEditorMarkup"
-    
+
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
 
     // If there is an override, return that
@@ -594,18 +625,18 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       <MenuItem value={'patch'}>Patch</MenuItem>
     </Select>
   }
-  
+
   renderCommitMessageInput = () => {
     const { currentUser, formType, fieldName, form, classes } = this.props
-    
+
     const collectionName = form.collectionName;
     if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
-    
-    
+
+
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
     if (!fieldHasCommitMessages) return null;
     if (form.hideControls) return null
-    
+
     return <div className={classes.changeDescriptionRow}>
       <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
       <Input
@@ -625,9 +656,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     if (form.hideControls) return null
     if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
-    
+
     const tooltip = collectionName === 'Tags' ? `Tags can only be edited in the ${ckEditorName} editor` : "Warning! Changing format will erase your content"
-    
+
     return (
       <LWTooltip title={tooltip} placement="left">
         <Select
@@ -647,11 +678,24 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     )
   }
 
-  getBodyStyles = () => {
+  getBodyStyles = (): {className: string, contentType: "comment"|"answer"|"post"} => {
     const { classes, commentStyles, document } = this.props
-    if (commentStyles && document.answer) return classes.answerStyles
-    if (commentStyles) return classes.commentBodyStyles
-    return classes.postBodyStyles
+    if (commentStyles && document.answer) {
+      return {
+        className: classes.answerStyles,
+        contentType: "answer",
+      }
+    }
+    if (commentStyles) {
+      return {
+        className: classes.commentBodyStyles,
+        contentType: "comment",
+      }
+    }
+    return {
+      className: classes.postBodyStyles,
+      contentType: "post",
+    }
   }
 
   renderEditorComponent = (currentEditorType) => {
@@ -668,12 +712,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderPlaceholder = (showPlaceholder, collaboration) => {
-    const { classes, formProps, hintText, placeholder, label  } = this.props
+    const { classes, formProps, hintText, placeholder  } = this.props
+    const {className, contentType} = this.getBodyStyles();
 
     if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
-        { formProps?.editorHintText || hintText || placeholder || label }
-      </div>
+      return <Components.ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
+        { formProps?.editorHintText || hintText || placeholder }
+      </Components.ContentStyles>
     }
   }
 
@@ -684,7 +729,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
-    const { document, currentUser, formType } = this.props
+    const { document, currentUser, formType, classes } = this.props
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
@@ -707,7 +752,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
       const collaboration = this.isDocumentCollaborative()
 
-      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
+      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass(), classes.ckEditorStyles)}>
           { this.renderPlaceholder(!value, collaboration)}
           { collaboration ?
             <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
@@ -730,12 +775,15 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, document, form: { commentStyles }, label } = this.props
+    const { classes, document, form: { commentStyles } } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
+    const {className, contentType} = this.getBodyStyles();
+
     return <div>
-        { this.renderPlaceholder(!value, false) }
+      { this.renderPlaceholder(!value, false) }
+      <Components.ContentStyles contentType={contentType}>
         <Input
-          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
+          className={classNames(classes.markdownEditor, className, {[classes.questionWidth]: document.question})}
           value={value}
           onChange={(ev) => {
             if (editorType === "html")
@@ -749,28 +797,32 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           fullWidth={true}
           disableUnderline={true}
         />
+      </Components.ContentStyles>
       {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
-          Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
-          connection. You should update all links to images so that they are served over a{' '}
-          secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-        </Components.Typography>}
-      </div>
+        Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
+        connection. You should update all links to images so that they are served over a{' '}
+        secure HTTPS connection (i.e. the links should start with <em>https://</em>).
+      </Components.Typography>}
+    </div>
   }
 
   renderDraftJSEditor = () => {
     const { draftJSValue } = this.state
     const { document, form, classes } = this.props
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
+    const {className, contentType} = this.getBodyStyles();
 
     return <div>
-        { this.renderPlaceholder(showPlaceholder, false) }
-        {draftJSValue && <EditorForm
+      { this.renderPlaceholder(showPlaceholder, false) }
+      {draftJSValue && <Components.ContentStyles contentType={contentType}>
+        <Components.DraftJSEditor
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
-          className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
-        />}
-      </div>
+          className={classNames(className, this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
+        />
+      </Components.ContentStyles>}
+    </div>
   }
 
   getMaxHeightClass = () => {
@@ -792,9 +844,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   render() {
     const { editorOverride, loading } = this.state
-    const { document, currentUser, formType, classes, collectionName } = this.props
-    const { Loading } = Components
+    const { document, currentUser, formType, classes, collectionName, label } = this.props
+    const { Loading, ContentStyles } = Components
     const currentEditorType = this.getCurrentEditorType()
+    const {className, contentType} = this.getBodyStyles();
 
     if (!document) return null;
 
@@ -805,12 +858,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
     return <div>
+      { label && <FormLabel className={classes.label}>{label}</FormLabel>}
       { editorWarning }
-      <div className={classNames(classes.editor, this.getBodyStyles())}>
+      <ContentStyles contentType={contentType} className={classNames(classes.editor, className)}>
         { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
         { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
-      </div>
+      </ContentStyles>
       { this.renderCommitMessageInput() }
     </div>
   }

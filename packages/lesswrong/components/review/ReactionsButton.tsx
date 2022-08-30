@@ -13,19 +13,19 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     padding: '5px  8px',
     borderRadius: 3,
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     marginRight: 4,
     marginLeft: 4,
     marginBottom: 4,
-    border: 'solid 1px rgba(72,94,144,0.16)',
+    border: theme.palette.border.commentBorder,
     cursor: 'pointer',
     display: 'inline-block',
     '&:hover': {
-      backgroundColor: 'rgba(240,240,240,1)'
+      backgroundColor: theme.palette.grey[140],
     }
   },
   active: {
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     backgroundColor: theme.palette.primary.dark,
     '&:hover': {
       backgroundColor: theme.palette.primary.main

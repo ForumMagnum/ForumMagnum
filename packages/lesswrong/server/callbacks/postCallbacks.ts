@@ -8,9 +8,10 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
-import { getCollectionHooks } from '../mutationCallbacks';
+import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -43,6 +44,12 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       }
       if (!post.scoreExceeded75Date && post.baseScore >= 75) {
         thresholdTimestamp.scoreExceeded75Date = new Date();
+      }
+      if (!post.scoreExceeded125Date && post.baseScore >= 125) {
+        thresholdTimestamp.scoreExceeded125Date = new Date();
+      }
+      if (!post.scoreExceeded200Date && post.baseScore >= 200) {
+        thresholdTimestamp.scoreExceeded200Date = new Date();
       }
       await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
@@ -146,35 +153,22 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
-  const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    await Users.rawUpdateOne({_id:author._id}, {$set:{needsReview: true}})
-  }
-  return document
-}
-
-getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
   if (!document.draft) {
-    await newDocumentMaybeTriggerReview(document);
+    await triggerReviewIfNeeded(document.userId)
   }
-  return document;
 });
 
-getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
-  // ignore draft posts
-  if (newPost.draft) return
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+  if (document.draft) return
 
-  // Is this a post being undrafted?
-  if (oldPost.draft) {
-    await newDocumentMaybeTriggerReview(newPost)
-  }
+  await triggerReviewIfNeeded(oldDocument.userId)
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
   // then we consider this "publishing" the post
-  if ((oldPost.draft && !newPost.authorIsUnreviewed) || (oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([newPost]);
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    await postPublishedCallback.runCallbacksAsync([document]);
   }
 });
 
@@ -260,3 +254,29 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   
   return modifier
 })
+
+const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
+  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+
+const scheduleCoauthoredPost = (post: DbPost): DbPost => {
+  const now = new Date();
+  post.postedAt = new Date(now.setDate(now.getDate() + 1));
+  post.isFuture = true;
+  return post;
+}
+
+getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
+  if (postHasUnconfirmedCoauthors(post) && !post.draft) {
+    post = scheduleCoauthoredPost(post);
+  }
+  return post;
+});
+
+getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
+  // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
+  // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
+  if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
+    post = scheduleCoauthoredPost(post);
+  }
+  return post;
+});

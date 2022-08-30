@@ -4,25 +4,19 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import mapValues from 'lodash/mapValues';
 
 class FormComponentNumber extends PureComponent<any> {
-
-  getChildContext() {
-    return {
-      ...this.context,
-      
-      // For some reason MuiTextField with type="number" constrains the input
-      // to a number, but then reports the result as a string, which causes
-      // form validation to fail because strings like "3" are not nunbers.
-      // Insert a mapping here to parse them first.
-      updateCurrentValues: (changes) => {
-        this.context.updateCurrentValues(mapValues(changes, n=>parseInt(n)));
-      }
-    };
-  }
-  
   render() {
     return <Components.MuiTextField
       type="number"
-      {...this.props}
+      {...this.props as any}
+      updateCurrentValues={
+        // MuiTextField returns a string - convert it into a number to avoid database errors
+        (values) => {
+          for (const key in values) {
+            values[key] = parseInt(values[key]);
+          }
+          this.props.updateCurrentValues(values);
+        }
+      }
     />
   }
 }
@@ -42,5 +36,3 @@ declare global {
     FormComponentNumber: typeof FormComponentNumberComponent
   }
 }
-
-

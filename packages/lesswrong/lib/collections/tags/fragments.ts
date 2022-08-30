@@ -3,23 +3,25 @@ import { registerFragment } from '../../vulcan-lib';
 registerFragment(`
   fragment TagBasicInfo on Tag {
     _id
+    userId
     name
     slug
     core
     postCount
     adminOnly
+    canEditUserIds
     suggestedAsFilter
     needsReview
     descriptionTruncationCount
     createdAt
     wikiOnly
+    deleted
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
-    deleted
     oldSlugs
     isRead
     defaultOrder
@@ -37,6 +39,14 @@ registerFragment(`
 registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     
     description {
       _id
@@ -45,6 +55,13 @@ registerFragment(`
       plaintextDescription
       version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithTocFragment on Tag {
+    ...TagFragment
+    descriptionHtmlWithToc
   }
 `);
 
@@ -72,6 +89,14 @@ registerFragment(`
 registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     isRead
     description(version: $version) {
       _id
@@ -90,6 +115,14 @@ registerFragment(`
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     description {
       _id
       htmlHighlight
@@ -131,6 +164,7 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -149,6 +183,7 @@ registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -182,7 +217,13 @@ registerFragment(`
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
+    parentTag {
+      _id
+      name
+      slug
+    }
     tagFlagsIds
+    postsDefaultSortOrder
     description {
       ...RevisionEdit
     }

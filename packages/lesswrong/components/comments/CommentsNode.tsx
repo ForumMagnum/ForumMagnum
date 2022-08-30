@@ -19,21 +19,43 @@ const styles = (theme: ThemeType): JssStyles => ({
     height:"100%",
     cursor:"pointer",
     '&:hover': {
-      backgroundColor: "rgba(0,0,0,.075)"
+      backgroundColor: theme.palette.commentParentScrollerHover,
     }
   },
   children: {
     position: "relative"
   },
   gapIndicator: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
   },
 })
 
-const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, loadChildrenSeparately, loadDirectReplies = false, classes }: {
+const CommentsNode = ({
+  treeOptions,
+  comment,
+  startThreadTruncated,
+  truncated,
+  shortform,
+  nestingLevel=1,
+  expandAllThreads,
+  expandByDefault,
+  isChild,
+  parentAnswerId,
+  parentCommentId,
+  showExtraChildrenButton,
+  noHash,
+  hoverPreview,
+  forceSingleLine,
+  forceNotSingleLine,
+  childComments,
+  loadChildrenSeparately,
+  loadDirectReplies=false,
+  showPinnedOnProfile=false,
+  classes
+}: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -53,6 +75,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   childComments?: Array<CommentTreeNode<CommentsList>>,
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
+  showPinnedOnProfile?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -153,7 +176,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
@@ -170,6 +193,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       isReplyToAnswer={!!parentAnswerId}
       hoverPreview={hoverPreview}
       shortform={shortform}
+      showPinnedOnProfile={showPinnedOnProfile}
     >
       {comment._id && <div ref={scrollTargetRef}>
         {isSingleLine

@@ -1,10 +1,12 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
-import { userGetProfileUrl } from "./helpers";
+import { resolverOnlyField } from '../../utils/schemaUtils';
+import { userGetProfileUrl, getAuth0Id } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../instanceSettings';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -138,6 +140,18 @@ const schema: SchemaType<DbUser> = {
     blackbox: true,
     canRead: ownsOrIsAdmin
   },
+  hasAuth0Id: resolverOnlyField({
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    resolver: (user: DbUser) => {
+      try {
+        getAuth0Id(user);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  }),
   // The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
@@ -191,6 +205,16 @@ const schema: SchemaType<DbUser> = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
+    onUpdate: (props) => {
+      const {data, document, oldDocument} = props;
+      if (oldDocument.email?.length && !document.email) {
+        throw new Error("You cannot remove your email address");
+      }
+      return data.email;
+    },
+    form: {
+      disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
+    },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
   // The user's profile URL slug // TODO: change this when displayName changes
@@ -211,9 +235,17 @@ const schema: SchemaType<DbUser> = {
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
+        const slugLower = data.slug.toLowerCase();
+        const slugIsUsed = !oldDocument.oldSlugs?.includes(slugLower) && await Utils.slugIsUsed("Users", slugLower)
         if (slugIsUsed) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
+          throw Error(`Specified slug is already used: ${slugLower}`)
+        }
+        return slugLower;
+      }
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
+          return slugForNewName;
         }
       }
     }
@@ -302,6 +334,15 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
+  },
+  
+  theme: {
+    type: String,
+    optional: true, 
+    canCreate: ['members'],
+    canUpdate: ownsOrIsAdmin,
+    canRead: ownsOrIsAdmin,
+    hidden: true,
   },
   
   lastUsedTimezone: {

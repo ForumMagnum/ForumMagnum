@@ -4,18 +4,17 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { tagBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -47,11 +46,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       right: -4,
     },
   },
-  description: {
-    marginTop: 18,
-    ...tagBodyStyles(theme),
-    marginBottom: 18,
-  },
   centralColumn: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -62,7 +56,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tableOfContentsWrapper: {
     position: "relative",
@@ -109,7 +103,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     paddingBottom: 12,
     marginBottom: 24,
-    background: "white",
+    background: theme.palette.panelBackground.default,
+  },
+  subHeading: {
+    paddingLeft: 42,
+    paddingRight: 42,
+    marginTop: -2,
+    background: theme.palette.panelBackground.default,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+  },
+  subHeadingInner: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    borderTop: theme.palette.border.extraFaint,
+    borderBottom: theme.palette.border.extraFaint,
+  },
+  relatedTagLink : {
+    color: theme.palette.lwTertiary.dark
   },
   tagHeader: {
     display: "flex",
@@ -155,7 +166,7 @@ const TagPage = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle
+    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -233,6 +244,14 @@ const TagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+  }
+
+  // if no sort order was selected, try to use the tag page's default sort order for posts
+  if (query.sortedBy || tag.postsDefaultSortOrder) {
+    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+  }
 
   const terms = {
     ...tagPostTerms(tag, query),
@@ -244,10 +263,40 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly && !isEAForum)
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = htmlWithAnchors;
+    for (let matchString of [
+        'id="Further_reading"',
+        'id="Bibliography"',
+        'id="Related_entries"',
+        'class="footnotes"',
+      ]) {
+      if(htmlWithAnchors.includes(matchString)) {
+        const truncationLength = htmlWithAnchors.indexOf(matchString);
+        /**
+         * The `truncate` method used below uses a complicated criterion for what
+         * counts as a character. Here, we want to truncate at a known index in
+         * the string. So rather than using `truncate`, we can slice the string
+         * at the desired index, use `parseFromString` to clean up the HTML,
+         * and then append our footer 'read more' element.
+         */
+        description = truncated ?
+          new DOMParser().parseFromString(
+            htmlWithAnchors.slice(0, truncationLength), 
+            'text/html'
+          ).body.innerHTML + "<span>...<p><a>(Read More)</a></p></span>" :
+          htmlWithAnchors;
+        break;
+      }
+    }
+  } else {
+    description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
+  }
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -324,7 +373,24 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
+        welcomeBox={null}
       >
+        {(tag.parentTag || tag.subTags.length) ?
+        <div className={classNames(classes.subHeading,classes.centralColumn)}>
+          <div className={classes.subHeadingInner}>
+            {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+            {/* For subtags it would be better to:
+                 - put them at the bottom of the page
+                 - truncate the list
+                for our first use case we only need a small number of subtags though, so I'm leaving it for now
+             */}
+            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+                tag.subTags.map((subTag, idx) => {
+                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+              })}</span>
+            </div> : <></>}
+          </div>
+        </div>: <></>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
@@ -339,11 +405,13 @@ const TagPage = ({classes}: {
               cancelCallback={() => setEditing(false)}
             /> :
             <div onClick={clickReadMore}>
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: description||""}}
-                description={`tag ${tag.name}`}
-                className={classes.description}
-              />
+              <ContentStyles contentType="tag">
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: description||""}}
+                  description={`tag ${tag.name}`}
+                  className={classes.description}
+                />
+              </ContentStyles>
             </div>}
           </AnalyticsContext>
         </div>

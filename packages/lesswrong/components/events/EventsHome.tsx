@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import FilterIcon from '@material-ui/icons/FilterList';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
@@ -70,7 +69,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   where: {
     flex: '1 0 0',
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
     paddingLeft: 3
   },
   geoSuggest: {
@@ -94,7 +93,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   distanceFilter: {
     display: 'flex',
     alignItems: 'center',
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
   },
   distanceInput: {
     width: 68,
@@ -107,7 +106,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   placeholder: {
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
   },
   notifications: {
     flex: '1 0 0',
@@ -153,7 +152,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 16,
     padding: 0,
     '&:hover': {
-      color: '#085d6c',
+      color: theme.palette.eventsHomeLoadMoreHover,
     }
   },
   loading: {

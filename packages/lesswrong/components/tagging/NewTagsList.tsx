@@ -7,10 +7,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     marginBottom: 24,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 12,
     paddingTop: 2,
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   },
   date: {
     width: 30,

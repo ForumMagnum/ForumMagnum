@@ -1,20 +1,21 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
-import Conversations from '../../lib/collections/conversations/collection';
+import Conversations, { userCanStartConversations } from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, templateCommentId }: {
+const NewConversationButton = ({ user, currentUser, children, templateCommentId, from }: {
   user: {
     _id: string
   },
   currentUser: UsersCurrent|null,
   templateCommentId?: string,
+  from?: string,
   children: any
 }) => {
   
@@ -52,13 +53,23 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   }, [createConversation, user, currentUser, history]);
 
   const existingConversationCheck = () => {
-    const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
+    let searchParams: Array<string> = []
+    if (templateCommentId) {
+      searchParams.push(qs.stringify({templateCommentId: templateCommentId}))
+    }
+    if (from) {
+      searchParams.push(`from=${from}`)
+    }
+    const search = searchParams ? {search:`?${searchParams.join('&')}`} : {}
+    
     for (let conversation of (results ?? [])) {
       history.push({pathname: `/inbox/${conversation._id}`, ...search})
       return
     }
     void newConversation(search);
   }
+
+  if (currentUser && !userCanStartConversations(currentUser)) return null
   
   return (
     <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>
