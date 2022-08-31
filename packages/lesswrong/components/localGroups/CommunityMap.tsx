@@ -12,7 +12,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+export const communityMapStyles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     height: 440,
@@ -70,7 +70,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
-const defaultCenter = {lat: 39.5, lng: -43.636047}
+export const defaultCenter = {lat: 39.5, lng: -43.636047}
 const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
@@ -281,7 +281,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 
 
-const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles });
+const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles:communityMapStyles });
 
 declare global {
   interface ComponentTypes {
