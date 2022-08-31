@@ -23,6 +23,7 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
+import { isMobile } from '../lib/utils/isMobile';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -256,7 +257,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && currentTime < afterTime
     }
     
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap)
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !isMobile()
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -291,7 +292,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
-              <NavigationEventSender/>
+            <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
               {!currentRoute?.standalone && showIntercom(currentUser)}

@@ -12,7 +12,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { without } from 'lodash';
 
-type SmallEvent = {
+type LocalEvent = {
   _id: string,
   lat: number,
   lng: number
@@ -67,9 +67,6 @@ const localEvents = [
     "_id": "zoCjnyvhqTFCA8uc7",
     "lat": 43.466663,
     "lng": -80.5231469
-  },
-  {
-    "_id": "tFrgEx2TwCJdnADwC"
   },
   {
     "_id": "dnEMoKTKHttDn4uMx",
@@ -227,9 +224,6 @@ const localEvents = [
     "lng": -122.6746567
   },
   {
-    "_id": "6rmtnzpieKNf9dgzK"
-  },
-  {
     "_id": "JyWmazpyCpkjeAvGb",
     "lat": 42.31961270000001,
     "lng": -72.6274349
@@ -248,9 +242,6 @@ const localEvents = [
     "_id": "pRaXex4PrYzHpAECm",
     "lat": 35.6387161,
     "lng": 139.7026251
-  },
-  {
-    "_id": "379uazsESWCoRofss"
   },
   {
     "_id": "jMoWmm9K5yva9863c",
@@ -341,9 +332,6 @@ const localEvents = [
     "_id": "5GdLrK7JnGNvF2HEa",
     "lat": 44.48130099999999,
     "lng": -73.219886
-  },
-  {
-    "_id": "JajbfTHkbzbjfHiqZ"
   },
   {
     "_id": "5vriBSqwX2bgcESgi",
@@ -466,9 +454,6 @@ const localEvents = [
     "lng": 104.057911
   },
   {
-    "_id": "JMcoMpLNNDCqjsd4m"
-  },
-  {
     "_id": "izybmEGPtjYCH4hnq",
     "lat": 51.4815216,
     "lng": -3.1759221
@@ -502,9 +487,6 @@ const localEvents = [
     "_id": "N38LgkyBos3ecZsDn",
     "lat": -33.9273139,
     "lng": 18.424197
-  },
-  {
-    "_id": "WzEvS7rt3ckKvdL2n"
   },
   {
     "_id": "HGJmtqSEeKN2siAZy",
@@ -705,9 +687,6 @@ const localEvents = [
     "_id": "47fw2kcNr2DMoEgeT",
     "lat": 41.52135,
     "lng": -74.071266
-  },
-  {
-    "_id": "SwhRmwmemyDoLMJsr"
   },
   {
     "_id": "e7fBLvfkPtsGh7ag2",
@@ -1084,7 +1063,7 @@ const localEvents = [
 const styles = communityMapStyles
 
 const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
-  localEvent:SmallEvent,
+  localEvent:LocalEvent,
   handleClose: (eventId: string)=>void
 }) => {
   const { StyledMapPopup, GroupLinks } = Components
@@ -1119,12 +1098,12 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
   icon: {
     height: 20,
     width: 20,
-    fill: theme.palette.individual,
+    fill: theme.palette.event,
     opacity: 0.8
   }
 })
 const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
-  localEvents: Array<SmallEvent>,
+  localEvents: Array<LocalEvent>,
   classes: ClassesType,
 }) => {
   const { LocalEventWrapperPopUp } = Components
@@ -1166,7 +1145,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 export const HomepageCommunityMap = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { CommunityMapFilter, LocalEventMapMarkerWrappers } = Components
+  const { LocalEventMapMarkerWrappers } = Components
   
   const currentUser = useCurrentUser()
  
