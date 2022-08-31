@@ -10,5 +10,5 @@ if [ -n "$TRANSCRYPT_SECRET" ]; then
     cd ..
 fi
 
-export NODE_OPTIONS="--max_old_space_size=5210 --heapsnapshot-signal=SIGUSR2"
+export NODE_OPTIONS="--max_old_space_size=12800 --heapsnapshot-signal=SIGUSR2"
 ./build.js -run --settings ./Credentials/$SETTINGS_FILE_NAME --production
