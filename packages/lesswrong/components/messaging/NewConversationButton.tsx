@@ -71,6 +71,11 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
   
+  if (currentUser?._id === user._id)
+    return <div>
+      {children}
+    </div>
+  
   return (
     <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>
       {children}

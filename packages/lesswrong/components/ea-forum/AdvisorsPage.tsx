@@ -6,9 +6,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
+import { Link } from '../../lib/reactRouterWrapper';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '@material-ui/core/Button';
 import type { Advisor } from './AdvisorCard';
+import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -99,7 +101,80 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 16,
     marginTop: 6
-  }
+  },
+  
+  communityHeadline: {
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 20,
+    fontWeight: 700,
+    marginTop: 50,
+    marginBottom: 14
+  },
+  communityMembers: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(330px, 1fr))',
+    padding: '35px 10px',
+    columnGap: 20,
+    rowGap: '30px',
+    borderTop: `2px solid ${theme.palette.primary.main}`,
+    borderBottom: `2px solid ${theme.palette.primary.main}`,
+    marginTop: 10,
+  },
+  person: {
+    // background: theme.palette.panelBackground.default,
+    // borderBottomWidth: 1,
+    // borderBottomStyle: 'solid',
+    // borderColor: theme.palette.greyAlpha(.1),
+  },
+  content: {
+    // padding: 20,
+    // [theme.breakpoints.down('xs')]: {
+    //   paddingBottom: 30
+    // },
+  },
+  photoRow: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center',
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+  },
+  photoRowText: {
+    flex: '1 1 0'
+  },
+  displayName: {
+    ...theme.typography.headline,
+    fontSize: 18,
+    fontWeight: 'bold',
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
+    marginBottom: 0
+  },
+  location: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[600],
+    fontSize: 12,
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
+  description: {
+    color: theme.palette.grey[800],
+    marginTop: 12,
+  },
+  buttonRow: {
+    display: 'flex',
+    justifyContent: 'right',
+    marginTop: 14
+  },
+  messageBtn: {
+    boxShadow: 'none'
+  },
 })
 
 const advisors: Array<Advisor> = [
@@ -222,7 +297,7 @@ const AdvisorsPage = ({classes}: {
   const { flash } = useMessages()
   const { captureEvent } = useTracking()
 
-  const { SingleColumnSection, HeadTags, AdvisorCard } = Components
+  const { SingleColumnSection, HeadTags, AdvisorCard, ContentStyles, NewConversationButton } = Components
 
   const { create: createAdvisorRequest } = useCreate({
     collectionName: 'AdvisorRequests',
@@ -233,6 +308,12 @@ const AdvisorsPage = ({classes}: {
     collectionName: 'AdvisorRequests',
     fragmentName: 'AdvisorRequestsMinimumInfo',
     skip: !currentUser
+  })
+  
+  const { results: communityMembers, loading } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: 'aELNHEKtcZtMwEkdK'},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile'
   })
 
   const onRequest = async () => {
@@ -326,6 +407,46 @@ const AdvisorsPage = ({classes}: {
           </div>
           
           {btnsNode}
+          
+          <h2 className={classes.communityHeadline}>Meet others in the community</h2>
+          <div className={classes.communityMembers}>
+            {communityMembers?.map(hit => {
+              return <div className={classes.person}>
+              <div className={classes.content}>
+                <div className={classes.photoRow}>
+                  {hit.profileImageId && <Components.CloudinaryImage2
+                    height={50}
+                    width={50}
+                    imgProps={{q: '100'}}
+                    publicId={hit.profileImageId}
+                    className={classes.profileImage}
+                  />}
+                  <div className={classes.photoRowText}>
+                    <Link to={`/users/${hit.slug}?from=advisors_page`} className={classes.displayName}>
+                      {hit.displayName}
+                    </Link>
+                    {hit.mapLocation && <div className={classes.location}>{hit.mapLocation.formatted_address}</div>}
+                  </div>
+                </div>
+                {hit.htmlBio && <ContentStyles contentType="comment" className={classes.description}>
+                  <div dangerouslySetInnerHTML={{__html: truncate(hit.htmlBio, 160)}} />
+                </ContentStyles>}
+                <div className={classes.buttonRow}>
+                  <NewConversationButton user={hit} currentUser={currentUser} from="advisors_page">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      className={classes.messageBtn}
+                      disabled={currentUser?._id === hit._id}
+                    >
+                      Message
+                    </Button>
+                  </NewConversationButton>
+                </div>
+              </div>
+            </div>
+            })}
+          </div>
           
           <div className={classes.feedbackText}>
             Feedback or questions? Let us know!
