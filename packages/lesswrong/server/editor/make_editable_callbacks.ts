@@ -279,8 +279,10 @@ export function dataToMarkdown(data, type) {
 
 export async function dataToWordCount(data, type) {
   try {
-    const markdown = dataToMarkdown(data, type) || ""
-    return markdown.split(" ").length
+    const markdown = dataToMarkdown(data, type) ?? "";
+    const withoutFootnotes = markdown.replace(/1\.  \^\*\*\[\^\]\(#(.|\n)*/, "");
+    const words = withoutFootnotes.match(/[^\s]+/g) ?? [];
+    return words.length;
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Error in dataToWordCount", data, type, err)
