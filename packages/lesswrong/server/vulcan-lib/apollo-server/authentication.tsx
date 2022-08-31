@@ -41,7 +41,8 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
+  const user = await Users.findOne({$or: [{email: username}, {username: username}]});
+  console.log({username, user})
   if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
