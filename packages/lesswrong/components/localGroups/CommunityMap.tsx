@@ -60,7 +60,8 @@ export const communityMapStyles = createStyles((theme: ThemeType): JssStyles => 
     flexDirection: "column",
     [theme.breakpoints.down('md')]: {
       top: 24
-    }
+    },
+    ...theme.typography.body2
   },
   filters: {
     width: 100

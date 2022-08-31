@@ -1,6 +1,5 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { userGetDisplayName, userGetProfileUrl, useUserLocation } from '../../lib/collections/users/helpers';
-import { isMobile } from '../../lib/utils/isMobile';
+import React, { useState, useCallback, useMemo } from 'react';
+import { useUserLocation } from '../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Helmet } from 'react-helmet'
@@ -10,7 +9,8 @@ import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { ArrowSVG } from '../localGroups/Icons';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
-import { without } from 'lodash';
+import without from 'lodash/without';
+import { Link } from '../../lib/reactRouterWrapper';
 
 type LocalEvent = {
   _id: string,
@@ -1072,12 +1072,15 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
+
+  if (!localEvent.lat || !localEvent.lng) return null
+
+  if (loading) return null
+
   if (!document) return null
   const { htmlHighlight = "" } = document.contents || {}
   const htmlBody = {__html: htmlHighlight};
 
-  if (loading) return <div>{loading}</div>
-  if (!localEvent.lat || !localEvent.lng) return null
   return <StyledMapPopup
     lat={localEvent.lat}
     lng={localEvent.lng}
@@ -1145,7 +1148,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 export const HomepageCommunityMap = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { LocalEventMapMarkerWrappers } = Components
+  const { LocalEventMapMarkerWrappers, CommunityMapFilter } = Components
   
   const currentUser = useCurrentUser()
  
@@ -1161,10 +1164,28 @@ export const HomepageCommunityMap = ({classes}: {
   const renderedMarkers = useMemo(() => {
     return <>
       <LocalEventMapMarkerWrappers localEvents={localEvents} />
+      <div className={classes.mapButtons}>
+        <CommunityMapFilter 
+          title={<Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">ACX Meetups Everywhere</Link>}
+          showHideMap={true} 
+          toggleEvents={null} 
+          showEvents={true}
+          toggleGroups={() => null} 
+          showGroups={false}
+          toggleIndividuals={null} 
+          showIndividuals={false}
+          setShowMap={true}
+          showEventTypeFilters={false}
+          showEventsFilter={false}
+          showPersonFilter={false}
+          showGroupsFilter={false}
+        />
+      </div>
     </>
-  }, [localEvents])
+  }, [localEvents, LocalEventMapMarkerWrappers, CommunityMapFilter])
   
-  return <div className={classes.root}>
+  // hackily setting marginTop to zero to avoid an issue
+  return <div className={classes.root} style={{marginTop: 0}}>
     <Helmet> 
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
     </Helmet>
