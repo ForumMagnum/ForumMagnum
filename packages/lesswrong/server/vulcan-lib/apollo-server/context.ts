@@ -33,8 +33,6 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
-    console.log({hashedToken, user})
-    
     if (user && !userIsBanned(user)) {
       // find the right login token corresponding, the current user may have
       // several sessions logged on different browsers / computers
