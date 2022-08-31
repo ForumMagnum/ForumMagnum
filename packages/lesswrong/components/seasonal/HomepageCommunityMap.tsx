@@ -1182,7 +1182,7 @@ export const HomepageCommunityMap = ({classes}: {
         />
       </div>
     </>
-  }, [localEvents, LocalEventMapMarkerWrappers, CommunityMapFilter])
+  }, [localEvents, LocalEventMapMarkerWrappers, CommunityMapFilter, classes.mapButtons])
   
   // hackily setting marginTop to zero to avoid an issue
   return <div className={classes.root} style={{marginTop: 0}}>

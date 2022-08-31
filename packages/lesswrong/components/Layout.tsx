@@ -292,7 +292,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
-            <NavigationEventSender/>
+              <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
               {!currentRoute?.standalone && showIntercom(currentUser)}

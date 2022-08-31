@@ -80,6 +80,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: '8px 22px'
     }
   },
+  title: {
+    padding: 16
+  },
   actions: {
     marginBottom: 8,
     [theme.breakpoints.down('sm')]: {
@@ -264,7 +267,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     const isAdmin = userIsAdmin(currentUser);
 
     return <Paper>
-        {title && <><div className={classes.filterSection}>{title}</div><Divider /></>}
+        {title && <><div className={classNames(classes.filterSection, classes.title)}>{title}</div><Divider /></>}
         {!isEAForum && showEventTypeFilters && <>
           <div className={classes.filters}>
             {availableFilters.map((value, i) => {
