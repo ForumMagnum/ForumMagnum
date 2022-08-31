@@ -1,5 +1,5 @@
 import { testStartup } from "../../testing/testMain";
-import { DbTestObject, testTable, runTestCases } from "./testHelpers";
+import { DbTestObject, testTable, testTable2, runTestCases } from "./testHelpers";
 import Query from "./Query";
 
 testStartup();
@@ -185,6 +185,19 @@ describe("Query", () => {
       getQuery: () => Query.select(Query.select(testTable, {a: 3}), {b: "test"}),
       expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ) WHERE "b" = $2',
       expectedArgs: [3, "test"],
+    },
+    {
+      name: "can build select with a simple lookup",
+      getQuery: () => Query.select(testTable, {a: 3}, {}, {
+        lookup: {
+          from: "TestTable2",
+          localField: "b",
+          foreignField: "data",
+          as: "data2",
+        },
+      }),
+      expectedSql: 'SELECT * FROM "TestCollection" , LATERAL (SELECT jsonb_agg("TestTable2".*) AS "data2" FROM "TestTable2" WHERE "TestCollection"."b" = "TestTable2"."data") Q WHERE "a" = $1',
+      expectedArgs: [3],
     },
   ]);
 });

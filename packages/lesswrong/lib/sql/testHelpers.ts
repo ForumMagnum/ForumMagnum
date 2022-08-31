@@ -36,6 +36,29 @@ export const TestCollection = {
 
 export const testTable = Table.fromCollection(TestCollection);
 
+export type DbTestObject2 = {
+  _id: string,
+  data?: number,
+  schemaVersion: number,
+}
+
+export const TestCollection2 = {
+  collectionName: "TestCollection2",
+  _schemaFields: {
+    _id: {
+      type: String,
+    },
+    data: {
+      type: String,
+    },
+    schemaVersion: {
+      type: Number,
+    },
+  },
+} as unknown as CollectionBase<DbTestObject2>;
+
+export const testTable2 = Table.fromCollection(TestCollection2);
+
 export const normalizeWhitespace = (s: string) => s.replace(/\s+/g, " ");
 
 export type TestCase = {

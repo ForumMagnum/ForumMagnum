@@ -1,12 +1,12 @@
 import Table from "./Table";
-import Query, { SelectFieldSpec } from "./Query";
+import Query, { SelectFieldSpec, Lookup } from "./Query";
 
 class Unit<T extends DbObject> {
   private fields?: SelectFieldSpec[];
   private sort?: any;
   private limit?: number;
   private selector?: any;
-  private join?: any;
+  private lookup?: any;
   private unwind?: string;
 
   constructor(private table: Table | Unit<T>) {}
@@ -21,7 +21,7 @@ class Unit<T extends DbObject> {
       },
       {
         fields: this.fields,
-        join: this.join,
+        lookup: this.lookup,
         unwind: this.unwind,
       },
     );
@@ -54,16 +54,20 @@ class Unit<T extends DbObject> {
     return this.addSimpleStage("limit", data);
   }
 
-  addLookupStage(data: any): Unit<T> {
-    throw new Error("$lookup not yet implemented");
+  addLookupStage(data: Lookup): Unit<T> {
+    return this.addSimpleStage("lookup", data);
   }
 
   addProjectStage(data: any): Unit<T> {
-    throw new Error("$project not yet implemented");
+    // TODO
+    // throw new Error("$project not yet implemented");
+    return this;
   }
 
   addUnwindStage(data: any): Unit<T> {
-    throw new Error("$unwind not yet implemented");
+    // TODO
+    // throw new Error("$unwind not yet implemented");
+    return this;
   }
 }
 

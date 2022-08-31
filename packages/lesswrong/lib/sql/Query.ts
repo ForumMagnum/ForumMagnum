@@ -1,3 +1,4 @@
+import { getCollection } from "../vulcan-lib";
 import Table from "./Table";
 
 class Arg {
@@ -21,11 +22,32 @@ const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 
 export type SelectFieldSpec = Record<string, 0 | 1>;
 
+export type SimpleLookup = {
+  from: string,
+  localField: string,
+  foreignField: string,
+  as: string,
+}
+
+export type PipelineLookup = {
+  from: string,
+  let: any
+  pipeline: any,
+  as: any,
+}
+
+export type Lookup = SimpleLookup | PipelineLookup;
+
 export type SelectSqlOptions = {
   count?: boolean,
   fields?: SelectFieldSpec[],
-  join?: any,
+  lookup?: any,
   unwind?: any,
+}
+
+// TODO: lowercase Convert mongo table name to camelcase postgres table name
+const mongoTableToPostgresTable = (table: string) => {
+  return table;
 }
 
 class Query<T extends DbObject> {
@@ -90,6 +112,10 @@ class Query<T extends DbObject> {
     return "";
   }
 
+  private resolveTableName(): string {
+    return this.table instanceof Table ? `"${this.table.getName()}".` : "";
+  }
+
   private resolveFieldName(field: string, typeHint?: any): string {
     const arrayIndex = field.indexOf(".$");
     if (arrayIndex > -1) {
@@ -99,13 +125,13 @@ class Query<T extends DbObject> {
     const jsonIndex = field.indexOf(".");
     if (jsonIndex > -1) {
       const [first, ...rest] = field.split(".");
-      if (this.table.getField(first)) {
+      if (this.getField(first)) {
         const hint = this.getTypeHint(typeHint);
         return [`("${first}"`, ...rest.map((token) => `'${token}'`)].join("->") + `)${hint}`;
       }
     }
 
-    if (this.table.getField(field)) {
+    if (this.getField(field)) {
       return `"${field}"`;
     }
 
@@ -176,6 +202,36 @@ class Query<T extends DbObject> {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
+  private appendSimpleLateralJoin(
+    from: string,
+    localField: string,
+    foreignField: string,
+    as: string,
+  ): void {
+    const table = mongoTableToPostgresTable(from);
+    this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
+    this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
+  }
+
+  private appendPipelineLateralJoin(
+    from: string,
+    let: any,
+    pipeline: any,
+    as: string,
+  ): void {
+    throw new Error("TODO Pipeline lateral joins not yet implemented");
+  }
+
+  private appendLateralJoin({from, localField, foreignField, as, let, pipeline}: Lookup): void {
+    if (from && localField && foreignField && as) {
+      this.appendSimpleLateralJoin(from, localField, foreignField, as);
+    } else if (from && let && pipeline && as) {
+      this.appendPipelineLateralJoin(from, let, pipeline, as);
+    } else {
+      throw new Error("Invalid $lookup");
+    }
+  }
+
   private appendOptions(options: MongoFindOptions<T>): void {
     const {sort, limit, skip} = options;
 
@@ -235,6 +291,10 @@ class Query<T extends DbObject> {
   ): Query<T> {
     const fields = sqlOptions?.count ? "count(*)" : "*";
     const query = new Query(table, [`SELECT ${fields} FROM`, table]);
+
+    if (sqlOptions?.lookup) {
+      query.appendLateralJoin(sqlOptions.lookup);
+    }
 
     if (selector && Object.keys(selector).length > 0) {
       query.atoms.push("WHERE");
