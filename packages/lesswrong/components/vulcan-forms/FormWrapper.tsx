@@ -33,7 +33,7 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { gql } from '@apollo/client';
-import { graphql, withApollo } from '@apollo/client/react/hoc';
+import { withApollo } from '@apollo/client/react/hoc';
 import compose from 'lodash/flowRight';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
@@ -166,19 +166,10 @@ class FormWrapper extends PureComponent<any> {
       mutationFragment = getFragment(this.props.mutationFragmentName);
     }
 
-    // if any field specifies extra queries, add them
-    const extraQueries = _.compact(
-      queryFields.map(fieldName => {
-        const field = this.getSchema()[fieldName];
-        return field.query;
-      })
-    );
-
     // get query & mutation fragments from props or else default to same as generatedFragment
     return {
       queryFragment,
       mutationFragment,
-      extraQueries
     };
   }
 
@@ -192,7 +183,6 @@ class FormWrapper extends PureComponent<any> {
     const {
       queryFragment,
       mutationFragment,
-      extraQueries
     } = this.getFragments();
 
     // LESSWRONG: ADDED extraVariables option
@@ -209,7 +199,6 @@ class FormWrapper extends PureComponent<any> {
       queryName: `${prefix}FormQuery`,
       collection: this.props.collection,
       fragment: queryFragment,
-      extraQueries,
       extraVariables,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
       pollInterval: 0 // no polling, only load data once
@@ -257,34 +246,7 @@ class FormWrapper extends PureComponent<any> {
         />
       );
     } else {
-      if (extraQueries && extraQueries.length) {
-        const extraQueriesHoC = graphql(
-          gql`
-          query formNewExtraQuery {
-            ${extraQueries}
-          }`,
-          {
-            alias: 'withExtraQueries',
-            props: returnedProps => {
-              const { /* ownProps, */ data } = returnedProps;
-              const props = {
-                loading: data!.loading,
-                data
-              };
-              return props;
-            }
-          }
-        );
-
-        WrappedComponent = compose(
-          extraQueriesHoC,
-          withCreate(mutationOptions)
-        // @ts-ignore
-        )(Loader);
-      } else {
-        WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
-      }
-
+      WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
       return <WrappedComponent {...childProps} />;
     }
   }
