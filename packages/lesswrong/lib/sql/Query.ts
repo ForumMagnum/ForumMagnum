@@ -295,6 +295,12 @@ class Query<T extends DbObject> {
     }
 
     if (options) {
+      if (options.projection) {
+        throw new Error("Not implemented")
+      }
+      if (options.collation) {
+        throw new Error("Not implemented")
+      }
       query.appendOptions(options);
     }
 

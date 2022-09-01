@@ -1,5 +1,6 @@
 import { randomId } from './random';
 import postgres from 'postgres';
+import { Options } from 'dataloader';
 
 declare global {
   type SqlClient = postgres.Sql<any>;
@@ -110,6 +111,8 @@ export class MongoCollection<T extends DbObject> {
     }
   }
   
+  // TODO: real return type for findresult
+  // find<O extends Options> = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): O extends FindWithProjection ? PartialFindResult : FindResult<T> => {
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {
       fetch: async () => {

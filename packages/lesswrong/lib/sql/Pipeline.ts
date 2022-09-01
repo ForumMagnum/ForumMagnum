@@ -8,6 +8,7 @@ class Unit<T extends DbObject> {
   private selector?: any;
   private lookup?: any;
   private unwind?: string;
+  private project?: any;
 
   constructor(private table: Table | Unit<T>) {}
 
@@ -18,6 +19,7 @@ class Unit<T extends DbObject> {
       {
         sort: this.sort,
         limit: this.limit,
+        projection: this.project,
       },
       {
         fields: this.fields,
@@ -59,9 +61,7 @@ class Unit<T extends DbObject> {
   }
 
   addProjectStage(data: any): Unit<T> {
-    // TODO
-    // throw new Error("$project not yet implemented");
-    return this;
+    return this.addSimpleStage("project", data)
   }
 
   addUnwindStage(data: any): Unit<T> {

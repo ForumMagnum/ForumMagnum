@@ -7,6 +7,7 @@
  */
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
+import { CollationDocument } from 'mongodb';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -111,7 +112,13 @@ type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
-type MongoFindOptions<T extends DbObject> = any; //TODO
+type MongoFindOptions<T extends DbObject> = Partial<{
+  sort: any
+  limit: number
+  skip: number
+  projection: Partial<Record<keyof T, number | boolean>>
+  collation: CollationDocument
+}>;
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
