@@ -12,7 +12,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 
-export const communityMapStyles = createStyles((theme: ThemeType): JssStyles => ({
+const communityMapStyles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     height: 440,
@@ -60,8 +60,7 @@ export const communityMapStyles = createStyles((theme: ThemeType): JssStyles => 
     flexDirection: "column",
     [theme.breakpoints.down('md')]: {
       top: 24
-    },
-    ...theme.typography.body2
+    }
   },
   filters: {
     width: 100

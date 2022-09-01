@@ -1064,7 +1064,6 @@ const styles = theme => ({
   root: {
     width: "100%",
     height: 440,
-    // We give this a negative margin to make sure that the map is flush with the top
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
       marginLeft: -8

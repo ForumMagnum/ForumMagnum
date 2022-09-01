@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
-import { useCookies, withCookies } from 'react-cookie'
+import { withCookies } from 'react-cookie'
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
