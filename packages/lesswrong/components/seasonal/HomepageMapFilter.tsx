@@ -102,7 +102,7 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
 
   return <Paper>
     <div className={classNames(classes.section, classes.title)}>
-      <LWTooltip title="Read more about Astral Codex Everywhere, and find a meetup near you">
+      <LWTooltip title="Read more about Astral Codex Everywhere, and find a meetup near you" placement="left">
         <Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">
           ACX Meetups Everywhere
         </Link>
