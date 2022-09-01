@@ -38,6 +38,9 @@ Disallow: /compare
 Disallow: /emailToken
 Disallow: /*?commentId=*
 Crawl-Delay: 2
+
+User-agent: SeekportBot
+Disallow: /
 `);
   }
 });
