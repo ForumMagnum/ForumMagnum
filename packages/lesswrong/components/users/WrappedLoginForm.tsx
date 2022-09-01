@@ -200,7 +200,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
 
 const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: WrappedLoginFormProps) => {
   const { pathname, query } = useLocation()
-  const returnUrl = `${pathname}?${Object.keys(query).map((key) => `${key}=${query[key]}`).join("&")}`;
+  const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
 
   const urls = {

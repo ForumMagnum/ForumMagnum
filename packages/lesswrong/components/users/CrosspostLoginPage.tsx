@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
-import { useGetParameter } from "../hooks/useGetParameter";
 import { forumHeaderTitleSetting } from "../common/Header";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { gql, useMutation } from "@apollo/client";
@@ -41,17 +40,17 @@ const connectCrossposterMutation = gql`
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const [mutate, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+  const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
-  const token = useGetParameter("token");
+  const token = new URLSearchParams(location.search).get("token");
   const hasLogo = forumTypeSetting.get() === "EAForum";
 
   const onConfirm = async () => {
     if (!currentUser) {
       throw new Error("Can't connect crosspost account whilst logged out");
     }
-    const result = await mutate({
+    const result = await connectCrossposter({
       variables: {token},
     });
     if (result?.data?.connectCrossposter === "success") {
