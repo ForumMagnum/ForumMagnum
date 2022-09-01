@@ -44,7 +44,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
 const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
-  onClose, offsetTop=-20, offsetLeft=4, hideBottomLinks
+  onClose, offsetTop=-20, offsetLeft, hideBottomLinks
 }: {
   children?: ReactNode,
   classes: ClassesType,
