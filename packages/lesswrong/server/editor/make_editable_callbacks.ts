@@ -297,7 +297,7 @@ export async function dataToWordCount(data, type) {
   try {
     const markdown = dataToMarkdown(data, type) ?? "";
     const withoutFootnotes = markdown
-      .replace(/^1\.  \^\*\*\[\^\]\(#(.|\n)*/m, "")
+      .replace(/^1\. {2}\^\*\*\[\^\]\(#(.|\n)*/m, "")
       .replace(/^\[\^\d+\]:.*/m, "");
     const words = withoutFootnotes.match(/[^\s]+/g) ?? [];
     return words.length;
