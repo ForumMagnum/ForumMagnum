@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -22,6 +22,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   maxWidthRoot: {
     maxWidth: 720,
+  },
+  nestedScrollRoot: {
+    display: 'flex',
+    flexDirection: 'column'
   },
   inline: {
     display: 'inline',
@@ -98,6 +102,21 @@ const CommentsListSection = ({
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
   const now = useCurrentTime();
+  
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const [topAbsolutePosition, setTopAbsolutePosition] = useState(0)
+  
+  useEffect(() => {
+    recalculateTopAbsolutePosition()
+    window.addEventListener('resize', recalculateTopAbsolutePosition)
+    return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
+  }, [])
+  
+  const recalculateTopAbsolutePosition = () => {
+    console.log('recalculateTopAbsolutePosition', bodyRef.current?.getBoundingClientRect()?.top)
+    if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
+      setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
+  }
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setAnchorEl(event.currentTarget);
@@ -186,7 +205,10 @@ const CommentsListSection = ({
 
   const postAuthor = post?.user || null;
   return (
-    <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
+    <div ref={bodyRef}
+      className={classNames(classes.root, {[classes.maxWidthRoot]: !tag, [classes.nestedScrollRoot]: nestedScroll})}
+      style={{height: `calc(100vh - ${topAbsolutePosition}px)`}}
+    >
       {reversed && commentsListComponent}
       { totalComments ? renderTitleComponent() : null }
       <div id="comments"/>

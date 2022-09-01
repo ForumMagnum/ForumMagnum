@@ -319,7 +319,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                       : children
                     }
                   </ErrorBoundary>
-                  <Footer />
+                  {!currentRoute?.hideFooter && <Footer />}
                 </div>
                 {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
                     <SunshineSidebar/>

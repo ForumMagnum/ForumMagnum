@@ -14,7 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main
   },
   nestedScroll: {
-    height: 500,
     overflowY: 'scroll',
   }
 })
