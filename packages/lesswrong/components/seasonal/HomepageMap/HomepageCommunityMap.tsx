@@ -146,7 +146,7 @@ export const HomepageCommunityMap = ({classes}: {
         <HomepageMapFilter />
       </div>
     </>
-  }, [localEvents, LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
+  }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
   
   return <div className={classes.root}>
     <Helmet> 

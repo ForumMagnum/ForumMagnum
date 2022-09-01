@@ -18,6 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     padding: '8px 16px',
+    ...theme.typography.body2,
     [theme.breakpoints.down('sm')]: {
       display: 'inline-block',
       flexGrow: 1,
@@ -29,15 +30,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   buttonText: {
     marginLeft: 10,
-    ...theme.typography.body2,
   },
   hideText: {
-    marginLeft: 'auto',
     fontSize: '1rem',
     cursor: "pointer"
-  },
-  hideSection: {
-    backgroundColor: theme.palette.panelBackground.darken05,
   },
   actionIcon: {
     width: '0.7em',
@@ -47,12 +43,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2,
     cursor: "pointer"
   },
+  hideSection: {
+    backgroundColor: theme.palette.panelBackground.darken05,
+  },
   divider: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit
   },
   subscribeSection: {
     cursor: "pointer",
+    marginTop: 4,
+    marginBottom: 4
   },
   subscribeIcon: {
     marginLeft: 0,
@@ -101,10 +102,10 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
   const { LWTooltip } = Components
 
   return <Paper>
-    <LWTooltip title="Read more about Astral Codex Everywhere, and find a meetup near you" placement="left">
+    <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you (learn more)" placement="left">
       <div className={classNames(classes.section, classes.title)}>
         <Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">
-          ACX Meetups Everywhere
+          Meetups Month
         </Link>
       </div>
     </LWTooltip>
@@ -118,16 +119,13 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
         <span className={classes.buttonText}> Subscribe to events</span>
       </div>
     </LWTooltip>
-    <div className={classNames(classes.section, classes.hideSection)}>
-      <LWTooltip title="Hide the map from the frontpage" placement="left">
-        <div className={classNames(classes.section, classes.hideSection)}>
-
-          <div className={classNames(classes.buttonText, classes.hideText)} onClick={handleHideMap}> 
-            Hide Map 
-          </div>
+    <LWTooltip title="Hide the map from the frontpage" placement="left" inlineBlock={false}>
+      <div className={classNames(classes.section, classes.hideSection)} onClick={handleHideMap}>
+        <div className={classes.hideText}> 
+          Hide Map 
         </div>
-      </LWTooltip>
-    </div>
+      </div>
+    </LWTooltip>
   </Paper>
 }
 
