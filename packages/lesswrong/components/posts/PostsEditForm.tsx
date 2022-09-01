@@ -49,7 +49,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   })
 
   if (document?.fmCrosspost?.isCrosspost && !document?.fmCrosspost?.hostedHere) {
-    return <ForeignCrosspostEditForm post={document as PostsWithNavigation} />;
+    return <ForeignCrosspostEditForm post={document} />;
   }
 
   function isCollaborative(post): boolean {
