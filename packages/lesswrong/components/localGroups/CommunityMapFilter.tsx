@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 120,
     padding: "10px 10px 5px 10px",
     borderRadius: 2,
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing.unit,
   },
   filters: {
     borderTopLeftRadius: 4,
@@ -79,9 +79,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       flexGrow: 1,
       padding: '8px 22px'
     }
-  },
-  title: {
-    padding: 16
   },
   actions: {
     marginBottom: 8,
@@ -188,7 +185,6 @@ const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
 }
 
 interface ExternalProps {
-  title?: React.ReactFragment,
   setShowMap: any,
   showHideMap: boolean,
   toggleGroups: any,
@@ -197,10 +193,6 @@ interface ExternalProps {
   showEvents: boolean,
   toggleIndividuals: any,
   showIndividuals: boolean,
-  showPersonFilter?: boolean, // used in HomepageCommunityMap
-  showEventsFilter?: boolean, // used in HomepageCommunityMap
-  showGroupsFilter?: boolean, // used in HomepageCommunityMap
-  showEventTypeFilters?: boolean // used in HomepageCommunityMap
 }
 interface CommunityMapFilterProps extends ExternalProps, WithLocationProps, WithNavigationProps, WithDialogProps, WithUserProps, WithUpdateCurrentUserProps, WithMessagesProps, WithStylesProps {
 }
@@ -252,12 +244,9 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
-
+  
   render() {
-    const { title, classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history, showGroupsFilter=true, showEventsFilter=true, showPersonFilter=true, showEventTypeFilters=true } = this.props;
-
-    const { LWTooltip } = Components
+    const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history } = this.props;
   
     const isEAForum = forumTypeSetting.get() === 'EAForum';
     const GroupIcon = () => isEAForum ? <StarIcon className={classes.eaButtonIcon}/> : <GroupIconSVG className={classes.buttonIcon}/>;
@@ -267,110 +256,106 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     const isAdmin = userIsAdmin(currentUser);
 
     return <Paper>
-        {title && <><div className={classNames(classes.filterSection, classes.title)}>{title}</div><Divider /></>}
-        {!isEAForum && showEventTypeFilters && <>
-          <div className={classes.filters}>
-            {availableFilters.map((value, i) => {
-              const checked = this.state.filters.includes(value)
-              return <span 
-                className={classNames(classes.filter, {[classes.filterChecked]: checked, [classes.firstFilter]: i === 0, [classes.lastFilter]: i === (availableFilters.length - 1)})} 
-                key={value} 
-                onClick={() => this.handleCheck(value)}
-              >
-                <span className={classNames(classes.checkboxLabel, {[classes.checkedLabel]: checked})}>
-                  {value}
-                </span>
-              </span>
-            })}
-          </div>
-          <Divider className={classNames(classes.divider, classes.topDivider)} />
-        </>}
-        {(showGroupsFilter || showEventsFilter || showPersonFilter) && <>
-          <div className={classes.actions}>
-            {showGroupsFilter && <div 
-              className={classes.filterSection} 
+        {!isEAForum && <div className={classes.filters}>
+          {availableFilters.map((value, i) => {
+            const checked = this.state.filters.includes(value)
+            return <span 
+              className={classNames(classes.filter, {[classes.filterChecked]: checked, [classes.firstFilter]: i === 0, [classes.lastFilter]: i === (availableFilters.length - 1)})} 
+              key={value} 
+              onClick={() => this.handleCheck(value)}
             >
-              <span className={classes.desktopFilter}>
-                <GroupIcon/> 
+              <span className={classNames(classes.checkboxLabel, {[classes.checkedLabel]: checked})}>
+                {value}
               </span>
-              <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showGroups})} onClick={toggleGroups}>
-                <GroupIcon/>
-              </span>
-              <span className={classes.buttonText}>Groups</span>
-              <span className={classes.actionContainer}>
-                {(!isEAForum || isAdmin) && <Tooltip title="Create New Group">
-                  <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)} />
-                </ Tooltip>}
-                <Tooltip title="Hide groups from map">
-                  <VisibilityIcon 
-                    onClick={toggleGroups}
-                    className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showGroups})} 
-                  />
-                </Tooltip>
-              </span>
-            </div>}
-            {showEventsFilter && <div 
-              className={classes.filterSection}>
-              <span className={classes.desktopFilter}>
-                <EventIcon/> 
-              </span>
-              <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showEvents})} onClick={toggleEvents}>
-                <EventIcon/>
-              </span>
-              <span className={classes.buttonText}> Events </span>
-              <span className={classes.actionContainer}>
-                {currentUser && <Tooltip title="Create New Event">
-                  <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
-                </Tooltip>}
-                <Tooltip title="Hide events from map">
-                  <VisibilityIcon 
-                    onClick={toggleEvents}
-                    className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showEvents})} 
-                  />
-                </Tooltip>
-              </span>
-            </div>}
-            {showPersonFilter && <div
-              className={classes.filterSection}
-            >
-              <span className={classes.desktopFilter}>
-                <PersonIcon />
-              </span>
-              <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showIndividuals})} onClick={toggleIndividuals}>
-                <PersonIcon />
-              </span>
-              <span className={classes.buttonText}> Individuals </span>
-              <span className={classes.actionContainer}>
-                <Tooltip title="Add your location to the map">
-                  <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}/>
-                </Tooltip>
-                <Tooltip title="Hide individual user locations from map">
-                  <VisibilityIcon 
-                    onClick={toggleIndividuals}
-                    className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showIndividuals})} 
-                  />
-                </Tooltip>
-              </span>
-            </div>}
-          </div>
-          <Divider className={classNames(classes.divider, classes.bottomDivider)} />
-        </>}
-        <LWTooltip title="Get notified when events are in your area" placement="left">
-          <div
-              className={classNames(classes.filterSection, classes.subscribeSection)}
-              onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}
-            >
-            <EmailIcon className={classNames(classes.actionIcon, classes.subscribeIcon)} /> 
-            <span className={classes.buttonText}> Subscribe to events</span>
-          </div>
-        </LWTooltip>
-        {showHideMap && <div className={classNames(classes.filterSection, classes.hideSection)}>
-          <LWTooltip title="Hide the map from the frontpage" inlineBlock={false} placement="left">
-            <span className={classNames(classes.buttonText, classes.hideText)} onClick={this.handleHideMap}> 
-              Hide Map 
             </span>
-          </LWTooltip>
+          })}
         </div>}
+        <Divider className={classNames(classes.divider, classes.topDivider)} />
+        <div className={classes.actions}>
+          <div 
+            className={classes.filterSection} 
+          >
+            <span className={classes.desktopFilter}>
+              <GroupIcon/> 
+            </span>
+            <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showGroups})} onClick={toggleGroups}>
+              <GroupIcon/>
+            </span>
+            <span className={classes.buttonText}>Groups</span>
+            <span className={classes.actionContainer}>
+              {(!isEAForum || isAdmin) && <Tooltip title="Create New Group">
+                <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)} />
+              </ Tooltip>}
+              <Tooltip title="Hide groups from map">
+                <VisibilityIcon 
+                  onClick={toggleGroups}
+                  className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showGroups})} 
+                />
+              </Tooltip>
+            </span>
+          </div>
+          <div 
+            className={classes.filterSection}>
+            <span className={classes.desktopFilter}>
+              <EventIcon/> 
+            </span>
+            <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showEvents})} onClick={toggleEvents}>
+              <EventIcon/>
+            </span>
+            <span className={classes.buttonText}> Events </span>
+            <span className={classes.actionContainer}>
+              {currentUser && <Tooltip title="Create New Event">
+                <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
+              </Tooltip>}
+              <Tooltip title="Hide events from map">
+                <VisibilityIcon 
+                  onClick={toggleEvents}
+                  className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showEvents})} 
+                />
+              </Tooltip>
+            </span>
+          </div>
+          <div
+            className={classes.filterSection}
+          >
+            <span className={classes.desktopFilter}>
+              <PersonIcon />
+            </span>
+            <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showIndividuals})} onClick={toggleIndividuals}>
+              <PersonIcon />
+            </span>
+            <span className={classes.buttonText}> Individuals </span>
+            <span className={classes.actionContainer}>
+              <Tooltip title="Add your location to the map">
+                <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}/>
+              </Tooltip>
+              <Tooltip title="Hide individual user locations from map">
+                <VisibilityIcon 
+                  onClick={toggleIndividuals}
+                  className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showIndividuals})} 
+                />
+              </Tooltip>
+            </span>
+          </div>
+        </div>
+        <Divider className={classNames(classes.divider, classes.bottomDivider)} />
+        <div
+            className={classNames(classes.filterSection, classes.subscribeSection)}
+            onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}
+          >
+          <EmailIcon className={classNames(classes.actionIcon, classes.subscribeIcon)} /> 
+          <span className={classes.buttonText}> Subscribe to events</span>
+        </div>
+        {showHideMap && <span>
+            <Tooltip title="Hide the map from the frontpage">
+              <div className={classNames(classes.filterSection, classes.hideSection)}>
+                {/* <CloseIcon className={classes.buttonIcon} />  */}
+                <span className={classNames(classes.buttonText, classes.hideText)} onClick={this.handleHideMap}> 
+                  Hide Map 
+                </span>
+              </div>
+            </Tooltip>
+          </span>}
       </Paper>
   }
 }
