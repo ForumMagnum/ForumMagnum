@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
@@ -23,6 +22,8 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
+import { isMobile } from '../lib/utils/isMobile';
+import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -204,7 +205,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, cookies} = this.props;
     const {hideNavigationSidebar} = this.state
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
 
@@ -255,8 +256,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-    
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap)
+
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !isMobile() && !cookies.get(hideMapCookieName)
       
     return (
       <AnalyticsContext path={location.pathname}>
