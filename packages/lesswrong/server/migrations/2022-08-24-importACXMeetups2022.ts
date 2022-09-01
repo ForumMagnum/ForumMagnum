@@ -117,7 +117,9 @@ registerMigration({
         }
   
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log("Error creating LWvent")
+        // eslint-disable-next-line no-console
         console.log(row, err)
       }  
     }
