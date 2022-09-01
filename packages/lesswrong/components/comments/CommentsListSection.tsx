@@ -74,8 +74,9 @@ const CommentsListSection = ({
   newForm=true,
   classes,
   condensed=false,
+  reversed=true,
+  nestedScroll=true,
 }: {
-
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -89,6 +90,8 @@ const CommentsListSection = ({
   newForm: boolean,
   classes: ClassesType,
   condensed?: boolean,
+  reversed?: boolean,
+  nestedScroll?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
@@ -163,11 +166,28 @@ const CommentsListSection = ({
     </CommentsListMeta>
   }
 
+  const commentsListComponent = (
+    <Components.CommentsList
+      treeOptions={{
+        highlightDate: highlightDate,
+        post: post,
+        postPage: true,
+        tag: tag,
+      }}
+      totalComments={totalComments}
+      comments={comments}
+      startThreadTruncated={startThreadTruncated}
+      parentAnswerId={parentAnswerId}
+      nestedScroll={nestedScroll}
+    />
+  );
+
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
+      {reversed && commentsListComponent}
       { totalComments ? renderTitleComponent() : null }
       <div id="comments"/>
 
@@ -190,18 +210,7 @@ const CommentsListSection = ({
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
-      <Components.CommentsList
-        treeOptions={{
-          highlightDate: highlightDate,
-          post: post,
-          postPage: true,
-          tag: tag,
-        }}
-        totalComments={totalComments}
-        comments={comments}
-        startThreadTruncated={startThreadTruncated}
-        parentAnswerId={parentAnswerId}
-      />
+      {!reversed && commentsListComponent}
     </div>
   );
 }
