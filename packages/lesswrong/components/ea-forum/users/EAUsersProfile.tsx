@@ -372,19 +372,19 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }
   
   const bioSectionTabs: Array<UserProfileTabType> = []
-  if (user.biography?.html || user.howOthersCanHelpMe?.html || user.howICanHelpOthers?.html) {
+  if (user.biography || user.howOthersCanHelpMe || user.howICanHelpOthers) {
     bioSectionTabs.push({
       id: 'bio',
       label: 'Bio',
       body: <>
-        {user.biography?.html && <ContentStyles contentType="post">
+        {user.htmlBio && <ContentStyles contentType="post">
           <ContentItemBody
-            dangerouslySetInnerHTML={{__html: user.biography.html }}
+            dangerouslySetInnerHTML={{__html: user.htmlBio }}
             description={`user ${user._id} bio`}
             nofollow={userKarma < nofollowKarmaThreshold.get()}
           />
         </ContentStyles>}
-        {user.howOthersCanHelpMe?.html && <>
+        {user.howOthersCanHelpMe && <>
           <div className={classes.sectionSubHeadingRow}>
             <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
           </div>
@@ -392,7 +392,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
-        {user.howICanHelpOthers?.html && <>
+        {user.howICanHelpOthers && <>
           <div className={classes.sectionSubHeadingRow}>
             <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
           </div>

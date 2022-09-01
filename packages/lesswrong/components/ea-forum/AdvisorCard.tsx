@@ -2,17 +2,11 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { Link } from '../../lib/reactRouterWrapper';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 290
-  },
-  photoLink: {
-    '&:hover': {
-      opacity: 1
-    }
   },
   profileImage: {
     width: 96,
@@ -31,7 +25,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   role: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
-    lineHeight: '18px',
+    marginTop: 4
+  },
+  org: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 11,
     marginTop: 4
   },
   locationRow: {
@@ -77,7 +75,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 export type Advisor = {
   profileImageId: string,
   name: string,
-  slug: string,
   jobTitle: string,
   organization: string,
   location: string,
@@ -94,18 +91,17 @@ const AdvisorCard = ({user, classes}: {
   const { CloudinaryImage2, ContentStyles, Typography } = Components
 
   return <div className={classes.root}>
-    <Link to={`/users/${user.slug}?from=advisors_page_advisor`} className={classes.photoLink}>
-      <CloudinaryImage2
-        imgProps={{q: '100', w: '150', h: '150'}}
-        publicId={user.profileImageId}
-        className={classes.profileImage}
-      />
-    </Link>
-    <Typography variant="headline" className={classes.name}>
-      <Link to={`/users/${user.slug}?from=advisors_page_advisor`}>{user.name}</Link>
-    </Typography>
+    {user.profileImageId && <CloudinaryImage2
+      imgProps={{q: '100', w: '150', h: '150'}}
+      publicId={user.profileImageId}
+      className={classes.profileImage}
+    />}
+    <Typography variant="headline" className={classes.name}>{user.name}</Typography>
     <div className={classes.role}>
-      {user.jobTitle} @ {user.organization}
+      {user.jobTitle}
+    </div>
+    <div className={classes.org}>
+      @ {user.organization}
     </div>
     <ContentStyles contentType="comment" className={classes.locationRow}>
       <div className={classes.location}>

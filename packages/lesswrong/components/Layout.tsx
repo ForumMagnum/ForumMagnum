@@ -82,11 +82,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
-  hideHomepageMapOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
@@ -262,7 +257,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && currentTime < afterTime
     }
 
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies.get(hideMapCookieName)
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !isMobile() && !cookies.get(hideMapCookieName)
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -310,7 +305,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap/></span>}
+              {renderCommunityMap && <HomepageCommunityMap/>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
