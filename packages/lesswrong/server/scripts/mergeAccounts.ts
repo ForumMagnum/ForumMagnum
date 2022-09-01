@@ -118,7 +118,7 @@ const mergeReadStatus = async ({sourceUserId, targetUserId, postOrTagSelector}: 
 }
 
 const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: boolean) => {
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line no-console
   console.log(`transferring services from ${sourceUser._id} to ${targetUser._id}`)
 
   // we copy services for github, facebook and google 
@@ -127,7 +127,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   for (const profilePath of profilePaths) {
     const sourceProfile = sourceUser.services[profilePath]
     if (sourceProfile && !targetUser.services[profilePath]) {
-      // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-console
       console.log(`  Copying ${profilePath} profile from ${sourceUser._id} to ${targetUser._id}`)
       if (!dryRun) {
 
@@ -148,7 +148,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
         })
       } 
     } else {
-      // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-console
       console.log(`  Not copying ${profilePath}`)
     }
   }
