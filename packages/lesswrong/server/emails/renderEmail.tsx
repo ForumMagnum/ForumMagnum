@@ -21,7 +21,7 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
+import {userGetEmail, userGetEmailFromEmails} from '../../lib/vulcan-users/helpers';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
@@ -241,7 +241,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   console.log({user, to, from, subject, body})
   console.log('in wrapAndSendEmail')
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
-  const destinationAddress = to || userGetEmail(user!);
+  const destinationAddress = to || userGetEmail(user!) || userGetEmailFromEmails(user!); //TODO: remove usage of emails field
   console.log({destinationAddress})
   if (!destinationAddress) throw new Error("No destination email address for user email");
   
