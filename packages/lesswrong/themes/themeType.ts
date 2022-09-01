@@ -384,6 +384,7 @@ declare global {
       contentNotice: JssStyles,
       uiSecondary: JssStyles,
       smallText: JssStyles,
+      smallFont: JssStyles,
       tinyText: JssStyles,
       caption: JssStyles,
       blockquote: JssStyles,
