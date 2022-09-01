@@ -9,8 +9,8 @@ import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { ArrowSVG } from '../localGroups/Icons';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
-import without from 'lodash/without';
 import { Link } from '../../lib/reactRouterWrapper';
+import { hideMapCookieName } from './HomepageMapFilter';
 
 type LocalEvent = {
   _id: string,
@@ -1060,7 +1060,38 @@ const localEvents = [
   }
 ]
 
-const styles = communityMapStyles
+const styles = theme => ({
+  root: {
+    width: "100%",
+    height: 440,
+    // We give this a negative margin to make sure that the map is flush with the top
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 0,
+      marginLeft: -8
+    },
+    position: "relative",
+    boxShadow: theme.palette.boxShadow.default,
+    
+    "& .mapboxgl-popup-content": {
+      background: theme.palette.panelBackground.default,
+    },
+    "& .StyledMapPopup-markerPageLink": {
+      color: theme.palette.text.normal,
+    },
+  },
+  mapButtons: {
+    alignItems: "flex-end",
+    position: "absolute",
+    top: 10,
+    right: 10,
+    display: "flex",
+    flexDirection: "column",
+    [theme.breakpoints.down('md')]: {
+      top: 24
+    },
+    ...theme.typography.body2
+  },
+})
 
 const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
   localEvent:LocalEvent,
@@ -1072,8 +1103,6 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-
-  if (!localEvent.lat || !localEvent.lng) return null
 
   if (loading) return null
 
@@ -1110,19 +1139,18 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   classes: ClassesType,
 }) => {
   const { LocalEventWrapperPopUp } = Components
-  const [ openWindows, setOpenWindows ] = useState([] as Array<string>)
+  const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
     (id) => { setOpenWindows([id]) }
     , []
   )
-  const handleClose = useCallback(
-    (id) => { setOpenWindows(without(openWindows, id))}
-    , [openWindows]
+  const handleClose = useCallback(id => { 
+      setOpenWindows(openWindows.filter(windowId => windowId !== id))
+    }, [openWindows]
   )
   
   return <React.Fragment>
     {localEvents.map(localEvent => {
-      if (!localEvent.lat || !localEvent.lng) return null
       const infoOpen = openWindows.includes(localEvent._id)
       return <React.Fragment key={`mapEvent${localEvent._id}`}>
       <Marker
@@ -1148,7 +1176,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 export const HomepageCommunityMap = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { LocalEventMapMarkerWrappers, CommunityMapFilter } = Components
+  const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
   
   const currentUser = useCurrentUser()
  
@@ -1165,27 +1193,14 @@ export const HomepageCommunityMap = ({classes}: {
     return <>
       <LocalEventMapMarkerWrappers localEvents={localEvents} />
       <div className={classes.mapButtons}>
-        <CommunityMapFilter 
+        <HomepageMapFilter 
           title={<Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">ACX Meetups Everywhere</Link>}
-          showHideMap={true} 
-          toggleEvents={null} 
-          showEvents={true}
-          toggleGroups={() => null} 
-          showGroups={false}
-          toggleIndividuals={null} 
-          showIndividuals={false}
-          setShowMap={true}
-          showEventTypeFilters={false}
-          showEventsFilter={false}
-          showPersonFilter={false}
-          showGroupsFilter={false}
         />
       </div>
     </>
-  }, [localEvents, LocalEventMapMarkerWrappers, CommunityMapFilter, classes.mapButtons])
+  }, [localEvents, LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
   
-  // hackily setting marginTop to zero to avoid an issue
-  return <div className={classes.root} style={{marginTop: 0}}>
+  return <div className={classes.root}>
     <Helmet> 
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
     </Helmet>
@@ -1195,7 +1210,7 @@ export const HomepageCommunityMap = ({classes}: {
       height="100%"
       mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
       onViewportChange={viewport => setViewport(viewport)}
-      mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
+      mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     >
       {renderedMarkers}
     </ReactMapGL>
