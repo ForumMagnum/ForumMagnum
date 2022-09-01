@@ -359,6 +359,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
       set: {
         deleted: true
       },
+      // We remove the login tokins from the source account since it's now deleted
       unset: {'services.resume':1},
       validate: false
     })
