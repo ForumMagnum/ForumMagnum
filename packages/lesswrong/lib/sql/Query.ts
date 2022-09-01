@@ -177,6 +177,9 @@ class Query<T extends DbObject> {
   }
 
   private compileSelector(selector: MongoSelector<T>): Atom<T>[] {
+    /*
+     * TODO: Internal documentation, examples
+     */
     const keys = Object.keys(selector);
     if (keys.length === 0) {
       return [];
@@ -202,31 +205,21 @@ class Query<T extends DbObject> {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
-  private appendSimpleLateralJoin(
-    from: string,
-    localField: string,
-    foreignField: string,
-    as: string,
-  ): void {
+  private appendSimpleLateralJoin({from, localField, foreignField, as}: SimpleLookup): void {
     const table = mongoTableToPostgresTable(from);
     this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
     this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
   }
 
-  private appendPipelineLateralJoin(
-    from: string,
-    let: any,
-    pipeline: any,
-    as: string,
-  ): void {
+  private appendPipelineLateralJoin({from, let: let_, pipeline, as}: PipelineLookup): void {
     throw new Error("TODO Pipeline lateral joins not yet implemented");
   }
 
-  private appendLateralJoin({from, localField, foreignField, as, let, pipeline}: Lookup): void {
-    if (from && localField && foreignField && as) {
-      this.appendSimpleLateralJoin(from, localField, foreignField, as);
-    } else if (from && let && pipeline && as) {
-      this.appendPipelineLateralJoin(from, let, pipeline, as);
+  private appendLateralJoin(lookup: Lookup): void {
+    if (lookup.from && "localField" in lookup && "foreignField" in lookup && lookup.as) {
+      this.appendSimpleLateralJoin(lookup);
+    } else if (lookup.from && "let" in lookup && "pipeline" in lookup && lookup.as) {
+      this.appendPipelineLateralJoin(lookup);
     } else {
       throw new Error("Invalid $lookup");
     }
