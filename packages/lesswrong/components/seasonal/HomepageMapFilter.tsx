@@ -28,12 +28,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16
   },
   buttonText: {
-    width: "100%",
     marginLeft: 10,
     ...theme.typography.body2,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
   },
   hideText: {
     marginLeft: 'auto',
