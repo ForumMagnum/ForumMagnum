@@ -28,8 +28,7 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
-import { includes } from 'underscore';
-import { FilterSettings, getDefaultFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 
@@ -85,25 +84,25 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
 
 getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
   // check if the user added any tags to their profile
-  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !includes(oldDocument.profileTagIds || [], tagId)) || []
+  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !oldDocument.profileTagIds?.includes(tagId)) || []
   
   // if so, then we want to subscribe them to the newly added tags
   if (tagIdsAdded.length > 0) {
     const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()
     const tagsById = keyBy(tagsAdded, tag => tag._id)
     
-    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings || getDefaultFilterSettings()
+    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings ?? getDefaultFilterSettings()
     for (let addedTag of tagIdsAdded) {
-      const tagName = tagsById[addedTag].name
+      const newTagFilter: FilterTag = {tagId: addedTag, tagName: tagsById[addedTag].name, filterMode: 'Subscribed'}
       const existingFilter = newFrontpageFilterSettings.tags.find(tag => tag.tagId === addedTag)
       // if the user already had a filter for this tag, see if we should update it or leave it alone
       if (existingFilter) {
-        if (includes([0, 'Default', 'TagDefault'], existingFilter.filterMode)) {
+        if ([0, 'Default', 'TagDefault'].includes(existingFilter.filterMode)) {
           newFrontpageFilterSettings = {
             ...newFrontpageFilterSettings,
             tags: [
               ...newFrontpageFilterSettings.tags.filter(tag => tag.tagId !== addedTag),
-              {tagId: addedTag, tagName: tagName, filterMode: 'Subscribed'}
+              newTagFilter
             ]
           }
         }
@@ -113,7 +112,7 @@ getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSub
           ...newFrontpageFilterSettings,
           tags: [
             ...newFrontpageFilterSettings.tags,
-            {tagId: addedTag, tagName: tagName, filterMode: 'Subscribed'}
+            newTagFilter
           ]
         }
       }
