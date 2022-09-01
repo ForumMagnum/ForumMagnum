@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: 16,
     paddingRight: 35,
-    paddingBottom: 12,
+    paddingBottom: 0,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -101,7 +101,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   firstPost: {
     ...theme.typography.body2,
+    position: "relative",
+    padding: 16,
+    paddingTop: 12,
+    marginTop: 0,
+    marginBottom: 0,
     fontSize: "1rem",
+    zIndex: theme.zIndexes.curatedContentItemCloseButton,
     ...commentBodyStyles(theme),
     color: theme.palette.grey[500],
     '& a': {
@@ -162,13 +168,13 @@ export const CuratedContentItem = ({classes, content}: {
               description={`${content.documentType} ${content.document._id}`}
             />
           </div>
-          {content.firstPost && <div className={classes.firstPost}>
-            First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
-              <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
-            </LWTooltip>
-          </div>}
         </div>
         {content.imageUrl && <img src={content.imageUrl} className={classes.image}/>}
+        {content.firstPost && <div className={classes.firstPost}>
+          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
+          <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
+        </LWTooltip>
+        </div>}
         <Tooltip title="Hide this item for the next month">
           <Button className={classes.closeButton} onClick={hideBanner}>
             <CloseIcon className={classes.closeIcon} />
