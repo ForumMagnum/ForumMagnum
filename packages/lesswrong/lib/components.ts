@@ -21,6 +21,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
+  importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
   importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
@@ -596,12 +597,13 @@ importComponent("TagFlagToggleList", () => require('../components/form-component
 importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
 
+importComponent("HomepageCommunityMap", () => require('../components/seasonal/HomepageMap/HomepageCommunityMap'));
+importComponent("HomepageMapFilter", () => require('../components/seasonal/HomepageMap/HomepageMapFilter'));
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 // importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
-
 
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
 importComponent("AFNonMemberInitialPopup", () => require('../components/alignment-forum/AFNonMemberInitialPopup'));

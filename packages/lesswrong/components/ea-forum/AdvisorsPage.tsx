@@ -106,6 +106,7 @@ const advisors: Array<Advisor> = [
   {
     profileImageId: 'v1661205655/advisors/1605745710517.jpg',
     name: 'Ryan Teo',
+    slug: 'ryan-teo',
     jobTitle: 'Political Affairs Intern',
     organization: 'UN Biological Weapons Convention',
     location: 'London / Singapore',
@@ -120,6 +121,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1661205259/advisors/WhatsApp_Image_2022-08-19_at_9.50.47_PM_-_Caitlin_Walker.jpg',
     name: 'Caitlin Walker',
+    slug: 'caitlinwalker',
     jobTitle: 'Health Security PhD Student',
     organization: 'Johns Hopkins',
     location: 'Baltimore, MD, USA',
@@ -131,6 +133,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1661272032/advisors/1645151898861_-_Ryan_Duncombe.jpg',
     name: 'Ryan Duncombe',
+    slug: 'rduncombe',
     jobTitle: 'Scientist',
     organization: 'Alvea',
     location: 'San Francisco, CA, USA',
@@ -144,6 +147,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1661205259/advisors/729C728E-6348-4CDE-99BA-171A0A123F1B_1_105_c_-_Noga_Aharony.jpg',
     name: 'Noga Aharony',
+    slug: 'nongiga',
     jobTitle: 'PhD Student',
     organization: 'Columbia University',
     location: 'New York City, USA',
@@ -159,6 +163,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1661205262/advisors/Screen_Shot_2022-06-02_at_6.35.17_AM_-_Adin_Richards.png',
     name: 'Adin Richards',
+    slug: 'adin',
     jobTitle: 'Biosecurity Fellow',
     organization: 'Institute for Progress',
     location: 'Providence, RI, USA',
@@ -172,6 +177,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1661205260/advisors/241668439_368152568131819_8579005214601011924_n_3_-_Oliver_Crook.jpg',
     name: 'Oliver Crook',
+    slug: 'olly-crook',
     jobTitle: 'Todd-Bird Junior Research Fellow',
     organization: 'University of Oxford',
     location: 'Oxford, UK',
@@ -187,6 +193,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1661205260/advisors/dan_headshot_2_cropped_-_Daniel_Greene.png',
     name: 'Dan Greene',
+    slug: 'daniel-greene-1',
     jobTitle: 'Postdoctoral Scholar',
     organization: 'Stanford University',
     location: 'Santa Cruz, CA, USA',
@@ -197,6 +204,20 @@ const advisors: Array<Advisor> = [
       'DURC policy',
       'Social-science applications to biosecurity',
       'Risk management training',
+    ]
+  }, {
+    profileImageId: 'v1661379536/advisors/1653408925284_-_Simon_Grimm.jpg',
+    name: 'Simon Grimm',
+    slug: 'simon_grimm',
+    jobTitle: 'Visiting Researcher',
+    organization: 'MIT Media Lab, Nucleic Acid Observatory',
+    location: 'Cambridge, MA, USA',
+    linkedinProfileSlug: 'simon-grimm-7962311a8',
+    twitterProfileSlug: 'simon__Grimm',
+    askMeAbout: [
+      'Biosecurity / Biomonitoring / DURC policy',
+      'Career steps after graduation',
+      'Thinking through the merits of different biosecurity interventions',
     ]
   },
 ]
