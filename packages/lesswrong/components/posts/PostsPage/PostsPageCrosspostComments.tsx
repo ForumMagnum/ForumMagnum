@@ -4,12 +4,12 @@ import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../../lib/instanceSettings";
-import { useCrosspostContext, CrosspostContext } from "./PostsPageCrosspostWrapper";
+import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 720,
-    margin: "0 auto",
+    margin: "0 auto 25px auto",
     border: theme.palette.border.commentBorder,
     borderRadius: 3,
     padding: 12,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
   const context = useCrosspostContext();
-  if (!context) {
+  if (!context?.foreignPost) {
     return null;
   }
   const {hostedHere, foreignPost} = context;

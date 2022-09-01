@@ -159,7 +159,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
               </a>
             </LWTooltip>
           }
-          {post.fmCrosspost?.isCrosspost && <CrosspostNotice post={post} />}
+          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostNotice post={post} />}
           {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}

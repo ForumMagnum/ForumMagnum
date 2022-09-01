@@ -9,7 +9,7 @@ type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 export type CrosspostContext = {
   hostedHere: boolean,
   localPost: PostType,
-  foreignPost: PostType,
+  foreignPost?: PostType,
   combinedPost?: PostType,
 }
 
@@ -29,12 +29,12 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
     apolloClient,
   });
 
-  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
+  const { Error404, Loading, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
-  } else if (!document) {
+  } else if (!document && !post.draft) {
     return <Error404/>
   }
 
@@ -48,7 +48,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
     contextValue.combinedPost = {
       ...document,
       ...post,
-      contents: document.contents,
+      contents: document?.contents ?? post.contents,
     };
   }
 

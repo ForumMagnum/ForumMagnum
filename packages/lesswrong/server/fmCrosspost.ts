@@ -1,12 +1,12 @@
 import { DatabaseServerSetting } from "./databaseSettings";
-import { Utils, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from "../lib/vulcan-lib";
+import { Utils, addGraphQLMutation, addGraphQLResolvers } from "../lib/vulcan-lib";
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { randomId } from "../lib/random";
 import Users from "../lib/collections/users/collection";
 import Posts from "../lib/collections/posts/collection";
 import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
-import bodyParser from "body-parser";
+import { json } from "body-parser";
 import type { Application, Request, Response } from "express";
 
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
@@ -126,18 +126,34 @@ const makeCrossSiteRequest = async <T extends {}>(
   return json;
 }
 
-const signToken = <T extends {}>(payload: T): string =>
-  jwt.sign(payload, getSecret(), jwtSigningOptions);
+const signToken = <T extends {}>(payload: T): Promise<string> =>
+  new Promise((resolve, reject) => {
+    jwt.sign(payload, getSecret(), jwtSigningOptions, (err, token) => {
+      if (token) {
+        resolve(token);
+      } else {
+        reject(err);
+      }
+    });
+  });
 
-const verifyToken = <T extends {}>(token: string): T =>
-  jwt.verify(token, getSecret()) as T;
+const verifyToken = <T extends {}>(token: string): Promise<T> =>
+  new Promise((resolve, reject) => {
+    jwt.verify(token, getSecret(), (err, payload) => {
+      if (payload) {
+        resolve(payload as T);
+      } else {
+        reject(err);
+      }
+    });
+  });
 
 const crosspostResolvers = {
   Mutation: {
     connectCrossposter: async (
-      root: void,
+      _root: void,
       {token}: ConnectCrossposterArgs,
-      {req, res}: ResolverContext,
+      {req}: ResolverContext,
     ) => {
       const localUserId = getUserId(req);
       const {foreignUserId} = await makeCrossSiteRequest(
@@ -151,11 +167,11 @@ const crosspostResolvers = {
       });
       return "success";
     },
-    unlinkCrossposter: async (root: void, args: {}, {req, res}: ResolverContext) => {
+    unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
       const localUserId = getUserId(req);
       const foreignUserId = req?.user?.fmCrosspostUserId;
       if (foreignUserId) {
-        const token = signToken<UnlinkCrossposterPayload>({userId: foreignUserId});
+        const token = await signToken<UnlinkCrossposterPayload>({userId: foreignUserId});
         await makeCrossSiteRequest(
           apiRoutes.unlinkCrossposter,
           {token},
@@ -177,7 +193,7 @@ addGraphQLMutation("unlinkCrossposter: String");
 
 const updateCrosspost = async (post: DbPost) => {
   if (post.fmCrosspost?.foreignPostId) {
-    const token = signToken<UpdateCrosspostPayload>({
+    const token = await signToken<UpdateCrosspostPayload>({
       postId: post.fmCrosspost.foreignPostId,
       draft: post.draft,
       deletedDraft: post.deletedDraft,
@@ -217,13 +233,13 @@ const onCrosspostTokenRequest = withApiErrorHandlers(async (req: Request, res: R
     throw new UnauthorizedError();
   }
 
-  const token = signToken<ConnectCrossposterPayload>({userId: user._id});
+  const token = await signToken<ConnectCrossposterPayload>({userId: user._id});
   res.send({token});
 });
 
 const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token, localUserId] = getPostParams(req, ["token", "localUserId"]);
-  const payload = verifyToken<ConnectCrossposterPayload>(token);
+  const payload = await verifyToken<ConnectCrossposterPayload>(token);
   if (!payload?.userId) {
     throw new InvalidTokenError();
   }
@@ -240,7 +256,7 @@ const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, re
 
 const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = verifyToken<UnlinkCrossposterPayload>(token);
+  const payload = await verifyToken<UnlinkCrossposterPayload>(token);
   if (!payload?.userId) {
     throw new InvalidTokenError();
   }
@@ -253,7 +269,7 @@ const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res
 
 const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token, postId, postTitle] = getPostParams(req, ["token", "postId", "postTitle"]);
-  const payload = verifyToken<CrosspostPayload>(token);
+  const payload = await verifyToken<CrosspostPayload>(token);
   const {localUserId, foreignUserId} = payload;
   if (!localUserId || !foreignUserId) {
     throw new InvalidTokenError();
@@ -293,7 +309,7 @@ const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Respon
 
 const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = verifyToken<UpdateCrosspostPayload>(token);
+  const payload = await verifyToken<UpdateCrosspostPayload>(token);
   const {postId, draft, deletedDraft, title} = payload;
   if (!postId || typeof draft !== "boolean" || typeof deletedDraft !== "boolean" || typeof title !== "string") {
     throw new InvalidTokenError();
@@ -304,7 +320,7 @@ const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: 
 
 export const addCrosspostRoutes = (app: Application) => {
   const addPostRoute = (route: string, callback: (req: Request, res: Response) => Promise<void>) => {
-    app.use(route, bodyParser.json({ limit: "1mb" }));
+    app.use(route, json({ limit: "1mb" }));
     app.post(route, callback);
   }
   app.get(apiRoutes.crosspostToken, onCrosspostTokenRequest);
@@ -329,7 +345,7 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     throw new Error("You have not connected a crossposting account yet");
   }
 
-  const token = signToken<CrosspostPayload>({
+  const token = await signToken<CrosspostPayload>({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
   });
