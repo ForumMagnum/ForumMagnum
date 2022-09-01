@@ -12,7 +12,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 
-const communityMapStyles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     height: 440,
@@ -281,7 +281,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 
 
-const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles:communityMapStyles });
+const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles });
 
 declare global {
   interface ComponentTypes {

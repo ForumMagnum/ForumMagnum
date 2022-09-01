@@ -24,7 +24,7 @@ import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { isMobile } from '../lib/utils/isMobile';
-import { hideMapCookieName } from './seasonal/HomepageMapFilter';
+import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)

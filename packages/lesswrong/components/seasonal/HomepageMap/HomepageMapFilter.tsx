@@ -1,17 +1,17 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useMessages } from '../common/withMessages';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
 import Divider from '@material-ui/core/Divider';
 import EmailIcon from '@material-ui/icons/Email';
-import { useDialog } from '../common/withDialog'
-import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../../common/withDialog'
+import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
-import { captureEvent } from '../../lib/analyticsEvents';
+import { captureEvent } from '../../../lib/analyticsEvents';
 import { useCookies } from 'react-cookie';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -101,13 +101,13 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
   const { LWTooltip } = Components
 
   return <Paper>
-    <div className={classNames(classes.section, classes.title)}>
-      <LWTooltip title="Read more about Astral Codex Everywhere, and find a meetup near you" placement="left">
+    <LWTooltip title="Read more about Astral Codex Everywhere, and find a meetup near you" placement="left">
+      <div className={classNames(classes.section, classes.title)}>
         <Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">
           ACX Meetups Everywhere
         </Link>
-      </LWTooltip>
-    </div>
+      </div>
+    </LWTooltip>
     <Divider />
     <LWTooltip title="Get notified when events are in your area" placement="left">
       <div
@@ -120,8 +120,11 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
     </LWTooltip>
     <div className={classNames(classes.section, classes.hideSection)}>
       <LWTooltip title="Hide the map from the frontpage" placement="left">
-        <div className={classNames(classes.buttonText, classes.hideText)} onClick={handleHideMap}> 
-          Hide Map 
+        <div className={classNames(classes.section, classes.hideSection)}>
+
+          <div className={classNames(classes.buttonText, classes.hideText)} onClick={handleHideMap}> 
+            Hide Map 
+          </div>
         </div>
       </LWTooltip>
     </div>
