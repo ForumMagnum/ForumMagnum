@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
@@ -23,7 +22,8 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { HomepageCommunityMap } from './seasonal/HomepageCommunityMap';
+import { isMobile } from '../lib/utils/isMobile';
+import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -205,7 +205,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, cookies} = this.props;
     const {hideNavigationSidebar} = this.state
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
 
@@ -242,18 +242,22 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
     
-    const showSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
+    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
-    const currentTime = new Date()
-    const beforeTime = petrovBeforeTime.get()
-    const afterTime = petrovAfterTime.get()
+    const renderPetrovDay = () => {
+      const currentTime = (new Date()).valueOf()
+      const beforeTime = petrovBeforeTime.get()
+      const afterTime = petrovAfterTime.get()
+    
+      return currentRoute?.name === "home"
+        && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
+        && beforeTime < currentTime 
+        && currentTime < afterTime
+    }
 
-    const renderPetrovDay = 
-      currentRoute?.name === "home"
-      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
-      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !isMobile() && !cookies.get(hideMapCookieName)
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -301,8 +305,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              <HomepageCommunityMap />
-              {renderPetrovDay && <PetrovDayWrapper/>}
+              {renderCommunityMap && <HomepageCommunityMap/>}
+              {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
@@ -322,7 +326,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <Footer />
                 </div>
-                {showSunshineSidebar && <div className={classes.sunshine}>
+                {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>
                 </div>}
               </div>

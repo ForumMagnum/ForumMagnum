@@ -9,12 +9,12 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import {useTracking} from "../../lib/analyticsEvents";
 
-type CuratedContentDocType = "Sequence"|"Collection"
+type CuratedContentDocType = "Sequence"|"Collection"|"Post"
 
 export interface CuratedContent {
   documentType: CuratedContentDocType,
   document: {
-    _id: string,
+    _id?: string,
     title: string,
     slug?: string
   },
@@ -49,7 +49,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     color: theme.palette.grey[300],
     top: 0,
-    right: 0
+    right: 0,
+    zIndex: theme.zIndexes.curatedContentItemCloseButton,
   },
   content: {
     padding: 16,
@@ -66,6 +67,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginRight: 100
+    },
+    '& br': {
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
     }
   },
   description: {
@@ -110,6 +116,8 @@ const getUrlFromDocument = (document: any, documentType: CuratedContentDocType) 
       return `/s/${document._id}`;
     case "Collection":
       return `/${document.slug}`
+    case "Post":
+      return `/posts/${document._id}/${document.slug}`
   }
 }
 
