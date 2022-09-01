@@ -44,7 +44,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
 const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
-  onClose, offsetTop=-20, hideBottomLinks
+  onClose, offsetTop=-20, offsetLeft=4, hideBottomLinks
 }: {
   children?: ReactNode,
   classes: ClassesType,
@@ -56,6 +56,7 @@ const StyledMapPopup = ({
   lng: number,
   onClose: any,
   offsetTop?: number,
+  offsetLeft?: number,
   hideBottomLinks?: boolean
 }) => {
   return <Popup
@@ -64,6 +65,7 @@ const StyledMapPopup = ({
     closeButton={true}
     closeOnClick={false}
     offsetTop={offsetTop}
+    offsetLeft={offsetLeft}
     onClose={onClose}
     captureClick
     captureScroll
