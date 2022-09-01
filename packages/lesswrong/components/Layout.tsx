@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
