@@ -383,7 +383,6 @@ declare global {
       codeblock: JssStyles,
       contentNotice: JssStyles,
       uiSecondary: JssStyles,
-      smallFont: JssStyles,
       smallText: JssStyles,
       tinyText: JssStyles,
       caption: JssStyles,

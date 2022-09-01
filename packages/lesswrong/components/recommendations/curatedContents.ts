@@ -79,7 +79,8 @@ export const cfarHandbook: CuratedContent = {
     _id: "KAv8z6oJCTxjR8vdR",
     title: "CFAR Handbook",
   },
-  description: "The Center for Applied Rationality set out to develop simple, concrete concepts and techniques that could be applied to anyone's problems and goals.",
+  description: `<div><p>The Center for Applied Rationality set out to develop concepts and techniques that would (hopefully) result in clearer thinking and better decision-making.</p>
+  <p>This is the result of the first five years or so of that research and development.</p></div>`,
   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660869601/DALL_E_2022-08-18_17.31.52_-_students_sitting_on_bean_bags_in_front_of_teacher_by_whiteboard_with_math_aquarelle_painting_by_JMW_Turner_-_edited2_zm0x5r.png",
   firstPost: {
     _id: "dbDHEQyKqnMDDqq2G",

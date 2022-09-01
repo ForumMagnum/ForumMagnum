@@ -101,14 +101,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   firstPost: {
     ...theme.typography.body2,
-    position: "relative",
     padding: 16,
-    paddingTop: 12,
-    marginTop: 0,
-    marginBottom: 0,
-    fontSize: "1rem",
+    paddingTop: 10,
+    paddingBottom: 12,
+    ...theme.typography.smallText,
+    ...theme.typography.commentStyle,
+    position: "relative",
     zIndex: theme.zIndexes.curatedContentItemCloseButton,
-    ...commentBodyStyles(theme),
     color: theme.palette.grey[500],
     '& a': {
       color: theme.palette.primary.main
