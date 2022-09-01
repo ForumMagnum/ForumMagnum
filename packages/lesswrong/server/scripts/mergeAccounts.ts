@@ -154,14 +154,6 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.transferServices = async (sourceUserId: string, targetUserId: string) => {
-  const sourceUser = await Users.findOne({_id: sourceUserId})
-  const targetUser = await Users.findOne({_id: targetUserId})
-  if (sourceUser && targetUser) {
-    transferServices(sourceUser, targetUser, false)
-  }
-}
-
 Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun: boolean) => {
   if (typeof dryRun !== "boolean") throw Error("dryRun value missing")
 
