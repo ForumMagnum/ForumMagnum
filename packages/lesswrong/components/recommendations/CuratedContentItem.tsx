@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     paddingTop: 10,
     paddingBottom: 12,
-    ...theme.typography.smallText,
+    fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.curatedContentItemCloseButton,
