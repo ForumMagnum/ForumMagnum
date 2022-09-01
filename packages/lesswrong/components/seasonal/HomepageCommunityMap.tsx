@@ -4,13 +4,11 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Helmet } from 'react-helmet'
 import ReactMapGL, { Marker } from 'react-map-gl';
-import { communityMapStyles, defaultCenter } from '../localGroups/CommunityMap';
+import { defaultCenter } from '../localGroups/CommunityMap';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { ArrowSVG } from '../localGroups/Icons';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Link } from '../../lib/reactRouterWrapper';
-import { hideMapCookieName } from './HomepageMapFilter';
 
 type LocalEvent = {
   _id: string,
@@ -1192,9 +1190,7 @@ export const HomepageCommunityMap = ({classes}: {
     return <>
       <LocalEventMapMarkerWrappers localEvents={localEvents} />
       <div className={classes.mapButtons}>
-        <HomepageMapFilter 
-          title={<Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">ACX Meetups Everywhere</Link>}
-        />
+        <HomepageMapFilter />
       </div>
     </>
   }, [localEvents, LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])

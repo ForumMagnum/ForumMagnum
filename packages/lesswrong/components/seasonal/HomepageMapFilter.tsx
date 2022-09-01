@@ -8,10 +8,10 @@ import Divider from '@material-ui/core/Divider';
 import EmailIcon from '@material-ui/icons/Email';
 import { useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
-import * as _ from 'underscore';
 import moment from 'moment';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { useCookies } from 'react-cookie';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -68,10 +68,7 @@ const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
   });
 }
 
-const HomepageMapFilter = ({title, classes}:{
-  title: React.ReactNode,
-  classes:ClassesType
-}) => {
+const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
   const openDialog = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
@@ -104,7 +101,9 @@ const HomepageMapFilter = ({title, classes}:{
   const { LWTooltip } = Components
 
   return <Paper>
-    <div className={classNames(classes.section, classes.title)}>{title}</div>
+    <div className={classNames(classes.section, classes.title)}>
+      <Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">ACX Meetups Everywhere</Link>
+    </div>
     <Divider />
     <LWTooltip title="Get notified when events are in your area" placement="left">
       <div
