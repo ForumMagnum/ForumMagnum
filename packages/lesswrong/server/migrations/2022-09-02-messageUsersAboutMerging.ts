@@ -39,7 +39,8 @@ const sendDuplicateEmailMessage = async (email) => {
     <ul>
       ${userProfiles}
     </ul>
-    <p>I'm guessing you ended up with multiple accounts accidentally. We can merge them into a single user (which would then be listed as the author of all the posts, comments, and have the appropriate karma). Which user do you prefer to get merged into? (essentially this just means "which username do you want to keep?)</p>
+    <p>I'm guessing you ended up with multiple accounts accidentally. We can merge them into a single user (which would then be listed as the author of all the posts, comments, and have the appropriate karma).</p>
+    <p>Which user do you prefer to get merged into? (essentially this just means "which username do you want to keep?)</p>
   `
 
   const messageData = {
