@@ -1,12 +1,8 @@
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { createApolloClient } from "../../client/apolloClient";
 import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
 
-let apolloClient: ApolloClient<NormalizedCacheObject> | undefined;
-
-export const useCrosspostApolloClient = () => {
-  if (!apolloClient) {
-    apolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? undefined);
-  }
-  return apolloClient;
-}
+/**
+ * Don't cache the client here - always create a new one to avoid memory leaks
+ * https://github.com/apollographql/apollo-client/issues/7942#issuecomment-812540838
+ */
+export const useCrosspostApolloClient = () => createApolloClient(fmCrosspostBaseUrlSetting.get() ?? undefined);
