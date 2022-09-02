@@ -17,13 +17,9 @@ const sendDuplicateEmailMessage = async (email) => {
     'grecHJcgkb3KW5wnM', // RobertM
     'qgdGA4ZEyW7zNdK84' // Ruby
   ]
-  const participantIds = [...userIds, ...adminUserIds]
-  
-  // eslint-disable-next-line no-console
-  console.log(`Sending messages to ${participantIds}`)
 
   const conversationData = {
-    participantIds: participantIds,
+    participantIds: [...userIds, ...adminUserIds],
     title: `Duplicate accounts with a shared email`
   }
   const conversation = await createMutator({
@@ -67,16 +63,22 @@ registerMigration({
   dateWritten: "2022-08-29",
   idempotent: true,
   action: async () => {
-    const emails = await Users.aggregate([
+    
+    // get a list of all emails
+    const users = await Users.aggregate([
       {"$match":   { "lastNotificationsCheck": {$exists: true}, "karma": {$gte:0}}}, // filter out users who aren't actively involved with LW or aren actively bad
-      {"$group" :  { "_id": "$email", "count": { "$sum": 1 } } },
-      {"$match":   {"_id" :{ "$ne" : null } , "count" : {"$gt": 1} }},
-      {"$sort":    {"count": -1}},
+      {"$group" :  { "_id": "$email", "count": { "$sum": 1 } } }, // get a list of all emails and the number of accounts with that email
+      {"$match":   {"_id" :{ "$ne" : null } , "count" : {"$gt": 1} }}, // only show emails with more than 1 account
       {"$project": {"email" : "$_id", "_id" : 0} }
     ]).toArray()
-    
-    console.log("EMAILS:", emails)
 
-    await sendDuplicateEmailMessage("raemon777@gmail.com")
+    console.log(users)
+    
+    for (const user of users) {
+      // eslint-disable-next-line no-console
+      console.log(`Sending message to users with email: ${user.email}`)
+      
+      sendDuplicateEmailMessage(user.email)
+    }
   }
 })
