@@ -140,7 +140,7 @@ describe("Query", () => {
     },
     {
       name: "can build select query with sort",
-      getQuery: () => Query.select(testTable, {a: 3}, {sort: {b: -1}}),
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
       expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
       expectedArgs: [3],
     },
@@ -158,7 +158,7 @@ describe("Query", () => {
     },
     {
       name: "can build select query with multiple options",
-      getQuery: () => Query.select(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
       expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 OFFSET $3',
       expectedArgs: [3, 10, 20],
     },

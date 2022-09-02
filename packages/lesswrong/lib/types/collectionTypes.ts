@@ -113,11 +113,11 @@ type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type MongoFindOptions<T extends DbObject> = Partial<{
-  sort: any
-  limit: number
-  skip: number
-  projection: Partial<Record<keyof T, number | boolean>>
-  collation: CollationDocument
+  sort: MongoSort<T>,
+  limit: number,
+  skip: number,
+  projection: Partial<Record<keyof T, number | boolean>>,
+  collation: CollationDocument,
 }>;
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO

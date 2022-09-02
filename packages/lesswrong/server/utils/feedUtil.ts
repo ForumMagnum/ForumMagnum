@@ -206,7 +206,7 @@ export async function queryWithCutoff<ResultType extends DbObject>({context, col
     ...selector,
     ...(cutoff && {[cutoffField]: {$lt: cutoff}}),
   }, {
-    sort: {[cutoffField]: -1, _id: 1},
+    sort: {[cutoffField]: -1, _id: 1} as Partial<Record<keyof ResultType, number>>,
     limit,
   }).fetch();
   

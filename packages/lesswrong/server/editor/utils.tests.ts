@@ -38,7 +38,7 @@ describe("syncDocumentWithLatestRevision", () => {
     await updatePost(user, post._id, '<p>Post version 2</p>')
     await updatePost(user, post._id, '<p>Post version 3</p>')
 
-    const revisions = await Revisions.find({documentId: post._id}, {sort: {createdAt: 1}}).fetch()
+    const revisions = await Revisions.find({documentId: post._id}, {sort: {editedAt: 1}}).fetch()
     const lastRevision = revisions[revisions.length-1]
     expect(lastRevision?.originalContents.data).toMatch(/version 3/)
     await Revisions.rawRemove({_id: lastRevision._id})
