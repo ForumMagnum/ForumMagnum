@@ -299,6 +299,7 @@ addFieldsDict(Posts, {
       hostedHere: { type: Boolean, optional: true, nullable: true },
       foreignPostId: { type: String, optional: true, nullable: true },
     }),
+    optional: true,
     nullable: true,
     viewableBy: ['guests'],
     editableBy: [userOwns, 'admins'],
