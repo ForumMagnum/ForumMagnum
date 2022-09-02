@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import fetch from 'node-fetch';
 import { getLocalTime } from '../mapsUtils';
-import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import { userFindByEmail} from "../../lib/collections/users/helpers";
 
 const what3WordsAPIKey = "FM5HBWEL"
 

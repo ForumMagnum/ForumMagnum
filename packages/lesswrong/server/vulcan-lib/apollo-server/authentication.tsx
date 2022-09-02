@@ -21,7 +21,7 @@ import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
-import { userFindByEmail } from '../../../lib/vulcan-users/helpers';
+import { userFindByEmail } from "../../../lib/collections/users/helpers";
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
