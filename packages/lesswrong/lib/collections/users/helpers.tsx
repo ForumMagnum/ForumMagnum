@@ -7,6 +7,7 @@ import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissi
 import React, { useEffect, useState } from 'react';
 import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
+import { mongoFindOne } from "../../mongoQueries";
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -442,3 +443,9 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+/**Finds a user matching on email, searches case INsensitively.
+ * Currently searches both email and emailS fields, though the later should ideally be full deprecated
+ */
+export const userFindByEmail = async function(email: string): Promise<DbUser|null> {
+  return await mongoFindOne("Users", {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
+};

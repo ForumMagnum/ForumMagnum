@@ -60,8 +60,3 @@ export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>
   return await items.count();
 };
 
-export const userFindByEmail = async function(email: string): Promise<DbUser|null> {
-  const userByPlainEmail = await mongoFindOne("Users", { email: email });
-  if (userByPlainEmail) return userByPlainEmail
-  return null
-};

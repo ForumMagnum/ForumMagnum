@@ -4,6 +4,7 @@ import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtil
 import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
+import {userFindByEmail} from "../../lib/collections/users/helpers";
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -74,7 +75,7 @@ addGraphQLResolvers({
         throw new Error('You already have an email address')
       }
       // Check for email uniqueness
-      if (email && await Users.findOne({$or: [{email}, {['emails.address']: email}]})) { //TODO: Ideally emails.address is completely deprecated, also ideally use case insensitive
+      if (email && await userFindByEmail(email)) {
         throw new Error('Email already taken')
       }
       // Check for valid email
