@@ -53,9 +53,6 @@ export const eaForumTheme: SiteThemeSpecification = {
     error: {
       main: "#bf360c",
     },
-    crosspost: {
-      main: "#B4D0B7",
-    },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
     },

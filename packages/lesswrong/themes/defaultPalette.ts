@@ -448,7 +448,4 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     light: "#cb5e3c",
     contrastText: shades.grey[0],
   },
-  crosspost: {
-    main: shades.grey[0],
-  },
 })

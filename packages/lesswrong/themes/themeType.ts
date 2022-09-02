@@ -70,9 +70,6 @@ declare global {
       dark: ColorString
       contrastText: ColorString, //UNUSED
     },
-    crosspost: {
-      main: ColorString,
-    },
     text: {
       primary: ColorString,
       secondary: ColorString

@@ -44,9 +44,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
     error: {
       main: '#bf360c',
     },
-    crosspost: {
-      main: "#CBE5E9",
-    },
   }),
   make: (palette: ThemePalette) => ({
     typography: {
