@@ -223,7 +223,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (verificationEmailSent) {
     // Clicked Subscribe in one of the other branches, and a confirmation email
     // was sent. You need to verify your email address to complete the subscription.
-    const yourEmail = currentUser?.emails[0]?.address; //TODO: replace with email field, not emailS – but need to switch over verification
+    const yourEmail = currentUser?.email
     return <AnalyticsWrapper branch="needs-email-verification-subscribed-in-other-branch">
       <div className={classes.message}>
         We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
