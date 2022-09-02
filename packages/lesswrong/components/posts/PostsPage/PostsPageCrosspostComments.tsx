@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 auto 25px auto",
     borderRadius: 4,
     padding: forumTypeSetting.get() === "EAForum" ? "10px 12px" : "10px 10px 8px 10px",
-    backgroundColor: forumTypeSetting.get() === "EAForum" ? "#B4D0B7" : "#CBE5E9",
+    backgroundColor: theme.palette.grey[200],
     fontFamily: theme.typography.headline.fontFamily,
   },
   icon: {
@@ -34,6 +34,11 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
 
   const relation = hostedHere ? "to" : "from";
   const comments = foreignPost.commentCount ?? 0;
+
+  if (comments === 0) {
+    return null;
+  }
+
   const commentsText = `${comments} comment${comments === 1 ? "" : "s"}`;
   const link = `${fmCrosspostBaseUrlSetting.get()}posts/${foreignPost._id}`;
 
