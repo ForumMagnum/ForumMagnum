@@ -15,7 +15,9 @@ registerMigration({
     const totalUsersMissingEmail =  await Users.find({email: null})
     const totalRecentUsersMissingEmail =  await Users.find({email: null, lastNotificationsCheck: {$exists:true}})
 
+    // eslint-disable-next-line no-console
     console.log(`There are ${totalUsersMissingEmail.count()} users missing an email`)
+    // eslint-disable-next-line no-console
     console.log(`There are ${totalRecentUsersMissingEmail.count()} users missing an email who've checked notifications in past 3 years`)
 
     const usersEmailsToEmail = await Users.find({email: null, emails:{$ne:null}}).fetch()
@@ -23,9 +25,13 @@ registerMigration({
     const usersGithubToEmail = await Users.find({email: null, 'services.github.email':{$ne:null}}).fetch()
     const usersFacebookToEmail = await Users.find({email: null, 'services.facebook.email':{$ne:null}}).fetch()
     
+    // eslint-disable-next-line no-console
     console.log(`There are ${usersEmailsToEmail.length} users who's emails.address fields could fill in email`)
+    // eslint-disable-next-line no-console
     console.log(`There are ${usersGoogleToEmail.length} users who's google address could fill in email`)
+    // eslint-disable-next-line no-console
     console.log(`There are ${usersGithubToEmail.length} users who's github address fields could fill in email`)
+    // eslint-disable-next-line no-console
     console.log(`There are ${usersFacebookToEmail.length} users who's facebook address fields could fill in email`)
 
     const usersMissingEmails = [...usersEmailsToEmail, ...usersGoogleToEmail, ...usersGithubToEmail, ...usersFacebookToEmail]
@@ -37,17 +43,10 @@ registerMigration({
       const email = firstEmail?.address || firstEmail?.value || user.services?.google?.email || user.services?.facebook?.email || user.services?.github?.email
 
       if (email) {
-          // await Users.rawUpdateOne({_id: user._id}, {$set: {email}})
+          // eslint-disable-next-line no-console
           console.log("setting email to:", email)
+          await Users.rawUpdateOne({_id: user._id}, {$set: {email}})
       }
     }
-
-    // eslint-disable-next-line no-console
-    const newNumberOfMissingEmailsToEmail = await Users.find({email: null, emails:{$ne:null}}).fetch()
-    console.log(`Synced users: ${newNumberOfMissingEmailsToEmail.length}`)
-    console.log(`done`)
-
-
-
   }  
 })
