@@ -22,14 +22,10 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
-  if (!post.fmCrosspost?.foreignPostId) {
-    return null;
-  }
-
   const apolloClient = useCrosspostApolloClient();
   const { document, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">({
     ...fetchProps,
-    documentId: post.fmCrosspost.foreignPostId,
+    documentId: post.fmCrosspost!.foreignPostId!,
     apolloClient,
   });
 
@@ -43,7 +39,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   }
 
   const contextValue: CrosspostContext = {
-    hostedHere: !!post.fmCrosspost.hostedHere,
+    hostedHere: !!post.fmCrosspost!.hostedHere,
     localPost: post,
     foreignPost: document,
   };
