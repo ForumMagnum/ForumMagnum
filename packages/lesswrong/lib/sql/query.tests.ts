@@ -190,13 +190,13 @@ describe("Query", () => {
       name: "can build select with a simple lookup",
       getQuery: () => Query.select(testTable, {a: 3}, {}, {
         lookup: {
-          from: "TestTable2",
+          from: "testcollection2",
           localField: "b",
           foreignField: "data",
           as: "data2",
         },
       }),
-      expectedSql: 'SELECT * FROM "TestCollection" , LATERAL (SELECT jsonb_agg("TestTable2".*) AS "data2" FROM "TestTable2" WHERE "TestCollection"."b" = "TestTable2"."data") Q WHERE "a" = $1',
+      expectedSql: 'SELECT * FROM "TestCollection" , LATERAL (SELECT jsonb_agg("TestCollection2".*) AS "data2" FROM "TestCollection2" WHERE "TestCollection"."b" = "TestCollection2"."data") Q WHERE "a" = $1',
       expectedArgs: [3],
     },
   ]);

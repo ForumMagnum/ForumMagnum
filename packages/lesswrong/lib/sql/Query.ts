@@ -1,4 +1,4 @@
-import { getCollection } from "../vulcan-lib";
+import { getCollectionByTableName } from "../vulcan-lib";
 import Table from "./Table";
 
 class Arg {
@@ -31,7 +31,7 @@ export type SimpleLookup = {
 
 export type PipelineLookup = {
   from: string,
-  let: any
+  let: any,
   pipeline: any,
   as: any,
 }
@@ -43,11 +43,6 @@ export type SelectSqlOptions = {
   fields?: SelectFieldSpec[],
   lookup?: any,
   unwind?: any,
-}
-
-// TODO: lowercase Convert mongo table name to camelcase postgres table name
-const mongoTableToPostgresTable = (table: string) => {
-  return table;
 }
 
 class Query<T extends DbObject> {
@@ -206,7 +201,7 @@ class Query<T extends DbObject> {
   }
 
   private appendSimpleLateralJoin({from, localField, foreignField, as}: SimpleLookup): void {
-    const table = mongoTableToPostgresTable(from);
+    const table = getCollectionByTableName(from).collectionName;
     this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
     this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
   }

@@ -61,7 +61,7 @@ class Unit<T extends DbObject> {
   }
 
   addProjectStage(data: any): Unit<T> {
-    return this.addSimpleStage("project", data)
+    return this.addSimpleStage("project", data);
   }
 
   addUnwindStage(data: any): Unit<T> {

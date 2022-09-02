@@ -1,5 +1,6 @@
 import Table from "./Table";
 import Query from "./Query";
+import { registerCollection } from "../vulcan-lib/getCollection";
 
 export type DbTestObject = {
   _id: string,
@@ -58,6 +59,9 @@ export const TestCollection2 = {
 } as unknown as CollectionBase<DbTestObject2>;
 
 export const testTable2 = Table.fromCollection(TestCollection2);
+
+registerCollection(TestCollection);
+registerCollection(TestCollection2);
 
 export const normalizeWhitespace = (s: string) => s.replace(/\s+/g, " ");
 
