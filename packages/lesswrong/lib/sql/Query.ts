@@ -20,8 +20,6 @@ const comparisonOps = {
 
 const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 
-export type SelectFieldSpec = Record<string, 0 | 1>;
-
 export type SimpleLookup = {
   from: string,
   localField: string,
@@ -31,18 +29,17 @@ export type SimpleLookup = {
 
 export type PipelineLookup = {
   from: string,
-  let: any,
-  pipeline: any,
-  as: any,
+  let: Record<string, any>,
+  pipeline: Record<string, any>[],
+  as: string,
 }
 
 export type Lookup = SimpleLookup | PipelineLookup;
 
 export type SelectSqlOptions = {
   count?: boolean,
-  fields?: SelectFieldSpec[],
-  lookup?: any,
-  unwind?: any,
+  lookup?: Lookup,
+  unwind?: any, // TODO typing
 }
 
 class Query<T extends DbObject> {
@@ -200,21 +197,19 @@ class Query<T extends DbObject> {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
-  private appendSimpleLateralJoin({from, localField, foreignField, as}: SimpleLookup): void {
-    const table = getCollectionByTableName(from).collectionName;
-    this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
-    this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
-  }
-
-  private appendPipelineLateralJoin({from, let: let_, pipeline, as}: PipelineLookup): void {
-    throw new Error("TODO Pipeline lateral joins not yet implemented");
-  }
-
   private appendLateralJoin(lookup: Lookup): void {
-    if (lookup.from && "localField" in lookup && "foreignField" in lookup && lookup.as) {
-      this.appendSimpleLateralJoin(lookup);
-    } else if (lookup.from && "let" in lookup && "pipeline" in lookup && lookup.as) {
-      this.appendPipelineLateralJoin(lookup);
+    const {from, as} = lookup;
+    if (!from || !as) {
+      throw new Error("Invalid $lookup");
+    }
+
+    if ("localField" in lookup && "foreignField" in lookup) {
+      const {localField, foreignField} = lookup;
+      const table = getCollectionByTableName(from).collectionName;
+      this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
+      this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
+    } else if ("let" in lookup && "pipeline" in lookup) {
+      throw new Error("Pipeline joins are not being implemented - write raw SQL");
     } else {
       throw new Error("Invalid $lookup");
     }

@@ -1,8 +1,7 @@
 import Table from "./Table";
-import Query, { SelectFieldSpec, Lookup } from "./Query";
+import Query, { Lookup } from "./Query";
 
 class Unit<T extends DbObject> {
-  private fields?: SelectFieldSpec[];
   private sort?: any;
   private limit?: number;
   private selector?: any;
@@ -22,7 +21,6 @@ class Unit<T extends DbObject> {
         projection: this.project,
       },
       {
-        fields: this.fields,
         lookup: this.lookup,
         unwind: this.unwind,
       },
@@ -45,7 +43,9 @@ class Unit<T extends DbObject> {
   }
 
   addAddFieldsStage(data: any): Unit<T> {
-    return this.addSimpleStage("fields", data);
+    // TODO
+    // throw new Error("$addFields not yet implemented");
+    return this;
   }
 
   addSortStage(data: any): Unit<T> {
