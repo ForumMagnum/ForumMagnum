@@ -22,7 +22,7 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   const destinationUser = user || await createDummyUser();
   return await generateEmail({
     user: destinationUser,
-    to: user!.email,
+    to: destinationUser.email,
     subject: "Unit test email",
     bodyComponent,
     boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator
