@@ -223,21 +223,19 @@ addGraphQLResolvers(crosspostResolvers);
 addGraphQLMutation("connectCrossposter(token: String): String");
 addGraphQLMutation("unlinkCrossposter: String");
 
-const updateCrosspost = async (post: DbPost) => {
-  if (post.fmCrosspost?.foreignPostId) {
-    const token = await signToken<UpdateCrosspostPayload>({
-      postId: post.fmCrosspost.foreignPostId,
-      draft: post.draft,
-      deletedDraft: post.deletedDraft,
-      title: post.title,
-    });
-    await makeCrossSiteRequest(
-      apiRoutes.updateCrosspost,
-      {token},
-      "updated",
-      "Failed to update crosspost draft status",
-    );
-  }
+const updateCrosspost = async (postId: string, draft: boolean, deletedDraft: boolean, title: string) => {
+  const token = await signToken<UpdateCrosspostPayload>({
+    postId,
+    draft,
+    deletedDraft,
+    title,
+  });
+  await makeCrossSiteRequest(
+    apiRoutes.updateCrosspost,
+    {token},
+    "updated",
+    "Failed to update crosspost draft status",
+  );
 }
 
 const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
@@ -397,13 +395,16 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
 }
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
-  if (data.draft !== undefined || data.deletedDraft !== undefined || data.title !== undefined) {
-    await updateCrosspost({
-      ...document,
-      draft: data.draft ?? document.draft,
-      deletedDraft: data.deletedDraft ?? document.deletedDraft,
-      title: data.title ?? document.title,
-    });
+  if (
+    (data.draft !== undefined || data.deletedDraft !== undefined || data.title !== undefined) &&
+    document.fmCrosspost?.foreignPostId
+  ) {
+    await updateCrosspost(
+      document.fmCrosspost.foreignPostId,
+      data.draft ?? document.draft,
+      data.deletedDraft ?? document.deletedDraft,
+      data.title ?? document.title,
+    );
   }
 
   return performCrosspost({
