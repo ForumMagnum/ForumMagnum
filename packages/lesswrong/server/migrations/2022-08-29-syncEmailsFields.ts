@@ -1,11 +1,5 @@
-import React from 'react';
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
-import { wrapAndSendEmail } from '../emails/renderEmail';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import Conversations from '../../lib/collections/conversations/collection';
-import { createMutator } from '../vulcan-lib/mutators';
-import Messages from '../../lib/collections/messages/collection';
 
 registerMigration({
   name: "syncEmailsFields",

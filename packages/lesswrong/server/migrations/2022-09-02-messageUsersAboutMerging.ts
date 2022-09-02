@@ -7,7 +7,7 @@ import Messages from '../../lib/collections/messages/collection';
 
 
 const sendDuplicateEmailMessage = async (email) => {
-  const currentUser = await Users.findOne({displayName:"RubyTest"})
+  const currentUser = await Users.findOne({_id:"r38pkCm7wF4M44MDQ"}) //Raemon
   const users = await Users.find({email}).fetch()
   if (users.length < 2 || !currentUser) return
   const user = users[0]
