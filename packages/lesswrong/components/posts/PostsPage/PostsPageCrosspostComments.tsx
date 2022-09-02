@@ -1,21 +1,27 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import LaunchIcon from '@material-ui/icons/Launch';
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
+  forumTypeSetting,
 } from "../../../lib/instanceSettings";
 import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    display: "flex",
+    alignItems: "center",
     maxWidth: 720,
     margin: "0 auto 25px auto",
-    border: theme.palette.border.commentBorder,
-    borderRadius: 3,
-    padding: 12,
+    borderRadius: 4,
+    padding: forumTypeSetting.get() === "EAForum" ? "10px 12px" : "10px 10px 8px 10px",
+    backgroundColor: forumTypeSetting.get() === "EAForum" ? "#B4D0B7" : "#CBE5E9",
+    fontFamily: theme.typography.headline.fontFamily,
   },
-  link: {
-    color: theme.palette.primary.main,
+  icon: {
+    marginLeft: 4,
+    marginTop: forumTypeSetting.get() === "EAForum" ? 0 : -3,
   },
 });
 
@@ -33,13 +39,13 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
 
   const {Typography} = Components;
   return (
-    <div className={classes.root}>
-      <Typography variant="body2">
-        This post was crossposted {relation} {fmCrosspostSiteNameSetting.get()} where it has {commentsText}.{" "}
-        <a className={classes.link} href={link} target="_blank" rel="noreferrer">
-          Click to view
-        </a>.
-      </Typography>
+    <div>
+      <a className={classes.link} href={link} target="_blank" rel="noreferrer">
+        <Typography variant="body2" className={classes.root}>
+          Crossposted {relation} {fmCrosspostSiteNameSetting.get()}. View {commentsText}.
+          <LaunchIcon fontSize="small" className={classes.icon} />
+        </Typography>
+      </a>
     </div>
   );
 }
