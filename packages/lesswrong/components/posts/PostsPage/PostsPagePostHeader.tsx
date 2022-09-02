@@ -126,7 +126,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
   hideTags?: boolean,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostNotice,
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
 
@@ -159,7 +159,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
               </a>
             </LWTooltip>
           }
-          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostNotice post={post} />}
+          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
           {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}

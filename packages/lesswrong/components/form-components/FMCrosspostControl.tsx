@@ -46,6 +46,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * FMCrosspostAccount displays the user's account on the other platform after
+ * it's already been authorized
+ */
 const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   fmCrosspostUserId: string,
   classes: ClassesType,
@@ -75,7 +79,12 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
     );
 }
 
-const FMCrosspostView = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlink, classes}: {
+/**
+ * FMCrosspostAuth shows the user their account if they've already set up crossposting along
+ * with an option to remove the account to perhaps add another, or, if they've not set up an
+ * account yet they'll be prompted to do so.
+ */
+const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlink, classes}: {
   fmCrosspostUserId?: string,
   loading: boolean,
   onClickLogin: () => void,
@@ -116,6 +125,12 @@ const unlinkCrossposterMutation = gql`
   }
 `;
 
+/**
+ * FMCrosspostControl is the main form component for setting up crossposts
+ * It allows the user to choose whether or not to make this post a crosspost,
+ * and it also allows them to connect or disconnect their account on the other
+ * platform.
+ */
 const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentUser}: {
   updateCurrentValues: Function,
   classes: ClassesType,
@@ -195,7 +210,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       />
       {error && <div className={classes.error}>Error: {error}</div>}
       {!error && isCrosspost &&
-        <FMCrosspostView
+        <FMCrosspostAuth
           fmCrosspostUserId={document?.fmCrosspostUserId}
           loading={loading}
           onClickLogin={onClickLogin}

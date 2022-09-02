@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const CrosspostNotice = ({post, classes}: {
+const CrosspostHeaderIcon = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
@@ -48,12 +48,12 @@ const CrosspostNotice = ({post, classes}: {
   );
 }
 
-const CrosspostNoticeComponent = registerComponent(
-  "CrosspostNotice", CrosspostNotice, {styles}
+const CrosspostHeaderIconComponent = registerComponent(
+  "CrosspostHeaderIcon", CrosspostHeaderIcon, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    CrosspostNotice: typeof CrosspostNoticeComponent,
+    CrosspostHeaderIcon: typeof CrosspostHeaderIconComponent,
   }
 }
