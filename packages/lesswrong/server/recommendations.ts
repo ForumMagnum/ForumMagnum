@@ -158,18 +158,23 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
   algorithm: RecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
-  return await Posts.aggregate([
-    // Filter to recommendable posts
-    { $match: {
-      ...recommendablePostFilter(algorithm),
-    } },
+  if (Posts.isPostgres()) {
+    // TODO
+    throw new Error("allRecommendablePosts not yet implemented for postgres");
+  } else {
+    return await Posts.aggregate([
+      // Filter to recommendable posts
+      { $match: {
+        ...recommendablePostFilter(algorithm),
+      } },
 
-    // If onlyUnread, filter to just unread posts
-    ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
+      // If onlyUnread, filter to just unread posts
+      ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
 
-    // Project out fields other than _id and scoreRelevantFields
-    { $project: {_id:1, ...scoreRelevantFields} },
-  ]).toArray();
+      // Project out fields other than _id and scoreRelevantFields
+      { $project: {_id:1, ...scoreRelevantFields} },
+    ]).toArray();
+  }
 }
 
 // Returns the top-rated posts (rated by scoreFn) to recommend to a user.

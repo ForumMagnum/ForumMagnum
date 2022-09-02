@@ -130,49 +130,55 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
   }
 });
 
+const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
+  if (Posts.isPostgres()) {
+    // TODO
+    throw new Error("getReadPosts not yet implemented for postgres");
+  } else {
+    return Posts.aggregate([
+      { $match: {
+        _id: {$in: postIDs}
+      } },
+
+      { $lookup: {
+        from: "readstatuses",
+        let: { documentId: "$_id", },
+        pipeline: [
+          { $match: {
+            userId: user._id,
+          } },
+          { $match: { $expr: {
+            $and: [
+              {$eq: ["$postId", "$$documentId"]},
+            ]
+          } } },
+          { $limit: 1},
+        ],
+        as: "views",
+      } },
+
+      { $match: {
+        "views": {$size: 1}
+      } },
+
+      { $project: {
+        _id: 1
+      } }
+    ]).toArray();
+  };
+}
+
 // Given a user and an array of post IDs, return a dictionary from
 // postID=>bool, true if the user has read the post and false otherwise.
 const postsToReadStatuses = async (user: DbUser, postIDs: Array<string>) => {
-  const readPosts = await Posts.aggregate([
-    { $match: {
-      _id: {$in: postIDs}
-    } },
-    
-    { $lookup: {
-      from: "readstatuses",
-      let: { documentId: "$_id", },
-      pipeline: [
-        { $match: {
-          userId: user._id,
-        } },
-        { $match: { $expr: {
-          $and: [
-            {$eq: ["$postId", "$$documentId"]},
-          ]
-        } } },
-        { $limit: 1},
-      ],
-      as: "views",
-    } },
-    
-    { $match: {
-      "views": {$size: 1}
-    } },
-    
-    { $project: {
-      _id: 1
-    } }
-  ]).toArray();
-  
-  let resultDict: Partial<Record<string,boolean>> = {};
-  for (let postID of postIDs)
+  const readPosts = await getReadPosts(user, postIDs);
+  const resultDict: Partial<Record<string,boolean>> = {};
+  for (const postID of postIDs)
     resultDict[postID] = false;
-  for (let readPost of readPosts)
+  for (const readPost of readPosts)
     resultDict[readPost._id] = true;
   return resultDict;
 }
-
-
 
 addGraphQLMutation('updateContinueReading(sequenceId: String!, postId: String!): Boolean');
 addGraphQLResolvers({

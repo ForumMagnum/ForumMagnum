@@ -29,7 +29,9 @@ interface CollectionBase<
   
   _schemaFields: SchemaType<T>
   _simpleSchema: any
-  
+
+  isPostgres: () => boolean
+
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>

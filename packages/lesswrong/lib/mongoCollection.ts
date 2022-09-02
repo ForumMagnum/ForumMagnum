@@ -100,7 +100,11 @@ export class MongoCollection<T extends DbObject> {
   }) {
     this.tableName = tableName;
   }
-  
+
+  isPostgres() {
+    return false;
+  }
+
   getTable = () => {
     if (bundleIsServer) { 
       if (!this.table)

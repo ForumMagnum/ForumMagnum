@@ -29,7 +29,7 @@ export abstract class Type {
       return new DefaultValueType(Type.fromSchema(fieldName, rest, indexSchema), defaultValue);
     }
 
-    if (!schema.optional) {
+    if (schema.optional === false || schema.nullable === false) {
       return new NotNullType(Type.fromSchema(fieldName, {...schema, optional: true}, indexSchema));
     }
 

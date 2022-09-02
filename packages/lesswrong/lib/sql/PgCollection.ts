@@ -11,6 +11,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     super(tableName, options);
   }
 
+  isPostgres() {
+    return true;
+  }
+
   buildPostgresTable() {
     this.pgTable = Table.fromCollection(this as unknown as CollectionBase<T>);
   }
