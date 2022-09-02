@@ -144,10 +144,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // emails doesn't make sense.)
   if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     void sendVerificationEmail(user);
-    
-    if (user.emailSubscribedToCurated) {
-      await bellNotifyEmailVerificationRequired(user);
-    }
+    await bellNotifyEmailVerificationRequired(user);
   }
 });
 
@@ -205,7 +202,15 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
   return user;
 });
 
+const sendVerificationEmailConditional = async  (user: DbUser) => {
+  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+    void sendVerificationEmail(user);
+    await bellNotifyEmailVerificationRequired(user);
+  }
+}
+
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
+  
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email) {
 
@@ -223,9 +228,11 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
         user.emails[0].address = newEmail;
         user.emails[0].verified = false;
         modifier.$set.emails = user.emails;
+        await sendVerificationEmailConditional(user)
       }
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
+      await sendVerificationEmailConditional(user)
     }
   }
   return modifier;
