@@ -296,8 +296,8 @@ addFieldsDict(Posts, {
   fmCrosspost: {
     type: new SimpleSchema({
       isCrosspost: Boolean,
-      hostedHere: { type: Boolean, nullable: true },
-      foreignPostId: { type: String, nullable: true },
+      hostedHere: { type: Boolean, optional: true, nullable: true },
+      foreignPostId: { type: String, optional: true, nullable: true },
     }),
     nullable: true,
     viewableBy: ['guests'],
