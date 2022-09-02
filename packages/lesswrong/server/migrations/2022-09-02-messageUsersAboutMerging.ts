@@ -72,13 +72,14 @@ registerMigration({
       {"$project": {"email" : "$_id", "_id" : 0} }
     ]).toArray()
 
+    // eslint-disable-next-line no-console
     console.log(users)
     
     for (const user of users) {
       // eslint-disable-next-line no-console
       console.log(`Sending message to users with email: ${user.email}`)
       
-      sendDuplicateEmailMessage(user.email)
+      await sendDuplicateEmailMessage(user.email)
     }
   }
 })
