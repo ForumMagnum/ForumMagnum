@@ -1,7 +1,6 @@
 import { testStartup } from '../../testing/testMain';
 import React from 'react';
 import { withSingle, useSingle } from '../../lib/crud/withSingle';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
@@ -23,7 +22,7 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   const destinationUser = user || await createDummyUser();
   return await generateEmail({
     user: destinationUser,
-    to: userGetEmail(user)!,
+    to: user!.email,
     subject: "Unit test email",
     bodyComponent,
     boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator

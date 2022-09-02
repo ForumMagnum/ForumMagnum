@@ -37,18 +37,6 @@ export const userGetGitHubName = function(user: DbUser): string|null {
   return null;
 };
 
-// Get a user's email
-export const userGetEmail = function(user: DbUser|null): string|null {
-  if (user?.email) return user.email;
-  return null;
-};
-
-//TODO: This should be deprecated alongside the whole emails field 
-export const userGetEmailFromEmails = function(user: DbUser|null): string|null {
-  if (user && user.emails.length>0) return user.emails[0]?.address ?? null;
-  return null;
-}
-
 export const userFindLast = async function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): Promise<T|null> {
   return await collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
