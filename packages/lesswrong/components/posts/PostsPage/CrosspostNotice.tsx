@@ -1,5 +1,4 @@
 import React from "react";
-import TransformIcon from "@material-ui/icons/Transform";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import {
   forumTypeSetting,
@@ -27,6 +26,10 @@ const CrosspostNotice = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
+  if (!post.fmCrosspost) {
+    return null;
+  }
+
   const {LWTooltip} = Components;
   const icon = forumTypeSetting.get() === "LessWrong" ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere

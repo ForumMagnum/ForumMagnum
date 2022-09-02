@@ -460,9 +460,9 @@ interface DbPost extends DbObject {
   socialPreviewImageAutoUrl: string
   fmCrosspost: {
     isCrosspost: boolean,
-    hostedHere: boolean,
-    foreignPostId: string,
-  }
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null
   canonicalSequenceId: string
   canonicalCollectionSlug: string
   canonicalBookId: string

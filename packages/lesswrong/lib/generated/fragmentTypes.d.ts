@@ -556,9 +556,9 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly activateRSVPs: boolean,
   readonly fmCrosspost: {
     isCrosspost: boolean,
-    hostedHere: boolean,
-    foreignPostId: string,
-  },
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -690,9 +690,9 @@ interface PostsEdit extends PostsPage { // fragment on Posts
   readonly readTimeMinutesOverride: number,
   readonly fmCrosspost: {
     isCrosspost: boolean,
-    hostedHere: boolean,
-    foreignPostId: string,
-  },
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
