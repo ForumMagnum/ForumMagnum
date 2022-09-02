@@ -5,7 +5,7 @@ import { randomId } from "../lib/random";
 import Users from "../lib/collections/users/collection";
 import Posts from "../lib/collections/posts/collection";
 import fetch from "node-fetch";
-import jwt from "jsonwebtoken";
+import jwt, { VerifyErrors } from "jsonwebtoken";
 import { json } from "body-parser";
 import type { Application, Request, Response } from "express";
 
@@ -25,32 +25,6 @@ const apiRoutes = {
 } as const;
 
 type ApiRoute = typeof apiRoutes[keyof typeof apiRoutes];
-
-type ConnectCrossposterArgs = {
-  token: string,
-}
-
-type ConnectCrossposterPayload = {
-  userId: string,
-}
-
-type UnlinkCrossposterPayload = {
-  userId: string,
-}
-
-type UpdateCrosspostPayload = {
-  postId: string,
-  draft: boolean,
-  deletedDraft: boolean,
-  title: string,
-}
-
-type CrosspostPayload = {
-  localUserId: string,
-  foreignUserId: string,
-}
-
-type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;
 
 class ApiError extends Error {
   constructor(public code: number, message: string) {
@@ -76,17 +50,69 @@ class MissingParametersError extends ApiError {
   }
 }
 
-class InvalidTokenError extends ApiError {
-  constructor() {
-    super(400, "Invalid token");
-  }
-}
-
 class InvalidUserError extends ApiError {
   constructor() {
     super(400, "Invalid user");
   }
 }
+
+type ConnectCrossposterArgs = {
+  token: string,
+}
+
+type ConnectCrossposterPayload = {
+  userId: string,
+}
+
+const validateConnectCrossposterPayload = (payload: ConnectCrossposterPayload) => {
+  if (!payload.userId || typeof payload.userId !== "string") {
+    throw new MissingParametersError(["userId"], payload);
+  }
+}
+
+type UnlinkCrossposterPayload = {
+  userId: string,
+}
+
+const validateUnlinkCrossposterPayload = (payload: UnlinkCrossposterPayload) => {
+  if (!payload.userId || typeof payload.userId !== "string") {
+    throw new MissingParametersError(["userId"], payload);
+  }
+}
+
+type UpdateCrosspostPayload = {
+  postId: string,
+  draft: boolean,
+  deletedDraft: boolean,
+  title: string,
+}
+
+const validateUpdateCrosspostPayload = (payload: UpdateCrosspostPayload) => {
+  if (
+    !payload.postId || typeof payload.postId !== "string" ||
+    typeof payload.draft !== "boolean" ||
+    typeof payload.deletedDraft !== "boolean" ||
+    !payload.title || typeof payload.title !== "string"
+  ) {
+    throw new MissingParametersError(["postId", "draft", "draftDeleted", "title"], payload);
+  }
+}
+
+type CrosspostPayload = {
+  localUserId: string,
+  foreignUserId: string,
+}
+
+const validateCrosspostPayload = (payload: CrosspostPayload) => {
+  if (
+    !payload.localUserId || typeof payload.localUserId !== "string" ||
+    !payload.foreignUserId || typeof payload.foreignUserId !== "string"
+  ) {
+    throw new MissingParametersError(["localUserId", "foreignUserId"], payload);
+  }
+}
+
+type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;
 
 const getSecret = () => {
   const secret = crosspostSigningKeySetting.get();
@@ -137,11 +163,17 @@ const signToken = <T extends {}>(payload: T): Promise<string> =>
     });
   });
 
-const verifyToken = <T extends {}>(token: string): Promise<T> =>
+const verifyToken = <T extends {}>(token: string, validator: (payload: T) => void): Promise<T> =>
   new Promise((resolve, reject) => {
-    jwt.verify(token, getSecret(), (err, payload) => {
+    jwt.verify(token, getSecret(), (err: VerifyErrors | null, decoded?: T) => {
+      const payload = decoded as T;
       if (payload) {
-        resolve(payload as T);
+        try {
+          validator(payload);
+        } catch (e) {
+          reject(e);
+        }
+        resolve(payload);
       } else {
         reject(err);
       }
@@ -239,10 +271,7 @@ const onCrosspostTokenRequest = withApiErrorHandlers(async (req: Request, res: R
 
 const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token, localUserId] = getPostParams(req, ["token", "localUserId"]);
-  const payload = await verifyToken<ConnectCrossposterPayload>(token);
-  if (!payload?.userId) {
-    throw new InvalidTokenError();
-  }
+  const payload = await verifyToken<ConnectCrossposterPayload>(token, validateConnectCrossposterPayload);
   const {userId: foreignUserId} = payload;
   await Users.rawUpdateOne({_id: foreignUserId}, {
     $set: {fmCrosspostUserId: localUserId},
@@ -256,10 +285,7 @@ const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, re
 
 const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken<UnlinkCrossposterPayload>(token);
-  if (!payload?.userId) {
-    throw new InvalidTokenError();
-  }
+  const payload = await verifyToken<UnlinkCrossposterPayload>(token, validateUnlinkCrossposterPayload);
   const {userId} = payload;
   await Users.rawUpdateOne({_id: userId}, {
     $unset: {fmCrosspostUserId: ""},
@@ -269,14 +295,11 @@ const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res
 
 const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token, postId, postTitle] = getPostParams(req, ["token", "postId", "postTitle"]);
-  const payload = await verifyToken<CrosspostPayload>(token);
+  const payload = await verifyToken<CrosspostPayload>(token, validateCrosspostPayload);
   const {localUserId, foreignUserId} = payload;
-  if (!localUserId || !foreignUserId) {
-    throw new InvalidTokenError();
-  }
 
   const user = await Users.findOne({_id: foreignUserId});
-  if (!user) {
+  if (!user || user.fmCrosspostUserId !== localUserId) {
     throw new InvalidUserError();
   }
 
@@ -309,11 +332,8 @@ const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Respon
 
 const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken<UpdateCrosspostPayload>(token);
+  const payload = await verifyToken<UpdateCrosspostPayload>(token, validateUpdateCrosspostPayload);
   const {postId, draft, deletedDraft, title} = payload;
-  if (!postId || typeof draft !== "boolean" || typeof deletedDraft !== "boolean" || typeof title !== "string") {
-    throw new InvalidTokenError();
-  }
   await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft, title}});
   res.send({status: "updated"});
 });
