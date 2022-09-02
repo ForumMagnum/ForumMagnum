@@ -262,6 +262,51 @@ class Query<T extends DbObject> {
     this.atoms.push(")");
   }
 
+  private getProjectedFields<T extends DbObject>(
+    table: Table | Query<T>,
+    count?: boolean,
+    projection?: MongoProjection<T>,
+  ) {
+    if (count) {
+      return "count(*)";
+    }
+
+    if (projection) {
+      const include: string[] = [];
+      const exclude: string[] = [];
+
+      for (const key of Object.keys(projection)) {
+        if (projection[key]) {
+          include.push(key);
+        } else {
+          exclude.push(key);
+        }
+      }
+
+      let fields: string[] = [];
+
+      if (include.length && !exclude.length) {
+        if (!include.includes("_id")) {
+          include.push("_id");
+        }
+        fields = include;
+      } else if (!include.length && exclude.length) {
+        fields = Object.keys(table.getFields()).filter((field) => !exclude.includes(field));
+      } else if (include.length && exclude.length) {
+        if (!include.includes("_id") && !exclude.includes("_id")) {
+          include.push("_id");
+        }
+        fields = include;
+      } else {
+        return "*";
+      }
+
+      return fields.map((field) => `"${field}"`).join(", ");
+    }
+
+    return "*";
+  }
+
   static insert<T extends DbObject>(table: Table, data: T, allowConflicts = false): Query<T> {
     const query = new Query(table, [`INSERT INTO "${table.getName()}"`]);
     query.appendValuesList(data);
@@ -277,8 +322,12 @@ class Query<T extends DbObject> {
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
   ): Query<T> {
-    const fields = sqlOptions?.count ? "count(*)" : "*";
-    const query = new Query(table, [`SELECT ${fields} FROM`, table]);
+    const query = new Query(table, ["SELECT"]);
+    query.atoms = query.atoms.concat([
+      query.getProjectedFields(table, sqlOptions?.count, options?.projection),
+      "FROM",
+      table,
+    ]);
 
     if (sqlOptions?.lookup) {
       query.appendLateralJoin(sqlOptions.lookup);
@@ -290,11 +339,8 @@ class Query<T extends DbObject> {
     }
 
     if (options) {
-      if (options.projection) {
-        throw new Error("Not implemented")
-      }
       if (options.collation) {
-        throw new Error("Not implemented")
+        throw new Error("Collation not implemented")
       }
       query.appendOptions(options);
     }

@@ -199,5 +199,35 @@ describe("Query", () => {
       expectedSql: 'SELECT * FROM "TestCollection" , LATERAL (SELECT jsonb_agg("TestCollection2".*) AS "data2" FROM "TestCollection2" WHERE "TestCollection"."b" = "TestCollection2"."data") Q WHERE "a" = $1',
       expectedArgs: [3],
     },
+    {
+      name: "can build select with fields included through projection",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {projection: {b: 1}}),
+      expectedSql: 'SELECT "b", "_id" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select with fields excluded through projection",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {projection: {b: 0}}),
+      expectedSql: 'SELECT "_id", "a", "c", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select with fields included and excluded through projection",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {projection: {a: 0, b: 1}}),
+      expectedSql: 'SELECT "b", "_id" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select with empty projection",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {projection: {}}),
+      expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select with _id excluded through projection",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {projection: {_id: 0}}),
+      expectedSql: 'SELECT "a", "b", "c", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
   ]);
 });

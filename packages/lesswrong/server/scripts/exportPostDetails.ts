@@ -56,7 +56,7 @@ function getPosts (selector: any) {
     draft: 1,
     status: 1,
     tagRelevance: 1,
-  }
+  } as const;
 
   const finalSelector = Object.assign({}, defaultSelector, selector || {})
 
