@@ -210,7 +210,6 @@ const sendVerificationEmailConditional = async  (user: DbUser) => {
 }
 
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
-  
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email) {
 

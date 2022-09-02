@@ -88,7 +88,7 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({email}, {collation: {locale: 'en', strength: 2}}).fetch() //TODO: figure out the case-insensitive index
+          const matchingUsers = await Users.find({email}, {collation: {locale: 'en', strength: 2}}).fetch() 
           if (matchingUsers.length > 1) {
             throw new Error(`Multiple existing users found with email ${email}, please contact support`)
           }
