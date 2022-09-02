@@ -957,14 +957,15 @@ interface DbUser extends DbObject {
   jobTitle: string
   organization: string
   careerStage: Array<string>
-  fmCrosspostUserId: string
-  organizerOfGroupIds: Array<string>
-  programParticipation: Array<string>
   website: string
+  fmCrosspostUserId: string
   linkedinProfileURL: string
   facebookProfileURL: string
   twitterProfileURL: string
   githubProfileURL: string
+  profileTagIds: Array<string>
+  organizerOfGroupIds: Array<string>
+  programParticipation: Array<string>
   postingDisabled: boolean
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
