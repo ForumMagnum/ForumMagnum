@@ -4,11 +4,12 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Conversations from '../../lib/collections/conversations/collection';
 import { createMutator } from '../vulcan-lib/mutators';
 import Messages from '../../lib/collections/messages/collection';
+import fs from 'fs';
+import Papa from 'papaparse';
 
 
-const sendDuplicateEmailMessage = async (email) => {
-  const currentUser = await Users.findOne({_id:"r38pkCm7wF4M44MDQ"}) //Raemon
-  const users = await Users.find({email}).fetch()
+const sendDuplicateEmailMessage = async (users: Array<DbUser>, currentUser: DbUser) => {
+
   if (users.length < 2 || !currentUser) return
   const user = users[0]
   const userIds = users.map(user => user._id)
@@ -73,13 +74,24 @@ registerMigration({
     ]).toArray()
 
     // eslint-disable-next-line no-console
-    console.log(users)
-    
+    console.log(`Messaging ${users.length} users`)
+
+    let output: Array<Object> = []
+
+    const currentUser = await Users.findOne({_id:"r38pkCm7wF4M44MDQ"}) //Raemon
+    if (!currentUser) throw Error("Can't find user r38pkCm7wF4M44MDQ")
+
     for (const user of users) {
       // eslint-disable-next-line no-console
       console.log(`Sending message to users with email: ${user.email}`)
-      
-      await sendDuplicateEmailMessage(user.email)
+      const users = await Users.find({email: user.email}).fetch()
+      output.push({
+        email: user.email,
+        userIds: users.map(user => user._id),
+        displayNames: users.map(user => user.displayName)
+      })
+      await sendDuplicateEmailMessage(users, currentUser)
     }
+    fs.writeFileSync("tmp/messageUsersAboutMerging.csv", Papa.unparse(output))
   }
 })
