@@ -107,7 +107,6 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 }
 
 addUniversalFields({collection: TagRels})
-console.log({ trcn: TagRels.collectionName });
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
   userCanVoteOn: (user: DbUser, document: DbTagRel) => userCanVoteOnTag(user, document.tagId),
