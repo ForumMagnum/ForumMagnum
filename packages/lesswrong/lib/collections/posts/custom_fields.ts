@@ -1235,26 +1235,7 @@ addFieldsDict(Posts, {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
-  },
-
-  fmCrosspost: {
-    type: new SimpleSchema({
-      isCrosspost: Boolean,
-      hostedHere: { type: Boolean, optional: true, nullable: true },
-      foreignPostId: { type: String, optional: true, nullable: true },
-    }),
-    optional: true,
-    nullable: true,
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'admins'],
-    insertableBy: ['members'],
-    // control: "FMCrosspostControl",
-    group: formGroups.advancedOptions,
-    // hidden: () => !fmCrosspostSiteNameSetting.get(),
-    ...schemaDefaultValue({
-      isCrosspost: false,
-    }),
-  },
+  }
 });
 
 makeEditable({
