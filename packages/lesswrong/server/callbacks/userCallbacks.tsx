@@ -67,16 +67,17 @@ getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modif
      * modifier.$set.services is both very easy and very bad (amongst other
      * things, it will invalidate the user's session)
      */
-    modifier.$set["services.auth0"] = await getAuth0Profile(user);
+    if (modifier.$set?.["services.auth0"])
+      modifier.$set["services.auth0"] = await getAuth0Profile(user);
   }
   return modifier;
 });
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
 {
-  if(modifier.$set.whenConfirmationEmailSent
+  if(modifier.$set?.whenConfirmationEmailSent
       && (!user.whenConfirmationEmailSent
-          || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
+          || user.whenConfirmationEmailSent.getTime() !== modifier.$set?.whenConfirmationEmailSent.getTime()))
   {
     void sendVerificationEmail(user);
   }
@@ -175,8 +176,8 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
   if (modifier.$set && modifier.$set.karmaChangeNotifierSettings) {
     if (!user.karmaChangeNotifierSettings.updateFrequency
       || modifier.$set.karmaChangeNotifierSettings.updateFrequency !== user.karmaChangeNotifierSettings.updateFrequency) {
-      modifier.$set.karmaChangeLastOpened = null;
-      modifier.$set.karmaChangeBatchStart = null;
+      Object.assign(modifier.$set, { karmaChangeLastOpened: null });
+      Object.assign(modifier.$set, { karmaChangeBatchStart: null });
     }
   }
 });
@@ -265,10 +266,10 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
       if (user.emails[0].address !== newEmail) {
         user.emails[0].address = newEmail;
         user.emails[0].verified = false;
-        modifier.$set.emails = user.emails;
+        Object.assign(modifier.$set, { emails: user.emails });
       }
     } else {
-      modifier.$set.emails = [{address: newEmail, verified: false}];
+      Object.assign(modifier.$set, { emails: [{address: newEmail, verified: false}] });
     }
   }
   return modifier;

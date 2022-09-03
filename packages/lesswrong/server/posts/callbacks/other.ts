@@ -3,7 +3,7 @@ import { getCollectionHooks } from '../../mutationCallbacks';
 
 getCollectionHooks("Posts").editSync.add(function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
   if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
-    modifier.$set.postedAt = new Date();
+    Object.assign(modifier.$set, { postedAt: new Date() });
   }
   return modifier;
 });

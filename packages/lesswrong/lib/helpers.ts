@@ -1,3 +1,4 @@
+import type { Filter, WithId } from 'mongodb';
 import { Utils, getCollection } from './vulcan-lib';
 
 
@@ -12,7 +13,7 @@ export const messageGetLink = (message: DbMessage): string => {
 };
 
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
-Utils.getUnusedSlug = async function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
+Utils.getUnusedSlug = async function <T extends HasSlugType>(collection: CollectionBase<T>, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
   let suffix = '';
   let index = 0;
   
@@ -39,16 +40,16 @@ const getDocumentsBySlug = async <T extends HasSlugType>({slug, suffix, useOldSl
   useOldSlugs: boolean,
   collection: CollectionBase<T>
 }): Promise<Array<T>> => {
-  return await collection.find(useOldSlugs ? 
+  const filter = (useOldSlugs ? 
     {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : 
-    {slug: slug+suffix}
-  ).fetch()
+    {slug: slug+suffix}) as Filter<T>;
+  return await collection.find(filter).fetch()
 }
 
 // LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
 Utils.getUnusedSlugByCollectionName = async function (collectionName: CollectionNameString, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
   // Not enforced: collectionName is a collection that has slugs
-  const collection = getCollection(collectionName) as CollectionBase<HasSlugType>;
+  const collection = getCollection(collectionName) as unknown as CollectionBase<HasSlugType>;
   return await Utils.getUnusedSlug(collection, slug, useOldSlugs, documentId)
 };
 

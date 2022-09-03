@@ -43,13 +43,13 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // get selector and options from terms and perform Mongo query
         const parameters = collection.getParameters(terms, {}, context);
         
-        const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
+        const docs = await queryFromViewParameters(collection, terms, parameters);
         
         // Were there enough results to reach the limit specified in the query?
         const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
         
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
-        const viewableDocs: Array<T> = collection.checkAccess
+        const viewableDocs = collection.checkAccess
           ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
           : docs;
 
@@ -187,7 +187,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
       pipeline.push({ $limit: parameters.options.limit });
     }
     logger('aggregation pipeline', pipeline);
-    return await collection.aggregate(pipeline).toArray();
+    return await collection.aggregate<T>(pipeline).toArray();
   } else {
     return await Utils.Connectors.find(collection,
       {

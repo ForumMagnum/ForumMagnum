@@ -7,6 +7,8 @@
  */
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
+import type { AggregateOptions, AnyBulkWriteOperation, BulkWriteOptions, BulkWriteResult, DropIndexesOptions, Filter, FindOneAndUpdateOptions, FindOptions, IndexInformationOptions, ModifyResult, SortDirection, UpdateFilter, UpdateOptions, UpdateResult } from 'mongodb';
+import type { Document } from 'bson';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -19,7 +21,7 @@ interface CollectionBase<
 > {
   collectionName: N
   typeName: string,
-  options: CollectionOptions
+  options: CollectionOptions<N>
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
@@ -29,10 +31,17 @@ interface CollectionBase<
   _schemaFields: SchemaType<T>
   _simpleSchema: any
   
-  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
+  rawCollection: () => {
+    bulkWrite: (operations: AnyBulkWriteOperation<T>[], options?: BulkWriteOptions) => Promise<BulkWriteResult | undefined>,
+    findOneAndUpdate: (filter: Filter<T>, update: UpdateFilter<T>, options?: FindOneAndUpdateOptions) => Promise<ModifyResult<T> | undefined>,
+    dropIndex: (indexName: string, options?: DropIndexesOptions) => Promise<void>,
+    indexes: (options?: IndexInformationOptions) => Promise<Document[]>,
+    updateOne: (selector: Filter<T>, update: Partial<T> | UpdateFilter<T>, options?: UpdateOptions) => Promise<UpdateResult | undefined>,
+    updateMany: (selector: Filter<T>, update: UpdateFilter<T>, options?: UpdateOptions) => Promise<Document | undefined>
+  }
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
-  find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
+  find: (selector?: Filter<T>, options?: FindOptions, projection?: MongoProjection<T>) => FindResult<T>
+  findOne: (selector?: string|Filter<T>|null, options?: FindOptions, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
   
   /**
@@ -49,33 +58,35 @@ interface CollectionBase<
    * We then decided to maintain compatibility with meteor when we switched
    * away.
    */
-  rawUpdateOne: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  rawUpdateMany: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  rawUpdateOne: (selector: string|Filter<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  rawUpdateMany: (selector: string|Filter<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
   
   /** Remove without running callbacks. Consider using deleteMutator, which
    * wraps this. */
-  rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
+  rawRemove: (idOrSelector: string|Filter<T>, options?: any) => Promise<any>
   /** Inserts without running callbacks. Consider using createMutator, which
    * wraps this. */
-  rawInsert: (data: any, options?: any) => string
-  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
+  rawInsert: (data: any, options?: any) => Promise<string>
+  aggregate: <T extends Record<string, any>>(pipeline: Record<string, any>[], options?: AggregateOptions) => {
+    toArray: () => Promise<T[]>;
+  }
   _ensureIndex: any
 }
 
-interface CollectionOptions {
+interface CollectionOptions<N extends CollectionNameString> {
   typeName: string
-  collectionName: CollectionNameString
+  collectionName: N
   singleResolverName: string
   multiResolverName: string
-  mutations: any
-  resolvers: any
-  interfaces: Array<string>
-  description: string
-  logChanges: boolean
+  mutations?: any
+  resolvers?: any
+  interfaces?: Array<string>
+  description?: string
+  logChanges?: boolean
 }
 
 interface FindResult<T> {
-  fetch: ()=>Promise<Array<T>>
+  fetch: ()=>Promise<T[]>
   count: ()=>Promise<number>
 }
 
@@ -109,7 +120,7 @@ interface MergedViewQueryAndOptions<
 
 type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
-type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+type MongoModifier<T extends DbObject> = UpdateFilter<T>; // | Partial<T>; //{$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type MongoFindOptions<T extends DbObject> = any; //TODO
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
@@ -117,7 +128,7 @@ type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
-type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+type MongoSort<T extends DbObject> = Partial<Record<keyof T,SortDirection>>
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 
@@ -155,8 +166,10 @@ interface VoteableTypeClient extends VoteableType {
   currentUserExtendedVote?: any,
 }
 
-interface DbVoteableType extends VoteableType, DbObject {
-}
+type DbVoteableType<T = any> = T extends DbObject ? VoteableType & T : never;
+
+// interface DbVoteableType extends VoteableType, DbObject {
+// }
 
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {

@@ -11,9 +11,9 @@ interface CollectionVoteOptions {
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
 export const VoteableCollectionOptions: Partial<Record<CollectionNameString,CollectionVoteOptions>> = {};
 
-export const collectionIsVoteable = (collectionName: CollectionNameString): boolean => {
-  for (let collection of VoteableCollections) {
-    if (collectionName === collection.collectionName)
+export const collectionIsVoteable = (collection: CollectionBase<any>): collection is CollectionBase<DbVoteableType> => {
+  for (let voteableCollection of VoteableCollections) {
+    if (collection.collectionName === voteableCollection.collectionName)
       return true;
   }
   return false;
@@ -29,21 +29,21 @@ export const apolloCacheVoteablePossibleTypes = () => {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options: CollectionVoteOptions): void => {
+export const makeVoteable = <D extends DbObject>(collection: CollectionBase<DbVoteableType<D>>, options: CollectionVoteOptions): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
   VoteableCollections.push(collection);
   VoteableCollectionOptions[collection.collectionName] = options;
 
-  addFieldsDict(collection, {
+  addFieldsDict<DbVoteableType<D>>(collection, {
     currentUserVote: {
       type: String,
       optional: true,
       viewableBy: ['guests'],
       resolveAs: {
         type: 'String',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+        resolver: async (document: DbVoteableType, args: void, context: ResolverContext): Promise<string|null> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
           const votes = await getWithLoader(context, Votes,
@@ -67,7 +67,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: GraphQLJSON,
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+        resolver: async (document: DbVoteableType, args: void, context: ResolverContext): Promise<string|null> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
           const votes = await getWithLoader(context, Votes,
@@ -93,7 +93,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
+        resolver: async (document: DbVoteableType, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return [];
           const votes = await getWithLoader(context, Votes,
@@ -121,7 +121,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
+        resolver: async (document: DbVoteableType, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           const votes = await getWithLoader(context, Votes,
             "votesByDocument",
@@ -157,7 +157,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: customBaseScoreReadAccess || ['guests'],
-      onInsert: (document: DbInsertion<T>): number => {
+      onInsert: (document: DbInsertion<DbVoteableType>): number => {
         // default to 0 if empty
         return document.baseScore || 0;
       }
@@ -173,7 +173,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
-      onInsert: (document: DbInsertion<T>): number => {
+      onInsert: (document: DbInsertion<DbVoteableType>): number => {
         // default to 0 if empty
         return document.score || 0;
       }

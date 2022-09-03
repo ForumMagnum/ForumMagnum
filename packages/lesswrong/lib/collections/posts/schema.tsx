@@ -515,7 +515,7 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { Posts, currentUser } = context;
-      const postRelations = await Posts.aggregate([
+      const postRelations = await Posts.aggregate<DbPostRelation>([
         { $match: { _id: post._id }},
         { $graphLookup: { 
             from: "postrelations", 

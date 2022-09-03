@@ -18,6 +18,7 @@ import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 import { truncatise } from '../../lib/truncatise';
+import type { Filter, WithId } from 'mongodb';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
@@ -517,7 +518,7 @@ export function getAlgoliaAdminClient()
 }
 
 export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ documents, collection, updateFunction}: {
-  documents: Array<AlgoliaIndexedDbObject>,
+  documents: Array<T>,
   collection: AlgoliaIndexedCollection<T>,
   updateFunction?: any,
 }) {
@@ -538,9 +539,9 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   
   let totalErrors: any[] = [];
   
-  await algoliaIndexDocumentBatch({
+  await algoliaIndexDocumentBatch<T>({
     documents,
-    collection: collection as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
+    collection: collection,// as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
     algoliaIndex,
     errors: totalErrors,
     updateFunction
@@ -553,9 +554,9 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
 }
 
 export async function algoliaExportById<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, documentId: string) {
-  const document = await collection.findOne({_id: documentId});
+  const document = await collection.findOne(documentId);
   if (document) {
-    await algoliaDocumentExport({ documents: [document], collection });
+    await algoliaDocumentExport<T>({ documents: [document], collection });
   }
 }
 
@@ -630,7 +631,8 @@ export async function subsetOfIdsAlgoliaShouldntIndex<T extends AlgoliaIndexedDb
   let itemsToIndexById: Record<string,boolean> = {};
   
   for (let page of pages) {
-    let items: Array<T> = await collection.find({ _id: {$in: page} }).fetch();
+    const filter = { _id: {$in: page} } as unknown as Filter<T>;
+    let items = await collection.find(filter).fetch();
     let itemsToIndex = await asyncFilter(items, async (item: T) => !!(await collection.toAlgolia(item)));
     for (let item of itemsToIndex) {
       itemsToIndexById[item._id] = true;

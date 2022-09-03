@@ -15,8 +15,9 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import moment from 'moment';
 import { isProductionDBSetting } from '../../lib/publicSettings';
+import type { Filter } from 'mongodb';
 
-async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
+async function algoliaExport<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, selector?: {[attr: string]: any}, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
@@ -25,7 +26,7 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
   const timeBound = forumTypeSetting.get() === 'EAForum' && !isProductionDBSetting.get() ?
     { createdAt: { $gte: moment().subtract(3, 'months').toDate() } } :
     {}
-  const computedSelector = {...selector, ...timeBound}
+  const computedSelector = {...selector, ...timeBound} as Filter<T>;
   
   const indexName = getAlgoliaIndexName(collection.collectionName);
   // eslint-disable-next-line no-console
@@ -44,8 +45,8 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
     filter: computedSelector,
     batchSize: 100,
     loadFactor: 0.5,
-    callback: async (documents: AlgoliaIndexedDbObject[]) => {
-      await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
+    callback: async (documents: T[]) => {
+      await algoliaIndexDocumentBatch<T>({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
       
       exportedSoFar += documents.length;
       // eslint-disable-next-line no-console

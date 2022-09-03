@@ -325,7 +325,7 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
 });
 
 getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
-  if (modifier.$set) {
+  if ('$set' in modifier && modifier.$set) {
     const { deleted, deletedPublic, deletedReason } = modifier.$set
     if (deleted || deletedPublic || deletedReason) {
       if (deletedPublic && !deleted) {
@@ -360,7 +360,7 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
 });
 
 getCollectionHooks("Comments").editSync.add(async function moveToAnswers (modifier, comment: DbComment) {
-  if (modifier.$set) {
+  if ('$set' in modifier && modifier.$set) {
     if (modifier.$set.answer === true) {
       await Comments.rawUpdateMany({topLevelCommentId: comment._id}, {$set:{parentAnswerId:comment._id}}, { multi: true })
     } else if (modifier.$set.answer === false) {

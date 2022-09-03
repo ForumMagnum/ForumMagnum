@@ -89,7 +89,7 @@ export const nullifyVotesForUser = async (user: DbUser) => {
 }
 
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
-  const collectionName = capitalize(collection.collectionName);
+  const collectionName = capitalize(collection.collectionName) as CollectionNameString;
   const context = await createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
@@ -236,7 +236,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
-    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const collection = getCollectionsByName()[revision.collectionName] as unknown as CollectionBase<DbObject, CollectionNameString>
     const document = await collection.findOne({_id: revision.documentId})
     if (document) {
       await syncDocumentWithLatestRevision(

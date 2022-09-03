@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
 
-export async function annotateAuthors(documentId: string, collectionName: string, fieldName: string, upToVersion?: string|null): Promise<string> {
+export async function annotateAuthors(documentId: string, collectionName: CollectionNameString, fieldName: string, upToVersion?: string|null): Promise<string> {
   const revs = await Revisions.find({
     documentId, collectionName, fieldName
   }).fetch();

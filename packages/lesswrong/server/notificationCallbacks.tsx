@@ -148,7 +148,7 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
     const rsvpUsers = await getUsersToNotifyAboutEvent(newPost)
     for (let {userId,email} of rsvpUsers) {
       if (!email) continue
-      const user = await Users.findOne(userId)
+      const user = userId ? await Users.findOne(userId) : null
       if (userId) {
         userIdsNotified.push(userId)
       }
@@ -313,7 +313,7 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
   
   for (let {userId,email} of emailsToNotify) {
     if (!email) continue;
-    const user = await Users.findOne(userId);
+    const user = userId ? await Users.findOne(userId) : null;
     
     await wrapAndSendEmail({
       user: user,

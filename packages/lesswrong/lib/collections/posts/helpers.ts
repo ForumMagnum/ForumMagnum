@@ -53,7 +53,7 @@ export const postGetStatusName = function (post: DbPost): string {
 };
 
 // Check if a post is approved
-export const postIsApproved = function (post: DbPost): boolean {
+export const postIsApproved = function (post: Partial<DbPost>): boolean {
   return post.status === postStatuses.STATUS_APPROVED;
 };
 

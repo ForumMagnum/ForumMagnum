@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 export const dataToModifier = <T extends DbObject>(data: Partial<DbInsertion<T>>): MongoModifier<DbInsertion<T>> => ({ 
   $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
-});
+} as MongoModifier<DbInsertion<T>>);
 
 export const modifierToData = <T extends DbObject>(modifier: MongoModifier<T>): any => ({
   ...modifier.$set,

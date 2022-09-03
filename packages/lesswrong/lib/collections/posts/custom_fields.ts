@@ -17,6 +17,7 @@ import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 import { userOverNKarmaFunc } from "../../vulcan-users";
+import { FindOptions } from 'mongodb';
 
 const MINIMUM_COAUTHOR_KARMA = 10;
 
@@ -1140,7 +1141,7 @@ addFieldsDict(Posts, {
             documentId: post.userId,
             userId: currentUser._id
           }
-          const sort = {sort:{createdAt:-1}}
+          const sort = {sort:{createdAt:-1}} as const
           const event = await LWEvents.findOne(query, sort);
           const author = await context.Users.findOne({_id: post.userId});
           if (event) {
@@ -1234,6 +1235,25 @@ addFieldsDict(Posts, {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
+  },
+
+  fmCrosspost: {
+    type: new SimpleSchema({
+      isCrosspost: Boolean,
+      hostedHere: { type: Boolean, optional: true, nullable: true },
+      foreignPostId: { type: String, optional: true, nullable: true },
+    }),
+    optional: true,
+    nullable: true,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, 'admins'],
+    insertableBy: ['members'],
+    // control: "FMCrosspostControl",
+    group: formGroups.advancedOptions,
+    // hidden: () => !fmCrosspostSiteNameSetting.get(),
+    ...schemaDefaultValue({
+      isCrosspost: false,
+    }),
   },
 });
 

@@ -30,7 +30,7 @@ async function ensureDbConnection() {
       // for various options that could be tuned here
       
       // A deprecation warning says to use this option 
-      useUnifiedTopology: true,
+      // useUnifiedTopology: true,
     });
     await client.connect();
     const db = client.db();

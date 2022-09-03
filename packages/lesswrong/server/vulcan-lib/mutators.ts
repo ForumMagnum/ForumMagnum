@@ -42,6 +42,7 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { WithId } from 'mongodb';
 
 /**
  * Create mutation

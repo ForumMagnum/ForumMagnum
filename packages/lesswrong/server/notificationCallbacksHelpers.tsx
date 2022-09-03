@@ -42,7 +42,7 @@ import Localgroups from '../lib/collections/localgroups/collection';
 }: {
   documentId: string|null,
   collectionName: CollectionNameString,
-  type: string,
+  type: DbSubscription['type'],
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
 }) {
@@ -81,7 +81,7 @@ import Localgroups from '../lib/collections/localgroups/collection';
 }
 
 export async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
-  return await Users.aggregate([
+  return await Users.aggregate<DbUser>([
     {
       "$geoNear": {
         "near": location, 

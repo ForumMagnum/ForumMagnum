@@ -40,13 +40,13 @@ const voteResolver = {
     async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
       const {documentId, voteType, collectionName} = args;
       const { currentUser } = context;
-      const collection = context[collectionName] as CollectionBase<DbVoteableType>;
+      const collection = context[collectionName]; // as CollectionBase<DbVoteableType>;
       
       if (!collection) throw new Error("Error casting vote: Invalid collectionName");
-      if (!collectionIsVoteable(collectionName)) throw new Error("Error casting vote: Collection is not voteable");
+      if (!collectionIsVoteable(collection)) throw new Error("Error casting vote: Collection is not voteable");
       if (!currentUser) throw new Error("Error casting vote: Not logged in.");
-
-      const document = await performVoteServer({
+      
+      const document = await performVoteServer<DbVoteableType>({
         documentId, voteType: voteType||"neutral", collection, user: currentUser,
         toggleIfAlreadyVoted: true,
       });

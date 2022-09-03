@@ -4,6 +4,7 @@ import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
+import { WithId } from 'mongodb';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any,any>>> = {};
 
@@ -271,7 +272,7 @@ export const forcePendingEvents = async (
     delay?: number
   } = {}
 ) => {
-  let eventToHandle = null;
+  let eventToHandle: DbDebouncerEvents | null | undefined = null;
   const af = forumTypeSetting.get() === 'AlignmentForum'
   let countHandled = 0;
   // Default time condition is nothing
@@ -295,7 +296,7 @@ export const forcePendingEvents = async (
       },
       { $set: { dispatched: true } },
     );
-    eventToHandle = queryResult.value;
+    eventToHandle = queryResult?.value;
     
     if (eventToHandle) {
       await dispatchEvent(eventToHandle);

@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
 
-const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
+const getVoteMutationQuery = <T extends DbObject>(collection: CollectionBase<T>) => {
   const typeName = collection.options.typeName;
   const mutationName = `setVote${typeName}`;
   

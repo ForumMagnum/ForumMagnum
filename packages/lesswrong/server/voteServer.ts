@@ -15,6 +15,7 @@ import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { WithId } from 'mongodb';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -176,12 +177,12 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, context }: {
+export const performVoteServer = async <T extends DbVoteableType<DbObject>>({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, context }: {
   documentId?: string,
-  document?: DbVoteableType|null,
+  document?: T|null,
   voteType: string,
   extendedVote?: any,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<T>,
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
@@ -203,7 +204,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
-  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
+  if (collectionName==="Revisions" && (document as unknown as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
   
   const existingVote = await getExistingVote({document, user});

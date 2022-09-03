@@ -158,7 +158,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
   algorithm: RecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
-  return await Posts.aggregate([
+  return await Posts.aggregate<DbPost>([
     // Filter to recommendable posts
     { $match: {
       ...recommendablePostFilter(algorithm),

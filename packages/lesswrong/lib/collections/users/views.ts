@@ -5,18 +5,19 @@ import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import type { SortDirection } from "mongodb";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
     view?: UsersViewName
     sort?: {
-      createdAt?: number,
-      karma?: number,
-      postCount?: number,
-      commentCount?: number,
-      afKarma?: number,
-      afPostCount?: number,
-      afCommentCount?: number,
+      createdAt?: SortDirection,
+      karma?: SortDirection,
+      postCount?: SortDirection,
+      commentCount?: SortDirection,
+      afKarma?: SortDirection,
+      afPostCount?: SortDirection,
+      afCommentCount?: SortDirection,
     },
     userId?: string,
     slug?: string,
@@ -49,7 +50,7 @@ ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: {
 
 ensureIndex(Users, {email: 1})
 
-const termsToMongoSort = (terms: UsersViewTerms) => {
+const termsToMongoSort = (terms: UsersViewTerms): Partial<Record<keyof DbUser, SortDirection>> | undefined => {
   if (!terms.sort)
     return undefined;
   

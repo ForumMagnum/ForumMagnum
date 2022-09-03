@@ -19,7 +19,7 @@ export async function mongoFindOne<N extends CollectionNameString>(collectionNam
 
 export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<Array<ObjectsByCollectionName[N]>>
 {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<ObjectsByCollectionName[N]> = getCollection(collectionName);
   return await collection.find(selector, options, projection).fetch();
 }
 
@@ -35,14 +35,14 @@ export async function mongoAggregate<N extends CollectionNameString>(collectionN
   return await collection.aggregate(pipeline).toArray();
 }
 
-export async function mongoUpdateOne<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
+export async function mongoUpdateOne<N extends CollectionNameString>(collectionName: N, selector: string|MongoSelector<ObjectsByCollectionName[N]>, modifier: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
 {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<ObjectsByCollectionName[N]> = getCollection(collectionName);
   return await collection.rawUpdateOne(selector, modifier, options);
 }
-export async function mongoUpdateMany<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
+export async function mongoUpdateMany<N extends CollectionNameString>(collectionName: N, selector: string|MongoSelector<ObjectsByCollectionName[N]>, modifier: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
 {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<ObjectsByCollectionName[N]> = getCollection(collectionName);
   return await collection.rawUpdateMany(selector, modifier, options);
 }
 export async function mongoRemove<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoRemoveOptions<ObjectsByCollectionName[N]>)

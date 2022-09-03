@@ -96,7 +96,7 @@ export const preProcessLatex = async (content) => {
   return content;
 }
 
-const revisionFieldsToCopy: (keyof DbRevision)[] = [
+const revisionFieldsToCopy = [
   "originalContents",
   "updateType",
   "commitMessage",
@@ -105,7 +105,7 @@ const revisionFieldsToCopy: (keyof DbRevision)[] = [
   "userId",
   "editedAt",
   "wordCount",
-];
+] as const;
 
 /**
  * Make an editable document reflect the latest revision available
@@ -133,10 +133,12 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
       )
     }
   }
-  await collection.rawUpdateOne(document._id, {
+
+  const modifier = {
     $set: {
       [fieldName]: pick(latestRevision, revisionFieldsToCopy),
-      [`${fieldName}_latest`]: latestRevision._id
+      [`${fieldName}_latest`]: latestRevision._id  
     }
-  })
+  } as MongoModifier<T>;
+  await collection.rawUpdateOne(document._id, modifier)
 }

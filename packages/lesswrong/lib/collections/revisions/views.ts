@@ -41,7 +41,7 @@ Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
         editedAt: -1,
       }
     }
-  }
+  } as const
   return result;
 });
 

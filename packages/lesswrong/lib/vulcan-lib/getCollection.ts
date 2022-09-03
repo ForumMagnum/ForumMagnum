@@ -3,7 +3,7 @@ import sortBy from 'lodash/sortBy';
 export const Collections: Array<CollectionBase<any>> = [];
 const collectionsByName: Partial<Record<CollectionNameString,CollectionBase<any>>> = {};
 
-export const getCollection = (name: CollectionNameString): CollectionBase<any> => {
+export const getCollection = <N extends CollectionNameString>(name: CollectionNameString): CollectionBase<ObjectsByCollectionName[N]> => {
   if (name in collectionsByName)
     return collectionsByName[name]!;
   
@@ -43,7 +43,7 @@ export const isValidCollectionName = (name: string): name is CollectionNameStrin
 
 // Add a collection to Collections and collectionsByName. Should only be called
 // from createCollection.
-export const registerCollection = (collection: CollectionBase<any>): void => {
+export const registerCollection = <T extends DbObject>(collection: CollectionBase<T>): void => {
   Collections.push(collection);
   collectionsByName[collection.collectionName] = collection;
 }

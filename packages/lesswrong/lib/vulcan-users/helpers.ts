@@ -62,13 +62,14 @@ export const userTimeSinceLast = async function<T extends HasCreatedAtType>(user
 
 export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter?: Record<string,any>): Promise<number> {
   var mNow = moment();
-  var items = collection.find({
+  filter = {
     userId: user._id,
     ...filter,
     createdAt: {
       $gte: mNow.subtract(24, 'hours').toDate(),
     },
-  });
+  };
+  var items = collection.find(filter);
   return await items.count();
 };
 

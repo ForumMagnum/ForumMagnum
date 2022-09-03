@@ -510,6 +510,11 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null
   contents: EditableFieldContents
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines: EditableFieldContents
@@ -547,7 +552,7 @@ interface ReadStatusesCollection extends CollectionBase<DbReadStatus, "ReadStatu
 interface DbReadStatus extends DbObject {
   __collectionName?: "ReadStatuses"
   postId: string
-  tagId: string
+  tagId: string | null
   userId: string
   isRead: boolean
   lastUpdated: Date

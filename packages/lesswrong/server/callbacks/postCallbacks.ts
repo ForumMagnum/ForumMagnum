@@ -249,7 +249,8 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
-    modifier.$set.endTime = null;
+    if ('$set' in modifier && modifier.$set)
+      Object.assign(modifier.$set, { endTime: null });
   }
   
   return modifier

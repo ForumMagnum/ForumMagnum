@@ -20,6 +20,7 @@ const schema: SchemaType<DbReadStatus> = {
       type: "Tag",
       nullable: true,
     }),
+    nullable: true
   },
   userId: {
     ...foreignKeyField({

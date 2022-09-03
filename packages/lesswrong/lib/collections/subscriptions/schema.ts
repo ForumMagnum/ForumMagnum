@@ -10,7 +10,7 @@ export const subscriptionTypes = {
   newEvents: 'newEvents',
   newReplies: 'newReplies',
   newTagPosts: 'newTagPosts'
-}
+} as const
 
 const schema: SchemaType<DbSubscription> = {
   createdAt: {

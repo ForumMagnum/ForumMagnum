@@ -105,7 +105,7 @@ export function startWebserver() {
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
     const store = MongoStore.create({
-      client: getMongoClient()
+      client: getMongoClient() ?? undefined
     })
     app.use(expressSession({
       secret: expressSessionSecret,

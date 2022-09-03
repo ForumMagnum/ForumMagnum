@@ -137,7 +137,7 @@ export const sortings = {
   new: { postedAt: -1 },
   old: { postedAt: 1 },
   recentComments: { lastCommentedAt: -1 }
-}
+} as const
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
@@ -391,7 +391,7 @@ export function augmentForDefaultView(indexFields)
  */
 
 Posts.addView("userPosts", (terms: PostsViewTerms) => {
-  const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}}
+  const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}} as const
   return {
     selector: {
       userId: viewFieldAllowAny,
@@ -891,7 +891,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
         _id: 1
       }
     }
-  }
+  } as const
   return query
 })
 ensureIndex(Posts,
@@ -1227,7 +1227,7 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
     "fewestReviews" : {reviewCount2018: 1},
     "mostReviews" : {reviewCount2018: -1},
     "lastCommentedAt" :  {lastCommentedAt: -1}
-  }
+  } as const
 
   return {
     selector: {

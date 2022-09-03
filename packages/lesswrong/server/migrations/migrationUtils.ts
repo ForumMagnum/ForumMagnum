@@ -143,7 +143,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
       await runThenSleep(loadFactor, async () => {
         const mutation = { $set: {
           [fieldName]: defaultValue
-        } };
+        } } as MongoModifier<T>;
         const writeResult = await collection.rawUpdateMany(bucketSelector, mutation, {multi: true});
         
         nMatched += writeResult || 0;

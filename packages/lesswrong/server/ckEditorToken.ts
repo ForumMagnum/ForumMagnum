@@ -27,7 +27,7 @@ export async function ckEditorTokenHandler (req, res, next) {
   const user = await getUserFromReq(req)
   const post = documentId && await Posts.findOne(documentId)
   const canEdit = post && (userOwns(user, post) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, post))
-  const canView = post && await Posts.checkAccess(user, post, null)
+  const canView = post && await Posts.checkAccess?.(user, post, null)
 
   let permissions = {}
   if (formType === "new" && userId) {

@@ -55,7 +55,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const collection = context[collectionName] as unknown as CollectionBase<DbType>
 
     const loader = context.loaders[collectionName] as DataLoader<string,DbType>;
-    const resolvedDocs: Array<DbType> = await loader.loadMany(keys)
+    const resolvedDocs = await loader.loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
