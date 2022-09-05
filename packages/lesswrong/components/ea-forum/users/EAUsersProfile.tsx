@@ -552,6 +552,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account Settings
             </Link>}
+            {currentUser && currentUser._id === user._id && <a href="/logout">
+              Log out
+            </a>}
           </Typography>
         </div>
         
