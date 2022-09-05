@@ -53,7 +53,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   }
 
   const contextValue: CrosspostContext = {
-    hostedHere: !!post.fmCrosspost!.hostedHere,
+    hostedHere: !!post.fmCrosspost.hostedHere,
     localPost: post,
     foreignPost: document,
   };
