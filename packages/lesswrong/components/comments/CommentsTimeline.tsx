@@ -18,8 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
-
 const CommentsTimelineFn = ({
   treeOptions,
   comments,
@@ -28,7 +26,7 @@ const CommentsTimelineFn = ({
   totalComments = 0,
   loadMoreComments,
   loadingMoreComments,
-  startThreadTruncated,
+  startThreadTruncated=true,
   parentAnswerId,
   defaultNestingLevel = 1,
   parentCommentId,
@@ -97,7 +95,7 @@ const CommentsTimelineFn = ({
         {commentsToRender.map((comment) => (
           <CommentsNode
             treeOptions={treeOptions}
-            startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
+            startThreadTruncated={startThreadTruncated}
             comment={comment.item}
             childComments={comment.children}
             key={comment.item._id}
