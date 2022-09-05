@@ -7,13 +7,7 @@ class Arg {
 
 type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
-const arithmeticOps = {
-  $add: "+",
-  $subtract: "-",
-  $multiply: "*",
-  $divide: "/",
-  $pow: "^",
-};
+const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 
 const comparisonOps = {
   $eq: "=",
@@ -26,7 +20,14 @@ const comparisonOps = {
   $nin: "<>",
 };
 
-const isArrayOp = (op: string) => op === "$in" || op === "$nin";
+const arithmeticOps = {
+  $add: "+",
+  $subtract: "-",
+  $multiply: "*",
+  $divide: "/",
+  $pow: "^",
+  ...comparisonOps,
+};
 
 export type SimpleLookup = {
   from: string,
