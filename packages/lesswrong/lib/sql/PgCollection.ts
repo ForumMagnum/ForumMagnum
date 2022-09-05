@@ -101,7 +101,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       toArray: async () => {
         try {
           const query = new Pipeline(this.pgTable, pipeline, options).toQuery();
-          const result = await this.executeQuery<T>(pipeline);
+          const result = await this.executeQuery<T>(query);
           return result as unknown as T[];
         } catch (e) {
           console.error("Aggregate error:", e, ":", util.inspect(pipeline, {depth: null}));

@@ -314,21 +314,24 @@ class Query<T extends DbObject> {
   private compileExpression(expr: any): Atom<T>[] {
     if (typeof expr === "string") {
       return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1)) : new Arg(expr)];
-    } else if (typeof expr !== "object" || expr === null) {
+    } else if (typeof expr !== "object" || expr === null || expr instanceof Date) {
       return [new Arg(expr)];
     }
 
     const op = Object.keys(expr)[0];
     if (arithmeticOps[op]) {
-      let result: Atom<T>[] = ["("];
       const operands = expr[op].map((arg: any) => this.compileExpression(arg));
+      const isDateDiff = op === "$subtract" && operands.length === 2 && operands.some(
+        (arr: Atom<T>[]) => arr.some((atom) => atom instanceof Arg && atom.value instanceof Date)
+      );
+      let result: Atom<T>[] = [isDateDiff ? "(1000 * EXTRACT(EPOCH FROM" : "("];
       for (let i = 0; i < operands.length; i++) {
         if (i > 0) {
           result.push(arithmeticOps[op]);
         }
         result = result.concat(operands[i]);
       }
-      result.push(")");
+      result.push(isDateDiff ? "))" : ")");
       return result;
     }
 
@@ -393,7 +396,7 @@ class Query<T extends DbObject> {
 
     if (options) {
       if (options.collation) {
-        throw new Error("Collation not implemented")
+        throw new Error("Collation not yet implemented")
       }
       query.appendOptions(options);
     }

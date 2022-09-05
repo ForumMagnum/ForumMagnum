@@ -260,5 +260,17 @@ describe("Query", () => {
       expectedSql: 'SELECT * , (CASE WHEN "a" IS NOT NULL THEN $1 ELSE $2 END) AS "k" FROM "TestCollection" WHERE "a" = $3',
       expectedArgs: [2, 4, 3],
     },
+    {
+      name: "can build select with date diff",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $subtract: [new Date('2022-01-01'), "$b"],
+          },
+        },
+      }),
+      expectedSql: 'SELECT * , (1000 * EXTRACT(EPOCH FROM $1 - "b" )) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [new Date('2022-01-01'), 3],
+    },
   ]);
 });
