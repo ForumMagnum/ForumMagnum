@@ -11,6 +11,7 @@ const getSecret = () => {
   }
   return secret;
 }
+
 const jwtSigningOptions = {
   algorithm: "HS256",
   expiresIn: "30m",
@@ -27,17 +28,16 @@ export const signToken = <T extends {}>(payload: T): Promise<string> =>
     });
   });
 
-export const verifyToken = <T extends {}>(token: string, validator: (payload: T) => void): Promise<T> =>
+export const verifyToken = <T extends {}>(token: string, validator: (payload: unknown) => payload is T): Promise<T> =>
   new Promise((resolve, reject) => {
     jwt.verify(token, getSecret(), (err: VerifyErrors | null, decoded?: T) => {
-      const payload = decoded as T;
-      if (payload) {
+      if (decoded) {
         try {
-          validator(payload);
+          validator(decoded);
+          resolve(decoded);
         } catch (e) {
           reject(e);
         }
-        resolve(payload);
       } else {
         reject(err);
       }

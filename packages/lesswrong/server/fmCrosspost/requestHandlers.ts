@@ -11,11 +11,8 @@ import {
 import {
   ConnectCrossposterPayload,
   validateConnectCrossposterPayload,
-  UnlinkCrossposterPayload,
   validateUnlinkCrossposterPayload,
-  UpdateCrosspostPayload,
   validateUpdateCrosspostPayload,
-  CrosspostPayload,
   validateCrosspostPayload,
 } from "./types";
 import { signToken, verifyToken } from "./tokens";
@@ -51,7 +48,7 @@ export const onCrosspostTokenRequest = withApiErrorHandlers(async (req: Request,
 
 export const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token, localUserId] = getPostParams(req, ["token", "localUserId"]);
-  const payload = await verifyToken<ConnectCrossposterPayload>(token, validateConnectCrossposterPayload);
+  const payload = await verifyToken(token, validateConnectCrossposterPayload);
   const {userId: foreignUserId} = payload;
   await Users.rawUpdateOne({_id: foreignUserId}, {
     $set: {fmCrosspostUserId: localUserId},
@@ -65,7 +62,7 @@ export const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Requ
 
 export const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken<UnlinkCrossposterPayload>(token, validateUnlinkCrossposterPayload);
+  const payload = await verifyToken(token, validateUnlinkCrossposterPayload);
   const {userId} = payload;
   await Users.rawUpdateOne({_id: userId}, {
     $unset: {fmCrosspostUserId: ""},
@@ -75,7 +72,7 @@ export const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Reque
 
 export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token, postId, postTitle] = getPostParams(req, ["token", "postId", "postTitle"]);
-  const payload = await verifyToken<CrosspostPayload>(token, validateCrosspostPayload);
+  const payload = await verifyToken(token, validateCrosspostPayload);
   const {localUserId, foreignUserId} = payload;
 
   const user = await Users.findOne({_id: foreignUserId});
@@ -112,7 +109,7 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
 
 export const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken<UpdateCrosspostPayload>(token, validateUpdateCrosspostPayload);
+  const payload = await verifyToken(token, validateUpdateCrosspostPayload);
   const {postId, draft, deletedDraft, title} = payload;
   await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft, title}});
   res.send({status: "updated"});

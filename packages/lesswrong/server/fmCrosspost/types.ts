@@ -8,20 +8,35 @@ export type ConnectCrossposterPayload = {
   userId: string,
 }
 
-export const validateConnectCrossposterPayload = (payload: ConnectCrossposterPayload) => {
-  if (!payload.userId || typeof payload.userId !== "string") {
+const hasBooleanParam = (payload: unknown, param: string) =>
+  payload &&
+  typeof payload === "object" &&
+  param in payload &&
+  typeof payload[param] === "boolean";
+
+const hasStringParam = (payload: unknown, param: string) =>
+  payload &&
+  typeof payload === "object" &&
+  param in payload &&
+  typeof payload[param] === "string" &&
+  payload[param].length;
+
+export const validateConnectCrossposterPayload = (payload: unknown): payload is ConnectCrossposterPayload => {
+  if (!hasStringParam(payload, "userId")) {
     throw new MissingParametersError(["userId"], payload);
   }
+  return true;
 }
 
 export type UnlinkCrossposterPayload = {
   userId: string,
 }
 
-export const validateUnlinkCrossposterPayload = (payload: UnlinkCrossposterPayload) => {
-  if (!payload.userId || typeof payload.userId !== "string") {
+export const validateUnlinkCrossposterPayload = (payload: unknown): payload is UnlinkCrossposterPayload => {
+  if (!hasStringParam(payload, "userId")) {
     throw new MissingParametersError(["userId"], payload);
   }
+  return true;
 }
 
 export type UpdateCrosspostPayload = {
@@ -31,15 +46,16 @@ export type UpdateCrosspostPayload = {
   title: string,
 }
 
-export const validateUpdateCrosspostPayload = (payload: UpdateCrosspostPayload) => {
+export const validateUpdateCrosspostPayload = (payload: unknown): payload is UpdateCrosspostPayload => {
   if (
-    !payload.postId || typeof payload.postId !== "string" ||
-    typeof payload.draft !== "boolean" ||
-    typeof payload.deletedDraft !== "boolean" ||
-    !payload.title || typeof payload.title !== "string"
+    !hasStringParam(payload, "postId") ||
+    !hasBooleanParam(payload, "draft") ||
+    !hasBooleanParam(payload, "deletedDraft") ||
+    !hasStringParam(payload, "title")
   ) {
     throw new MissingParametersError(["postId", "draft", "draftDeleted", "title"], payload);
   }
+  return true;
 }
 
 export type CrosspostPayload = {
@@ -47,13 +63,14 @@ export type CrosspostPayload = {
   foreignUserId: string,
 }
 
-export const validateCrosspostPayload = (payload: CrosspostPayload) => {
+export const validateCrosspostPayload = (payload: unknown): payload is CrosspostPayload => {
   if (
-    !payload.localUserId || typeof payload.localUserId !== "string" ||
-    !payload.foreignUserId || typeof payload.foreignUserId !== "string"
+    !hasStringParam(payload, "localUserId") ||
+    !hasStringParam(payload, "foreignUserId")
   ) {
     throw new MissingParametersError(["localUserId", "foreignUserId"], payload);
   }
+  return true;
 }
 
 export type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;

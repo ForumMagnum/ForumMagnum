@@ -34,7 +34,7 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
   const {Typography} = Components;
   return (
     <div>
-      <a className={classes.link} href={link} target="_blank" rel="noreferrer">
+      <a href={link} target="_blank" rel="noreferrer">
         <Typography variant="body2" className={classes.root}>
           Crossposted {relation} {fmCrosspostSiteNameSetting.get()}. {commentsText}
         </Typography>
