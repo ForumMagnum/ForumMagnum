@@ -57,6 +57,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontStyle: 'italic',
     marginTop: 4,
+  },
+  afLwCommentCount: {
+    marginLeft: 3,
+    color: theme.palette.primary.main,
+    opacity: .8
   }
 })
 
@@ -65,7 +70,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, lwPostTotalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -78,6 +83,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   startThreadTruncated?: boolean,
   newForm: boolean,
   classes: ClassesType,
+  lwPostTotalComments?: number;
 }) => {
   const currentUser = useCurrentUser();
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
@@ -102,6 +108,8 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
+    const lwPostLink = post && `https://lesswrong.com/posts/${post._id}/${post.slug}#comments`
+
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -115,6 +123,10 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             </span> :
             <span>
               { totalComments } comments, sorted by <Components.CommentsViews post={post} />
+              { typeof lwPostTotalComments === 'number' &&
+                <span className={classes.afLwCommentCount}>
+                  (<a href={lwPostLink}>{lwPostTotalComments} comments on LessWrong</a>)
+                </span> }
             </span>
         }
       </Typography>
