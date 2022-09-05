@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
-import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
-
-export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,11 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 })
-
-interface CommentsTimelineSectionState {
-  highlightDate: Date,
-  anchorEl: any,
-}
 
 const CommentsTimelineSection = ({
   post,
@@ -100,7 +92,6 @@ const CommentsTimelineSection = ({
         comments={comments}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
-        nestedScroll={true}
         commentCount={commentCount}
         loadMoreCount={loadMoreCount}
         totalComments={totalComments}

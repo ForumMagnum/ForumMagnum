@@ -1,9 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { Link } from '../../lib/reactRouterWrapper';
-import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
-import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
@@ -32,8 +28,6 @@ const CommentsTimelineFn = ({
   parentCommentId,
   forceSingleLine,
   forceNotSingleLine,
-  reversed = true,
-  nestedScroll = true,
   classes,
 }: {
   treeOptions: CommentTreeOptions;
@@ -49,8 +43,6 @@ const CommentsTimelineFn = ({
   parentCommentId?: string;
   forceSingleLine?: boolean;
   forceNotSingleLine?: boolean;
-  reversed?: boolean;
-  nestedScroll?: boolean;
   classes: ClassesType;
 }) => {
   const bodyRef = useRef<HTMLDivElement|null>(null);
@@ -78,7 +70,7 @@ const CommentsTimelineFn = ({
       loadMoreComments(commentCount + loadMoreCount);
   }
 
-  const commentsToRender = useMemo(() => reversed ? comments.reverse(): comments, [comments, reversed]);
+  const commentsToRender = useMemo(() => comments.reverse(), [comments]);
 
   if (!comments) {
     return (
@@ -90,7 +82,7 @@ const CommentsTimelineFn = ({
 
   return (
     <Components.ErrorBoundary>
-      <div className={classNames({ [classes.nestedScroll]: nestedScroll })} ref={bodyRef} onScroll={handleScroll}>
+      <div className={classes.nestedScroll} ref={bodyRef} onScroll={handleScroll}>
         {loadingMoreComments ? <Components.Loading /> : <></>}
         {commentsToRender.map((comment) => (
           <CommentsNode
