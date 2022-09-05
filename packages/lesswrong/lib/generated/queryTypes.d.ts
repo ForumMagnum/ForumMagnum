@@ -8,74 +8,191 @@
 // server/codegen/generateQueryTypes.ts.
 //
 interface QueryRecommendationsQueryResult {
-  readonly Recommendations: any,
+  readonly Recommendations: QueryRecommendationsQueryResult_Recommendations,
 }
 
+interface QueryRecommendationsQueryResult_Recommendations {
+  PostsList: any
+}
+interface QueryRecommendationsQueryVariables {
+  count: number
+  algorithm: any
+}
 
 interface QueryMozillaHubsRoomDataResult {
-  readonly MozillaHubsRoomData: any,
+  readonly MozillaHubsRoomData: QueryMozillaHubsRoomDataResult_MozillaHubsRoomData,
 }
 
+interface QueryMozillaHubsRoomDataResult_MozillaHubsRoomData {
+  id: any
+  previewImage: any
+  lobbyCount: any
+  memberCount: any
+  roomSize: any
+  description: any
+  url: any
+  name: any
+}
+interface QueryMozillaHubsRoomDataVariables {
+  roomId: string
+}
 
 interface QueryEmailPreviewQueryResult {
-  readonly EmailPreview: any,
+  readonly EmailPreview: QueryEmailPreviewQueryResult_EmailPreview,
 }
 
+interface QueryEmailPreviewQueryResult_EmailPreview {
+  to: any
+  subject: any
+  html: any
+  text: any
+}
+interface QueryEmailPreviewQueryVariables {
+  notificationIds: Array<string>
+  postId: string
+}
 
 interface QueryArbitalPageRequestResult {
-  readonly ArbitalPageData: any,
+  readonly ArbitalPageData: QueryArbitalPageRequestResult_ArbitalPageData,
 }
 
+interface QueryArbitalPageRequestResult_ArbitalPageData {
+  title: any
+  html: any
+}
+interface QueryArbitalPageRequestVariables {
+  arbitalSlug: string
+}
 
 interface QueryGetRandomTagResult {
-  readonly RandomTag: any,
+  readonly RandomTag: QueryGetRandomTagResult_RandomTag,
 }
 
+interface QueryGetRandomTagResult_RandomTag {
+  slug: any
+}
+interface QueryGetRandomTagVariables {
+}
 
 interface QueryAdminMetadataQueryResult {
   readonly AdminMetadata: any,
 }
 
+interface QueryAdminMetadataQueryVariables {
+}
 
 interface QueryMigrationsDashboardQueryResult {
-  readonly MigrationsDashboard: any,
+  readonly MigrationsDashboard: QueryMigrationsDashboardQueryResult_MigrationsDashboard,
 }
 
+interface QueryMigrationsDashboardQueryResult_MigrationsDashboard {
+  migrations: any
+}
+interface QueryMigrationsDashboardQueryVariables {
+}
 
 interface QueryElicitQueryResult {
-  readonly ElicitBlockData: any,
+  readonly ElicitBlockData: QueryElicitQueryResult_ElicitBlockData,
 }
 
+interface QueryElicitQueryResult_ElicitBlockData {
+  _id: any
+  title: any
+  notes: any
+  resolvesBy: any
+  resolution: any
+  predictions: any
+}
+interface QueryElicitQueryVariables {
+  questionId: string
+}
 
 interface QueryPostAnalyticsQueryResult {
-  readonly PostAnalytics: any,
+  readonly PostAnalytics: QueryPostAnalyticsQueryResult_PostAnalytics,
 }
 
+interface QueryPostAnalyticsQueryResult_PostAnalytics {
+  allViews: any
+  uniqueClientViews: any
+  uniqueClientViews10Sec: any
+  medianReadingTime: any
+  uniqueClientViews5Min: any
+  uniqueClientViewsSeries: any
+}
+interface QueryPostAnalyticsQueryVariables {
+  postId: string
+}
 
 interface QueryCoronaVirusDataResult {
-  readonly CoronaVirusData: any,
+  readonly CoronaVirusData: QueryCoronaVirusDataResult_CoronaVirusData,
 }
 
+interface QueryCoronaVirusDataResult_CoronaVirusData {
+  range: any
+  majorDimension: any
+  values: any
+}
+interface QueryCoronaVirusDataVariables {
+}
 
 interface QueryTagUpdatesInTimeBlockResult {
-  readonly TagUpdatesInTimeBlock: any,
+  readonly TagUpdatesInTimeBlock: QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock,
 }
 
+interface QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock {
+  tag: any
+  revisionIds: any
+  commentCount: any
+  commentIds: any
+  lastRevisedAt: any
+  lastCommentedAt: any
+  added: any
+  removed: any
+  users: any
+}
+interface QueryTagUpdatesInTimeBlockVariables {
+  before: Date
+  after: Date
+}
 
 interface QueryContinueReadingQueryResult {
-  readonly ContinueReading: any,
+  readonly ContinueReading: QueryContinueReadingQueryResult_ContinueReading,
 }
 
+interface QueryContinueReadingQueryResult_ContinueReading {
+  sequence: any
+  collection: any
+  nextPost: any
+  numRead: any
+  numTotal: any
+  lastReadTime: any
+}
+interface QueryContinueReadingQueryVariables {
+}
 
 interface QueryPetrovDayLaunchResolversResult {
-  readonly PetrovDayCheckIfIncoming: any,
+  readonly PetrovDayCheckIfIncoming: QueryPetrovDayLaunchResolversResult_PetrovDayCheckIfIncoming,
 }
 
+interface QueryPetrovDayLaunchResolversResult_PetrovDayCheckIfIncoming {
+  launched: any
+  createdAt: any
+}
+interface QueryPetrovDayLaunchResolversVariables {
+}
 
 interface QueryRevisionsDiffResult {
   readonly RevisionsDiff: any,
 }
 
+interface QueryRevisionsDiffVariables {
+  collectionName: string
+  fieldName: string
+  id: string
+  beforeRev: string
+  afterRev: string
+  trim: boolean
+}
 
 interface QueryResultTypes {
   RecommendationsQuery: QueryRecommendationsQueryResult
@@ -92,6 +209,23 @@ interface QueryResultTypes {
   ContinueReadingQuery: QueryContinueReadingQueryResult
   PetrovDayLaunchResolvers: QueryPetrovDayLaunchResolversResult
   RevisionsDiff: QueryRevisionsDiffResult
+}
+
+interface QueryArgumentTypes {
+  readonly RecommendationsQuery: QueryRecommendationsQueryVariables
+  readonly MozillaHubsRoomData: QueryMozillaHubsRoomDataVariables
+  readonly EmailPreviewQuery: QueryEmailPreviewQueryVariables
+  readonly ArbitalPageRequest: QueryArbitalPageRequestVariables
+  readonly GetRandomTag: QueryGetRandomTagVariables
+  readonly AdminMetadataQuery: QueryAdminMetadataQueryVariables
+  readonly MigrationsDashboardQuery: QueryMigrationsDashboardQueryVariables
+  readonly ElicitQuery: QueryElicitQueryVariables
+  readonly PostAnalyticsQuery: QueryPostAnalyticsQueryVariables
+  readonly CoronaVirusData: QueryCoronaVirusDataVariables
+  readonly TagUpdatesInTimeBlock: QueryTagUpdatesInTimeBlockVariables
+  readonly ContinueReadingQuery: QueryContinueReadingQueryVariables
+  readonly PetrovDayLaunchResolvers: QueryPetrovDayLaunchResolversVariables
+  readonly RevisionsDiff: QueryRevisionsDiffVariables
 }
 
 type QueryName = "RecommendationsQuery"|"MozillaHubsRoomData"|"EmailPreviewQuery"|"ArbitalPageRequest"|"GetRandomTag"|"AdminMetadataQuery"|"MigrationsDashboardQuery"|"ElicitQuery"|"PostAnalyticsQuery"|"CoronaVirusData"|"TagUpdatesInTimeBlock"|"ContinueReadingQuery"|"PetrovDayLaunchResolvers"|"RevisionsDiff"

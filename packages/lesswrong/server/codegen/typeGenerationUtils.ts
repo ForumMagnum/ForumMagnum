@@ -2,6 +2,13 @@ import { getCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
+import { print as gqlPrint } from 'graphql';
+import gql from 'graphql-tag';
+
+declare global {
+  interface TypeGenerationContext {
+  }
+}
 
 export const generatedFileHeader = `//
 // GENERATED FILE
@@ -112,3 +119,9 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
       }
   }
 }
+
+export function parsedGraphqlTypeToTypescript(parsedGraphqlType: any): string {
+  const gqlTypeStr = gqlPrint(parsedGraphqlType);
+  return graphqlTypeToTypescript(gqlTypeStr);
+}
+

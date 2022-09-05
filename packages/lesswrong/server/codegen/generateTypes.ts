@@ -1,6 +1,6 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import { generateFragmentTypes } from './generateFragmentTypes';
-import { generateQueryTypes } from './generateQueryTypes';
+import { generateQueryTypes, graphqlSchemasToTS } from './generateQueryTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
 import fs from 'fs';
@@ -31,8 +31,12 @@ export function generateTypes(repoRoot?: string) {
   }
   
   try {
+    const context: TypeGenerationContext = {
+    };
+    
+    writeIfChanged(graphqlSchemasToTS(context), "/packages/lesswrong/lib/generated/gqlTypes.d.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
-    writeIfChanged(generateQueryTypes(), "/packages/lesswrong/lib/generated/queryTypes.d.ts");
+    writeIfChanged(generateQueryTypes(context), "/packages/lesswrong/lib/generated/queryTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
   } catch(e) {
