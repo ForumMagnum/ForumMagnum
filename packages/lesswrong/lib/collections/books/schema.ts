@@ -89,7 +89,28 @@ const schema: SchemaType<DbBook> = {
     type: String,
     foreignKey: "Sequences",
     optional: true,
-  }
+  },
+  displaySequencesAsGrid: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
+  hideProgressBar: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
+  showChapters: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
 
 }
 

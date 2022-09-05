@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
@@ -22,6 +21,9 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { userCanDo } from '../lib/vulcan-users/permissions';
+import { isMobile } from '../lib/utils/isMobile';
+import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -37,7 +39,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -52,8 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
+      paddingLeft: 8,
+      paddingRight: 8,
     },
   },
   gridActivated: {
@@ -79,6 +81,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sunshine: {
     gridArea: 'sunshine'
+  },
+  hideHomepageMapOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
@@ -203,9 +210,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, cookies} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -239,17 +246,23 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
+    
+    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
-    const currentTime = new Date()
-    const beforeTime = petrovBeforeTime.get()
-    const afterTime = petrovAfterTime.get()
+    const renderPetrovDay = () => {
+      const currentTime = (new Date()).valueOf()
+      const beforeTime = petrovBeforeTime.get()
+      const afterTime = petrovAfterTime.get()
+    
+      return currentRoute?.name === "home"
+        && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
+        && beforeTime < currentTime 
+        && currentTime < afterTime
+    }
 
-    const renderPetrovDay = 
-      currentRoute?.name === "home"
-      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
-      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies.get(hideMapCookieName)
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -274,16 +287,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
-                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-                { theme.typography.fontDownloads &&
-                    theme.typography.fontDownloads.map(
-                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                    )
+                {theme.typography.fontDownloads &&
+                  theme.typography.fontDownloads.map(
+                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                  )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-                <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
               <AnalyticsClient/>
@@ -301,7 +310,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              {renderPetrovDay && <PetrovDayWrapper/>}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap/></span>}
+              {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
@@ -321,10 +331,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   {!currentRoute?.hideFooter && <Footer />}
                 </div>
-                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
-                    <SunshineSidebar/>
-                  </div>
-                  }
+                {renderSunshineSidebar && <div className={classes.sunshine}>
+                  <Components.SunshineSidebar/>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>

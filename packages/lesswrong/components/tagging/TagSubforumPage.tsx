@@ -47,10 +47,15 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   return (
     <>
       <SingleColumnSection className={classes.root}>
-        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin />
-          <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread terms={{ postId: tag.subforumShortformPostId }} newForm condensed post={post} />
-          </AnalyticsContext>
+        {/* <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin /> */}
+        <AnalyticsContext pageSectionContext="commentsSection">
+          <PostsCommentsThread
+            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew" }} // TODO, add new view for 
+            newForm
+            condensed
+            post={post}
+          />
+        </AnalyticsContext>
       </SingleColumnSection>
     </>
   );

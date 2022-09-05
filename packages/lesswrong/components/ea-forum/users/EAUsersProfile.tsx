@@ -3,8 +3,6 @@ import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { useLocation } from '../../../lib/routeUtil';
-import { useUpdate } from '../../../lib/crud/withUpdate';
-import { useMessages } from '../../common/withMessages';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -152,6 +150,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fill: theme.palette.grey[600],
     marginRight: 4
   },
+  tags: {
+    marginTop: 20,
+  },
   btns: {
     display: 'flex',
     columnGap: 20,
@@ -180,7 +181,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     color: theme.palette.lwTertiary.main,
-    marginTop: 16,
+    marginTop: 20,
     ...separatorBulletStyles(theme)
   },
   registerRssLink: {
@@ -199,19 +200,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
-  reportUserSection: {
-    marginTop: 60
-  },
-  reportUserBtn: {
-    ...theme.typography.commentStyle,
-    background: 'none',
-    color: theme.palette.primary.main,
-    fontSize: 13,
-    padding: 0,
-    '&:hover': {
-      color: theme.palette.primary.dark,
-    }
-  },
 })
 
 const EAUsersProfile = ({terms, slug, classes}: {
@@ -219,11 +207,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   slug: string,
   classes: ClassesType,
 }) => {
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-  })
-
   const currentUser = useCurrentUser()
   
   const {loading, results} = useMulti({
@@ -277,18 +260,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
     skip: !user
   })
 
-  const { flash } = useMessages()
-  const reportUser = async () => {
-    if (!user) return
-    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
-    flash({messageString: "Your report has been sent to the moderators"})
-  }
-
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, FooterTag,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
-    RecentComments, SectionButton, SequencesGridWrapper } = Components
+    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton } = Components
 
   if (loading) {
     return <Loading/>
@@ -319,6 +295,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }
   
   const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+  const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
@@ -359,6 +336,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </div>
       <AnalyticsContext listContext="userPageDrafts">
         <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms} boxShadow={false} />
+        <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>
@@ -397,19 +375,19 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }
   
   const bioSectionTabs: Array<UserProfileTabType> = []
-  if (user.biography || user.howOthersCanHelpMe || user.howICanHelpOthers) {
+  if (user.biography?.html || user.howOthersCanHelpMe?.html || user.howICanHelpOthers?.html) {
     bioSectionTabs.push({
       id: 'bio',
       label: 'Bio',
       body: <>
-        {user.htmlBio && <ContentStyles contentType="post">
+        {user.biography?.html && <ContentStyles contentType="post">
           <ContentItemBody
-            dangerouslySetInnerHTML={{__html: user.htmlBio }}
+            dangerouslySetInnerHTML={{__html: user.biography.html }}
             description={`user ${user._id} bio`}
             nofollow={userKarma < nofollowKarmaThreshold.get()}
           />
         </ContentStyles>}
-        {user.howOthersCanHelpMe && <>
+        {user.howOthersCanHelpMe?.html && <>
           <div className={classes.sectionSubHeadingRow}>
             <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
           </div>
@@ -417,7 +395,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
-        {user.howICanHelpOthers && <>
+        {user.howICanHelpOthers?.html && <>
           <div className={classes.sectionSubHeadingRow}>
             <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
           </div>
@@ -464,7 +442,10 @@ const EAUsersProfile = ({terms, slug, classes}: {
       label: 'Comments',
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
-        <RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
+        <RecentComments
+          terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          showPinnedOnProfile
+        />
       </AnalyticsContext>
     })
   }
@@ -530,23 +511,26 @@ const EAUsersProfile = ({terms, slug, classes}: {
               {user.website}
             </a>}
           </ContentStyles>
-          <div className={classes.btns}>
-            {currentUser?._id != user._id && <NewConversationButton
+          {user.profileTagIds && <div className={classes.tags}>
+            {user.profileTags.map(tag => <FooterTag key={tag._id} tag={{...tag, core: false}} />)}
+          </div>}
+          {currentUser?._id != user._id && <div className={classes.btns}>
+            <NewConversationButton
               user={user}
               currentUser={currentUser}
             >
               <a tabIndex={0} className={classes.messageBtn} data-cy="message">
                 Message
               </a>
-            </NewConversationButton>}
-            {currentUser?._id != user._id && <NotifyMeButton
+            </NewConversationButton>
+            <NotifyMeButton
               document={user}
               className={classes.subscribeBtn}
               subscribeMessage="Subscribe to posts"
               unsubscribeMessage="Unsubscribe"
               asButton
-            />}
-          </div>
+            />
+          </div>}
           <Typography variant="body2" className={classes.links}>
             {currentUser?.isAdmin &&
               <div className={classes.registerRssLink}>
@@ -619,11 +603,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
       </SingleColumnSection>
 
-      {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
-        <SingleColumnSection className={classes.reportUserSection}>
-          <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
-        </SingleColumnSection>
-      }
+      <ReportUserButton user={user}/>
     </AnalyticsContext>
   </div>
 }

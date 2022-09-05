@@ -57,6 +57,10 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
       label: "Frontpage",
       tooltip: "Posts about research and other work in high-impact cause areas."
     },
+    curated: {
+      label: "Curated",
+      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"
+    },
     questions: {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."

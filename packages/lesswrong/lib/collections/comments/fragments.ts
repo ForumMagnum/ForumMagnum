@@ -52,6 +52,7 @@ registerFragment(`
     }
     directChildrenCount
     votingSystem
+    isPinnedOnProfile
   }
 `);
 

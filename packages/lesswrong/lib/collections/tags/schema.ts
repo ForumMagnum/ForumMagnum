@@ -10,15 +10,7 @@ import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
-
-const formGroups: Partial<Record<string,FormGroup>> = {
-  advancedOptions: {
-    name: "advancedOptions",
-    order: 20,
-    label: "Advanced Options",
-    startCollapsed: true,
-  },
-};
+import { formGroups } from './formGroups';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -167,6 +159,22 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  canEditUserIds: {
+    type: Array,
+    viewableBy: ['guests'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    optional: true,
+    label: "Restrict to these authors",
+    tooltip: "Only these authors will be able to edit the topic",
+    control: "UsersListEditor",
+    group: formGroups.advancedOptions,
+  },
+  'canEditUserIds.$': {
+    type: String,
+    foreignKey: 'Users',
+    optional: true,
   },
   charsAdded: {
     type: Number,

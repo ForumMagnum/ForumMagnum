@@ -476,6 +476,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'taggingSubforumCustomName',
       path: `/topics/:slug/subforum`,
+      subtitle: "Forecasting", // TODO: set this per subforum
       componentName: 'TagSubforumPage',
       hideFooter: true
     }
@@ -682,6 +683,23 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
+    },
+    {
+      name: 'advice',
+      path: '/advice',
+      componentName: 'AdvisorsPage',
+      title: 'Book a 1:1'
+    },
+    // {
+    //   name: 'advisorRequest',
+    //   path: '/advisor-request',
+    //   componentName: 'AdvisorsRequestPage',
+    //   title: 'My 1:1 Request'
+    // },
+    {
+      name: 'wikiTopisRedirect',
+      path: '/wiki',
+      redirect: () => '/topics/all'
     },
   ],
   LessWrong: [

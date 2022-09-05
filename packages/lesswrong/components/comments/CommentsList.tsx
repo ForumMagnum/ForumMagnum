@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
@@ -32,6 +32,7 @@ const CommentsListFn = ({
   forceNotSingleLine,
   reversed = true,
   nestedScroll = true,
+  topAbsolutePosition = 0,
   classes,
 }: {
   treeOptions: CommentTreeOptions;
@@ -45,10 +46,14 @@ const CommentsListFn = ({
   forceNotSingleLine?: boolean;
   reversed?: boolean;
   nestedScroll?: boolean;
+  topAbsolutePosition?: number;
   classes: ClassesType;
 }) => {
   const currentUser = useCurrentUser();
   const [expandAllThreads, setExpandAllThreads] = useState(false);
+
+  const bodyRef = useRef<HTMLDivElement|null>(null);
+  const [userHasScrolled, setUserHasScrolled] = useState(false);
 
   useGlobalKeydown((event) => {
     const F_Key = 70;
@@ -57,7 +62,24 @@ const CommentsListFn = ({
     }
   });
 
+  const currentHeight = bodyRef.current?.clientHeight;
+  useEffect(() => {
+    if (!userHasScrolled && bodyRef.current) {
+      bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
+    }
+
+  }, [currentHeight, userHasScrolled])
+
   const { CommentsNode, SettingsButton, CommentsListMeta, LoginPopupButton, LWTooltip } = Components;
+
+  const handleScroll = (e) => {
+    const isAtBottom = Math.abs((e.target.scrollHeight - e.target.scrollTop) - e.target.clientHeight) < 10;
+
+    // If we are not at the bottom that means the user has scrolled up,
+    // in which case never autoscroll to the bottom again
+    if (!isAtBottom)
+      setUserHasScrolled(true);
+  }
 
   const renderExpandOptions = () => {
     if (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
@@ -103,7 +125,7 @@ const CommentsListFn = ({
   return (
     <Components.ErrorBoundary>
       {!reversed && expandOptions}
-      <div className={classNames({[classes.nestedScroll]: nestedScroll})}>
+      <div className={classNames({[classes.nestedScroll]: nestedScroll})} ref={bodyRef} onScroll={handleScroll}>
         {commentsToRender.map((comment) => (
           <CommentsNode
             treeOptions={treeOptions}
@@ -121,7 +143,6 @@ const CommentsListFn = ({
           />
         ))}
       </div>
-      {reversed && expandOptions}
     </Components.ErrorBoundary>
   );
 };

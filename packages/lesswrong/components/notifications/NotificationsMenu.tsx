@@ -81,12 +81,11 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
     },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
-    pollInterval: 0,
     limit: 20,
     enableTotal: false,
   });
 
-  const lastNotificationsCheck = currentUser?.lastNotificationsCheck ?? "";
+  const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
   const newMessages = results && _.filter(results, (x) => x.createdAt > lastNotificationsCheck);
   if (!currentUser) {
     return null;
@@ -142,7 +141,11 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
               value={tab}
               className={classes.tabBar}
               onChange={(event, tabIndex) => {
-                setTab(tabIndex);
+                if (tabIndex >= notificationCategoryTabs.length) {
+                  setIsOpen(false);
+                } else {
+                  setTab(tabIndex);
+                }
               }}
             >
               {notificationCategoryTabs.map(notificationCategory =>
@@ -157,8 +160,11 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
                 />
               )}
               
-              {/* Include an extra, hidden tab to reserve space for the
-                  close/X button (which hovers over the tabs). */}
+              {/* Include an extra, hidden tab to reserve space for the close/X
+                * button (which hovers over the tabs). Selecting this "tab"
+                * (with a keyboard shortcut) closes the drawer (with a special
+                * case in onChange).
+                */}
               <Tab className={classes.hiddenTab} />
             </Tabs>
             <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />

@@ -3,11 +3,10 @@ import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { getDefaultFilterSettings } from '../../filterSettings';
-import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
-import Tags from "../tags/collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
@@ -992,7 +991,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: forumTypeSetting.get() === "EAForum" ? 9 : 101,
+    order: forumTypeSetting.get() === "EAForum" ? 5 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1092,8 +1091,8 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 44,
-    group: formGroups.default,
-    hidden: true,
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'LessWrong',
     label: "Hide the frontpage map"
   },
 
@@ -1103,7 +1102,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     label: "Hide the tagging progress bar",
     order: 45,
     group: formGroups.siteCustomizations
@@ -1117,7 +1116,7 @@ addFieldsDict(Users, {
     // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 46,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
@@ -1129,7 +1128,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 47,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
@@ -1160,7 +1159,7 @@ addFieldsDict(Users, {
     optional: true,
     ...schemaDefaultValue(false),
   },
-
+  // DEPRECATED in favor of snoozedUntilContentCount
   sunshineSnoozed: {
     type: Boolean,
     canRead: ['admins', 'sunshineRegiment'],
@@ -1168,6 +1167,13 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  snoozedUntilContentCount: {
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does
@@ -1429,13 +1435,15 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug)  {
-        return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+        // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
+        return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== data.slug) || []), oldDocument.slug])]
       }
       // The next three lines are copy-pasted from slug.onUpdate
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
-          return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
+          // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
+          return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
         }
       }
     }
@@ -1551,6 +1559,7 @@ addFieldsDict(Users, {
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
+    hidden: forumTypeSetting.get() !== "EAForum",
     order: 73,
   },
   walledGardenInvite: {
@@ -1656,7 +1665,8 @@ addFieldsDict(Users, {
     group: formGroups.aboutMe,
     order: 4,
     control: 'FormComponentMultiSelect',
-    placeholder: "Career stage",
+    label: "Career stage",
+    placeholder: 'Select all that apply',
     form: {
       separator: '\r\n',
       options: CAREER_STAGES
@@ -1665,6 +1675,21 @@ addFieldsDict(Users, {
   'careerStage.$': {
     type: String,
     optional: true,
+  },
+  
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    },
+    group: formGroups.aboutMe,
+    order: 6
   },
 
   bio: {
@@ -1678,73 +1703,6 @@ addFieldsDict(Users, {
     viewableBy: ['guests'],
     optional: true,
     hidden: true,
-  },
-  
-  // These are the groups displayed in the user's profile (i.e. this field is informational only).
-  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
-  organizerOfGroupIds: {
-    ...arrayOfForeignKeysField({
-      idFieldName: "organizerOfGroupIds",
-      resolverName: "organizerOfGroups",
-      collectionName: "Localgroups",
-      type: "Localgroup"
-    }),
-    hidden: true,
-    optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    group: formGroups.aboutMe,
-    order: 7,
-    control: "SelectLocalgroup",
-    label: "Organizer of",
-    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
-    form: {
-      useDocumentAsUser: true,
-      separator: '\r\n',
-      multiselect: true
-    },
-  },
-  'organizerOfGroupIds.$': {
-    type: String,
-    foreignKey: "Localgroups",
-    optional: true,
-  },
-  
-  programParticipation: {
-    type: Array,
-    hidden: true,
-    optional: true,
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
-    order: 8,
-    control: 'FormComponentMultiSelect',
-    placeholder: "Which of these programs have you participated in?",
-    form: {
-      separator: '\r\n',
-      options: PROGRAM_PARTICIPATION
-    },
-  },
-  'programParticipation.$': {
-    type: String,
-    optional: true,
-  },
-
-  website: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: 'PrefixedInput',
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    form: {
-      inputPrefix: 'https://'
-    },
-    group: formGroups.aboutMe,
-    order: 9
   },
   
   linkedinProfileURL: {
@@ -1799,6 +1757,86 @@ addFieldsDict(Users, {
     },
     group: formGroups.socialMedia
   },
+  
+  profileTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "profileTagIds",
+      resolverName: "profileTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.activity,
+    order: 1,
+    control: "TagMultiselect",
+    label: `${taggingNamePluralCapitalSetting.get()} I'm interested in`,
+    tooltip: `This will also update your frontpage ${taggingNameSetting.get()} weightings.`,
+    placeholder: `Search for ${taggingNamePluralSetting.get()}`
+  },
+  'profileTagIds.$': {
+    type: String,
+    foreignKey: "Tags",
+    optional: true,
+  },
+  
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
+  organizerOfGroupIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerOfGroupIds",
+      resolverName: "organizerOfGroups",
+      collectionName: "Localgroups",
+      type: "Localgroup"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.activity,
+    order: 2,
+    control: "SelectLocalgroup",
+    label: "Organizer of",
+    placeholder: 'Select groups to display',
+    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+    form: {
+      useDocumentAsUser: true,
+      separator: '\r\n',
+      multiselect: true
+    },
+  },
+  'organizerOfGroupIds.$': {
+    type: String,
+    foreignKey: "Localgroups",
+    optional: true,
+  },
+  
+  programParticipation: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.activity,
+    order: 3,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Which of these programs have you participated in?",
+    form: {
+      separator: '\r\n',
+      options: PROGRAM_PARTICIPATION
+    },
+  },
+  'programParticipation.$': {
+    type: String,
+    optional: true,
+  },
+  
+  
   postingDisabled: {
     type: Boolean,
     optional: true,
@@ -1866,7 +1904,7 @@ makeEditable({
     commentStyles: true,
     formGroup: formGroups.aboutMe,
     hidden: true,
-    order: 5,
+    order: 7,
     fieldName: 'howOthersCanHelpMe',
     label: "How others can help me",
     hintText: "Ex: I am looking for opportunities to do...",
@@ -1885,7 +1923,7 @@ makeEditable({
     commentStyles: true,
     formGroup: formGroups.aboutMe,
     hidden: true,
-    order: 6,
+    order: 8,
     fieldName: 'howICanHelpOthers',
     label: "How I can help others",
     hintText: "Ex: Reach out to me if you have questions about...",
@@ -1908,7 +1946,7 @@ makeEditable({
     commentEditor: true,
     commentStyles: true,
     hidden: forumTypeSetting.get() === "EAForum",
-    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    order: forumTypeSetting.get() === "EAForum" ? 6 : 40,
     formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",

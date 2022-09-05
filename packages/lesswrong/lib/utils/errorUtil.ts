@@ -23,3 +23,7 @@ export function getGraphQLErrorMessage(error: any): string {
 export function isMissingDocumentError(error: any): boolean {
   return (error && error.message==='app.missing_document');
 }
+
+export function isOperationNotAllowedError(error: any): boolean {
+  return (error && error.message==='app.operation_not_allowed');
+}

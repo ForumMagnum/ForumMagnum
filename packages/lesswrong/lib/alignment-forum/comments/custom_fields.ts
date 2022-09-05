@@ -63,7 +63,8 @@ addFieldsDict(Comments, {
     group: alignmentOptionsGroup,
     viewableBy: ['guests'],
     editableBy: ['alignmentForumAdmins', 'admins'],
-    label: "AF Review UserId"
+    label: "AF Review UserId",
+    hidden: forumTypeSetting.get() === 'EAForum'
   },
 
   afDate: {

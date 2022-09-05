@@ -8,11 +8,17 @@ import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer"
+  },
   editIcon: {
     width: 20,
     color: theme.palette.grey[400]
@@ -24,13 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: theme.palette.boxShadow.sunshineSendMessage,
   },
   sendMessageButton: {
-    marginLeft: 8,
-    marginRight: 4,
-    marginTop: 16,
-    // marginBottom: 16,
-    width: 64,
-    height: 32,
     padding: 8,
+    height: 32,
     fontSize: "1rem",
     color: theme.palette.grey[500],
     '&:hover': {
@@ -64,7 +65,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
   if (!(user && currentUser)) return null
   
   return (
-    <div>
+    <div className={classes.root}>
       <span
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}
@@ -95,10 +96,16 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </MenuItem>
             </LWTooltip>
           </div>)}
+          <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
+            <MenuItem>
+              <ListItemIcon>
+                <EditIcon className={classes.editIcon}/>
+              </ListItemIcon>
+              <em>Edit Messages</em>
+            </MenuItem>
+          </Link>
         </Menu>
-      <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
-        <EditIcon className={classes.editIcon}/>
-      </Link>
+
     </div>
   )
 }

@@ -66,3 +66,11 @@ export function getForumType(themeOptions: ThemeOptions) {
 }
 
 export const defaultThemeOptions = {"name":"default"};
+
+export function getThemeOptions(themeCookie: string | object, user: DbUser|UsersCurrent|null) {
+  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
+  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
+  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
+  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
+  return themeOptions;
+}

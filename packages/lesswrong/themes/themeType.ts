@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
+import type { ForumTypeString } from '../lib/instanceSettings';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
@@ -113,6 +114,7 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       
+      eventMaybe: ColorString,
       aprilFools: {
         orange: ColorString,
         yellow: ColorString,
@@ -186,6 +188,10 @@ declare global {
       commentBorder: string,
       answerBorder: string,
       tooltipHR: string,
+      primaryHighlight: string,
+      primaryHighlight2: string,
+      secondaryHighlight: string,
+      secondaryHighlight2: string,
     },
     panelBackground: {
       default: ColorString,
@@ -313,6 +319,7 @@ declare global {
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
+      primaryDim: ColorString,
     },
     header: {
       text: ColorString,
@@ -337,6 +344,8 @@ declare global {
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
   type ThemeType = {
+    forumType: ForumTypeString,
+    
     breakpoints: {
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,

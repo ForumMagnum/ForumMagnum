@@ -56,7 +56,7 @@ export const sequenceGetAllPosts = async (sequenceId: string, context: ResolverC
 
 const getSequenceCollectionBooks = async function(sequenceId: string) {
   const sequence = await Sequences.findOne({ _id: sequenceId });
-  if (!sequence) return;
+  if (!sequence?.canonicalCollectionSlug) return;
 
   const { canonicalCollectionSlug } = sequence;
 
@@ -65,7 +65,7 @@ const getSequenceCollectionBooks = async function(sequenceId: string) {
 
   const { _id: collectionId } = collection;
 
-  return Books.find({ collectionId }).fetch();
+  return Books.find({ collectionId }, { sort: { number: 1 } }).fetch();
 }
 
 const getSurroundingSequencePostIdTuples = async function (sequenceId: string, context: ResolverContext) {

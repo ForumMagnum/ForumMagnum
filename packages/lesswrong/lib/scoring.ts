@@ -1,4 +1,3 @@
-import Votes from './collections/votes/collection';
 import { DatabasePublicSetting } from './publicSettings';
 
 const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)

@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -30,8 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 const SunshineNewUsersItem = ({ user, classes }: {
   user: SunshineUsersList,
-  classes: ClassesType,
-  updateUser?: any
+  classes: ClassesType
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 

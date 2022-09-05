@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 
 // API 1:

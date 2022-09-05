@@ -51,6 +51,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginBottom: 12
   },
+  eaDescription: {
+    fontSize: "1rem",
+  },
   author: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
@@ -84,6 +87,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 125,
     objectFit: "cover"
   },
+  chapterTitle: {
+    fontSize: "1.25rem !important",
+    margin: "8px 0 -8px 0 !important",
+  },
   postIcon: {
     height: 12,
     width: 12,
@@ -105,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
+    justifyContent: forumTypeSetting.get() === "EAForum" ? "flex-start" : "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -134,20 +141,27 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
+  showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip } = Components
-  
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, SectionTitle, LWTooltip } = Components
+
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 
   const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
-  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
+  const [
+    totalWordCount,
+    totalReadTime,
+  ] = posts.reduce(([wordCount, readTime], curr) => ([
+    wordCount + (curr?.contents?.wordCount ?? 0),
+    readTime + (curr?.readTimeMinutes ?? 0),
+  ]), [0, 0]);
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
@@ -177,7 +191,10 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
               by <UsersName user={sequence.user} />
             </div>}
           </div>
-          {(highlight.length > 0) && <ContentStyles contentType="postHighlight" className={classes.description}>
+          {(highlight.length > 0) && <ContentStyles
+            contentType="postHighlight"
+            className={classNames(classes.description, {[classes.eaDescription]: forumTypeSetting.get() === "EAForum"})}
+          >
             <ContentItemTruncated
               maxLengthWords={100}
               graceWords={20}
@@ -188,17 +205,23 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
-            <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+          <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
+            <div className={classes.wordcount}>{totalReadTime} min read</div>
           </LWTooltip>
         </div>
       </div>
       <div className={classes.right}>
-        {posts.map(post => <SequencesSmallPostLink 
-            key={sequence._id + post._id} 
-            post={post}
-            sequenceId={sequence._id}
-          />
+        {sequence.chapters?.flatMap(({posts, title}, index) =>
+          <React.Fragment key={index}>
+            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
+            {posts.map((post) => (
+              <SequencesSmallPostLink
+                key={sequence._id + post._id}
+                post={post}
+                sequenceId={sequence._id}
+              />
+            ))}
+          </React.Fragment>
         )}
       </div>
     </div>

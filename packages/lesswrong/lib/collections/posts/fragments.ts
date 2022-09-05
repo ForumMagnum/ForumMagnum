@@ -52,6 +52,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    commentsLockedToAccountsCreatedAfter
 
     # questions
     question
@@ -185,6 +186,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    readTimeMinutes
     moderationGuidelines {
       _id
       html
@@ -261,6 +263,18 @@ registerFragment(`
     canonicalCollection {
       _id
       title
+    }
+
+    # Podcast
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
     }
 
     # Moderation stuff
@@ -411,6 +425,7 @@ registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
     coauthorStatuses
+    readTimeMinutesOverride
     moderationGuidelines {
       ...RevisionEdit
     }

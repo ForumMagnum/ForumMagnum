@@ -234,7 +234,7 @@ const curationEmailDelay = new EventDebouncer<string,null>({
 });
 
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
-  if(post.curatedDate && !oldPost.curatedDate) {
+  if(post.curatedDate && !oldPost.curatedDate && forumTypeSetting.get() !== "EAForum") {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email.
     

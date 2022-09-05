@@ -9,6 +9,7 @@ import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
+import uniq from 'lodash/uniq';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -1352,3 +1353,32 @@ ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
+
+Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+  // Get list of bookmarked posts from the user object. This is ordered by when
+  // the bookmark was created (earlier is older).
+  let bookmarkedPostIds = (context?.currentUser?.bookmarkedPostsMetadata
+    ? uniq(context?.currentUser?.bookmarkedPostsMetadata.map(bookmark => bookmark.postId))
+    : []
+  );
+  
+  // If there's a limit, apply that limit to the list of IDs, before it's applied
+  // to the query. (We do this because the $in operator isn't going to respect
+  // the ordering of the IDs we give it).
+  //
+  // HACK: While the limit reflects the sort ordering of
+  // currentUser.bookmarkedPostsMetadata, the results ordering doesn't. So the
+  // BookmarksList component sorts the results itself after they come back.
+  if (terms.limit) {
+    bookmarkedPostIds = bookmarkedPostIds.reverse().slice(0, terms.limit);
+  }
+  
+  return {
+    selector: {
+      _id: {$in: bookmarkedPostIds}
+    },
+    options: {
+      sort: {},
+    },
+  };
+});

@@ -31,6 +31,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline',
     color: theme.palette.text.secondary,
   },
+  clickToHighlightNewSince: {
+    display: 'inline',
+    color: theme.palette.text.secondary,
+    "@media print": { display: "none" },
+  },
   button: {
     color: theme.palette.lwTertiary.main,
   },
@@ -104,7 +109,7 @@ const CommentsListSection = ({
   const now = useCurrentTime();
   
   const bodyRef = useRef<HTMLDivElement>(null)
-  const [topAbsolutePosition, setTopAbsolutePosition] = useState(0)
+  const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
   
   useEffect(() => {
     recalculateTopAbsolutePosition()
@@ -113,7 +118,6 @@ const CommentsListSection = ({
   }, [])
   
   const recalculateTopAbsolutePosition = () => {
-    console.log('recalculateTopAbsolutePosition', bodyRef.current?.getBoundingClientRect()?.top)
     if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
   }
@@ -131,10 +135,12 @@ const CommentsListSection = ({
     setAnchorEl(null);
   }
 
+  //, DEBUG
+  const newLimit = commentCount + (loadMoreCount || commentCount)
+
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-    const newLimit = commentCount + (loadMoreCount || commentCount)
     if (condensed) {
       return null;
     }
@@ -157,7 +163,7 @@ const CommentsListSection = ({
       {post && <Typography
         variant="body2"
         component='span'
-        className={classes.inline}
+        className={classes.clickToHighlightNewSince}
       >
         {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
         {highlightDate && !newCommentsSinceDate && "No new comments since "}
@@ -205,33 +211,51 @@ const CommentsListSection = ({
 
   const postAuthor = post?.user || null;
   return (
-    <div ref={bodyRef}
-      className={classNames(classes.root, {[classes.maxWidthRoot]: !tag, [classes.nestedScrollRoot]: nestedScroll})}
-      style={{height: `calc(100vh - ${topAbsolutePosition}px)`}}
+    <div
+      ref={bodyRef}
+      className={classNames(classes.root, { [classes.maxWidthRoot]: !tag, [classes.nestedScrollRoot]: nestedScroll })}
+      style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
     >
+      {/* , TODO make this preserve scroll */}
+      {commentCount < totalComments ? (
+        <span>
+          Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
+          {loadingMoreComments ? (
+            <Components.Loading />
+          ) : (
+            <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>
+          )}
+        </span>
+      ) : (
+        <span>
+          {totalComments} comments, sorted by <Components.CommentsViews post={post} />
+        </span>
+      )}
       {reversed && commentsListComponent}
-      { totalComments ? renderTitleComponent() : null }
-      <div id="comments"/>
+      {totalComments ? renderTitleComponent() : null}
+      <div id="comments" />
 
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
+      {/* , TODO add spacing if reversed */}
+      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
           {!condensed && <div className={classes.newCommentLabel}>New Comment</div>}
           {post?.isEvent && post?.rsvps?.length && (
-            <div className={classes.newCommentSublabel}>
-              Everyone who RSVP'd to this event will be notified.
-            </div>
+            <div className={classes.newCommentSublabel}>Everyone who RSVP'd to this event will be notified.</div>
           )}
           <Components.CommentsNewForm
-            post={post} tag={tag}
+            post={post}
+            tag={tag}
             prefilledProps={{
-              parentAnswerId: parentAnswerId}}
+              parentAnswerId: parentAnswerId,
+            }}
             type="comment"
+            enableGuidelines={false} //, TODO vary
           />
         </div>
-      }
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
-        <Components.CantCommentExplanation post={post}/>
-      }
+      )}
+      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) && (
+        <Components.CantCommentExplanation post={post} />
+      )}
       {!reversed && commentsListComponent}
     </div>
   );

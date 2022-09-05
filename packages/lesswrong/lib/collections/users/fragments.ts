@@ -41,6 +41,10 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
+    profileTags {
+      ...TagBasicInfo
+    }
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -153,11 +157,9 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
+    theme
 
     bookmarkedPostsMetadata
-    bookmarkedPosts {
-      ...PostsList
-    }
 
     hiddenPostsMetadata
     auto_subscribe_to_my_posts
@@ -181,6 +183,15 @@ registerFragment(`
     petrovLaunchCodeDate
     lastUsedTimezone
     ...SharedUserBooleans
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarkedPosts on User {
+    _id
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 
@@ -247,10 +258,15 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    
     needsReview
-    sunshineSnoozed
     sunshineNotes
     sunshineFlagged
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
+    snoozedUntilContentCount
   }
 `);
 
@@ -310,6 +326,7 @@ registerFragment(`
     emailSubscribedToCurated
     subscribedToDigest
     unsubscribeFromAll
+    hasAuth0Id
 
     # Moderation
     moderatorAssistance
@@ -414,6 +431,7 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase

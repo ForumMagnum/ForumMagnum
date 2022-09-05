@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import Conversations, { userCanStartConversations } from '../../lib/collections/conversations/collection';
@@ -69,7 +69,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     void newConversation(search);
   }
 
-  if (!userCanStartConversations(currentUser)) return null
+  if (currentUser && !userCanStartConversations(currentUser)) return null
   
   return (
     <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>
