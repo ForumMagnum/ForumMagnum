@@ -22,10 +22,14 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
+  if (!post.fmCrosspost?.foreignPostId) {
+    throw new Error("Invalid use of PostsPageCrosspostWrapper - foreignPostId is not set");
+  }
+
   const apolloClient = useCrosspostApolloClient();
   const { document, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">({
     ...fetchProps,
-    documentId: post.fmCrosspost!.foreignPostId!,
+    documentId: post.fmCrosspost.foreignPostId,
     apolloClient,
   });
 
