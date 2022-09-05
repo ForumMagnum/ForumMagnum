@@ -17,6 +17,12 @@ export const setSqlConnection = (_sql) => sql = _sql;
 export const getDatabase = () => db;
 export const getMongoClient = () => client
 export const getSqlClient = () => sql;
+export const getSqlClientOrThrow = () => {
+  if (!sql) {
+    throw new Error("SQL Client is not initialized");
+  }
+  return sql;
+}
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {

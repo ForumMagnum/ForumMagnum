@@ -1,3 +1,4 @@
+import { getSqlClientOrThrow } from "../lib/mongoCollection";
 import { updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { getUser } from '../lib/vulcan-users/helpers';
@@ -132,8 +133,16 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
 
 const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
   if (Posts.isPostgres()) {
-    // TODO
-    throw new Error("getReadPosts not yet implemented for postgres");
+    const sql = getSqlClientOrThrow();
+    const result = await sql`
+      SELECT "Posts"."_id" FROM "Posts"
+      JOIN "ReadStatuses" ON
+        "Posts"."_id" = "ReadStatuses"."postId" AND
+        "ReadStatuses"."isRead" = TRUE AND
+        "ReadStatuses"."userId" = ${user._id}
+      WHERE "Posts"."_id" IN ${sql(postIDs)}
+    `;
+    return result.map(({_id}) => _id);
   } else {
     return Posts.aggregate([
       { $match: {
