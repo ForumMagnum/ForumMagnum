@@ -183,7 +183,7 @@ describe("Query", () => {
     {
       name: "can build select from a subquery",
       getQuery: () => Query.select(Query.select(testTable, {a: 3}), {b: "test"}),
-      expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ) WHERE "b" = $2',
+      expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ) A WHERE "b" = $2',
       expectedArgs: [3, "test"],
     },
     {
@@ -257,7 +257,7 @@ describe("Query", () => {
           },
         },
       }),
-      expectedSql: 'SELECT * , (CASE WHEN "a" IS NOT NULL THEN $1 ELSE $2 END) AS "k" FROM "TestCollection" WHERE "a" = $3',
+      expectedSql: 'SELECT * , (CASE WHEN "a" IS NOT NULL THEN $1 ELSE $2 END) ::INTEGER AS "k" FROM "TestCollection" WHERE "a" = $3',
       expectedArgs: [2, 4, 3],
     },
     {

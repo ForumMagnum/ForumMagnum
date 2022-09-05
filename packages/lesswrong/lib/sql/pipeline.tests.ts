@@ -48,7 +48,7 @@ describe("Pipeline", () => {
           },
         },
       ]).toQuery(),
-      expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 ) WHERE "b" = $3',
+      expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 ) A WHERE "b" = $3',
       expectedArgs: [3, 10, "test"],
     },
   ]);

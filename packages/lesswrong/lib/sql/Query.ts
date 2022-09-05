@@ -74,6 +74,7 @@ class Query<T extends DbObject> {
   }
 
   compile(argOffset = 0): {sql: string, args: any[]} {
+    let subquery = 'A'.charCodeAt(0);
     let argCount = argOffset;
     const strings: string[] = [];
     let args: any[] = [];
@@ -87,7 +88,7 @@ class Query<T extends DbObject> {
         strings.push(result.sql);
         args = args.concat(result.args);
         argCount += result.args.length;
-        strings.push(")");
+        strings.push(`) ${String.fromCharCode(subquery++)}`);
       } else if (atom instanceof Table) {
         strings.push(`"${atom.getName()}"`);
       } else {
