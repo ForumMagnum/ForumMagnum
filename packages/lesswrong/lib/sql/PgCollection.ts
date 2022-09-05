@@ -27,8 +27,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return sql;
   }
 
-  private async executeQuery<R extends {}>(query: Query<T>, selector?: any): Promise<R[]|null> {
+  private async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
     const {sql, args} = query.compile();
+    console.log(sql);
     try {
       return await this.getSqlClient().unsafe(sql, args) as unknown as R[]|null;
     } catch (error) {
@@ -57,13 +58,13 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
-    const select = Query.select(this.pgTable, selector, {limit: 1, ...options});
+    const select = Query.select<T>(this.pgTable, selector, {limit: 1, ...options});
     const result = await this.executeQuery<T>(select, selector);
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
-    const select = Query.select(this.pgTable, undefined, {limit: 1});
+    const select = Query.select<T>(this.pgTable, undefined, {limit: 1});
     const result = await this.executeQuery<T>(select);
     return result ? result[0] as unknown as T : null;
   }
@@ -100,7 +101,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline(this.pgTable, pipeline, options).toQuery();
+          const query = new Pipeline<T>(this.pgTable, pipeline, options).toQuery();
           const result = await this.executeQuery<T>(query);
           return result as unknown as T[];
         } catch (e) {

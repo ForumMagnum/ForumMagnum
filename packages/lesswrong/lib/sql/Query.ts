@@ -363,8 +363,24 @@ class Query<T extends DbObject> {
     );
   }
 
+  private disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
+    if (addFields) {
+      const fields = Object.keys(addFields);
+      for (const field of fields) {
+        const existingType = this.table.getField(field);
+        if (existingType) {
+          if (!projection) {
+            projection = {};
+          }
+          projection[field] = 0;
+        }
+      }
+    }
+    return {addFields, projection};
+  }
+
   static insert<T extends DbObject>(table: Table, data: T, allowConflicts = false): Query<T> {
-    const query = new Query(table, [`INSERT INTO "${table.getName()}"`]);
+    const query = new Query<T>(table, [`INSERT INTO "${table.getName()}"`]);
     query.appendValuesList(data);
     if (allowConflicts) {
       query.atoms.push("ON CONFLICT DO NOTHING");
@@ -379,9 +395,11 @@ class Query<T extends DbObject> {
     sqlOptions?: SelectSqlOptions,
   ): Query<T> {
     const query = new Query(table, ["SELECT"]);
-    query.atoms.push(query.getProjectedFields(table, sqlOptions?.count, options?.projection));
-    if (sqlOptions?.addFields) {
-      query.atoms = query.atoms.concat(query.getSyntheticFields(sqlOptions.addFields));
+
+    const {addFields, projection} = query.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
+    query.atoms.push(query.getProjectedFields(table, sqlOptions?.count, projection));
+    if (addFields) {
+      query.atoms = query.atoms.concat(query.getSyntheticFields(addFields));
     }
     query.atoms = query.atoms.concat(["FROM", table]);
 

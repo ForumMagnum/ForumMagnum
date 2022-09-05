@@ -8,7 +8,7 @@ class Unit<T extends DbObject> {
   private selector?: any;
   private lookup?: any;
   private unwind?: string;
-  private project?: any;
+  private project?: MongoProjection<T>;
 
   constructor(private table: Table | Unit<T>) {}
 
@@ -82,7 +82,7 @@ class Pipeline<T extends DbObject> {
   }
 
   toQuery(): Query<T> {
-    let unit = new Unit(this.table);
+    let unit = new Unit<T>(this.table);
 
     for (const stage of this.stages) {
       const keys = Object.keys(stage);
