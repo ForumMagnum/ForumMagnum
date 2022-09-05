@@ -54,6 +54,7 @@ const CommentsNode = ({
   loadChildrenSeparately,
   loadDirectReplies=false,
   showPinnedOnProfile=false,
+  enableGuidelines=true,
   classes
 }: {
   treeOptions: CommentTreeOptions,
@@ -76,6 +77,7 @@ const CommentsNode = ({
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
   showPinnedOnProfile?: boolean,
+  enableGuidelines?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -176,7 +178,7 @@ const CommentsNode = ({
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame

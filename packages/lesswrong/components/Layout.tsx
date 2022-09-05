@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
+    minHeight: `calc(100vh - 90px)`, //90px is approximately the height of the header
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,

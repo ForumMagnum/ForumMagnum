@@ -476,7 +476,6 @@ if (taggingNameIsSet.get()) {
     {
       name: 'taggingSubforumCustomName',
       path: `/topics/:slug/subforum`,
-      subtitle: "Forecasting", // TODO: set this per subforum
       componentName: 'TagSubforumPage',
       hideFooter: true
     }

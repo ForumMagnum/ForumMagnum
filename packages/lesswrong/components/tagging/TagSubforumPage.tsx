@@ -7,7 +7,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useSingle } from "../../lib/crud/withSingle";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {},
+  root: {
+    marginBottom: 0
+  },
   title: {
     marginLeft: 24,
     marginBottom: 10,
@@ -47,12 +49,12 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   return (
     <>
       <SingleColumnSection className={classes.root}>
-        {/* <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin /> */}
+        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin />
         <AnalyticsContext pageSectionContext="commentsSection">
           <PostsCommentsThread
-            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew" }} // TODO, add new view for 
+            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew", limit: 50 }} // TODO, add new view for 
             newForm
-            condensed
+            timelineView
             post={post}
           />
         </AnalyticsContext>
