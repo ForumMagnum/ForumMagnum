@@ -15,6 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   columnSection: {
     marginBottom: 0,
+    width: '100%',
   },
   title: {
     marginLeft: 24,
