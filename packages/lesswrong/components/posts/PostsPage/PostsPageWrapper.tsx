@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle, UseSingleProps } from '../../../lib/crud/withSingle';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
+import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -36,7 +37,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     return <div><Loading/></div>
   } else if (!post) {
     return <Error404/>
-  } else if (post.fmCrosspost?.isCrosspost && post.fmCrosspost?.foreignPostId) {
+  } else if (isPostWithForeignId(post)) {
     return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
   }
 

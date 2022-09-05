@@ -17,15 +17,25 @@ const crosspostContext = createContext<CrosspostContext | null>(null);
 
 export const useCrosspostContext = () => useContext(crosspostContext);
 
+export type PostWithForeignId = PostType & {
+  fmCrosspost: {
+    isCrosspost: true,
+    hostedHere: boolean,
+    foreignPostId: string,
+  },
+};
+
+export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =>
+  !!post.fmCrosspost &&
+  !!post.fmCrosspost.isCrosspost &&
+  typeof post.fmCrosspost.hostedHere === "boolean" &&
+  !!post.fmCrosspost.foreignPostId;
+
 const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
-  post: PostType,
+  post: PostWithForeignId,
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
-  if (!post.fmCrosspost?.foreignPostId) {
-    throw new Error("Invalid use of PostsPageCrosspostWrapper - foreignPostId is not set");
-  }
-
   const apolloClient = useCrosspostApolloClient();
   const { document, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">({
     ...fetchProps,
