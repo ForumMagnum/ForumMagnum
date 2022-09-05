@@ -1,6 +1,9 @@
 import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../instanceSettings';
+import difference from 'lodash/difference';
+import Messages from '../messages/collection';
+import { createNotifications } from '../../../server/notificationCallbacksHelpers';
 
 const schema: SchemaType<DbConversation> = {
   createdAt: {
@@ -24,6 +27,21 @@ const schema: SchemaType<DbConversation> = {
       collectionName: "Users",
       type: "User"
     }),
+    onUpdate: async ({data, oldDocument}: {
+      data: Partial<DbConversation>,
+      oldDocument: DbConversation,
+    }) => {
+      const beforeParticipantIds = oldDocument.participantIds || [];
+      const afterParticipantIds = data.participantIds || [];
+      const newParticipantIds = difference(afterParticipantIds, beforeParticipantIds);
+
+      if (newParticipantIds.length) {
+        // Notify newly added users of the most recent message
+        const mostRecentMessage = await Messages.findOne({conversationId: oldDocument._id}, {sort: {createdAt: -1}});
+        if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
+          void createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+      }
+    },
     viewableBy: ['members'],
     insertableBy: ['members'],
     editableBy: ['members'],
