@@ -7,6 +7,14 @@ class Arg {
 
 type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
+const arithmeticOps = {
+  $add: "+",
+  $subtract: "-",
+  $multiply: "*",
+  $divide: "/",
+  $pow: "^",
+};
+
 const comparisonOps = {
   $eq: "=",
   $ne: "<>",
@@ -38,6 +46,7 @@ export type Lookup = SimpleLookup | PipelineLookup;
 
 export type SelectSqlOptions = {
   count?: boolean,
+  addFields?: any // TODO typing
   lookup?: Lookup,
   unwind?: any, // TODO typing
 }
@@ -302,6 +311,55 @@ class Query<T extends DbObject> {
     return "*";
   }
 
+  private compileExpression(expr: any): Atom<T>[] {
+    if (typeof expr === "string") {
+      return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1)) : new Arg(expr)];
+    } else if (typeof expr !== "object" || expr === null) {
+      return [new Arg(expr)];
+    }
+
+    const op = Object.keys(expr)[0];
+    if (arithmeticOps[op]) {
+      let result: Atom<T>[] = ["("];
+      const operands = expr[op].map((arg: any) => this.compileExpression(arg));
+      for (let i = 0; i < operands.length; i++) {
+        if (i > 0) {
+          result.push(arithmeticOps[op]);
+        }
+        result = result.concat(operands[i]);
+      }
+      result.push(")");
+      return result;
+    }
+
+    if (op === "$cond") {
+      return [
+        "(CASE WHEN",
+        ...this.compileCondition(expr[op].if),
+        "THEN",
+        ...this.compileExpression(expr[op].then),
+        "ELSE",
+        ...this.compileExpression(expr[op].else),
+        "END)",
+      ];
+    }
+
+    throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
+  }
+
+  private compileCondition(expr: any): Atom<T>[] {
+    if (typeof expr === "string" && expr[0] === "$") {
+      return [this.resolveFieldName(expr.slice(1)), "IS NOT NULL"];
+    }
+    return this.compileExpression(expr);
+  }
+
+  private getSyntheticFields<S extends {}>(addFields: S) {
+    return Object.keys(addFields).flatMap((field) =>
+      [",", ...this.compileExpression(addFields[field]), "AS", `"${field}"`]
+    );
+  }
+
   static insert<T extends DbObject>(table: Table, data: T, allowConflicts = false): Query<T> {
     const query = new Query(table, [`INSERT INTO "${table.getName()}"`]);
     query.appendValuesList(data);
@@ -318,11 +376,11 @@ class Query<T extends DbObject> {
     sqlOptions?: SelectSqlOptions,
   ): Query<T> {
     const query = new Query(table, ["SELECT"]);
-    query.atoms = query.atoms.concat([
-      query.getProjectedFields(table, sqlOptions?.count, options?.projection),
-      "FROM",
-      table,
-    ]);
+    query.atoms.push(query.getProjectedFields(table, sqlOptions?.count, options?.projection));
+    if (sqlOptions?.addFields) {
+      query.atoms = query.atoms.concat(query.getSyntheticFields(sqlOptions.addFields));
+    }
+    query.atoms = query.atoms.concat(["FROM", table]);
 
     if (sqlOptions?.lookup) {
       query.appendLateralJoin(sqlOptions.lookup);

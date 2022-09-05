@@ -2,6 +2,7 @@ import Table from "./Table";
 import Query, { Lookup } from "./Query";
 
 class Unit<T extends DbObject> {
+  private addFields: any;
   private sort?: any;
   private limit?: number;
   private selector?: any;
@@ -21,6 +22,7 @@ class Unit<T extends DbObject> {
         projection: this.project,
       },
       {
+        addFields: this.addFields,
         lookup: this.lookup,
         unwind: this.unwind,
       },
@@ -43,9 +45,7 @@ class Unit<T extends DbObject> {
   }
 
   addAddFieldsStage(data: any): Unit<T> {
-    // TODO
-    // throw new Error("$addFields not yet implemented");
-    return this;
+    return this.addSimpleStage("addFields", data);
   }
 
   addSortStage(data: any): Unit<T> {
@@ -66,8 +66,7 @@ class Unit<T extends DbObject> {
 
   addUnwindStage(data: any): Unit<T> {
     // TODO
-    // throw new Error("$unwind not yet implemented");
-    return this;
+    throw new Error("$unwind not yet implemented");
   }
 }
 

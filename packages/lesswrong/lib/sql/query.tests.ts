@@ -229,5 +229,36 @@ describe("Query", () => {
       expectedSql: 'SELECT "a", "b", "c", "schemaVersion" FROM "TestCollection" WHERE "a" = $1',
       expectedArgs: [3],
     },
+    {
+      name: "can build select with arithmetic synthetic fields",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $multiply: [
+              { $add: ["$a", 8], },
+              6,
+            ],
+          },
+        },
+      }),
+      expectedSql: 'SELECT * , ( ( "a" + $1 ) * $2 ) AS "k" FROM "TestCollection" WHERE "a" = $3',
+      expectedArgs: [8, 6, 3],
+    },
+    {
+      name: "can build select with conditional synthetic fields",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $cond: {
+              if: "$a",
+              then: 2,
+              else: 4,
+            },
+          },
+        },
+      }),
+      expectedSql: 'SELECT * , (CASE WHEN "a" IS NOT NULL THEN $1 ELSE $2 END) AS "k" FROM "TestCollection" WHERE "a" = $3',
+      expectedArgs: [2, 4, 3],
+    },
   ]);
 });
