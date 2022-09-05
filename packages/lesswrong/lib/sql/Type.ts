@@ -120,6 +120,10 @@ export class IdType extends StringType {
   constructor(private collection: CollectionBase<any>) {
     super(27);
   }
+
+  getCollection() {
+    return this.collection;
+  }
 }
 
 export class NotNullType extends Type {

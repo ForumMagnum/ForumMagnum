@@ -29,7 +29,6 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   private async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
     const {sql, args} = query.compile();
-    console.log(sql);
     try {
       return await this.getSqlClient().unsafe(sql, args) as unknown as R[]|null;
     } catch (error) {

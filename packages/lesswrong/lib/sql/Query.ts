@@ -8,6 +8,7 @@ class Arg {
 type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
 const isArrayOp = (op: string) => op === "$in" || op === "$nin";
+const isMagnitudeOp = (op: string) => ["$lt", "$lte", "$gt", "$gte"].indexOf(op) > -1;
 
 const comparisonOps = {
   $eq: "=",
@@ -112,6 +113,16 @@ class Query<T extends DbObject> {
       return "::TIMESTAMPTZ";
     }
     return "";
+  }
+
+
+  private getUnifiedTypeHint(a: Atom<T>[], b: Atom<T>[]): string | undefined {
+    const aArg = a.find((atom) => atom instanceof Arg) as Arg;
+    const bArg = b.find((atom) => atom instanceof Arg) as Arg;
+    if (!aArg || !bArg || typeof aArg.value !== typeof bArg.value) {
+      return undefined;
+    }
+    return this.getTypeHint(aArg.value);
   }
 
   private resolveTableName(): string {
@@ -312,16 +323,18 @@ class Query<T extends DbObject> {
     return "*";
   }
 
-  private compileExpression(expr: any): Atom<T>[] {
+  private compileExpression(expr: any, typeHint?: any): Atom<T>[] {
     if (typeof expr === "string") {
-      return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1)) : new Arg(expr)];
+      const name = expr.slice(1);
+      return [expr[0] === "$" ? this.resolveFieldName(name, typeHint) : new Arg(expr)];
     } else if (typeof expr !== "object" || expr === null || expr instanceof Date) {
       return [new Arg(expr)];
     }
 
     const op = Object.keys(expr)[0];
     if (arithmeticOps[op]) {
-      const operands = expr[op].map((arg: any) => this.compileExpression(arg));
+      const isMagnitude = isMagnitudeOp(op);
+      const operands = expr[op].map((arg: any) => this.compileExpression(arg, isMagnitude ? 0 : undefined));
       const isDateDiff = op === "$subtract" && operands.length === 2 && operands.some(
         (arr: Atom<T>[]) => arr.some((atom) => atom instanceof Arg && atom.value instanceof Date)
       );
@@ -337,15 +350,12 @@ class Query<T extends DbObject> {
     }
 
     if (op === "$cond") {
-      return [
-        "(CASE WHEN",
-        ...this.compileCondition(expr[op].if),
-        "THEN",
-        ...this.compileExpression(expr[op].then),
-        "ELSE",
-        ...this.compileExpression(expr[op].else),
-        "END)",
-      ];
+      const ifExpr = this.compileCondition(expr[op].if);
+      const thenExpr = this.compileExpression(expr[op].then);
+      const elseExpr = this.compileExpression(expr[op].else);
+      const hint = this.getUnifiedTypeHint(thenExpr, elseExpr);
+      const result = ["(CASE WHEN", ...ifExpr, "THEN", ...thenExpr, "ELSE", ...elseExpr, "END)"];
+      return hint ? [...result, hint] : result;
     }
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
@@ -353,7 +363,8 @@ class Query<T extends DbObject> {
 
   private compileCondition(expr: any): Atom<T>[] {
     if (typeof expr === "string" && expr[0] === "$") {
-      return [this.resolveFieldName(expr.slice(1)), "IS NOT NULL"];
+      const name = expr.slice(1);
+      return [this.resolveFieldName(name), "IS NOT NULL"];
     }
     return this.compileExpression(expr);
   }
