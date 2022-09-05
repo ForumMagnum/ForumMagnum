@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -22,10 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   maxWidthRoot: {
     maxWidth: 720,
-  },
-  nestedScrollRoot: {
-    display: 'flex',
-    flexDirection: 'column'
   },
   inline: {
     display: 'inline',
@@ -69,23 +65,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({
-  post,
-  tag,
-  commentCount,
-  loadMoreCount,
-  totalComments,
-  loadMoreComments,
-  loadingMoreComments,
-  comments,
-  parentAnswerId,
-  startThreadTruncated,
-  newForm=true,
-  classes,
-  condensed=false,
-  reversed=true,
-  nestedScroll=true,
-}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -98,29 +78,12 @@ const CommentsListSection = ({
   startThreadTruncated?: boolean,
   newForm: boolean,
   classes: ClassesType,
-  condensed?: boolean,
-  reversed?: boolean,
-  nestedScroll?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
   const now = useCurrentTime();
-  
-  const bodyRef = useRef<HTMLDivElement>(null)
-  const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
-  
-  useEffect(() => {
-    recalculateTopAbsolutePosition()
-    window.addEventListener('resize', recalculateTopAbsolutePosition)
-    return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-  }, [])
-  
-  const recalculateTopAbsolutePosition = () => {
-    if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
-      setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
-  }
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setAnchorEl(event.currentTarget);
@@ -135,15 +98,10 @@ const CommentsListSection = ({
     setAnchorEl(null);
   }
 
-  //, DEBUG
-  const newLimit = commentCount + (loadMoreCount || commentCount)
-
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-    if (condensed) {
-      return null;
-    }
+    const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -191,72 +149,45 @@ const CommentsListSection = ({
     </CommentsListMeta>
   }
 
-  const commentsListComponent = (
-    <Components.CommentsList
-      treeOptions={{
-        highlightDate: highlightDate,
-        post: post,
-        postPage: true,
-        tag: tag,
-      }}
-      totalComments={totalComments}
-      comments={comments}
-      startThreadTruncated={startThreadTruncated}
-      parentAnswerId={parentAnswerId}
-      nestedScroll={nestedScroll}
-    />
-  );
-
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
   return (
-    <div
-      ref={bodyRef}
-      className={classNames(classes.root, { [classes.maxWidthRoot]: !tag, [classes.nestedScrollRoot]: nestedScroll })}
-      style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
-    >
-      {/* , TODO make this preserve scroll */}
-      {commentCount < totalComments ? (
-        <span>
-          Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
-          {loadingMoreComments ? (
-            <Components.Loading />
-          ) : (
-            <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>
-          )}
-        </span>
-      ) : (
-        <span>
-          {totalComments} comments, sorted by <Components.CommentsViews post={post} />
-        </span>
-      )}
-      {reversed && commentsListComponent}
-      {totalComments ? renderTitleComponent() : null}
-      <div id="comments" />
+    <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
+      { totalComments ? renderTitleComponent() : null }
+      <div id="comments"/>
 
-      {/* , TODO add spacing if reversed */}
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft && (
+      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          {!condensed && <div className={classes.newCommentLabel}>New Comment</div>}
+          <div className={classes.newCommentLabel}>New Comment</div>
           {post?.isEvent && post?.rsvps?.length && (
-            <div className={classes.newCommentSublabel}>Everyone who RSVP'd to this event will be notified.</div>
+            <div className={classes.newCommentSublabel}>
+              Everyone who RSVP'd to this event will be notified.
+            </div>
           )}
           <Components.CommentsNewForm
-            post={post}
-            tag={tag}
+            post={post} tag={tag}
             prefilledProps={{
-              parentAnswerId: parentAnswerId,
-            }}
+              parentAnswerId: parentAnswerId}}
             type="comment"
-            enableGuidelines={false} //, TODO vary
           />
         </div>
-      )}
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) && (
-        <Components.CantCommentExplanation post={post} />
-      )}
-      {!reversed && commentsListComponent}
+      }
+      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
+        <Components.CantCommentExplanation post={post}/>
+      }
+      <Components.CommentsList
+        treeOptions={{
+          highlightDate: highlightDate,
+          post: post,
+          postPage: true,
+          tag: tag,
+        }}
+        totalComments={totalComments}
+        comments={comments}
+        startThreadTruncated={startThreadTruncated}
+        parentAnswerId={parentAnswerId}
+      />
     </div>
   );
 }

@@ -179,13 +179,6 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
         Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
       </a>
     </LWTooltip>}
-    {/* , TODO remove */}
-    {<Link
-      className={classes.button}
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/subforum`}
-    >
-      <HistoryIcon /><span className={classes.buttonLabel}>Subforum</span>
-    </Link>}
   </div>
 }
 

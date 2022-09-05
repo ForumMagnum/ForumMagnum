@@ -22,18 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   maxWidthRoot: {
     maxWidth: 720,
   },
-  inline: {
-    display: 'inline',
-    color: theme.palette.text.secondary,
-  },
-  clickToHighlightNewSince: {
-    display: 'inline',
-    color: theme.palette.text.secondary,
-    "@media print": { display: "none" },
-  },
-  button: {
-    color: theme.palette.lwTertiary.main,
-  },
   newComment: {
     border: theme.palette.border.commentBorder,
     position: 'relative',
@@ -44,20 +32,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-  newCommentLabel: {
-    paddingLeft: theme.spacing.unit*1.5,
-    ...theme.typography.commentStyle,
-    ...theme.typography.body2,
-    fontWeight: 600,
-    marginTop: 12
-  },
-  newCommentSublabel: {
-    paddingLeft: theme.spacing.unit*1.5,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    fontStyle: 'italic',
-    marginTop: 4,
-  }
 })
 
 interface CommentsTimelineSectionState {
@@ -78,7 +52,6 @@ const CommentsTimelineSection = ({
   startThreadTruncated,
   newForm=true,
   classes,
-  condensed=true,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -92,11 +65,11 @@ const CommentsTimelineSection = ({
   startThreadTruncated?: boolean,
   newForm: boolean,
   classes: ClassesType,
-  condensed?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   
   const bodyRef = useRef<HTMLDivElement>(null)
+  // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
   
   useEffect(() => {
@@ -110,8 +83,6 @@ const CommentsTimelineSection = ({
     if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
   }
-
-  // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
   return (
@@ -138,7 +109,6 @@ const CommentsTimelineSection = ({
       />
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          {!condensed && <div className={classes.newCommentLabel}>New Comment</div>}
           <Components.CommentsNewForm
             post={post}
             tag={tag}

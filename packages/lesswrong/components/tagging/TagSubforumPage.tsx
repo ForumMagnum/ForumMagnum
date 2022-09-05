@@ -5,10 +5,16 @@ import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useSingle } from "../../lib/crud/withSingle";
+import { isProduction } from "../../lib/executionEnvironment";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: 0
+    marginBottom: 0,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  columnSection: {
+    marginBottom: 0,
   },
   title: {
     marginLeft: 24,
@@ -34,7 +40,12 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     return <Loading />;
   }
 
-  if (error && !isMissingDocumentError(error)) {
+  // TODO-WH: remove isProduction flag here when we are ready to show this to users
+  if (isProduction || !tag || !tag.subforumShortformPostId) {
+    return <Error404 />;
+  }
+
+  if ((error && !isMissingDocumentError(error))) {
     return (
       <SingleColumnSection>
         <Typography variant="body1">{error.message}</Typography>
@@ -42,24 +53,20 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
-  if (!tag) {
-    return <Error404 />;
-  }
-
   return (
-    <>
-      <SingleColumnSection className={classes.root}>
+    <div className={classes.root}>
+      <SingleColumnSection className={classes.columnSection}>
         <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin />
         <AnalyticsContext pageSectionContext="commentsSection">
           <PostsCommentsThread
-            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew", limit: 50 }} // TODO, add new view for 
+            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew", limit: 50 }}
             newForm
             timelineView
             post={post}
           />
         </AnalyticsContext>
       </SingleColumnSection>
-    </>
+    </div>
   );
 };
 

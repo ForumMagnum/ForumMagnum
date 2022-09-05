@@ -36,7 +36,6 @@ const CommentsTimelineFn = ({
   forceNotSingleLine,
   reversed = true,
   nestedScroll = true,
-  topAbsolutePosition = 0,
   classes,
 }: {
   treeOptions: CommentTreeOptions;
@@ -54,8 +53,6 @@ const CommentsTimelineFn = ({
   forceNotSingleLine?: boolean;
   reversed?: boolean;
   nestedScroll?: boolean;
-  topAbsolutePosition?: number;
-  
   classes: ClassesType;
 }) => {
   const bodyRef = useRef<HTMLDivElement|null>(null);
