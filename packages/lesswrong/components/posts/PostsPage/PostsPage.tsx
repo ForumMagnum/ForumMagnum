@@ -187,8 +187,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostsPageCrosspostComments
+    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles
   } = Components
 
   useEffect(() => {
@@ -289,7 +288,6 @@ const PostsPage = ({post, refetch, classes}: {
         </div>}
         {/* Comments Section */}
         <div className={classes.commentsSection}>
-          {post.fmCrosspost?.isCrosspost && <PostsPageCrosspostComments />}
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
             {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
