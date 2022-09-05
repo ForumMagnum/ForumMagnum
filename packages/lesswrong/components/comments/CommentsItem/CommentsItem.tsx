@@ -146,7 +146,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
-  enableGuidelines: boolean,
+  enableGuidelines?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);

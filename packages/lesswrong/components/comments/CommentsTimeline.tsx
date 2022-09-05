@@ -58,8 +58,6 @@ const CommentsTimelineFn = ({
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const [userHasScrolled, setUserHasScrolled] = useState(false);
 
-  // TODO note that I removed the ability to expand all threads
-
   // Scroll to the bottom when the page loads
   const currentHeight = bodyRef.current?.clientHeight;
   useEffect(() => {

@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-//, TODO rename this something that implies loading
 const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false }: {
   post?: PostsDetails,
   terms: CommentsViewTerms,
