@@ -622,10 +622,14 @@ addFieldsDict(Users, {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    label: 'Delete this user',
-    control: 'checkbox',
-    group: formGroups.adminOptions,
+    canUpdate: ['admins', userOwns],
+    label: 'Deactivate account',
+    control: 'CheckboxWithPopup',
+    order: 1000,
+    group: formGroups.default,
+    form: {
+      popupMessage: "TODO: Write me"
+    }
   },
 
   // voteBanned: All future votes of this user have weight 0
