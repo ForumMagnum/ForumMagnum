@@ -553,7 +553,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               Account Settings
             </Link>}
             {currentUser && currentUser._id === user._id && <a href="/logout">
-              Log out
+              Log Out
             </a>}
           </Typography>
         </div>
