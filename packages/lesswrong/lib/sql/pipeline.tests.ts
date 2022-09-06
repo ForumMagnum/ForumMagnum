@@ -23,7 +23,7 @@ describe("Pipeline", () => {
           $limit: 10,
         },
       ]).toQuery(),
-      expectedSql: 'SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2',
       expectedArgs: [3, 10],
     },
     {
@@ -48,7 +48,7 @@ describe("Pipeline", () => {
           },
         },
       ]).toQuery(),
-      expectedSql: 'SELECT * FROM ( SELECT * FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 ) A WHERE "b" = $3',
+      expectedSql: 'SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 ) A WHERE "b" = $3',
       expectedArgs: [3, 10, "test"],
     },
   ]);

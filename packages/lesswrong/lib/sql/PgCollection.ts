@@ -27,7 +27,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return sql;
   }
 
-  private async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
+  /**
+   * Execute the given query
+   * The `selector` parameter is completely optional and is only used to improve
+   * the error message if something goes wrong
+   */
+  async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
     const {sql, args} = query.compile();
     try {
       return await this.getSqlClient().unsafe(sql, args) as unknown as R[]|null;
@@ -37,9 +42,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     }
   }
 
-  getTable = () => {
-    throw new Error("PgCollection: getTable not yet implemented");
-  }
+  getTable = () => this.pgTable;
 
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {

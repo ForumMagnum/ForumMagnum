@@ -52,10 +52,12 @@ export type SelectSqlOptions = {
   addFields?: any // TODO typing
   lookup?: Lookup,
   unwind?: any, // TODO typing
+  joinHook?: string,
 }
 
 class Query<T extends DbObject> {
   private syntheticFields: Record<string, Type> = {};
+  private hasLateralJoin: boolean = false;
 
   private constructor(
     private table: Table | Query<T>,
@@ -152,6 +154,10 @@ class Query<T extends DbObject> {
     }
 
     throw new Error(`Cannot resolve field name: ${field}`);
+  }
+
+  private getStarSelector() {
+    return this.table instanceof Table && !this.hasLateralJoin ? `"${this.table.getName()}".*` : "*";
   }
 
   private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom<T>[] {
@@ -291,7 +297,7 @@ class Query<T extends DbObject> {
     }
 
     if (!projection) {
-      return ["*"];
+      return [this.getStarSelector()];
     }
 
     const include: string[] = [];
@@ -310,7 +316,7 @@ class Query<T extends DbObject> {
       }
     }
 
-    let fields: string[] = ["*"];
+    let fields: string[] = [this.getStarSelector()];
     if (include.length && !exclude.length) {
       if (!include.includes("_id")) {
         include.push("_id");
@@ -325,7 +331,7 @@ class Query<T extends DbObject> {
       fields = include;
     }
 
-    let projectedAtoms: Atom<T>[] = [fields.map((field) => field === "*" ? field : `"${field}"`).join(", ")];
+    let projectedAtoms: Atom<T>[] = [fields.map((field) => field.indexOf("*") > -1 ? field : `"${field}"`).join(", ")];
     if (Object.keys(addFields).length) {
       projectedAtoms = projectedAtoms.concat(this.getSyntheticFields(addFields));
     }
@@ -423,6 +429,7 @@ class Query<T extends DbObject> {
     sqlOptions?: SelectSqlOptions,
   ): Query<T> {
     const query = new Query(table, ["SELECT"]);
+    query.hasLateralJoin = !!sqlOptions?.lookup;
 
     const {addFields, projection} = query.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
     query.atoms = query.atoms.concat(query.getProjectedFields(table, sqlOptions?.count, projection));
@@ -433,6 +440,10 @@ class Query<T extends DbObject> {
 
     if (sqlOptions?.lookup) {
       query.appendLateralJoin(sqlOptions.lookup);
+    }
+
+    if (sqlOptions?.joinHook) {
+      query.atoms.push(sqlOptions.joinHook);
     }
 
     if (selector && Object.keys(selector).length > 0) {

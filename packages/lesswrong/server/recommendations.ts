@@ -9,6 +9,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import { WeightedList } from './weightedList';
 import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import Query from "../lib/sql/Query";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -159,8 +160,15 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   algorithm: RecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
   if (Posts.isPostgres()) {
-    // TODO
-    throw new Error("allRecommendablePosts not yet implemented for postgres");
+    const joinHook = algorithm.onlyUnread && currentUser
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" = FALSE`
+      : undefined;
+    const query = Query.select(
+      Query.select(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
+      {},
+      {projection: scoreRelevantFields},
+    );
+    return Posts.executeQuery(query) as Promise<DbPost[]>;
   } else {
     return await Posts.aggregate([
       // Filter to recommendable posts
