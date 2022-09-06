@@ -73,8 +73,8 @@ class Unit<T extends DbObject> {
 class Pipeline<T extends DbObject> {
   constructor(
     private table: Table,
-    private stages: any[] = [],
-    private options?: any,
+    private stages: MongoAggregationPipeline<T> = [],
+    private options_?: MongoAggregationOptions, // TODO: What can options be?
   ) {}
 
   compile(): {sql: string, args: any[]} {

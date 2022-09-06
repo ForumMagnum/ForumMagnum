@@ -27,19 +27,23 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return sql;
   }
 
+  private async rawExecuteQuery<R extends {} = T>(query: Query<T>, selector?: any) {
+    const {sql, args} = query.compile();
+    try {
+      return await this.getSqlClient().unsafe(sql, args);
+    } catch (error) {
+      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${util.inspect(selector, {depth: null})}`);
+      throw error;
+    }
+  }
+
   /**
    * Execute the given query
    * The `selector` parameter is completely optional and is only used to improve
    * the error message if something goes wrong
    */
-  async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
-    const {sql, args} = query.compile();
-    try {
-      return await this.getSqlClient().unsafe(sql, args) as unknown as R[]|null;
-    } catch (error) {
-      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${util.inspect(selector, {depth: null})}`);
-      throw error;
-    }
+  executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
+    return this.rawExecuteQuery(query, selector) as unknown as Promise<R[]|null>;
   }
 
   getTable = () => this.pgTable;
@@ -59,8 +63,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     };
   }
 
-  findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
-    const select = Query.select<T>(this.pgTable, selector, {limit: 1, ...options});
+  findOne = async (
+    selector?: string | MongoSelector<T>,
+    options?: MongoFindOneOptions<T>,
+    projection?: MongoProjection<T>,
+  ): Promise<T|null> => {
+    const select = Query.select<T>(this.pgTable, selector, {limit: 1, ...options, projection});
     const result = await this.executeQuery<T>(select, selector);
     return result ? result[0] as unknown as T : null;
   }
@@ -71,25 +79,36 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return result ? result[0] as unknown as T : null;
   }
 
-  rawInsert = async (doc, options) => {
-    // TODO: What can the options be?
-    const insert = Query.insert<T>(this.pgTable, doc);
+  // TODO: What can the options be?
+  rawInsert = async (doc: any, options: any) => { // TODO types
+    const insert = Query.insert<T>(this.pgTable, doc, options);
     await this.executeQuery(insert, doc);
   }
 
-  rawUpdateOne = async (selector, update, options) => {
+  rawUpdateOne = async (
+    selector: string | MongoSelector<T>,
+    modifier: MongoModifier<T>,
+    options: MongoUpdateOptions<T>,
+  ) => {
+    const update = Query.update<T>(this.table, selector, modifier, options, 1);
     throw new Error("PgCollection: rawUpdateOne not yet implemented");
   }
 
-  rawUpdateMany = async (selector, update, options) => {
+  rawUpdateMany = async (
+    selector: string | MongoSelector<T>,
+    modifier: MongoModifier<T>,
+    options: MongoUpdateOptions<T>,
+  ) => {
+    const update = Query.update<T>(this.table, selector, modifier, options);
     throw new Error("PgCollection: rawUpdateMany not yet implemented");
   }
 
-  rawRemove = async (selector, options) => {
+  rawRemove = async (selector: string | MongoSelector<T>, options?: any) => { // TODO: Type of options
     throw new Error("PgCollection: rawRemove not yet implemented");
   }
 
-  _ensureIndex = async (fieldOrSpec, options) => {
+  // TODO: What are the options?
+  _ensureIndex = async (fieldOrSpec: string | Record<string, any>, options_: any) => {
     const index = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
     if (!this.pgTable.hasIndex(index)) {
       this.pgTable.addIndex(index);
@@ -99,7 +118,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     }
   }
 
-  aggregate = (pipeline, options) => {
+  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
     return {
       toArray: async () => {
         try {
@@ -116,22 +135,22 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   rawCollection = () => ({
     bulkWrite: async (operations, options) => {
-      throw new Error("PgCollection: rawCollection.bulkWrite not yet implemented");
+      throw new Error("TODO: PgCollection: rawCollection.bulkWrite not yet implemented");
     },
     findOneAndUpdate: async (filter, update, options) => {
-      throw new Error("PgCollection: rawCollection.findOneAndUpdate not yet implemented");
+      throw new Error("TODO: PgCollection: rawCollection.findOneAndUpdate not yet implemented");
     },
     dropIndex: async (indexName, options) => {
-      throw new Error("PgCollection: rawCollection.dropIndex not yet implemented");
+      throw new Error("TODO: PgCollection: rawCollection.dropIndex not yet implemented");
     },
     indexes: async (options) => {
-      throw new Error("PgCollection: rawCollection.indexes not yet implemented");
+      throw new Error("TODO: PgCollection: rawCollection.indexes not yet implemented");
     },
     updateOne: async (selector, update, options) => {
-      throw new Error("PgCollection: rawCollection.updateOne not yet implemented");
+      throw new Error("TODO: PgCollection: rawCollection.updateOne not yet implemented");
     },
     updateMany: async (selector, update, options) => {
-      throw new Error("PgCollection: rawCollection.updateMany not yet implemented");
+      throw new Error("TODO: PgCollection: rawCollection.updateMany not yet implemented");
     },
   });
 }

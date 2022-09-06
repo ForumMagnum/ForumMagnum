@@ -429,10 +429,14 @@ class Query<T extends DbObject> {
 
   static select<T extends DbObject>(
     table: Table | Query<T>,
-    selector?: MongoSelector<T>,
+    selector?: string | MongoSelector<T>,
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
   ): Query<T> {
+    if (typeof selector === "string") {
+      selector = {_id: selector};
+    }
+
     const query = new Query(table, ["SELECT"]);
     query.hasLateralJoin = !!sqlOptions?.lookup;
 
@@ -461,6 +465,28 @@ class Query<T extends DbObject> {
         throw new Error("Collation not yet implemented")
       }
       query.appendOptions(options);
+    }
+
+    return query;
+  }
+
+  static update<T extends DbObject>(
+    table: Table,
+    selector: string | MongoSelector<T>,
+    modifier: MongoModifier<T>,
+    options: MongoUpdateOptions<T>,
+    limit?: number,
+  ): Query<T> {
+    if (typeof selector === "string") {
+      selector = {_id: selector};
+    }
+
+    const query = new Query(table, ["UPDATE", table, "SET"]);
+
+    // TODO
+
+    if (limit) {
+      query.atoms = query.atoms.concat(["LIMIT", new Arg(limit)]);
     }
 
     return query;

@@ -7,7 +7,7 @@
  */
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
-import { CollationDocument } from 'mongodb';
+import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type PgCollection from "../sql/PgCollection";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
@@ -127,6 +127,7 @@ type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
+type MongoAggregationOptions = CollectionAggregationOptions;
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };

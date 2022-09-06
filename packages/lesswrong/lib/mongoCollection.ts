@@ -112,7 +112,7 @@ export class MongoCollection<T extends DbObject> {
   }
 
   getTable = () => {
-    if (bundleIsServer) { 
+    if (bundleIsServer) {
       if (!this.table)
         this.table = db.collection(this.tableName);
       return this.table;
@@ -176,7 +176,11 @@ export class MongoCollection<T extends DbObject> {
       return insertResult.insertedId;
     });
   }
-  rawUpdateOne = async (selector, update, options) => {
+  rawUpdateOne = async (
+    selector: string | MongoSelector<T>,
+    update: MongoModifier<T>,
+    options: MongoUpdateOptions<T>,
+  ) => {
     if (disableAllWrites) return;
     try {
       const table = this.getTable();
@@ -197,7 +201,11 @@ export class MongoCollection<T extends DbObject> {
       throw e;
     }
   }
-  rawUpdateMany = async (selector, update, options) => {
+  rawUpdateMany = async (
+    selector: string | MongoSelector<T>,
+    update: MongoModifier<T>,
+    options: MongoUpdateOptions<T>,
+  ) => {
     if (disableAllWrites) return;
     try {
       const table = this.getTable();
@@ -218,14 +226,14 @@ export class MongoCollection<T extends DbObject> {
       throw e;
     }
   }
-  rawRemove = async (selector, options) => {
+  rawRemove = async (selector: string | MongoSelector<T>, options?: any) => {
     if (disableAllWrites) return;
     const table = this.getTable();
     return await wrapQuery(`${this.tableName}.remove`, async () => {
       return await table.remove(removeUndefinedFields(selector), options);
     });
   }
-  _ensureIndex = async (fieldOrSpec, options)=>{
+  _ensureIndex = async (fieldOrSpec: string | Record<string, any>, options: any)=>{
     if (disableAllWrites) return;
     const table = this.getTable();
     try {
@@ -235,15 +243,14 @@ export class MongoCollection<T extends DbObject> {
       console.error(`Error creating index ${JSON.stringify(fieldOrSpec)} on ${this.tableName}: ${e}`);
     }
   }
-  
-  
+
   //TODO
   views: any
   defaultView: any
   addView: any
   addDefaultView: any
-  
-  aggregate = (pipeline, options) => {
+
+  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
     const table = this.getTable();
     return {
       toArray: async () => {
