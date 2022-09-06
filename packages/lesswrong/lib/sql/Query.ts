@@ -1,5 +1,6 @@
 import { getCollectionByTableName } from "../vulcan-lib";
 import Table from "./Table";
+import { Type, UnknownType } from "./Type";
 
 class Arg {
   constructor(public value: any) {}
@@ -54,18 +55,19 @@ export type SelectSqlOptions = {
 }
 
 class Query<T extends DbObject> {
+  private syntheticFields: Record<string, Type> = {};
+
   private constructor(
     private table: Table | Query<T>,
     private atoms: Atom<T>[] = [],
   ) {}
 
   getField(name: string) {
-    return this.table.getField(name);
+    return this.getFields()[name] ?? this.table?.getField(name);
   }
 
   getFields() {
-    if (this.table instanceof Query) throw new Error("TODO: getFields for Query");
-    return this.table.getFields();
+    return this.table instanceof Query ? this.table.syntheticFields : this.table.getFields();
   }
 
   toSQL(sql: SqlClient) {
@@ -381,6 +383,9 @@ class Query<T extends DbObject> {
   }
 
   private getSyntheticFields(addFields: Record<string, any>): Atom<T>[] {
+    for (const field in addFields) {
+      this.syntheticFields[field] = new UnknownType();
+    }
     return Object.keys(addFields).flatMap((field) =>
       [",", ...this.compileExpression(addFields[field]), "AS", `"${field}"`]
     );

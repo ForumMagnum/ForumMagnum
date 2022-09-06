@@ -162,3 +162,13 @@ export class DefaultValueType extends Type {
     return this.subtype.toConcrete();
   }
 }
+
+export class UnknownType extends Type {
+  constructor() {
+    super();
+  }
+
+  toString(): never {
+    throw new Error("Cannot convert unknown type to string");
+  }
+}
