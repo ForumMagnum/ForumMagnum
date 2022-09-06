@@ -21,13 +21,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   newComment: {
     border: theme.palette.border.commentBorder,
+    borderWidth: 2,
     position: 'relative',
     borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     marginTop: 10,
     "@media print": {
       display: "none"
-    }
+    },
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
   },
 })
 
@@ -106,8 +108,12 @@ const CommentsTimelineSection = ({
             prefilledProps={{
               parentAnswerId: parentAnswerId,
             }}
+            formProps={{
+              editorHintText: `Message...`,
+            }}
             type="comment"
             enableGuidelines={false}
+            displayMode="minimalist"
           />
         </div>
       )}

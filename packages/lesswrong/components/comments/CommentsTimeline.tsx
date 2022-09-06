@@ -98,6 +98,7 @@ const CommentsTimelineFn = ({
             shortform={(treeOptions.post as PostsBase)?.shortform}
             isChild={defaultNestingLevel > 1}
             enableGuidelines={false}
+            displayMode={"minimalist"}
           />
         ))}
       </div>

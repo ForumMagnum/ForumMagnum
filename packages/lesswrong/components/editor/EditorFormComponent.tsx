@@ -22,6 +22,7 @@ import { markdownToHtmlSimple } from '../../lib/editor/utils';
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
+const commentMinimalistEditorHeight = 40;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
@@ -86,6 +87,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: commentEditorHeight,
     '& .ck.ck-content': {
       minHeight: commentEditorHeight,
+    }
+  },
+  commentMinimalistEditorHeight: {
+    minHeight: commentMinimalistEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: commentMinimalistEditorHeight,
     }
   },
   questionEditorHeight: {
@@ -831,8 +838,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getHeightClass = () => {
-    const { document, classes, form: { commentStyles } } = this.props
-    if (commentStyles) {
+    const { document, classes, form: { commentStyles }, formProps } = this.props
+    if (formProps?.commentMinimalistStyle) {
+      return classes.commentMinimalistEditorHeight
+    } else if (commentStyles) {
       return classes.commentEditorHeight
     } else if (document.question) {
       return classes.questionEditorHeight;

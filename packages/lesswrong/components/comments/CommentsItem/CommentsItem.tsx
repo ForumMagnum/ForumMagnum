@@ -15,6 +15,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
+import { CommentFormDisplayMode } from '../CommentsNewForm';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -132,7 +133,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -147,6 +148,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
+  displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
@@ -242,16 +244,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
     )
 
+    const showInlineCancel = showReplyState && displayMode === "minimalist"
     return (
       <div className={classes.bottom}>
-        <CommentBottomCaveats comment={comment}/>
-        { showReplyButton &&
-          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showReply}>
-            Reply
+        <CommentBottomCaveats comment={comment} />
+        {showReplyButton && (
+          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+            {showInlineCancel ? "Cancel" : "Reply"}
           </a>
-        }
+        )}
       </div>
-    )
+    );
   }
 
   const renderReply = () => {
@@ -269,6 +272,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           }}
           type="reply"
           enableGuidelines={enableGuidelines}
+          displayMode={displayMode}
         />
       </div>
     )

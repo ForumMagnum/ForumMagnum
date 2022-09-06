@@ -7,6 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
+import { CommentFormDisplayMode } from './CommentsNewForm';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -55,6 +56,7 @@ const CommentsNode = ({
   loadDirectReplies=false,
   showPinnedOnProfile=false,
   enableGuidelines=true,
+  displayMode="default",
   classes
 }: {
   treeOptions: CommentTreeOptions,
@@ -78,6 +80,7 @@ const CommentsNode = ({
   loadDirectReplies?: boolean,
   showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
+  displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -178,7 +181,7 @@ const CommentsNode = ({
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
@@ -240,6 +243,8 @@ const CommentsNode = ({
             truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
+            enableGuidelines={enableGuidelines}
+            displayMode={displayMode}
           />)}
       </div>}
 
