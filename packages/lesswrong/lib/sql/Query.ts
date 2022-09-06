@@ -279,49 +279,55 @@ class Query<T extends DbObject> {
     this.atoms.push(")");
   }
 
-  private getProjectedFields<T extends DbObject>(
+  private getProjectedFields(
     table: Table | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
-  ) {
+  ): Atom<T>[] {
     if (count) {
-      return "count(*)";
+      return ["count(*)"];
     }
 
-    if (projection) {
-      const include: string[] = [];
-      const exclude: string[] = [];
+    if (!projection) {
+      return ["*"];
+    }
 
-      for (const key of Object.keys(projection)) {
-        if (projection[key]) {
-          include.push(key);
+    const include: string[] = [];
+    const exclude: string[] = [];
+    const addFields: Record<string, any> = {};
+
+    for (const key of Object.keys(projection)) {
+      if (projection[key]) {
+        if (typeof projection[key] === "object") {
+          addFields[key] = projection[key];
         } else {
-          exclude.push(key);
+          include.push(key);
         }
-      }
-
-      let fields: string[] = [];
-
-      if (include.length && !exclude.length) {
-        if (!include.includes("_id")) {
-          include.push("_id");
-        }
-        fields = include;
-      } else if (!include.length && exclude.length) {
-        fields = Object.keys(table.getFields()).filter((field) => !exclude.includes(field));
-      } else if (include.length && exclude.length) {
-        if (!include.includes("_id") && !exclude.includes("_id")) {
-          include.push("_id");
-        }
-        fields = include;
       } else {
-        return "*";
+        exclude.push(key);
       }
-
-      return fields.map((field) => `"${field}"`).join(", ");
     }
 
-    return "*";
+    let fields: string[] = ["*"];
+    if (include.length && !exclude.length) {
+      if (!include.includes("_id")) {
+        include.push("_id");
+      }
+      fields = include;
+    } else if (!include.length && exclude.length) {
+      fields = Object.keys(table.getFields()).filter((field) => !exclude.includes(field));
+    } else if (include.length && exclude.length) {
+      if (!include.includes("_id") && !exclude.includes("_id")) {
+        include.push("_id");
+      }
+      fields = include;
+    }
+
+    let projectedAtoms: Atom<T>[] = [fields.map((field) => field === "*" ? field : `"${field}"`).join(", ")];
+    if (Object.keys(addFields).length) {
+      projectedAtoms = projectedAtoms.concat(this.getSyntheticFields(addFields));
+    }
+    return projectedAtoms;
   }
 
   private compileExpression(expr: any, typeHint?: any): Atom<T>[] {
@@ -370,7 +376,7 @@ class Query<T extends DbObject> {
     return this.compileExpression(expr);
   }
 
-  private getSyntheticFields<S extends {}>(addFields: S) {
+  private getSyntheticFields(addFields: Record<string, any>): Atom<T>[] {
     return Object.keys(addFields).flatMap((field) =>
       [",", ...this.compileExpression(addFields[field]), "AS", `"${field}"`]
     );
@@ -410,7 +416,7 @@ class Query<T extends DbObject> {
     const query = new Query(table, ["SELECT"]);
 
     const {addFields, projection} = query.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
-    query.atoms.push(query.getProjectedFields(table, sqlOptions?.count, projection));
+    query.atoms = query.atoms.concat(query.getProjectedFields(table, sqlOptions?.count, projection));
     if (addFields) {
       query.atoms = query.atoms.concat(query.getSyntheticFields(addFields));
     }

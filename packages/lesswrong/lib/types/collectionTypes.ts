@@ -111,7 +111,7 @@ interface MergedViewQueryAndOptions<
 }
 
 type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>>;
+type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type MongoFindOptions<T extends DbObject> = Partial<{

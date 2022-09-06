@@ -230,6 +230,20 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select with fields added in a projection",
+      getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {projection: {
+        k: {
+          '$cond': {
+            if: '$b',
+            then: '$b',
+            else: "default-value",
+          },
+        },
+      }}),
+      expectedSql: 'SELECT * , (CASE WHEN "b" IS NOT NULL THEN "b" ELSE $1 END) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: ["default-value", 3],
+    },
+    {
       name: "can build select with arithmetic synthetic fields",
       getQuery: () => Query.select<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {
