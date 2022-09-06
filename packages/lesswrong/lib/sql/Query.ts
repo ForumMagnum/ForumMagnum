@@ -365,6 +365,10 @@ class Query<T extends DbObject> {
       return hint ? [...result, hint] : result;
     }
 
+    if (op === "$abs") {
+      return ["ABS(", ...this.compileExpression(expr[op]), ")"];
+    }
+
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
   }
 
