@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.lwTertiary.main,
     },
     backgroundColor: theme.palette.lwTertiary.main,
-    color: 'white',
+    color: theme.palette.background.pageActiveAreaBackground,
     overflowX: "hidden",  // to stop loading dots from wrapping around
   },
   moderationGuidelinesWrapper: {
