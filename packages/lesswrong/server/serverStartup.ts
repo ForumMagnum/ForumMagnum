@@ -10,6 +10,7 @@ import { Globals } from '../lib/vulcan-lib/config';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
+import { consoleLogMemoryUsageThreshold } from './logging';
 
 async function setMongoClient(mongoUrl: string) {
   const priorClient = getMongoClient();
@@ -61,7 +62,10 @@ async function serverStartup() {
 
   onStartup(() => {
     setInterval(async () => {
-      await setMongoClient(commandLineArguments.mongoUrl);
+      const memoryUsage = process.memoryUsage()?.heapTotal;
+      if (memoryUsage > consoleLogMemoryUsageThreshold.get() * 2) {
+        await setMongoClient(commandLineArguments.mongoUrl);
+      }
     }, 10000);
   });
   
