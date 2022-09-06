@@ -1,4 +1,5 @@
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getSqlClientOrThrow } from '../../mongoCollection';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -515,31 +516,51 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { Posts, currentUser } = context;
-      const postRelations = await Posts.aggregate([
-        { $match: { _id: post._id }},
-        { $graphLookup: { 
-            from: "postrelations", 
-            as: "relatedQuestions", 
-            startWith: post._id, 
-            connectFromField: "targetPostId", 
-            connectToField: "sourcePostId", 
-            maxDepth: 3 
-          } 
-        },
-        { 
-          $project: {
-            relatedQuestions: 1
+      let postRelations: DbPostRelation[] = [];
+      if (Posts.isPostgres()) {
+        const sql = getSqlClientOrThrow();
+        postRelations = await sql`
+          WITH RECURSIVE search_tree(
+            "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
+          ) AS (
+            SELECT "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", 1 AS depth
+            FROM "PostRelations"
+            WHERE "sourcePostId" = ${post._id}
+            UNION
+            SELECT source."_id", source."createdAt", source."type", source."sourcePostId", source."targetPostId",
+              source."order", source."schemaVersion", target.depth + 1 AS depth
+            FROM "PostRelations" source
+            JOIN search_tree target ON source."sourcePostId" = target."targetPostId" AND target.depth < 3
+          )
+          SELECT * FROM search_tree;
+        `;
+      } else {
+        postRelations = await Posts.aggregate([
+          { $match: { _id: post._id }},
+          { $graphLookup: {
+            from: "postrelations",
+            as: "relatedQuestions",
+            startWith: post._id,
+            connectFromField: "targetPostId",
+            connectToField: "sourcePostId",
+            maxDepth: 3
           }
-        }, 
-        {
-          $unwind: "$relatedQuestions"
-        }, 
-        {
-          $replaceRoot: {
-            newRoot: "$relatedQuestions"
+          },
+          {
+            $project: {
+              relatedQuestions: 1
+            }
+          },
+          {
+            $unwind: "$relatedQuestions"
+          },
+          {
+            $replaceRoot: {
+              newRoot: "$relatedQuestions"
+            }
           }
-        }
-     ]).toArray()
+        ]).toArray()
+      }
      if (!postRelations || postRelations.length < 1) return []
      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
