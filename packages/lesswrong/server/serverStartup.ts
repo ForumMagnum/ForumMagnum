@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { setDatabaseConnection } from '../lib/mongoCollection';
+import { getMongoClient, setDatabaseConnection } from '../lib/mongoCollection';
 import { runStartupFunctions, isAnyTest, onStartup } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
@@ -12,6 +12,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 
 async function setMongoClient(mongoUrl: string) {
+  const priorClient = getMongoClient();
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
@@ -25,6 +26,9 @@ async function setMongoClient(mongoUrl: string) {
     await client.connect();
     const db = client.db(undefined, { returnNonCachedInstance: true });
     setDatabaseConnection(client, db);
+    if (priorClient) {
+      void priorClient.close();
+    }
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to mongodb: ", err);
