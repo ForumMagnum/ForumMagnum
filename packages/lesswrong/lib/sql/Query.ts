@@ -105,6 +105,9 @@ class Query<T extends DbObject> {
   }
 
   private getTypeHint(typeHint?: any): string {
+    if (typeHint instanceof Type) {
+      return "::" + typeHint.toConcrete().toString();
+    }
     switch (typeof typeHint) {
       case "number":
         return Number.isInteger(typeHint) ? "::INTEGER" : "::REAL";
@@ -171,11 +174,11 @@ class Query<T extends DbObject> {
     ];
   }
 
-  private compileComparison(field: string, value: any): Atom<T>[] {
+  private compileComparison(fieldName: string, value: any): Atom<T>[] {
     if (value === undefined) {
       return [];
     }
-    field = this.resolveFieldName(field, value);
+    const field = this.resolveFieldName(fieldName, value);
     if (typeof value === "object") {
       if (value === null) {
         return [`${field} IS NULL`];
@@ -186,9 +189,13 @@ class Query<T extends DbObject> {
       }
       const op = comparisonOps[comparer];
       if (op) {
-        return isArrayOp(comparer)
-          ? [`${field} ${op} ANY(`, new Arg(value[comparer]), ")"]
-          : [`${field} ${op} `, new Arg(value[comparer])];
+        if (isArrayOp(comparer) && Array.isArray(value[comparer])) {
+          const typeHint = this.getTypeHint(this.getField(fieldName));
+          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
+          return [`${field} ${op} ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+        } else {
+          return [`${field} ${op} `, new Arg(value[comparer])];
+        }
       } else {
         throw new Error(`Invalid comparison selector: ${field}: ${JSON.stringify(value)}`);
       }

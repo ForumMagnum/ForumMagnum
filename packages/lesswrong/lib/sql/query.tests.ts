@@ -111,14 +111,14 @@ describe("Query", () => {
     {
       name: "can build select query with in comparison",
       getQuery: () => Query.select(testTable, {a: {$in: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = ANY( $1 )',
-      expectedArgs: [[1, 2, 3]],
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[])',
+      expectedArgs: [1, 2, 3],
     },
     {
       name: "can build select query with not-in comparison",
       getQuery: () => Query.select(testTable, {a: {$nin: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" <> ANY( $1 )',
-      expectedArgs: [[1, 2, 3]],
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" <> ANY(ARRAY[ $1 , $2 , $3 ]::REAL[])',
+      expectedArgs: [1, 2, 3],
     },
     {
       name: "can build select query with exists check",
