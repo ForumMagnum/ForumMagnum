@@ -77,22 +77,21 @@ class Query<T extends DbObject> {
     return sql.unsafe(sqlString, args);
   }
 
-  compile(argOffset = 0): {sql: string, args: any[]} {
-    let subquery = 'A'.charCodeAt(0);
-    let argCount = argOffset;
+  compile(argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
     for (const atom of this.atoms) {
       if (atom instanceof Arg) {
-        strings.push(`$${++argCount}`);
+        strings.push(`$${++argOffset}`);
         args.push(atom.value);
       } else if (atom instanceof Query) {
         strings.push("(");
-        const result = atom.compile(argOffset);
+        const subquery = String.fromCharCode(subqueryOffset++);
+        const result = atom.compile(argOffset, subqueryOffset);
         strings.push(result.sql);
         args = args.concat(result.args);
-        argCount += result.args.length;
-        strings.push(`) ${String.fromCharCode(subquery++)}`);
+        argOffset += result.args.length;
+        strings.push(`) ${subquery}`);
       } else if (atom instanceof Table) {
         strings.push(`"${atom.getName()}"`);
       } else {
@@ -119,7 +118,6 @@ class Query<T extends DbObject> {
     }
     return "";
   }
-
 
   private getUnifiedTypeHint(a: Atom<T>[], b: Atom<T>[]): string | undefined {
     const aArg = a.find((atom) => atom instanceof Arg) as Arg;
