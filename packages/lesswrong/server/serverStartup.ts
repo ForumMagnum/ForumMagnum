@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest, onStartup } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -10,6 +10,27 @@ import { Globals } from '../lib/vulcan-lib/config';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
+
+async function setMongoClient(mongoUrl: string) {
+  try {
+    // eslint-disable-next-line no-console
+    console.log("Connecting to mongodb");
+    const client = new MongoClient(mongoUrl, {
+      // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
+      // for various options that could be tuned here
+      
+      // A deprecation warning says to use this option 
+      useUnifiedTopology: true,
+    });
+    await client.connect();
+    const db = client.db(undefined, { returnNonCachedInstance: true });
+    setDatabaseConnection(client, db);
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to connect to mongodb: ", err);
+    process.exit(1);
+  }
+}
 
 async function serverStartup() {
   // eslint-disable-next-line no-console
@@ -31,6 +52,14 @@ async function serverStartup() {
   });
   
   const commandLineArguments = getCommandLineArguments();
+
+  await setMongoClient(commandLineArguments.mongoUrl);
+
+  onStartup(() => {
+    setInterval(async () => {
+      await setMongoClient(commandLineArguments.mongoUrl);
+    }, 10000);
+  });
   
   try {
     // eslint-disable-next-line no-console
