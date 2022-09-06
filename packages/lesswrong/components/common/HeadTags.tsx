@@ -7,6 +7,7 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings';
 
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
+export const bingValidationSetting = new PublicInstanceSetting<string | null>('bingValidation', null, "optional")
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 
 
@@ -31,6 +32,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
 
     const rssUrl = `${getSiteUrl()}feed.xml`
+    const bingValidationString = bingValidationSetting.get()
 
     return (
       <React.Fragment>
@@ -47,6 +49,9 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           <meta charSet='utf-8'/>
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
+
+          {/* required to use Bing's URL inspection tool: https://www.bing.com/webmasters/tools/urlinspection */}
+          {bingValidationString !== null && <meta name="msvalidate.01" content={bingValidationString} />}
 
           {/* twitter */}
           <meta name='twitter:card' content='summary_large_image'/>
