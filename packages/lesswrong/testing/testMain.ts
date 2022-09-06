@@ -72,6 +72,6 @@ export function testStartup() {
     await waitUntilCallbacksFinished();
   });
   afterAll(async () => {
-    closeDatabaseConnection();
+    await closeDatabaseConnection();
   });
 }
