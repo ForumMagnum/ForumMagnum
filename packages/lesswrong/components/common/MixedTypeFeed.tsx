@@ -127,7 +127,7 @@ const MixedTypeFeed = (args: {
       limit: firstPageSize,
     },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     ssr: true,
   });
   
