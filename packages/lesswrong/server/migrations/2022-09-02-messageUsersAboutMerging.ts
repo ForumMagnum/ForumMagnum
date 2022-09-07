@@ -30,9 +30,10 @@ const sendDuplicateEmailMessage = async (users: Array<DbUser>, currentUser: DbUs
     validate: false
   });
   const userProfiles = users.map(user=>`<li key=${user._id}><a href=${userGetProfileUrl(user)}>${user.displayName}</a></li>`).join("")
+
   const message = `
     <p>Hey ${user.displayName},</p>
-    <p>You've got multiple LessWrong accounts sharing the email ${user.email}. They are:</p>
+    <p>We've detected multiple LessWrong accounts sharing the email ${user.email}. They are:</p>
     <ul>
       ${userProfiles}
     </ul>
@@ -81,17 +82,47 @@ registerMigration({
     const currentUser = await Users.findOne({_id:"r38pkCm7wF4M44MDQ"}) //Raemon
     if (!currentUser) throw Error("Can't find user r38pkCm7wF4M44MDQ")
 
+    const singleResultUsers = []
+    const multipleResultUsers = []
+
     for (const user of users) {
       // eslint-disable-next-line no-console
-      console.log(`Sending message to users with email: ${user.email}`)
+      // console.log(`Sending message to users with email: ${user.email}`)
       const users = await Users.find({email: user.email}).fetch()
+
+      const highKarmaUsers = [...users].sort((user1, user2) => (user2.karma || 0) - (user1.karma || 0))
+      const highKarmaUser = highKarmaUsers[0]
+      const latestCheckedUsers = [...users].sort((user1, user2) => {
+        if (user1.lastNotificationsCheck === user2.lastNotificationsCheck) return 0
+        if (user1.lastNotificationsCheck < user2.lastNotificationsCheck) {
+          return 1
+        } else {
+          return -1
+        }
+      })
+      // console.log(latestCheckedUsers.map(user=>user.lastNotificationsCheck))
+      // console.log(highKarmaUsers.map(user=>user.karma))
+
+      const latestCheckedUser = latestCheckedUsers[0]
+
+      if ((highKarmaUser._id !== latestCheckedUser._id) && (latestCheckedUser.karma > 100)) {
+        multipleResultUsers.push(users.map(user=> [user.displayName, user.karma, user.lastNotificationsCheck]))
+        // console.log("highKarmaUser", highKarmaUser._id, highKarmaUser.displayName, highKarmaUser.slug)
+        // console.log("latestCheckedUser", latestCheckedUser._id, latestCheckedUser.displayName, latestCheckedUser.slug)
+      } else {
+        singleResultUsers.push(users.map(user=> [user.displayName, user.karma, user.lastNotificationsCheck]))
+      }
+
       output.push({
         email: user.email,
         userIds: users.map(user => user._id),
         displayNames: users.map(user => user.displayName)
       })
-      await sendDuplicateEmailMessage(users, currentUser)
+      // await sendDuplicateEmailMessage(users, currentUser)
     }
-    fs.writeFileSync("tmp/messageUsersAboutMerging.csv", Papa.unparse(output))
+    console.log("multipleResultUsers", multipleResultUsers)
+    console.log("singleResultUsers", singleResultUsers.length)
+    console.log("multipleResultUsers", multipleResultUsers.length)
+    await fs.writeFile(`tmp/messageUsersAboutMerging-${new Date()}.csv`, Papa.unparse(output), (err) => console.log(err))
   }
 })
