@@ -322,7 +322,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     {
       pointerEvents: 'none',
       '& *': {
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
       },
     }
 
@@ -360,7 +360,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     '& hr': {
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*1.5
-    }
+    },
   }
   return commentBodyStyles;
 }

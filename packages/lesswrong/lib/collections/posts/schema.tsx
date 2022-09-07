@@ -13,8 +13,8 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
+import { forumSelect } from '../../forumTypeUtils';
 
-const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
 const urlHintText = isEAForum
@@ -27,6 +27,13 @@ const STICKY_PRIORITIES = {
   3: "Elevated",
   4: "Max",
 }
+
+const forumDefaultVotingSystem = forumSelect({
+  EAForum: "twoAxis",
+  LessWrong: "twoAxis",
+  AlignmentForum: "twoAxis",
+  default: "default",
+})
 
 export interface RSVPType {
   name: string
@@ -958,7 +965,7 @@ const schema: SchemaType<DbPost> = {
           .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
-    ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
+    ...schemaDefaultValue(forumDefaultVotingSystem),
   },
 
   podcastEpisodeId: {

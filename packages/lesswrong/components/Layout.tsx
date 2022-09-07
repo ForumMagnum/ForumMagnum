@@ -50,7 +50,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
+    // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
+    // but almost all pages are bigger than this anyway so it's not that important
+    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -329,7 +331,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                       : children
                     }
                   </ErrorBoundary>
-                  <Footer />
+                  {!currentRoute?.hideFooter && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>

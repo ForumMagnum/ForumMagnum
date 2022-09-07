@@ -22,6 +22,7 @@ import { markdownToHtmlSimple } from '../../lib/editor/utils';
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
+const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
@@ -55,14 +56,29 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0
     }
   },
-
   commentBodyStyles: {
     ...editorStyles(theme),
     cursor: "text",
     marginTop: 0,
     marginBottom: 0,
     padding: 0,
-    pointerEvents: 'auto'
+    pointerEvents: 'auto',
+  },
+  commentBodyStylesMinimalist: {
+    ...editorStyles(theme),
+    cursor: "text",
+    marginTop: 0,
+    marginBottom: 0,
+    padding: 0,
+    pointerEvents: 'auto',
+    '& textarea': {
+      marginTop: 4,
+      maxHeight: commentMinimalistEditorHeight,
+      '&:focus': {
+        maxHeight: '128px',
+      }
+    },
+    lineHeight: '1em',
   },
   ckEditorStyles: {
     ...ckEditorStyles(theme),
@@ -87,6 +103,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ck.ck-content': {
       minHeight: commentEditorHeight,
     }
+  },
+  commentMinimalistEditorHeight: {
+    // // minHeight: commentMinimalistEditorHeight,
+    // '& .ck.ck-content': {
+    //   minHeight: commentMinimalistEditorHeight,
+    // },
+    // marginTop: 4,
+    '& .ck-editor__editable': {
+      maxHeight: "300px"
+    },
+    '& .ck.ck-editor__editable_inline>:last-child': {
+      marginBottom: 0
+    },
   },
   questionEditorHeight: {
     minHeight: questionEditorHeight,
@@ -775,13 +804,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, document, form: { commentStyles } } = this.props
+    const { classes, document, form: { commentStyles }, formProps: { commentMinimalistStyle } } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     const {className, contentType} = this.getBodyStyles();
 
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <Components.ContentStyles contentType={contentType}>
+      <Components.ContentStyles contentType={contentType} className={classNames({[classes.commentBodyStylesMinimalist]: commentMinimalistStyle})}>
         <Input
           className={classNames(classes.markdownEditor, className, {[classes.questionWidth]: document.question})}
           value={value}
@@ -831,8 +860,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getHeightClass = () => {
-    const { document, classes, form: { commentStyles } } = this.props
-    if (commentStyles) {
+    const { document, classes, form: { commentStyles }, formProps } = this.props
+    if (formProps?.commentMinimalistStyle) {
+      return classes.commentMinimalistEditorHeight
+    } else if (commentStyles) {
       return classes.commentEditorHeight
     } else if (document.question) {
       return classes.questionEditorHeight;
