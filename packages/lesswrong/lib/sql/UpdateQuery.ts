@@ -1,4 +1,4 @@
-import Query from "./Query";
+import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
 
@@ -10,10 +10,6 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
     limit?: number,
   ) {
-    if (typeof selector === "string") {
-      selector = {_id: selector};
-    }
-
     super(table, ["UPDATE", table, "SET"]);
     this.nameSubqueries = false;
 
@@ -39,6 +35,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     this.atoms = this.atoms.concat(this.compileSetFields(set));
 
+    if (typeof selector === "string") {
+      selector = {_id: selector};
+    }
+
     if (selector && Object.keys(selector).length > 0) {
       this.atoms.push("WHERE");
 
@@ -59,6 +59,15 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         ")",
       ]);
     }
+  }
+
+  private compileSetFields(updates: Partial<Record<keyof T, any>>): Atom<T>[] {
+    return Object.keys(updates).flatMap((field) => [
+      ",",
+      this.resolveFieldName(field),
+      "=",
+      ...this.compileExpression(updates[field]),
+    ]).slice(1);
   }
 }
 

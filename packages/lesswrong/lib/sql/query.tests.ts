@@ -28,6 +28,12 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select query with string selector",
+      getQuery: () => new SelectQuery(testTable, "some-id"),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "_id" = $1',
+      expectedArgs: ["some-id"],
+    },
+    {
       name: "can build count query with where clause",
       getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {count: true}),
       expectedSql: 'SELECT count(*) FROM "TestCollection" WHERE "a" = $1',
@@ -179,7 +185,7 @@ describe("Query", () => {
     },
     {
       name: "can build insert query allowing conflicts",
-      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}, true),
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}, {}, true),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT DO NOTHING',
       expectedArgs: ["abc", 3, "test", null, 1],
     },

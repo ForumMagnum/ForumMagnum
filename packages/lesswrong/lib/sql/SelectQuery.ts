@@ -1,5 +1,6 @@
-import Query from "./Query";
+import Query, { Atom } from "./Query";
 import Table from "./Table";
+import { UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib";
 
 export type SimpleLookup = {
@@ -27,16 +28,14 @@ export type SelectSqlOptions = Partial<{
 }>
 
 class SelectQuery<T extends DbObject> extends Query<T> {
+  private hasLateralJoin: boolean = false;
+
   constructor(
     table: Table | Query<T>,
     selector?: string | MongoSelector<T>,
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
   ) {
-    if (typeof selector === "string") {
-      selector = {_id: selector};
-    }
-
     super(table, ["SELECT"]);
     this.hasLateralJoin = !!sqlOptions?.lookup;
 
@@ -55,6 +54,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push(sqlOptions.joinHook);
     }
 
+    if (typeof selector === "string") {
+      selector = {_id: selector};
+    }
+
     if (selector && Object.keys(selector).length > 0) {
       this.atoms.push("WHERE");
       this.appendSelector(selector);
@@ -66,6 +69,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       }
       this.appendOptions(options);
     }
+  }
+
+  private getStarSelector() {
+    return this.table instanceof Table && !this.hasLateralJoin ? `"${this.table.getName()}".*` : "*";
   }
 
   private appendLateralJoin(lookup: Lookup): void {
@@ -83,6 +90,105 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       throw new Error("Pipeline joins are not being implemented - write raw SQL");
     } else {
       throw new Error("Invalid $lookup");
+    }
+  }
+
+  private getSyntheticFields(addFields: Record<string, any>): Atom<T>[] {
+    for (const field in addFields) {
+      this.syntheticFields[field] = new UnknownType();
+    }
+    return Object.keys(addFields).flatMap((field) =>
+      [",", ...this.compileExpression(addFields[field]), "AS", `"${field}"`]
+    );
+  }
+
+  private disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
+    if (addFields) {
+      const fields = Object.keys(addFields);
+      for (const field of fields) {
+        const existingType = this.table.getField(field);
+        if (existingType) {
+          if (!projection) {
+            projection = {};
+          }
+          projection[field] = 0;
+        }
+      }
+    }
+    return {addFields, projection};
+  }
+
+  private getProjectedFields(
+    table: Table | Query<T>,
+    count?: boolean,
+    projection?: MongoProjection<T>,
+  ): Atom<T>[] {
+    if (count) {
+      return ["count(*)"];
+    }
+
+    if (!projection) {
+      return [this.getStarSelector()];
+    }
+
+    const include: string[] = [];
+    const exclude: string[] = [];
+    const addFields: Record<string, any> = {};
+
+    for (const key of Object.keys(projection)) {
+      if (projection[key]) {
+        if (typeof projection[key] === "object") {
+          addFields[key] = projection[key];
+        } else {
+          include.push(key);
+        }
+      } else {
+        exclude.push(key);
+      }
+    }
+
+    let fields: string[] = [this.getStarSelector()];
+    if (include.length && !exclude.length) {
+      if (!include.includes("_id")) {
+        include.push("_id");
+      }
+      fields = include;
+    } else if (!include.length && exclude.length) {
+      fields = Object.keys(table.getFields()).filter((field) => !exclude.includes(field));
+    } else if (include.length && exclude.length) {
+      if (!include.includes("_id") && !exclude.includes("_id")) {
+        include.push("_id");
+      }
+      fields = include;
+    }
+
+    let projectedAtoms: Atom<T>[] = [fields.map((field) => field.indexOf("*") > -1 ? field : `"${field}"`).join(", ")];
+    if (Object.keys(addFields).length) {
+      projectedAtoms = projectedAtoms.concat(this.getSyntheticFields(addFields));
+    }
+    return projectedAtoms;
+  }
+
+  private appendOptions(options: MongoFindOptions<T>): void {
+    const {sort, limit, skip} = options;
+
+    if (sort && Object.keys(sort).length) {
+      this.atoms.push("ORDER BY");
+      const sorts: string[] = [];
+      for (const field in sort) {
+        sorts.push(`${this.resolveFieldName(field)} ${sort[field] > 0 ? "ASC" : "DESC"}`);
+      }
+      this.atoms.push(sorts.join(", "));
+    }
+
+    if (limit) {
+      this.atoms.push("LIMIT");
+      this.atoms.push(this.createArg(limit));
+    }
+
+    if (skip) {
+      this.atoms.push("OFFSET");
+      this.atoms.push(this.createArg(skip));
     }
   }
 }

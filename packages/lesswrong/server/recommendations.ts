@@ -9,7 +9,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import { WeightedList } from './weightedList';
 import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import Query from "../lib/sql/Query";
+import SelectQuery from "../lib/sql/SelectQuery";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -163,8 +163,8 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
     const joinHook = algorithm.onlyUnread && currentUser
       ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" = FALSE`
       : undefined;
-    const query = Query.select(
-      Query.select(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
+    const query = new SelectQuery(
+      new SelectQuery(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
       {},
       {projection: scoreRelevantFields},
     );

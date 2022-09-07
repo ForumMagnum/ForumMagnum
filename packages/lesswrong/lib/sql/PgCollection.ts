@@ -82,8 +82,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return result ? result[0] as unknown as T : null;
   }
 
-  // TODO: What can the options be?
-  rawInsert = async (data: T, options: any) => { // TODO types
+  rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
     const insert = new InsertQuery<T>(this.table, data, options);
     await this.executeQuery(insert, data);
   }

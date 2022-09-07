@@ -1,5 +1,5 @@
 import Table from "./Table";
-import Query, { Lookup } from "./Query";
+import SelectQuery, { Lookup } from "./SelectQuery";
 
 class Unit<T extends DbObject> {
   private addFields: any;
@@ -12,8 +12,8 @@ class Unit<T extends DbObject> {
 
   constructor(private table: Table | Unit<T>) {}
 
-  toQuery(): Query<T> {
-    return Query.select(
+  toQuery() {
+    return new SelectQuery<T>(
       this.table instanceof Unit ? this.table.toQuery() : this.table,
       this.selector ?? {},
       {
@@ -81,7 +81,7 @@ class Pipeline<T extends DbObject> {
     return this.toQuery().compile();
   }
 
-  toQuery(): Query<T> {
+  toQuery(): SelectQuery<T> {
     let unit = new Unit<T>(this.table);
 
     for (const stage of this.stages) {

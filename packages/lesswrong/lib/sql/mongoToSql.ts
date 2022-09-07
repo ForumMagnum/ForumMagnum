@@ -1,6 +1,6 @@
 import { Vulcan, getCollection } from "../vulcan-lib";
 import Table from "./Table";
-import Query from "./Query";
+import InsertQuery from "./InsertQuery";
 import { getSqlClient } from "../mongoCollection";
 import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
 import util from "util";
@@ -72,7 +72,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
       count += batchSize;
       const queries = documents.map(async (document) => {
         try {
-          const query = Query.insert(table, formatData(document), true);
+          const query = new InsertQuery(table, formatData(document), {}, true);
           await query.toSQL(sql);
         } catch (e) {
           console.error(`ERROR IMPORTING DOCUMENT ${document._id}`);
