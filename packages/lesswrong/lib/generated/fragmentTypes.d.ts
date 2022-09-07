@@ -554,6 +554,11 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     createdAt: Date,
   }>,
   readonly activateRSVPs: boolean,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -683,6 +688,11 @@ interface PostsEdit extends PostsPage { // fragment on Posts
     requested: boolean,
   }>,
   readonly readTimeMinutesOverride: number,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
@@ -2135,6 +2145,13 @@ interface UsersProfileEdit { // fragment on Users
   readonly githubProfileURL: string,
 }
 
+interface UsersCrosspostInfo { // fragment on Users
+  readonly _id: string,
+  readonly username: string,
+  readonly slug: string,
+  readonly fmCrosspostUserId: string,
+}
+
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
@@ -2346,6 +2363,7 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   UsersWithReviewInfo: UsersWithReviewInfo
   UsersProfileEdit: UsersProfileEdit
+  UsersCrosspostInfo: UsersCrosspostInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -2498,6 +2516,7 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   UsersWithReviewInfo: "Users"
   UsersProfileEdit: "Users"
+  UsersCrosspostInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"
