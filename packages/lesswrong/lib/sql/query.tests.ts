@@ -1,9 +1,9 @@
 import { testStartup } from "../../testing/testMain";
 import { DbTestObject, testTable, runTestCases } from "./testHelpers";
-import Query from "./Query";
 import InsertQuery from "./InsertQuery";
 import SelectQuery from "./SelectQuery";
 import UpdateQuery from "./UpdateQuery";
+import DeleteQuery from "./DeleteQuery";
 
 testStartup();
 
@@ -327,13 +327,13 @@ describe("Query", () => {
     },
     {
       name: "can build delete with selector",
-      getQuery: () => Query.delete<DbTestObject>(testTable, {a: 3, b: "test"}),
+      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {a: 3, b: "test"}),
       expectedSql: 'DELETE FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
       expectedArgs: [3, "test"],
     },
     {
       name: "can build delete with ID",
-      getQuery: () => Query.delete<DbTestObject>(testTable, "some-id"),
+      getQuery: () => new DeleteQuery<DbTestObject>(testTable, "some-id"),
       expectedSql: 'DELETE FROM "TestCollection" WHERE "_id" = $1',
       expectedArgs: ["some-id"],
     },

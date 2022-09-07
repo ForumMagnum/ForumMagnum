@@ -4,6 +4,7 @@ import Query from "./Query";
 import InsertQuery from "./InsertQuery";
 import SelectQuery from "./SelectQuery";
 import UpdateQuery from "./UpdateQuery";
+import DeleteQuery from "./DeleteQuery";
 import Pipeline from "./Pipeline";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
@@ -108,7 +109,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
-    const query = Query.delete<T>(this.table, selector, options);
+    const query = new DeleteQuery<T>(this.table, selector, options);
     const result = await this.executeQuery(query, selector);
     return {deletedCount: result.count};
   }
