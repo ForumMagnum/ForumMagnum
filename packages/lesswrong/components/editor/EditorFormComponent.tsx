@@ -187,6 +187,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       collectionName={collectionName}
       fieldName={fieldName}
       initialEditorType={initialEditorType}
+      formProps={formProps}
       isCollaborative={isCollabEditor}
       accessLevel={document.myEditorAccess}
       value={contents}
