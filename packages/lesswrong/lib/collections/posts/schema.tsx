@@ -972,6 +972,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['admins', 'podcasters'],
+    group: formGroups.audio,
     nullable: true
   }
 };
