@@ -66,7 +66,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     } else {
       const serialized = serializeEditorContents(newContents);
       const success = getLocalStorageHandlers(newContents.type).set(serialized);
-  
+      
       if (success) {
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
@@ -152,7 +152,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         cleanupSuccessForm();
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
@@ -163,15 +163,15 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const actualPlaceholder = (editorHintText || hintText || placeholder);
   
   if (!document) return null;
-
+  
   return <div>
     {showEditorWarning &&
-      <Components.LastEditedInWarning
-        initialType={initialEditorType}
-        currentType={contents.type}
-        defaultType={defaultEditorType}
-        value={contents} setValue={wrappedSetContents}
-      />
+    <Components.LastEditedInWarning
+      initialType={initialEditorType}
+      currentType={contents.type}
+      defaultType={defaultEditorType}
+      value={contents} setValue={wrappedSetContents}
+    />
     }
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
@@ -202,9 +202,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-      <Components.PostVersionHistoryButton
-        postId={document._id}
-      />
+    <Components.PostVersionHistoryButton
+      postId={document._id}
+    />
     }
   </div>
 }

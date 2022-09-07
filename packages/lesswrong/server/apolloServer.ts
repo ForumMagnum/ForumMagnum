@@ -40,6 +40,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
+import { addCrosspostRoutes } from './fmCrosspost';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -237,6 +238,8 @@ export function startWebserver() {
     const eagApp = await getEAGApplicationData(currentUser.email)
     res.send(eagApp)
   })
+
+  addCrosspostRoutes(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression

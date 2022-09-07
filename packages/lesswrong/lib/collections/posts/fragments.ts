@@ -310,6 +310,9 @@ registerFragment(`
     }
     rsvps
     activateRSVPs
+
+    # Crossposting
+    fmCrosspost
   }
 `);
 
@@ -433,6 +436,7 @@ registerFragment(`
     version
     coauthorStatuses
     readTimeMinutesOverride
+    fmCrosspost
     moderationGuidelines {
       ...RevisionEdit
     }

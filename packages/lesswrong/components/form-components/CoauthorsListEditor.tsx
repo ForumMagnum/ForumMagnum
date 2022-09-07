@@ -8,6 +8,7 @@ import find from 'lodash/find';
 const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
+    marginLeft: 8,
   },
   list: {
     display: "flex",

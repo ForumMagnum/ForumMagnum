@@ -14,8 +14,9 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
-const PostsEditForm = ({ documentId, classes }: {
+const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
+  eventForm: boolean,
   classes: ClassesType,
 }) => {
   const { location, query } = useLocation();
@@ -31,7 +32,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, ForeignCrosspostEditForm, HeadTags } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -96,7 +97,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
-      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
         saveDraftLabel={saveDraftLabel} 
         feedbackLabel={"Get Feedback"}
@@ -124,7 +125,7 @@ const PostsEditForm = ({ documentId, classes }: {
               flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             }
           }}
-          eventForm={document.isEvent}
+          eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)

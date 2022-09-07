@@ -44,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '16px',
     fontWeight: 400,
     color: theme.palette.header.text,
+    wordBreak: 'break-word',
   },
   notAMember: {
     marginLeft: 5,
