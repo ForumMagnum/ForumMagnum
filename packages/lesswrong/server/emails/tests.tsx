@@ -4,6 +4,7 @@ import { withSingle, useSingle } from '../../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 testStartup();
 
@@ -20,9 +21,11 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   boilerplateGenerator?: typeof unitTestBoilerplateGenerator
 }) {
   const destinationUser = user || await createDummyUser();
+  const email = getUserEmail(user)
+  if (!email) throw new Error("test email has no email address")
   return await generateEmail({
     user: destinationUser,
-    to: destinationUser.email,
+    to: email,
     subject: "Unit test email",
     bodyComponent,
     boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator

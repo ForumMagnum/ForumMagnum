@@ -16,7 +16,7 @@ import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authenticatio
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import { userGetLocation, userFindByEmail } from "../../lib/collections/users/helpers";
+import {userGetLocation, userFindOneByEmail, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -215,7 +215,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     const newEmail = modifier.$set.email;
 
     // check for existing emails and throw error if necessary
-    const userWithSameEmail = await userFindByEmail(newEmail);
+    const userWithSameEmail = await userFindOneByEmail(newEmail);
     if (userWithSameEmail && userWithSameEmail._id !== user._id) {
       throw new Error(encodeIntlError({id:'users.email_already_taken', value: newEmail}));
     }
@@ -257,7 +257,8 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
   
-  const emailHash = md5(newUser.email.toLowerCase());
+  const email = getUserEmail(newUser)
+  const emailHash = md5(email!.toLowerCase());
 
   void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
     method: 'PUT',

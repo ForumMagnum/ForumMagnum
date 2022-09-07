@@ -7,7 +7,7 @@ import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissi
 import React, { useEffect, useState } from 'react';
 import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
-import { mongoFindOne } from "../../mongoQueries";
+import {mongoFind, mongoFindOne} from "../../mongoQueries";
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -230,7 +230,16 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
-  return !!user?.email
+  return !!(user?.emails && user.emails.length > 0) || !!user?.email;
+}
+
+type UserWithEmail = {
+  email: string
+  emails: UsersCurrent["emails"] 
+}
+
+export function getUserEmail (user: UserWithEmail|null): string | undefined {
+  return user?.emails?.[0]?.address ?? user?.email
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
@@ -446,6 +455,10 @@ export const getAuth0Id = (user: DbUser) => {
 /**Finds a user matching on email, searches case INsensitively.
  * Currently searches both email and emailS fields, though the later should ideally be full deprecated
  */
-export const userFindByEmail = async function(email: string): Promise<DbUser|null> {
+export const userFindOneByEmail = async function(email: string): Promise<DbUser|null> {
   return await mongoFindOne("Users", {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
+};
+
+export const usersFindAllByEmail: (email: string) => Promise<Array<DbUser|null>> = async function(email: string)  {
+  return await mongoFind("Users", {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
 };

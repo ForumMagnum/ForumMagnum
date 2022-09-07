@@ -8,6 +8,7 @@ import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instance
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -87,7 +88,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
         // We do this fancy spread so we avoid setting the email to an empty
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
-        ...(!currentUser?.email && {email: emailInput.current?.value})
+        ...(currentUser && !getUserEmail(currentUser) && {email: emailInput.current?.value})
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {

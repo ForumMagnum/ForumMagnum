@@ -21,7 +21,7 @@ import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
-import { userFindByEmail } from "../../../lib/collections/users/helpers";
+import { userFindOneByEmail } from "../../../lib/collections/users/helpers";
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -41,7 +41,7 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{email: username}, {username: username}]});
+  const user = await Users.findOne({$or: [{"emails.address": username}, {emails: username}, {username: username}]});
   if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
@@ -212,7 +212,7 @@ const authenticationResolvers = {
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
       
-      if (await userFindByEmail(email)) {
+      if (await userFindOneByEmail(email)) {
         throw Error("Email address is already taken");
       }
       if (await mongoFindOne("Users", { username })) {
