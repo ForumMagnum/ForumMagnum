@@ -4,6 +4,7 @@ import { setDatabaseConnection, setSqlConnection } from '../lib/mongoCollection'
 import PgCollection from '../lib/sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
+import { forumTypeSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -52,7 +53,6 @@ async function serverStartup() {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to mongodb: ", err);
     process.exit(1);
-    return;
   }
 
   try {
@@ -68,8 +68,9 @@ async function serverStartup() {
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err);
-    process.exit(1);
-    return;
+    if (forumTypeSetting.get() === "EAForum") {
+      process.exit(1);
+    }
   }
 
   // eslint-disable-next-line no-console
