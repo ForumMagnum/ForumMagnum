@@ -153,7 +153,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           if (!docField) return null
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
-            editedAt: (docField?.editedAt) || new Date(),
+            editedAt: new Date(docField?.editedAt ?? Date.now()),
             userId: docField?.userId,
             commitMessage: docField?.commitMessage,
             originalContents: (docField?.originalContents) || {},

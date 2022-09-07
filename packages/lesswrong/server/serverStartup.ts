@@ -60,7 +60,7 @@ async function serverStartup() {
     console.log("Connecting to postgres");
     const sql = postgres(commandLineArguments.postgresUrl, {
       onnotice: () => {},
-      debug: console.log,
+      // debug: console.log,
     });
     await sql`SET default_toast_compression = lz4`;
     await sql`CREATE EXTENSION IF NOT EXISTS "btree_gin"`;
