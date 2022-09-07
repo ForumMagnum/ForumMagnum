@@ -175,6 +175,13 @@ addRoute(
     background: "white"
   },
   {
+    name: 'crosspostLogin',
+    path: '/crosspostLogin',
+    componentName: 'CrosspostLoginPage',
+    title: 'Crosspost Login',
+    standalone: true,
+  },
+  {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     componentName: 'ResendVerificationEmailPage',

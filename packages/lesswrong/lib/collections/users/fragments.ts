@@ -41,6 +41,10 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
+    profileTags {
+      ...TagBasicInfo
+    }
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -427,6 +431,7 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -438,5 +443,14 @@ registerFragment(`
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    username
+    slug
+    fmCrosspostUserId
   }
 `)

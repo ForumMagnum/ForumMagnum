@@ -9,7 +9,7 @@ const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}:{
   return <Components.SearchAutoComplete
     indexName={getAlgoliaIndexName("Tags")}
     clickAction={clickAction}
-    renderSuggestion={hit => <Components.TagsListEditorSearchHit hit={hit} />}
+    renderSuggestion={hit => <Components.TagSearchHit hit={hit} />}
     placeholder={placeholder}
     noSearchPlaceholder='Tag ID'
   />

@@ -31,7 +31,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm } = Components
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
@@ -47,7 +47,11 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-  
+
+  if (document?.fmCrosspost?.isCrosspost && !document?.fmCrosspost?.hostedHere) {
+    return <ForeignCrosspostEditForm post={document} />;
+  }
+
   function isCollaborative(post): boolean {
     if (!post) return false;
     if (!post._id) return false;
