@@ -1,4 +1,5 @@
 import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
+import { combineUrls } from "../../lib/vulcan-lib";
 import { json } from "body-parser";
 import type { Application, Request, Response } from "express";
 import {
@@ -9,7 +10,7 @@ import {
   onUpdateCrosspostRequest,
 } from "./requestHandlers";
 
-export const makeApiUrl = (route: ApiRoute) => fmCrosspostBaseUrlSetting.get() + route.slice(1);
+export const makeApiUrl = (route: ApiRoute) => combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", route);
 
 export const apiRoutes = {
   crosspostToken: "/api/crosspostToken",

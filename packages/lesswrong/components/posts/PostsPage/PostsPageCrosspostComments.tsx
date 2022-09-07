@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -29,7 +29,7 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
   const commentsText = comments === 0
     ? "Click to view."
     : `Click to view ${comments} comment${comments === 1 ? "" : "s"}.`;
-  const link = `${fmCrosspostBaseUrlSetting.get()}posts/${foreignPost._id}`;
+  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `posts/${foreignPost._id}`);
 
   const {Typography} = Components;
   return (

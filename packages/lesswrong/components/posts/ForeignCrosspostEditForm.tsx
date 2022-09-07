@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent, combineUrls } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -17,7 +17,7 @@ const ForeignCrosspostEditForm = ({post, classes}: {
 }) => {
   const {SingleColumnSection, PostsPagePostHeader, Typography} = Components;
 
-  const url = `${fmCrosspostBaseUrlSetting.get()}editPost?postId=${post._id}&eventForm=false`;
+  const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `editPost?postId=${post._id}&eventForm=false`);
 
   const postWithNavigation: PostsWithNavigation = {
     ...post,

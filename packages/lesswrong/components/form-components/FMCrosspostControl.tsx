@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent, combineUrls } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -8,13 +8,10 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { useCrosspostApolloClient } from "../hooks/useCrosspostApolloClient";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
-import classNames from "classnames";
 import { gql, useMutation } from "@apollo/client";
-import { useCurrentUser } from "../common/withUser";
 import { useOnTabView } from "../hooks/useOnTabView";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -55,7 +52,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   classes: ClassesType,
 }) => {
   const apolloClient = useCrosspostApolloClient();
-  const {document, refetch, loading: loadingDocument} = useSingle({
+  const {document, loading} = useSingle({
     documentId: fmCrosspostUserId,
     collectionName: "Users",
     fragmentName: "UsersCrosspostInfo",
@@ -65,7 +62,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
 
   const {Loading} = Components;
-  return document
+  return document && !loading
     ? (
       <div className={classes.crosspostMessage}>
         This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
@@ -176,7 +173,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
 
   const onClickLogin = () => {
     if (token?.length) {
-      const url = `${fmCrosspostBaseUrlSetting.get()}crosspostLogin?token=${token}`;
+      const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
       window.open(url, "_blank")?.focus();
     } else {
       setError("Invalid login token - please try again");
@@ -196,7 +193,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
           <Checkbox
             className={classes.size}
             checked={isCrosspost}
-            onChange={(event, checked) => {
+            onChange={(_, checked) => {
               updateCurrentValues({
                 [path]: {
                   isCrosspost: checked,

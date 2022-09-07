@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
 import {
   forumTypeSetting,
   fmCrosspostSiteNameSetting,
@@ -35,7 +35,7 @@ const CrosspostHeaderIcon = ({post, classes}: {
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
     : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;
-  const href = `${fmCrosspostBaseUrlSetting.get()}posts/${post.fmCrosspost.foreignPostId}`;
+  const href = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `posts/${post.fmCrosspost.foreignPostId}`);
 
   return (
     <div className={classes.root}>
