@@ -147,7 +147,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           if (version) {
             const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
             if (!revision) return null;
-            return await checkAccess?.(currentUser, revision, context) ? revision : null
+            return await checkAccess(currentUser, revision, context) ? revision : null
           }
           const docField = doc[field];
           if (!docField) return null

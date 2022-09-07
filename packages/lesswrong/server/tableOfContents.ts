@@ -298,7 +298,7 @@ const getToCforPost = async ({document, version, context}: {
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
     if (!revision) return null;
-    if (!await Revisions.checkAccess?.(context.currentUser, revision, context))
+    if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
   } else {
@@ -339,7 +339,7 @@ const getToCforTag = async ({document, version, context}: {
       console.log(e);
       const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
       if (!revision) return null;
-      if (!await Revisions.checkAccess?.(context.currentUser, revision, context))
+      if (!await Revisions.checkAccess(context.currentUser, revision, context))
         return null;
       html = revision.html;
     }
