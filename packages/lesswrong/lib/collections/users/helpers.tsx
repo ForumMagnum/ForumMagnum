@@ -7,7 +7,7 @@ import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissi
 import React, { useEffect, useState } from 'react';
 import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
-import {mongoFind, mongoFindOne} from "../../mongoQueries";
+import Users from "./collection";
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -456,9 +456,9 @@ export const getAuth0Id = (user: DbUser) => {
  * Currently searches both email and emailS fields, though the later should ideally be full deprecated
  */
 export const userFindOneByEmail = async function(email: string): Promise<DbUser|null> {
-  return await mongoFindOne("Users", {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
+  return await Users.findOne( {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
 };
 
 export const usersFindAllByEmail: (email: string) => Promise<Array<DbUser|null>> = async function(email: string)  {
-  return await mongoFind("Users", {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
+  return await Users.find({$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}}).fetch()
 };
