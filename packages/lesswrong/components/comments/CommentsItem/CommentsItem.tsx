@@ -15,7 +15,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
-import { CommentFormDisplayMode } from '../CommentsNewForm';
+import type { CommentFormDisplayMode } from '../CommentsNewForm';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -88,6 +88,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     border: theme.palette.border.normal,
   },
+  replyFormMinimalist: {
+    borderRadius: 3,
+  },
   deleted: {
     backgroundColor: theme.palette.panelBackground.deletedComment,
   },
@@ -154,6 +157,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
+  const isMinimalist = displayMode === "minimalist"
   const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
@@ -244,7 +248,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
     )
 
-    const showInlineCancel = showReplyState && displayMode === "minimalist"
+    const showInlineCancel = showReplyState && isMinimalist
     return (
       <div className={classes.bottom}>
         <CommentBottomCaveats comment={comment} />
@@ -261,7 +265,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
-      <div className={classNames(classes.replyForm, levelClass)}>
+      <div className={classNames(classes.replyForm, levelClass, {[classes.replyFormMinimalist]: isMinimalist})}>
         <Components.CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}

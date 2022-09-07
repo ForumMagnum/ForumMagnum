@@ -11,6 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   nestedScroll: {
     overflowY: 'scroll',
+    padding: '0px 10px',
   }
 })
 
@@ -55,7 +56,7 @@ const CommentsTimelineFn = ({
       bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
   }, [currentHeight, userHasScrolled])
 
-  const { CommentsNode } = Components;
+  const { CommentsNode, Typography } = Components;
 
   const handleScroll = (e) => {
     const isAtBottom = Math.abs((e.target.scrollHeight - e.target.scrollTop) - e.target.clientHeight) < 10;
@@ -74,9 +75,9 @@ const CommentsTimelineFn = ({
 
   if (!comments) {
     return (
-      <div>
+      <Typography variant="body1">
         <p>No comments to display.</p>
-      </div>
+      </Typography>
     );
   }
 

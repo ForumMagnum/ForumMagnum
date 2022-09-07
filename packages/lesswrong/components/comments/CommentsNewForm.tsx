@@ -36,6 +36,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   form: {
     padding: 10,
   },
+  formMinimalist: {
+    padding: '8px 6px',
+  },
   modNote: {
     paddingTop: '4px',
     color: theme.palette.text.dim2,
@@ -61,9 +64,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: "auto",
   },
   formButtonMinimalist: {
-    padding: "8px",
+    padding: "2px",
     fontSize: "16px",
-    minWidth: 40,
+    minWidth: 28,
+    minHeight: 28,
     marginLeft: "5px",
     "&:hover": {
       opacity: .8,
@@ -198,7 +202,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
       setTimeout(() => setShowGuidelines(true), 0);
     }}>
       <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding ? classes.form : null}>
+        <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
           {commentWillBeHidden && <div className={classes.modNote}><em>
             A moderator will need to review your account before your comments will show up.
           </em></div>}

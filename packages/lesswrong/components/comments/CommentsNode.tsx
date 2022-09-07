@@ -7,7 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
-import { CommentFormDisplayMode } from './CommentsNewForm';
+import type { CommentFormDisplayMode } from './CommentsNewForm';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
