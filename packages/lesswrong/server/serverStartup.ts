@@ -62,6 +62,7 @@ async function serverStartup() {
       onnotice: () => {},
       debug: console.log,
     });
+    await sql`SET default_toast_compression = lz4`;
     await sql`CREATE EXTENSION IF NOT EXISTS "btree_gin"`;
     setSqlConnection(sql);
   } catch(err) {
