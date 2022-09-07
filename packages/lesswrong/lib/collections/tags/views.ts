@@ -1,6 +1,6 @@
 import { Tags } from './collection';
 import { ensureIndex } from '../../collectionUtils';
-import { viewFieldAllowAny } from '../../vulcan-lib';
+import { viewFieldAllowAny } from '../../../lib/mongoCollection';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
