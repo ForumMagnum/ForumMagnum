@@ -325,13 +325,13 @@ describe("Query", () => {
     {
       name: "can build update with limit and no selector",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {}, {$set: {b: "test"}}, {}, 1),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" LIMIT $2 )',
+      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" LIMIT $2 FOR UPDATE)',
       expectedArgs: ["test", 1],
     },
     {
       name: "can build update with limit and selector",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test"}}, {}, 1),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $2 LIMIT $3 )',
+      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $2 LIMIT $3 FOR UPDATE )',
       expectedArgs: ["test", 3, 1],
     },
     {

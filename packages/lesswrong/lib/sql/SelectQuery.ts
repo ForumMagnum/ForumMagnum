@@ -25,6 +25,7 @@ export type SelectSqlOptions = Partial<{
   lookup: Lookup,
   unwind: any, // TODO typing
   joinHook: string,
+  forUpdate: boolean,
 }>
 
 class SelectQuery<T extends DbObject> extends Query<T> {
@@ -68,6 +69,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
         throw new Error("Collation not yet implemented")
       }
       this.appendOptions(options);
+    }
+
+    if (sqlOptions?.forUpdate) {
+      this.atoms.push("FOR UPDATE");
     }
   }
 

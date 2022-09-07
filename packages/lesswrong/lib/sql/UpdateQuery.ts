@@ -45,7 +45,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       if (limit) {
         this.atoms = this.atoms.concat([
           "_id IN",
-          new SelectQuery(table, selector, {limit, projection: {_id: 1}}),
+          new SelectQuery(table, selector, {limit, projection: {_id: 1}}, {forUpdate: true}),
         ]);
       } else {
         this.appendSelector(selector);
@@ -56,7 +56,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         table,
         "LIMIT",
         this.createArg(limit),
-        ")",
+        "FOR UPDATE)",
       ]);
     }
   }
