@@ -20,7 +20,7 @@ class TableIndex {
   getName() {
     return this.options?.name
       ? "idx_" + this.options.name.replace(/\./g, "_")
-      : `"idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}"`;
+      : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
   }
 
   equals(fields: string[], options?: MongoEnsureIndexOptions) {

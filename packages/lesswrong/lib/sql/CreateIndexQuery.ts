@@ -15,7 +15,7 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table, index: TableIndex) {
     super(table, [
       "CREATE INDEX IF NOT EXISTS",
-      index.getName(),
+      `"${index.getName()}"`,
       "ON",
       table,
       "USING",

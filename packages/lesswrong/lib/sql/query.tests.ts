@@ -6,6 +6,7 @@ import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
 import CreateTableQuery from "./CreateTableQuery";
 import CreateIndexQuery from "./CreateIndexQuery";
+import DropIndexQuery from "./DropIndexQuery";
 
 testStartup();
 
@@ -361,6 +362,18 @@ describe("Query", () => {
       name: "can build create index query with json field",
       getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[1]),
       expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_c" ON "TestCollection" USING gin ( "a" , "c" )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build drop index query from TableIndex",
+      getQuery: () => new DropIndexQuery(testTable, testTable.getIndexes()[0]),
+      expectedSql: 'DROP INDEX "idx_TestCollection_a_b"',
+      expectedArgs: [],
+    },
+    {
+      name: "can build drop index query from index name",
+      getQuery: () => new DropIndexQuery(testTable, "myIndex"),
+      expectedSql: 'DROP INDEX "myIndex"',
       expectedArgs: [],
     },
   ]);

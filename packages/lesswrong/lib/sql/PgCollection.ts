@@ -6,6 +6,7 @@ import SelectQuery from "./SelectQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
 import CreateIndexQuery from "./CreateIndexQuery";
+import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
@@ -147,8 +148,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     findOneAndUpdate: async (filter, update, options) => {
       throw new Error("TODO: PgCollection: rawCollection.findOneAndUpdate not yet implemented");
     },
-    dropIndex: async (indexName, options) => {
-      throw new Error("TODO: PgCollection: rawCollection.dropIndex not yet implemented");
+    dropIndex: async (indexName: string, options?: MongoDropIndexOptions) => {
+      const dropIndex = new DropIndexQuery(this.getTable(), indexName);
+      await this.executeQuery(dropIndex, {indexName, options})
     },
     indexes: async (options) => {
       throw new Error("TODO: PgCollection: rawCollection.indexes not yet implemented");
