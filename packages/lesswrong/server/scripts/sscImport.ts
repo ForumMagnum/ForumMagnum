@@ -70,7 +70,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
             void updateMutator({
               collection: Posts,
               documentId: oldPost._id,
-              set: {...post},
+              set: {...post} as Partial<DbPost>,
               unset: {},
               currentUser: lwUser,
               validate: false,

@@ -98,7 +98,7 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
           //eslint-disable-next-line no-console
           console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
           
-          collection.rawCollection().dropIndex(options.name);
+          void collection.rawCollection().dropIndex(options.name);
         }
         
         const mergedOptions = {background: true, ...options};

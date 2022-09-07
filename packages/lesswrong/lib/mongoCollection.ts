@@ -4,9 +4,23 @@ import _ from 'underscore';
 import { DatabasePublicSetting } from './publicSettings';
 import { randomId } from './random';
 import { loggerConstructor } from './utils/logging';
-import { camelCaseify, pluralize, viewFieldAllowAny, viewFieldNullOrMissing } from './vulcan-lib';
+// import { viewFieldAllowAny, viewFieldNullOrMissing } from './vulcan-lib/collections';
+import { pluralize } from './vulcan-lib/pluralize';
+import { camelCaseify } from './vulcan-lib/utils';
 
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
+
+// When used in a view, set the query so that it returns rows where a field is
+// null or is missing. Equivalent to a searech with mongo's `field:null`, except
+// that null can't be used this way within Vulcan views because it's ambiguous
+// between searching for null/missing, vs overriding the default view to allow
+// any value.
+export const viewFieldNullOrMissing = {nullOrMissing:true};
+
+// When used in a view, set the query so that any value for this field is
+// permitted, overriding constraints from the default view if they exist.
+export const viewFieldAllowAny = {allowAny:true};
+
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
@@ -19,7 +33,7 @@ export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {
-    client.close();
+    void client.close();
     client = null;
     db = null;
   }

@@ -3,6 +3,7 @@ import { Vulcan } from '../vulcan-lib';
 import { userIPBanAndResetLoginTokens, userDeleteContent } from '../callbacks';
 import Users from '../../lib/collections/users/collection'
 import moment from 'moment'
+import { UpdateFilter } from 'mongodb';
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {
   // this was not updated when we moved from the "bio" field to the "biography" field,
@@ -17,7 +18,7 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
           htmlBio: '',
           banned: moment().add(12, 'months').toDate(),
           deleteContent: true,
-        },
+        } as UpdateFilter<DbUser>['$set'],
       },
     }
   }])

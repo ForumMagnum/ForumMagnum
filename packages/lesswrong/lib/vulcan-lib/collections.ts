@@ -1,28 +1,13 @@
-import { CollectionB, CollectionBaseOptions, MongoCollection } from '../../lib/mongoCollection';
+import { CollectionB, CollectionBaseOptions } from '../../lib/mongoCollection';
 import * as _ from 'underscore';
-import merge from 'lodash/merge';
-import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
-import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
 export * from './getCollection';
-import { loggerConstructor } from '../utils/logging'
 
 // 'Maximum documents per request'
 // const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
-
-// When used in a view, set the query so that it returns rows where a field is
-// null or is missing. Equivalent to a searech with mongo's `field:null`, except
-// that null can't be used this way within Vulcan views because it's ambiguous
-// between searching for null/missing, vs overriding the default view to allow
-// any value.
-export const viewFieldNullOrMissing = {nullOrMissing:true};
-
-// When used in a view, set the query so that any value for this field is
-// permitted, overriding constraints from the default view if they exist.
-export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
 export const getCollectionName = (typeName): CollectionNameString => pluralize(typeName) as CollectionNameString;

@@ -40,7 +40,7 @@ interface CollectionBase<
     updateMany: (selector: Filter<T>, update: UpdateFilter<T>, options?: UpdateOptions) => Promise<Document | undefined>
   }
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
-  find: (selector?: Filter<T>, options?: FindOptions, projection?: MongoProjection<T>) => FindResult<T>
+  find: (selector?: Filter<T>, options?: FindOptions | MergedViewQueryAndOptions<N, T>['options'], projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|Filter<T>|null, options?: FindOptions, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
   
