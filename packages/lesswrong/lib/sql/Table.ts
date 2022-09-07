@@ -1,9 +1,10 @@
 import { Type, IdType, isResolverOnly } from "./Type";
 import { expectedIndexes } from "../collectionUtils";
+import TableIndex from "./TableIndex";
 
 class Table {
   private fields: Record<string, Type> = {};
-  private indexes: string[][] = [];
+  private indexes: TableIndex[] = [];
 
   constructor(private name: string) {}
 
@@ -23,37 +24,18 @@ class Table {
     return this.fields[name];
   }
 
-  addIndex(index: string[]) {
+  addIndex(fields: string[], options?: MongoEnsureIndexOptions) {
+    const index = new TableIndex(this.name, fields, options);
     this.indexes.push(index);
+    return index;
   }
 
-  hasIndex(index: string[]) {
-    for (const ind of this.indexes) {
-      if (index.length !== ind.length) {
-        continue;
-      }
-      for (let i = 0; i < ind.length; ++i) {
-        if (index[i] !== ind[i]) {
-          break;
-        }
-      }
-    }
-    return false;
+  hasIndex(fields: string[], options?: MongoEnsureIndexOptions) {
+    return this.indexes.some((index) => index.equals(fields, options));
   }
 
-  buildCreateIndexSQL(sql: SqlClient, index: string[]) {
-    index = index.map((field) => {
-      const index = field.indexOf(".");
-      return index >= 0 ? field.slice(0, index) : field;
-    });
-    const name = `"idx_${this.name}_${index.join("_")}"`;
-    const fields = index.map((field) => `"${field}"`).join(", ");
-    const query = `CREATE INDEX IF NOT EXISTS ${name} ON "${this.name}" USING btree(${fields})`;
-    return sql.unsafe(query);
-  }
-
-  toCreateIndexSQL(sql: SqlClient) {
-    return this.indexes.map((index) => this.buildCreateIndexSQL(sql, index));
+  getIndexes() {
+    return this.indexes;
   }
 
   static fromCollection<T extends DbObject>(collection: CollectionBase<T>) {

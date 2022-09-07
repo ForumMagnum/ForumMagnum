@@ -5,6 +5,7 @@ import SelectQuery from "./SelectQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
 import CreateTableQuery from "./CreateTableQuery";
+import CreateIndexQuery from "./CreateIndexQuery";
 
 testStartup();
 
@@ -348,6 +349,18 @@ describe("Query", () => {
       name: "can build create table query",
       getQuery: () => new CreateTableQuery(testTable),
       expectedSql: 'CREATE TABLE IF NOT EXISTS "TestCollection" (_id VARCHAR(27) PRIMARY KEY , "a" REAL , "b" TEXT , "c" JSONB , "schemaVersion" REAL )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build create index query",
+      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[0]),
+      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_b" ON "TestCollection" USING btree ( "a" , "b" )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build create index query with json field",
+      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[1]),
+      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_c" ON "TestCollection" USING gin ( "a" , "c" )',
       expectedArgs: [],
     },
   ]);

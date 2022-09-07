@@ -5,6 +5,7 @@ import InsertQuery from "./InsertQuery";
 import SelectQuery from "./SelectQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
+import CreateIndexQuery from "./CreateIndexQuery";
 import Pipeline from "./Pipeline";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
@@ -24,14 +25,6 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     this.table = Table.fromCollection(this as unknown as CollectionBase<T>);
   }
 
-  private getSqlClient() {
-    const sql = getSqlClient();
-    if (!sql) {
-      throw new Error("SQL client is not initialized");
-    }
-    return sql;
-  }
-
   /**
    * Execute the given query
    * The `selector` parameter is completely optional and is only used to improve
@@ -39,27 +32,37 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
    */
   async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<RowList<TransformRow<R>[]>> {
     const {sql, args} = query.compile();
+    const client = getSqlClient();
+    if (!client) {
+      throw new Error("SQL client is not initialized");
+    }
     try {
       // `return await` looks weird, but it's necessary for the correct semantics
       // as the client doesn't begin executing the query until it's awaited
-      return await this.getSqlClient().unsafe<R[]>(sql, args);
+      return await client.unsafe<R[]>(sql, args);
     } catch (error) {
       console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${util.inspect(selector, {depth: null})}`);
       throw error;
     }
   }
 
-  getTable = () => this.table;
+  getTable = () => {
+    if (bundleIsServer) {
+      return this.table;
+    } else {
+      throw new Error("Attempted to run postgres query on the client");
+    }
+  }
 
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {
       fetch: async () => {
-        const select = new SelectQuery<T>(this.table, selector, options);
+        const select = new SelectQuery<T>(this.getTable(), selector, options);
         const result = await this.executeQuery(select, selector);
         return result as unknown as T[];
       },
       count: async () => {
-        const select = new SelectQuery(this.table, selector, options, {count: true});
+        const select = new SelectQuery(this.getTable(), selector, options, {count: true});
         const result = await this.executeQuery<{count: number}>(select, selector);
         return result?.[0].count ?? 0;
       },
@@ -71,19 +74,19 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options?: MongoFindOneOptions<T>,
     projection?: MongoProjection<T>,
   ): Promise<T|null> => {
-    const select = new SelectQuery<T>(this.table, selector, {limit: 1, ...options, projection});
+    const select = new SelectQuery<T>(this.getTable(), selector, {limit: 1, ...options, projection});
     const result = await this.executeQuery(select, selector);
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
-    const select = new SelectQuery<T>(this.table, undefined, {limit: 1});
+    const select = new SelectQuery<T>(this.getTable(), undefined, {limit: 1});
     const result = await this.executeQuery(select);
     return result ? result[0] as unknown as T : null;
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
-    const insert = new InsertQuery<T>(this.table, data, options);
+    const insert = new InsertQuery<T>(this.getTable(), data, options);
     await this.executeQuery(insert, data);
   }
 
@@ -92,7 +95,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const update = new UpdateQuery<T>(this.table, selector, modifier, options, 1);
+    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, 1);
     const result = await this.executeQuery(update, {selector, modifier});
     return result.count;
   }
@@ -102,25 +105,23 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const update = new UpdateQuery<T>(this.table, selector, modifier, options);
+    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options);
     const result = await this.executeQuery(update, {selector, modifier});
     return result.count;
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
-    const query = new DeleteQuery<T>(this.table, selector, options);
+    const query = new DeleteQuery<T>(this.getTable(), selector, options);
     const result = await this.executeQuery(query, selector);
     return {deletedCount: result.count};
   }
 
-  // TODO: What are the options?
-  _ensureIndex = async (fieldOrSpec: string | Record<string, any>, options: any) => {
-    const index = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
-    if (!this.table.hasIndex(index)) {
-      this.table.addIndex(index);
-      const sql = this.getSqlClient();
-      const query = this.table.buildCreateIndexSQL(sql, index);
-      await query;
+  _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
+    const fields = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
+    if (!this.getTable().hasIndex(fields, options)) {
+      const index = this.getTable().addIndex(fields, options);
+      const query = new CreateIndexQuery(this.getTable(), index);
+      await this.executeQuery(query, {fieldOrSpec, options})
     }
   }
 
@@ -128,7 +129,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline<T>(this.table, pipeline, options).toQuery();
+          const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
           const result = await this.executeQuery<T>(query);
           return result as unknown as T[];
         } catch (e) {

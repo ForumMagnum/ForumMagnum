@@ -129,6 +129,8 @@ type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+type MongoIndexSpec = Record<string, number | string> | string;
+type MongoEnsureIndexOptions = Record<string, any>;
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 

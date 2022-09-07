@@ -2,6 +2,7 @@ import { Vulcan, getCollection } from "../vulcan-lib";
 import Table from "./Table";
 import InsertQuery from "./InsertQuery";
 import CreateTableQuery from "./CreateTableQuery";
+import CreateIndexQuery from "./CreateIndexQuery";
 import { getSqlClient } from "../mongoCollection";
 import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
 import util from "util";
@@ -53,18 +54,19 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   }
 
   console.log("...Creating indexes");
-  const indexQueries = table.toCreateIndexSQL(sql);
+  const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
   if (indexQueries.length === 0) {
     console.warn("...Warning: 0 indexes found: did you wait for the timeout?");
   }
   for (const indexQuery of indexQueries) {
-    await indexQuery;
+    const compiled = indexQuery.compile();
+    await sql.unsafe(compiled.sql, compiled.args);
   }
 
   console.log("...Copying data");
   const batchSize = 200;
   const errorIds: string[] = [];
-  const formatData = formatters[collectionName] ?? ((document) => document);
+  const formatData = formatters[collectionName] ?? ((document: DbObject) => document);
   let count = 0;
   await forEachDocumentBatchInCollection({
     collection,

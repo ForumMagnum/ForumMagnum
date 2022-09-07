@@ -62,6 +62,7 @@ async function serverStartup() {
       onnotice: () => {},
       debug: console.log,
     });
+    await sql`CREATE EXTENSION IF NOT EXISTS "btree_gin"`;
     setSqlConnection(sql);
   } catch(err) {
     // eslint-disable-next-line no-console

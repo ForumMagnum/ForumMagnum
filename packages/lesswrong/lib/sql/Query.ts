@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, UnknownType } from "./Type";
+import { Type } from "./Type";
 
 class Arg {
   constructor(public value: any) {}
