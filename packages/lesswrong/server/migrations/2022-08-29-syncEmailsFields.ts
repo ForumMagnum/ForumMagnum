@@ -9,17 +9,18 @@ registerMigration({
   idempotent: true,
   action: async () => {
     const totalUsersMissingEmail =  await Users.find({email: null}).fetch()
-    const totalRecentUsersMissingEmail =  await Users.find({email: null, lastNotificationsCheck: {$exists:true}}).fetch()
+    const totalRecentUsersMissingEmail =  totalUsersMissingEmail.filter(user => !user.email && user.lastNotificationsCheck)
 
     // eslint-disable-next-line no-console
     console.log(`There are ${totalUsersMissingEmail.length} users missing an email`)
     // eslint-disable-next-line no-console
     console.log(`There are ${totalRecentUsersMissingEmail.length} users missing an email who've checked notifications in past 3 years`)
 
-    const usersEmailsToEmail = await Users.find({email: null, emails:{$ne:null}}).fetch()
-    const usersGoogleToEmail = await Users.find({email: null, 'services.google.email':{$ne:null}}).fetch()
-    const usersGithubToEmail = await Users.find({email: null, 'services.github.email':{$ne:null}}).fetch()
-    const usersFacebookToEmail = await Users.find({email: null, 'services.facebook.email':{$ne:null}}).fetch()
+    const usersEmailsToEmail = totalUsersMissingEmail.filter(user => !user.email && user.emails)
+    const usersGoogleToEmail = totalUsersMissingEmail.filter(user => !user.email && user.services?.google?.email)
+    const usersGithubToEmail = totalUsersMissingEmail.filter(user => !user.email && user.services?.github?.email)
+    const usersFacebookToEmail = totalUsersMissingEmail.filter(user => !user.email && user.services?.facebook?.email)
+    
     
     // eslint-disable-next-line no-console
     console.log(`There are ${usersEmailsToEmail.length} users who's emails.address fields could fill in email`)
@@ -32,27 +33,31 @@ registerMigration({
 
     const usersMissingEmails = [...usersEmailsToEmail, ...usersGoogleToEmail, ...usersGithubToEmail, ...usersFacebookToEmail]
 
-    let output: Array<Object> = []
+    const output: Array<Object> = []
 
     // eslint-disable-next-line no-console
     console.log(`setting emails for ${usersMissingEmails.length} users`)
     for (const user of usersMissingEmails) {
       const firstEmail = user.emails?.[0]
-      const email = firstEmail?.address || firstEmail?.value || user.services?.google?.email || user.services?.facebook?.email || user.services?.github?.email
+      const newEmail = firstEmail?.address || firstEmail?.value || user.services?.google?.email || user.services?.facebook?.email || user.services?.github?.email
 
-      if (email) {
-          output.push({
-            _id: user._id, 
-            displayName: user.displayName,
-            email: email
-          })
-
-          // eslint-disable-next-line no-console
-          console.log(`setting email for ${user._id} (${user.displayName}) to ${email}`)
-          await Users.rawUpdateOne({_id: user._id}, {$set: {email}})
+      if (newEmail) {
+        const outputRow = {
+          _id: user._id, 
+          displayName: user.displayName,
+          email: newEmail,
+          errors: null
+        }
+        try {
+          await Users.rawUpdateOne({_id: user._id}, {$set: {newEmail}})
+        } catch (err) {
+          console.log("ERR:", err)
+          outputRow.errors = err
+        }
+        output.push(outputRow)
       }
     }
 
-    await fs.writeFileSync("tmp/syncEmailFields.csv", Papa.unparse(output))
+    fs.writeFile(`tmp/syncEmailFields-${new Date()}.csv`, Papa.unparse(output), (err) => console.log("err"))
   }  
 })
