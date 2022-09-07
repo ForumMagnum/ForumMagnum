@@ -4,6 +4,7 @@ import InsertQuery from "./InsertQuery";
 import SelectQuery from "./SelectQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
+import CreateTableQuery from "./CreateTableQuery";
 
 testStartup();
 
@@ -342,6 +343,12 @@ describe("Query", () => {
       getQuery: () => new DeleteQuery<DbTestObject>(testTable, "some-id"),
       expectedSql: 'DELETE FROM "TestCollection" WHERE "_id" = $1',
       expectedArgs: ["some-id"],
+    },
+    {
+      name: "can build create table query",
+      getQuery: () => new CreateTableQuery(testTable),
+      expectedSql: 'CREATE TABLE IF NOT EXISTS "TestCollection" (_id VARCHAR(27) PRIMARY KEY , "a" REAL , "b" TEXT , "c" JSONB , "schemaVersion" REAL )',
+      expectedArgs: [],
     },
   ]);
 });

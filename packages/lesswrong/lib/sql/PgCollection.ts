@@ -114,7 +114,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   // TODO: What are the options?
-  _ensureIndex = async (fieldOrSpec: string | Record<string, any>, options_: any) => {
+  _ensureIndex = async (fieldOrSpec: string | Record<string, any>, options: any) => {
     const index = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
     if (!this.table.hasIndex(index)) {
       this.table.addIndex(index);

@@ -41,16 +41,6 @@ class Table {
     return false;
   }
 
-  toCreateSQL(sql: SqlClient) {
-    let query = `CREATE TABLE IF NOT EXISTS "${this.name}" (\n`;
-    query += `  _id ${this.fields["_id"].toString()} PRIMARY KEY`;
-    for (const field of Object.keys(this.fields).filter((field) => field !== "_id")) {
-      query += `,\n  "${field}" ${this.fields[field].toString()}`;
-    }
-    query += "\n);";
-    return sql.unsafe(query);
-  }
-
   buildCreateIndexSQL(sql: SqlClient, index: string[]) {
     index = index.map((field) => {
       const index = field.indexOf(".");

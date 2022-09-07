@@ -5,6 +5,7 @@ import "./InsertQuery";
 import "./SelectQuery";
 import "./UpdateQuery";
 import "./DeleteQuery";
+import "./CreateTableQuery";
 import "./Pipeline";
 import "./PgCollection";
 import "./mongoToSql";

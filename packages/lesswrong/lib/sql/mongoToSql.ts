@@ -1,6 +1,7 @@
 import { Vulcan, getCollection } from "../vulcan-lib";
 import Table from "./Table";
 import InsertQuery from "./InsertQuery";
+import CreateTableQuery from "./CreateTableQuery";
 import { getSqlClient } from "../mongoCollection";
 import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
 import util from "util";
@@ -42,8 +43,9 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     throw new Error("SQL client not initialized");
   }
   try {
-    const createQuery = table.toCreateSQL(sql);
-    await createQuery;
+    const createQuery = new CreateTableQuery(table);
+    const compiled = createQuery.compile();
+    await sql.unsafe(compiled.sql, compiled.args);
   } catch (e) {
     console.error("Failed to create table");
     console.log(table);
