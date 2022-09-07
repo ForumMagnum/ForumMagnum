@@ -104,8 +104,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return result.count;
   }
 
-  rawRemove = async (selector: string | MongoSelector<T>, options?: any) => { // TODO: Type of options
-    throw new Error("PgCollection: rawRemove not yet implemented");
+  rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
+    const query = Query.delete<T>(this.table, selector, options);
+    const result = await this.executeQuery(query, selector);
+    return {deletedCount: result.count};
   }
 
   // TODO: What are the options?

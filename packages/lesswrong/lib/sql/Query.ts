@@ -532,6 +532,24 @@ class Query<T extends DbObject> {
 
     return query;
   }
+
+  static delete<T extends DbObject>(
+    table: Table,
+    selector: string | MongoSelector<T>,
+    options?: MongoRemoveOptions<T>, // TODO: What can options be?
+  ): Query<T> {
+    if (typeof selector === "string") {
+      selector = {_id: selector};
+    }
+
+    if (!Object.keys(selector).length) {
+      throw new Error("You're trying to delete every record in a table - this is probably not correct");
+    }
+
+    const query = new Query(table, ["DELETE FROM", table, "WHERE"]);
+    query.appendSelector(selector);
+    return query;
+  }
 }
 
 export default Query;

@@ -322,5 +322,17 @@ describe("Query", () => {
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $2 LIMIT $3 )',
       expectedArgs: ["test", 3, 1],
     },
+    {
+      name: "can build delete with selector",
+      getQuery: () => Query.delete<DbTestObject>(testTable, {a: 3, b: "test"}),
+      expectedSql: 'DELETE FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
+      expectedArgs: [3, "test"],
+    },
+    {
+      name: "can build delete with ID",
+      getQuery: () => Query.delete<DbTestObject>(testTable, "some-id"),
+      expectedSql: 'DELETE FROM "TestCollection" WHERE "_id" = $1',
+      expectedArgs: ["some-id"],
+    },
   ]);
 });
