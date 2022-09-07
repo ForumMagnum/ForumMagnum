@@ -381,6 +381,8 @@ importComponent("RecentDiscussionMeetupsPoke", () => require('../components/rece
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
+importComponent("CommentsTimelineSection", () => require('../components/comments/CommentsTimelineSection'));
+importComponent("CommentsTimeline", () => require('../components/comments/CommentsTimeline'));
 importComponent("CommentsList", () => require('../components/comments/CommentsList'));
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
@@ -518,6 +520,7 @@ importComponent("TagActivityFeed", () => require('../components/tagging/TagActiv
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
+importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));

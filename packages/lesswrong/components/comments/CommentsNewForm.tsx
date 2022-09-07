@@ -13,9 +13,23 @@ import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import ArrowForward from '@material-ui/icons/ArrowForward';
+
+export type CommentFormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+  },
+  rootMinimalist: {
+    '& .form-input': {
+      width: "100%",
+      margin: 0,
+      marginTop: 4,
+    },
+    '& form': {
+      display: "flex",
+      flexDirection: "row",
+    }
   },
   loadingRoot: {
     opacity: 0.5
@@ -23,12 +37,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   form: {
     padding: 10,
   },
+  formMinimalist: {
+    padding: '12px 10px 8px 10px',
+  },
   modNote: {
     paddingTop: '4px',
     color: theme.palette.text.dim2,
   },
   submit: {
-    textAlign: 'right'
+    textAlign: 'right',
   },
   formButton: {
     paddingBottom: "2px",
@@ -36,19 +53,38 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "5px",
     "&:hover": {
       opacity: .5,
-      background: "none"
+      backgroundColor: "none",
     },
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.lwTertiary.main,
   },
   cancelButton: {
-    color: theme.palette.grey[400]
+    color: theme.palette.grey[400],
+  },
+  submitMinimalist: {
+    height: 'fit-content',
+    marginTop: "auto",
+    marginBottom: 4,
+  },
+  formButtonMinimalist: {
+    padding: "2px",
+    fontSize: "16px",
+    minWidth: 28,
+    minHeight: 28,
+    marginLeft: "5px",
+    "&:hover": {
+      opacity: .8,
+      backgroundColor: theme.palette.lwTertiary.main,
+    },
+    backgroundColor: theme.palette.lwTertiary.main,
+    color: theme.palette.background.pageActiveAreaBackground,
+    overflowX: "hidden",  // to stop loading dots from wrapping around
   },
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
+const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
 {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
@@ -63,6 +99,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
+  displayMode?: CommentFormDisplayMode
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
@@ -71,6 +108,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
+  const isMinimalist = displayMode === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
@@ -122,17 +160,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   }
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
-    return <div className={classes.submit}>
-      {(type === "reply") && <Button
+    const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
+    return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist})}>
+      {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
-        className={classNames(classes.formButton, classes.cancelButton)}
+        className={classNames(formButtonClass, classes.cancelButton)}
       >
         Cancel
       </Button>}
       <Button
         type="submit"
         id="new-comment-submit"
-        className={classNames(classes.formButton)}
+        className={formButtonClass}
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
@@ -143,7 +182,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
           }
         }}
       >
-        {loading ? <Loading /> : submitLabel}
+        {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
   };
@@ -154,8 +193,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   }
 
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
+  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   return (
-    <div className={loading ? classes.loadingRoot : classes.root} onFocus={()=>{
+    <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={()=>{
       // On focus (this bubbles out from the text editor), show moderation guidelines.
       // Defer this through a setTimeout, because otherwise clicking the Cancel button
       // doesn't work (the focus event fires before the click event, the state change
@@ -164,7 +204,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
       setTimeout(() => setShowGuidelines(true), 0);
     }}>
       <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding ? classes.form : null}>
+        <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
           {commentWillBeHidden && <div className={classes.modNote}><em>
             A moderator will need to review your account before your comments will show up.
           </em></div>}
@@ -192,7 +232,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
               alignmentForumPost={post?.af}
               addFields={currentUser?[]:["contents"]}
               removeFields={removeFields}
-              formProps={formProps}
+              formProps={{
+                ...extraFormProps,
+                ...formProps,
+              }}
             />
           </div>
         </div>

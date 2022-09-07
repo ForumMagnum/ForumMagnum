@@ -137,6 +137,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
   readonly canVoteOnRels: Array<string>,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -1511,6 +1512,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagFragment_parentTag|null,
   readonly subTags: Array<TagFragment_subTags>,
   readonly description: TagFragment_description|null,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagFragment_parentTag { // fragment on Tags
@@ -1578,6 +1580,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagPreviewFragment_parentTag|null,
   readonly subTags: Array<TagPreviewFragment_subTags>,
   readonly description: TagPreviewFragment_description|null,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagPreviewFragment_parentTag { // fragment on Tags
@@ -1618,12 +1621,14 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
+  readonly subforumShortformPostId: string,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -1650,6 +1655,7 @@ interface TagRecentDiscussion extends TagFragment { // fragment on Tags
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
+  readonly subforumShortformPostId: string,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests

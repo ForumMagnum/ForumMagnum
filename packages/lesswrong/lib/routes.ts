@@ -480,6 +480,12 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
+    {
+      name: 'taggingSubforumCustomName',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      hideFooter: true
+    }
   )
 } else {
   addRoute(
