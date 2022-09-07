@@ -1,4 +1,3 @@
-import { getCollectionByTableName } from "../vulcan-lib";
 import Table from "./Table";
 import { Type, UnknownType } from "./Type";
 
@@ -30,30 +29,6 @@ const arithmeticOps = {
   $pow: "^",
   ...comparisonOps,
 };
-
-export type SimpleLookup = {
-  from: string,
-  localField: string,
-  foreignField: string,
-  as: string,
-}
-
-export type PipelineLookup = {
-  from: string,
-  let: Record<string, any>,
-  pipeline: Record<string, any>[],
-  as: string,
-}
-
-export type Lookup = SimpleLookup | PipelineLookup;
-
-export type SelectSqlOptions = Partial<{
-  count: boolean,
-  addFields: any // TODO typing
-  lookup: Lookup,
-  unwind: any, // TODO typing
-  joinHook: string,
-}>
 
 class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
@@ -242,24 +217,6 @@ class Query<T extends DbObject> {
     ]).slice(1);
   }
 
-  protected appendLateralJoin(lookup: Lookup): void {
-    const {from, as} = lookup;
-    if (!from || !as) {
-      throw new Error("Invalid $lookup");
-    }
-
-    if ("localField" in lookup && "foreignField" in lookup) {
-      const {localField, foreignField} = lookup;
-      const table = getCollectionByTableName(from).collectionName;
-      this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
-      this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
-    } else if ("let" in lookup && "pipeline" in lookup) {
-      throw new Error("Pipeline joins are not being implemented - write raw SQL");
-    } else {
-      throw new Error("Invalid $lookup");
-    }
-  }
-
   protected appendOptions(options: MongoFindOptions<T>): void {
     const {sort, limit, skip} = options;
 
@@ -427,49 +384,6 @@ class Query<T extends DbObject> {
     return {addFields, projection};
   }
 
-  static select<T extends DbObject>(
-    table: Table | Query<T>,
-    selector?: string | MongoSelector<T>,
-    options?: MongoFindOptions<T>,
-    sqlOptions?: SelectSqlOptions,
-  ): Query<T> {
-    if (typeof selector === "string") {
-      selector = {_id: selector};
-    }
-
-    const query = new Query(table, ["SELECT"]);
-    query.hasLateralJoin = !!sqlOptions?.lookup;
-
-    const {addFields, projection} = query.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
-    query.atoms = query.atoms.concat(query.getProjectedFields(table, sqlOptions?.count, projection));
-    if (addFields) {
-      query.atoms = query.atoms.concat(query.getSyntheticFields(addFields));
-    }
-    query.atoms = query.atoms.concat(["FROM", table]);
-
-    if (sqlOptions?.lookup) {
-      query.appendLateralJoin(sqlOptions.lookup);
-    }
-
-    if (sqlOptions?.joinHook) {
-      query.atoms.push(sqlOptions.joinHook);
-    }
-
-    if (selector && Object.keys(selector).length > 0) {
-      query.atoms.push("WHERE");
-      query.appendSelector(selector);
-    }
-
-    if (options) {
-      if (options.collation) {
-        throw new Error("Collation not yet implemented")
-      }
-      query.appendOptions(options);
-    }
-
-    return query;
-  }
-
   static update<T extends DbObject>(
     table: Table,
     selector: string | MongoSelector<T>,
@@ -512,7 +426,8 @@ class Query<T extends DbObject> {
       if (limit) {
         query.atoms = query.atoms.concat([
           "_id IN",
-          Query<T>.select(table, selector, {limit, projection: {_id: 1}}),
+          // TODO
+          // new SelectQuery(table, selector, {limit, projection: {_id: 1}}),
         ]);
       } else {
         query.appendSelector(selector);
