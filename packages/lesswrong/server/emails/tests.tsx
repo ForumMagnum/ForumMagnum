@@ -21,7 +21,7 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   boilerplateGenerator?: typeof unitTestBoilerplateGenerator
 }) {
   const destinationUser = user || await createDummyUser();
-  const email = getUserEmail(user)
+  const email = getUserEmail(destinationUser)
   if (!email) throw new Error("test email has no email address")
   return await generateEmail({
     user: destinationUser,
