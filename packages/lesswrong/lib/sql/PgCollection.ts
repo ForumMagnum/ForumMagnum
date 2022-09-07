@@ -1,6 +1,7 @@
 import { MongoCollection, getSqlClient } from "../mongoCollection";
 import Table from "./Table";
 import Query from "./Query";
+import InsertQuery from "./InsertQuery";
 import Pipeline from "./Pipeline";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
@@ -79,9 +80,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   // TODO: What can the options be?
-  rawInsert = async (doc: any, options: any) => { // TODO types
-    const insert = Query.insert<T>(this.table, doc, options);
-    await this.executeQuery(insert, doc);
+  rawInsert = async (data: T, options: any) => { // TODO types
+    const insert = new InsertQuery<T>(this.table, data, options);
+    await this.executeQuery(insert, data);
   }
 
   rawUpdateOne = async (

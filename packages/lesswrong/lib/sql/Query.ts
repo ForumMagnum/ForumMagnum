@@ -56,13 +56,13 @@ export type SelectSqlOptions = Partial<{
 }>
 
 class Query<T extends DbObject> {
-  private syntheticFields: Record<string, Type> = {};
-  private hasLateralJoin: boolean = false;
-  private nameSubqueries: boolean = true;
+  protected syntheticFields: Record<string, Type> = {};
+  protected hasLateralJoin: boolean = false;
+  protected nameSubqueries: boolean = true;
 
-  private constructor(
-    private table: Table | Query<T>,
-    private atoms: Atom<T>[] = [],
+  protected constructor(
+    protected table: Table | Query<T>,
+    protected atoms: Atom<T>[] = [],
   ) {}
 
   getField(name: string) {
@@ -105,7 +105,7 @@ class Query<T extends DbObject> {
     };
   }
 
-  private getTypeHint(typeHint?: any): string {
+  protected getTypeHint(typeHint?: any): string {
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
     }
@@ -123,7 +123,7 @@ class Query<T extends DbObject> {
     return "";
   }
 
-  private getUnifiedTypeHint(a: Atom<T>[], b: Atom<T>[]): string | undefined {
+  protected getUnifiedTypeHint(a: Atom<T>[], b: Atom<T>[]): string | undefined {
     const aArg = a.find((atom) => atom instanceof Arg) as Arg;
     const bArg = b.find((atom) => atom instanceof Arg) as Arg;
     if (!aArg || !bArg || typeof aArg.value !== typeof bArg.value) {
@@ -132,11 +132,11 @@ class Query<T extends DbObject> {
     return this.getTypeHint(aArg.value);
   }
 
-  private resolveTableName(): string {
+  protected resolveTableName(): string {
     return this.table instanceof Table ? `"${this.table.getName()}".` : "";
   }
 
-  private resolveFieldName(field: string, typeHint?: any): string {
+  protected resolveFieldName(field: string, typeHint?: any): string {
     const arrayIndex = field.indexOf(".$");
     if (arrayIndex > -1) {
       throw new Error("Array fields not yet implemented");
@@ -158,11 +158,11 @@ class Query<T extends DbObject> {
     throw new Error(`Cannot resolve field name: ${field}`);
   }
 
-  private getStarSelector() {
+  protected getStarSelector() {
     return this.table instanceof Table && !this.hasLateralJoin ? `"${this.table.getName()}".*` : "*";
   }
 
-  private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom<T>[] {
+  protected compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom<T>[] {
     const result = Array.isArray(multiSelector)
       ? multiSelector.map((selector) => this.compileSelector(selector))
       : Object.keys(multiSelector).map(
@@ -175,7 +175,7 @@ class Query<T extends DbObject> {
     ];
   }
 
-  private compileComparison(fieldName: string, value: any): Atom<T>[] {
+  protected compileComparison(fieldName: string, value: any): Atom<T>[] {
     if (value === undefined) {
       return [];
     }
@@ -204,7 +204,7 @@ class Query<T extends DbObject> {
     return [`${field} = `, new Arg(value)];
   }
 
-  private compileSelector(selector: MongoSelector<T>): Atom<T>[] {
+  protected compileSelector(selector: MongoSelector<T>): Atom<T>[] {
     /*
      * TODO: Internal documentation, examples
      */
@@ -229,11 +229,11 @@ class Query<T extends DbObject> {
     return this.compileComparison(key, value);
   }
 
-  private appendSelector(selector: MongoSelector<T>): void {
+  protected appendSelector(selector: MongoSelector<T>): void {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
-  private compileSetFields(updates: Partial<Record<keyof T, any>>): Atom<T>[] {
+  protected compileSetFields(updates: Partial<Record<keyof T, any>>): Atom<T>[] {
     return Object.keys(updates).flatMap((field) => [
       ",",
       this.resolveFieldName(field),
@@ -242,7 +242,7 @@ class Query<T extends DbObject> {
     ]).slice(1);
   }
 
-  private appendLateralJoin(lookup: Lookup): void {
+  protected appendLateralJoin(lookup: Lookup): void {
     const {from, as} = lookup;
     if (!from || !as) {
       throw new Error("Invalid $lookup");
@@ -260,7 +260,7 @@ class Query<T extends DbObject> {
     }
   }
 
-  private appendOptions(options: MongoFindOptions<T>): void {
+  protected appendOptions(options: MongoFindOptions<T>): void {
     const {sort, limit, skip} = options;
 
     if (sort && Object.keys(sort).length) {
@@ -283,7 +283,7 @@ class Query<T extends DbObject> {
     }
   }
 
-  private appendValuesList(data: T): void {
+  protected appendValuesList(data: T): void {
     const fields = this.table.getFields();
     const keys = Object.keys(fields);
     this.atoms.push("(");
@@ -302,7 +302,7 @@ class Query<T extends DbObject> {
     this.atoms.push(")");
   }
 
-  private getProjectedFields(
+  protected getProjectedFields(
     table: Table | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
@@ -353,7 +353,7 @@ class Query<T extends DbObject> {
     return projectedAtoms;
   }
 
-  private compileExpression(expr: any, typeHint?: any): Atom<T>[] {
+  protected compileExpression(expr: any, typeHint?: any): Atom<T>[] {
     if (typeof expr === "string") {
       return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1), typeHint) : new Arg(expr)];
     } else if (typeof expr !== "object" || expr === null || expr instanceof Date) {
@@ -394,7 +394,7 @@ class Query<T extends DbObject> {
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
   }
 
-  private compileCondition(expr: any): Atom<T>[] {
+  protected compileCondition(expr: any): Atom<T>[] {
     if (typeof expr === "string" && expr[0] === "$") {
       const name = expr.slice(1);
       return [this.resolveFieldName(name), "IS NOT NULL"];
@@ -402,7 +402,7 @@ class Query<T extends DbObject> {
     return this.compileExpression(expr);
   }
 
-  private getSyntheticFields(addFields: Record<string, any>): Atom<T>[] {
+  protected getSyntheticFields(addFields: Record<string, any>): Atom<T>[] {
     for (const field in addFields) {
       this.syntheticFields[field] = new UnknownType();
     }
@@ -411,7 +411,7 @@ class Query<T extends DbObject> {
     );
   }
 
-  private disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
+  protected disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
     if (addFields) {
       const fields = Object.keys(addFields);
       for (const field of fields) {
@@ -425,15 +425,6 @@ class Query<T extends DbObject> {
       }
     }
     return {addFields, projection};
-  }
-
-  static insert<T extends DbObject>(table: Table, data: T, allowConflicts = false): Query<T> {
-    const query = new Query<T>(table, [`INSERT INTO "${table.getName()}"`]);
-    query.appendValuesList(data);
-    if (allowConflicts) {
-      query.atoms.push("ON CONFLICT DO NOTHING");
-    }
-    return query;
   }
 
   static select<T extends DbObject>(

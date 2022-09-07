@@ -1,6 +1,7 @@
 import { testStartup } from "../../testing/testMain";
 import { DbTestObject, testTable, runTestCases } from "./testHelpers";
 import Query from "./Query";
+import InsertQuery from "./InsertQuery";
 
 testStartup();
 
@@ -170,13 +171,13 @@ describe("Query", () => {
     },
     {
       name: "can build insert query",
-      getQuery: () => Query.insert<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}),
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
       expectedArgs: ["abc", 3, "test", null, 1],
     },
     {
       name: "can build insert query allowing conflicts",
-      getQuery: () => Query.insert<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}, true),
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}, true),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT DO NOTHING',
       expectedArgs: ["abc", 3, "test", null, 1],
     },
