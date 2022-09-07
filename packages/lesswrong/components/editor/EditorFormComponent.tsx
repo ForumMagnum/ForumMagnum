@@ -22,7 +22,7 @@ import { markdownToHtmlSimple } from '../../lib/editor/utils';
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
-const commentMinimalistEditorHeight = 52;
+const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
@@ -72,6 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
     pointerEvents: 'auto',
     '& textarea': {
+      marginTop: 4,
       maxHeight: commentMinimalistEditorHeight,
       '&:focus': {
         maxHeight: '128px',
@@ -104,10 +105,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentMinimalistEditorHeight: {
-    minHeight: commentMinimalistEditorHeight,
-    '& .ck.ck-content': {
-      minHeight: commentMinimalistEditorHeight,
-    },
+    // // minHeight: commentMinimalistEditorHeight,
+    // '& .ck.ck-content': {
+    //   minHeight: commentMinimalistEditorHeight,
+    // },
+    // marginTop: 4,
     '& .ck-editor__editable': {
       maxHeight: "300px"
     },

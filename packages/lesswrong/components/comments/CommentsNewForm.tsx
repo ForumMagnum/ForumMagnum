@@ -24,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .form-input': {
       width: "100%",
       margin: 0,
+      marginTop: 4,
     },
     '& form': {
       display: "flex",
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 10,
   },
   formMinimalist: {
-    padding: '8px 6px',
+    padding: '12px 10px 8px 10px',
   },
   modNote: {
     paddingTop: '4px',
@@ -62,6 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
+    marginBottom: 4,
   },
   formButtonMinimalist: {
     padding: "2px",
