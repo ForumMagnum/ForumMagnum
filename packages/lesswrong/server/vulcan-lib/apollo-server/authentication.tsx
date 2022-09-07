@@ -260,7 +260,7 @@ const authenticationResolvers = {
     },
     async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
-      const user = await Users.findOne({email})
+      const user = await userFindOneByEmail(email)
       if (!user) throw Error("Can't find user with given email address")
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({
