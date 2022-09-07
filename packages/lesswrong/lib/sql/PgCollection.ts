@@ -2,6 +2,8 @@ import { MongoCollection, getSqlClient } from "../mongoCollection";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
+import SelectQuery from "./SelectQuery";
+import UpdateQuery from "./UpdateQuery";
 import Pipeline from "./Pipeline";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
@@ -51,12 +53,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {
       fetch: async () => {
-        const select = Query.select(this.table, selector, options);
-        const result = await this.executeQuery<T>(select, selector);
+        const select = new SelectQuery<T>(this.table, selector, options);
+        const result = await this.executeQuery(select, selector);
         return result as unknown as T[];
       },
       count: async () => {
-        const select = Query.select(this.table, selector, options, {count: true});
+        const select = new SelectQuery(this.table, selector, options, {count: true});
         const result = await this.executeQuery<{count: number}>(select, selector);
         return result?.[0].count ?? 0;
       },
@@ -68,14 +70,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options?: MongoFindOneOptions<T>,
     projection?: MongoProjection<T>,
   ): Promise<T|null> => {
-    const select = Query.select<T>(this.table, selector, {limit: 1, ...options, projection});
-    const result = await this.executeQuery<T>(select, selector);
+    const select = new SelectQuery<T>(this.table, selector, {limit: 1, ...options, projection});
+    const result = await this.executeQuery(select, selector);
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
-    const select = Query.select<T>(this.table, undefined, {limit: 1});
-    const result = await this.executeQuery<T>(select);
+    const select = new SelectQuery<T>(this.table, undefined, {limit: 1});
+    const result = await this.executeQuery(select);
     return result ? result[0] as unknown as T : null;
   }
 
@@ -90,7 +92,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const update = Query.update<T>(this.table, selector, modifier, options, 1);
+    const update = new UpdateQuery<T>(this.table, selector, modifier, options, 1);
     const result = await this.executeQuery(update, {selector, modifier});
     return result.count;
   }
@@ -100,7 +102,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const update = Query.update<T>(this.table, selector, modifier, options);
+    const update = new UpdateQuery<T>(this.table, selector, modifier, options);
     const result = await this.executeQuery(update, {selector, modifier});
     return result.count;
   }

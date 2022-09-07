@@ -3,6 +3,7 @@ import { DbTestObject, testTable, runTestCases } from "./testHelpers";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
 import SelectQuery from "./SelectQuery";
+import UpdateQuery from "./UpdateQuery";
 
 testStartup();
 
@@ -290,37 +291,37 @@ describe("Query", () => {
     },
     {
       name: "can build update with $set",
-      getQuery: () => Query.update<DbTestObject>(testTable, {a: 3}, {$set: {b: "test", c: "another-test"}}),
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test", c: "another-test"}}),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 , "c" = $2 WHERE "a" = $3',
       expectedArgs: ["test", "another-test", 3],
     },
     {
       name: "can build update with $unset",
-      getQuery: () => Query.update<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}}),
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}}),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE "a" = $2',
       expectedArgs: [null, 3],
     },
     {
       name: "can build update with $set and $unset",
-      getQuery: () => Query.update<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}, $set: {c: "test"}}),
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}, $set: {c: "test"}}),
       expectedSql: 'UPDATE "TestCollection" SET "c" = $1 , "b" = $2 WHERE "a" = $3',
       expectedArgs: ["test", null, 3],
     },
     {
       name: "can build update with string selector",
-      getQuery: () => Query.update<DbTestObject>(testTable, "some-id", {$set: {b: "test"}}),
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, "some-id", {$set: {b: "test"}}),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE "_id" = $2',
       expectedArgs: ["test", "some-id"],
     },
     {
       name: "can build update with limit and no selector",
-      getQuery: () => Query.update<DbTestObject>(testTable, {}, {$set: {b: "test"}}, {}, 1),
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {}, {$set: {b: "test"}}, {}, 1),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" LIMIT $2 )',
       expectedArgs: ["test", 1],
     },
     {
       name: "can build update with limit and selector",
-      getQuery: () => Query.update<DbTestObject>(testTable, {a: 3}, {$set: {b: "test"}}, {}, 1),
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test"}}, {}, 1),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $2 LIMIT $3 )',
       expectedArgs: ["test", 3, 1],
     },

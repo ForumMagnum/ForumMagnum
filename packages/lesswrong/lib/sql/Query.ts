@@ -80,6 +80,10 @@ class Query<T extends DbObject> {
     };
   }
 
+  protected createArg(value: any) {
+    return new Arg(value);
+  }
+
   protected getTypeHint(typeHint?: any): string {
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
@@ -382,61 +386,6 @@ class Query<T extends DbObject> {
       }
     }
     return {addFields, projection};
-  }
-
-  static update<T extends DbObject>(
-    table: Table,
-    selector: string | MongoSelector<T>,
-    modifier: MongoModifier<T>,
-    options?: MongoUpdateOptions<T>, // TODO: What can options be?
-    limit?: number,
-  ): Query<T> {
-    if (typeof selector === "string") {
-      selector = {_id: selector};
-    }
-
-    const query = new Query(table, ["UPDATE", table, "SET"]);
-    query.nameSubqueries = false;
-
-    const set: Partial<Record<keyof T, any>> = modifier.$set ?? {};
-    for (const operation of Object.keys(modifier)) {
-      switch (operation) {
-        case "$set":
-          break;
-        case "$unset":
-          for (const field of Object.keys(modifier.$unset)) {
-            set[field] = null;
-          }
-          break;
-        case "$inc":
-          for (const field of Object.keys(modifier.$inc)) {
-            set[field] = {$add: [`$${field}`, 1]};
-          }
-          break;
-        default:
-          throw new Error("Unimplemented update operation: " + operation);
-      }
-    }
-
-    query.atoms = query.atoms.concat(query.compileSetFields(set));
-
-    if (selector && Object.keys(selector).length > 0) {
-      query.atoms.push("WHERE");
-
-      if (limit) {
-        query.atoms = query.atoms.concat([
-          "_id IN",
-          // TODO
-          // new SelectQuery(table, selector, {limit, projection: {_id: 1}}),
-        ]);
-      } else {
-        query.appendSelector(selector);
-      }
-    } else if (limit) {
-      query.atoms = query.atoms.concat(["WHERE _id IN ( SELECT \"_id\" FROM", table, "LIMIT", new Arg(limit), ")"]);
-    }
-
-    return query;
   }
 
   static delete<T extends DbObject>(

@@ -3,6 +3,7 @@ import "./Type";
 import "./Query";
 import "./InsertQuery";
 import "./SelectQuery";
+import "./UpdateQuery";
 import "./Pipeline";
 import "./PgCollection";
 import "./mongoToSql";
