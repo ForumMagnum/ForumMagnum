@@ -59,6 +59,7 @@ async function serverStartup() {
     // eslint-disable-next-line no-console
     console.log("Connecting to postgres");
     const sql = postgres(commandLineArguments.postgresUrl, {
+      onnotice: () => {},
       // debug: console.log,
     });
     setSqlConnection(sql);

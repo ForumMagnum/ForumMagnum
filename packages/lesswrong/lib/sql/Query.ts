@@ -47,17 +47,18 @@ export type PipelineLookup = {
 
 export type Lookup = SimpleLookup | PipelineLookup;
 
-export type SelectSqlOptions = {
-  count?: boolean,
-  addFields?: any // TODO typing
-  lookup?: Lookup,
-  unwind?: any, // TODO typing
-  joinHook?: string,
-}
+export type SelectSqlOptions = Partial<{
+  count: boolean,
+  addFields: any // TODO typing
+  lookup: Lookup,
+  unwind: any, // TODO typing
+  joinHook: string,
+}>
 
 class Query<T extends DbObject> {
   private syntheticFields: Record<string, Type> = {};
   private hasLateralJoin: boolean = false;
+  private nameSubqueries: boolean = true;
 
   private constructor(
     private table: Table | Query<T>,
@@ -86,7 +87,7 @@ class Query<T extends DbObject> {
         args.push(atom.value);
       } else if (atom instanceof Query) {
         strings.push("(");
-        const subquery = String.fromCharCode(subqueryOffset++);
+        const subquery = this.nameSubqueries ? String.fromCharCode(subqueryOffset++) : "";
         const result = atom.compile(argOffset, subqueryOffset);
         strings.push(result.sql);
         args = args.concat(result.args);
@@ -232,6 +233,15 @@ class Query<T extends DbObject> {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
+  private compileSetFields(updates: Partial<Record<keyof T, any>>): Atom<T>[] {
+    return Object.keys(updates).flatMap((field) => [
+      ",",
+      this.resolveFieldName(field),
+      "=",
+      ...this.compileExpression(updates[field]),
+    ]).slice(1);
+  }
+
   private appendLateralJoin(lookup: Lookup): void {
     const {from, as} = lookup;
     if (!from || !as) {
@@ -345,8 +355,7 @@ class Query<T extends DbObject> {
 
   private compileExpression(expr: any, typeHint?: any): Atom<T>[] {
     if (typeof expr === "string") {
-      const name = expr.slice(1);
-      return [expr[0] === "$" ? this.resolveFieldName(name, typeHint) : new Arg(expr)];
+      return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1), typeHint) : new Arg(expr)];
     } else if (typeof expr !== "object" || expr === null || expr instanceof Date) {
       return [new Arg(expr)];
     }
@@ -474,7 +483,7 @@ class Query<T extends DbObject> {
     table: Table,
     selector: string | MongoSelector<T>,
     modifier: MongoModifier<T>,
-    options: MongoUpdateOptions<T>,
+    options?: MongoUpdateOptions<T>, // TODO: What can options be?
     limit?: number,
   ): Query<T> {
     if (typeof selector === "string") {
@@ -482,11 +491,43 @@ class Query<T extends DbObject> {
     }
 
     const query = new Query(table, ["UPDATE", table, "SET"]);
+    query.nameSubqueries = false;
 
-    // TODO
+    const set: Partial<Record<keyof T, any>> = modifier.$set ?? {};
+    for (const operation of Object.keys(modifier)) {
+      switch (operation) {
+        case "$set":
+          break;
+        case "$unset":
+          for (const field of Object.keys(modifier.$unset)) {
+            set[field] = null;
+          }
+          break;
+        case "$inc":
+          for (const field of Object.keys(modifier.$inc)) {
+            set[field] = {$add: [`$${field}`, 1]};
+          }
+          break;
+        default:
+          throw new Error("Unimplemented update operation: " + operation);
+      }
+    }
 
-    if (limit) {
-      query.atoms = query.atoms.concat(["LIMIT", new Arg(limit)]);
+    query.atoms = query.atoms.concat(query.compileSetFields(set));
+
+    if (selector && Object.keys(selector).length > 0) {
+      query.atoms.push("WHERE");
+
+      if (limit) {
+        query.atoms = query.atoms.concat([
+          "_id IN",
+          Query<T>.select(table, selector, {limit, projection: {_id: 1}}),
+        ]);
+      } else {
+        query.appendSelector(selector);
+      }
+    } else if (limit) {
+      query.atoms = query.atoms.concat(["WHERE _id IN ( SELECT \"_id\" FROM", table, "LIMIT", new Arg(limit), ")"]);
     }
 
     return query;

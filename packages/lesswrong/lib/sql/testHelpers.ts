@@ -63,7 +63,7 @@ export const testTable2 = Table.fromCollection(TestCollection2);
 registerCollection(TestCollection);
 registerCollection(TestCollection2);
 
-export const normalizeWhitespace = (s: string) => s.replace(/\s+/g, " ");
+export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 
 export type TestCase = {
   name: string,

@@ -74,7 +74,7 @@ class Pipeline<T extends DbObject> {
   constructor(
     private table: Table,
     private stages: MongoAggregationPipeline<T> = [],
-    private options_?: MongoAggregationOptions, // TODO: What can options be?
+    private options?: MongoAggregationOptions, // TODO: What can options be?
   ) {}
 
   compile(): {sql: string, args: any[]} {

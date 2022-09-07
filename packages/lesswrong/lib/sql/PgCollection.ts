@@ -3,9 +3,10 @@ import Table from "./Table";
 import Query from "./Query";
 import Pipeline from "./Pipeline";
 import util from "util";
+import type { RowList, TransformRow } from "postgres";
 
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
-  pgTable: Table;
+  table: Table;
 
   constructor(tableName: string, options?: { _suppressSameNameError?: boolean }) {
     super(tableName, options);
@@ -16,7 +17,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   buildPostgresTable() {
-    this.pgTable = Table.fromCollection(this as unknown as CollectionBase<T>);
+    this.table = Table.fromCollection(this as unknown as CollectionBase<T>);
   }
 
   private getSqlClient() {
@@ -27,36 +28,34 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return sql;
   }
 
-  private async rawExecuteQuery<R extends {} = T>(query: Query<T>, selector?: any) {
+  /**
+   * Execute the given query
+   * The `selector` parameter is completely optional and is only used to improve
+   * the error message if something goes wrong
+   */
+  async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<RowList<TransformRow<R>[]>> {
     const {sql, args} = query.compile();
     try {
-      return await this.getSqlClient().unsafe(sql, args);
+      // `return await` looks weird, but it's necessary for the correct semantics
+      // as the client doesn't begin executing the query until it's awaited
+      return await this.getSqlClient().unsafe<R[]>(sql, args);
     } catch (error) {
       console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${util.inspect(selector, {depth: null})}`);
       throw error;
     }
   }
 
-  /**
-   * Execute the given query
-   * The `selector` parameter is completely optional and is only used to improve
-   * the error message if something goes wrong
-   */
-  executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<R[]|null> {
-    return this.rawExecuteQuery(query, selector) as unknown as Promise<R[]|null>;
-  }
-
-  getTable = () => this.pgTable;
+  getTable = () => this.table;
 
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {
       fetch: async () => {
-        const select = Query.select(this.pgTable, selector, options);
+        const select = Query.select(this.table, selector, options);
         const result = await this.executeQuery<T>(select, selector);
         return result as unknown as T[];
       },
       count: async () => {
-        const select = Query.select(this.pgTable, selector, options, {count: true});
+        const select = Query.select(this.table, selector, options, {count: true});
         const result = await this.executeQuery<{count: number}>(select, selector);
         return result?.[0].count ?? 0;
       },
@@ -68,20 +67,20 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options?: MongoFindOneOptions<T>,
     projection?: MongoProjection<T>,
   ): Promise<T|null> => {
-    const select = Query.select<T>(this.pgTable, selector, {limit: 1, ...options, projection});
+    const select = Query.select<T>(this.table, selector, {limit: 1, ...options, projection});
     const result = await this.executeQuery<T>(select, selector);
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
-    const select = Query.select<T>(this.pgTable, undefined, {limit: 1});
+    const select = Query.select<T>(this.table, undefined, {limit: 1});
     const result = await this.executeQuery<T>(select);
     return result ? result[0] as unknown as T : null;
   }
 
   // TODO: What can the options be?
   rawInsert = async (doc: any, options: any) => { // TODO types
-    const insert = Query.insert<T>(this.pgTable, doc, options);
+    const insert = Query.insert<T>(this.table, doc, options);
     await this.executeQuery(insert, doc);
   }
 
@@ -91,7 +90,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options: MongoUpdateOptions<T>,
   ) => {
     const update = Query.update<T>(this.table, selector, modifier, options, 1);
-    throw new Error("PgCollection: rawUpdateOne not yet implemented");
+    const result = await this.executeQuery(update, {selector, modifier});
+    return result.count;
   }
 
   rawUpdateMany = async (
@@ -100,7 +100,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options: MongoUpdateOptions<T>,
   ) => {
     const update = Query.update<T>(this.table, selector, modifier, options);
-    throw new Error("PgCollection: rawUpdateMany not yet implemented");
+    const result = await this.executeQuery(update, {selector, modifier});
+    return result.count;
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: any) => { // TODO: Type of options
@@ -110,10 +111,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   // TODO: What are the options?
   _ensureIndex = async (fieldOrSpec: string | Record<string, any>, options_: any) => {
     const index = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
-    if (!this.pgTable.hasIndex(index)) {
-      this.pgTable.addIndex(index);
+    if (!this.table.hasIndex(index)) {
+      this.table.addIndex(index);
       const sql = this.getSqlClient();
-      const query = this.pgTable.buildCreateIndexSQL(sql, index);
+      const query = this.table.buildCreateIndexSQL(sql, index);
       await query;
     }
   }
@@ -122,7 +123,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline<T>(this.pgTable, pipeline, options).toQuery();
+          const query = new Pipeline<T>(this.table, pipeline, options).toQuery();
           const result = await this.executeQuery<T>(query);
           return result as unknown as T[];
         } catch (e) {
