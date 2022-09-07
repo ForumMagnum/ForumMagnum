@@ -23,6 +23,14 @@ class TableIndex {
       : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
   }
 
+  getDetails() {
+    return {
+      v: 2,
+      key: this.fields,
+      ...this.options,
+    };
+  }
+
   equals(fields: string[], options?: MongoEnsureIndexOptions) {
     if (this.fields.length !== fields.length) {
       return false;

@@ -152,8 +152,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       const dropIndex = new DropIndexQuery(this.getTable(), indexName);
       await this.executeQuery(dropIndex, {indexName, options})
     },
-    indexes: async (options) => {
-      throw new Error("TODO: PgCollection: rawCollection.indexes not yet implemented");
+    indexes: (_options: never) => {
+      return Promise.resolve(this.getTable().getIndexes().map((index) => index.getDetails()));
     },
     updateOne: async (selector, update, options) => {
       throw new Error("TODO: PgCollection: rawCollection.updateOne not yet implemented");
