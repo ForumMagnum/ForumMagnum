@@ -61,7 +61,7 @@ function getPosts (selector: any) {
   const finalSelector = Object.assign({}, defaultSelector, selector || {})
 
   return Posts
-    .find(finalSelector, {fields, sort: { createdAt: 1 }})
+    .find(finalSelector, {projection: fields, sort: { createdAt: 1 }})
 }
 
 Vulcan.exportPostDetails = wrapVulcanAsyncScript(
@@ -74,14 +74,14 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     const rows: Array<any> = []
     for (let post of await documents.fetch()) {
       // SD: this makes things horribly slow, but no idea how to do a more efficient join query in Mongo
-      const user = await Users.findOne(post.userId, { fields: { displayName: 1, email: 1 }})
+      const user = await Users.findOne(post.userId, { projection: { displayName: 1, email: 1 }})
       if (!user) throw Error(`Can't find user for post: ${post._id}`)
       let tags = [] as Array<string>
       if (post.tagRelevance) {
         const tagIds = (Object.entries(post.tagRelevance) as Array<[string, number]>)
           .filter(([_, relevanceScore]) => relevanceScore > 0)
           .map(([tagId]) => tagId)
-        const tagsResult = await Tags.find({ _id: { $in: tagIds } }, { fields: { name: 1 } }).fetch()
+        const tagsResult = await Tags.find({ _id: { $in: tagIds } }, { projection: { name: 1 } }).fetch()
         tags = tagsResult.map(({ name }) => name)
       }
       

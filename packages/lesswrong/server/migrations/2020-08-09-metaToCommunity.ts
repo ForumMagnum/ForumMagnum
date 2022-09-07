@@ -12,6 +12,7 @@ import Tags from '../../lib/collections/tags/collection'
 import Posts from '../../lib/collections/posts/collection';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { createMutator } from '../vulcan-lib/mutators';
+import { AnyBulkWriteOperation } from 'mongodb';
 
 // Your frontpage settings are shaped like:
 // ```
@@ -44,7 +45,7 @@ registerMigration({
         // eslint-disable-next-line no-console
         console.log("Migrating user batch")
         
-        const changes: Array<MongoModifier<DbUser>> = users.flatMap(user => {
+        const changes: Array<AnyBulkWriteOperation<DbUser>> = users.flatMap(user => {
           // If a user already has a filter for the community tag, they've
           // already been migrated. Don't migrate them again or you'll overwrite
           // that setting with the personalBlogpost setting that now might
@@ -79,7 +80,7 @@ registerMigration({
                 }}
               }
             }
-          ] as MongoModifier<DbUser>
+          ]
         })
         
         if (changes.length) await Users.rawCollection().bulkWrite(changes, { ordered: false })
@@ -158,7 +159,7 @@ registerMigration({
         if (changes.length) {
           const result = await Posts.rawCollection().bulkWrite(changes, { ordered: false });
           // eslint-disable-next-line no-console
-          console.log(`updated ${result.result.nModified} posts`)
+          console.log(`updated ${result?.result.nModified} posts`)
         }
       }
     })

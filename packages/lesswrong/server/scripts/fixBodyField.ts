@@ -14,7 +14,9 @@ if (runFix) { void (async ()=>{
     if (html) {
       const plaintextBody = htmlToText.fromString(html);
       const excerpt =  plaintextBody.slice(0,140);
-      await Posts.rawUpdateOne(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
+      // Separate declaration to erase the type info about the `body` field, which otherwise causes mongo's type inference to complain
+      const setPlaintextBodyAndExcerpt = {$set: {body: plaintextBody, excerpt: excerpt}};
+      await Posts.rawUpdateOne(post._id, setPlaintextBodyAndExcerpt);
       postCount++;
       if (postCount % 100 == 0) {
         //eslint-disable-next-line no-console

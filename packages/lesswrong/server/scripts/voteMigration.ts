@@ -2,6 +2,7 @@ import { randomId } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes';
 import { Vulcan } from '../vulcan-lib';
+import type { AnyBulkWriteOperation } from 'mongodb';
 
 async function runVoteMigration(collectionName) {
   try {
@@ -13,7 +14,7 @@ async function runVoteMigration(collectionName) {
     }
     //eslint-disable-next-line no-console
     console.log("Initializing vote migration for collection: ", collectionName)
-    let newUpvotesPromise = Users.aggregate([
+    let newUpvotesPromise = Users.aggregate<DbVote>([
       {$match: {["upvoted" + collectionName]: {$exists: true}}},
       {$project: { ["upvoted" + collectionName]: 1 }},
       {$unwind: "$upvoted" + collectionName},
@@ -29,7 +30,7 @@ async function runVoteMigration(collectionName) {
     ])
     let newUpvotes = await newUpvotesPromise;
     let newUpvotesArray = await newUpvotes.toArray();
-    let newDownvotesPromise = Users.aggregate([
+    let newDownvotesPromise = Users.aggregate<DbVote>([
       {$match: {["downvoted" + collectionName]: {$exists: true}}},
       {$project: { ["downvoted" + collectionName]: 1 }},
       {$unwind: "$downvoted" + collectionName},
@@ -46,9 +47,9 @@ async function runVoteMigration(collectionName) {
     let newDownvotes = await newDownvotesPromise;
     let newDownvotesArray = await newDownvotes.toArray();
     let votesArray = [...newDownvotesArray, ...newUpvotesArray]
-    const newVoteMutations = votesArray.map((vote) => {
+    const newVoteMutations: AnyBulkWriteOperation<DbVote>[] = votesArray.map((vote) => {
       vote._id = randomId();
-      return { insertOne : vote }
+      return { insertOne : { document: vote } }
     })
     //eslint-disable-next-line no-console
     console.log("Migrating " + newVoteMutations.length + " votes...")

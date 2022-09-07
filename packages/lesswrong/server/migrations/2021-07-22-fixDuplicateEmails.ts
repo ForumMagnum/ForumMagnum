@@ -35,7 +35,7 @@ registerMigration({
       left join comments on users.id = comments.userId
       group by lower(email), user.id
     */
-    const userInfo: Array<MongoDuplicateUser> = await Users.aggregate([
+    const userInfo = await Users.aggregate<MongoDuplicateUser>([
       {
         '$match': {
           '$or': [ {'deleted': false}, {'deleted': {'$exists': false}} ]

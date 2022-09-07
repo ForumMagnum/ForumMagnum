@@ -7,6 +7,7 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
+import type { UpdateFilter } from 'mongodb';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
   await updateMutator({
@@ -77,18 +78,19 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
   }
 }
 
-const transferEditableField = async ({documentId, sourceUserId, targetUserId, collection, fieldName = "contents"}: {
+const transferEditableField = async <T extends DbObject>({documentId, sourceUserId, targetUserId, collection, fieldName = "contents"}: {
   documentId: string,
   sourceUserId: string,
   targetUserId: string,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<T>,
   fieldName: string
 }) => {
   // Update the denormalized revision on the document
+  const updateMutatorProps = 
   await updateMutator({
     collection,
     documentId,
-    set: {[`${fieldName}.userId`]: targetUserId},
+    set: {[`${fieldName}.userId`]: targetUserId} as unknown as UpdateFilter<T>['$set'],
     unset: {},
     validate: false
   })
@@ -227,7 +229,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
   try {
     const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
     const readPostIds = readStatuses.map((status) => status.postId).filter(postId => !!postId)
-    const readTagIds = readStatuses.map((status) => status.tagId).filter(tagId => !!tagId)
+    const readTagIds = readStatuses.map((status) => status.tagId).filter((tagId): tagId is string => !!tagId)
     // eslint-disable-next-line no-console
     console.log(`source readPostIds count: ${readPostIds.length}`)
     // eslint-disable-next-line no-console

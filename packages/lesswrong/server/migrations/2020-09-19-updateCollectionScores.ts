@@ -73,8 +73,14 @@ const recomputeCollectionScores = async (collectionName:CollectionNameString, in
   console.log(`Finished updating ${collectionName} scores. Updated ${newScores.length} documents.`)
 }
 
+interface NewScore {
+  _id: string,
+  karmaTotal: number,
+  afKarmaTotal: number
+}
+
 const recomputeUserKarma = async () => {
-  const newScores: {_id: string, karmaTotal: number, afKarmaTotal: number}[] = await Votes.aggregate([
+  const newScores = await Votes.aggregate<NewScore>([
     {
       $match: {
         cancelled: false,

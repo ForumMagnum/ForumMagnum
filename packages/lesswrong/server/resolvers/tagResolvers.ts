@@ -17,6 +17,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
+import { Filter } from 'mongodb';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -55,8 +56,9 @@ addGraphQLResolvers({
       const rootComments = await Comments.find({
         deleted: false,
         postedAt: {$lt: before, $gt: after},
-        topLevelCommentId: null,
-        tagId: {$exists: true, $ne: null},
+        // Neither topLevelCommentId nor tagId have `| null` as part of their generated types in `DbComment`, which makes mongo complain that we're trying to find comments with null values for those fields
+        topLevelCommentId: null as unknown as Filter<DbComment>['topLevelCommentId'],
+        tagId: {$exists: true, $ne: null} as unknown as Filter<DbComment>['tagId'],
       }).fetch();
       
       const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])

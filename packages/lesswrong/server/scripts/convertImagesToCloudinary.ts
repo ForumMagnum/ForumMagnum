@@ -110,7 +110,8 @@ async function convertImagesInPost(postId: string) {
     changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
   };
   const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
-  await Posts.rawUpdateOne({_id: postId}, {
+  // Separate declaration to erase the type info about the `updateType` field, which otherwise causes mongo's type inference to complain (since we don't declare it in the Posts schema)
+  const setRevision = {
     $set: {
       contents_latest: insertedRevisionId,
       contents: {
@@ -121,7 +122,8 @@ async function convertImagesInPost(postId: string) {
         updateType: "patch",
       },
     }
-  });
+  };
+  await Posts.rawUpdateOne({_id: postId}, setRevision);
 }
 
 Globals.moveImageToCloudinary = moveImageToCloudinary;

@@ -42,7 +42,7 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
-import { WithId } from 'mongodb';
+import { UpdateFilter, WithId } from 'mongodb';
 
 /**
  * Create mutation
@@ -251,7 +251,7 @@ export const updateMutator = async <T extends DbObject>({
   documentId,
   selector,
   data: dataParam,
-  set = {},
+  set,
   unset = {},
   currentUser=null,
   validate=true,
@@ -261,9 +261,9 @@ export const updateMutator = async <T extends DbObject>({
   collection: CollectionBase<T>,
   documentId: string,
   selector?: any,
-  data?: Partial<DbInsertion<T>>,
-  set?: Partial<DbInsertion<T>>,
-  unset?: any,
+  data?: Partial<T>,
+  set?: UpdateFilter<T>['$set'], // Partial<DbInsertion<T>>,
+  unset?: UpdateFilter<T>['$unset'], //Partial<DbInsertion<T>>,
   currentUser?: DbUser|null,
   validate?: boolean,
   context?: ResolverContext,
@@ -283,7 +283,7 @@ export const updateMutator = async <T extends DbObject>({
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
-  let data = dataParam || modifierToData({ $set: set, $unset: unset });
+  let data: any = dataParam || modifierToData({ $set: set, $unset: unset });
   
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in LWEvents
@@ -333,7 +333,7 @@ export const updateMutator = async <T extends DbObject>({
     logger('validating')
     let validationErrors: any = [];
 
-    validationErrors = validationErrors.concat(validateData(data, document, collection, context));
+    validationErrors = validationErrors.concat(validateData<T>(data, document, collection, context));
 
     validationErrors = await hooks.updateValidate.runCallbacks({
       iterator: validationErrors,
@@ -415,7 +415,7 @@ export const updateMutator = async <T extends DbObject>({
   );
 
   // update connector requires a modifier, so get it from data
-  const modifier = dataToModifier(data);
+  const modifier = dataToModifier<T>(data);
 
   // remove empty modifiers
   if (isEmpty(modifier.$set)) {
@@ -432,7 +432,7 @@ export const updateMutator = async <T extends DbObject>({
   */
   if (!isEmpty(modifier)) {
     // update document
-    await Connectors.updateOne(collection, selector, modifier, { removeEmptyStrings: false });
+    await Connectors.updateOne<T>(collection, selector, modifier, { removeEmptyStrings: false });
 
     // get fresh copy of document from db
     const fetched = await Connectors.get(collection, selector);

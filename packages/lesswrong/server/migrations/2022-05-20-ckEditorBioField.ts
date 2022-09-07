@@ -1,5 +1,6 @@
 import { registerMigration, forEachDocumentInCollection } from './migrationUtils';
 import { Users } from '../../lib/collections/users/collection';
+import type { UpdateFilter } from 'mongodb';
 
 registerMigration({
   name: "ckEditorBioField",
@@ -24,7 +25,7 @@ registerMigration({
                   html: legacyUser.htmlBio,
                 },
               },
-            }
+            } as UpdateFilter<DbUser>
           );
         }
       }

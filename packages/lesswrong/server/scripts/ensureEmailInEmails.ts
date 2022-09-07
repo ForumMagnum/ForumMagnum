@@ -1,6 +1,7 @@
 import { wrapVulcanAsyncScript } from './utils'
 import { Vulcan } from '../vulcan-lib';
 import Users from '../../lib/collections/users/collection'
+import { Filter } from 'mongodb';
 
 /*
  * This script attempts to ensure that all users with an "email" value
@@ -11,7 +12,7 @@ import Users from '../../lib/collections/users/collection'
 Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
   'ensureEmailInEmails',
   async () => {
-    const allUsers = Users.find({}, {fields: {emails: 1}});
+    const allUsers = Users.find({}, {projection: {emails: 1}});
     // build a set of all email addresses from the "emails", to be used in a later comparison
     const allEmails = new Set();
     for (const user of await allUsers.fetch()) {
@@ -22,8 +23,9 @@ Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
     
     // {$nin: [null, ''] excludes users without the email field because mongo considers undefined as equal to null
     const usersWithEmail = Users.find({
-      email: {$nin: [null, '']},
-    }, {fields: {email: 1, emails: 1}});
+      // email doesn't have `| null` as part of its generated type in `DbUser`, which makes mongo complain that we're trying to find users without null email.  But we do have users who are missing that field (for now).
+      email: {$nin: [null, '']} as Filter<DbUser>['email'],
+    }, {projection: {email: 1, emails: 1}});
     
     for (const user of await usersWithEmail.fetch()) {
       // goddamnit

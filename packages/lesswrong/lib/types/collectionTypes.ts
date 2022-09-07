@@ -128,7 +128,7 @@ type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
-type MongoSort<T extends DbObject> = Partial<Record<keyof T,SortDirection>>
+type MongoSort<T extends DbObject> = Partial<Record<keyof T,SortDirection | null>>
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 

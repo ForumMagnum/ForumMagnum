@@ -1,6 +1,7 @@
 import { registerMigration, migrateDocuments, dropUnusedField } from './migrationUtils';
 import { Posts } from '../../lib/collections/posts';
 import * as _ from 'underscore';
+import { AnyBulkWriteOperation, UpdateOneModel } from 'mongodb';
 
 registerMigration({
   name: "scoreExceededDateFalseToNull",
@@ -27,11 +28,11 @@ registerMigration({
               filter: { _id: doc._id },
               update: {
                 $set: {
-                  [fieldName]: null
+                  scoreExceeded2Date: null
                 }
               }
             }
-          }));
+          })) as unknown as AnyBulkWriteOperation<DbPost>[];
          
           await Posts.rawCollection().bulkWrite(updates, { ordered: false });
         },

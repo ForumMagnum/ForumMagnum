@@ -21,6 +21,7 @@ import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
 import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
+import { UpdateFilter } from 'mongodb';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -287,7 +288,10 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  await Users.rawUpdateOne({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  // Separate declaration to erase the type info about the `services.resume.loginTokens` field, which otherwise causes mongo's type inference to complain
+  // It thinks that only `services.$` exists, and we'd need to refactor our schema to make it understand that it's a real field
+  const unsetLoginToken = {$set: {"services.resume.loginTokens": []}};
+  await Users.rawUpdateOne({_id: user._id}, unsetLoginToken);
 }
 
 
