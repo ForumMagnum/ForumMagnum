@@ -8,7 +8,7 @@ import TableIndex from "./TableIndex";
  * totally optimal and the logic may need to be more complex. Also, we might just need
  * to create both indexes? There's a good explanation of the situation at
  * https://scalegrid.io/blog/using-jsonb-in-postgresql-how-to-effectively-store-index-json-data-in-postgresql/
- * We've enabled to 'btree_gin' extension so we can use field types in gin indexes that
+ * We've enabled the 'btree_gin' extension so we can use field types in gin indexes that
  * ordinarily wouldn't be allowed.
  */
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
