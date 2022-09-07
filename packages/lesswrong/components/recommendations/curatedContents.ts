@@ -32,7 +32,7 @@ export const babbleAndPrune: CuratedContent = {
     _id: "pC6DYFLPMTCbEwH8W",
     title: "Babble & Prune",
   },
-  description: "When we describe rational thought processes, we tend to think of them as essentially deterministic, deliberate, and algorithmic. After some self-examination, however, I've come to think that my process is closer to babbling many random strings and later filtering by a heuristic. I think verbally, and my process... <em>(read more)</em>",
+  description: "When we describe rational thought processes, we tend to think of them as essentially deterministic, deliberate, and algorithmic. After some self-examination, however, I've come to think that my process is closer to babbling many random strings and later filtering by a heuristic.",
   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,g_east,w_1024,x_232/v1660868045/DALL_E_2022-08-18_17.04.09_-_a_pair_of_pruning_shears_next_to_giant_soap_bubbles_aquarelle_painting_by_Thomas_Schaller_and_Da_Vinci_as_digital_art_on_white_background_rdwrb8.png",
   firstPost: {
     _id: "i42Dfoh4HtsCAfXxL",
