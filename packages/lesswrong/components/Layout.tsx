@@ -82,11 +82,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
-  hideHomepageMapOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
