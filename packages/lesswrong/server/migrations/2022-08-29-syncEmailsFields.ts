@@ -8,7 +8,7 @@ registerMigration({
   dateWritten: "2022-08-29",
   idempotent: true,
   action: async () => {
-    const totalUsersMissingEmail =  await Users.find({email: null}).fetch()
+    const totalUsersMissingEmail =  await Users.find({$or:[{email: null}, {email: ""}]}).fetch()
     const totalRecentUsersMissingEmail =  totalUsersMissingEmail.filter(user => !user.email && user.lastNotificationsCheck)
 
     // eslint-disable-next-line no-console
@@ -16,10 +16,10 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log(`There are ${totalRecentUsersMissingEmail.length} users missing an email who've checked notifications in past 3 years`)
 
-    const usersEmailsToEmail = totalUsersMissingEmail.filter(user => !user.email && user.emails)
-    const usersGoogleToEmail = totalUsersMissingEmail.filter(user => !user.email && user.services?.google?.email)
-    const usersGithubToEmail = totalUsersMissingEmail.filter(user => !user.email && user.services?.github?.email)
-    const usersFacebookToEmail = totalUsersMissingEmail.filter(user => !user.email && user.services?.facebook?.email)
+    const usersEmailsToEmail = totalUsersMissingEmail.filter(user => user.emails)
+    const usersGoogleToEmail = totalUsersMissingEmail.filter(user => user.services?.google?.email)
+    const usersGithubToEmail = totalUsersMissingEmail.filter(user => user.services?.github?.email)
+    const usersFacebookToEmail = totalUsersMissingEmail.filter(user => user.services?.facebook?.email)
     
     
     // eslint-disable-next-line no-console
@@ -49,7 +49,7 @@ registerMigration({
           errors: null
         }
         try {
-          await Users.rawUpdateOne({_id: user._id}, {$set: {newEmail}})
+          // await Users.rawUpdateOne({_id: user._id}, {$set: {newEmail}})
         } catch (err) {
           console.log("ERR:", err)
           outputRow.errors = err
@@ -58,6 +58,6 @@ registerMigration({
       }
     }
 
-    fs.writeFile(`tmp/syncEmailFields-${new Date()}.csv`, Papa.unparse(output), (err) => console.log("err"))
+    await fs.writeFile(`tmp/syncEmailFields-${new Date()}.csv`, Papa.unparse(output), (err) => console.log("err"))
   }  
 })
