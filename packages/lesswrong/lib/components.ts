@@ -613,6 +613,7 @@ importComponent("PetrovDayLossScreen", () => require('../components/seasonal/Pet
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 // importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
 
+importComponent("AFLibraryPage", () => require('../components/alignment-forum/AFLibraryPage'));
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
 importComponent("AFNonMemberInitialPopup", () => require('../components/alignment-forum/AFNonMemberInitialPopup'));
 importComponent("AFNonMemberSuccessPopup", () => require('../components/alignment-forum/AFNonMemberSuccessPopup'));

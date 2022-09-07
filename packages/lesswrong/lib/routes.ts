@@ -1011,9 +1011,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'LibraryPage',
+      componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
       title: "The Library"
     },
