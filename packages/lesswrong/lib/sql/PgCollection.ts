@@ -155,11 +155,28 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     indexes: (_options: never) => {
       return Promise.resolve(this.getTable().getIndexes().map((index) => index.getDetails()));
     },
-    updateOne: async (selector, update, options) => {
-      throw new Error("TODO: PgCollection: rawCollection.updateOne not yet implemented");
+    updateOne: async (
+      selector: string | MongoSelector<T>,
+      modifier: MongoModifier<T>,
+      options: MongoUpdateOptions<T>,
+    ) => {
+      const result = await this.rawUpdateOne(selector, modifier, options);
+      return {
+        acknowledged: true,
+        matchedCount: result,
+        modifiedCount: result,
+      };
     },
-    updateMany: async (selector, update, options) => {
-      throw new Error("TODO: PgCollection: rawCollection.updateMany not yet implemented");
+    updateMany: async (
+      selector: string | MongoSelector<T>,
+      modifier: MongoModifier<T>,
+      options: MongoUpdateOptions<T>,
+    ) => {
+      await this.rawUpdateMany(selector, modifier, options);
+      return {
+        ok: 1,
+        value: null,
+      };
     },
   });
 }
