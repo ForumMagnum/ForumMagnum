@@ -54,7 +54,7 @@ registerMigration({
           }
         }
         
-        Users.rawCollection().bulkWrite(updates, { ordered: false });
+        void Users.rawCollection().bulkWrite(updates, { ordered: false });
       }
     });
   },

@@ -6,7 +6,7 @@ import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
-import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../../lib/mongoCollection';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';

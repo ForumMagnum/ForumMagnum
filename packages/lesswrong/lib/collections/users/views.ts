@@ -4,7 +4,7 @@ import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarn
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
-import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import { viewFieldNullOrMissing } from "../../../lib/mongoCollection";
 import type { SortDirection } from "mongodb";
 
 declare global {

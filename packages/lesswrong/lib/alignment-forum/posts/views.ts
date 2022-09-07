@@ -1,7 +1,7 @@
 import { Posts } from '../../collections/posts';
 import { ensureIndex } from '../../collectionUtils';
 import { augmentForDefaultView } from '../../collections/posts/views';
-import {viewFieldNullOrMissing} from "../../vulcan-lib";
+import {viewFieldNullOrMissing} from "../../../lib/mongoCollection";
 
 Posts.addView("alignmentSuggestedPosts", function () {
   return {

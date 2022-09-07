@@ -4,7 +4,7 @@ import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionU
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
-import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldNullOrMissing } from '../../../lib/mongoCollection';
 import { Comments } from './collection';
 
 declare global {

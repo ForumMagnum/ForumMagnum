@@ -1,6 +1,6 @@
 import { ensureIndex } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
-import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldNullOrMissing } from '../../../lib/mongoCollection';
 import Conversations from "./collection";
 
 declare global {
