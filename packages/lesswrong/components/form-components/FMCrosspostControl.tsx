@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
-import { useOnTabView } from "../hooks/useOnTabView";
+import { useOnFocusTab } from "../hooks/useOnFocusTab";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -165,7 +165,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     void getToken();
   }, [document?.fmCrosspostUserId]);
 
-  useOnTabView(() => {
+  useOnFocusTab(() => {
     if (!loading && !document?.fmCrosspostUserId) {
       refetch();
     }
