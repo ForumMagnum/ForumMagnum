@@ -43,7 +43,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     } else {
       throw new Error(error.message);
     }
-  } else {
+  } else if (!post) {
     return <Error404/>
   } else if (isPostWithForeignId(post)) {
     return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />

@@ -14,9 +14,8 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
-const PostsEditForm = ({ documentId, eventForm, classes }: {
+const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
-  eventForm: boolean,
   classes: ClassesType,
 }) => {
   const { location, query } = useLocation();
@@ -97,7 +96,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
         saveDraftLabel={saveDraftLabel} 
         feedbackLabel={"Get Feedback"}
@@ -125,7 +124,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
               flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             }
           }}
-          eventForm={eventForm}
+          eventForm={document.isEvent}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)
