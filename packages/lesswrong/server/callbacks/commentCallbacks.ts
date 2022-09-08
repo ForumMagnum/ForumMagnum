@@ -13,7 +13,7 @@ import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { ensureIndex } from '../../lib/collectionUtils';
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 

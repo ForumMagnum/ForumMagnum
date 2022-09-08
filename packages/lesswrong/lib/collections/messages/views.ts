@@ -1,5 +1,5 @@
 import Messages from "./collection"
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface MessagesViewTerms extends ViewTermsBase {

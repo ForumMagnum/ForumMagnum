@@ -1,6 +1,6 @@
 import { Type, IdType, isResolverOnly } from "./Type";
-import { expectedIndexes } from "../collectionUtils";
 import TableIndex from "./TableIndex";
+import { expectedIndexes } from "../collectionIndexUtils";
 
 class Table {
   private fields: Record<string, Type> = {};

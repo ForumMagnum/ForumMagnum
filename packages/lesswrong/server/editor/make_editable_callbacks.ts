@@ -6,7 +6,7 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
-import { ensureIndex } from '../../lib/collectionUtils'
+import { ensureIndex } from '../../lib/collectionIndexUtils'
 import { htmlToPingbacks } from '../pingbacks';
 import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';

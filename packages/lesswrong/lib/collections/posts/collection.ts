@@ -42,7 +42,7 @@ interface ExtendedPostsCollection extends PostsCollection {
 export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  postgres: true,
+  // postgres: true,
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),

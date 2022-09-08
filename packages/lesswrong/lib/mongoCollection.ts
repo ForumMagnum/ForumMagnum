@@ -1,28 +1,13 @@
 import { randomId } from './random';
-import postgres from 'postgres';
-import { Options } from 'dataloader';
-
-declare global {
-  type SqlClient = postgres.Sql<any>;
-}
 
 let client: any = null;
 let db: any = null;
-let sql: SqlClient | null = null;
 export const setDatabaseConnection = (_client, _db) => {
   client = _client;
   db = _db;
 }
-export const setSqlConnection = (_sql) => sql = _sql;
 export const getDatabase = () => db;
 export const getMongoClient = () => client
-export const getSqlClient = () => sql;
-export const getSqlClientOrThrow = () => {
-  if (!sql) {
-    throw new Error("SQL Client is not initialized");
-  }
-  return sql;
-}
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {
@@ -109,6 +94,10 @@ export class MongoCollection<T extends DbObject> {
 
   isPostgres() {
     return false;
+  }
+  
+  isConnected() {
+    return databaseIsConnected();
   }
 
   getTable = () => {

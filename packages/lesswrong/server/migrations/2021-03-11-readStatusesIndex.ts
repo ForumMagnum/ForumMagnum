@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
 import { ReadStatuses } from '../../lib/collections/readStatus/collection';
-import { ensureIndexAsync } from '../../lib/collectionUtils'
+import { ensureIndexAsync } from '../../lib/collectionIndexUtils'
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
 import filter from 'lodash/filter';

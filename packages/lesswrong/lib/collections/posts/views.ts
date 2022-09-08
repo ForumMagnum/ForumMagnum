@@ -1,7 +1,7 @@
 import moment from 'moment';
 import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';

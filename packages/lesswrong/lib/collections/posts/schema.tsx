@@ -1,5 +1,4 @@
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
-import { getSqlClientOrThrow } from '../../mongoCollection';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -15,6 +14,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
+import { getSqlClientOrThrow } from '../../sqlClient';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 

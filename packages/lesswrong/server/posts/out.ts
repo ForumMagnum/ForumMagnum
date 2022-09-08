@@ -1,6 +1,6 @@
 import { addStaticRoute } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
-import { ensureIndex } from '../../lib/collectionUtils';
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 
 // Click-tracking redirector for outgoing links in linkposts
 addStaticRoute('/out', async ({ query}, req, res, next) => {

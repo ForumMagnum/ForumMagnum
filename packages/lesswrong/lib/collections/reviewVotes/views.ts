@@ -1,5 +1,5 @@
 import ReviewVotes from "./collection"
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface ReviewVotesViewTerms extends ViewTermsBase {

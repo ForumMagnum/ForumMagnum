@@ -1,5 +1,5 @@
 import { Books } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 // Used in resolvers
 ensureIndex(Books, {collectionId: 1});

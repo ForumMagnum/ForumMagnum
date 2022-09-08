@@ -1,7 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import { UnknownType } from "./Type";
-import { getCollectionByTableName } from "../vulcan-lib";
+import { getCollectionByTableName } from "../vulcan-lib/getCollection";
 
 export type SimpleLookup = {
   from: string,

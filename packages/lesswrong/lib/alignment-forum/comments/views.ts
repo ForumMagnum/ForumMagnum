@@ -1,5 +1,5 @@
 import { Comments } from "../../collections/comments";
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { augmentForDefaultView } from '../../collections/comments/views';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
 

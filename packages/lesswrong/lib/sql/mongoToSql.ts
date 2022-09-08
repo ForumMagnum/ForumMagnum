@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import { Vulcan, getCollection } from "../vulcan-lib";
+import { getSqlClient } from "../sqlClient";
 import Table from "./Table";
 import InsertQuery from "./InsertQuery";
 import CreateTableQuery from "./CreateTableQuery";
 import CreateIndexQuery from "./CreateIndexQuery";
-import { getSqlClient } from "../mongoCollection";
 import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
 import util from "util";
 

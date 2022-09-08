@@ -9,7 +9,7 @@ import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
-import { ensureIndex } from '../lib/collectionUtils';
+import { ensureIndex } from '../lib/collectionIndexUtils';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
 import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';

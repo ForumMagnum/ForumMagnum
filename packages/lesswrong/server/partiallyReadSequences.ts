@@ -1,4 +1,3 @@
-import { getSqlClientOrThrow } from "../lib/mongoCollection";
 import { updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { getUser } from '../lib/vulcan-users/helpers';
@@ -10,6 +9,7 @@ import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers'
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
+import { getSqlClientOrThrow } from '../lib/sqlClient';
 
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID

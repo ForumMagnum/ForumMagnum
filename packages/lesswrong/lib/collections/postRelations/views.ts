@@ -1,5 +1,5 @@
 import { PostRelations } from "./collection"
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface PostRelationsViewTerms extends ViewTermsBase {

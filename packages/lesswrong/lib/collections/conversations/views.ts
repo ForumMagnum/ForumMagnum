@@ -1,4 +1,4 @@
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import Conversations from "./collection";

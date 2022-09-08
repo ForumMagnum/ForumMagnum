@@ -1,4 +1,4 @@
-import { MongoCollection, getSqlClientOrThrow } from "../mongoCollection";
+import { MongoCollection } from "../mongoCollection";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -11,7 +11,9 @@ import Pipeline from "./Pipeline";
 import BulkWriter from "./BulkWriter";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
+import { getSqlClient, getSqlClientOrThrow } from "../sqlClient";
 
+// TODO: PgCollection should extend CollectionBase
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
   table: Table;
 
@@ -21,6 +23,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   isPostgres() {
     return true;
+  }
+  
+  isConnected() {
+    return !!getSqlClient();
   }
 
   buildPostgresTable() {

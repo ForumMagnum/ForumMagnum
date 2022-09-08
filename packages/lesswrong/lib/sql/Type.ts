@@ -1,4 +1,4 @@
-import { getCollection } from "../vulcan-lib";
+import { getCollection } from "../vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 

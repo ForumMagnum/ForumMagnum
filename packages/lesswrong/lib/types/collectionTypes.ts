@@ -32,6 +32,7 @@ interface CollectionBase<
   _simpleSchema: any
 
   isPostgres: () => this is PgCollection<T>
+  isConnected: () => boolean
 
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
