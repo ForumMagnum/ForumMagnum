@@ -178,7 +178,7 @@ abstract class Query<T extends DbObject> {
     ];
   }
 
-  private compileSelector(selector: MongoSelector<T>): Atom<T>[] {
+  protected compileSelector(selector: MongoSelector<T>): Atom<T>[] {
     /*
      * TODO: Internal documentation, examples
      */

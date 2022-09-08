@@ -133,6 +133,22 @@ type MongoIndexSpec = Record<string, number | string> | string;
 type MongoEnsureIndexOptions = Record<string, any>;
 type MongoDropIndexOptions = {};
 
+type MongoBulkInsert<T extends DbObject> = {document: T};
+type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier<T>, upsert?: boolean};
+type MongoBulkDelete<T extends DbObject> = {filter: MongoSelector<T>};
+type MongoBulkReplace<T extends DbObject> = {filter: MongoSelector<T>, replacement: T, upsert?: boolean};
+type MongoBulkWriteOperation<T extends DbObject> =
+  {insertOne: MongoBulkInsert<T>} |
+  {updateOne: MongoBulkUpdate<T>} |
+  {updateMany: MongoBulkUpdate<T>} |
+  {deleteOne: MongoBulkDelete<T>} |
+  {deleteMany: MongoBulkDelete<T>} |
+  {replaceOne: MongoBulkReplace<T>};
+type MongoBulkWriteOperations<T extends DbObject> = MongoBulkWriteOperation<T>[];
+type MongoBulkWriteOptions = Partial<{
+  ordered: boolean,
+}>
+
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 
 interface ViewTermsBase {

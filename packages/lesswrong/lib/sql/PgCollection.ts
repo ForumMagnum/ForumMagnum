@@ -1,4 +1,4 @@
-import { MongoCollection, getSqlClient } from "../mongoCollection";
+import { MongoCollection, getSqlClientOrThrow } from "../mongoCollection";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -8,6 +8,7 @@ import DeleteQuery from "./DeleteQuery";
 import CreateIndexQuery from "./CreateIndexQuery";
 import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
+import BulkWriter from "./BulkWriter";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
 
@@ -33,10 +34,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
    */
   async executeQuery<R extends {} = T>(query: Query<T>, debugData?: any): Promise<RowList<TransformRow<R>[]>> {
     const {sql, args} = query.compile();
-    const client = getSqlClient();
-    if (!client) {
-      throw new Error("SQL client is not initialized");
-    }
+    const client = getSqlClientOrThrow();
     try {
       // `return await` looks weird, but it's necessary for the correct semantics
       // as the client doesn't begin executing the query until it's awaited
@@ -143,8 +141,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawCollection = () => ({
-    bulkWrite: async (operations, options) => {
-      throw new Error("TODO: PgCollection: rawCollection.bulkWrite not yet implemented");
+    bulkWrite: async (operations: MongoBulkWriteOperations<T>, options: MongoBulkWriteOptions) => {
+      const client = getSqlClientOrThrow();
+      return new BulkWriter(this.getTable(), operations, options).execute(client);
     },
     findOneAndUpdate: async (
       selector: string | MongoSelector<T>,

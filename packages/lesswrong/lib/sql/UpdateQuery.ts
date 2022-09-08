@@ -15,6 +15,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
     updateOptions?: UpdateOptions,
   ) {
+    if (options?.upsert) {
+      throw new Error("To create an upserting update use an InsertQuery with conflictStrategy 'upsert'");
+    }
+
     super(table, ["UPDATE", table, "SET"]);
     this.nameSubqueries = false;
 

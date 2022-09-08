@@ -11,4 +11,5 @@ import "./CreateIndexQuery";
 import "./DropIndexQuery";
 import "./Pipeline";
 import "./PgCollection";
+import "./BulkWriter";
 import "./mongoToSql";

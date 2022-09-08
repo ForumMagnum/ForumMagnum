@@ -187,10 +187,46 @@ describe("Query", () => {
       expectedArgs: ["abc", 3, "test", null, 1],
     },
     {
-      name: "can build insert query allowing conflicts",
-      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}, {}, true),
+      name: "can build insert query ignoring conflicts",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
+        {},
+        {conflictStrategy: "ignore"},
+      ),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT DO NOTHING',
       expectedArgs: ["abc", 3, "test", null, 1],
+    },
+    {
+      name: "can build insert query updating on conflicts without selector",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
+        {},
+        {conflictStrategy: "upsert"},
+      ),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8',
+      expectedArgs: ["abc", 3, "test", null, 1, 3, "test", 1],
+    },
+    {
+      name: "can build insert query updating on conflicts with selector",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
+        {},
+        {conflictStrategy: "upsert", upsertSelector: {b: "test2"}},
+      ),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( "b" ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8 WHERE "b" = $9',
+      expectedArgs: ["abc", 3, "test", null, 1, 3, "test", 1, "test2"],
+    },
+    {
+      name: "can build insert query with multiple items",
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, [
+        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
+        {_id: "def", a: 4, b: "test2", c: {d: {e: "value"}}, schemaVersion: 1},
+      ]),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) , ( $6 , $7 , $8 , $9 , $10 )',
+      expectedArgs: ["abc", 3, "test", null, 1, "def", 4, "test2", {d: {e: "value"}}, 1],
     },
     {
       name: "can build select from a subquery",
@@ -351,6 +387,18 @@ describe("Query", () => {
       getQuery: () => new DeleteQuery<DbTestObject>(testTable, "some-id"),
       expectedSql: 'DELETE FROM "TestCollection" WHERE "_id" = $1',
       expectedArgs: ["some-id"],
+    },
+    {
+      name: "can build delete with no selector",
+      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {}, {}, {noSafetyHarness: true}),
+      expectedSql: 'DELETE FROM "TestCollection"',
+      expectedArgs: [],
+    },
+    {
+      name: "can build delete with limit",
+      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {a: 3}, {}, {limit: 1}),
+      expectedSql: 'DELETE FROM "TestCollection" WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $1 LIMIT $2 )',
+      expectedArgs: [3, 1],
     },
     {
       name: "can build create table query",

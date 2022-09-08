@@ -261,7 +261,7 @@ export class MongoCollection<T extends DbObject> {
     };
   }
   rawCollection = () => ({
-    bulkWrite: async (operations, options) => {
+    bulkWrite: async (operations: MongoBulkWriteOperations<T>, options: MongoBulkWriteOptions) => {
       if (disableAllWrites) return;
       const table = this.getTable();
       return await table.bulkWrite(operations, options);
