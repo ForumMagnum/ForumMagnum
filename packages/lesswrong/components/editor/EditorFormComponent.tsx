@@ -122,8 +122,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
     wrappedSetContents({contents: newState, autosave: false});
-    if (editorRef.current)
-      editorRef.current.focusOnEditor();
+    // if (editorRef.current)
+      // editorRef.current.focusOnEditor(); //function not currently implemented
   }, [editorRef, wrappedSetContents]);
   
   useEffect(() => {

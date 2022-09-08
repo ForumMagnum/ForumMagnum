@@ -22,8 +22,10 @@ const SortableList = makeSortableListComponent({
   </li>
 });
 
-// An editable list of users, with a straightforward getValue/setValue
-// and no form-system integration.
+/**
+ * An editable list of users, with a straightforward getValue/setValue
+ * and no form-system integration.
+ */
 export function EditableUsersList({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[])=>void,
