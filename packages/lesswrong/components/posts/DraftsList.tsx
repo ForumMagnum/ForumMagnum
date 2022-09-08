@@ -101,7 +101,6 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
         <PostsItem2
           key={post._id} 
           post={post}
-          draft
           toggleDeleteDraft={toggleDelete}
           hideAuthor
           showDraftTag={false}

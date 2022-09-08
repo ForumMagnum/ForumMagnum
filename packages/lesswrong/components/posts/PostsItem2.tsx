@@ -339,7 +339,6 @@ const PostsItem2 = ({
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
   // to dismiss it.
   dismissRecommendation,
-  draft,
   // toggleDeleteDraft, if this a draft, a callback to archive/unarchive it
   toggleDeleteDraft, 
   showBottomBorder=true,
@@ -374,7 +373,6 @@ const PostsItem2 = ({
   terms?: any,
   resumeReading?: any,
   dismissRecommendation?: any,
-  draft?: boolean
   toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
@@ -454,7 +452,7 @@ const PostsItem2 = ({
     </LWTooltip>
   )
   
-  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) && 
+  const archiveButton = (currentUser && post.draft && postCanDelete(currentUser, post) && 
     <LWTooltip title={archiveDraftTooltip} placement="right">
       <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
     </LWTooltip>
@@ -503,7 +501,7 @@ const PostsItem2 = ({
                       captureOnClick={false}
                   >
                     <PostsTitle
-                      postLink={draft ? postEditLink : postLink}
+                      postLink={post.draft ? postEditLink : postLink}
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms) || forceSticky}
