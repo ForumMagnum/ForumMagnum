@@ -355,8 +355,8 @@ const PostsItem2 = ({
   sequenceId?: string,
   chapter?: any,
   /** index: If this is part of a list of PostsItems, its index (starting from
-   /* zero) into that list. Used for special casing some styling at start of
-   /* the list.*/
+  /* zero) into that list. Used for special casing some styling at start of
+  /* the list.*/
   index?: number,
   /** terms: If this is part of a list generated from a query, the terms of that
   /* query. Used for figuring out which sticky icons to apply, if any.*/
