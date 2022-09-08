@@ -210,7 +210,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
 
-    const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
@@ -224,14 +223,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
     terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
-    
-    //Terms for Drafts List
-    const currentDraftSorting = query.sortDraftsBy || query.view || currentUser?.draftsListSorting || "lastModified"
-    const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived
-    const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false)
-    draftTerms.includeArchived = currentIncludeArchived
-    draftTerms.sortDraftsBy = currentDraftSorting
-    draftTerms.includeShared = currentIncludeShared
     
 
     const username = userGetDisplayName(user)
@@ -305,7 +296,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.DraftsList terms={draftTerms}/>
+              <Components.DraftsList limit={5}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList
