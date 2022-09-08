@@ -157,6 +157,7 @@ const PostsTitle = ({
     <span className={classNames(classes.root, {
       [classes.read]: read,
       [classes.wrap]: wrap,
+      [classes.strikethroughTitle]: strikethroughTitle
     })}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>

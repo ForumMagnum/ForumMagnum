@@ -598,9 +598,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     });
   }
 
-  focusOnEditor = () => {
-    // TODO
-  }
 
   render() {
     const { loading } = this.state
