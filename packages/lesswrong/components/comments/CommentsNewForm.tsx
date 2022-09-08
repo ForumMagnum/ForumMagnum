@@ -14,6 +14,7 @@ import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import ArrowForward from '@material-ui/icons/ArrowForward';
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -84,11 +85,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
+const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCommentType.Discussion, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
 {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
+  tagCommentType?: TagCommentType,
   parentComment?: any,
   successCallback?: any,
   type: string,
@@ -148,7 +150,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   if (tag) {
     prefilledProps = {
       ...prefilledProps,
-      tagId: tag._id
+      tagId: tag._id,
+      tagCommentType: tagCommentType as string,
     };
   }
 

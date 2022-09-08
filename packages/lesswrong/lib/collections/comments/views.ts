@@ -6,6 +6,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { TagCommentType } from './schema';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -485,6 +486,9 @@ ensureIndex(Comments,
   { name: "comments.reviews2018" }
 );
 
+// TODO remove (https://app.asana.com/0/0/1202945419128640/f)
+// renamed to tagDiscussionComments to better distinguish between comments on the tag subforum
+// we can delete this once we're confident browsers are no longer a bundle.js from before the rename (7 days after merge)
 Comments.addView('commentsOnTag', (terms: CommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
@@ -494,6 +498,22 @@ ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
 );
+
+Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    tagId: terms.tagId,
+    //, TODO change != Subforum to == Discussion once comments have been migrated
+    tagCommentType: {$ne: TagCommentType.Subforum as string}
+  },
+}));
+
+Comments.addView('tagSubforumComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    tagId: terms.tagId,
+    tagCommentType: TagCommentType.Subforum as string
+  },
+}));
+
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

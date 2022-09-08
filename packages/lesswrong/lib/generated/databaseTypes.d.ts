@@ -97,6 +97,7 @@ interface DbComment extends DbObject {
   author: string
   postId: string
   tagId: string
+  tagCommentType: string
   userId: string
   userIP: string
   userAgent: string
@@ -722,7 +723,7 @@ interface DbTag extends DbObject {
   introSequenceId: string
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
-  subforumShortformPostId: string
+  isSubforum: boolean
   description: EditableFieldContents
   parentTagId: string
 }

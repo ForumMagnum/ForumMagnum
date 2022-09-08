@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-const PostsCommentsThread = ({ post, terms, newForm=true }: {
-  post?: PostsDetails,
+const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
+  tag: TagBasicInfo,
   terms: CommentsViewTerms,
   newForm?: boolean,
 }) => {
-  const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
+  const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -24,19 +24,21 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
 
   const nestedComments = unflattenComments(results);
   return (
-    <Components.CommentsListSection
+    <Components.CommentsTimelineSection
+      tag={tag}
       comments={nestedComments}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
       commentCount={(results && results.length) || 0}
       loadingMoreComments={loadingMore}
-      post={post}
+      loadMoreCount={10}
       newForm={newForm}
+      refetch={refetch}
     />
   );
 }
 
-const PostsCommentsThreadComponent = registerComponent('PostsCommentsThread', PostsCommentsThread, {
+const SubforumCommentsThreadComponent = registerComponent('SubforumCommentsThread', SubforumCommentsThread, {
   areEqual: {
     terms: "deep",
   }
@@ -44,6 +46,6 @@ const PostsCommentsThreadComponent = registerComponent('PostsCommentsThread', Po
 
 declare global {
   interface ComponentTypes {
-    PostsCommentsThread: typeof PostsCommentsThreadComponent
+    SubforumCommentsThread: typeof SubforumCommentsThreadComponent
   }
 }

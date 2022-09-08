@@ -24,25 +24,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
-  const { Error404, Loading, PostsCommentsThread, SectionTitle, SingleColumnSection, Typography } = Components;
+  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography } = Components;
 
   const { params } = useLocation();
   const { slug } = params;
   // TODO-JM: add comment explaining the use of TagPreviewFragment (which loads on hover over tag) to avoid extra round trip
   const { tag, loading, error } = useTagBySlug(slug, "TagPreviewFragment");
-  const { document: post } = useSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
-    documentId: tag?.subforumShortformPostId,
-    skip: !tag?.subforumShortformPostId,
-  });
 
   if (loading) {
     return <Loading />;
   }
 
   // TODO-WH: remove isProduction flag here when we are ready to show this to users
-  if (isProduction || !tag || !tag.subforumShortformPostId) {
+  if (isProduction || !tag || !tag.isSubforum) {
     return <Error404 />;
   }
 
@@ -59,11 +53,10 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
       <SingleColumnSection className={classes.columnSection}>
         <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin />
         <AnalyticsContext pageSectionContext="commentsSection">
-          <PostsCommentsThread
-            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew", limit: 50 }}
+          <SubforumCommentsThread
+            tag={tag}
+            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 10 }}
             newForm
-            timelineView
-            post={post}
           />
         </AnalyticsContext>
       </SingleColumnSection>

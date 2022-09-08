@@ -6,6 +6,11 @@ import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
+export enum TagCommentType {
+  Subforum = "SUBFORUM",
+  Discussion = "DISCUSSION",
+}
+
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
@@ -83,7 +88,7 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['members'],
     hidden: true,
   },
-  // If this comment is in a tag discussion section, the _id of the tag.
+  // If this comment is associated with a tag (in the discussion section or subforum), the _id of the tag.
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",
@@ -96,6 +101,15 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
+  },
+  // Whether the comment is in the discussion section or subforum
+  tagCommentType: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
+    ...schemaDefaultValue(TagCommentType.Discussion),
   },
   // The comment author's `_id`
   userId: {
