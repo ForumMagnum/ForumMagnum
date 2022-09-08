@@ -246,6 +246,7 @@ registerFragment(`
     website
     createdAt
     email
+    emails
     commentCount
     maxCommentCount
     postCount
