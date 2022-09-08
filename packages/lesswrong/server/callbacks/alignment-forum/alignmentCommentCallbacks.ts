@@ -4,7 +4,7 @@ import { updateMutator } from '../../vulcan-lib';
 import { commentsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { asyncForeachSequential } from '../../../lib/utils/asyncUtils';
-import { getCommentAncestorIds, getCommentSubtree } from '../commentCallbacks';
+import { getCommentAncestorIds, getCommentSubtree } from '../../utils/commentTreeUtils';
 import * as _ from 'underscore';
 
 export async function recalculateAFCommentMetadata(postId: string|null) {

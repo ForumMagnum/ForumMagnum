@@ -10,6 +10,7 @@ import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
+import { getCommentAncestorIds, getCommentSubtree } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -42,45 +43,6 @@ export const getAdminTeamAccount = async () => {
   }
   return account;
 }
-
-// Return the IDs of all ancestors of the given comment (not including the provided
-// comment itself).
-export const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
-  const ancestorIds: string[] = [];
-  
-  let currentComment: DbComment|null = comment;
-  while (currentComment?.parentCommentId) {
-    currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
-    if (currentComment)
-      ancestorIds.push(currentComment._id);
-  }
-  
-  return ancestorIds;
-}
-
-// Return all comments in a subtree, given its root.
-export const getCommentSubtree = async (rootComment: DbComment, projection?: any): Promise<DbComment[]> => {
-  const comments: DbComment[] = [rootComment];
-  let visited = new Set<string>();
-  let unvisited: string[] = [rootComment._id];
-  
-  while(unvisited.length > 0) {
-    const childComments = await Comments.find({parentCommentId: {$in: unvisited}}, projection).fetch();
-    for (let commentId of unvisited)
-      visited.add(commentId);
-    unvisited = [];
-    
-    for (let childComment of childComments) {
-      if (!visited.has(childComment._id)) {
-        comments.push(childComment);
-        unvisited.push(childComment._id);
-      }
-    }
-  }
-  
-  return comments;
-}
-Globals.getCommentSubtree = getCommentSubtree;
 
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
