@@ -62,7 +62,7 @@ interface CollectionBase<
   rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
   /** Inserts without running callbacks. Consider using createMutator, which
    * wraps this. */
-  rawInsert: (data: any, options?: any) => string
+  rawInsert: (data: any, options?: any) => Promise<string>
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
 }

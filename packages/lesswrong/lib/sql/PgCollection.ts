@@ -94,8 +94,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
-    const insert = new InsertQuery<T>(this.getTable(), data, options);
-    await this.executeQuery(insert, {data, options});
+    const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
+    const result = await this.executeQuery(insert, {data, options});
+    return result[0]._id;
   }
 
   rawUpdateOne = async (
