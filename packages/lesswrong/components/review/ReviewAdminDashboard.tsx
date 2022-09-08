@@ -6,6 +6,7 @@ import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useLocation } from '../../lib/routeUtil';
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -100,7 +101,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
             {userRow[1][0].user?.displayName}
           </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.author}>
-            {userRow[1][0].user?.email}
+            {getUserEmail(userRow[1][0].user)}
           </PostsItemMetaInfo>
         </div>
       })}

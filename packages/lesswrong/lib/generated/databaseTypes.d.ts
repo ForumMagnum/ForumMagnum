@@ -734,6 +734,7 @@ interface DbTag extends DbObject {
   introSequenceId: string
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
+  subforumShortformPostId: string
   description: EditableFieldContents
   description_latest: string
   parentTagId: string
