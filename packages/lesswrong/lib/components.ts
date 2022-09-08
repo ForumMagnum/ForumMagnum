@@ -155,7 +155,6 @@ importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPos
 
 importComponent("ThemePickerMenu", () => require('../components/themes/ThemePickerMenu'));
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
-importComponent("DraftsPage", () => require('../components/users/DraftsPage'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));

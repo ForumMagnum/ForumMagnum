@@ -28,23 +28,9 @@ const DraftsPage = ({classes}) => {
   
   if (!currentUser) return <span>You must sign in to view your drafts.</span>
   
-  const currentSorting = query.sortDraftsBy || query.view || currentUser.draftsListSorting || "lastModified"
-  const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser.draftsListShowArchived
-  const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : (currentUser.draftsListShowShared !== false)
-  
-  const draftTerms: PostsViewTerms = {
-    view: "drafts",
-    ...query,
-    userId: currentUser._id,
-    limit: 50,
-    sortDraftsBy: currentUser.draftsListSorting || currentSorting,
-    includeShared: currentUser.draftsListShowShared || currentIncludeShared, 
-    includeArchived: currentIncludeArchived
-  }
-  
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
-      <DraftsList terms={draftTerms} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
+      <DraftsList limit={50} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
     </AnalyticsContext>
   </SingleColumnSection>
 }

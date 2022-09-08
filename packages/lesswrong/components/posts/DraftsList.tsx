@@ -29,8 +29,8 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}: {
-  terms: PostsViewTerms,
+const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, classes}: {
+  limit: number,
   title?: string,
   showAllDraftsLink?: boolean,
   classes: ClassesType
@@ -52,6 +52,15 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
       data: {deletedDraft:!post.deletedDraft, draft: true} //undeleting goes to draft
     })
   }, [updatePost])
+  
+  const terms: PostsViewTerms = {
+    view: "drafts",
+    userId: currentUser?._id,
+    limit,
+    sortDraftsBy: query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified",
+    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
+    includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
+  }
   
   const { results, loading, loadMoreProps } = useMulti({
     terms,
@@ -101,7 +110,6 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
         <PostsItem2
           key={post._id} 
           post={post}
-          draft
           toggleDeleteDraft={toggleDelete}
           hideAuthor
           showDraftTag={false}
