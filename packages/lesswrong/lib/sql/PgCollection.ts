@@ -28,10 +28,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   /**
    * Execute the given query
-   * The `selector` parameter is completely optional and is only used to improve
+   * The `debugData` parameter is completely optional and is only used to improve
    * the error message if something goes wrong
    */
-  async executeQuery<R extends {} = T>(query: Query<T>, selector?: any): Promise<RowList<TransformRow<R>[]>> {
+  async executeQuery<R extends {} = T>(query: Query<T>, debugData?: any): Promise<RowList<TransformRow<R>[]>> {
     const {sql, args} = query.compile();
     const client = getSqlClient();
     if (!client) {
@@ -42,7 +42,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       // as the client doesn't begin executing the query until it's awaited
       return await client.unsafe<R[]>(sql, args);
     } catch (error) {
-      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${util.inspect(selector, {depth: null})}`);
+      debugData = util.inspect(debugData, {depth: null});
+      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
       throw error;
     }
   }
@@ -59,12 +60,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {
       fetch: async () => {
         const select = new SelectQuery<T>(this.getTable(), selector, options);
-        const result = await this.executeQuery(select, selector);
+        const result = await this.executeQuery(select, {selector, options});
         return result as unknown as T[];
       },
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
-        const result = await this.executeQuery<{count: number}>(select, selector);
+        const result = await this.executeQuery<{count: number}>(select, {selector, options});
         return result?.[0].count ?? 0;
       },
     };
@@ -76,7 +77,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     projection?: MongoProjection<T>,
   ): Promise<T|null> => {
     const select = new SelectQuery<T>(this.getTable(), selector, {limit: 1, ...options, projection});
-    const result = await this.executeQuery(select, selector);
+    const result = await this.executeQuery(select, {selector, options, projection});
     return result ? result[0] as unknown as T : null;
   }
 
@@ -88,7 +89,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
     const insert = new InsertQuery<T>(this.getTable(), data, options);
-    await this.executeQuery(insert, data);
+    await this.executeQuery(insert, {data, options});
   }
 
   rawUpdateOne = async (
@@ -96,8 +97,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, 1);
-    const result = await this.executeQuery(update, {selector, modifier});
+    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
+    const result = await this.executeQuery(update, {selector, modifier, options});
     return result.count;
   }
 
@@ -107,13 +108,13 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options: MongoUpdateOptions<T>,
   ) => {
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options);
-    const result = await this.executeQuery(update, {selector, modifier});
+    const result = await this.executeQuery(update, {selector, modifier, options});
     return result.count;
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
     const query = new DeleteQuery<T>(this.getTable(), selector, options);
-    const result = await this.executeQuery(query, selector);
+    const result = await this.executeQuery(query, {selector, options});
     return {deletedCount: result.count};
   }
 
@@ -131,7 +132,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       toArray: async () => {
         try {
           const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
-          const result = await this.executeQuery<T>(query);
+          const result = await this.executeQuery<T>(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
           console.error("Aggregate error:", e, ":", util.inspect(pipeline, {depth: null}));
@@ -145,8 +146,17 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     bulkWrite: async (operations, options) => {
       throw new Error("TODO: PgCollection: rawCollection.bulkWrite not yet implemented");
     },
-    findOneAndUpdate: async (filter, update, options) => {
-      throw new Error("TODO: PgCollection: rawCollection.findOneAndUpdate not yet implemented");
+    findOneAndUpdate: async (
+      selector: string | MongoSelector<T>,
+      modifier: MongoModifier<T>,
+      options: MongoUpdateOptions<T>,
+    ) => {
+      const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
+      const result = await this.executeQuery(update, {selector, modifier, options});
+      return {
+        ok: 1,
+        value: result[0],
+      };
     },
     dropIndex: async (indexName: string, options?: MongoDropIndexOptions) => {
       const dropIndex = new DropIndexQuery(this.getTable(), indexName);

@@ -2,13 +2,18 @@ import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
 
+export type UpdateOptions = Partial<{
+  limit: number,
+  returnUpdated: boolean,
+}>
+
 class UpdateQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table,
     selector: string | MongoSelector<T>,
     modifier: MongoModifier<T>,
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
-    limit?: number,
+    updateOptions?: UpdateOptions,
   ) {
     super(table, ["UPDATE", table, "SET"]);
     this.nameSubqueries = false;
@@ -39,6 +44,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       selector = {_id: selector};
     }
 
+    const {limit, returnUpdated} = updateOptions ?? {};
+
     if (selector && Object.keys(selector).length > 0) {
       this.atoms.push("WHERE");
 
@@ -58,6 +65,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         this.createArg(limit),
         "FOR UPDATE)",
       ]);
+    }
+
+    if (returnUpdated) {
+      this.atoms.push("RETURNING *");
     }
   }
 
