@@ -76,7 +76,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
       count += batchSize;
       const queries = documents.map(async (document) => {
         try {
-          const query = new InsertQuery(table, formatData(document), {}, "upsert");
+          const query = new InsertQuery(table, formatData(document), {}, {conflictStrategy: "upsert"});
           await query.toSQL(sql);
         } catch (e) {
           console.error(`ERROR IMPORTING DOCUMENT ${document._id}`);
