@@ -176,6 +176,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
+      <Components.PostsPageCrosspostComments />
       <Components.CommentsList
         treeOptions={{
           highlightDate: highlightDate,

@@ -449,6 +449,21 @@ export const schema: SchemaType<DbTag> = {
   'canVoteOnRels.$': {
     type: String,
   },
+
+  subforumShortformPostId: {
+    ...foreignKeyField({
+      idFieldName: "postId",
+      resolverName: "subforumShortformPost",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    optional: true,
+    group: formGroups.advancedOptions,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {

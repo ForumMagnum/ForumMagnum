@@ -70,7 +70,7 @@ const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
 }
 
 const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
-  const openDialog = useDialog()
+  const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
   const updateCurrentUser = useUpdateCurrentUser();

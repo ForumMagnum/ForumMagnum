@@ -150,6 +150,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fill: theme.palette.grey[600],
     marginRight: 4
   },
+  tags: {
+    marginTop: 20,
+  },
   btns: {
     display: 'flex',
     columnGap: 20,
@@ -178,7 +181,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     color: theme.palette.lwTertiary.main,
-    marginTop: 16,
+    marginTop: 20,
     ...separatorBulletStyles(theme)
   },
   registerRssLink: {
@@ -257,7 +260,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     skip: !user
   })
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, FooterTag,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
@@ -508,23 +511,26 @@ const EAUsersProfile = ({terms, slug, classes}: {
               {user.website}
             </a>}
           </ContentStyles>
-          <div className={classes.btns}>
-            {currentUser?._id != user._id && <NewConversationButton
+          {user.profileTagIds && <div className={classes.tags}>
+            {user.profileTags.map(tag => <FooterTag key={tag._id} tag={{...tag, core: false}} />)}
+          </div>}
+          {currentUser?._id != user._id && <div className={classes.btns}>
+            <NewConversationButton
               user={user}
               currentUser={currentUser}
             >
               <a tabIndex={0} className={classes.messageBtn} data-cy="message">
                 Message
               </a>
-            </NewConversationButton>}
-            {currentUser?._id != user._id && <NotifyMeButton
+            </NewConversationButton>
+            <NotifyMeButton
               document={user}
               className={classes.subscribeBtn}
               subscribeMessage="Subscribe to posts"
               unsubscribeMessage="Unsubscribe"
               asButton
-            />}
-          </div>
+            />
+          </div>}
           <Typography variant="body2" className={classes.links}>
             {currentUser?.isAdmin &&
               <div className={classes.registerRssLink}>
@@ -546,6 +552,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
             {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account Settings
             </Link>}
+            {currentUser && currentUser._id === user._id && <a href="/logout">
+              Log Out
+            </a>}
           </Typography>
         </div>
         

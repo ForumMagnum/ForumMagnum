@@ -175,6 +175,13 @@ addRoute(
     background: "white"
   },
   {
+    name: 'crosspostLogin',
+    path: '/crosspostLogin',
+    componentName: 'CrosspostLoginPage',
+    title: 'Crosspost Login',
+    standalone: true,
+  },
+  {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     componentName: 'ResendVerificationEmailPage',
@@ -473,6 +480,12 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
+    {
+      name: 'taggingSubforumCustomName',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      hideFooter: true
+    }
   )
 } else {
   addRoute(
@@ -998,9 +1011,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'LibraryPage',
+      componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
       title: "The Library"
     },
