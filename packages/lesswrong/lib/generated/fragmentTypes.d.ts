@@ -1271,6 +1271,7 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1929,6 +1930,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly postCount: number,

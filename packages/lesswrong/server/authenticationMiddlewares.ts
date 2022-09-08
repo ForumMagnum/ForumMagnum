@@ -17,6 +17,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
+import {userFindOneByEmail, usersFindAllByEmail} from "../lib/collections/users/commonQueries";
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -88,9 +89,9 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          const matchingUsers = await usersFindAllByEmail(email)
           if (matchingUsers.length > 1) {
-            throw new Error(`Multiple users found with email ${email}, please contact support`)
+            throw new Error(`Multiple existing users found with email ${email}, please contact support`)
           }
           const user = matchingUsers[0]
           if (user) {
@@ -151,12 +152,15 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
     // Attempt to update the email field on the account to match the OAuth-provided
     // email. This will fail if the user has both an OAuth and a non-OAuth account
     // with the same email.
-    const preexistingAccountWithEmail = await Users.findOne({email: profileEmails[0]});
+    const preexistingAccountWithEmail = await userFindOneByEmail(profileEmails[0]);
     if (!preexistingAccountWithEmail) {
       const updatedUserResponse = await updateMutator({
         collection: Users,
         documentId: user._id,
-        set: {email: profileEmails[0]},
+        set: {
+          email: profileEmails[0],
+          emails: [{address: profileEmails[0], verified: true}] //will overwrite other past emails which we don't actually want to support
+        },
         validate: false
       })
       return updatedUserResponse.data
@@ -279,10 +283,10 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       proxy: true
     },
     createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
-      email: profile.emails?.[0].value,
       services: {
         google: profile
       },
+      email: profile.emails?.[0].value,
       emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
       displayName: profile.displayName,
