@@ -56,17 +56,20 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
     "BEGIN:VEVENT"
   ];
 
+  // The ICS format requires escaping of certain characters
+  const escapeText = (string: text) => text.replace("\\", "\\\\").replace("\n", "\\n").replace(",", "\\,").replace(";", "\\;");
+
   // In case of SSR, document won't be defined
   if (typeof document !== "undefined") {
     components.push(`URL:${document.URL}`);
   }
 
   components.push(
-    `DTSTART:${makeTime(event.startsAt)}`,
-    `DTEND:${makeTime(event.endsAt)}`,
-    `SUMMARY:${event.name}`,
-    `DESCRIPTION:${event.details}`,
-    `LOCATION:${event.location}`,
+    `DTSTART:${escapeText(makeTime(event.startsAt))}`,
+    `DTEND:${escapeText(makeTime(event.endsAt))}`,
+    `SUMMARY:${escapeText(event.name)}`,
+    `DESCRIPTION:${escapeText(event.details)}`,
+    `LOCATION:${escapeText(event.location)}`,
     "END:VEVENT",
     "END:VCALENDAR"
   );
