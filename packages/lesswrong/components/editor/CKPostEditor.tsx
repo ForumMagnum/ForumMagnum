@@ -142,7 +142,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       data={data}
       onInit={editor => {
         if (isCollaborative) {
-          // Uncomment this line and the import above to activate the CKEDItor debugger
+          // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
 
           // We listen to the current window size to determine how to show comments
