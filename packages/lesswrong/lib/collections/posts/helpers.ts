@@ -57,12 +57,6 @@ export const postIsApproved = function (post: DbPost): boolean {
   return post.status === postStatuses.STATUS_APPROVED;
 };
 
-// Check if a post is pending
-export const postIsPending = function (post: DbPost): boolean {
-  return post.status === postStatuses.STATUS_PENDING;
-};
-
-
 // Get URL for sharing on Twitter.
 export const postGetTwitterShareUrl = (post: DbPost): string => {
   return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
