@@ -45,7 +45,7 @@ export const getAdminTeamAccount = async () => {
 
 // Return the IDs of all ancestors of the given comment (not including the provided
 // comment itself).
-const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
+export const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
   const ancestorIds: string[] = [];
   
   let currentComment: DbComment|null = comment;
@@ -59,7 +59,7 @@ const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
 }
 
 // Return all comments in a subtree, given its root.
-export const getCommentSubtree = async (rootComment: DbComment, projection: any): Promise<any[]> => {
+export const getCommentSubtree = async (rootComment: DbComment, projection?: any): Promise<DbComment[]> => {
   const comments: DbComment[] = [rootComment];
   let visited = new Set<string>();
   let unvisited: string[] = [rootComment._id];
