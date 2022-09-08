@@ -151,7 +151,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
     prefilledProps = {
       ...prefilledProps,
       tagId: tag._id,
-      tagCommentType: tagCommentType as string,
+      tagCommentType: tagCommentType,
     };
   }
 

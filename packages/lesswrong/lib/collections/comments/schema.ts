@@ -108,8 +108,9 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
+    allowedValues: Object.values(TagCommentType),
     hidden: true,
-    ...schemaDefaultValue(TagCommentType.Discussion),
+    ...schemaDefaultValue(TagCommentType.Discussion as string),
   },
   // The comment author's `_id`
   userId: {

@@ -502,7 +502,7 @@ ensureIndex(Comments,
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
-    //, TODO change != Subforum to == Discussion once comments have been migrated
+    // TODO (https://app.asana.com/0/0/1202945419128640/f) Change != Subforum to == Discussion once all comments have been migrated
     tagCommentType: {$ne: TagCommentType.Subforum as string}
   },
 }));

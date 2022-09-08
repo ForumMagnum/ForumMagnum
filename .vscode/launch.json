@@ -17,23 +17,12 @@
             "outputCapture": "std",
             "port": 9229,
             "timeout": 60000
-        },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Server attach",
-            "restart": true,
-            "port": 9229
         }
     ],
     "compounds": [
         {
             "name": "Meteor: All",
             "configurations": ["Meteor: Node", "Meteor: Chrome"]
-        },
-        {
-            "name": "Lauch chrome and attach to server",
-            "configurations": ["Server attach", "Meteor: Chrome"]
         }
     ]
 }

@@ -55,7 +55,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}
-            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 10 }}
+            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 100 }}
             newForm
           />
         </AnalyticsContext>
