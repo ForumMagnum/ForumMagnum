@@ -450,7 +450,6 @@ export const schema: SchemaType<DbTag> = {
     type: String,
   },
   isSubforum: {
-    label: "Whether this tag has an associated subforum",
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
