@@ -124,7 +124,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     wrappedSetContents({contents: newState, autosave: false});
     // if (editorRef.current)
       // editorRef.current.focusOnEditor(); //function not currently implemented
-  }, [editorRef, wrappedSetContents]);
+  }, [wrappedSetContents]);
   
   useEffect(() => {
     if (editorRef.current) {
