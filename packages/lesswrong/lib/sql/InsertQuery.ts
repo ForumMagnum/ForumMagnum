@@ -3,17 +3,19 @@ import Table from "./Table";
 
 export type ConflictStrategy = "error" | "ignore" | "upsert";
 
-type InsertSqlOptionsBase = {
-  returnInserted?: boolean,
-}
+type InsertSqlBaseOptions = Partial<{
+  returnInserted: boolean,
+}>
 
-export type InsertSqlOptions<T extends DbObject> = (Partial<{
+export type InsertSqlConflictOptions<T extends DbObject> = Partial<{
   conflictStrategy: Omit<ConflictStrategy, "upsert">,
   upsertSelector: never,
 }> | {
   conflictStrategy: "upsert",
   upsertSelector?: MongoSelector<T>,
-}) & InsertSqlOptionsBase
+}
+
+export type InsertSqlOptions<T extends DbObject> = InsertSqlBaseOptions & InsertSqlConflictOptions<T>;
 
 class InsertQuery<T extends DbObject> extends Query<T> {
   constructor(
@@ -39,6 +41,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
         this.atoms = this.atoms.concat(this.compileUpsert(data[0], sqlOptions?.upsertSelector));
         break;
     }
+
     if (sqlOptions?.returnInserted) {
       this.atoms.push("RETURNING *");
     }

@@ -187,6 +187,17 @@ describe("Query", () => {
       expectedArgs: ["abc", 3, "test", null, 1],
     },
     {
+      name: "can build insert query returning the result",
+      getQuery: () => new InsertQuery<DbTestObject>(
+        testTable,
+        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
+        {},
+        {returnInserted: true},
+      ),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) RETURNING *',
+      expectedArgs: ["abc", 3, "test", null, 1],
+    },
+    {
       name: "can build insert query ignoring conflicts",
       getQuery: () => new InsertQuery<DbTestObject>(
         testTable,
