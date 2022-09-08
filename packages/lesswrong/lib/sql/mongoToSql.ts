@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Vulcan, getCollection } from "../vulcan-lib";
 import Table from "./Table";
 import InsertQuery from "./InsertQuery";

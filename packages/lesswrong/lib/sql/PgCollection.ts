@@ -40,7 +40,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       // as the client doesn't begin executing the query until it's awaited
       return await client.unsafe<R[]>(sql, args);
     } catch (error) {
+      // If this error gets triggered, you probably generated a malformed query
       debugData = util.inspect(debugData, {depth: null});
+      // eslint-disable-next-line no-console
       console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
       throw error;
     }
@@ -133,6 +135,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
           const result = await this.executeQuery<T>(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
+          // If you see this, you probably built a bad aggregation pipeline, or
+          // this file has a bug, or you're using an unsupported aggregation
+          // pipeline operator
+          // eslint-disable-next-line no-console
           console.error("Aggregate error:", e, ":", util.inspect(pipeline, {depth: null}));
           throw e;
         }

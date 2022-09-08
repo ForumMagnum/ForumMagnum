@@ -32,7 +32,7 @@ const arithmeticOps = {
 
 abstract class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
-  protected nameSubqueries: boolean = true;
+  protected nameSubqueries = true;
 
   protected constructor(
     protected table: Table | Query<T>,
