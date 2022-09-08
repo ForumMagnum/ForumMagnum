@@ -42,6 +42,7 @@ export type Route = {
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
   standalone?: boolean // if true, this page has no header / intercom
+  hideFooter?: boolean // if true, this page has no footer
   
   // enablePrefetch: Start loading stylesheet and JS bundle before the page is
   // rendered. This requires sending headers before rendering, which means

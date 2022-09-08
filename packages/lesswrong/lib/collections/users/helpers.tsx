@@ -1,12 +1,12 @@
 import bowser from 'bowser';
-import { isClient, isServer } from '../../executionEnvironment';
-import { userHasCkCollaboration } from "../../betas";
-import { forumTypeSetting } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
-import React, { useEffect, useState } from 'react';
-import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
-import { Components } from '../../vulcan-lib';
+import {isClient, isServer} from '../../executionEnvironment';
+import {userHasCkCollaboration} from "../../betas";
+import {forumTypeSetting} from "../../instanceSettings";
+import {getSiteUrl} from '../../vulcan-lib/utils';
+import {userCanDo, userIsMemberOf, userOwns} from '../../vulcan-users/permissions';
+import React, {useEffect, useState} from 'react';
+import {getBrowserLocalStorage} from '../../../components/async/localStorageHandlers';
+import {Components} from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -229,11 +229,16 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
-  return !!(user?.emails && user.emails.length > 0);
+  return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-export function getUserEmail (user: UsersCurrent | DbUser): string | undefined {
-  return user.email || user.emails?.[0]?.address
+type UserWithEmail = {
+  email: string
+  emails: UsersCurrent["emails"] 
+}
+
+export function getUserEmail (user: UserWithEmail|null): string | undefined {
+  return user?.emails?.[0]?.address ?? user?.email
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
@@ -446,3 +451,4 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+

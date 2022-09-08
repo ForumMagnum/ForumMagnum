@@ -11,7 +11,7 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
-import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
+import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -21,7 +21,6 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
@@ -239,7 +238,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   body: React.ReactNode}
 ): Promise<boolean> => {
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
-  const destinationAddress = to || userGetEmail(user!);
+  const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");
   
   try {

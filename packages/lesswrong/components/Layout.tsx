@@ -22,8 +22,7 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { isMobile } from '../lib/utils/isMobile';
-import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -50,7 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
+    // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
+    // but almost all pages are bigger than this anyway so it's not that important
+    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -81,11 +82,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sunshine: {
     gridArea: 'sunshine'
-  },
-  hideHomepageMapOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
   },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
@@ -221,7 +217,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
             <Intercom
               appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
-              email={currentUser.email}
+              email={getUserEmail(currentUser)}
               name={currentUser.displayName}/>
           </ErrorBoundary>
         </div>
@@ -261,8 +257,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies.get(hideMapCookieName)
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -310,7 +304,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
@@ -325,11 +318,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {currentUser?.usernameUnset
-                      ? <NewUserCompleteProfile />
+                      ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
-                  <Footer />
+                  {!currentRoute?.hideFooter && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>

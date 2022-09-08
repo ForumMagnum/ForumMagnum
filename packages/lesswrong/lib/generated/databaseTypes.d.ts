@@ -458,6 +458,11 @@ interface DbPost extends DbObject {
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
+  fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null
   canonicalSequenceId: string
   canonicalCollectionSlug: string
   canonicalBookId: string
@@ -717,6 +722,7 @@ interface DbTag extends DbObject {
   introSequenceId: string
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
+  subforumShortformPostId: string
   description: EditableFieldContents
   parentTagId: string
 }
@@ -953,6 +959,7 @@ interface DbUser extends DbObject {
   organization: string
   careerStage: Array<string>
   website: string
+  fmCrosspostUserId: string
   linkedinProfileURL: string
   facebookProfileURL: string
   twitterProfileURL: string

@@ -40,6 +40,8 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
+import { addCrosspostRoutes } from './fmCrosspost';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -228,7 +230,7 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !currentUser.email) {
+    if (!currentUser || !getUserEmail(currentUser)){
       res.status(403).send("Not logged in or current user has no email address")
       return
     }
@@ -236,6 +238,8 @@ export function startWebserver() {
     const eagApp = await getEAGApplicationData(currentUser.email)
     res.send(eagApp)
   })
+
+  addCrosspostRoutes(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
