@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { userEmailAddressIsVerified, userHasEmailAddress } from '../../lib/collections/users/helpers';
+import { getUserEmail, userEmailAddressIsVerified, userHasEmailAddress} from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { randInt } from '../../lib/random';
@@ -223,7 +223,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (verificationEmailSent) {
     // Clicked Subscribe in one of the other branches, and a confirmation email
     // was sent. You need to verify your email address to complete the subscription.
-    const yourEmail = currentUser?.emails[0]?.address;
+    const yourEmail = currentUser && getUserEmail(currentUser)
     return <AnalyticsWrapper branch="needs-email-verification-subscribed-in-other-branch">
       <div className={classes.message}>
         We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.

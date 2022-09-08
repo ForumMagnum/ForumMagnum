@@ -3,7 +3,6 @@ import Conversations from '../lib/collections/conversations/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
-import { getUserEmail } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
@@ -281,7 +280,7 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
   if (userId) {
     const user = await Users.findOne(userId)
     if (user) {
-      return getUserEmail(user)
+      return user.email
     }
   }
 }

@@ -119,12 +119,14 @@ function getHostname(url: string): string {
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
+const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   toggleEmbeddedPlayer?: () => void,
+  hideMenu?: boolean,
+  hideTags?: boolean,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
 
@@ -160,6 +162,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
               </a>
             </LWTooltip>
           }
+          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
           {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}
@@ -178,18 +181,20 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, classes}: {
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
-          <span className={classes.actions}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostsPageActions post={post} />
-            </AnalyticsContext>
-          </span>
+          {!hideMenu &&
+            <span className={classes.actions}>
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostsPageActions post={post} />
+              </AnalyticsContext>
+            </span>
+          }
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}

@@ -1739,7 +1739,16 @@ addFieldsDict(Users, {
     optional: true,
     hidden: true,
   },
-  
+
+  fmCrosspostUserId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+
   linkedinProfileURL: {
     type: String,
     hidden: true,

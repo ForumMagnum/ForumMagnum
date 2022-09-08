@@ -31,7 +31,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, ForeignCrosspostEditForm, HeadTags } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"

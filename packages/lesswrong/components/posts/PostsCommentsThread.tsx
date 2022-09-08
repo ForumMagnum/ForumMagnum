@@ -3,10 +3,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-const PostsCommentsThread = ({ post, terms, newForm=true }: {
-  post: PostsDetails,
+const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false }: {
+  post?: PostsDetails,
   terms: CommentsViewTerms,
   newForm?: boolean,
+  timelineView?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
@@ -17,22 +18,37 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
   });
   
   if (loading && !results) {
-    return <Components.Loading/>
+    return <Components.Loading />;
   } else if (!results) {
-    return null
+    return null;
   } else {
     const nestedComments = unflattenComments(results);
-    return (
-      <Components.CommentsListSection
-        comments={nestedComments}
-        loadMoreComments={loadMore}
-        totalComments={totalCount as number}
-        commentCount={(results && results.length) || 0}
-        loadingMoreComments={loadingMore}
-        post={post}
-        newForm={newForm}
-      />
-    );
+    if (timelineView) {
+      return (
+        <Components.CommentsTimelineSection
+          comments={nestedComments}
+          loadMoreComments={loadMore}
+          totalComments={totalCount as number}
+          commentCount={(results && results.length) || 0}
+          loadingMoreComments={loadingMore}
+          loadMoreCount={10}
+          post={post}
+          newForm={newForm}
+        />
+      );
+    } else {
+      return (
+        <Components.CommentsListSection
+          comments={nestedComments}
+          loadMoreComments={loadMore}
+          totalComments={totalCount as number}
+          commentCount={(results && results.length) || 0}
+          loadingMoreComments={loadingMore}
+          post={post}
+          newForm={newForm}
+        />
+      );
+    }
   }
 }
 

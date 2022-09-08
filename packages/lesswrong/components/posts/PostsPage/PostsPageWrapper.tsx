@@ -1,16 +1,16 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSingle } from '../../../lib/crud/withSingle';
+import { useSingle, UseSingleProps } from '../../../lib/crud/withSingle';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
+import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,
 }) => {
-  const { document: post, refetch, loading, error } = useSingle({
+  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
     collectionName: "Posts",
-    
     ...(version ? {
       fragmentName: 'PostsWithNavigationAndRevision',
       extraVariables: {
@@ -25,15 +25,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
       },
       extraVariablesValues: { sequenceId },
     }),
-    
-    documentId
-  })
+    documentId,
+  };
 
-  const { Error404, Loading, PostsPage } = Components;
-  
-  if (post) {
-    return <PostsPage post={post} refetch={refetch} />
-  } else if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
+  const { document: post, refetch, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
+
+  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
+  if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
@@ -45,9 +43,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     } else {
       throw new Error(error.message);
     }
-  } else {
+  } else if (!post) {
     return <Error404/>
+  } else if (isPostWithForeignId(post)) {
+    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
   }
+
+  return <PostsPage post={post} refetch={refetch} />
 }
 
 const PostsPageWrapperComponent = registerComponent("PostsPageWrapper", PostsPageWrapper);

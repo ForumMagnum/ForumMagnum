@@ -16,8 +16,10 @@ import FormLabel from '@material-ui/core/FormLabel';
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
+const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
+
 
 export const styles = (theme: ThemeType): JssStyles => ({
   editor: {
@@ -58,6 +60,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
     pointerEvents: 'auto'
   },
+  commentBodyStylesMinimalist: {
+    ...editorStyles(theme),
+    cursor: "text",
+    marginTop: 0,
+    marginBottom: 0,
+    padding: 0,
+    pointerEvents: 'auto',
+    '& textarea': {
+      marginTop: 4,
+      maxHeight: commentMinimalistEditorHeight,
+      '&:focus': {
+        maxHeight: '128px',
+      }
+    },
+    lineHeight: '1em',
+  },
+  
   ckEditorStyles: {
     ...ckEditorStyles(theme),
   },
@@ -81,6 +100,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '& .ck.ck-content': {
       minHeight: commentEditorHeight,
     }
+  },
+  commentMinimalistEditorHeight: {
+    // // minHeight: commentMinimalistEditorHeight,
+    // '& .ck.ck-content': {
+    //   minHeight: commentMinimalistEditorHeight,
+    // },
+    // marginTop: 4,
+    '& .ck-editor__editable': {
+      maxHeight: "300px"
+    },
+    '& .ck.ck-editor__editable_inline>:last-child': {
+      marginBottom: 0
+    },
   },
   questionEditorHeight: {
     minHeight: questionEditorHeight,
@@ -177,6 +209,7 @@ interface EditorProps {
   collectionName: CollectionNameString,
   fieldName: string,
   initialEditorType: EditorTypeString,
+  formProps?: { commentMinimalistStyle: boolean },
   
   // Whether to use the CkEditor collaborative editor, ie, this is the
   // contents field of a shared post.
@@ -482,12 +515,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderPlaintextEditor = (contents: EditorContents) => {
     const { markdownImgErrs } = this.state
-    const { _classes: classes, commentStyles, questionStyles } = this.props
+    const { _classes: classes, commentStyles, questionStyles, formProps } = this.props
     const {contentType} = this.getBodyStyles();
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <Components.ContentStyles contentType={contentType}>
+      <Components.ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles}
           )}
@@ -553,7 +586,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   getHeightClass = () => {
-    const { _classes: classes, commentStyles, questionStyles, maxHeight } = this.props
+    const { _classes: classes, commentStyles, questionStyles, maxHeight, formProps } = this.props
+    
+    if (formProps?.commentMinimalistStyle) return classes.commentMinimalistEditorHeight
     
     return classNames({
       [classes.commentEditorHeight]: commentStyles,

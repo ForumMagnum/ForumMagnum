@@ -179,7 +179,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
 
   if (!post) return true
   if (post.commentsLocked) return false
-  if (post.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
+  if (post?.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
@@ -240,11 +240,16 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
-  return !!(user?.emails && user.emails.length > 0);
+  return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-export function getUserEmail (user: UsersCurrent | DbUser): string | undefined {
-  return user.email || user.emails?.[0]?.address
+type UserWithEmail = {
+  email: string
+  emails: UsersCurrent["emails"] 
+}
+
+export function getUserEmail (user: UserWithEmail|null): string | undefined {
+  return user?.emails?.[0]?.address ?? user?.email
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.

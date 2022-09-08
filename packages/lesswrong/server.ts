@@ -133,6 +133,8 @@ import './server/resolvers/analyticsResolvers';
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
 
+import './server/fmCrosspost';
+
 import './server/codegen/generateTypes';
 
 import './server/styleGeneration';
