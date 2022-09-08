@@ -72,13 +72,6 @@ const rsvpType = new SimpleSchema({
 
 
 const schema: SchemaType<DbPost> = {
-  // Timestamp of post creation
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['admins'],
-    onInsert: () => new Date(),
-  },
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
