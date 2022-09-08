@@ -8,6 +8,7 @@ import { SortableList, shouldCancelStart } from './UsersListEditor';
 const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
+    marginLeft: 8,
   },
   checkbox: {
     padding: '6px',

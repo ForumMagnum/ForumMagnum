@@ -45,7 +45,7 @@ const SectionTitle = ({children, classes, className, title, noTopMargin, anchor}
   classes: ClassesType,
   className?: string,
   title: React.ReactNode,
-  noTopMargin?: Boolean,
+  noTopMargin?: boolean,
   anchor?: string,
 }) => {
   return (

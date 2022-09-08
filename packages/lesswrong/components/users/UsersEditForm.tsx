@@ -2,7 +2,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import Users from '../../lib/collections/users/collection';
-import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { getUserEmail, userCanEdit, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
@@ -72,7 +72,7 @@ const UsersEditForm = ({terms, classes}: {
   // all in admin mode unfortunately. In the fullness of time we could fix that,
   // currently we disable it below
   const requestPasswordReset = async () => {
-    const { data } = await mutate({variables: { email: currentUser?.emails[0]?.address }})
+    const { data } = await mutate({variables: { email: getUserEmail(currentUser) }})
     flash(data?.resetPassword)
   } 
 

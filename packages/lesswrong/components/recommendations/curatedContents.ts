@@ -26,20 +26,20 @@ import type { CuratedContent } from "./CuratedContentItem"
 //   }
 // }
 //
-// export const babbleAndPrune: CuratedContent = {
-//   documentType: "Sequence",
-//   document: {
-//     _id: "asdf3",
-//     title: "Babble & Prune",
-//   },
-//   description: "Two Gods - Babble and Prune, Artist and Critic, Generator and Discriminator - are locked in eternal conflict over your mind. Only you, chosen hero, can restore the balance between these two ancient deities, and in doing so maximize your creative output.",
-//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,g_east,w_1024,x_232/v1660868045/DALL_E_2022-08-18_17.04.09_-_a_pair_of_pruning_shears_next_to_giant_soap_bubbles_aquarelle_painting_by_Thomas_Schaller_and_Da_Vinci_as_digital_art_on_white_background_rdwrb8.png",
-//   firstPost: {
-//     _id: "46qnWRSR7L2eyNbMA",
-//     url: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-//     title: "Babble"
-//   }
-// }
+export const babbleAndPrune: CuratedContent = {
+  documentType: "Sequence",
+  document: {
+    _id: "pC6DYFLPMTCbEwH8W",
+    title: "Babble & Prune",
+  },
+  description: "When we describe rational thought processes, we tend to think of them as essentially deterministic, deliberate, and algorithmic. In this sequence of posts, the author argues that the process of cognition is closer to babbling many random strings and later filtering by a heuristic.",
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,g_east,w_1024,x_232/v1660868045/DALL_E_2022-08-18_17.04.09_-_a_pair_of_pruning_shears_next_to_giant_soap_bubbles_aquarelle_painting_by_Thomas_Schaller_and_Da_Vinci_as_digital_art_on_white_background_rdwrb8.png",
+  firstPost: {
+    _id: "i42Dfoh4HtsCAfXxL",
+    url: "s/pC6DYFLPMTCbEwH8W/p/i42Dfoh4HtsCAfXxL",
+    title: "Babble"
+  }
+}
 
 // const sequenceHighlights: CuratedContent = {
 //   documentType: "Collection",
@@ -73,18 +73,18 @@ import type { CuratedContent } from "./CuratedContentItem"
 //   }
 // }
 
-export const cfarHandbook: CuratedContent = {
-  documentType: "Sequence",
-  document: {
-    _id: "KAv8z6oJCTxjR8vdR",
-    title: "CFAR Handbook",
-  },
-  description: `<div><p>The Center for Applied Rationality set out to develop concepts and techniques that would (hopefully) result in clearer thinking and better decision-making.</p>
-  <p>This handbook is the result of the first five years or so of that research.</p></div>`,
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660869601/DALL_E_2022-08-18_17.31.52_-_students_sitting_on_bean_bags_in_front_of_teacher_by_whiteboard_with_math_aquarelle_painting_by_JMW_Turner_-_edited2_zm0x5r.png",
-  firstPost: {
-    _id: "dbDHEQyKqnMDDqq2G",
-    url: "/s/KAv8z6oJCTxjR8vdR/p/dbDHEQyKqnMDDqq2G",
-    title: "Introduction"
-  }
-}
+// export const cfarHandbook: CuratedContent = {
+//   documentType: "Sequence",
+//   document: {
+//     _id: "KAv8z6oJCTxjR8vdR",
+//     title: "CFAR Handbook",
+//   },
+//   description: `<div><p>The Center for Applied Rationality set out to develop concepts and techniques that would (hopefully) result in clearer thinking and better decision-making.</p>
+//   <p>This handbook is the result of the first five years or so of that research.</p></div>`,
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660869601/DALL_E_2022-08-18_17.31.52_-_students_sitting_on_bean_bags_in_front_of_teacher_by_whiteboard_with_math_aquarelle_painting_by_JMW_Turner_-_edited2_zm0x5r.png",
+//   firstPost: {
+//     _id: "dbDHEQyKqnMDDqq2G",
+//     url: "/s/KAv8z6oJCTxjR8vdR/p/dbDHEQyKqnMDDqq2G",
+//     title: "Introduction"
+//   }
+// }

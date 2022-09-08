@@ -8,7 +8,7 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { cfarHandbook } from './curatedContents';
+import { babbleAndPrune } from './curatedContents';
 
 export const curatedUrl = "/recommendations"
 
@@ -158,7 +158,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CuratedContentItem content={cfarHandbook} />
+          <CuratedContentItem content={babbleAndPrune} />
         </AnalyticsContext>}
   
         {/*Delete after the dust has settled on other Recommendations stuff*/}

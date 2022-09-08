@@ -245,6 +245,7 @@ registerFragment(`
     website
     createdAt
     email
+    emails
     commentCount
     maxCommentCount
     postCount
@@ -443,5 +444,14 @@ registerFragment(`
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    username
+    slug
+    fmCrosspostUserId
   }
 `)
