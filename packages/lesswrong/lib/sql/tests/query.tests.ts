@@ -1,12 +1,12 @@
-import { testStartup } from "../../testing/testMain";
+import { testStartup } from "../../../testing/testMain";
 import { DbTestObject, testTable, runTestCases } from "./testHelpers";
-import InsertQuery from "./InsertQuery";
-import SelectQuery from "./SelectQuery";
-import UpdateQuery from "./UpdateQuery";
-import DeleteQuery from "./DeleteQuery";
-import CreateTableQuery from "./CreateTableQuery";
-import CreateIndexQuery from "./CreateIndexQuery";
-import DropIndexQuery from "./DropIndexQuery";
+import InsertQuery from "../InsertQuery";
+import SelectQuery from "../SelectQuery";
+import UpdateQuery from "../UpdateQuery";
+import DeleteQuery from "../DeleteQuery";
+import CreateTableQuery from "../CreateTableQuery";
+import CreateIndexQuery from "../CreateIndexQuery";
+import DropIndexQuery from "../DropIndexQuery";
 
 testStartup();
 

@@ -1,6 +1,6 @@
-import { testStartup } from "../../testing/testMain";
+import { testStartup } from "../../../testing/testMain";
 import { testTable, runTestCases } from "./testHelpers";
-import Pipeline from "./Pipeline";
+import Pipeline from "../Pipeline";
 
 testStartup();
 

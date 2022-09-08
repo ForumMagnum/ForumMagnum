@@ -1,6 +1,6 @@
-import Table from "./Table";
-import Query from "./Query";
-import { registerCollection } from "../vulcan-lib/getCollection";
+import { registerCollection } from "../../vulcan-lib/getCollection";
+import Table from "../Table";
+import Query from "../Query";
 
 export type DbTestObject = {
   _id: string,
