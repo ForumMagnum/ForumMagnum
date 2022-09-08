@@ -315,31 +315,15 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) => {
 }
 
 const PostsItem2 = ({
-  // post: The post displayed.
   post,
-  // tagRel: (Optional) The relationship between this post and a tag. If
-  // provided, UI will be shown with the score and voting on this post's
-  // relevance to that tag.
   tagRel=null,
-  // defaultToShowComments: (bool) If set, comments will be expanded by default.
   defaultToShowComments=false,
-  // sequenceId, chapter: If set, these will be used for making a nicer URL.
-  sequenceId, chapter,
-  // index: If this is part of a list of PostsItems, its index (starting from
-  // zero) into that list. Used for special casing some styling at start of
-  // the list.
+  sequenceId, 
+  chapter,
   index,
-  // terms: If this is part of a list generated from a query, the terms of that
-  // query. Used for figuring out which sticky icons to apply, if any.
   terms,
-  // resumeReading: If this is a Resume Reading suggestion, the corresponding
-  // partiallyReadSequenceItem (see schema in users/custom_fields). Used for
-  // the sequence-image background.
   resumeReading,
-  // dismissRecommendation: If this is a Resume Reading suggestion, a callback
-  // to dismiss it.
   dismissRecommendation,
-  // toggleDeleteDraft, if this a draft, a callback to archive/unarchive it
   toggleDeleteDraft, 
   showBottomBorder=true,
   showQuestionTag=true,
@@ -348,13 +332,8 @@ const PostsItem2 = ({
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
-  // dense: (bool) Slightly reduce margins to make this denser. Used on the
-  // All Posts page.
   dense=false,
-  // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
-  // icon.
   bookmark=false,
-  // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
   hideAuthor=false,
@@ -364,15 +343,31 @@ const PostsItem2 = ({
   translucentBackground=false,
   forceSticky=false
 }: {
+  /** post: The post displayed.*/
   post: PostsList,
+  /** tagRel: (Optional) The relationship between this post and a tag. If
+  /* provided, UI will be shown with the score and voting on this post's
+  /* relevance to that tag.*/
   tagRel?: WithVoteTagRel|null,
+  /** defaultToShowComments: (bool) If set, comments will be expanded by default.*/
   defaultToShowComments?: boolean,
+  /** sequenceId, chapter: If set, these will be used for making a nicer URL.*/
   sequenceId?: string,
   chapter?: any,
+  /** index: If this is part of a list of PostsItems, its index (starting from
+   /* zero) into that list. Used for special casing some styling at start of
+   /* the list.*/
   index?: number,
+  /** terms: If this is part of a list generated from a query, the terms of that
+  /* query. Used for figuring out which sticky icons to apply, if any.*/
   terms?: any,
+  /** resumeReading: If this is a Resume Reading suggestion, the corresponding
+  /* partiallyReadSequenceItem (see schema in users/custom_fields). Used for
+  /* the sequence-image background.*/
   resumeReading?: any,
+  /** dismissRecommendation: If this is a Resume Reading suggestion, a callback to dismiss it.*/
   dismissRecommendation?: any,
+  /** if this a draft, a callback to archive/unarchive it */
   toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
@@ -381,8 +376,11 @@ const PostsItem2 = ({
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
+  /** dense: (bool) Slightly reduce margins to make this denser. Used on the AllPosts page.*/
   dense?: boolean,
+  /** bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark icon.*/
   bookmark?: boolean,
+  /** showNominationCount: (bool) whether this should display it's number of Review nominations*/
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
