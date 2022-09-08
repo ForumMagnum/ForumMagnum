@@ -4,7 +4,8 @@ import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtil
 import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
-import {getUserEmail, userFindOneByEmail} from "../../lib/collections/users/helpers";
+import {getUserEmail} from "../../lib/collections/users/helpers";
+import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {

@@ -15,12 +15,13 @@ import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
-import { userEmailAddressIsVerified, userFindOneByEmail} from '../../../lib/collections/users/helpers';
+import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
+import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility

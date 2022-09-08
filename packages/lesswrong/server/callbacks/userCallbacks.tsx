@@ -16,7 +16,7 @@ import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authenticatio
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import {userGetLocation, userFindOneByEmail, getUserEmail} from "../../lib/collections/users/helpers";
+import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -30,6 +30,7 @@ import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
+import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000

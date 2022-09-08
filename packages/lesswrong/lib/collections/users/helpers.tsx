@@ -1,13 +1,12 @@
 import bowser from 'bowser';
-import { isClient, isServer } from '../../executionEnvironment';
-import { userHasCkCollaboration } from "../../betas";
-import { forumTypeSetting } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
-import React, { useEffect, useState } from 'react';
-import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
-import { Components } from '../../vulcan-lib';
-import Users from "./collection";
+import {isClient, isServer} from '../../executionEnvironment';
+import {userHasCkCollaboration} from "../../betas";
+import {forumTypeSetting} from "../../instanceSettings";
+import {getSiteUrl} from '../../vulcan-lib/utils';
+import {userCanDo, userIsMemberOf, userOwns} from '../../vulcan-users/permissions';
+import React, {useEffect, useState} from 'react';
+import {getBrowserLocalStorage} from '../../../components/async/localStorageHandlers';
+import {Components} from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -452,13 +451,4 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
-/**Finds a user matching on email, searches case INsensitively.
- * Currently searches both email and emailS fields, though the later should ideally be full deprecated
- */
-export const userFindOneByEmail = async function(email: string): Promise<DbUser|null> {
-  return await Users.findOne( {$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}})
-};
 
-export const usersFindAllByEmail: (email: string) => Promise<Array<DbUser|null>> = async function(email: string)  {
-  return await Users.find({$or: [{email}, {['emails.address']: email}]}, {collation: {locale: 'en', strength: 2}}).fetch()
-};
