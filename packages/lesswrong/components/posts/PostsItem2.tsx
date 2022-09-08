@@ -358,8 +358,10 @@ const PostsItem2 = ({
   /* zero) into that list. Used for special casing some styling at start of
   /* the list.*/
   index?: number,
-  /** terms: If this is part of a list generated from a query, the terms of that
-  /* query. Used for figuring out which sticky icons to apply, if any.*/
+  /**
+   * terms: If this is part of a list generated from a query, the terms of that
+   * query. Used for figuring out which sticky icons to apply, if any.
+   */
   terms?: any,
   /** resumeReading: If this is a Resume Reading suggestion, the corresponding
   /* partiallyReadSequenceItem (see schema in users/custom_fields). Used for
