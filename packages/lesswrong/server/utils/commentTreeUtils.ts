@@ -10,8 +10,12 @@ export const getCommentAncestorIds = async (comment: DbComment): Promise<string[
   let currentComment: DbComment|null = comment;
   while (currentComment?.parentCommentId) {
     currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
-    if (currentComment)
+    if (currentComment) {
+      if (ancestorIds.includes(currentComment._id)) {
+        throw new Error("Parent-comment reference cycle detected starting from "+comment._id);
+      }
       ancestorIds.push(currentComment._id);
+    }
   }
   
   return ancestorIds;
