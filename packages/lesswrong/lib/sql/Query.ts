@@ -137,14 +137,11 @@ abstract class Query<T extends DbObject> {
   }
 
   private compileComparison(fieldName: string, value: any): Atom<T>[] {
-    if (value === undefined) {
-      return [];
-    }
     const field = this.resolveFieldName(fieldName, value);
+    if (value === null || value === undefined) {
+      return [`${field} IS NULL`];
+    }
     if (typeof value === "object") {
-      if (value === null) {
-        return [`${field} IS NULL`];
-      }
       const comparer = Object.keys(value)[0];
       if (comparer === "$exists") {
         return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];

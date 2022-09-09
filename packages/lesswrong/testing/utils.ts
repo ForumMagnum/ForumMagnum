@@ -170,8 +170,11 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     _id: randomId(),
     userId: user_._id,
     title: randomId(),
+    "contents_latest": randomId(),
+    "moderationGuidelines_latest": randomId(),
   }
   const postData = {...defaultData, ...data};
+  console.log("CREATING", postData);
   const newPostResponse = await createMutator({
     collection: Posts,
     // Not the best, createMutator should probably be more flexible about what

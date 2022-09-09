@@ -1,15 +1,22 @@
-import type { Sql } from 'postgres';
+import type { Sql } from "postgres";
 import { newDb, IMemoryDb } from "pg-mem";
+import { Collections } from "../../vulcan-lib/getCollection";
+import PgCollection from "../PgCollection";
+import CreateTableQuery from "../CreateTableQuery";
 
 const literal = (val: any) => {
   if (val === null) {
-    return 'NULL';
+    return "NULL";
   }
   if (Array.isArray(val)) {
-    return "(" + val.map(literal).join(", ") + ")"
+    return "(" + val.map(literal).join(", ") + ")";
   }
-  const prefix = ~val.indexOf('\\') ? 'E' : '';
-  return prefix + "'" + val.replace(/'/g, "''").replace(/\\/g, '\\\\') + "'";
+  if (typeof val === "number") {
+    return val.toString();
+  }
+  val = val.toString();
+  const prefix = ~val.indexOf("\\") ? "E" : "";
+  return prefix + "'" + val.replace(/'/g, "''").replace(/\\/g, "\\\\") + "'";
 }
 
 const prepareValue = (val: any, seen?: any[]): any => {
@@ -23,22 +30,22 @@ const prepareValue = (val: any, seen?: any[]): any => {
     return literal(val.toISOString());
   }
   if (Array.isArray(val)) {
-    return val.length === 0 ? `'{}'` : `ARRAY[${val.map(x => toLiteral(x)).join(', ')}]`;
+    return val.length === 0 ? `'{}'` : `ARRAY[${val.map(x => toLiteral(x)).join(", ")}]`;
   }
-  if (typeof val === 'object') {
+  if (typeof val === "object") {
     return prepareObject(val, seen);
   }
-  return literal(val.toString());
+  return literal(val);
 }
 
 const prepareObject = (val: any, seen?: any[]) => {
-  if (val && typeof val.toPostgres === 'function') {
-    seen = seen || []
+  if (val && typeof val.toPostgres === "function") {
+    seen = seen || [];
     if (seen.indexOf(val) !== -1) {
-      throw new Error('circular reference detected while preparing "' + val + '" for query')
+      throw new Error(`Circular reference detected while preparing ${val} for query`);
     }
-    seen.push(val)
-    return prepareValue(val.toPostgres(prepareValue), seen)
+    seen.push(val);
+    return prepareValue(val.toPostgres(prepareValue), seen);
   }
   return literal(JSON.stringify(val));
 }
@@ -56,13 +63,26 @@ const replaceQueryArgs = (sql: string, args: any[]) => {
   });
 }
 
-export const createTestingSqlClient = () => {
-  function client(this: {db?: IMemoryDb}, sql: string, args: any[]) {
-    console.log("Executing", sql);
-    if (!this.db) {
-      this.db = newDb();
+const initDb = (): IMemoryDb => {
+  const db = newDb();
+  for (const collection of Collections) {
+    if (collection instanceof PgCollection) {
+      if (!collection.table) {
+        collection.buildPostgresTable();
+      }
+      const query = new CreateTableQuery(collection.table);
+      const {sql, args} = query.compile();
+      db.public.none(replaceQueryArgs(sql, args));
     }
-    return this.db.public.many(replaceQueryArgs(sql, args));
   }
+  return db;
+}
+
+export const createTestingSqlClient = () => {
+  const db = initDb();
+  const client = (sql: string, args: any[]) => {
+    return db.public.many(replaceQueryArgs(sql, args));
+  }
+  client.unsafe = client;
   return client as unknown as Sql<any>;
 }

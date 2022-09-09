@@ -140,6 +140,17 @@ export class NotNullType extends Type {
   }
 }
 
+const valueToString = (value: any, subtype?: Type): string => {
+  if (Array.isArray(value) && value.length === 0) {
+    return subtype ? `'{}'::${subtype.toString()}[]` : "'{}'";
+  } else if (typeof value === "string") {
+    return `'${value}'`;
+  } else if (typeof value === "object" && value) {
+    return `'{${Object.keys(value).map((key) => `"${key}":${valueToString(value[key])},`)}}'`;
+  }
+  return `${value}`;
+}
+
 export class DefaultValueType extends Type {
   constructor(private subtype: Type, private value: any) {
     super();
@@ -150,12 +161,7 @@ export class DefaultValueType extends Type {
   }
 
   private valueToString() {
-    if (Array.isArray(this.value) && this.value.length === 0) {
-      return `'{}'::${this.subtype.toString()}[]`;
-    } else if (typeof this.value === "string") {
-      return `'${this.value}'`;
-    }
-    return `${this.value}`;
+    return valueToString(this.value, this.subtype);
   }
 
   toConcrete() {

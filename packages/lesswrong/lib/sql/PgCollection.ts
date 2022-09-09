@@ -47,7 +47,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       return await client.unsafe<R[]>(sql, args);
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
-      debugData = util.inspect(debugData, {depth: null});
+      const {collectionName} = this as unknown as CollectionBase<T>;
+      debugData = util.inspect({collectionName, ...debugData}, {depth: null});
       // eslint-disable-next-line no-console
       console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
       throw error;
@@ -104,6 +105,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
+    const {collectionName} = this as unknown as CollectionBase<T>;
+    console.log(util.inspect({collectionName, selector, modifier, options}, {depth: null}));
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
     const result = await this.executeQuery(update, {selector, modifier, options});
     return result.count;
