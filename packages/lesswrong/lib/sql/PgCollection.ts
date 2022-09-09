@@ -105,8 +105,6 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const {collectionName} = this as unknown as CollectionBase<T>;
-    console.log(util.inspect({collectionName, selector, modifier, options}, {depth: null}));
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
     const result = await this.executeQuery(update, {selector, modifier, options});
     return result.count;

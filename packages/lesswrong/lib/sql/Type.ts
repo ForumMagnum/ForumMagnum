@@ -146,7 +146,7 @@ const valueToString = (value: any, subtype?: Type): string => {
   } else if (typeof value === "string") {
     return `'${value}'`;
   } else if (typeof value === "object" && value) {
-    return `'{${Object.keys(value).map((key) => `"${key}":${valueToString(value[key])},`)}}'`;
+    return `'{${Object.keys(value).map((key) => `"${key}": ${valueToString(value[key])}`).join(",")}}'`;
   }
   return `${value}`;
 }

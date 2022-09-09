@@ -1,70 +1,19 @@
-import type { Sql } from "postgres";
-import { newDb, IMemoryDb } from "pg-mem";
 import { Collections } from "../../vulcan-lib/getCollection";
 import PgCollection from "../PgCollection";
 import CreateTableQuery from "../CreateTableQuery";
+import { createSqlConnection } from "../sqlClient";
+import { inspect } from "util";
 
-const literal = (val: any) => {
-  if (val === null) {
-    return "NULL";
+const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
+  if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
+    throw `Incorrectly formatted connection string or unrecognized connection string format: ${connectionString}`;
   }
-  if (Array.isArray(val)) {
-    return "(" + val.map(literal).join(", ") + ")";
-  }
-  if (typeof val === "number") {
-    return val.toString();
-  }
-  val = val.toString();
-  const prefix = ~val.indexOf("\\") ? "E" : "";
-  return prefix + "'" + val.replace(/'/g, "''").replace(/\\/g, "\\\\") + "'";
+  const lastSlash = connectionString.lastIndexOf('/');
+  const withoutDbName = connectionString.slice(0, lastSlash);
+  return `${withoutDbName}/${dbName}`;
 }
 
-const prepareValue = (val: any, seen?: any[]): any => {
-  if (val === null || val === undefined) {
-    return "NULL";
-  }
-  if (Buffer.isBuffer(val)) {
-    return literal(val.toString("utf-8"));
-  }
-  if (val instanceof Date) {
-    return literal(val.toISOString());
-  }
-  if (Array.isArray(val)) {
-    return val.length === 0 ? `'{}'` : `ARRAY[${val.map(x => toLiteral(x)).join(", ")}]`;
-  }
-  if (typeof val === "object") {
-    return prepareObject(val, seen);
-  }
-  return literal(val);
-}
-
-const prepareObject = (val: any, seen?: any[]) => {
-  if (val && typeof val.toPostgres === "function") {
-    seen = seen || [];
-    if (seen.indexOf(val) !== -1) {
-      throw new Error(`Circular reference detected while preparing ${val} for query`);
-    }
-    seen.push(val);
-    return prepareValue(val.toPostgres(prepareValue), seen);
-  }
-  return literal(JSON.stringify(val));
-}
-
-const toLiteral = prepareValue;
-
-const replaceQueryArgs = (sql: string, args: any[]) => {
-  return sql.replace(/\$(\d+)/g, (str: any, istr: any) => {
-    const i = Number.parseInt(istr);
-    if (i > args.length) {
-      throw new Error('Unmatched parameter in query ' + str);
-    }
-    const val = args[i - 1];
-    return toLiteral(val);
-  });
-}
-
-const initDb = (): IMemoryDb => {
-  const db = newDb();
+const buildTables = async (client: SqlClient) => {
   for (const collection of Collections) {
     if (collection instanceof PgCollection) {
       if (!collection.table) {
@@ -72,17 +21,43 @@ const initDb = (): IMemoryDb => {
       }
       const query = new CreateTableQuery(collection.table);
       const {sql, args} = query.compile();
-      db.public.none(replaceQueryArgs(sql, args));
+      try {
+        await client.unsafe(sql, args);
+      } catch (e) {
+        throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
+      }
     }
   }
-  return db;
 }
 
-export const createTestingSqlClient = () => {
-  const db = initDb();
-  const client = (sql: string, args: any[]) => {
-    return db.public.many(replaceQueryArgs(sql, args));
+export const createTestingSqlClient = async (): Promise<SqlClient> => {
+  const date = new Date().toISOString().replace(/[:.-]/g,"_");
+  const dbName = `unittest_${date}_${process.pid}`.toLowerCase();
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't initalize test DB - PG_URL not set");
   }
-  client.unsafe = client;
-  return client as unknown as Sql<any>;
+  let sql = await createSqlConnection(PG_URL);
+  await sql`CREATE DATABASE ${sql(dbName)}`;
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
+  sql = await createSqlConnection(testUrl);
+  await buildTables(sql);
+  return sql;
+}
+
+export const dropTestingDatabases = async () => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't initalize test DB - PG_URL not set");
+  }
+  const sql = await createSqlConnection(PG_URL);
+  const databases = await sql`
+    SELECT datname
+    FROM pg_database
+    WHERE datistemplate = FALSE AND
+      datname LIKE 'unittest_%' AND
+      pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
+  `;
+  const queries = databases.map(({datname}) => sql`DROP DATABASE ${sql(datname)}`);
+  await Promise.all(queries);
 }

@@ -10,7 +10,7 @@ import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';
 import { setSqlConnection } from '../lib/sql/sqlClient';
-import { createTestingSqlClient } from '../lib/sql/tests/testingSqlClient';
+import { createTestingSqlClient, dropTestingDatabases } from '../lib/sql/tests/testingSqlClient';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
@@ -47,7 +47,8 @@ async function ensureDbConnection() {
 let pgConnected = false;
 const ensurePgConnection = async () => {
   if (!pgConnected) {
-    const client = createTestingSqlClient();
+    await dropTestingDatabases();
+    const client = await createTestingSqlClient();
     setSqlConnection(client);
     pgConnected = true;
   }
@@ -74,7 +75,9 @@ async function oneTimeSetup() {
 export function testStartup() {
   chai.should();
   chai.use(chaiAsPromised);
-  
+
+  jest.setTimeout(10000);
+
   beforeAll(async () => {
     await oneTimeSetup();
   });

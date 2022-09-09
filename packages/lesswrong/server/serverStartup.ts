@@ -1,7 +1,6 @@
 import { MongoClient } from 'mongodb';
-import postgres from 'postgres';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { setSqlConnection } from '../lib/sql/sqlClient';
+import { createSqlConnection, setSqlConnection } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
@@ -59,12 +58,7 @@ async function serverStartup() {
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to postgres");
-    const sql = postgres(commandLineArguments.postgresUrl, {
-      onnotice: () => {},
-      // debug: console.log,
-    });
-    await sql`SET default_toast_compression = lz4`;
-    await sql`CREATE EXTENSION IF NOT EXISTS "btree_gin"`;
+    const sql = await createSqlConnection(commandLineArguments.postgresUrl);
     setSqlConnection(sql);
   } catch(err) {
     // eslint-disable-next-line no-console

@@ -500,7 +500,6 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
-    console.log("mark", fieldName, revisionID);
     await Revisions.rawUpdateOne(
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
