@@ -16,6 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   presenceList: {
     flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
     //create stacking context
     position: "relative",
     zIndex: theme.zIndexes.editorPresenceList,
