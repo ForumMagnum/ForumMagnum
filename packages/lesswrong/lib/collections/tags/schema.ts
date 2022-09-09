@@ -236,8 +236,7 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(2),
   },
-  
-  //, TODO deprecate as unused
+
   recentComments: resolverOnlyField({
     type: Array,
     graphQLtype: "[Comment]",
@@ -450,20 +449,14 @@ export const schema: SchemaType<DbTag> = {
   'canVoteOnRels.$': {
     type: String,
   },
-
-  subforumShortformPostId: {
-    ...foreignKeyField({
-      idFieldName: "postId",
-      resolverName: "subforumShortformPost",
-      collectionName: "Posts",
-      type: "Post",
-      nullable: true,
-    }),
-    optional: true,
+  isSubforum: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
-    canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    ...schemaDefaultValue(false),
   },
 }
 
