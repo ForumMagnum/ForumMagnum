@@ -1582,6 +1582,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly subTags: Array<TagPreviewFragment_subTags>,
   readonly description: TagPreviewFragment_description|null,
   readonly subforumShortformPostId: string,
+  readonly subforumWelcomeText: TagPreviewFragment_subforumWelcomeText|null,
 }
 
 interface TagPreviewFragment_parentTag { // fragment on Tags
@@ -1597,6 +1598,14 @@ interface TagPreviewFragment_subTags { // fragment on Tags
 interface TagPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
+}
+
+interface TagPreviewFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+  readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
+  readonly version: string,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -1641,6 +1650,7 @@ interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
+  readonly subforumWelcomeText: RevisionEdit|null,
 }
 
 interface TagEditFragment_parentTag { // fragment on Tags

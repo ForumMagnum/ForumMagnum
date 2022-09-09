@@ -237,6 +237,7 @@ export const schema: SchemaType<DbTag> = {
     ...schemaDefaultValue(2),
   },
   
+  //, TODO deprecate as unused
   recentComments: resolverOnlyField({
     type: Array,
     graphQLtype: "[Comment]",

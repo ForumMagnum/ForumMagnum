@@ -724,6 +724,7 @@ interface DbTag extends DbObject {
   canVoteOnRels: Array<string>
   subforumShortformPostId: string
   description: EditableFieldContents
+  subforumWelcomeText: EditableFieldContents
   parentTagId: string
 }
 
