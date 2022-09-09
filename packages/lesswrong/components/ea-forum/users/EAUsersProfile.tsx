@@ -334,7 +334,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <AnalyticsContext listContext="userPageDrafts">
-        <DraftsList limit={5} hideHeaderRow />
+        <DraftsList userId={user._id} limit={5} hideHeaderRow />
         <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
