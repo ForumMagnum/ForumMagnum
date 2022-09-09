@@ -1063,15 +1063,15 @@ addFieldsDict(Posts, {
 
   sharingSettings: {
     type: Object,
-    order: 16,
+    order: 15,
     viewableBy: [userOwns, userIsSharedOn, 'admins'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
+    control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: formGroups.options,
     blackbox: true,
-    hidden: true,
   },
   
   shareWithUsers: {
@@ -1081,9 +1081,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    control: "UsersListEditor",
-    label: "Share draft with users",
-    group: formGroups.options
+    hidden: true, 
   },
 
   'shareWithUsers.$': {
@@ -1091,7 +1089,33 @@ addFieldsDict(Posts, {
     foreignKey: "Users",
     optional: true
   },
+  
+  // linkSharingKey: An additional ID for this post which is used for link-sharing,
+  // and not made accessible to people who merely have access to the published version
+  // of a post. Only populated if some form of link sharing is (or has been) enabled.
+  linkSharingKey: {
+    type: String,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
 
+  // linkSharingKeyUsedBy: An array of user IDs who have used the link-sharing key
+  // to unlock access.
+  linkSharingKeyUsedBy: {
+    type: Array,
+    viewableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
+  'linkSharingKeyUsedBy.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true
+  },
+  
+  
   commentSortOrder: {
     type: String,
     viewableBy: ['guests'],

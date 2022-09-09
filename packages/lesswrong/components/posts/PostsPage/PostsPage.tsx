@@ -18,6 +18,7 @@ import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
 
 export const MAX_COLUMN_WIDTH = 720
+export const CENTRAL_COLUMN_WIDTH = 682
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
@@ -79,7 +80,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: 650 + (theme.spacing.unit*4),
+    maxWidth: CENTRAL_COLUMN_WIDTH, 
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3

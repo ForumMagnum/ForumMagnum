@@ -44,9 +44,17 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
+importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));
+importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));
+importComponent("Editor", () => require('../components/editor/Editor'));
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));
+importComponent("LastEditedInWarning", () => require('../components/editor/LastEditedInWarning'));
+importComponent("LocalStorageCheck", () => require('../components/editor/LocalStorageCheck'));
+importComponent("EditorTypeSelect", () => require('../components/editor/EditorTypeSelect'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
+importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
+importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
 // RSS Feed Integration
@@ -62,6 +70,7 @@ importComponent("NotifyMeButton", () => require('../components/notifications/Not
 importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings'));
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview'));
+importComponent("CommentOnYourDraftNotificationHover", () => require('../components/notifications/CommentOnYourDraftNotificationHover'));
 
 importComponent("Layout", () => require('../components/Layout.tsx'));
 
@@ -84,6 +93,7 @@ importComponent("SectionSubtitle", () => require('../components/common/SectionSu
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
 importComponent("SectionButton", () => require('../components/common/SectionButton'));
+importComponent("SettingsColumn", () => require('../components/common/SettingsColumn'));
 importComponent("MetaInfo", () => require('../components/common/MetaInfo'));
 importComponent("NoContent", () => require('../components/common/NoContent'));
 importComponent("SearchBar", () => require('../components/common/SearchBar'));
@@ -116,6 +126,7 @@ importComponent("DefaultStyleFormGroup", () => require('../components/common/Def
 importComponent("LinkCard", () => require('../components/common/LinkCard'));
 importComponent("LWDialog", () => require('../components/common/LWDialog'));
 importComponent("Error404", () => require('../components/common/Error404'));
+importComponent("ErrorAccessDenied", () => require('../components/common/ErrorAccessDenied'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
 
@@ -153,6 +164,9 @@ importComponent("UsersProfile", () => require('../components/users/UsersProfile'
 importComponent("ReportUserButton", () => require('../components/users/ReportUserButton'));
 importComponent("BookmarksPage", () => require('../components/posts/BookmarksPage'));
 importComponent("BookmarksList", () => require('../components/posts/BookmarksList'));
+importComponent("DraftsPage", () => require('../components/posts/DraftsPage'));
+importComponent("DraftsList", () => require('../components/posts/DraftsList'));
+importComponent("DraftsListSettings", () => require('../components/posts/DraftsListSettings'));
 importComponent("UsersName", () => require('../components/users/UsersName'));
 importComponent("UsersNameWrapper", () => require('../components/users/UsersNameWrapper'));
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));
@@ -238,7 +252,10 @@ importComponent("PostsEditForm", () => require('../components/posts/PostsEditFor
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
-importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor'));
+importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
+importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
+importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
+importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
@@ -488,6 +505,7 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
+importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
 

@@ -243,6 +243,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     });
   }
   
+  await client.clearStore();
+  
   return {
     ssrBody,
     headers: [head],
