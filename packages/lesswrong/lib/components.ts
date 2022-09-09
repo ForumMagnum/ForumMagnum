@@ -93,6 +93,7 @@ importComponent("SectionSubtitle", () => require('../components/common/SectionSu
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
 importComponent("SectionButton", () => require('../components/common/SectionButton'));
+importComponent("SettingsColumn", () => require('../components/common/SettingsColumn'));
 importComponent("MetaInfo", () => require('../components/common/MetaInfo'));
 importComponent("NoContent", () => require('../components/common/NoContent'));
 importComponent("SearchBar", () => require('../components/common/SearchBar'));
@@ -504,6 +505,7 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
+importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
 

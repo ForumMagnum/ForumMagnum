@@ -49,39 +49,6 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-/*export const getContentsFromLocalStorage = (editorType: string): EditorContents|null => {
-  const savedState = this.getLocalStorageHandlers(editorType).get();
-  if (!savedState) return null;
-
-  if (editorType === "draftJS") {
-    try {
-      // eslint-disable-next-line no-console
-      console.log("Restoring saved document state: ", savedState);
-      const contentState = convertFromRaw(savedState)
-      if (contentState.hasText()) {
-        return {
-          draftJSValue: EditorState.createWithContent(contentState)
-        };
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("Not restoring empty document state: ", contentState)
-      }
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-    }
-    return null;
-  } else {
-    return {
-      draftJSValue:  editorType === "draftJS"        ? savedState : null,
-      markdownValue: editorType === "markdown"       ? savedState : null,
-      htmlValue:     editorType === "html"           ? savedState : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? savedState : null
-    }
-  }
-}*/
-
-
 const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   getLocalStorageHandlers: (editorType?: string) => any,
   onRestore: (newState: EditorContents)=>void,
