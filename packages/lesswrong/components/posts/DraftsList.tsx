@@ -29,10 +29,11 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, classes}: {
+const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, hideHeaderRow, classes}: {
   limit: number,
   title?: string,
   showAllDraftsLink?: boolean,
+  hideHeaderRow?: boolean,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -76,7 +77,7 @@ const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, classes}:
   
   
   return <>
-    <Components.SectionTitle title={title}>
+    {!hideHeaderRow && <Components.SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
           {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
@@ -96,7 +97,7 @@ const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, classes}:
           <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>
-    </Components.SectionTitle>
+    </Components.SectionTitle>}
     {showSettings && <Components.DraftsListSettings
       hidden={false}
       persistentSettings={true}
