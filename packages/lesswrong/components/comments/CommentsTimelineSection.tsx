@@ -45,7 +45,6 @@ const CommentsTimelineSection = ({
   parentAnswerId,
   startThreadTruncated,
   newForm=true,
-  showingWelcomeBox,
   classes,
 }: {
   post?: PostsDetails,
@@ -59,7 +58,6 @@ const CommentsTimelineSection = ({
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
-  showingWelcomeBox?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -74,10 +72,6 @@ const CommentsTimelineSection = ({
     return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
-  useEffect(() => {
-    recalculateTopAbsolutePosition()
-  }, [showingWelcomeBox])
   
   const recalculateTopAbsolutePosition = () => {
     if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)

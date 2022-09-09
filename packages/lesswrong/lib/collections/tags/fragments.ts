@@ -113,8 +113,6 @@ registerFragment(`
   }
 `);
 
-// TODO-JM: add comment explaining subforumPostId add here to avoid two round trips
-//, TODO possibly make this a separate fragment
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
@@ -131,12 +129,15 @@ registerFragment(`
       htmlHighlight
     }
     subforumShortformPostId
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumFragment on Tag {
+    ...TagPreviewFragment
     subforumWelcomeText {
       _id
       html
-      htmlHighlight
-      plaintextDescription
-      version
     }
   }
 `);

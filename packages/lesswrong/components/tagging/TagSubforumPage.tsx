@@ -6,13 +6,10 @@ import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useSingle } from "../../lib/crud/withSingle";
 import { isProduction } from "../../lib/executionEnvironment";
-import Button from "@material-ui/core/Button";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: 0,
-  },
-  main: {
     marginBottom: 0,
     display: "flex",
     flexDirection: "row",
@@ -24,8 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 0,
     width: "100%",
   },
+  stickToBottom: {
+    marginTop: "auto",
+  },
   welcomeBoxPadding: {
-    padding: 32,
+    padding: "32px 32px 3px 32px",
     marginLeft: "auto",
     width: "fit-content",
     [theme.breakpoints.down("md")]: {
@@ -33,6 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: 680,
       width: "100%",
       padding: "0px 16px 16px 16px",
+      display: "none",
     },
   },
   welcomeBox: {
@@ -44,31 +45,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     maxWidth: 380,
     [theme.breakpoints.down("md")]: {
-      padding: '16px 16px 4px 16px',
-      maxWidth: 'unset',
+      padding: "16px 16px 4px 16px",
+      maxWidth: "unset",
       width: "100%",
-      // maxWidth: 680,
-      // width: 680,
     },
     [theme.breakpoints.down("sm")]: {
       width: "100%",
     },
-  },
-  welcomeBoxButtonRow: {
-    textAlign: 'right',
-    display: 'none',
-    [theme.breakpoints.down("md")]: {
-      display: 'block',
-    },
-  },
-  formButton: {
-    padding: "0px 16px",
-    fontFamily: theme.typography.fontFamily,
-    fontSize: "14px",
-    color: theme.palette.secondary.main,
-    "&:hover": {
-      background: theme.palette.panelBackground.darken05,
-    }
   },
   title: {
     margin: "auto",
@@ -90,10 +73,9 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
 
   const { params } = useLocation();
   const { slug } = params;
-  const [showWelcomeBox, setShowWelcomeBox] = useState(true);
 
   // TODO-JM: add comment explaining the use of TagPreviewFragment (which loads on hover over tag) to avoid extra round trip
-  const { tag, loading, error } = useTagBySlug(slug, "TagPreviewFragment");
+  const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   const { document: post } = useSingle({
     collectionName: "Posts",
     fragmentName: "PostsDetails",
@@ -118,41 +100,36 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
+  const welcomeBoxComponent = (
+    <div className={classes.welcomeBoxPadding}>
+      <div className={classes.welcomeBox}>
+        <ContentStyles contentType="comment">
+          <ContentItemBody
+            dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
+            description={`${tag.name} subforum`}
+          />
+        </ContentStyles>
+      </div>
+    </div>
+  );
+
   return (
     <div className={classes.root}>
-      <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
-      <div className={classes.main}>
-        <SingleColumnSection className={classes.columnSection}>
-          {showWelcomeBox && (
-            <div className={classes.welcomeBoxPadding}>
-              <div className={classes.welcomeBox}>
-                <ContentStyles contentType="comment">
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
-                    description={`${tag.name} subforym`}
-                  />
-                </ContentStyles>
-                <div className={classes.welcomeBoxButtonRow}>
-                  <Button className={classes.formButton} onClick={() => setShowWelcomeBox(false)}>Dismiss</Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </SingleColumnSection>
-        <SingleColumnSection className={classes.columnSection}>
-          <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread
-              terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew", limit: 50 }}
-              newForm
-              timelineView
-              post={post}
-              //, TODO try and avoid having pass this in to make it rerender
-              showingWelcomeBox={showWelcomeBox}
-            />
-          </AnalyticsContext>
-        </SingleColumnSection>
-        <div className={classes.columnSection}></div>
-      </div>
+      <SingleColumnSection className={classNames(classes.columnSection, classes.stickToBottom)}>
+        {welcomeBoxComponent}
+      </SingleColumnSection>
+      <SingleColumnSection className={classes.columnSection}>
+        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
+        <AnalyticsContext pageSectionContext="commentsSection">
+          <PostsCommentsThread
+            terms={{ postId: tag.subforumShortformPostId, view: "postCommentsNew", limit: 50 }}
+            newForm
+            timelineView
+            post={post}
+          />
+        </AnalyticsContext>
+      </SingleColumnSection>
+      <div className={classes.columnSection}></div>
     </div>
   );
 };

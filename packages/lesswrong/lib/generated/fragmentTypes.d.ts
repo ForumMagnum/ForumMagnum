@@ -1582,7 +1582,6 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly subTags: Array<TagPreviewFragment_subTags>,
   readonly description: TagPreviewFragment_description|null,
   readonly subforumShortformPostId: string,
-  readonly subforumWelcomeText: TagPreviewFragment_subforumWelcomeText|null,
 }
 
 interface TagPreviewFragment_parentTag { // fragment on Tags
@@ -1600,12 +1599,13 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagPreviewFragment_subforumWelcomeText { // fragment on Revisions
+interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
+  readonly subforumWelcomeText: TagSubforumFragment_subforumWelcomeText|null,
+}
+
+interface TagSubforumFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
-  readonly version: string,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -2353,6 +2353,7 @@ interface FragmentTypes {
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
+  TagSubforumFragment: TagSubforumFragment
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
@@ -2506,6 +2507,7 @@ interface CollectionNamesByFragmentName {
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
+  TagSubforumFragment: "Tags"
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"

@@ -3,12 +3,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false, showingWelcomeBox }: {
+const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false }: {
   post?: PostsDetails,
   terms: CommentsViewTerms,
   newForm?: boolean,
   timelineView?: boolean,
-  showingWelcomeBox?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
@@ -35,7 +34,6 @@ const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false, sh
           loadMoreCount={10}
           post={post}
           newForm={newForm}
-          showingWelcomeBox={showingWelcomeBox}
         />
       );
     } else {
