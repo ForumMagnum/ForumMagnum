@@ -16,17 +16,27 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   presenceList: {
     flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    //create stacking context
+    position: "relative",
+    zIndex: theme.zIndexes.editorPresenceList,
     
     "& .ck-presence-list": {
       marginBottom: "0 !important",
+      alignItems: "center !important",
     },
-    
+
     '& .ck-user__name': {
       color: 'unset !important',
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
-      fontSize: '1.2rem'
     },
     
+    '& .ck-presence-list__counter': {
+      fontSize: '1rem !important',
+      marginBottom: "0 !important",
+    },
+
     "& .ck-tooltip": {
       transform: "initial !important",
       bottom: "initial !important",
@@ -45,6 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: "initial !important",
       color: `${theme.palette.text.normal} !important`,
       left: "0 !important",
+      fontSize: '1rem !important'
     },
     "& .ck-tooltip__text::after": {
       display: "none !important",
