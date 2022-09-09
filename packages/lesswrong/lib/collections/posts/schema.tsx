@@ -808,12 +808,21 @@ const schema: SchemaType<DbPost> = {
     }
   }),
   
-  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
+  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie
+  // Record<string,number>. If submitted as part of a new-post submission, the
+  // submitter applies/upvotes relevance for any tags included as keys.
   tagRelevance: {
     type: Object,
     optional: true,
-    hidden: true,
+    insertableBy: ['members'],
+    editableBy: [],
     viewableBy: ['guests'],
+    
+    blackbox: true,
+    label: "Tags",
+    group: formGroups.advancedOptions,
+    control: "FormComponentPostEditorTagging",
+    hidden: (props) => props.eventForm,
   },
   
   "tagRelevance.$": {

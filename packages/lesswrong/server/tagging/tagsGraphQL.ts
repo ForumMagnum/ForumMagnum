@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { performVoteServer } from '../voteServer';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
-const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
+export const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
   tagId: string,
   postId: string,
   currentUser: DbUser,
