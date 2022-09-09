@@ -24,12 +24,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     
     "& .ck-presence-list": {
       marginBottom: "0 !important",
+      alignItems: "center !important",
     },
 
     '& .ck-user__name': {
       color: 'unset !important',
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
-      fontSize: '1.2rem'
+    },
+    
+    '& .ck-presence-list__counter': {
+      fontSize: '1rem !important',
+      marginBottom: "0 !important",
     },
 
     "& .ck-tooltip": {
@@ -50,6 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: "initial !important",
       color: `${theme.palette.text.normal} !important`,
       left: "0 !important",
+      fontSize: '1rem !important'
     },
     "& .ck-tooltip__text::after": {
       display: "none !important",
