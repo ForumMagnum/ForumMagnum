@@ -91,7 +91,7 @@ import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
-import './lib/collections/posts/validate';
+import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
 import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
