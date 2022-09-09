@@ -14,7 +14,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
-import { getSqlClientOrThrow } from '../../sqlClient';
+import { getSqlClientOrThrow } from '../../sql/sqlClient';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 

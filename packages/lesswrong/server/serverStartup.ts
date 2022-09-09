@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import postgres from 'postgres';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { setSqlConnection } from '../lib/sqlClient';
+import { setSqlConnection } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';

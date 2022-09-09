@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { Vulcan, getCollection } from "../vulcan-lib";
-import { getSqlClient } from "../sqlClient";
+import { getSqlClient } from "../sql/sqlClient";
 import Table from "./Table";
 import InsertQuery from "./InsertQuery";
 import CreateTableQuery from "./CreateTableQuery";

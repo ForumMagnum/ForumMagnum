@@ -11,7 +11,7 @@ import Pipeline from "./Pipeline";
 import BulkWriter from "./BulkWriter";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
-import { getSqlClient, getSqlClientOrThrow } from "../sqlClient";
+import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 
 // TODO: PgCollection should extend CollectionBase
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
