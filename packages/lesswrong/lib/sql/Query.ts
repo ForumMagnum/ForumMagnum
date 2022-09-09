@@ -250,6 +250,10 @@ abstract class Query<T extends DbObject> {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    if (op === undefined) {
+      return ["'{}'::JSONB"];
+    }
+
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
   }
 }

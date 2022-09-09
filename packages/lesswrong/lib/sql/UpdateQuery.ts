@@ -77,12 +77,19 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
   }
 
   private compileSetFields(updates: Partial<Record<keyof T, any>>): Atom<T>[] {
-    return Object.keys(updates).flatMap((field) => [
-      ",",
-      this.resolveFieldName(field),
-      "=",
-      ...this.compileExpression(updates[field]),
-    ]).slice(1);
+    return Object.keys(updates).flatMap((field) => this.compileSetField(field, updates[field])).slice(1);
+  }
+
+  private compileSetField(field: string, value: any): Atom<T>[] {
+    const result: Atom<T>[] = [","];
+    try {
+      result.push(this.resolveFieldName(field));
+    } catch {
+      // eslint-disable-next-line no-console
+      console.warn(`Field "${field}" is not recognized - is it missing from the schema?`);
+      return [];
+    }
+    return [...result, "=", ...this.compileExpression(value)];
   }
 }
 

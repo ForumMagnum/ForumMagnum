@@ -16,8 +16,14 @@
    (or with whatever `yarn` command you usually use)
 
 ### Importing collections
+
 For each collection you wish to import:
 	* `./scripts/serverShellCommand.sh "Vulcan.mongoToSql('ReadStatuses')"`
 	  (replace `ReadStatuses` with the name of the collection you wish to import)
 	* Then go to the collection definition and add `postgres: true` to the call
 	  to `createCollection`.
+
+### Notes
+
+Be careful not to `import "postgres"` in this directory as it will break the client
+build - only do that in `/server`.

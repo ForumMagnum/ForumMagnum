@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { createSqlConnection, setSqlConnection } from '../lib/sql/sqlClient';
+import { createSqlConnection } from './sqlConnection';
+import { setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
@@ -59,7 +60,7 @@ async function serverStartup() {
     // eslint-disable-next-line no-console
     console.log("Connecting to postgres");
     const sql = await createSqlConnection(commandLineArguments.postgresUrl);
-    setSqlConnection(sql);
+    setSqlClient(sql);
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err);

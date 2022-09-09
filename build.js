@@ -157,7 +157,8 @@ build({
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql",
     "bcrypt", "node-pre-gyp", "@lesswrong", "intercom-client",
-    "fsevents", "chokidar", "auth0", "postgres"
+    "fsevents", "chokidar", "auth0"
+    // , "postgres"
   ],
 })
 

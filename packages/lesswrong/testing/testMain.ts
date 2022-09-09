@@ -9,7 +9,7 @@ import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';
-import { setSqlConnection } from '../lib/sql/sqlClient';
+import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../lib/sql/sqlClient';
 import { createTestingSqlClient, dropTestingDatabases } from '../lib/sql/tests/testingSqlClient';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
@@ -47,9 +47,9 @@ async function ensureDbConnection() {
 let pgConnected = false;
 const ensurePgConnection = async () => {
   if (!pgConnected) {
-    await dropTestingDatabases();
+    // await dropTestingDatabases();
     const client = await createTestingSqlClient();
-    setSqlConnection(client);
+    setSqlClient(client);
     pgConnected = true;
   }
 }
@@ -57,18 +57,18 @@ const ensurePgConnection = async () => {
 let setupRun = false;
 async function oneTimeSetup() {
   if (setupRun) return;
-  
+
   setServerSettingsCache({});
   setPublicSettings({});
-  
+
   await ensureDbConnection();
   await ensurePgConnection();
   await runStartupFunctions();
-  
+
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
-  
+
   setupRun = true;
 }
 
@@ -86,5 +86,6 @@ export function testStartup() {
   });
   afterAll(async () => {
     closeDatabaseConnection();
+    await closeSqlClient(getSqlClientOrThrow());
   });
 }

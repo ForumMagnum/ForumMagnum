@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [15.x]
+        node-version: [18.x]
         environment: [EAForum-Staging-2]
     steps:
     - uses: actions/checkout@v2

@@ -1,4 +1,5 @@
 import { MongoCollection } from "../mongoCollection";
+import { randomId } from '../random';
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -95,6 +96,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
+    if (!data._id) {
+      data._id = randomId();
+    }
     const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeQuery(insert, {data, options});
     return result[0]._id;

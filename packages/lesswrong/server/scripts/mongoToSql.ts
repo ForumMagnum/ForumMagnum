@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import { Vulcan, getCollection } from "../vulcan-lib";
-import { getSqlClient } from "../sql/sqlClient";
-import Table from "./Table";
-import InsertQuery from "./InsertQuery";
-import CreateTableQuery from "./CreateTableQuery";
-import CreateIndexQuery from "./CreateIndexQuery";
-import { forEachDocumentBatchInCollection } from "../../server/migrations/migrationUtils";
+import { getSqlClient } from "../../lib/sql/sqlClient";
+import Table from "../../lib/sql/Table";
+import InsertQuery from "../../lib/sql/InsertQuery";
+import CreateTableQuery from "../../lib/sql/CreateTableQuery";
+import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
+import { forEachDocumentBatchInCollection } from "../migrations/migrationUtils";
 import util from "util";
 
 // A place for nasty hacks to live...

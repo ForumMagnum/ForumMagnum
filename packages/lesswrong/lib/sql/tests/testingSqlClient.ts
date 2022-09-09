@@ -1,7 +1,7 @@
 import { Collections } from "../../vulcan-lib/getCollection";
 import PgCollection from "../PgCollection";
 import CreateTableQuery from "../CreateTableQuery";
-import { createSqlConnection } from "../sqlClient";
+import { createSqlConnection } from "../../../server/sqlConnection";
 import { inspect } from "util";
 
 const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
@@ -30,9 +30,11 @@ const buildTables = async (client: SqlClient) => {
   }
 }
 
+
 export const createTestingSqlClient = async (): Promise<SqlClient> => {
+  console.log(`\n\nThread ID ${process.env.JEST_WORKER_ID}\n\n`);
   const date = new Date().toISOString().replace(/[:.-]/g,"_");
-  const dbName = `unittest_${date}_${process.pid}`.toLowerCase();
+  const dbName = `unittest_${date}_${process.pid}_${process.env.JEST_WORKER_ID}`.toLowerCase();
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't initalize test DB - PG_URL not set");
