@@ -294,7 +294,6 @@ getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCa
   
   if (post.tagRelevance) {
     // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
-    console.log(JSON.stringify(post.tagRelevance));
     const tagsToApply = Object.keys(post.tagRelevance);
     post = {...post, tagRelevance: undefined};
     
