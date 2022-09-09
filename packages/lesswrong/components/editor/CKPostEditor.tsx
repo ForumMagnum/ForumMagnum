@@ -82,7 +82,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     else if (accessLevelCan(accessLevel, "comment"))
       return "Commenting";
     else
-        return "Viewing";
+      return "Viewing";
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
