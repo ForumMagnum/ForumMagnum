@@ -167,6 +167,7 @@ type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {postedAt?: Date | numbe
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
   let user_ = user || await createDefaultUser()
   const defaultData = {
+    _id: randomId(),
     userId: user_._id,
     title: randomId(),
   }
@@ -186,6 +187,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
 export const createDummyUser = async (data?: any) => {
   const testUsername = randomId()
   const defaultData = {
+    _id: randomId(),
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
     reviewedByUserId: "fakeuserid", // TODO: make this user_id correspond to something real that would hold up if we had proper validation
@@ -202,6 +204,7 @@ export const createDummyUser = async (data?: any) => {
 export const createDummyComment = async (user: any, data?: any) => {
   const defaultUser = await createDefaultUser();
   let defaultData: any = {
+    _id: randomId(),
     userId: (user || defaultUser)._id,
     contents: {
       originalContents: {
@@ -227,6 +230,7 @@ export const createDummyComment = async (user: any, data?: any) => {
 
 export const createDummyConversation = async (user: any, data?: any) => {
   let defaultData = {
+    _id: randomId(),
     title: user.displayName,
     participantIds: [user._id],
   }
@@ -242,6 +246,7 @@ export const createDummyConversation = async (user: any, data?: any) => {
 
 export const createDummyMessage = async (user: any, data?: any) => {
   let defaultData = {
+    _id: randomId(),
     contents: convertToRaw(ContentState.createFromText('Dummy Message Content')),
     userId: user._id,
   }
@@ -257,6 +262,7 @@ export const createDummyMessage = async (user: any, data?: any) => {
 
 export const createDummyLocalgroup = async (data?: any) => {
   let defaultData = {
+    _id: randomId(),
     name: randomId()
   }
   const groupData = {...defaultData, ...data};
@@ -270,6 +276,7 @@ export const createDummyLocalgroup = async (data?: any) => {
 
 export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
   const defaultData = {
+    _id: randomId(),
     userId: user._id,
     authorIds: [],
     cancelled: false,
@@ -287,6 +294,7 @@ export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
 
 export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
   const defaultData = {
+    _id: randomId(),
     userId: user._id,
     deleted: false,
     adminOnly: false,
@@ -305,6 +313,7 @@ export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
 
 export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision>) => {
   const defaultData = {
+    _id: randomId(),
     userId: user._id,
     inactive: false,
     editedAt: new Date(Date.now()),
