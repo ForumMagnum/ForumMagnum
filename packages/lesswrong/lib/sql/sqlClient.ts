@@ -6,7 +6,7 @@ declare global {
 
 let sql: SqlClient | null = null;
 
-export const setSqlConnection = (_sql) => sql = _sql;
+export const setSqlConnection = (sql_: SqlClient) => sql = sql_;
 export const getSqlClient = () => sql;
 export const getSqlClientOrThrow = () => {
   if (!sql) {
