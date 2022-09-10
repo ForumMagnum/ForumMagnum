@@ -349,10 +349,15 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser }) {
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }:{
+  originalContents: DbRevision["originalContents"],
+  currentUser: DbUser,
+  dataWithDiscardedSuggestions?: string
+}) {
   const { data, type } = originalContents;
-  const html = await dataToHTML(data, type, !currentUser.isAdmin)
-  const wordCount = await dataToWordCount(data, type)
+  const readerVisibleData = dataWithDiscardedSuggestions ?? data
+  const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+  const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
     html, wordCount, originalContents,
@@ -448,8 +453,12 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
       const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(data, type)
+      const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
+      delete docData[fieldName].dataWithDiscardedSuggestions
+
+      const readerVisibleData = dataWithDiscardedSuggestions ?? data
+      const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+      const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
@@ -468,6 +477,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
+            dataWithDiscardedSuggestions,
             currentUser,
           }),
           fieldName,

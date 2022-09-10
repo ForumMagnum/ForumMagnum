@@ -330,8 +330,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  submitData = (submission) => {
+  submitData = async (submission) => {
     let data: any = null
+    let dataWithDiscardedSuggestions
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(this.props.value.type) {
@@ -346,11 +347,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
         data = ckEditorReference.getData()
+        if (ckEditorReference.plugins.has("TrackChangesData"))  {
+          dataWithDiscardedSuggestions = await ckEditorReference.plugins.get( 'TrackChangesData' ).getDataWithDiscardedSuggestions()
+        }
         break
-    }
+    } 
+
     return {
       originalContents: {type, data},
       commitMessage, updateType,
+      dataWithDiscardedSuggestions
     };
   }
   

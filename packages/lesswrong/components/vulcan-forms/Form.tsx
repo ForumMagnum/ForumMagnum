@@ -47,7 +47,7 @@ import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
-import { removeProperty } from '../../lib/vulcan-lib/utils';
+import { isPromise, removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
@@ -986,6 +986,10 @@ class Form<T extends DbObject> extends Component<any,any> {
     // complete the data with values from custom components
     // note: it follows the same logic as SmartForm's getDocument method
     let data = this.getData({ addExtraFields: false });
+    
+    if (isPromise(data)) {
+      data = await data
+    }
 
     // if there's a submit callback, run it
     if (this.props.submitCallback) {

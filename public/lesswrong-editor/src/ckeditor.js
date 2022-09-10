@@ -41,6 +41,8 @@ import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collabor
 
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
+import TrackChangesData from '@ckeditor/ckeditor5-track-changes/src/trackchangesdata';
+
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
 
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
@@ -133,6 +135,7 @@ const collaborativeEditorPlugins = [
 	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
 	RealTimeCollaborativeTrackChanges,
+	TrackChangesData,
 	PresenceList
 ];
 

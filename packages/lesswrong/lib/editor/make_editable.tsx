@@ -13,7 +13,8 @@ export const RevisionStorageType = new SimpleSchema({
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
   editedAt: {type: Date, optional: true},
-  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true}
+  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true},
+  dataWithDiscardedSuggestions: {type: String, optional: true, nullable: true}
 })
 
 export interface MakeEditableOptions {
@@ -168,14 +169,14 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           if (!docField) return null
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
-            editedAt: (docField?.editedAt) || new Date(),
-            userId: docField?.userId,
-            commitMessage: docField?.commitMessage,
-            originalContents: (docField?.originalContents) || {},
-            html: docField?.html,
-            updateType: docField?.updateType,
-            version: docField?.version,
-            wordCount: docField?.wordCount,
+            editedAt: (docField.editedAt) || new Date(),
+            userId: docField.userId,
+            commitMessage: docField.commitMessage,
+            originalContents: (docField.originalContents) || {},
+            html: docField.html,
+            updateType: docField.updateType,
+            version: docField.version,
+            wordCount: docField.wordCount,
           } as DbRevision;
           //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
