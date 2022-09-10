@@ -29,9 +29,10 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, hideHeaderRow, classes}: {
+const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
   limit: number,
   title?: string,
+  userId?: string,
   showAllDraftsLink?: boolean,
   hideHeaderRow?: boolean,
   classes: ClassesType
@@ -56,7 +57,7 @@ const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, hideHeade
   
   const terms: PostsViewTerms = {
     view: "drafts",
-    userId: currentUser?._id,
+    userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified",
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
@@ -109,7 +110,7 @@ const DraftsList = ({limit, title="My Drafts", showAllDraftsLink=true, hideHeade
     {(!results && loading) ? <Loading /> : <>
       {results && results.map((post: PostsList, i: number) =>
         <PostsItem2
-          key={post._id} 
+          key={post._id}
           post={post}
           toggleDeleteDraft={toggleDelete}
           hideAuthor
