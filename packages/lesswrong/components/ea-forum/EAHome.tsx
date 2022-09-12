@@ -5,6 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
+import NoSSR from 'react-no-ssr'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -42,12 +43,14 @@ const EAHome = () => {
       
       <HomeLatestPosts />
       
-      {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
-      <RecentDiscussionFeed
-        af={false}
-        commentsLimit={recentDiscussionCommentsPerPost}
-        maxAgeHours={18}
-      />
+      <NoSSR>
+        {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
+        <RecentDiscussionFeed
+          af={false}
+          commentsLimit={recentDiscussionCommentsPerPost}
+          maxAgeHours={18}
+        />
+      </NoSSR>
     </React.Fragment>
   )
 }
