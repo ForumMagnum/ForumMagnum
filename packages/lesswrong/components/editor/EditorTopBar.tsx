@@ -35,6 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ck-presence-list__counter': {
       fontSize: '1rem !important',
       marginBottom: "0 !important",
+      display: "block !important", //doesn't hide when more than 1 user, helps in cases with many users present
     },
 
     "& .ck-tooltip": {
@@ -83,36 +84,37 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
 
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList} ref={presenceListRef}/>
-    
-    <Select
-      className={classes.collabModeSelect} disableUnderline
-      value={collaborationMode}
-      onChange={(e) => {
-        const newMode = e.target.value as CollaborationMode;
-        setCollaborationMode(newMode);
-      }}
-    >
-      <MenuItem value="Viewing" key="Viewing">
-        Viewing
-      </MenuItem>
-      <MenuItem value="Commenting" key="Commenting"
-        disabled={!accessLevelCan(accessLevel, "comment")}
+    <span>
+      <Select
+        className={classes.collabModeSelect} disableUnderline
+        value={collaborationMode}
+        onChange={(e) => {
+          const newMode = e.target.value as CollaborationMode;
+          setCollaborationMode(newMode);
+        }}
       >
-        Commenting
-      </MenuItem>
-      <MenuItem value="Editing" key="Editing"
-        disabled={!accessLevelCan(accessLevel, "edit")}
-      >
-        Editing
-      </MenuItem>
-    </Select>
-    
-    <LWTooltip title="Collaborative docs automatically save all changes">
-      <Button className={classes.saveStatus}>
-        Auto-Saved
-        {/*TODO: Make this track offline status etc*/}
-      </Button>
-    </LWTooltip>
+        <MenuItem value="Viewing" key="Viewing">
+          Viewing
+        </MenuItem>
+        <MenuItem value="Commenting" key="Commenting"
+          disabled={!accessLevelCan(accessLevel, "comment")}
+        >
+          Commenting
+        </MenuItem>
+        <MenuItem value="Editing" key="Editing"
+          disabled={!accessLevelCan(accessLevel, "edit")}
+        >
+          Editing
+        </MenuItem>
+      </Select>
+      
+      <LWTooltip title="Collaborative docs automatically save all changes">
+        <Button className={classes.saveStatus}>
+          Auto-Saved
+          {/*TODO: Make this track offline status etc*/}
+        </Button>
+      </LWTooltip>
+    </span>
   </div>
 }
 

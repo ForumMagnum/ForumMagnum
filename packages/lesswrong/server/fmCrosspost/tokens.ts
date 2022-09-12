@@ -3,6 +3,7 @@ import jwt, { VerifyErrors } from "jsonwebtoken";
 import { MissingSecretError } from "./errors";
 
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
+console.log(crosspostSigningKeySetting)
 
 const getSecret = () => {
   const secret = crosspostSigningKeySetting.get();
