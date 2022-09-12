@@ -1,7 +1,8 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 import { userIsSharedOn } from '../users/helpers';
-import { userOwns } from '../../vulcan-users/permissions';
+import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
+import { addGraphQLSchema } from '../../vulcan-lib';
 
 export const ContentType = new SimpleSchema({
   type: String,
@@ -13,6 +14,13 @@ export const ContentType = new SimpleSchema({
     }
   )
 })
+
+addGraphQLSchema(`
+  type ContentType {
+    type: String,
+    data: String
+  }
+`);
 
 SimpleSchema.extendOptions([ 'inputType' ]);
 
@@ -104,7 +112,25 @@ const schema: SchemaType<DbRevision> = {
   },
   originalContents: {
     type: ContentType,
-    viewableBy: [userOwns, userIsSharedOn, 'admins', 'sunshineRegiment']
+    optional: true,
+    viewableBy: [userOwns, userIsSharedOn, 'admins', 'sunshineRegiment'],
+    resolveAs: {
+      type: "ContentType",
+
+      resolver: async (document: DbRevision, args: void, context: ResolverContext ): Promise<DbRevision["originalContents"]|null> => {
+        let canViewOriginalContents: () => boolean
+        if (document.collectionName === "Posts") {
+          const post = await context.loaders["Posts"].load(document.documentId)
+          canViewOriginalContents = () => userIsSharedOn(context.currentUser, post)
+        } else {
+          canViewOriginalContents = () => false
+        }
+        if (userCanReadField(context.currentUser, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, document)) {
+          return document.originalContents
+        }
+        return null
+      }
+    }
   },
   html: {
     type: String,

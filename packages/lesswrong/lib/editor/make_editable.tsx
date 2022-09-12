@@ -145,28 +145,40 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         type: 'Revision',
         arguments: 'version: String',
         resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
+          console.log("ASDFASDF", doc.contents)
           const { version } = args;
+          console.log("??? 1")
           const { currentUser, Revisions } = context;
+          console.log("??? 2")
           const field = fieldName || "contents"
+          console.log("??? 3")
           const { checkAccess } = Revisions
+          console.log("??? 4")
           
           if (version) {
+            console.log("??? 5")
             if (version === "draft") {
               // If version is the special string "draft", that means
               // instead of returning the latest non-draft version
               // (what we'd normally do), we instead return the latest
               // version period, including draft versions.
+              console.log("QQWERQWER 1")
               const revision = await Revisions.findOne({documentId: doc._id, fieldName: field}, {sort: {editedAt: -1}})
+              console.log("ZXCVZXCV REVISION A", revision)
+
               if (!revision) return null;
               return await checkAccess(currentUser, revision, context) ? revision : null
             } else {
+              console.log("QQWERQWER 2")
               const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
+              console.log("ZXCVZXCV REVISION B", revision)
               if (!revision) return null;
               return await checkAccess(currentUser, revision, context) ? revision : null
             }
           }
           const docField = doc[field];
           if (!docField) return null
+          console.log("??? 6?", docField)
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
             editedAt: (docField.editedAt) || new Date(),
