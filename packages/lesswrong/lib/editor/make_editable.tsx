@@ -168,7 +168,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           }
           const docField = doc[field];
           if (!docField) return null
-          console.log("??? 6?", docField)
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
             editedAt: (docField.editedAt) || new Date(),
