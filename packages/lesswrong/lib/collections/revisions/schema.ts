@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema'
 import { userIsSharedOn } from '../users/helpers';
 import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
 import { addGraphQLSchema } from '../../vulcan-lib';
+import GraphQLJSON from 'graphql-type-json';
 
 export const ContentType = new SimpleSchema({
   type: String,
@@ -115,8 +116,7 @@ const schema: SchemaType<DbRevision> = {
     optional: true,
     viewableBy: [userOwns, userIsSharedOn, 'admins', 'sunshineRegiment'],
     resolveAs: {
-      type: "ContentType",
-
+      type: GraphQLJSON,
       resolver: async (document: DbRevision, args: void, context: ResolverContext ): Promise<DbRevision["originalContents"]|null> => {
         let canViewOriginalContents: () => boolean
         if (document.collectionName === "Posts") {
