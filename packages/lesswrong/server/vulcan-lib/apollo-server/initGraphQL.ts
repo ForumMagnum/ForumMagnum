@@ -330,13 +330,8 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       schemaFragments.push(upsertInputTemplate({ typeName }));
       schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
     }
-
-    const selectorInputTemplateOutput = selectorInputTemplate({ typeName, fields: selector })
-    if (typeName === "Revision") {
-      console.log("selectorInputTemplateOutput", selectorInputTemplateOutput)
-    }
-
-    schemaFragments.push(selectorInputTemplateOutput);
+    
+    schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
 
     schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
 
