@@ -2,7 +2,6 @@ import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../ut
 import SimpleSchema from 'simpl-schema'
 import { userIsSharedOn } from '../users/helpers';
 import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
-import { addGraphQLSchema } from '../../vulcan-lib';
 import GraphQLJSON from 'graphql-type-json';
 
 export const ContentType = new SimpleSchema({
@@ -15,13 +14,6 @@ export const ContentType = new SimpleSchema({
     }
   )
 })
-
-addGraphQLSchema(`
-  type ContentType {
-    type: String,
-    data: String
-  }
-`);
 
 SimpleSchema.extendOptions([ 'inputType' ]);
 
@@ -113,7 +105,6 @@ const schema: SchemaType<DbRevision> = {
   },
   originalContents: {
     type: ContentType,
-    optional: true,
     viewableBy: [userOwns, userIsSharedOn, 'admins', 'sunshineRegiment'],
     resolveAs: {
       type: GraphQLJSON,
