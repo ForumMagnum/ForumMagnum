@@ -347,6 +347,7 @@ getCollectionHooks("Comments").createBefore.add(async function HandleReplyToAnsw
       }
       if (parentComment.tagId) {
         modifiedComment.tagId = parentComment.tagId;
+        modifiedComment.tagCommentType = parentComment.tagCommentType;
       }
       if (parentComment.topLevelCommentId) {
         modifiedComment.topLevelCommentId = parentComment.topLevelCommentId;

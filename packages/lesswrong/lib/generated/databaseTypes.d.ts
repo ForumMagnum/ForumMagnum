@@ -100,6 +100,7 @@ interface DbComment extends DbObject {
   author: string
   postId: string
   tagId: string
+  tagCommentType: string
   userId: string
   userIP: string
   userAgent: string
@@ -320,6 +321,7 @@ interface DbNotification extends DbObject {
   createdAt: Date
   documentId: string
   documentType: string
+  extraData: any /*{"definitions":[{"blackbox":true}]}*/
   link: string
   title: string
   message: string
@@ -517,6 +519,8 @@ interface DbPost extends DbObject {
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
+  linkSharingKey: string
+  linkSharingKeyUsedBy: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
   moderationStyle: string
@@ -611,6 +615,7 @@ interface DbRevision extends DbObject {
   collectionName: CollectionNameString
   fieldName: string
   editedAt: Date
+  autosaveTimeoutStart: Date
   updateType: "initial" | "patch" | "minor" | "major"
   version: string
   commitMessage: string
@@ -734,7 +739,7 @@ interface DbTag extends DbObject {
   introSequenceId: string
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
-  subforumShortformPostId: string
+  isSubforum: boolean
   description: EditableFieldContents
   description_latest: string
   parentTagId: string
@@ -763,7 +768,7 @@ interface DbUser extends DbObject {
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
-  sortDrafts: string
+  sortDraftsBy: string
   showHideKarmaOption: boolean
   showPostAuthorCard: boolean
   hideIntercom: boolean
@@ -782,6 +787,9 @@ interface DbUser extends DbObject {
   allPostsShowLowKarma: boolean
   allPostsIncludeEvents: boolean
   allPostsOpenSettings: boolean
+  draftsListSorting: string
+  draftsListShowArchived: boolean
+  draftsListShowShared: boolean
   lastNotificationsCheck: Date
   karma: number
   goodHeartTokens: number
@@ -874,6 +882,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationGroupAdministration: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationCommentsOnDraft: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,

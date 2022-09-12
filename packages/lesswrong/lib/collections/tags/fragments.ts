@@ -55,7 +55,7 @@ registerFragment(`
       plaintextDescription
       version
     }
-    subforumShortformPostId
+    isSubforum
   }
 `);
 
@@ -129,7 +129,7 @@ registerFragment(`
       _id
       htmlHighlight
     }
-    subforumShortformPostId
+    isSubforum
   }
 `);
 
@@ -179,7 +179,7 @@ registerFragment(`
         voteCount
       }
     }
-    subforumShortformPostId
+    isSubforum
   }
 `);
 
@@ -199,7 +199,7 @@ registerFragment(`
         voteCount
       }
     }
-    subforumShortformPostId
+    isSubforum
   }
 `);
 
@@ -251,6 +251,6 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    subforumShortformPostId
+    isSubforum
   }
 `);

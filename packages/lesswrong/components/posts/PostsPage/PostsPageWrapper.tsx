@@ -35,6 +35,14 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
+  } else if (error) {
+    if (isMissingDocumentError(error)) {
+      return <Error404/>
+    } else if (isOperationNotAllowedError(error)) {
+      return <Components.ErrorAccessDenied/>
+    } else {
+      throw new Error(error.message);
+    }
   } else if (!post) {
     return <Error404/>
   } else if (isPostWithForeignId(post)) {

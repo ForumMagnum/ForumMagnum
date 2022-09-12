@@ -47,7 +47,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   const { hover, anchorEl, eventHandlers } = useHover()
   const { totalCount, loading } = useMulti({
     terms: {
-      view: "commentsOnTag",
+      view: "tagDiscussionComments",
       tagId: tag._id,
       limit: 0,
     },
