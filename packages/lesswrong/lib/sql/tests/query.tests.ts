@@ -388,6 +388,12 @@ describe("Query", () => {
       expectedArgs: ["test", 3],
     },
     {
+      name: "can build update with $set on a json field",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {c: {d: {e: "test"}}}}),
+      expectedSql: 'UPDATE "TestCollection" SET "c" = $1 WHERE "a" = $2',
+      expectedArgs: [{d: {e: "test"}}, 3],
+    },
+    {
       name: "can build delete with selector",
       getQuery: () => new DeleteQuery<DbTestObject>(testTable, {a: 3, b: "test"}),
       expectedSql: 'DELETE FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
@@ -414,6 +420,12 @@ describe("Query", () => {
     {
       name: "can build create table query",
       getQuery: () => new CreateTableQuery(testTable),
+      expectedSql: 'CREATE TABLE "TestCollection" (_id VARCHAR(27) PRIMARY KEY , "a" REAL , "b" TEXT , "c" JSONB , "schemaVersion" REAL )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build create table query with 'if not exists'",
+      getQuery: () => new CreateTableQuery(testTable, true),
       expectedSql: 'CREATE TABLE IF NOT EXISTS "TestCollection" (_id VARCHAR(27) PRIMARY KEY , "a" REAL , "b" TEXT , "c" JSONB , "schemaVersion" REAL )',
       expectedArgs: [],
     },

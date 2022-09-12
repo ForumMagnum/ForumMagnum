@@ -35,6 +35,7 @@ import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 import './server/scripts/fillUserEmail';
 import './server/scripts/mongoToSql';
+import './server/scripts/dropTestingDatabases';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';

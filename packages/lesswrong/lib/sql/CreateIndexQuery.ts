@@ -12,9 +12,9 @@ import TableIndex from "./TableIndex";
  * ordinarily wouldn't be allowed.
  */
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, index: TableIndex) {
+  constructor(table: Table, index: TableIndex, ifNotExists = true) {
     super(table, [
-      "CREATE INDEX IF NOT EXISTS",
+      `CREATE INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
       `"${index.getName()}"`,
       "ON",
       table,

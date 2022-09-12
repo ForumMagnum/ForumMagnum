@@ -2,10 +2,10 @@ import Query from "./Query";
 import Table from "./Table";
 
 class CreateTableQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table) {
+  constructor(table: Table, ifNotExists = false) {
     const fields = table.getFields();
     super(table, [
-      "CREATE TABLE IF NOT EXISTS",
+      `CREATE TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,
       table,
       `(_id ${fields["_id"].toString()} PRIMARY KEY`,
     ]);

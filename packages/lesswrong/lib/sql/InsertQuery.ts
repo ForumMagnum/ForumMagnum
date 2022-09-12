@@ -48,6 +48,9 @@ class InsertQuery<T extends DbObject> extends Query<T> {
   }
 
   private appendValuesList(data: T[]): void {
+    if (!data.length) {
+      throw new Error("Empty insert data");
+    }
     const fields = this.table.getFields();
     const keys = Object.keys(fields);
     this.atoms.push("(");

@@ -336,9 +336,10 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 // should have been await'ed without the await, effectively spawning a new
 // thread which isn't tracked.
 export const waitUntilCallbacksFinished = () => {
+    console.log("\n\n\n\n\n\n\n\n\nstatus", callbacksArePending(), isAnyQueryPending(), "\n\n\n\n\n\n\n\n\n\n\n");
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending() || isAnyQueryPending()) {
+      if (false) {//callbacksArePending() || isAnyQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();

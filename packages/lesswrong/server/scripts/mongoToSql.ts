@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { Vulcan, getCollection } from "../vulcan-lib";
-import { getSqlClient } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import Table from "../../lib/sql/Table";
 import InsertQuery from "../../lib/sql/InsertQuery";
 import CreateTableQuery from "../../lib/sql/CreateTableQuery";
@@ -40,10 +40,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   }
 
   console.log("...Creating table");
-  const sql = getSqlClient();
-  if (!sql) {
-    throw new Error("SQL client not initialized");
-  }
+  const sql = getSqlClientOrThrow();
   try {
     const createQuery = new CreateTableQuery(table);
     const compiled = createQuery.compile();
@@ -65,27 +62,28 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   }
 
   console.log("...Copying data");
-  const batchSize = 200;
-  const errorIds: string[] = [];
-  const formatData = formatters[collectionName] ?? ((document: DbObject) => document);
+  // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65534. The largest
+  // collections have ~150 fields, so these can be safely imported in batches of 400 with a little safety
+  // margin.
+  const batchSize = 400;
+  const formatData: (doc: DbObject) => DbObject = formatters[collectionName] ?? ((document) => document);
+  let errorIds: string[] = [];
   let count = 0;
   await forEachDocumentBatchInCollection({
     collection,
     batchSize,
-    callback: async (documents: Array<DbObject>) => {
+    callback: async (documents: DbObject[]) => {
       console.log(`......Migrating ${documents.length} documents from index ${count}`);
       count += batchSize;
-      const queries = documents.map(async (document) => {
-        try {
-          const query = new InsertQuery(table, formatData(document), {}, {conflictStrategy: "upsert"});
-          await query.toSQL(sql);
-        } catch (e) {
-          console.error(`ERROR IMPORTING DOCUMENT ${document._id}`);
-          console.error(e);
-          errorIds.push(document._id);
-        }
-      });
-      await Promise.all(queries);
+      const query = new InsertQuery(table, documents.map(formatData), {}, {conflictStrategy: "ignore"});
+      const compiled = query.compile();
+      try {
+        await sql.unsafe(compiled.sql, compiled.args);
+      } catch (e) {
+        console.error(`ERROR IMPORTING DOCUMENT BATCH`);
+        console.error(e);
+        errorIds = errorIds.concat(documents.map(({_id}) => _id as string));
+      }
     },
   });
 

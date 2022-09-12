@@ -181,6 +181,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     skip: skip || !documentId,
     client: apolloClient,
   })
+  console.log("LOG LOG", data, error, rest);
   if (error) {
     // This error was already caught by the apollo middleware, but the
     // middleware had no idea who  made the query. To aid in debugging, log a

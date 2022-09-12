@@ -215,11 +215,15 @@ abstract class Query<T extends DbObject> {
   protected compileExpression(expr: any, typeHint?: any): Atom<T>[] {
     if (typeof expr === "string") {
       return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1), typeHint) : new Arg(expr)];
-    } else if (typeof expr !== "object" || expr === null || expr instanceof Date) {
+    } else if (typeof expr !== "object" || expr === null || expr instanceof Date || Array.isArray(expr)) {
       return [new Arg(expr)];
     }
 
     const op = Object.keys(expr)[0];
+    if (op?.[0] !== "$") {
+      return [new Arg({[op]: expr[op]})]
+    }
+
     if (arithmeticOps[op]) {
       const isMagnitude = isMagnitudeOp(op);
       const operands = expr[op].map((arg: any) => this.compileExpression(arg, isMagnitude ? 0 : undefined));

@@ -32,7 +32,6 @@ const buildTables = async (client: SqlClient) => {
 
 
 export const createTestingSqlClient = async (): Promise<SqlClient> => {
-  console.log(`\n\nThread ID ${process.env.JEST_WORKER_ID}\n\n`);
   const date = new Date().toISOString().replace(/[:.-]/g,"_");
   const dbName = `unittest_${date}_${process.pid}_${process.env.JEST_WORKER_ID}`.toLowerCase();
   const {PG_URL} = process.env;

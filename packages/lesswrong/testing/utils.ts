@@ -172,6 +172,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     title: randomId(),
     "contents_latest": randomId(),
     "moderationGuidelines_latest": randomId(),
+    fmCrosspost: {isCrosspost: false},
   }
   const postData = {...defaultData, ...data};
   const newPostResponse = await createMutator({
