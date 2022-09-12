@@ -143,6 +143,13 @@ addRoute(
     background: "white"
   },
   {
+    name:'users.drafts',
+    path:'/drafts',
+    componentName: 'DraftsPage',
+    title: "Drafts & Unpublished",
+    background: "white"
+  },
+  {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
@@ -173,6 +180,13 @@ addRoute(
     componentName: 'LoginPage',
     title: "Login",
     background: "white"
+  },
+  {
+    name: 'crosspostLogin',
+    path: '/crosspostLogin',
+    componentName: 'CrosspostLoginPage',
+    title: 'Crosspost Login',
+    standalone: true,
   },
   {
     name: 'resendVerificationEmail',
@@ -219,6 +233,7 @@ addRoute(
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
+    background: "white",
   },
   // disabled except during review voting phase
   {
@@ -473,6 +488,12 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
+    {
+      name: 'taggingSubforumCustomName',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      hideFooter: true
+    }
   )
 } else {
   addRoute(
@@ -998,9 +1019,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'LibraryPage',
+      componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
       title: "The Library"
     },

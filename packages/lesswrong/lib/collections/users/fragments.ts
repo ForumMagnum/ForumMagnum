@@ -78,8 +78,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
-    sortDrafts
-    reenableDraftJs
+    sortDraftsBy
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
@@ -115,6 +114,9 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsIncludeEvents
     allPostsOpenSettings
+    draftsListSorting
+    draftsListShowArchived
+    draftsListShowShared
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
@@ -176,9 +178,8 @@ registerFragment(`
     abTestKey
     abTestOverrides
 
-    sortDrafts
+    sortDraftsBy
 
-    reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
     lastUsedTimezone
@@ -245,6 +246,7 @@ registerFragment(`
     website
     createdAt
     email
+    emails
     commentCount
     maxCommentCount
     postCount
@@ -379,6 +381,7 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
 
@@ -443,5 +446,14 @@ registerFragment(`
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    username
+    slug
+    fmCrosspostUserId
   }
 `)

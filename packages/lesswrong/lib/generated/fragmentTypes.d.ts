@@ -137,6 +137,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
   readonly canVoteOnRels: Array<string>,
+  readonly isSubforum: boolean,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -277,6 +278,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly author: string,
   readonly postId: string,
   readonly tagId: string,
+  readonly tagCommentType: string,
   readonly userId: string,
   readonly userIP: string,
   readonly userAgent: string,
@@ -361,6 +363,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
+  readonly deletedDraft: boolean,
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly coauthorStatuses: Array<{
@@ -505,6 +508,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
+  readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
 }
 
@@ -554,6 +558,11 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     createdAt: Date,
   }>,
   readonly activateRSVPs: boolean,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -674,19 +683,36 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
+  readonly myEditorAccess: string,
+  readonly linkSharingKey: string,
 }
 
-interface PostsEdit extends PostsPage { // fragment on Posts
+interface PostsEdit extends PostsDetails { // fragment on Posts
+  readonly myEditorAccess: string,
+  readonly linkSharingKey: string,
+  readonly version: string,
   readonly coauthorStatuses: Array<{
     userId: string,
     confirmed: boolean,
     requested: boolean,
   }>,
   readonly readTimeMinutesOverride: number,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
   readonly moderationGuidelines: RevisionEdit|null,
-  readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
+}
+
+interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
+  readonly contents: RevisionEdit|null,
+}
+
+interface PostsEditMutationFragment extends PostsEdit { // fragment on Posts
+  readonly contents: RevisionEdit|null,
 }
 
 interface PostsRevisionsList { // fragment on Posts
@@ -942,6 +968,7 @@ interface NotificationsDefaultFragment { // fragment on Notifications
   readonly createdAt: Date,
   readonly documentId: string,
   readonly documentType: string,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly link: string,
   readonly title: string,
   readonly message: string,
@@ -963,6 +990,7 @@ interface NotificationsList { // fragment on Notifications
   readonly message: string,
   readonly type: string,
   readonly viewed: boolean,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ConversationsDefaultFragment { // fragment on Conversations
@@ -1260,6 +1288,7 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1501,6 +1530,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagFragment_parentTag|null,
   readonly subTags: Array<TagFragment_subTags>,
   readonly description: TagFragment_description|null,
+  readonly isSubforum: boolean,
 }
 
 interface TagFragment_parentTag { // fragment on Tags
@@ -1568,6 +1598,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagPreviewFragment_parentTag|null,
   readonly subTags: Array<TagPreviewFragment_subTags>,
   readonly description: TagPreviewFragment_description|null,
+  readonly isSubforum: boolean,
 }
 
 interface TagPreviewFragment_parentTag { // fragment on Tags
@@ -1608,12 +1639,14 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
+  readonly isSubforum: boolean,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly contributors: any,
+  readonly isSubforum: boolean,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -1640,6 +1673,7 @@ interface TagRecentDiscussion extends TagFragment { // fragment on Tags
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
+  readonly isSubforum: boolean,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
@@ -1763,8 +1797,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly petrovPressedButtonDate: Date,
-  readonly sortDrafts: string,
-  readonly reenableDraftJs: boolean,
+  readonly sortDraftsBy: string,
   readonly noindex: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
@@ -1794,6 +1827,9 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allPostsShowLowKarma: boolean,
   readonly allPostsIncludeEvents: boolean,
   readonly allPostsOpenSettings: boolean,
+  readonly draftsListSorting: string,
+  readonly draftsListShowArchived: boolean,
+  readonly draftsListShowShared: boolean,
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
@@ -1883,8 +1919,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageBook2019Ad: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
-  readonly sortDrafts: string,
-  readonly reenableDraftJs: boolean,
+  readonly sortDraftsBy: string,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
   readonly lastUsedTimezone: string,
@@ -1913,6 +1948,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly postCount: number,
@@ -2076,6 +2112,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationCommentsOnDraft: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly notificationPostsNominatedReview: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -2133,6 +2175,13 @@ interface UsersProfileEdit { // fragment on Users
   readonly facebookProfileURL: string,
   readonly twitterProfileURL: string,
   readonly githubProfileURL: string,
+}
+
+interface UsersCrosspostInfo { // fragment on Users
+  readonly _id: string,
+  readonly username: string,
+  readonly slug: string,
+  readonly fmCrosspostUserId: string,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
@@ -2242,6 +2291,8 @@ interface FragmentTypes {
   PostSequenceNavigation: PostSequenceNavigation
   PostsPage: PostsPage
   PostsEdit: PostsEdit
+  PostsEditQueryFragment: PostsEditQueryFragment
+  PostsEditMutationFragment: PostsEditMutationFragment
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
@@ -2346,6 +2397,7 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   UsersWithReviewInfo: UsersWithReviewInfo
   UsersProfileEdit: UsersProfileEdit
+  UsersCrosspostInfo: UsersCrosspostInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -2394,6 +2446,8 @@ interface CollectionNamesByFragmentName {
   PostSequenceNavigation: "Posts"
   PostsPage: "Posts"
   PostsEdit: "Posts"
+  PostsEditQueryFragment: "Posts"
+  PostsEditMutationFragment: "Posts"
   PostsRevisionsList: "Posts"
   PostsRecentDiscussion: "Posts"
   UsersBannedFromPostsModerationLog: "Posts"
@@ -2498,6 +2552,7 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   UsersWithReviewInfo: "Users"
   UsersProfileEdit: "Users"
+  UsersCrosspostInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"

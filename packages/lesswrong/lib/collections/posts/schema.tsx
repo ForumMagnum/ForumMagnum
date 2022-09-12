@@ -11,10 +11,11 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
+import { forumSelect } from '../../forumTypeUtils';
 
-const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
 const urlHintText = isEAForum
@@ -27,6 +28,13 @@ const STICKY_PRIORITIES = {
   3: "Elevated",
   4: "Max",
 }
+
+const forumDefaultVotingSystem = forumSelect({
+  EAForum: "twoAxis",
+  LessWrong: "twoAxis",
+  AlignmentForum: "twoAxis",
+  default: "default",
+})
 
 export interface RSVPType {
   name: string
@@ -115,12 +123,6 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
-    query: `
-      SiteData{
-        logoUrl
-        title
-      }
-    `,
     inputProperties: {
       labels: {
         inactive: 'Link-post?',
@@ -142,7 +144,7 @@ const schema: SchemaType<DbPost> = {
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
-    group: formGroups.default,
+    group: formGroups.title,
   },
   // Slug
   slug: {
@@ -958,9 +960,19 @@ const schema: SchemaType<DbPost> = {
           .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
-    ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
-  },
-
+    ...schemaDefaultValue(forumDefaultVotingSystem),
+  },  
+  myEditorAccess: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+      return getCollaborativeEditorAccess({
+        formType: "edit",
+        post, user: context.currentUser,
+        useAdminPowers: false,
+      });
+    }
+  }),
   podcastEpisodeId: {
     ...foreignKeyField({
       idFieldName: 'podcastEpisodeId',

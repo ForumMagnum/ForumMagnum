@@ -28,7 +28,8 @@ declare global {
 
 // Auto-generated indexes from production
 ensureIndex(Users, {username:1}, {unique:true,sparse:1});
-ensureIndex(Users, {"emails.address":1}, {unique:true,sparse:1});
+ensureIndex(Users, {email:1}, {sparse:1});
+ensureIndex(Users, {"emails.address":1}, {unique:true,sparse:1}); //TODO: deprecate emails field – do not build upon
 ensureIndex(Users, {"services.resume.loginTokens.hashedToken":1}, {unique:true,sparse:1});
 ensureIndex(Users, {"services.resume.loginTokens.token":1}, {unique:true,sparse:1});
 ensureIndex(Users, {"services.resume.haveLoginTokensToDelete":1}, {sparse:1});
@@ -46,7 +47,8 @@ ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
 // Case-insensitive email index
-ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }})
+ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
+ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email
 
 ensureIndex(Users, {email: 1})
 

@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { resolverOnlyField } from '../../utils/schemaUtils';
-import { userGetProfileUrl, getAuth0Id } from "./helpers";
+import {userGetProfileUrl, getAuth0Id, getUserEmail} from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -28,12 +28,13 @@ const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
+  const email = getUserEmail(user)
   if (profileName) return profileName;
   if (twitterName) return twitterName;
   if (linkedinFirstName)
     return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
-  if (user.email) return user.email.slice(0, user.email.indexOf('@'));
+  if (email) return email.slice(0, email.indexOf('@'));
   return "[missing username]";
 };
 

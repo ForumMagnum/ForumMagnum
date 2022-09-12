@@ -449,6 +449,15 @@ export const schema: SchemaType<DbTag> = {
   'canVoteOnRels.$': {
     type: String,
   },
+  isSubforum: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {

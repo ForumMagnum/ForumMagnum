@@ -15,6 +15,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
+import type { CommentFormDisplayMode } from '../CommentsNewForm';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -87,6 +88,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     border: theme.palette.border.normal,
   },
+  replyFormMinimalist: {
+    borderRadius: 3,
+  },
   deleted: {
     backgroundColor: theme.palette.panelBackground.deletedComment,
   },
@@ -132,7 +136,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -146,11 +150,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
+  enableGuidelines?: boolean,
+  displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
+  const isMinimalist = displayMode === "minimalist"
   const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
@@ -241,23 +248,24 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
     )
 
+    const showInlineCancel = showReplyState && isMinimalist
     return (
       <div className={classes.bottom}>
-        <CommentBottomCaveats comment={comment}/>
-        { showReplyButton &&
-          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showReply}>
-            Reply
+        <CommentBottomCaveats comment={comment} />
+        {showReplyButton && (
+          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+            {showInlineCancel ? "Cancel" : "Reply"}
           </a>
-        }
+        )}
       </div>
-    )
+    );
   }
 
   const renderReply = () => {
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
-      <div className={classNames(classes.replyForm, levelClass)}>
+      <div className={classNames(classes.replyForm, levelClass, {[classes.replyFormMinimalist]: isMinimalist})}>
         <Components.CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
@@ -267,6 +275,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"
+          enableGuidelines={enableGuidelines}
+          displayMode={displayMode}
         />
       </div>
     )

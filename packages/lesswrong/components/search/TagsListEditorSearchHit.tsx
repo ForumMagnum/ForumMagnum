@@ -20,7 +20,7 @@ const TagsListEditorSearchHit = ({hit, classes}: {
         {tag.name}
       </Components.MetaInfo>
       <Components.MetaInfo>
-        {tag.postCount || 0} posts
+        {tag.postCount ?? 0} posts
       </Components.MetaInfo>
     </div>
   )

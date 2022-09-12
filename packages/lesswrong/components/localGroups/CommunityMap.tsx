@@ -70,7 +70,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
-const defaultCenter = {lat: 39.5, lng: -43.636047}
+export const defaultCenter = {lat: 39.5, lng: -43.636047}
 const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,

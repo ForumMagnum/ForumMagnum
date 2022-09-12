@@ -5,6 +5,7 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil, userIdentifiedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -40,7 +41,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 userIdentifiedCallback.add(function identifyUserToSentry(user: UsersCurrent) {
   // Set user in sentry scope
   Sentry.configureScope((scope) => {
-    scope.setUser({id: user._id, email: user.email, username: user.username});
+    scope.setUser({id: user._id, email: getUserEmail(user), username: user.username});
   });
 });
 
