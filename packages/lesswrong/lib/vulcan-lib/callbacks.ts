@@ -2,7 +2,7 @@ import { isServer } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
-import { isAnyQueryPending } from '../mongoCollection';
+import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
 import { loggerConstructor } from '../utils/logging'
 
 // TODO: It would be nice if callbacks could be enabled or disabled by collection
@@ -336,11 +336,10 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 // should have been await'ed without the await, effectively spawning a new
 // thread which isn't tracked.
 export const waitUntilCallbacksFinished = () => {
-    console.log("\n\n\n\n\n\n\n\n\nstatus", callbacksArePending(), isAnyQueryPending(), "\n\n\n\n\n\n\n\n\n\n\n");
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (false) {//callbacksArePending() || isAnyQueryPending()) {
-        setTimeout(finishOrWait, 20);
+      if (callbacksArePending() || isAnyMongoQueryPending()) {
+        setTimeout(finishOrWait, 2000);
       } else {
         resolve();
       }

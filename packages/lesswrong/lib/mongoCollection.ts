@@ -9,9 +9,9 @@ export const setDatabaseConnection = (_client, _db) => {
 export const getDatabase = () => db;
 export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
-export const closeDatabaseConnection = () => {
+export const closeDatabaseConnection = async () => {
   if (client) {
-    client.close();
+    await client.close();
     client = null;
     db = null;
   }

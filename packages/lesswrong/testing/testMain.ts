@@ -85,7 +85,9 @@ export function testStartup() {
     await waitUntilCallbacksFinished();
   });
   afterAll(async () => {
-    closeDatabaseConnection();
-    await closeSqlClient(getSqlClientOrThrow());
+    await Promise.all([
+      closeDatabaseConnection(),
+      closeSqlClient(getSqlClientOrThrow()),
+    ]);
   });
 }

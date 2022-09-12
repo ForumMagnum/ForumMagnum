@@ -43,6 +43,7 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
 
   return <div className={classes.root}>
     <div className={classNames(classes.sidebar, {[classes.background]: background})}>
+      {/* @ts-ignore */ /* TODO: Types seem to be broken? This doesn't expect children */}
       <Slide
         direction='right'
         in={!sidebarHidden}

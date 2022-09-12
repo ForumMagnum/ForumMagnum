@@ -278,7 +278,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly author: string,
   readonly postId: string,
   readonly tagId: string,
-  readonly tagCommentType: string,
+  readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly userId: string,
   readonly userIP: string,
   readonly userAgent: string,

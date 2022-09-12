@@ -30,7 +30,6 @@ const buildTables = async (client: SqlClient) => {
   }
 }
 
-
 export const createTestingSqlClient = async (): Promise<SqlClient> => {
   const date = new Date().toISOString().replace(/[:.-]/g,"_");
   const dbName = `unittest_${date}_${process.pid}_${process.env.JEST_WORKER_ID}`.toLowerCase();

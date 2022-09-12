@@ -84,7 +84,7 @@ interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
 class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps> {
   handleClick = () => {
     const { fieldName = "submitToFrontpage" } = this.props
-    const { updateCurrentValues } = this.context
+    const { updateCurrentValues } = this.context as {updateCurrentValues: <T extends {}>(data: T) => void}
     updateCurrentValues({[fieldName]: !this.getCurrentValue()})
   }
   

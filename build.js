@@ -94,13 +94,15 @@ build({
   sourcemap: true,
   outfile: clientOutfilePath,
   minify: isProduction,
-  banner: clientBundleBanner,
+  banner: {
+    js: clientBundleBanner,
+  },
   treeShaking: "ignore-annotations",
   run: false,
-  onStart: (config, changedFiles, ctx, esbuildOptions) => {
+  onStart: (config, changedFiles, ctx) => {
     clientRebuildInProgress = true;
     inProgressBuildId = generateBuildId();
-    esbuildOptions.define.buildId = `"${inProgressBuildId}"`;
+    config.define.buildId = `"${inProgressBuildId}"`;
   },
   onEnd: (config, buildResult, ctx) => {
     clientRebuildInProgress = false;
@@ -141,7 +143,7 @@ build({
   sourcemap: true,
   minify: false,
   run: cliopts.run && serverCli,
-  onStart: (config, changedFiles, ctx, esbuildOptions) => {
+  onStart: (config, changedFiles, ctx) => {
     serverRebuildInProgress = true;
   },
   onEnd: () => {

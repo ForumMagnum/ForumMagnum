@@ -70,7 +70,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
-    this.context.updateCurrentValues({
+    (this.context as any).updateCurrentValues({
       [this.props.path]: settings
     });
   }

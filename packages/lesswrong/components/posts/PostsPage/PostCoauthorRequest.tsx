@@ -67,11 +67,12 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
 
   const onResponse = async (accept: boolean) => {
     setLoading(true);
+    // TODO: Types: https://github.com/apollographql/apollo-client/issues/9292
     const { errors } = await acceptCoauthorRequest({variables: {
       postId: post._id,
       userId: currentUser?._id,
       accept,
-    }});
+    }}) as {errors: Error[]};
     if (errors) {
       setError(`Oops, something went wrong: ${errors[0].message}`);
     }

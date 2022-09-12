@@ -2,17 +2,23 @@ import React, {useCallback} from 'react';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
-export const makeSortableListComponent = ({renderItem}: {
-  renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id:string)=>void, classes: ClassesType }) => React.ReactNode
-}) => {
+export type SortableItemProps = {
+  contents: string,
+  removeItem: (id: string) => void,
+  classes: ClassesType,
+}
+
+export const makeSortableListComponent = ({renderItem}: {renderItem: (props: SortableItemProps) => React.ReactNode}) => {
   // eslint-disable-next-line babel/new-cap
-  const SortableItem = SortableElement(({contents, removeItem, classes}) => <>
-    {renderItem({contents, removeItem, classes})}
+  const SortableItem = SortableElement((props: SortableItemProps) => <>
+    {renderItem(props)}
   </>);
   // eslint-disable-next-line babel/new-cap
   const SortableList = SortableContainer(({items, removeItem, className, classes}) => {
     return <span className={className}>
       {items.map((contents, index) => {
+        // TODO: TS says that removeItem doesn't exist, but we seem to use it quite heavily?
+        // @ts-ignore
         return <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} contents={contents} classes={classes}/>
       })}
     </span>

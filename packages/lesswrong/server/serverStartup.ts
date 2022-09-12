@@ -70,14 +70,6 @@ async function serverStartup() {
   }
 
   // eslint-disable-next-line no-console
-  console.log("Building postgres tables");
-  for (const collection of Collections) {
-    if (collection instanceof PgCollection) {
-      collection.buildPostgresTable();
-    }
-  }
-
-  // eslint-disable-next-line no-console
   console.log("Loading settings");
   await refreshSettingsCaches();
   
@@ -86,7 +78,15 @@ async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
   await runStartupFunctions();
-  
+
+  // eslint-disable-next-line no-console
+  console.log("Building postgres tables");
+  for (const collection of Collections) {
+    if (collection instanceof PgCollection) {
+      collection.buildPostgresTable();
+    }
+  }
+
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();

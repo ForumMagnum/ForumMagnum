@@ -211,20 +211,14 @@ describe('Voting', function() {
       const post = await createDummyPost(author, {
         postedAt: yesterday,
       });
-      // console.log("THE POST", post);
 
-      /*
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
-      console.log("a");
-      // await waitUntilCallbacksFinished();
-      console.log("b");
+      const result = await waitUntilCallbacksFinished();
 
       let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
       let updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
       expect(updatedAuthor.karma).toBe(1);
       expect(updatedCoauthor.karma).toBe(0);
-      // console.log("THE UPDATED AUTHOR", updatedAuthor);
-      // console.log("THE UPDATED COAUTHOR", updatedCoauthor);
 
       await updateMutator({
         collection: Posts,
@@ -241,7 +235,6 @@ describe('Voting', function() {
       updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
       expect(updatedAuthor.karma).toBe(0);
       expect(updatedCoauthor.karma).toBe(0);
-      */
     });
   })
   describe('checkRateLimit', () => {

@@ -309,7 +309,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     // for each group, add relevant fields
     groups = groups.map(group => {
       group.label =
-        group.label || this.context.intl.formatMessage({ id: group.name });
+        group.label || (this.context as any).intl.formatMessage({ id: group.name });
       group.fields = _.filter(fields, field => {
         return field.group && field.group.name === group.name;
       });
@@ -523,13 +523,13 @@ class Form<T extends DbObject> extends Component<any,any> {
    */
   getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
-    const label = this.context.intl.formatLabel({
+    const label = (this.context as any).intl.formatLabel({
       fieldName: fieldName,
       collectionName: collectionName,
       schema: this.state.flatSchema,
     });
     if (fieldLocale) {
-      const intlFieldLocale = this.context.intl.formatMessage({
+      const intlFieldLocale = (this.context as any).intl.formatMessage({
         id: `locales.${fieldLocale}`,
         defaultMessage: fieldLocale,
       });

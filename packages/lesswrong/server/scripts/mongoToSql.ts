@@ -14,6 +14,9 @@ const formatters = {
     if (typeof document.scoreExceeded75Date === "boolean") {
       document.scoreExceeded75Date = new Date(Date.now());
     }
+    if (!document.title) {
+      document.title = "";
+    }
     return document;
   },
 };
