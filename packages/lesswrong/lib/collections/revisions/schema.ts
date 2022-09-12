@@ -1,5 +1,7 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
+import { userIsSharedOn } from '../users/helpers';
+import { userOwns } from '../../vulcan-users/permissions';
 
 export const ContentType = new SimpleSchema({
   type: String,
@@ -102,8 +104,7 @@ const schema: SchemaType<DbRevision> = {
   },
   originalContents: {
     type: ContentType,
-    viewableBy: ['guests'],
-    editableBy: ['members']
+    viewableBy: [userOwns, userIsSharedOn, 'admins', 'sunshineRegiment']
   },
   html: {
     type: String,
