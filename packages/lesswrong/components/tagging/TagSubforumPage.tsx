@@ -4,8 +4,6 @@ import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useSingle } from "../../lib/crud/withSingle";
-import { isProduction } from "../../lib/executionEnvironment";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,8 +33,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     return <Loading />;
   }
 
-  // TODO-WH: remove isProduction flag here when we are ready to show this to users
-  if (isProduction || !tag || !tag.isSubforum) {
+  if (!tag || !tag.isSubforum) {
     return <Error404 />;
   }
 
