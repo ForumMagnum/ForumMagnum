@@ -236,7 +236,7 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
-async function dataToHTML(data, type, sanitizeData = false) {
+export async function dataToHTML(data, type, sanitizeData = false) {
   switch (type) {
     case "html":
       return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
@@ -273,6 +273,20 @@ export function dataToMarkdown(data, type) {
       }
       return ""
     }
+    default: throw new Error(`Unrecognized format: ${type}`);
+  }
+}
+
+export async function dataToCkEditor(data, type) {
+  switch (type) {
+    case "html":
+      return sanitize(data);
+    case "ckEditorMarkup":
+      return data;
+    case "draftJS":
+      return await draftJSToHtmlWithLatex(data);
+    case "markdown":
+      return await markdownToHtml(data)
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
@@ -355,7 +369,7 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-async function buildRevision({ originalContents, currentUser }) {
+export async function buildRevision({ originalContents, currentUser }) {
   const { data, type } = originalContents;
   const html = await dataToHTML(data, type, !currentUser.isAdmin)
   const wordCount = await dataToWordCount(data, type)
@@ -369,7 +383,7 @@ async function buildRevision({ originalContents, currentUser }) {
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -411,7 +425,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" > = {
+      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart"> = {
         ...(await buildRevision({
           originalContents: doc[fieldName].originalContents,
           currentUser,
@@ -470,7 +484,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" > = {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart"> = {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -494,7 +508,9 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
 
-      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      if (newRevisionId) {
+        await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      }
 
       return {
         ...docData,
@@ -520,11 +536,13 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
-    await Revisions.rawUpdateOne(
-      { _id: revisionID },
-      { $set: { documentId: newDoc._id } }
-    );
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    if (revisionID) {
+      await Revisions.rawUpdateOne(
+        { _id: revisionID },
+        { $set: { documentId: newDoc._id } }
+      );
+      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    }
     return newDoc;
   });
 }

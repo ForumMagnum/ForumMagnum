@@ -8,7 +8,7 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { acxEverywhere } from './curatedContents';
+import { babbleAndPrune } from './curatedContents';
 
 export const curatedUrl = "/recommendations"
 
@@ -60,6 +60,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
+  },
+  curated: {
+    marginTop: 12
   }
 });
 
@@ -134,7 +137,7 @@ const RecommendationsAndCurated = ({
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
-    const renderRecommendations = !settings.hideFrontpage && forumTypeSetting.get() !== "LessWrong" // temporarily hiding from LessWrong during ACX Everywhere season
+    const renderRecommendations = !settings.hideFrontpage
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
@@ -158,7 +161,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CuratedContentItem content={acxEverywhere} />
+          <CuratedContentItem content={babbleAndPrune} />
         </AnalyticsContext>}
   
         {/*Delete after the dust has settled on other Recommendations stuff*/}
@@ -180,7 +183,9 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             }
-            {forumTypeSetting.get() !== "EAForum" && <CuratedPostsList />}
+            {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
+              <CuratedPostsList />
+            </div>}
           </div>
         </div>
 

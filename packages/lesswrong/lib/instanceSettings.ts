@@ -141,6 +141,17 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
+// FM Crossposting
+export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
+export const fmCrosspostBaseUrlSetting = new PublicInstanceSetting<string|null>("fmCrosspost.baseUrl", null, "optional");
+
+// For development, there's a matched set of CkEditor settings as instance
+// settings, which take precedence over the database settings. This allows
+// using custom CkEditor settings that don't match what's in the attached
+// database.
+export const ckEditorUploadUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.uploadUrl', null, "optional") // Image Upload URL for CKEditor
+export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.webSocketUrl', null, "optional") // Websocket URL for CKEditor (for collaboration)
+
 // Stripe setting
 
 //Test vs Production Setting

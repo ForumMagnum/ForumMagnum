@@ -20,6 +20,8 @@ const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    paddingTop: 4,
+    marginLeft: 8,
     "& img": {
       display: "block",
       marginBottom: 8,

@@ -337,6 +337,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
+    restoreSavedContentNotice: "rgba(255,0,0,.1)",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -415,6 +416,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   datePicker: {
     selectedDate: "#428bca",
+  },
+  editor: {
+    commentPanelBackground: "#ffffff",
+    sideCommentEditorBackground: "#f3f7fb",
+    commentMarker: "#fef7a9",
+    commentMarkerActive: "#fdf05d",
   },
   
   commentParentScrollerHover: shades.greyAlpha(.075),

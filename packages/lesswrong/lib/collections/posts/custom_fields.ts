@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, fmCrosspostSiteNameSetting } from '../../instanceSettings';
 import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
@@ -291,6 +291,25 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+  },
+
+  fmCrosspost: {
+    type: new SimpleSchema({
+      isCrosspost: Boolean,
+      hostedHere: { type: Boolean, optional: true, nullable: true },
+      foreignPostId: { type: String, optional: true, nullable: true },
+    }),
+    optional: true,
+    nullable: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    control: "FMCrosspostControl",
+    group: formGroups.advancedOptions,
+    hidden: () => !fmCrosspostSiteNameSetting.get(),
+    ...schemaDefaultValue({
+      isCrosspost: false,
+    }),
   },
 
   canonicalSequenceId: {
@@ -1044,15 +1063,15 @@ addFieldsDict(Posts, {
 
   sharingSettings: {
     type: Object,
-    order: 16,
+    order: 15,
     viewableBy: [userOwns, userIsSharedOn, 'admins'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
+    control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: formGroups.options,
     blackbox: true,
-    hidden: true,
   },
   
   shareWithUsers: {
@@ -1062,9 +1081,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    control: "UsersListEditor",
-    label: "Share draft with users",
-    group: formGroups.options
+    hidden: true, 
   },
 
   'shareWithUsers.$': {
@@ -1072,7 +1089,33 @@ addFieldsDict(Posts, {
     foreignKey: "Users",
     optional: true
   },
+  
+  // linkSharingKey: An additional ID for this post which is used for link-sharing,
+  // and not made accessible to people who merely have access to the published version
+  // of a post. Only populated if some form of link sharing is (or has been) enabled.
+  linkSharingKey: {
+    type: String,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
 
+  // linkSharingKeyUsedBy: An array of user IDs who have used the link-sharing key
+  // to unlock access.
+  linkSharingKeyUsedBy: {
+    type: Array,
+    viewableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
+  'linkSharingKeyUsedBy.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true
+  },
+  
+  
   commentSortOrder: {
     type: String,
     viewableBy: ['guests'],

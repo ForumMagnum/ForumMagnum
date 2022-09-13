@@ -31,12 +31,6 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  
 }
 
 export const schema: SchemaType<DbTag> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   name: {
     type: String,
     viewableBy: ['guests'],
@@ -448,6 +442,15 @@ export const schema: SchemaType<DbTag> = {
   },
   'canVoteOnRels.$': {
     type: String,
+  },
+  isSubforum: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
   },
 }
 
