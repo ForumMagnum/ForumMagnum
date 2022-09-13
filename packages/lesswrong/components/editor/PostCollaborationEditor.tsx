@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { getPostCollaborateUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied } = Components
+  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect } = Components
   const currentUser = useCurrentUser();
   const [editorLoaded, setEditorLoaded] = useState(false)
 
@@ -74,20 +74,20 @@ const PostCollaborationEditor = ({ classes }: {
     return <Loading/>
   }
   
-  // If you're the primary author, redirect to the main editor (rather than the
+  // If you're the primary author, or an admin, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
-  if (post?.userId === currentUser._id) {
-    return <Components.PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
+  if (post.userId === currentUser._id || currentUser.isAdmin) {
+    return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
   }
-  
+
   // If the post has a link-sharing key which is not in the URL, redirect to add
   // the link-sharing key to the URL
-  if (post?.linkSharingKey && !key) {
-    return <Components.PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)} status={302}/>
+  if (post.linkSharingKey && !key) {
+    return <PermanentRedirect url={getPostCollaborateUrl(post._id, false, post.linkSharingKey)} status={302}/>
   }
   
   return <SingleColumnSection>
-    <div className={classes.title}>{post?.title}</div>
+    <div className={classes.title}>{post.title}</div>
     <Components.PostsAuthors post={post}/>
     <Components.CollabEditorPermissionsNotices post={post}/>
     {/*!post.draft && <div>
@@ -100,7 +100,7 @@ const PostCollaborationEditor = ({ classes }: {
           collectionName="Posts"
           fieldName="contents"
           formType="edit"
-          userId={currentUser?._id}
+          userId={currentUser._id}
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
         />

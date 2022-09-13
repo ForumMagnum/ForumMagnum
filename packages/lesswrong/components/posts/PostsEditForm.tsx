@@ -90,7 +90,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   // If we have access to the post but only readonly access and only because
   // it's published, don't show the edit form.
-  if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document) && !userIsAdmin(currentUser)) {
+  if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userIsAdmin(currentUser)) {
     return <Components.ErrorAccessDenied/>
   }
   
@@ -107,7 +107,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   return (
     <div className={classes.postForm}>
-      <HeadTags title={document?.title} />
+      <HeadTags title={document.title} />
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
