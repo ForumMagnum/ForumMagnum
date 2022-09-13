@@ -93,6 +93,7 @@ defineQuery({
     //  * Link-sharing is enabled and this user has provided the correct key in
     //    the past
     //  * The logged-in user is the post author
+    //  * The logged in user is an admin
     if (
       (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser._id))
       || (linkSharingEnabled(post)
