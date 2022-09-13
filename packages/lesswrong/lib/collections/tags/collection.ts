@@ -5,6 +5,7 @@ import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
 import { tagUserHasSufficientKarma } from './helpers';
+import { formGroups } from './formGroups';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -76,6 +77,19 @@ makeEditable({
       insertableBy: ['members']
     },
     order: 10
+  }
+});
+
+makeEditable({
+  collection: Tags,
+  options: {
+    formGroup: formGroups.subforumWelcomeMessage,
+    fieldName: "subforumWelcomeText",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
   }
 });
 

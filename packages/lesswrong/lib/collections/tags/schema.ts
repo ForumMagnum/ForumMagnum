@@ -230,7 +230,7 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(2),
   },
-  
+
   recentComments: resolverOnlyField({
     type: Array,
     graphQLtype: "[Comment]",

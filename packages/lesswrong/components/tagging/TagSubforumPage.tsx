@@ -4,16 +4,43 @@ import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 0,
-    display: 'flex',
-    flexDirection: 'row',
+    display: "flex",
+    flexDirection: "row",
+    [theme.breakpoints.down("md")]: {
+      flexDirection: "column",
+    },
   },
   columnSection: {
     marginBottom: 0,
-    width: '100%',
+    width: "100%",
+  },
+  fullWidth: {
+    flex: 'none',
+  },
+  stickToBottom: {
+    marginTop: "auto",
+  },
+  welcomeBoxPadding: {
+    padding: "32px 32px 3px 32px",
+    marginLeft: "auto",
+    width: "fit-content",
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
+  welcomeBox: {
+    padding: 16,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    border: theme.palette.border.commentBorder,
+    borderColor: theme.palette.secondary.main,
+    borderWidth: 2,
+    borderRadius: 3,
+    maxWidth: 380,
   },
   title: {
     marginLeft: 24,
@@ -22,12 +49,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
-  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography } = Components;
+  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody } = Components;
 
   const { params } = useLocation();
   const { slug } = params;
-  // TODO-JM: add comment explaining the use of TagPreviewFragment (which loads on hover over tag) to avoid extra round trip
-  const { tag, loading, error } = useTagBySlug(slug, "TagPreviewFragment");
+
+  const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
 
   if (loading) {
     return <Loading />;
@@ -37,7 +64,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     return <Error404 />;
   }
 
-  if ((error && !isMissingDocumentError(error))) {
+  if (error && !isMissingDocumentError(error)) {
     return (
       <SingleColumnSection>
         <Typography variant="body1">{error.message}</Typography>
@@ -45,10 +72,26 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
+  const welcomeBoxComponent = tag.subforumWelcomeText ? (
+    <div className={classes.welcomeBoxPadding}>
+      <div className={classes.welcomeBox}>
+        <ContentStyles contentType="comment">
+          <ContentItemBody
+            dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
+            description={`${tag.name} subforum`}
+          />
+        </ContentStyles>
+      </div>
+    </div>
+  ) : <></>;
+
   return (
     <div className={classes.root}>
-      <SingleColumnSection className={classes.columnSection}>
-        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} noTopMargin />
+      <div className={classNames(classes.columnSection, classes.stickToBottom)}>
+        {welcomeBoxComponent}
+      </div>
+      <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
+        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}
@@ -57,6 +100,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           />
         </AnalyticsContext>
       </SingleColumnSection>
+      <div className={classes.columnSection}></div>
     </div>
   );
 };
