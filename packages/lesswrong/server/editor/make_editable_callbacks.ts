@@ -212,25 +212,9 @@ export async function markdownToHtml(markdown: string): Promise<string> {
   return await mjPagePromise(html, trimLatexAndAddCSS)
 }
 
-export function removeCKEditorSuggestions(markup: string): string {
-  // First we remove all suggested deletion and modify formatting tags
-  const markupWithoutDeletionsAndModifications = markup.replace(
-    /<suggestion\s*id="[a-zA-Z0-9:]+"\s*suggestion-type="(deletion|formatInline:[a-zA-Z0-9]+|formatBlock:[a-zA-Z0-9]+)" type="(start|end)"><\/suggestion>/g,
-    ''
-  )
-  // Then we remove everything between suggested insertions
-  const markupWithoutInsertions = markupWithoutDeletionsAndModifications.replace(
-    /<suggestion\s*id="([a-zA-Z0-9:]+)"\s*suggestion-type="insertion" type="start"><\/suggestion>.*<suggestion\s*id="\1"\s*suggestion-type="insertion"\s*type="end"><\/suggestion>/g,
-    ''
-  )
-  return markupWithoutInsertions
-}
-
 export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
-  // First we remove any unaccepted suggestions from the markup
-  const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
-  const html = sanitize(markupWithoutSuggestions)
+  const html = sanitize(markup)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)

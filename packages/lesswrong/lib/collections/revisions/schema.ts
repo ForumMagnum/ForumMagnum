@@ -105,10 +105,15 @@ const schema: SchemaType<DbRevision> = {
   },
   originalContents: {
     type: ContentType,
-    viewableBy: [userOwns, userIsSharedOn, 'admins', 'sunshineRegiment'],
+    viewableBy: ['guests'],
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (document: DbRevision, args: void, context: ResolverContext ): Promise<DbRevision["originalContents"]|null> => {
+        // Original contents sometimes contains private data (ckEditor suggestions 
+        // via Track Changes plugin). In those cases the html field strips out the 
+        // suggestion. Original contents is only visible to people who are invited 
+        // to collaborative editing. (This is only relevant for posts, but supporting
+        // it means we need originalContents to default to unviewable)
         let canViewOriginalContents: () => boolean
         if (document.collectionName === "Posts") {
           const post = await context.loaders["Posts"].load(document.documentId)

@@ -14,6 +14,9 @@ export const RevisionStorageType = new SimpleSchema({
   version: {type: String, optional: true},
   editedAt: {type: Date, optional: true},
   wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true},
+  // dataWithDiscardedSuggestions is not actually stored in the database, just passed 
+  // through the mutation so that we can provide html that doesn't include private
+  // information.
   dataWithDiscardedSuggestions: {type: String, optional: true, nullable: true}
 })
 
