@@ -11,6 +11,7 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
+import { TagCommentType } from '../comments/schema';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -245,6 +246,7 @@ export const schema: SchemaType<DbTag> = {
         score: {$gt:0},
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
+        tagCommentType: TagCommentType.Discussion,
         ...(af ? {af:true} : {}),
       }, {
         limit: tagCommentsLimit,
