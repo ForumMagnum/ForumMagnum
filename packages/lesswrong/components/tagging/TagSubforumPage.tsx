@@ -4,7 +4,6 @@ import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { isProduction } from "../../lib/executionEnvironment";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -20,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 0,
     width: "100%",
   },
+  fullWidth: {
+    flex: 'none',
+  },
   stickToBottom: {
     marginTop: "auto",
   },
@@ -28,10 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     width: "fit-content",
     [theme.breakpoints.down("md")]: {
-      margin: "auto",
-      maxWidth: 680,
-      width: "100%",
-      padding: "0px 16px 16px 16px",
       display: "none",
     },
   },
@@ -43,14 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderWidth: 2,
     borderRadius: 3,
     maxWidth: 380,
-    [theme.breakpoints.down("md")]: {
-      padding: "16px 16px 4px 16px",
-      maxWidth: "unset",
-      width: "100%",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-    },
   },
   title: {
     marginLeft: 24,
@@ -64,15 +54,13 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   const { params } = useLocation();
   const { slug } = params;
 
-  // TODO-JM: add comment explaining the use of TagPreviewFragment (which loads on hover over tag) to avoid extra round trip
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
 
   if (loading) {
     return <Loading />;
   }
 
-  // TODO-WH: remove isProduction flag here when we are ready to show this to users
-  if (isProduction || !tag || !tag.isSubforum) {
+  if (!tag || !tag.isSubforum) {
     return <Error404 />;
   }
 
@@ -84,7 +72,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
-  const welcomeBoxComponent = (
+  const welcomeBoxComponent = tag.subforumWelcomeText ? (
     <div className={classes.welcomeBoxPadding}>
       <div className={classes.welcomeBox}>
         <ContentStyles contentType="comment">
@@ -95,14 +83,14 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         </ContentStyles>
       </div>
     </div>
-  );
+  ) : <></>;
 
   return (
     <div className={classes.root}>
-      <SingleColumnSection className={classNames(classes.columnSection, classes.stickToBottom)}>
+      <div className={classNames(classes.columnSection, classes.stickToBottom)}>
         {welcomeBoxComponent}
-      </SingleColumnSection>
-      <SingleColumnSection className={classes.columnSection}>
+      </div>
+      <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
         <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread

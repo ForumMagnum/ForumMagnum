@@ -10,7 +10,7 @@ import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../.
 import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
 import { separatorBulletStyles } from '../../common/SectionFooter';
 import { taglineSetting } from '../../common/HeadTags';
-import { getBrowserLocalStorage } from '../../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
@@ -264,7 +264,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
-    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton } = Components
+    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList } = Components
 
   if (loading) {
     return <Loading/>
@@ -294,7 +294,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
     }
   }
   
-  const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
   const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
@@ -335,7 +334,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <AnalyticsContext listContext="userPageDrafts">
-        <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms} boxShadow={false} />
+        <DraftsList userId={user._id} limit={5} hideHeaderRow />
         <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>

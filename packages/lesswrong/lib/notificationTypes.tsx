@@ -1,4 +1,5 @@
 import React from 'react';
+import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
 import { postGetAuthorName } from './collections/posts/helpers';
@@ -28,6 +29,8 @@ interface NotificationType {
   mustBeEnabled?: boolean,
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
+  onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -291,6 +294,13 @@ export const PostSharedWithUserNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    return `/collaborateOnPost?postId=${documentId}`;
+  }
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
@@ -374,6 +384,31 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     return <SupervisedUserCircleIcon style={iconStyles} />
   }
 })
+
+export const NewCommentOnDraftNotification = registerNotificationType({
+  name: "newCommentOnDraft",
+  userSettingField: "notificationCommentsOnDraft",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const post = await getDocument(documentType, documentId) as DbPost;
+    return `New comments on your draft ${post.title}`;
+  },
+  
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  
+  onsiteHoverView({notification}: {notification: NotificationsList}) {
+    return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
+  },
+  
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    return `/editPost?postId=${documentId}`;
+  },
+});
 
 export const CoauthorRequestNotification = registerNotificationType({
   name: 'coauthorRequestNotification',
