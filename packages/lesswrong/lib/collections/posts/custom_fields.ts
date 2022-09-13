@@ -306,7 +306,10 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     control: "FMCrosspostControl",
     group: formGroups.advancedOptions,
-    hidden: () => !fmCrosspostSiteNameSetting.get(),
+    // This isAdmin isn't secure but this doesn't matter as we just want to temporarily
+    // avoid inviting users to use the feature before we fix the 403 error on LessWrong
+    hidden: ({currentUser: {isAdmin}}) => !fmCrosspostSiteNameSetting.get() || !isAdmin,
+    // hidden: !fmCrosspostSiteNameSetting.get(),
     ...schemaDefaultValue({
       isCrosspost: false,
     }),
