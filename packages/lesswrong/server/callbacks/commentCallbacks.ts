@@ -385,7 +385,7 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
 getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
   const ancestorIds: string[] = await getCommentAncestorIds(comment);
   
-  await Comments.rawUpdateOne({ _id: {$in: ancestorIds} }, {
+  await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
     $set: {lastSubthreadActivity: new Date()},
     $inc: {descendentCount:1},
   });
@@ -397,7 +397,7 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = context.oldDocument.deleted ? 1 : -1;
-    await Comments.rawUpdateOne({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
+    await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });

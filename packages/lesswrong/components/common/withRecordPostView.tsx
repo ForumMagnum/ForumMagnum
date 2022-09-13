@@ -1,4 +1,4 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useState } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from './withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
@@ -74,6 +74,18 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
   }, [postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent]);
   
   return { recordPostView, isRead };
+}
+
+export const useMarkAsRead = (post: PostsBase): {lastRead: Date, markAsRead} => {
+  const [lastRead, setLastRead] = useState<Date>(post.lastVisitedAt);
+  const { recordPostView } = useRecordPostView(post);
+
+  const markAsRead = useCallback(async () => {
+    setLastRead(new Date());
+    recordPostView({ post });
+  }, [post, recordPostView]);
+  
+  return { lastRead, markAsRead };
 }
 
 export const withRecordPostView = hookToHoc(useRecordPostView);

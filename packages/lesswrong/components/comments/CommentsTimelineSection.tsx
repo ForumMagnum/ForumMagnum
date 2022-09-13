@@ -56,7 +56,7 @@ const CommentsTimelineSection = ({
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
-  comments: Array<CommentTreeNode<CommentsList>>,
+  comments: CommentWithRepliesFragment[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
