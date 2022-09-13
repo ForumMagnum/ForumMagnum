@@ -205,7 +205,7 @@ export function addUniversalFields<T extends DbObject>({
 }: {
   collection: CollectionBase<T>,
   schemaVersion?: number
-  createdAtOptions?: Record<string, any>,
+  createdAtOptions?: Partial<CollectionFieldPermissions>,
 }): void {
   addFieldsDict(collection, {
     _id: {
