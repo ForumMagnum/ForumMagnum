@@ -4,6 +4,11 @@ import { getCollection } from "../../lib/vulcan-lib";
 import { dataToWordCount } from "../editor/make_editable_callbacks";
 import { Revisions } from "../../lib/collections/revisions/collection";
 
+/**
+ * This migration recomputes word counts in batches for all Revisions and editable
+ * fields using dataToWordCount. It's based on 2019-02-14-computeWordCounts
+ * which only creates word counts for documents where the field is undefined.
+ */
 registerMigration({
   name: "recomputeWordCounts",
   dateWritten: "2022-08-31",
