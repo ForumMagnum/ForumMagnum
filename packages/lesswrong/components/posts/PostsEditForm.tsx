@@ -12,7 +12,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -61,8 +61,7 @@ const PostsEditForm = ({ documentId, classes }: {
   if (document
     && document.userId!==currentUser._id
     && document.sharingSettings
-    && !userIsAdmin(currentUser)
-    && !currentUser.groups?.includes('sunshineRegiment')
+    && !userCanDo(currentUser, 'posts.edit.all')
   ) {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}${query.key ? "&key="+query.key : ""}`} status={302}/>
   }
@@ -90,7 +89,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   // If we have access to the post but only readonly access and only because
   // it's published, don't show the edit form.
-  if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userIsAdmin(currentUser)) {
+  if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userCanDo(currentUser, 'posts.edit.all')) {
     return <Components.ErrorAccessDenied/>
   }
   
