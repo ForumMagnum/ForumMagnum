@@ -7,6 +7,8 @@ import { signToken } from "./tokens";
 import type { Request } from "express";
 import fetch from "node-fetch";
 
+export const crosspostUserAgent = "ForumMagnum/2.1";
+
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
   if (!userId) {
@@ -25,6 +27,7 @@ export const makeCrossSiteRequest = async <T extends {}>(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": crosspostUserAgent,
     },
     body: JSON.stringify(body),
   });
