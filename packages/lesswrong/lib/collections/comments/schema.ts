@@ -41,13 +41,6 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     hidden: true,
   },
-  // The timestamp of comment creation
-  createdAt: {
-    type: Date,
-    optional: true,
-    canRead: ['admins'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   // The timestamp of the comment being posted. For now, comments are always
   // created and posted at the same time
   postedAt: {

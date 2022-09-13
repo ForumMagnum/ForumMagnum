@@ -13,7 +13,13 @@ const Reports: ReportsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: Reports})
+addUniversalFields({
+  collection: Reports,
+  createdAtOptions: {
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+  },
+});
 
 const membersActions = [
   'reports.new',

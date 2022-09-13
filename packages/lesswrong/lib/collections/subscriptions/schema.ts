@@ -13,12 +13,6 @@ export const subscriptionTypes = {
 }
 
 const schema: SchemaType<DbSubscription> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    canRead: [userOwns],
-    onCreate: () => new Date(),
-  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
