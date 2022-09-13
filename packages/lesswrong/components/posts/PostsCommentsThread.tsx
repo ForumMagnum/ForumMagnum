@@ -3,11 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false }: {
+const PostsCommentsThread = ({ post, terms, newForm=true }: {
   post?: PostsDetails,
   terms: CommentsViewTerms,
   newForm?: boolean,
-  timelineView?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
@@ -21,35 +20,20 @@ const PostsCommentsThread = ({ post, terms, newForm=true, timelineView=false }: 
     return <Components.Loading />;
   } else if (!results) {
     return null;
-  } else {
-    const nestedComments = unflattenComments(results);
-    if (timelineView) {
-      return (
-        <Components.CommentsTimelineSection
-          comments={nestedComments}
-          loadMoreComments={loadMore}
-          totalComments={totalCount as number}
-          commentCount={(results && results.length) || 0}
-          loadingMoreComments={loadingMore}
-          loadMoreCount={10}
-          post={post}
-          newForm={newForm}
-        />
-      );
-    } else {
-      return (
-        <Components.CommentsListSection
-          comments={nestedComments}
-          loadMoreComments={loadMore}
-          totalComments={totalCount as number}
-          commentCount={(results && results.length) || 0}
-          loadingMoreComments={loadingMore}
-          post={post}
-          newForm={newForm}
-        />
-      );
-    }
   }
+
+  const nestedComments = unflattenComments(results);
+  return (
+    <Components.CommentsListSection
+      comments={nestedComments}
+      loadMoreComments={loadMore}
+      totalComments={totalCount as number}
+      commentCount={(results && results.length) || 0}
+      loadingMoreComments={loadingMore}
+      post={post}
+      newForm={newForm}
+    />
+  );
 }
 
 const PostsCommentsThreadComponent = registerComponent('PostsCommentsThread', PostsCommentsThread, {

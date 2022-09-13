@@ -19,6 +19,12 @@ const schema: SchemaType<DbNotification> = {
     optional: true,
     viewableBy: userOwns,
   },
+  extraData: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    viewableBy: userOwns,
+  },
   link: {
     type: String,
     optional: true,

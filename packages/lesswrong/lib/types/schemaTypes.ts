@@ -53,7 +53,6 @@ interface CollectionFieldSpecification<T extends DbObject> {
   maxCount?: number,
   options?: any,
   allowedValues?: any,
-  query?: any,
   
   form?: any,
   input?: any,
