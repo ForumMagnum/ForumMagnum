@@ -66,7 +66,7 @@ registerMigration({
             // eslint-disable-next-line no-console
             console.log(`Writing ${updates.length} word counts for ${collectionName}`);
             if (updates.length) {
-              await Revisions.rawCollection().bulkWrite(updates, { ordered: false });
+              await collection.rawCollection().bulkWrite(updates, { ordered: false });
             }
           },
         });

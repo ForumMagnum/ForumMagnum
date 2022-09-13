@@ -4,6 +4,7 @@ import Revisions from "../../lib/collections/revisions/collection";
 import { Posts } from "../../lib/collections/posts";
 import { runQuery } from "../vulcan-lib";
 import { syncDocumentWithLatestRevision } from "./utils";
+import { dataToWordCount } from "./make_editable_callbacks";
 
 testStartup();
 
@@ -51,5 +52,57 @@ describe("syncDocumentWithLatestRevision", () => {
       throw new Error("Lost post")
     }
     expect(postAfterSync.contents.originalContents.data).toMatch(/version 2/);
+  });
+});
+
+describe("dataToWordCount", () => {
+  it("counts words in HTML content", async () => {
+    expect(await dataToWordCount("<div><p>A sample piece of content</p></div>", "html")).toBe(5);
+  });
+  it("counts words in CKEditor content", async () => {
+    expect(await dataToWordCount("A sample piece of content", "ckEditorMarkup")).toBe(5);
+  });
+  it("counts words in DraftJS content", async () => {
+    expect(await dataToWordCount({
+      blocks: [
+        {
+          key: "abcde",
+          text: "A sample piece of content",
+          type: "unstyled",
+          depth: 0,
+          inlineStyleRanges: [],
+          entityRanges: [],
+          data: {},
+        },
+      ],
+      entityMap: {},
+    }, "draftJS")).toBe(5);
+  });
+  it("counts words in MD content", async () => {
+    expect(await dataToWordCount("A sample piece of content", "markdown")).toBe(5);
+  });
+  it("excludes simple footnotes", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content[^1] that has simple footnotes[^2]
+
+[^1]: First footnote
+
+[^2]:
+
+  Second footnote
+    `, "markdown")).toBe(9);
+  });
+  it("excludes complex footnotes", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
+
+1.  ^**[^](#footnote1)**^
+
+  First footnote
+
+2.  ^**[^](#footnote2)**^
+
+  Second footnote
+    `, "markdown")).toBe(9);
   });
 });
