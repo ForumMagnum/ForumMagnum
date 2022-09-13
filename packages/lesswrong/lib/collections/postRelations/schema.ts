@@ -1,12 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbPostRelation> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    onInsert: (document, currentUser) => new Date(),
-    viewableBy: ['guests'],
-  },
   type: {
     // "subQuestion"
     type: String,

@@ -3,16 +3,6 @@ import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../
 const schema: SchemaType<DbCollection> = {
 
   // default properties
-
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    onInsert: () => new Date(),
-  },
-
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

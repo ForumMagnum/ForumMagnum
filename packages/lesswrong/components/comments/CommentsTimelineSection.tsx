@@ -27,6 +27,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     marginTop: 30,
+    marginLeft: 5,
+    marginRight: 5,
     "@media print": {
       display: "none"
     },

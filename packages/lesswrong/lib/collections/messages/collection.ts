@@ -56,6 +56,9 @@ makeEditable({
   }
 })
 
-addUniversalFields({collection: Messages})
+addUniversalFields({
+  collection: Messages,
+  createdAtOptions: {viewableBy: ['members']},
+});
 
 export default Messages;

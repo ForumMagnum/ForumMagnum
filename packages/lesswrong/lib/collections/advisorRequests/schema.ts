@@ -16,13 +16,6 @@ const schema: SchemaType<DbAdvisorRequest> = {
     viewableBy: [userOwns, 'admins'],
     editableBy: [userOwns, 'admins'],
   },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-    hidden: true,
-  },
   timezone: {
     optional: true,
     type: String,
