@@ -66,6 +66,7 @@ class BulkWriter<T extends DbObject> {
       this.queries = this.queries.concat(deleteManys.map(({filter}) => new DeleteQuery(table, filter, {})));
     }
     if (replaces.length) {
+      // Currently not used in our code base and it's complicated to implement...
       throw new Error("replaceOne in bulkWrite not implemented");
     }
   }

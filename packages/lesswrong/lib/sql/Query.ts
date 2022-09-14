@@ -7,7 +7,6 @@ class Arg {
 
 export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
-const isArrayOp = (op: string) => op === "$in" || op === "$nin";
 const isMagnitudeOp = (op: string) => ["$lt", "$lte", "$gt", "$gte"].indexOf(op) > -1;
 
 const comparisonOps = {
@@ -17,8 +16,6 @@ const comparisonOps = {
   $lte: "<=",
   $gt: ">",
   $gte: ">=",
-  $in: "=",
-  $nin: "<>",
 };
 
 const arithmeticOps = {
@@ -143,18 +140,30 @@ abstract class Query<T extends DbObject> {
     }
     if (typeof value === "object") {
       const comparer = Object.keys(value)[0];
-      if (comparer === "$exists") {
-        return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+      switch (comparer) {
+        case "$not":
+          return ["NOT (", ...this.compileComparison(fieldName, value[comparer]), ")"];
+        case "$nin":
+          return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
+        case "$in":
+          if (!Array.isArray(value[comparer])) {
+            throw new Error("$in expects an array");
+          }
+          const typeHint = this.getTypeHint(this.getField(fieldName));
+          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
+          return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+        case "$exists":
+          return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+        default:
+          break;
       }
       const op = comparisonOps[comparer];
       if (op) {
-        if (isArrayOp(comparer) && Array.isArray(value[comparer])) {
-          const typeHint = this.getTypeHint(this.getField(fieldName));
-          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`${field} ${op} ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
-        } else {
-          return [`${field} ${op} `, new Arg(value[comparer])];
-        }
+        const arg = value[comparer];
+        const ty = this.getField(fieldName);
+        return ty && ty.isArray() && !Array.isArray(arg)
+          ? [new Arg(arg), `${op} ANY(${field})`]
+          : [`${field} ${op} `, new Arg(arg)];
       } else {
         throw new Error(`Invalid comparison selector: ${field}: ${JSON.stringify(value)}`);
       }
@@ -254,6 +263,18 @@ abstract class Query<T extends DbObject> {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    // This algorithm is over-specialized, but we only seem to use it in a very particular way...
+    if (op === "$arrayElemAt") {
+      const [array, index] = expr[op];
+      if (typeof array !== "string" || array[0] !== "$" || typeof index !== "number") {
+        throw new Error("Invalid arguments to $arrayElemAt");
+      }
+      const tokens = array.split(".");
+      const prop = tokens.slice(1).map((name) => `'${name}'`).join(".");
+      const pgIndex = index + 1; // postgres arrays are 1-indexed
+      return [`("${tokens[0]}")[${pgIndex}]${prop ? "." + prop : ""}`];
+    }
+
     if (op === undefined) {
       return ["'{}'::JSONB"];
     }
@@ -262,4 +283,4 @@ abstract class Query<T extends DbObject> {
   }
 }
 
-export default Query;
+  export default Query;

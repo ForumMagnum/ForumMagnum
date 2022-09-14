@@ -65,9 +65,9 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   }
 
   console.log("...Copying data");
-  // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65534. The largest
+  // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65535. The largest
   // collections have ~150 fields, so these can be safely imported in batches of 400 with a little safety
-  // margin.
+  // margin. For collections with fewer fields, it may be quicker to increase this number appropriately.
   const batchSize = 400;
   const formatData: (doc: DbObject) => DbObject = formatters[collectionName] ?? ((document) => document);
   let errorIds: string[] = [];

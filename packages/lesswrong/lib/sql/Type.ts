@@ -15,6 +15,10 @@ export abstract class Type {
     return this;
   }
 
+  isArray(): boolean {
+    return false;
+  }
+
   static fromSchema<T extends DbObject>(
     fieldName: string,
     schema: CollectionFieldSpecification<T>,
@@ -114,6 +118,10 @@ export class ArrayType extends Type {
   toString() {
     return `${this.subtype.toString()}[]`;
   }
+
+  isArray() {
+    return true;
+  }
 }
 
 export class IdType extends StringType {
@@ -137,6 +145,10 @@ export class NotNullType extends Type {
 
   toConcrete() {
     return this.subtype.toConcrete();
+  }
+
+  isArray() {
+    return this.subtype.isArray();
   }
 }
 
@@ -166,6 +178,10 @@ export class DefaultValueType extends Type {
 
   toConcrete() {
     return this.subtype.toConcrete();
+  }
+
+  isArray() {
+    return this.subtype.isArray();
   }
 }
 

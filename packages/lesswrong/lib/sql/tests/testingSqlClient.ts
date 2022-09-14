@@ -59,5 +59,8 @@ export const dropTestingDatabases = async () => {
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `;
   const queries = databases.map(({datname}) => sql`DROP DATABASE ${sql(datname)}`);
-  await Promise.all(queries);
+  // Don't use Promise.all here - it's easy to hit max_connections
+  for (const query of queries) {
+    await query;
+  }
 }

@@ -25,5 +25,5 @@ For each collection you wish to import:
 
 ### Notes
 
-Be careful not to `import "postgres"` in this directory as it will break the client
-build - only do that in `/server`.
+Be careful not to `import "postgres"` in the `/lib` directory as it will break
+the client build - only do that in `/server`.
