@@ -133,6 +133,13 @@ abstract class Query<T extends DbObject> {
     throw new Error(`Cannot resolve field name: ${field}`);
   }
 
+  private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
+    const ty = this.getField(unresolvedField);
+    return ty && ty.isArray() && !Array.isArray(value)
+      ? [new Arg(value), `${op} ANY(${resolvedField})`]
+      : [`${resolvedField} ${op} `, new Arg(value)];
+  }
+
   private compileComparison(fieldName: string, value: any): Atom<T>[] {
     const field = this.resolveFieldName(fieldName, value);
     if (value === null || value === undefined) {
@@ -159,16 +166,12 @@ abstract class Query<T extends DbObject> {
       }
       const op = comparisonOps[comparer];
       if (op) {
-        const arg = value[comparer];
-        const ty = this.getField(fieldName);
-        return ty && ty.isArray() && !Array.isArray(arg)
-          ? [new Arg(arg), `${op} ANY(${field})`]
-          : [`${field} ${op} `, new Arg(arg)];
+        return this.arrayify(fieldName, field, op, value[comparer]);
       } else {
         throw new Error(`Invalid comparison selector: ${field}: ${JSON.stringify(value)}`);
       }
     }
-    return [`${field} = `, new Arg(value)];
+    return this.arrayify(fieldName, field, "=", value);
   }
 
   private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom<T>[] {
@@ -263,6 +266,10 @@ abstract class Query<T extends DbObject> {
       return ["ABS(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    if (op === "$sum") {
+      return ["SUM(", ...this.compileExpression(expr[op]), ")"];
+    }
+
     // This algorithm is over-specialized, but we only seem to use it in a very particular way...
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
@@ -270,9 +277,14 @@ abstract class Query<T extends DbObject> {
         throw new Error("Invalid arguments to $arrayElemAt");
       }
       const tokens = array.split(".");
-      const prop = tokens.slice(1).map((name) => `'${name}'`).join(".");
+      const field = tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0];
+      const prop = tokens.slice(1).map((name) => `'${name}'`).join("->");
       const pgIndex = index + 1; // postgres arrays are 1-indexed
-      return [`("${tokens[0]}")[${pgIndex}]${prop ? "." + prop : ""}`];
+      return [`("${field}")[${pgIndex}]${prop ? "->" + prop : ""}`];
+    }
+
+    if (op === "$first") {
+      return this.compileExpression(expr[op]);
     }
 
     if (op === undefined) {

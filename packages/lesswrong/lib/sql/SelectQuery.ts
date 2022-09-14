@@ -26,7 +26,22 @@ export type SelectSqlOptions = Partial<{
   unwind: any, // TODO typing
   joinHook: string,
   forUpdate: boolean,
+  group: any, // TODO typing
 }>
+
+const isAggregate = (value: any) => {
+  switch (typeof value) {
+    case "string":
+      return false;
+    case "object":
+      if (!value || Object.keys(value)[0] === "$first") {
+        return false;
+      }
+      return true;
+    default:
+      return true;
+  }
+}
 
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
@@ -38,6 +53,12 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     sqlOptions?: SelectSqlOptions,
   ) {
     super(table, ["SELECT"]);
+
+    if (sqlOptions?.group) {
+      this.appendGroup(sqlOptions.group);
+      return;
+    }
+
     this.hasLateralJoin = !!sqlOptions?.lookup;
 
     const {addFields, projection} = this.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
@@ -76,6 +97,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
   }
 
+  private appendGroup<U extends {}>(group: U) {
+    this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group));
+    this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
+    const fields = Object.keys(group).filter((key: string) => !isAggregate(group[key])).map((field) => `"${field}"`);
+    this.atoms.push(fields.join(", "));
+  }
+
   private getStarSelector() {
     return this.table instanceof Table && !this.hasLateralJoin ? `"${this.table.getName()}".*` : "*";
   }
@@ -91,6 +119,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       const table = getCollectionByTableName(from).collectionName;
       this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
       this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
+      this.syntheticFields[as] = new UnknownType();
     } else if ("let" in lookup && "pipeline" in lookup) {
       throw new Error("Pipeline joins are not being implemented - write raw SQL");
     } else {

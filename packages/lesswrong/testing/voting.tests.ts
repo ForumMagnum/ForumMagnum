@@ -264,33 +264,26 @@ describe('Voting', function() {
   })
   describe('getKarmaChanges', () => {
     it('includes authored posts in the selected date range', async () => {
-      let clock = lolex.install({
-        now: new Date("1980-01-01"),
-        shouldAdvanceTime: true,
-      });
-      
-      let poster = await createDummyUser();
-      let voter = await createDummyUser();
-      
-      clock.setSystemTime(new Date("1980-01-01T13:00:00Z"));
-      let post = await createDummyPost(poster);
-      
-      clock.setSystemTime(new Date("1980-01-01T13:30:00Z"));
+      const postedAt = new Date(Date.now() - 30000);
+
+      const poster = await createDummyUser();
+      const voter = await createDummyUser();
+      const post = await createDummyPost(poster, {createdAt: postedAt});
+
       await performVoteServer({
         document: post,
         voteType: "smallUpvote",
         collection: Posts,
         user: voter,
       });
-      
-      let karmaChanges = await getKarmaChanges({
+
+      const karmaChanges = await getKarmaChanges({
         user: poster,
-        startDate: new Date("1980-01-01T13:20:00Z"),
-        endDate: new Date("1980-01-01T13:40:00Z"),
+        startDate: new Date(Date.now() - 10000),
+        endDate: new Date(Date.now() + 10000),
       });
-      
+
       (karmaChanges.totalChange as any).should.equal(1);
-      
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
@@ -298,10 +291,6 @@ describe('Voting', function() {
         title: post.title,
         slug: slugify(post.title),
       });
-      
-      // TODO
-      await waitUntilCallbacksFinished();
-      clock.uninstall();
     });
     it('includes co-authored posts in the selected date range', async () => {
       const clock = lolex.install({

@@ -44,6 +44,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
 export const Comments: ExtendedCommentsCollection = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
+  postgres: true,
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),

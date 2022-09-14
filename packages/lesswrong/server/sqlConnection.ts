@@ -19,7 +19,7 @@ export const createSqlConnection = async (url: string) => {
   const sql = postgres(url, {
     max: MAX_CONNECTIONS,
     onnotice: () => {},
-    // debug: console.log,
+    debug: console.log,
   });
   await sql`SET default_toast_compression = lz4`;
   await sql`CREATE EXTENSION IF NOT EXISTS "btree_gin"`;
