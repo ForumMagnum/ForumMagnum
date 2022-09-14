@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { taglineSetting } from '../common/HeadTags';
-import { siteNameWithArticleSetting  } from '../../lib/instanceSettings';
-import AdvisorRequests from '../../lib/collections/advisorRequests/collection';
+import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
+import { useCurrentUser } from '../../common/withUser';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { taglineSetting } from '../../common/HeadTags';
+import { siteNameWithArticleSetting  } from '../../../lib/instanceSettings';
+import AdvisorRequests from '../../../lib/collections/advisorRequests/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

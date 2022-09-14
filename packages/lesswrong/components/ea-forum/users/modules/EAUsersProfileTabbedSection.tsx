@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
@@ -106,7 +106,11 @@ const EAUsersProfileTabbedSection = ({tabs, classes}: {
   // this tracks whether the tab body is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
   
-  const meritsCollapse = useCheckMeritsCollapse({ref: bodyRef, height: COLLAPSED_SECTION_HEIGHT, deps: [activeTab]})
+  const meritsCollapse = useCheckMeritsCollapse({
+    ref: bodyRef,
+    height: COLLAPSED_SECTION_HEIGHT,
+    deps: [activeTab]
+  })
 
   const { Typography } = Components
   
