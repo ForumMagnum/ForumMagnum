@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
@@ -6,29 +6,29 @@ import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 0,
     display: "flex",
     flexDirection: "row",
+    justifyContent: "center",
+    columnGap: 32,
     [theme.breakpoints.down("md")]: {
       flexDirection: "column",
     },
   },
   columnSection: {
-    marginBottom: 0,
-    width: "100%",
-  },
-  fullWidth: {
-    flex: 'none',
+    [theme.breakpoints.up("lg")]: {
+      margin: 0,
+    }
   },
   stickToBottom: {
     marginTop: "auto",
+    marginBottom: 3,
   },
-  welcomeBoxPadding: {
-    padding: "32px 32px 3px 32px",
-    marginLeft: "auto",
+  aside: {
     width: "fit-content",
     [theme.breakpoints.down("md")]: {
       display: "none",
@@ -48,6 +48,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 24,
     marginBottom: 10,
   },
+  wikiSidebar: {
+    marginTop: 84,
+    maxWidth: 380,
+    gridColumnStart: 3,
+    padding: '2em',
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
+    '& a': {
+      color: theme.palette.primary,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    },
+  }
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
@@ -76,7 +90,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   }
 
   const welcomeBoxComponent = tag.subforumWelcomeText ? (
-    <div className={classes.welcomeBoxPadding}>
+    <div className={classes.aside}>
       <div className={classes.welcomeBox}>
         <ContentStyles contentType="comment">
           <ContentItemBody
@@ -102,7 +116,15 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           />
         </AnalyticsContext>
       </SingleColumnSection>
-      <div className={classes.columnSection}></div>
+      <div className={classes.columnSection}>
+        {tag?.tableOfContents?.html &&
+          <div className={classes.aside}>
+          <ContentStyles contentType="tag">
+            <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}>
+            </div>
+          </ContentStyles>
+        </div>}
+      </div>
     </div>
   );
 };
