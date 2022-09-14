@@ -8,11 +8,10 @@
 // server/codegen/generateQueryTypes.ts.
 //
 interface QueryRecommendationsQueryResult {
-  readonly Recommendations: QueryRecommendationsQueryResult_Recommendations,
+  readonly Recommendations: Array<QueryRecommendationsQueryResult_Recommendations>,
 }
 
-interface QueryRecommendationsQueryResult_Recommendations {
-  PostsList: any
+interface QueryRecommendationsQueryResult_Recommendations extends PostsList {
 }
 interface QueryRecommendationsQueryVariables {
   count: number
@@ -24,28 +23,28 @@ interface QueryMozillaHubsRoomDataResult {
 }
 
 interface QueryMozillaHubsRoomDataResult_MozillaHubsRoomData {
-  id: any
-  previewImage: any
-  lobbyCount: any
-  memberCount: any
-  roomSize: any
-  description: any
-  url: any
-  name: any
+  id: string
+  previewImage: string
+  lobbyCount: number
+  memberCount: number
+  roomSize: number
+  description: string
+  url: string
+  name: string
 }
 interface QueryMozillaHubsRoomDataVariables {
   roomId: string
 }
 
 interface QueryEmailPreviewQueryResult {
-  readonly EmailPreview: QueryEmailPreviewQueryResult_EmailPreview,
+  readonly EmailPreview: Array<QueryEmailPreviewQueryResult_EmailPreview>,
 }
 
 interface QueryEmailPreviewQueryResult_EmailPreview {
-  to: any
-  subject: any
-  html: any
-  text: any
+  to: string
+  subject: string
+  html: string
+  text: string
 }
 interface QueryEmailPreviewQueryVariables {
   notificationIds: Array<string>
@@ -57,8 +56,8 @@ interface QueryArbitalPageRequestResult {
 }
 
 interface QueryArbitalPageRequestResult_ArbitalPageData {
-  title: any
-  html: any
+  title: string
+  html: string
 }
 interface QueryArbitalPageRequestVariables {
   arbitalSlug: string
@@ -69,13 +68,13 @@ interface QueryGetRandomTagResult {
 }
 
 interface QueryGetRandomTagResult_RandomTag {
-  slug: any
+  slug: string
 }
 interface QueryGetRandomTagVariables {
 }
 
 interface QueryAdminMetadataQueryResult {
-  readonly AdminMetadata: any,
+  readonly AdminMetadata: string,
 }
 
 interface QueryAdminMetadataQueryVariables {
@@ -86,7 +85,19 @@ interface QueryMigrationsDashboardQueryResult {
 }
 
 interface QueryMigrationsDashboardQueryResult_MigrationsDashboard {
-  migrations: any
+  migrations: Array<QueryMigrationsDashboardQueryResult__migrationsmigrations>
+}
+interface QueryMigrationsDashboardQueryResult__migrationsmigrations {
+  name: string
+  dateWritten: string
+  runs: Array<QueryMigrationsDashboardQueryResult__migrations_runsruns>
+  lastRun: string
+}
+interface QueryMigrationsDashboardQueryResult__migrations_runsruns {
+  name: string
+  started: Date
+  finished: Date
+  succeeded: boolean
 }
 interface QueryMigrationsDashboardQueryVariables {
 }
@@ -96,12 +107,31 @@ interface QueryElicitQueryResult {
 }
 
 interface QueryElicitQueryResult_ElicitBlockData {
-  _id: any
-  title: any
-  notes: any
-  resolvesBy: any
-  resolution: any
-  predictions: any
+  _id: string
+  title: string
+  notes: string
+  resolvesBy: Date
+  resolution: boolean
+  predictions: Array<QueryElicitQueryResult__predictionspredictions>
+}
+interface QueryElicitQueryResult__predictionspredictions {
+  _id: string
+  predictionId: string
+  prediction: number
+  createdAt: Date
+  notes: string
+  sourceUrl: string
+  sourceId: string
+  binaryQuestionId: string
+  creator: QueryElicitQueryResult__predictions_creatorcreator
+}
+interface QueryElicitQueryResult__predictions_creatorcreator {
+  _id: string
+  displayName: string
+  sourceUserId: string
+  lwUser: QueryElicitQueryResult__predictions_creator_lwUserlwUser
+}
+interface QueryElicitQueryResult__predictions_creator_lwUserlwUser extends UsersMinimumInfo {
 }
 interface QueryElicitQueryVariables {
   questionId: string
@@ -112,12 +142,16 @@ interface QueryPostAnalyticsQueryResult {
 }
 
 interface QueryPostAnalyticsQueryResult_PostAnalytics {
-  allViews: any
-  uniqueClientViews: any
-  uniqueClientViews10Sec: any
-  medianReadingTime: any
-  uniqueClientViews5Min: any
-  uniqueClientViewsSeries: any
+  allViews: number
+  uniqueClientViews: number
+  uniqueClientViews10Sec: number
+  medianReadingTime: number
+  uniqueClientViews5Min: number
+  uniqueClientViewsSeries: Array<QueryPostAnalyticsQueryResult__uniqueClientViewsSeriesuniqueClientViewsSeries>
+}
+interface QueryPostAnalyticsQueryResult__uniqueClientViewsSeriesuniqueClientViewsSeries {
+  date: Date
+  uniqueClientViews: number
 }
 interface QueryPostAnalyticsQueryVariables {
   postId: string
@@ -128,27 +162,49 @@ interface QueryCoronaVirusDataResult {
 }
 
 interface QueryCoronaVirusDataResult_CoronaVirusData {
-  range: any
-  majorDimension: any
-  values: any
+  range: string
+  majorDimension: string
+  values: Array<QueryCoronaVirusDataResult__valuesvalues>
+}
+interface QueryCoronaVirusDataResult__valuesvalues {
+  accepted: string
+  imp: string
+  link: string
+  shortDescription: string
+  url: string
+  description: string
+  domain: string
+  type: string
+  reviewerThoughts: string
+  foundVia: string
+  sourceLink: string
+  sourceLinkDomain: string
+  lastUpdated: string
+  title: string
+  dateAdded: string
+  category: string
 }
 interface QueryCoronaVirusDataVariables {
 }
 
 interface QueryTagUpdatesInTimeBlockResult {
-  readonly TagUpdatesInTimeBlock: QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock,
+  readonly TagUpdatesInTimeBlock: Array<QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock>,
 }
 
 interface QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock {
-  tag: any
-  revisionIds: any
-  commentCount: any
-  commentIds: any
-  lastRevisedAt: any
-  lastCommentedAt: any
-  added: any
-  removed: any
-  users: any
+  tag: QueryTagUpdatesInTimeBlockResult__tagtag
+  revisionIds: Array<string>
+  commentCount: number
+  commentIds: Array<string>
+  lastRevisedAt: Date
+  lastCommentedAt: Date
+  added: number
+  removed: number
+  users: Array<QueryTagUpdatesInTimeBlockResult__usersusers>
+}
+interface QueryTagUpdatesInTimeBlockResult__tagtag extends TagBasicInfo {
+}
+interface QueryTagUpdatesInTimeBlockResult__usersusers extends UsersMinimumInfo {
 }
 interface QueryTagUpdatesInTimeBlockVariables {
   before: Date
@@ -156,16 +212,30 @@ interface QueryTagUpdatesInTimeBlockVariables {
 }
 
 interface QueryContinueReadingQueryResult {
-  readonly ContinueReading: QueryContinueReadingQueryResult_ContinueReading,
+  readonly ContinueReading: Array<QueryContinueReadingQueryResult_ContinueReading>,
 }
 
 interface QueryContinueReadingQueryResult_ContinueReading {
-  sequence: any
-  collection: any
-  nextPost: any
-  numRead: any
-  numTotal: any
-  lastReadTime: any
+  sequence: QueryContinueReadingQueryResult__sequencesequence
+  collection: QueryContinueReadingQueryResult__collectioncollection
+  nextPost: QueryContinueReadingQueryResult__nextPostnextPost
+  numRead: number
+  numTotal: number
+  lastReadTime: Date
+}
+interface QueryContinueReadingQueryResult__sequencesequence {
+  _id: string
+  title: string
+  gridImageId: string
+  canonicalCollectionSlug: string
+}
+interface QueryContinueReadingQueryResult__collectioncollection {
+  _id: string
+  title: string
+  slug: string
+  gridImageId: string
+}
+interface QueryContinueReadingQueryResult__nextPostnextPost extends PostsList {
 }
 interface QueryContinueReadingQueryVariables {
 }
@@ -175,14 +245,14 @@ interface QueryPetrovDayLaunchResolversResult {
 }
 
 interface QueryPetrovDayLaunchResolversResult_PetrovDayCheckIfIncoming {
-  launched: any
-  createdAt: any
+  launched: boolean
+  createdAt: Date
 }
 interface QueryPetrovDayLaunchResolversVariables {
 }
 
 interface QueryRevisionsDiffResult {
-  readonly RevisionsDiff: any,
+  readonly RevisionsDiff: string,
 }
 
 interface QueryRevisionsDiffVariables {

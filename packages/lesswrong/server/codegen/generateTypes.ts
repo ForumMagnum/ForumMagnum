@@ -1,9 +1,11 @@
 import { Vulcan } from '../../lib/vulcan-lib';
+import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
 import { generateFragmentTypes } from './generateFragmentTypes';
-import { generateQueryTypes, graphqlSchemasToTS } from './generateQueryTypes';
+import { generateQueryTypes, graphqlSchemasToTS, getGraphqlSchemaFieldTypes, getResolverResultTypes } from './generateQueryTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
 import fs from 'fs';
+import keyBy from 'lodash/keyBy';
 
 
 export function generateTypes(repoRoot?: string) {
@@ -32,10 +34,13 @@ export function generateTypes(repoRoot?: string) {
   
   try {
     const context: TypeGenerationContext = {
+      collections: keyBy(getAllCollections(), c=>c.collectionName),
+      gqlSchemaFieldTypes: getGraphqlSchemaFieldTypes(),
+      resolverResultTypes: getResolverResultTypes(),
     };
     
     writeIfChanged(graphqlSchemasToTS(context), "/packages/lesswrong/lib/generated/gqlTypes.d.ts");
-    writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
+    writeIfChanged(generateFragmentTypes(context), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateQueryTypes(context), "/packages/lesswrong/lib/generated/queryTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");

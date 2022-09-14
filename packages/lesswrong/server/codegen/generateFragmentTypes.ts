@@ -8,12 +8,12 @@ const fragmentFileHeader = generatedFileHeader+`//
 //
 `
 
-export function generateFragmentTypes(): string {
+export function generateFragmentTypes(context: TypeGenerationContext): string {
   const fragmentNames: Array<FragmentName> = getAllFragmentNames();  
   const sb: Array<string> = [];
   
   for (let fragmentName of fragmentNames) {
-    sb.push(generateFragmentTypeDefinition(fragmentName));
+    sb.push(generateFragmentTypeDefinition(context, fragmentName));
   }
   
   sb.push(generateFragmentsIndexType());
@@ -49,13 +49,13 @@ function fragmentNameToCollectionName(fragmentName: FragmentName): CollectionNam
   return collectionName;
 }
 
-function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
+function generateFragmentTypeDefinition(context: TypeGenerationContext, fragmentName: FragmentName): string {
   const parsedFragment = getParsedFragment(fragmentName);
   const collectionName = fragmentNameToCollectionName(fragmentName);
   const collection = getCollection(collectionName);
   assert(!!collection);
   
-  return fragmentToInterface(fragmentName, parsedFragment, collection);
+  return fragmentToInterface(context, fragmentName, parsedFragment, collection);
 }
 
 function generateFragmentsIndexType(): string {
@@ -89,7 +89,7 @@ function generateCollectionNamesIndexType(): string {
   return 'type CollectionNameString = ' + getAllCollections().map(c => `"${c.collectionName}"`).join('|') + '\n\n';
 }
 
-function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection): string {
+function fragmentToInterface(context: TypeGenerationContext, interfaceName: string, parsedFragment: ParsedFragmentType, collection): string {
   const sb: Array<string> = [];
   
   const spreadFragments = getSpreadFragments(parsedFragment);
@@ -101,7 +101,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragme
   for (let selection of parsedFragment.selectionSet.selections) {
     switch(selection.kind) {
       case "Field":
-        const { fieldType, subfragment } = getFragmentFieldType(interfaceName, selection, collection)
+        const { fieldType, subfragment } = getFragmentFieldType(context, interfaceName, selection, collection)
         sb.push(`  readonly ${selection.name.value}: ${fieldType},\n`);
         if (subfragment)
           allSubfragments.push(subfragment);
@@ -130,10 +130,10 @@ function getSpreadFragments(parsedFragment): Array<string> {
   return spreadFragmentNames;
 }
 
-export function getFragmentFieldType(fragmentName: string, parsedFragmentField, collection):
+export function getFragmentFieldType(context: TypeGenerationContext, namePrefix: string, parsedSelector, collection):
   { fieldType: string, subfragment: string|null }
 {
-  const fieldName: string = parsedFragmentField.name.value;
+  const fieldName: string = parsedSelector.name.value;
   if (fieldName == "__typename") {
     return { fieldType: "string", subfragment: null };
   }
@@ -171,19 +171,19 @@ export function getFragmentFieldType(fragmentName: string, parsedFragmentField, 
   
   // If neither found, error (fragment contains a field that isn't in the schema)
   if (!fieldType) {
-    throw new Error(`Fragment ${fragmentName} contains field ${fieldName} on type ${collection.collectionName} which is not in the schema`);
+    throw new Error(`${namePrefix} contains field ${fieldName} on type ${collection.collectionName} which is not in the schema`);
   }
 
   const {collection: subfieldCollection, nullable} = subfragmentTypeToCollection(fieldType);
   
   // Now check if the field has a sub-selector
-  if (parsedFragmentField.selectionSet?.selections?.length > 0) {
+  if (parsedSelector.selectionSet?.selections?.length > 0) {
     // As a special case, if the sub-selector spreads a fragment and has no
     // other fields, use that fragment's type
-    if (parsedFragmentField.selectionSet.selections.length == 1
-      && parsedFragmentField.selectionSet.selections[0].kind == "FragmentSpread")
+    if (parsedSelector.selectionSet.selections.length == 1
+      && parsedSelector.selectionSet.selections[0].kind == "FragmentSpread")
     {
-      const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
+      const subfragmentName = parsedSelector.selectionSet.selections[0].name.value;
       if (fieldType.startsWith("Array<")) {
         return {
           fieldType: nullable ? `Array<${subfragmentName}>|null` : `Array<${subfragmentName}>`,
@@ -201,14 +201,14 @@ export function getFragmentFieldType(fragmentName: string, parsedFragmentField, 
       if (typeof fieldType !== "string") throw new Error("fieldType is not a string: was "+JSON.stringify(fieldType));
       if (!subfieldCollection) {
         // eslint-disable-next-line no-console
-        console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
-        //throw new Error(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
+        console.log(`Field ${fieldName} in fragment ${namePrefix} has type ${fieldType} which does not identify a collection`);
+        //throw new Error(`Field ${fieldName} in fragment ${namePrefix} has type ${fieldType} which does not identify a collection`);
         return {
           fieldType: "any", subfragment: null
         };
       }
-      const subfragmentName = `${fragmentName}_${fieldName}`;
-      const subfragment = fragmentToInterface(subfragmentName, parsedFragmentField, subfieldCollection);
+      const subfragmentName = `${namePrefix}_${fieldName}`;
+      const subfragment = fragmentToInterface(context, subfragmentName, parsedSelector, subfieldCollection);
       
       // If it's an array type, then it's an array of that subfragment. Otherwise it's an instance of that subfragmetn.
       if (fieldType.startsWith("Array<")) {
