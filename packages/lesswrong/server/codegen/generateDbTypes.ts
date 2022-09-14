@@ -50,7 +50,6 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
       // ...but it's not actually a resolver-only field.
       // And we can't use addOriginalField because it gets added twice by `getFields` in initGraphQL, which causes a runtime error.
       if (fieldSchema.resolveAs.type !== "Revision" && fieldSchema.resolveAs.type !== "ContentType") {
-        // console.log({ field: schema[fieldName], fieldName });
         continue;
       }
     }
