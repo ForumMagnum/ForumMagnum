@@ -127,7 +127,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const autosaveInterval = 3000; //milliseconds
+const autosaveInterval = 15000; //milliseconds
 const checkImgErrsInterval = 500; //milliseconds
 const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
@@ -448,10 +448,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           // bypass throttling. These cases don't have the performance
           // implications that motivated having throttling in the first place,
           // and this prevents a timing bug with form-clearing on submit.
-          const data: string = editor.getData();
-          if (isBlank({type: "ckEditorMarkup", value: data}) || isBlank(this.props.value)) {
+          if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
             this.throttledSetCkEditor.cancel();
-            this.setContents("ckEditorMarkup", data);
+            this.setContents("ckEditorMarkup", editor.getData());
           } else {
             this.throttledSetCkEditor(() => editor.getData())
           }
