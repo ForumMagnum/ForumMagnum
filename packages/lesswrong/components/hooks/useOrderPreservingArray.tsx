@@ -17,7 +17,7 @@ const indexMapToArray = (map: Record<IndexType, number>): IndexType[] => {
 
 function buildOrderIndexMap<T>(
   array: T[],
-  keyFunc: (elem: T) => string | number,
+  keyFunc: (elem: T) => IndexType,
   policy: OrderPreservingArrayPolicy,
   currentOrderingIndexMap: Record<IndexType, number>
 ): Record<IndexType, number> {
@@ -52,9 +52,21 @@ function buildOrderIndexMap<T>(
   return arrayToIndexMap(naiveOrdering);
 }
 
+/**
+ * Keeps elements that have already appeared in the array in the same order, useful for preventing reordering of elements when refetching.
+ *
+ * @param array
+ * @param keyFunc
+ * @param policy
+ *  - "prepend-new": New elements are prepended to the array, existing elements are kept in the same order
+ *  - "append-new": New elements are appended to the array, existing elements are kept in the same order
+ *  - "interleave-new": New elements are interleaved with the existing elements (see useOrderPreservingArray.test.tsx for example)
+ *  - "no-reorder": No reordering is done, useful for disabling this behavior without needing to call the hook conditionally
+ * @returns
+ */
 export function useOrderPreservingArray<T>(
   array: T[],
-  keyFunc: (elem) => string | number,
+  keyFunc: (elem) => IndexType,
   policy: OrderPreservingArrayPolicy = "interleave-new"
 ): T[] {
   const orderIndexMapRef = useRef<Record<IndexType, number>>({});
