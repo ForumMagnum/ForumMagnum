@@ -1,5 +1,5 @@
-import React from 'react';
-import { useMarkAsRead } from "../common/withRecordPostView";
+import React, { useCallback, useState } from 'react';
+import { useRecordPostView } from "../common/withRecordPostView";
 import { CommentWithRepliesProps } from "./CommentWithReplies";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
@@ -8,7 +8,14 @@ interface CommentOnPostWithRepliesProps extends CommentWithRepliesProps {
 }
 
 const CommentOnPostWithReplies = (props: CommentOnPostWithRepliesProps) => {
-  const {lastRead, markAsRead} = useMarkAsRead(props.post);
+  const post = props.post;
+  const [lastRead, setLastRead] = useState<Date>(post.lastVisitedAt);
+  const { recordPostView } = useRecordPostView(post);
+
+  const markAsRead = useCallback(async () => {
+    setLastRead(new Date());
+    recordPostView({ post });
+  }, [post, recordPostView]);
 
   const {CommentWithReplies} = Components;
 

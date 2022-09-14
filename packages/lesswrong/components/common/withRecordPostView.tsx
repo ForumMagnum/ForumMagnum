@@ -76,18 +76,6 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
   return { recordPostView, isRead };
 }
 
-export const useMarkAsRead = (post: PostsBase): {lastRead: Date, markAsRead} => {
-  const [lastRead, setLastRead] = useState<Date>(post.lastVisitedAt);
-  const { recordPostView } = useRecordPostView(post);
-
-  const markAsRead = useCallback(async () => {
-    setLastRead(new Date());
-    recordPostView({ post });
-  }, [post, recordPostView]);
-  
-  return { lastRead, markAsRead };
-}
-
 export const withRecordPostView = hookToHoc(useRecordPostView);
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
