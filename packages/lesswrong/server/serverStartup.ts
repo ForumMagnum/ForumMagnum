@@ -11,7 +11,7 @@ import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
-import { Globals } from '../lib/vulcan-lib/config';
+import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
@@ -161,6 +161,21 @@ function initShell()
   r.context.Vulcan = Globals;
 }
 
+const compileWithGlobals = (code: string) => {
+  const callable = new Function(`with(this){${code}}`);
+  const scope = {Globals, Vulcan};
+  return () => {
+    return callable.call(new Proxy({}, {
+      has () { return true; },
+      get (target, key) {
+        if (typeof key !== "symbol") {
+          return global[key] ?? scope[key];
+        }
+      }
+    }));
+  }
+}
+
 // Monitor ./tmp/pendingShellCommands for shell commands. If a JS file is
 // written there, run it then delete it. Security-wise this is okay because
 // write-access inside the repo directory is already equivalent to script
@@ -173,7 +188,8 @@ const watchForShellCommands = () => {
     console.log(`Running shell command: ${fileContents}`);
     fs.unlinkSync(path);
     try {
-      const result = await eval(fileContents);
+      const func = compileWithGlobals(fileContents);
+      const result = await func();
       // eslint-disable-next-line no-console
       console.log("Finished. Result: ", result);
     } catch(e) {
