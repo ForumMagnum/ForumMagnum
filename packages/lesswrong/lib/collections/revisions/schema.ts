@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema'
 import { userIsSharedOn } from '../users/helpers';
 import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLSchema } from '../../vulcan-lib';
 
 export const ContentType = new SimpleSchema({
   type: String,
@@ -16,6 +17,13 @@ export const ContentType = new SimpleSchema({
 })
 
 SimpleSchema.extendOptions([ 'inputType' ]);
+
+addGraphQLSchema(`
+  type ContentType {
+    type: String
+    data: String
+  }
+`)
 
 const schema: SchemaType<DbRevision> = {
   documentId: {
@@ -107,8 +115,8 @@ const schema: SchemaType<DbRevision> = {
     type: ContentType,
     viewableBy: ['guests'],
     resolveAs: {
-      type: GraphQLJSON,
-      resolver: async (document: DbRevision, args: void, context: ResolverContext ): Promise<DbRevision["originalContents"]|null> => {
+      type: 'ContentType',
+      resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
         // Original contents sometimes contains private data (ckEditor suggestions 
         // via Track Changes plugin). In those cases the html field strips out the 
         // suggestion. Original contents is only visible to people who are invited 
