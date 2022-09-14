@@ -143,7 +143,7 @@ const schema: SchemaType<DbRevision> = {
     resolveAs: {
       type: 'ContentType',
       // type: GraphQLJSON,
-      addOriginalField: true,
+      // addOriginalField: true,
       resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
         // Original contents sometimes contains private data (ckEditor suggestions 
         // via Track Changes plugin). In those cases the html field strips out the 

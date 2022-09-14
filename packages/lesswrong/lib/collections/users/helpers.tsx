@@ -35,7 +35,7 @@ export const userOwnsAndInGroup = (group: string) => {
   }
 }
 
-export interface SharableDocument extends DbObject {
+export interface SharableDocument {
   coauthorStatuses: DbPost["coauthorStatuses"]
   shareWithUsers: DbPost["shareWithUsers"]
   sharingSettings: DbPost["sharingSettings"]
