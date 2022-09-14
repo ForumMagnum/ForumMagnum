@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
@@ -12,7 +12,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -31,7 +31,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, ForeignCrosspostEditForm, HeadTags } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -69,7 +69,7 @@ const PostsEditForm = ({ documentId, classes }: {
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
   if (!document && !loading && query?.key) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}&key=${query.key}`} status={302}/>
+    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If the post has a link-sharing key which is not in the URL, redirect to add
