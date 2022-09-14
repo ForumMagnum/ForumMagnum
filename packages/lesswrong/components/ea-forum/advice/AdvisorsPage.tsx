@@ -79,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 22,
     fontWeight: 700,
     marginTop: 30,
-    marginBottom: 14
+    marginBottom: 8
   },
   advisors: {
     display: 'grid',
@@ -94,35 +94,46 @@ const styles = (theme: ThemeType): JssStyles => ({
   communityHeadlineRow: {
     display: "flex",
     flexDirection: "row",
-    marginTop: 70,
     gap: "20px",
-    alignItems: "center",
+    alignItems: "baseline",
+    marginTop: 70,
   },
   communityHeadline: {
     flexGrow: 1,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 20,
     fontWeight: 700,
+    marginBottom: 8
   },
   communityHeadlineButton: {
-    ...theme.typography.commentStyle,
-    ...theme.typography.body2,
+    fontFamily: theme.typography.fontFamily,
     background: 'none',
     color: theme.palette.primary.main,
     padding: 0,
     '&:hover': {
-      color: theme.palette.primary.dark,
+      opacity: 0.5
     },
     flex: "none",
+  },
+  communityBody: {
+    borderTop: `2px solid ${theme.palette.primary.main}`,
+    borderBottom: `2px solid ${theme.palette.primary.main}`,
+    paddingTop: 15
+  },
+  communitySubheadline: {
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 15,
+    color: theme.palette.grey[700]
   },
   communityMembers: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(325px, 1fr))',
-    padding: '35px 10px',
     columnGap: 30,
     rowGap: '30px',
-    borderTop: `2px solid ${theme.palette.primary.main}`,
-    borderBottom: `2px solid ${theme.palette.primary.main}`,
+    padding: '30px 10px 35px',
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    }
   },
   feedbackText: {
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -398,24 +409,24 @@ const AdvisorsPage = ({classes}: {
           
           <div className={classes.communityHeadlineRow}>
             <h2 className={classes.communityHeadline}>Meet others in the community</h2>
-            {currentUserInList
-              ? (
-                <button className={classes.communityHeadlineButton} onClick={handleRemove}>
-                  Remove me
-                </button>
-              )
-              : (
-                <button className={classes.communityHeadlineButton} onClick={handleJoin}>
-                  Add me
-                </button>
-              )
-            }
+            {currentUserInList ? (
+              <button className={classes.communityHeadlineButton} onClick={handleRemove}>
+                Remove me
+              </button>
+            ) : (
+              <button className={classes.communityHeadlineButton} onClick={handleJoin}>
+                Add me to the list
+              </button>
+            )}
           </div>
-          <div className={classes.communityMembers}>
-            {(communityMembersLoading || !communityMembers) ? <Loading /> : <>
-                {communityMembers.map(user => <CommunityMemberCard key={user._id} user={user} />)}
-              </>
-            }
+          <div className={classes.communityBody}>
+            <div className={classes.communitySubheadline}>Find other people interested in working on biosecurity.</div>
+            <div className={classes.communityMembers}>
+              {(communityMembersLoading || !communityMembers) ? <Loading /> : <>
+                  {communityMembers.map(user => <CommunityMemberCard key={user._id} user={user} />)}
+                </>
+              }
+            </div>
           </div>
           
           <div className={classes.feedbackText}>

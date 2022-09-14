@@ -17,7 +17,7 @@ export function useCheckMeritsCollapse<T extends HTMLElement>(
       resizeObserver.current.observe(ref.current)
     }
     return () => resizeObserver.current?.disconnect()
-  }, [ref, ...(deps ?? [])])
+  }, [ref, height, ...(deps ?? [])]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return meritsCollapse
 }
