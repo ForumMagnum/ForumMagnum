@@ -17,6 +17,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -57,6 +58,7 @@ addGraphQLResolvers({
         postedAt: {$lt: before, $gt: after},
         topLevelCommentId: null,
         tagId: {$exists: true, $ne: null},
+        tagCommentType: TagCommentType.Discussion,
       }).fetch();
       
       const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
