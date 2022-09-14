@@ -82,8 +82,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
           color="primary"
           onClick={async () => {
             if (name) {
-              // TODO: Types: https://github.com/apollographql/apollo-client/issues/9292
-              const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}}) as {errors: Error[]}
+              const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}})
               if (errors) {
                 setError(`Oops, something went wrong: ${errors[0].message}`)
               } else if (onClose) {

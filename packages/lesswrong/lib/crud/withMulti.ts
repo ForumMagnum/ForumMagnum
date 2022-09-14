@@ -304,7 +304,7 @@ export function useMulti<
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
-  const graphQLVariables: ViewTermsByCollectionName[CollectionName] & {input: any} = {
+  const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
       enableCache, enableTotal,
