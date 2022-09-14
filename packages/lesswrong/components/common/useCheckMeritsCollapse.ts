@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 
 export function useCheckMeritsCollapse<T extends HTMLElement>(
   {ref, height, deps}:
@@ -10,7 +10,6 @@ export function useCheckMeritsCollapse<T extends HTMLElement>(
 
   useEffect(() => {
     if (ref.current) {
-      // show/hide the collapse-related buttons depending on whether or not the content all fits
       resizeObserver.current = new ResizeObserver(elements => {
         setMeritsCollapse(Math.round(elements[0].contentRect.height) >= height)
       })
