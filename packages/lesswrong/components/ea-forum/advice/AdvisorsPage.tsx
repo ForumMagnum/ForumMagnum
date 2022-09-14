@@ -268,6 +268,7 @@ const advisors: Array<Advisor> = [
   },
 ]
 
+// This page only exists for the Biosecurity topic
 const TOPIC_ID = 'aELNHEKtcZtMwEkdK'
 
 const AdvisorsPage = ({classes}: {
@@ -364,7 +365,7 @@ const AdvisorsPage = ({classes}: {
     </div>
   </>
   
-  const currentUserInList = communityMembers?.some(user => user._id === currentUser?._id)
+  const isCurrentUserInList = communityMembers?.some(user => user._id === currentUser?._id)
 
   return <div>
     <HeadTags description="Request a chat with a biosecurity professional working on mitigating global catastrophic biological risks" />
@@ -409,7 +410,7 @@ const AdvisorsPage = ({classes}: {
           
           <div className={classes.communityHeadlineRow}>
             <h2 className={classes.communityHeadline}>Meet others in the community</h2>
-            {currentUserInList ? (
+            {isCurrentUserInList ? (
               <button className={classes.communityHeadlineButton} onClick={handleRemove}>
                 Remove me
               </button>

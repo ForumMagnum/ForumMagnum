@@ -71,6 +71,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
   
+  // in this case we show the button, but we don't actually let them create a conversation with themselves
   if (currentUser?._id === user._id)
     return <div>
       {children}
