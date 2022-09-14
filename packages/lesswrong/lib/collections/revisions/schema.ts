@@ -4,6 +4,7 @@ import { userIsSharedOn } from '../users/helpers';
 import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib';
+import { GraphQLScalarType } from 'graphql';
 
 export const ContentType = new SimpleSchema({
   type: String,
@@ -19,9 +20,34 @@ export const ContentType = new SimpleSchema({
 SimpleSchema.extendOptions([ 'inputType' ]);
 
 addGraphQLSchema(`
+  scalar ContentTypeData
+`)
+
+const dateScalar = new GraphQLScalarType({
+  name: "ContentTypeData",
+  serialize(value) {
+    return value
+  }
+  // name: 'Date',
+  // description: 'Date custom scalar type',
+  // serialize(value) {
+  //   return value.getTime(); // Convert outgoing Date to integer for JSON
+  // },
+  // parseValue(value) {
+  //   return new Date(value); // Convert incoming integer to Date
+  // },
+  // parseLiteral(ast) {
+  //   if (ast.kind === Kind.INT) {
+  //     return new Date(parseInt(ast.value, 10)); // Convert hard-coded AST string to integer and then to Date
+  //   }
+  //   return null; // Invalid hard-coded value (not an integer)
+  // },
+});
+
+addGraphQLSchema(`
   type ContentType {
     type: String
-    data: String
+    data: ContentTypeData
   }
 `)
 
@@ -116,6 +142,8 @@ const schema: SchemaType<DbRevision> = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'ContentType',
+      // type: GraphQLJSON,
+      addOriginalField: true,
       resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
         // Original contents sometimes contains private data (ckEditor suggestions 
         // via Track Changes plugin). In those cases the html field strips out the 
@@ -127,7 +155,7 @@ const schema: SchemaType<DbRevision> = {
           const post = await context.loaders["Posts"].load(document.documentId)
           canViewOriginalContents = () => userIsSharedOn(context.currentUser, post)
         } else {
-          canViewOriginalContents = () => false
+          canViewOriginalContents = () => true
         }
         if (userCanReadField(context.currentUser, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, document)) {
           return document.originalContents

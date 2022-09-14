@@ -321,10 +321,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly commitMessage: string,
   readonly userId: string,
   readonly draft: boolean,
-  readonly originalContents: {
-    type: string,
-    data: string,
-  },
+  readonly originalContents: any /*ContentType*/,
   readonly html: string,
   readonly markdown: string,
   readonly draftJS: any,
@@ -910,10 +907,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly updateType: "initial" | "patch" | "minor" | "major",
   readonly editedAt: Date,
   readonly userId: string,
-  readonly originalContents: {
-    type: string,
-    data: string,
-  },
+  readonly originalContents: any,
   readonly html: string,
   readonly markdown: string,
   readonly draftJS: any,

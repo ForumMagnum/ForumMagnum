@@ -611,10 +611,7 @@ interface DbRevision extends DbObject {
   commitMessage: string
   userId: string
   draft: boolean
-  originalContents: {
-    type: string,
-    data: string,
-  }
+  originalContents: any /*{"definitions":[{"type":"ContentType"}]}*/
   html: string
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
