@@ -84,7 +84,6 @@ const CommentsTimelineFn = ({
   
   const commentNodeProps = {
     treeOptions: treeOptions,
-    refetch: treeOptions.refetch,
     startThreadTruncated: startThreadTruncated,
     parentCommentId: parentCommentId,
     parentAnswerId: parentAnswerId,
@@ -102,7 +101,6 @@ const CommentsTimelineFn = ({
         {loadingMoreComments ? <Components.Loading /> : <></>}
         {commentsToRender.map((comment) => (
           <CommentWithReplies
-            refetch={treeOptions.refetch}
             comment={comment}
             key={comment._id}
             commentNodeProps={commentNodeProps}
