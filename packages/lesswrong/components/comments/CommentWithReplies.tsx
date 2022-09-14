@@ -22,11 +22,8 @@ export interface CommentWithRepliesProps {
   post?: PostsBase;
   lastRead?: Date;
   markAsRead?: any;
-  refetch?: any;
-  showTitle?: boolean;
-  expandByDefault?: boolean;
   initialMaxChildren?: number;
-  passThroughProps?: Partial<CommentsNodeProps>;
+  commentNodeProps?: Partial<CommentsNodeProps>;
   classes: ClassesType;
 }
 
@@ -35,11 +32,8 @@ const CommentWithReplies = ({
   post,
   lastRead,
   markAsRead = () => {},
-  refetch,
-  showTitle = true,
-  expandByDefault,
   initialMaxChildren = 3,
-  passThroughProps,
+  commentNodeProps,
   classes,
 }: CommentWithRepliesProps) => {
   const [maxChildren, setMaxChildren] = useState(initialMaxChildren);
@@ -53,9 +47,9 @@ const CommentWithReplies = ({
     markAsRead: markAsRead,
     highlightDate: lastRead,
     condensed: true,
-    showPostTitle: showTitle,
-    refetch,
+    showPostTitle: true,
     post,
+    ...(commentNodeProps?.treeOptions || {}),
   };
 
   const { CommentsNode } = Components;
@@ -78,7 +72,6 @@ const CommentWithReplies = ({
 
   return (
     <CommentsNode
-      treeOptions={treeOptions}
       noHash
       startThreadTruncated={true}
       nestingLevel={1}
@@ -86,9 +79,9 @@ const CommentWithReplies = ({
       childComments={nestedComments}
       key={comment._id}
       shortform
-      expandByDefault={expandByDefault}
       showExtraChildrenButton={showExtraChildrenButton}
-      {...passThroughProps}
+      {...commentNodeProps}
+      treeOptions={treeOptions}
     />
   );
 };

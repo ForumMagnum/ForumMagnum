@@ -501,7 +501,7 @@ ensureIndex(Comments,
 
 export const subforumSorting = {
   new: { postedAt: -1 },
-  recentDiscussion: { latestSubthreadActivity: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({

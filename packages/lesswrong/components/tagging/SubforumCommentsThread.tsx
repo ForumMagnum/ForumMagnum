@@ -22,7 +22,6 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
     return null;
   }
 
-  // const nestedComments = unflattenComments(results);
   return (
     <Components.CommentsTimelineSection
       tag={tag}
@@ -31,7 +30,7 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
       totalComments={totalCount as number}
       commentCount={(results && results.length) || 0}
       loadingMoreComments={loadingMore}
-      loadMoreCount={10}
+      loadMoreCount={50}
       newForm={newForm}
       refetch={refetch}
     />

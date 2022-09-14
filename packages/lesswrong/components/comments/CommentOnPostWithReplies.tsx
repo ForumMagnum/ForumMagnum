@@ -9,7 +9,7 @@ interface CommentOnPostWithRepliesProps extends CommentWithRepliesProps {
 
 const CommentOnPostWithReplies = (props: CommentOnPostWithRepliesProps) => {
   const {lastRead, markAsRead} = useMarkAsRead(props.post);
-  
+
   const {CommentWithReplies} = Components;
 
   return <CommentWithReplies {...props} lastRead={lastRead} markAsRead={markAsRead}/>

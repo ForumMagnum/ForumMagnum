@@ -82,7 +82,7 @@ const CommentsTimelineFn = ({
     );
   }
   
-  const passThroughProps = {
+  const commentNodeProps = {
     treeOptions: treeOptions,
     refetch: treeOptions.refetch,
     startThreadTruncated: startThreadTruncated,
@@ -105,7 +105,7 @@ const CommentsTimelineFn = ({
             refetch={treeOptions.refetch}
             comment={comment}
             key={comment._id}
-            passThroughProps={passThroughProps}
+            commentNodeProps={commentNodeProps}
             initialMaxChildren={5}
           />
         ))}

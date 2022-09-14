@@ -103,6 +103,7 @@ const CommentsTimelineSection = ({
         loadingMoreComments={loadingMoreComments}
       />
       {/* TODO add permissions check here */}
+      {/* TODO add sorting here */}
       {newForm && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <Components.CommentsNewForm

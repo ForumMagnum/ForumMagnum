@@ -51,7 +51,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   // TODO: This doesn't quite work yet. Not sure why - Ray
   const markAsRead = () => {
     recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
+    setMarkedVisitedAt(new Date())
   }
   
   const lastCommentId = results && results[0]?._id
