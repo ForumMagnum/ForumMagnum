@@ -53,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     '&.ea-forum': {
+      maxWidth: 400,
       justifyContent: 'space-around',
       padding: '8px 20px',
     }

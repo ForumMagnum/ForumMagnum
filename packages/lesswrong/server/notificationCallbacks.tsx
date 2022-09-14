@@ -26,6 +26,8 @@ import { RSVPType } from '../lib/collections/posts/schema';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
 import moment from 'moment';
+import difference from 'lodash/difference';
+import Messages from '../lib/collections/messages/collection';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -436,6 +438,17 @@ getCollectionHooks("Messages").newAsync.add(async function messageNewNotificatio
   await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
 });
 
+getCollectionHooks("Conversations").editAsync.add(async function conversationEditNotification(conversation: DbConversation, oldConversation: DbConversation) {
+  const newParticipantIds = difference(conversation.participantIds || [], oldConversation.participantIds || []);
+
+  if (newParticipantIds.length) {
+    // Notify newly added users of the most recent message
+    const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
+    if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
+      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+  }
+});
+
 export async function bellNotifyEmailVerificationRequired (user: DbUser) {
   await createNotifications({userIds: [user._id], notificationType: 'emailVerificationRequired', documentType: null, documentId: null});
 }
@@ -452,8 +465,8 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
   const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
-  const coauthors = coauthorStatuses ? coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) : []
-  const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
+  const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
+  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
@@ -489,7 +502,7 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
-  
+
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 

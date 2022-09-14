@@ -10,11 +10,13 @@ import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
+import { getCommentAncestorIds, getCommentSubtree } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -42,45 +44,6 @@ export const getAdminTeamAccount = async () => {
   }
   return account;
 }
-
-// Return the IDs of all ancestors of the given comment (not including the provided
-// comment itself).
-const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
-  const ancestorIds: string[] = [];
-  
-  let currentComment: DbComment|null = comment;
-  while (currentComment?.parentCommentId) {
-    currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
-    if (currentComment)
-      ancestorIds.push(currentComment._id);
-  }
-  
-  return ancestorIds;
-}
-
-// Return all comments in a subtree, given its root.
-export const getCommentSubtree = async (rootComment: DbComment, projection: any): Promise<any[]> => {
-  const comments: DbComment[] = [rootComment];
-  let visited = new Set<string>();
-  let unvisited: string[] = [rootComment._id];
-  
-  while(unvisited.length > 0) {
-    const childComments = await Comments.find({parentCommentId: {$in: unvisited}}, projection).fetch();
-    for (let commentId of unvisited)
-      visited.add(commentId);
-    unvisited = [];
-    
-    for (let childComment of childComments) {
-      if (!visited.has(childComment._id)) {
-        comments.push(childComment);
-        unvisited.push(childComment._id);
-      }
-    }
-  }
-  
-  return comments;
-}
-Globals.getCommentSubtree = getCommentSubtree;
 
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
@@ -127,7 +90,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
     await Posts.rawUpdateOne(comment.postId, {
       $set: {lastCommentedAt: new Date()},
     });
-  } else if (comment.tagId) {
+  } else if (comment.tagId && comment.tagCommentType === TagCommentType.Discussion) {
     await Tags.rawUpdateOne(comment.tagId, {
       $set: {lastCommentedAt: new Date()},
     });
@@ -385,6 +348,7 @@ getCollectionHooks("Comments").createBefore.add(async function HandleReplyToAnsw
       }
       if (parentComment.tagId) {
         modifiedComment.tagId = parentComment.tagId;
+        modifiedComment.tagCommentType = parentComment.tagCommentType;
       }
       if (parentComment.topLevelCommentId) {
         modifiedComment.topLevelCommentId = parentComment.topLevelCommentId;

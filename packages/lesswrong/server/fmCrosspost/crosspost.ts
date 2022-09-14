@@ -4,7 +4,7 @@ import { randomId } from "../../lib/random";
 import { Crosspost, UpdateCrosspostPayload, CrosspostPayload } from "./types";
 import { signToken } from "./tokens";
 import { apiRoutes, makeApiUrl } from "./routes";
-import { makeCrossSiteRequest } from "./resolvers";
+import { makeCrossSiteRequest, crosspostUserAgent } from "./resolvers";
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
   if (!post.fmCrosspost || !post.userId || post.draft) {
@@ -36,6 +36,7 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": crosspostUserAgent,
     },
     body: JSON.stringify({
       token,
