@@ -91,12 +91,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: `2px solid ${theme.palette.primary.main}`,
     marginTop: 10,
   },
+  communityHeadlineRow: {
+    display: "flex",
+    flexDirection: "row",
+    marginTop: 70,
+    gap: "20px",
+    alignItems: "center",
+  },
   communityHeadline: {
+    flexGrow: 1,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 20,
     fontWeight: 700,
-    marginTop: 70,
-    marginBottom: 14
+  },
+  communityHeadlineButton: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    background: 'none',
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    },
+    flex: "none",
   },
   communityMembers: {
     display: 'grid',
@@ -106,7 +123,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     rowGap: '30px',
     borderTop: `2px solid ${theme.palette.primary.main}`,
     borderBottom: `2px solid ${theme.palette.primary.main}`,
-    marginTop: 10,
   },
   feedbackText: {
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -290,6 +306,12 @@ const AdvisorsPage = ({classes}: {
     }
   }
 
+  const handleRemove = () => {
+    if (currentUser) {
+      void updateCurrentUser({profileTagIds: currentUser.profileTagIds.filter((id) => id !== TOPIC_ID)});
+    }
+  }
+
   // link to the google form for signing up, and prefill some fields if necessary
   let formLink = 'https://docs.google.com/forms/d/e/1FAIpQLSdNoLVtdBe_lGY82NQ1wSfAEfSmtdxffK6PA3RueROYY_AMqQ/viewform?'
   if (currentUser) {
@@ -374,15 +396,24 @@ const AdvisorsPage = ({classes}: {
           
           {btnsNode}
           
-          <h2 className={classes.communityHeadline}>Meet others in the community</h2>
+          <div className={classes.communityHeadlineRow}>
+            <h2 className={classes.communityHeadline}>Meet others in the community</h2>
+            {currentUserInList
+              ? (
+                <button className={classes.communityHeadlineButton} onClick={handleRemove}>
+                  Remove me
+                </button>
+              )
+              : (
+                <button className={classes.communityHeadlineButton} onClick={handleJoin}>
+                  Add me
+                </button>
+              )
+            }
+          </div>
           <div className={classes.communityMembers}>
             {(communityMembersLoading || !communityMembers) ? <Loading /> : <>
                 {communityMembers.map(user => <CommunityMemberCard key={user._id} user={user} />)}
-                {!currentUserInList && <div>
-                  <Button color="primary" variant="contained" onClick={handleJoin}>
-                    Add me to the list
-                  </Button>
-                </div>}
               </>
             }
           </div>

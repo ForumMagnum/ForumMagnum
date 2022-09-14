@@ -106,6 +106,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   collapsedBio: {
     position: 'relative',
     height: COLLAPSED_SECTION_HEIGHT,
+    cursor: "pointer",
     overflow: 'hidden',
     '&::after': {
       position: 'absolute',
@@ -126,6 +127,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'right',
     marginTop: 14
+  },
+  showMoreButton: {
+    flexGrow: 1,
+    textAlign: "left",
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    fontSize: "1rem",
+    background: 'none',
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    },
   },
   messageBtn: {
     boxShadow: 'none'
@@ -210,6 +224,11 @@ const CommunityMemberCard = ({user, classes}: {
       {bioNode}
     </div>
     <div className={classes.buttonRow}>
+      {meritsCollapse &&
+        <button className={classes.showMoreButton} onClick={() => setCollapsed(!collapsed)}>
+          {collapsed ? "Show more" : "Show less"}
+        </button>
+      }
       <NewConversationButton user={user} currentUser={currentUser} from="advisors_page">
         <Button
           variant="outlined"
