@@ -330,7 +330,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       schemaFragments.push(upsertInputTemplate({ typeName }));
       schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
     }
-    
+
     schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
 
     schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
