@@ -7,7 +7,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 export interface OpenDialogContextType {
   openDialog: <T extends keyof ComponentTypes>({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
-    componentProps?: React.ComponentProps<typeof Components[T]>,
+    componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
     noClickawayCancel?: boolean,
   }) => void,
   closeDialog: ()=>void,

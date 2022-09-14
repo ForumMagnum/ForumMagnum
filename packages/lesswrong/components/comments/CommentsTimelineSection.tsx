@@ -6,6 +6,7 @@ import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,6 +27,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     marginTop: 30,
+    marginLeft: 5,
+    marginRight: 5,
     "@media print": {
       display: "none"
     },
@@ -34,7 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const CommentsTimelineSection = ({
-  post,
   tag,
   commentCount,
   loadMoreCount = 10,
@@ -45,9 +47,9 @@ const CommentsTimelineSection = ({
   parentAnswerId,
   startThreadTruncated,
   newForm=true,
+  refetch = () => {},
   classes,
 }: {
-  post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
   loadMoreCount: number,
@@ -58,6 +60,7 @@ const CommentsTimelineSection = ({
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
+  refetch?: any,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -78,7 +81,6 @@ const CommentsTimelineSection = ({
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
   }
 
-  const postAuthor = post?.user || null;
   return (
     <div
       ref={bodyRef}
@@ -87,7 +89,7 @@ const CommentsTimelineSection = ({
     >
       <Components.CommentsTimeline
         treeOptions={{
-          post: post,
+          refetch,
           postPage: true,
           tag: tag,
         }}
@@ -100,25 +102,24 @@ const CommentsTimelineSection = ({
         loadMoreComments={loadMoreComments}
         loadingMoreComments={loadingMoreComments}
       />
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft && (
+      {/* TODO add permissions check here */}
+      {newForm && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <Components.CommentsNewForm
-            post={post}
             tag={tag}
+            tagCommentType={TagCommentType.Subforum}
             prefilledProps={{
               parentAnswerId: parentAnswerId,
             }}
             formProps={{
               editorHintText: `Message...`,
             }}
+            successCallback={refetch}
             type="comment"
             enableGuidelines={false}
             displayMode="minimalist"
           />
         </div>
-      )}
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) && (
-        <Components.CantCommentExplanation post={post} />
       )}
     </div>
   );

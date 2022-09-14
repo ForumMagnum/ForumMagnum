@@ -143,6 +143,13 @@ addRoute(
     background: "white"
   },
   {
+    name:'users.drafts',
+    path:'/drafts',
+    componentName: 'DraftsPage',
+    title: "Drafts & Unpublished",
+    background: "white"
+  },
+  {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
@@ -226,6 +233,7 @@ addRoute(
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
+    background: "white",
   },
   // disabled except during review voting phase
   {
@@ -484,7 +492,8 @@ if (taggingNameIsSet.get()) {
       name: 'taggingSubforumCustomName',
       path: `/topics/:slug/subforum`,
       componentName: 'TagSubforumPage',
-      hideFooter: true
+      hideFooter: true,
+      noPadding: true,
     }
   )
 } else {

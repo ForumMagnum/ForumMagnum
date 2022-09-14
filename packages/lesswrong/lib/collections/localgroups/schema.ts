@@ -29,13 +29,6 @@ const formGroups: Partial<Record<string,FormGroup>> = {
 };
 
 const schema: SchemaType<DbLocalgroup> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['guests'],
-    onInsert: (document) => new Date(),
-  },
-
   name: {
     type: String,
     viewableBy: ['guests'],

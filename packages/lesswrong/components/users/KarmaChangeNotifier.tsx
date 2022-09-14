@@ -1,22 +1,20 @@
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
-import { withSingle } from '../../lib/crud/withSingle';
-import withUser, { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useSingle } from '../../lib/crud/withSingle';
+import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from '../../lib/collections/users/collection';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import MenuItem from '@material-ui/core/MenuItem';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
-import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
+import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 
@@ -89,6 +87,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 });
+
+export const karmaNotificationTimingChoices = {
+  disabled: {
+    label: "Disabled",
+    infoText: "Karma changes are disabled",
+    emptyText: "Karma changes are disabled"
+  },
+  daily: {
+    label: "Batched daily (default)",
+    infoText: "Karma Changes (batched daily):",
+    emptyText: "No karma changes yesterday"
+  },
+  weekly: {
+    label: "Batched weekly",
+    infoText: "Karma Changes (batched weekly):",
+    emptyText: "No karma changes last week"
+  },
+  realtime: {
+    label: "Realtime",
+    infoText: "Recent Karma Changes",
+    emptyText: "No karma changes since you last checked"
+  },
+};
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and
@@ -179,58 +200,37 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   );
 }
 
-interface ExternalProps {
-  documentId: string,
-}
-interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithUpdateCurrentUserProps, WithStylesProps, WithTrackingProps {
-  document: UserKarmaChanges
-}
-interface KarmaChangeNotifierState {
-  cleared: boolean,
-  open: boolean,
-  anchorEl: HTMLElement|null,
-  karmaChanges: any,
-  karmaChangeLastOpened: Date,
-}
+const KarmaChangeNotifier = ({currentUser, classes}: {
+  currentUser: UsersCurrent, //component can only be used if logged in
+  classes: ClassesType,
+}) => {
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [cleared,setCleared] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null)
+  const { captureEvent } = useTracking()
+  const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
+  
+  const { document } = useSingle({
+    documentId: currentUser._id,
+    collectionName: "Users",
+    fragmentName: "UserKarmaChanges",
+  });
+  
+  const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
 
-class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaChangeNotifierState> {
-  state: KarmaChangeNotifierState = {
-    cleared: false,
-    open: false,
-    anchorEl: null,
-    karmaChanges: this.props.document?.karmaChanges,
-    karmaChangeLastOpened: this.props.currentUser?.karmaChangeLastOpened || new Date(),
-  };
-
-  handleOpen = (event) => {
-    this.setState({
-      open: true,
-      anchorEl: event.currentTarget,
-      karmaChangeLastOpened: new Date()
-    });
+  const handleOpen = (event) => {
+    setOpen(true);
+    setAnchorEl(event.currentTarget);
+    setKarmaChangeLastOpened(new Date());
   }
 
-  handleToggle = (e) => {
-    const { open } = this.state
-    const { captureEvent } = this.props
-    if (open) {
-      this.handleClose(null) // When closing from toggle, force a close by not providing an event
-    } else {
-      this.handleOpen(e)
-    }
-    captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened: this.state.karmaChangeLastOpened, karmaChanges: this.state.karmaChanges})
-  }
-
-  handleClose = (e) => {
-    const { document, updateCurrentUser, currentUser } = this.props;
-    const { anchorEl } = this.state
+  const handleClose = (e) => {
     if (e && anchorEl?.contains(e.target)) {
       return;
     }
-    this.setState({
-      open: false,
-      anchorEl: null,
-    });
+    setOpen(false);
+    setAnchorEl(null);
     if (!currentUser) return;
     if (document?.karmaChanges) {
       void updateCurrentUser({
@@ -239,15 +239,22 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
       });
 
       if (document.karmaChanges.updateFrequency === "realtime") {
-        this.setState({cleared: true});
+        setCleared(true);
       }
     }
   }
 
-  render() {
-    const {document, classes, currentUser} = this.props;
-    if (!currentUser || !document) return null
-    const {open, anchorEl, karmaChanges: stateKarmaChanges, karmaChangeLastOpened} = this.state;
+  const handleToggle = (e) => {
+    if (open) {
+      handleClose(null) // When closing from toggle, force a close by not providing an event
+    } else {
+      handleOpen(e)
+    }
+    captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges: stateKarmaChanges})
+  }
+
+  const render = () => {
+    if (!document) return null
     const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
     if (!karmaChanges) return null;
 
@@ -258,13 +265,13 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
-    const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
+    const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
     
     const { LWPopper } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classes.root}>
-        <IconButton onClick={this.handleToggle} className={classes.karmaNotifierButton}>
+        <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
           {starIsHollow
             ? <StarBorderIcon className={classes.starIcon}/>
             : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
@@ -278,28 +285,21 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
           placement="bottom-end"
           className={classes.karmaNotifierPopper}
         >
-          <ClickAwayListener onClickAway={this.handleClose}>
+          <ClickAwayListener onClickAway={handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
-              <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={this.handleClose} />
+              <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={handleClose} />
             </Paper>
           </ClickAwayListener>
         </LWPopper>
       </div>
     </AnalyticsContext>
   }
+  
+  return render();
 }
 
-const KarmaChangeNotifierComponent = registerComponent<ExternalProps>('KarmaChangeNotifier', KarmaChangeNotifier, {
-  styles,
-  hocs: [
-    withUser, withErrorBoundary,
-    withSingle({
-      collection: Users,
-      fragmentName: 'UserKarmaChanges'
-    }),
-    withUpdateCurrentUser,
-    withTracking
-  ]
+const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
+  styles, hocs: [withErrorBoundary]
 });
 
 declare global {

@@ -30,6 +30,9 @@ export const Notifications: NotificationsCollection = createCollection({
   logChanges: false,
 });
 
-addUniversalFields({collection: Notifications})
+addUniversalFields({
+  collection: Notifications,
+  createdAtOptions: {viewableBy: [userOwns]},
+})
 
 export default Notifications;
