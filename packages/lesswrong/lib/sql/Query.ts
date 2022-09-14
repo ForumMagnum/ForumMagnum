@@ -278,9 +278,11 @@ abstract class Query<T extends DbObject> {
       }
       const tokens = array.split(".");
       const field = tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0];
-      const prop = tokens.slice(1).map((name) => `'${name}'`).join("->");
-      const pgIndex = index + 1; // postgres arrays are 1-indexed
-      return [`("${field}")[${pgIndex}]${prop ? "->" + prop : ""}`];
+      const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
+      if (path.length) {
+        path[path.length - 2] = "->>";
+      }
+      return [`("${field}")[${index}]${path.join("")}`];
     }
 
     if (op === "$first") {

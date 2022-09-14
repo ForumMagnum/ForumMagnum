@@ -289,6 +289,12 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select with fields renamed in projection",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {data: "$c"}}),
+      expectedSql: 'SELECT "TestCollection".* , "c" AS "data" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
       name: "can build select with fields added in a projection",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {
         k: {

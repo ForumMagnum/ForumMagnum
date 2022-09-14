@@ -98,9 +98,12 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   }
 
   private appendGroup<U extends {}>(group: U) {
-    this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group));
+    this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group, false));
     this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
-    const fields = Object.keys(group).filter((key: string) => !isAggregate(group[key])).map((field) => `"${field}"`);
+    const keys = Object.keys(group).filter((key: string) => !isAggregate(group[key]));
+    const fields = keys.map((key) =>
+      `"${typeof group[key] === "string" && group[key][0] === "$" ? group[key].slice(1) : key}"`
+    );
     this.atoms.push(fields.join(", "));
   }
 
@@ -127,13 +130,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private getSyntheticFields(addFields: Record<string, any>): Atom<T>[] {
+  private getSyntheticFields(addFields: Record<string, any>, leadingComma = true): Atom<T>[] {
     for (const field in addFields) {
       this.syntheticFields[field] = new UnknownType();
     }
     return Object.keys(addFields).flatMap((field) =>
       [",", ...this.compileExpression(addFields[field]), "AS", `"${field}"`]
-    );
+    ).slice(leadingComma ? 0 : 1);
   }
 
   private disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
@@ -156,6 +159,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     table: Table | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
+    autoIncludeId = true,
   ): Atom<T>[] {
     if (count) {
       return ["count(*)"];
@@ -171,7 +175,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
 
     for (const key of Object.keys(projection)) {
       if (projection[key]) {
-        if (typeof projection[key] === "object") {
+        if (["object", "string"].includes(typeof projection[key])) {
           addFields[key] = projection[key];
         } else {
           include.push(key);
@@ -183,22 +187,25 @@ class SelectQuery<T extends DbObject> extends Query<T> {
 
     let fields: string[] = [this.getStarSelector()];
     if (include.length && !exclude.length) {
-      if (!include.includes("_id")) {
+      if (autoIncludeId && !include.includes("_id")) {
         include.push("_id");
       }
       fields = include;
-    } else if (!include.length && exclude.length) {
+    } else if (exclude.length && !include.length) {
       fields = Object.keys(table.getFields()).filter((field) => !exclude.includes(field));
     } else if (include.length && exclude.length) {
-      if (!include.includes("_id") && !exclude.includes("_id")) {
+      if (autoIncludeId && !include.includes("_id") && !exclude.includes("_id")) {
         include.push("_id");
       }
       fields = include;
+    } else if (!autoIncludeId) {
+      fields = [];
     }
 
-    let projectedAtoms: Atom<T>[] = [fields.map((field) => field.indexOf("*") > -1 ? field : `"${field}"`).join(", ")];
+    const compiledFields = fields.map((field) => field.indexOf("*") > -1 ? field : `"${field}"`).join(", ");
+    let projectedAtoms: Atom<T>[] = compiledFields ? [compiledFields] : [];
     if (Object.keys(addFields).length) {
-      projectedAtoms = projectedAtoms.concat(this.getSyntheticFields(addFields));
+      projectedAtoms = projectedAtoms.concat(this.getSyntheticFields(addFields, !!projectedAtoms.length));
     }
     return projectedAtoms;
   }
