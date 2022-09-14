@@ -1,4 +1,19 @@
 #!/usr/bin/env node
+
+//
+// Wrapper script for building and running the ForumMagnum server. Run with
+// --help for a list of options (some of which are built in features of
+// Estrella, some of which are ours). This script is responsible for compiling
+// client and server bundles (by wrapping esbuild), for launching a server
+// process, for rebuilding and relaunching that process when files change, and
+// for running a websocket server to tell connected web browsers to refresh
+// due to changes.
+//
+// TODO: It would be nice if this script would also take care of running a local
+// mongodb server, if requested, to make it convenient to develop against a
+// local server instead of a shared cloud development server.
+//
+
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const WebSocket = require('ws');
@@ -29,11 +44,6 @@ const [opts, args] = cliopts.parse(
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
 );
-
-// Two things this script should do, that it currently doesn't:
-//  * Provide a websocket server for signaling autorefresh
-//  * Start a local mongodb server, if no mongo URL was provided
-//      https://github.com/shelfio/jest-mongodb
 
 const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
