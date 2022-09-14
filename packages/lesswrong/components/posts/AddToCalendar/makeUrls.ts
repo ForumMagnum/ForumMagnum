@@ -65,11 +65,23 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
   }
 
   components.push(
-    `DTSTART:${escapeText(makeTime(event.startsAt))}`,
-    `DTEND:${escapeText(makeTime(event.endsAt))}`,
-    `SUMMARY:${escapeText(event.name)}`,
-    `DESCRIPTION:${escapeText(event.details)}`,
-    `LOCATION:${escapeText(event.location)}`,
+    `DTSTAMP:${makeTime(Date())}`, // time this file was created, i.e. now
+    `UID:${makeTime(Date()) + event.name + String(Math.random()).substring(2) + '@' + window.location.hostname}`, // guaranteed unique identifier
+    `DTSTART:${makeTime(event.startsAt)}`,
+    `DTEND:${makeTime(event.endsAt)}`,
+    `SUMMARY:${escapeText(event.name)}`
+  )
+  if (event.details != null) {
+    components.push(
+      `DESCRIPTION:${escapeText(event.details!)}`
+    )
+  }
+  if (event.location != null) {
+    components.push(
+      `LOCATION:${escapeText(event.location!)}`
+    )
+  }
+  components.push(
     "END:VEVENT",
     "END:VCALENDAR"
   );
