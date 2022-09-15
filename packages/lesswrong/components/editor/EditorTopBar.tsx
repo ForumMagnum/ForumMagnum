@@ -36,6 +36,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: '1rem !important',
       marginBottom: "0 !important",
       display: "block !important", //doesn't hide when more than 1 user, helps in cases with many users present
+      wordBreak: "normal !important"
+    },
+    
+    '& .ck-presence-list__list': {
+      "&:nth-child(3)": {
+        display: "none"
+      }
     },
 
     "& .ck-tooltip": {
@@ -67,6 +74,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   saveStatus: {
     '&:hover': {
       background: "unset"
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
     }
   },
 });
