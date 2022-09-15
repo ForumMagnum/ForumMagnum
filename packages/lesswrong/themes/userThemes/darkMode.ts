@@ -44,6 +44,7 @@ export const invertedGreyscale = {
 };
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
+const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
@@ -103,6 +104,7 @@ export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
     grey: invertedGreyscale,
     greyAlpha,
+    inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     type: "dark",
@@ -121,7 +123,8 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent3: "rgba(0,0,0,.75)",
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
-      commentModeratorHat: "#202719",
+      commentMoaderatorHat: "#202719",
+      spoilerBlock: "#1b1b1b",
     },
     background: {
       diffInserted: "#205120",
@@ -141,6 +144,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
+    eaForumGroupsMobileImg: "#303435",
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {

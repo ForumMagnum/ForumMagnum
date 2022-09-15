@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   bannerText: {
     maxWidth: 1200,
-    color: theme.palette.text.invertedBackgroundText,
+    color: "#fff", // displayed over an image, so white even in dark mode
     margin: '0 auto'
   },
   bannerQuote: {
