@@ -469,7 +469,7 @@ const schema: SchemaType<DbTag> = {
     tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
     group: formGroups.advancedOptions,
     control: 'TagSelect',
-    onCreate: async ({data: tag, context }) => {
+    onCreate: async ({newDocument: tag, context }) => {
       if (tag.parentTagId) {
         // don't allow chained parent tag relationships
         const { Tags } = context;
