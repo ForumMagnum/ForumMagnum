@@ -1,8 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import { CommentFormDisplayMode } from './CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -32,7 +32,7 @@ const CommentsTimelineFn = ({
   classes,
 }: {
   treeOptions: CommentTreeOptions;
-  comments: Array<CommentTreeNode<CommentsList>>;
+  comments: CommentWithRepliesFragment[];
   commentCount: number;
   loadMoreCount: number,
   totalComments: number,
@@ -56,7 +56,7 @@ const CommentsTimelineFn = ({
       bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
   }, [currentHeight, userHasScrolled])
 
-  const { CommentsNode, Typography } = Components;
+  const { CommentWithReplies, Typography } = Components;
 
   const handleScroll = (e) => {
     const isAtBottom = Math.abs((e.target.scrollHeight - e.target.scrollTop) - e.target.clientHeight) < 10;
@@ -71,7 +71,7 @@ const CommentsTimelineFn = ({
       loadMoreComments(commentCount + loadMoreCount);
   }
 
-  const commentsToRender = useMemo(() => comments.reverse(), [comments]);
+  const commentsToRender = useMemo(() => comments.slice().reverse(), [comments]);
 
   if (!comments) {
     return (
@@ -80,26 +80,29 @@ const CommentsTimelineFn = ({
       </Typography>
     );
   }
+  
+  const commentNodeProps = {
+    treeOptions: treeOptions,
+    startThreadTruncated: startThreadTruncated,
+    parentCommentId: parentCommentId,
+    parentAnswerId: parentAnswerId,
+    forceSingleLine: forceSingleLine,
+    forceNotSingleLine: forceNotSingleLine,
+    isChild: defaultNestingLevel > 1,
+    enableGuidelines: false,
+    displayMode: "minimalist" as CommentFormDisplayMode,
+  }
 
   return (
     <Components.ErrorBoundary>
       <div className={classes.nestedScroll} ref={bodyRef} onScroll={handleScroll}>
         {loadingMoreComments ? <Components.Loading /> : <></>}
         {commentsToRender.map((comment) => (
-          <CommentsNode
-            treeOptions={treeOptions}
-            startThreadTruncated={startThreadTruncated}
-            comment={comment.item}
-            childComments={comment.children}
-            key={comment.item._id}
-            parentCommentId={parentCommentId}
-            parentAnswerId={parentAnswerId}
-            forceSingleLine={forceSingleLine}
-            forceNotSingleLine={forceNotSingleLine}
-            shortform={(treeOptions.post as PostsBase)?.shortform}
-            isChild={defaultNestingLevel > 1}
-            enableGuidelines={false}
-            displayMode={"minimalist"}
+          <CommentWithReplies
+            comment={comment}
+            key={comment._id}
+            commentNodeProps={commentNodeProps}
+            initialMaxChildren={5}
           />
         ))}
       </div>

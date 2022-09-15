@@ -313,6 +313,7 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
+    podcastEpisodeId
   }
 `);
 
