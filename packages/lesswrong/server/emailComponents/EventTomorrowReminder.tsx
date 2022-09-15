@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import type { RSVPType } from '../../lib/collections/posts/temp_schema';
+import type { RSVPType } from '../../lib/collections/posts/temp_schema_2';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });

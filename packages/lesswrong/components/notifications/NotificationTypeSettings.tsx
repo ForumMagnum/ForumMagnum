@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import { defaultNotificationTypeSettings } from '../../lib/collections/users/temp_schema';
+import { defaultNotificationTypeSettings } from '../../lib/collections/users/temp_schema_2';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 
 const styles = (theme: ThemeType): JssStyles => ({

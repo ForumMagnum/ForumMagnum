@@ -6,7 +6,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
-import { TagCommentType } from './temp_schema';
+import { TagCommentType } from './temp_schema_2';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {

@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/temp_schema';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/temp_schema_2';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

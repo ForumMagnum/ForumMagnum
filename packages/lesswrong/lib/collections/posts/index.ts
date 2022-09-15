@@ -3,4 +3,4 @@ import './views';
 import './helpers';
 import './permissions';
 import './voting'
-import './temp_schema';
+import './temp_schema_2';

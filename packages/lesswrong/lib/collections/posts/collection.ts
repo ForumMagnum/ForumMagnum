@@ -1,4 +1,4 @@
-import schema from './temp_schema';
+import schema from './temp_schema_2';
 import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'

@@ -11,7 +11,7 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
-import { TagCommentType } from '../comments/temp_schema';
+import { TagCommentType } from '../comments/temp_schema_2';
 
 addGraphQLSchema(`
   type TagContributor {

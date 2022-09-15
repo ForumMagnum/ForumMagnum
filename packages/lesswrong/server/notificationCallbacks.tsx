@@ -22,7 +22,7 @@ import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 
 import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';
-import { RSVPType } from '../lib/collections/posts/temp_schema';
+import { RSVPType } from '../lib/collections/posts/temp_schema_2';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
 import moment from 'moment';
