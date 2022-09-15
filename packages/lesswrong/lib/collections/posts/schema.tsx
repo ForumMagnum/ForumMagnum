@@ -2246,8 +2246,10 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     foreignKey: 'Comments',
   },
+};
 
-  /* Alignment Forum fields */
+/* Alignment Forum fields */
+Object.assign(schema, {
   af: {
     order:10,
     type: Boolean,
@@ -2361,6 +2363,6 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.adminOptions,
     label: "AF Review UserId"
   },
-};
+});
 
 export default schema;

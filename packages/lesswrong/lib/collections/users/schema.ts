@@ -2259,8 +2259,10 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.disabledPrivileges,
     order: 72,
   },
+};
 
-  /* Alignment Forum fields */
+/* Alignment Forum fields */
+Object.assign(schema, {
   afPostCount: {
     ...denormalizedCountOfReferences({
       fieldName: "afPostCount",
@@ -2338,6 +2340,6 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     hidden: true,
   },
-};
+});
 
 export default schema;

@@ -158,8 +158,10 @@ const schema: SchemaType<DbSequence> = {
     insertableBy: ['members'],
     ...schemaDefaultValue(false),
   },
+};
 
-  /* Alignment Forum fields */
+/* Alignment Forum fields */
+Object.assign(schema, {
   af: {
     type: Boolean,
     optional: true,
@@ -169,6 +171,6 @@ const schema: SchemaType<DbSequence> = {
     editableBy: ['alignmentVoters'],
     insertableBy: ['alignmentVoters'],
   },
-}
+});
 
 export default schema;

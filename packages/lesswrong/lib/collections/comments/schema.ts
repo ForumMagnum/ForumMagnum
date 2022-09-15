@@ -615,7 +615,10 @@ const schema: SchemaType<DbComment> = {
     ...schemaDefaultValue(false),
   },
   
-  /* Alignment Forum fields */
+};
+
+/* Alignment Forum fields */
+Object.assign(schema, {
   af: {
     type: Boolean,
     optional: true,
@@ -696,6 +699,6 @@ const schema: SchemaType<DbComment> = {
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
   },
-};
+});
 
 export default schema;
