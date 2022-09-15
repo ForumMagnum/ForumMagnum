@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../../common/withUser';
-import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
+import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { socialMediaIcon } from '../users/EAUsersProfile';
