@@ -11,6 +11,7 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
+import { TagCommentType } from '../comments/schema';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -30,13 +31,7 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  
   ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
 }
 
-export const schema: SchemaType<DbTag> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-  },
+const schema: SchemaType<DbTag> = {
   name: {
     type: String,
     viewableBy: ['guests'],
@@ -120,6 +115,8 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
+    // schemaDefaultValue throws an error if this is set to null, but we want to allow that
+    onUpdate: () => {},
   },
   descriptionHtmlWithToc: {
     type: String,
@@ -236,7 +233,7 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(2),
   },
-  
+
   recentComments: resolverOnlyField({
     type: Array,
     graphQLtype: "[Comment]",
@@ -251,6 +248,7 @@ export const schema: SchemaType<DbTag> = {
         score: {$gt:0},
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
+        tagCommentType: TagCommentType.Discussion,
         ...(af ? {af:true} : {}),
       }, {
         limit: tagCommentsLimit,
@@ -458,7 +456,67 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  parentTagId: {
+    ...foreignKeyField({
+      idFieldName: "parentTagId",
+      resolverName: "parentTag",
+      collectionName: "Tags",
+      type: "Tag",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Parent Tag",
+    tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
+    group: formGroups.advancedOptions,
+    control: 'TagSelect',
+    onCreate: async ({newDocument: tag, context }) => {
+      if (tag.parentTagId) {
+        // don't allow chained parent tag relationships
+        const { Tags } = context;
+        if ((await Tags.find({parentTagId: tag._id}).count())) {
+          throw Error(`Tag ${tag.name} is a parent tag of another tag.`);
+        }
+      }
+      return tag.parentTagId
+    },
+    onUpdate: async ({data, oldDocument, context}) => {
+      if (data.parentTagId) {
+        if (data.parentTagId === oldDocument._id) {
+          throw Error(`Can't set self as parent tag.`);
+        }
+        const { Tags } = context;
+        // don't allow chained parent tag relationships
+        if ((await Tags.find({parentTagId: oldDocument._id}).count())) {
+          throw Error(`Tag ${oldDocument.name} is a parent tag of another tag.`);
+        }
+      }
+      return data.parentTagId
+    },
+  },
+  subTags: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (tag, args: void, context: ResolverContext) => {
+      const { currentUser, Tags } = context;
+
+      const tags = await Tags.find({
+        parentTagId: tag._id
+      }, {
+        sort: {name: 1}
+      }).fetch();
+      return await accessFilterMultiple(currentUser, Tags, tags, context);
+    }
+  }),
+  'subTags.$': {
+    type: Object,
+    foreignKey: 'Tags',
+  },
 }
+
+export default schema;
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {
   0: "Uncategorized",

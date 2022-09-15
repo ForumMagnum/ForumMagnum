@@ -16,6 +16,7 @@ import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbac
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -89,7 +90,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
     await Posts.rawUpdateOne(comment.postId, {
       $set: {lastCommentedAt: new Date()},
     });
-  } else if (comment.tagId) {
+  } else if (comment.tagId && comment.tagCommentType === TagCommentType.Discussion) {
     await Tags.rawUpdateOne(comment.tagId, {
       $set: {lastCommentedAt: new Date()},
     });
@@ -385,7 +386,7 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
 getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
   const ancestorIds: string[] = await getCommentAncestorIds(comment);
   
-  await Comments.rawUpdateOne({ _id: {$in: ancestorIds} }, {
+  await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
     $set: {lastSubthreadActivity: new Date()},
     $inc: {descendentCount:1},
   });
@@ -397,7 +398,7 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = context.oldDocument.deleted ? 1 : -1;
-    await Comments.rawUpdateOne({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
+    await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });

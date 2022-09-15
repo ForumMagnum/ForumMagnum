@@ -59,6 +59,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 8,
     },
   },
+  mainNoPadding: {
+    padding: 0,
+  },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
@@ -311,7 +314,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white"
+                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.mainNoPadding]: currentRoute?.noPadding,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

@@ -18,6 +18,13 @@ makeEditable({
     order: 20
   }
 })
-addUniversalFields({collection: Collections})
+
+addUniversalFields({
+  collection: Collections,
+  createdAtOptions: {
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
+});
 
 export default Collections;

@@ -13,6 +13,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
+import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -163,8 +164,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
     setIsChanged(true);
   };
   
-  const linkPrefix = getSiteUrl().slice(0,-1);
-  const collabEditorLink = `${linkPrefix}/collaborateOnPost?postId=${postId}&key=${linkSharingKey}`
+  const collabEditorLink = getPostCollaborateUrl(postId, false, linkSharingKey)
   
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
