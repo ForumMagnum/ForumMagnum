@@ -3,12 +3,11 @@ import { useRecordPostView } from "../common/withRecordPostView";
 import { CommentWithRepliesProps } from "./CommentWithReplies";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-interface CommentOnPostWithRepliesProps extends CommentWithRepliesProps {
+type CommentOnPostWithRepliesProps = Omit<CommentWithRepliesProps, 'lastRead' | 'markAsRead'> & {
   post: PostsBase;
 }
 
-const CommentOnPostWithReplies = (props: CommentOnPostWithRepliesProps) => {
-  const post = props.post;
+const CommentOnPostWithReplies = ({post, ...otherProps}: CommentOnPostWithRepliesProps) => {
   const [lastRead, setLastRead] = useState<Date>(post.lastVisitedAt);
   const { recordPostView } = useRecordPostView(post);
 
@@ -19,7 +18,7 @@ const CommentOnPostWithReplies = (props: CommentOnPostWithRepliesProps) => {
 
   const {CommentWithReplies} = Components;
 
-  return <CommentWithReplies {...props} lastRead={lastRead} markAsRead={markAsRead}/>
+  return <CommentWithReplies post={post} {...otherProps} lastRead={lastRead} markAsRead={markAsRead}/>
 };
 
 const CommentOnPostWithRepliesComponent = registerComponent(

@@ -42,7 +42,11 @@ export interface CommentsNodeProps {
   shortform?: any,
   nestingLevel?: number,
   expandAllThreads?:boolean,
-  expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
+  /**
+   * Determines whether this specific comment is expanded, without passing that
+   * expanded state to child comments
+   */
+  expandByDefault?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,

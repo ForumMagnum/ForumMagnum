@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { CommentFormDisplayMode } from './CommentsNewForm';
 
@@ -89,7 +88,6 @@ const CommentsTimelineFn = ({
     parentAnswerId: parentAnswerId,
     forceSingleLine: forceSingleLine,
     forceNotSingleLine: forceNotSingleLine,
-    shortform: (treeOptions.post as PostsBase)?.shortform,
     isChild: defaultNestingLevel > 1,
     enableGuidelines: false,
     displayMode: "minimalist" as CommentFormDisplayMode,
