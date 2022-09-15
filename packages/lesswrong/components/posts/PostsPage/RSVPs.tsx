@@ -1,6 +1,6 @@
 import Button from '@material-ui/core/Button';
 import React, { useCallback, useEffect } from 'react';
-import { RSVPType } from '../../../lib/collections/posts/schema';
+import { RSVPType } from '../../../lib/collections/posts/temp_schema';
 import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent, Components, getFragment } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';

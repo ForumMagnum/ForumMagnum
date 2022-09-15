@@ -1,6 +1,6 @@
 export * from './collection';
 
-import './custom_fields';
+import './temp_schema';
 import './helpers';
 import './permissions';
 import './views';

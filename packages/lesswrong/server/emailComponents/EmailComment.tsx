@@ -9,7 +9,7 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/temp_schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {

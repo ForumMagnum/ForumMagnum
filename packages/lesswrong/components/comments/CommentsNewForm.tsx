@@ -14,7 +14,7 @@ import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import ArrowForward from '@material-ui/icons/ArrowForward';
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/temp_schema';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
