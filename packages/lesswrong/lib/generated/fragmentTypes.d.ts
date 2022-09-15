@@ -10,7 +10,6 @@
 interface UsersDefaultFragment { // fragment on Users
   readonly username: string,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
-  readonly createdAt: Date,
   readonly isAdmin: boolean,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly displayName: string,
@@ -25,7 +24,6 @@ interface UsersDefaultFragment { // fragment on Users
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
-  readonly createdAt: Date,
   readonly userId: string,
   readonly name: string,
   readonly documentId: string,
@@ -75,7 +73,6 @@ interface emailHistoryFragment { // fragment on LWEvents
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations
-  readonly createdAt: Date,
   readonly type: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
@@ -83,7 +80,6 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 }
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
-  readonly createdAt: Date,
   readonly name: string,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
@@ -105,7 +101,6 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
 }
 
 interface TagsDefaultFragment { // fragment on Tags
-  readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
@@ -141,7 +136,6 @@ interface TagsDefaultFragment { // fragment on Tags
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
-  readonly createdAt: Date,
   readonly tagId: string,
   readonly postId: string,
   readonly deleted: boolean,
@@ -151,7 +145,6 @@ interface TagRelsDefaultFragment { // fragment on TagRels
 }
 
 interface PostsDefaultFragment { // fragment on Posts
-  readonly createdAt: Date,
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
@@ -217,7 +210,6 @@ interface PostsDefaultFragment { // fragment on Posts
 }
 
 interface BooksDefaultFragment { // fragment on Books
-  readonly createdAt: Date,
   readonly postedAt: Date,
   readonly title: string,
   readonly subtitle: string,
@@ -231,7 +223,6 @@ interface BooksDefaultFragment { // fragment on Books
 }
 
 interface CollectionsDefaultFragment { // fragment on Collections
-  readonly createdAt: Date,
   readonly userId: string,
   readonly title: string,
   readonly slug: string,
@@ -241,7 +232,6 @@ interface CollectionsDefaultFragment { // fragment on Collections
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
-  readonly createdAt: Date,
   readonly userId: string,
   readonly title: string,
   readonly gridImageId: string,
@@ -273,7 +263,6 @@ interface VotesDefaultFragment { // fragment on Votes
 interface CommentsDefaultFragment { // fragment on Comments
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
-  readonly createdAt: Date,
   readonly postedAt: Date,
   readonly author: string,
   readonly postId: string,
@@ -301,7 +290,6 @@ interface CommentsDefaultFragment { // fragment on Comments
 
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
-  readonly createdAt: Date,
   readonly ownedByUser: boolean,
   readonly displayFullContent: boolean,
   readonly nickname: string,
@@ -965,7 +953,6 @@ interface WithVoteRevision { // fragment on Revisions
 
 interface NotificationsDefaultFragment { // fragment on Notifications
   readonly userId: string,
-  readonly createdAt: Date,
   readonly documentId: string,
   readonly documentType: string,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -994,18 +981,17 @@ interface NotificationsList { // fragment on Notifications
 }
 
 interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly createdAt: Date,
   readonly title: string,
   readonly participantIds: Array<string>,
   readonly latestActivity: Date,
   readonly af: boolean,
   readonly messageCount: number,
+  readonly moderator: boolean,
   readonly archivedByIds: Array<string>,
 }
 
 interface MessagesDefaultFragment { // fragment on Messages
   readonly userId: string,
-  readonly createdAt: Date,
   readonly conversationId: string,
   readonly noEmail: boolean,
 }
@@ -1086,7 +1072,6 @@ interface ReportsDefaultFragment { // fragment on Reports
   readonly link: string,
   readonly claimedUserId: string,
   readonly description: string,
-  readonly createdAt: Date,
   readonly closedAt: Date,
   readonly markedAsSpam: boolean,
   readonly reportedAsSpam: boolean,
@@ -1173,7 +1158,6 @@ interface TagFlagEditFragment extends TagFlagFragment { // fragment on TagFlags
 }
 
 interface TagFlagsDefaultFragment { // fragment on TagFlags
-  readonly createdAt: Date,
   readonly name: string,
   readonly deleted: boolean,
   readonly slug: string,
@@ -1211,7 +1195,6 @@ interface GardenCodeFragmentEdit { // fragment on GardenCodes
 }
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
-  readonly createdAt: Date,
   readonly code: string,
   readonly title: string,
   readonly userId: string,
@@ -1226,7 +1209,6 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
 }
 
 interface BansDefaultFragment { // fragment on Bans
-  readonly createdAt: Date,
   readonly expirationDate: Date,
   readonly userId: string,
   readonly ip: string,
@@ -1248,7 +1230,6 @@ interface BansAdminPageFragment { // fragment on Bans
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
-  readonly createdAt: Date,
   readonly title: string,
   readonly subtitle: string,
   readonly number: number,
@@ -1257,7 +1238,6 @@ interface ChaptersDefaultFragment { // fragment on Chapters
 }
 
 interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
-  readonly createdAt: Date,
   readonly userId: string,
   readonly postId: string,
   readonly qualitativeScore: number,
@@ -1684,7 +1664,6 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
-  readonly createdAt: Date,
   readonly timezone: string,
   readonly availability: string,
   readonly questions: string,
@@ -1708,7 +1687,6 @@ interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
-  readonly createdAt: Date,
   readonly userId: string,
   readonly state: "subscribed" | "suppressed",
   readonly documentId: string,
@@ -2191,7 +2169,6 @@ interface UsersCrosspostInfo { // fragment on Users
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
-  readonly createdAt: Date,
   readonly launchCode: string,
   readonly hashedLaunchCode: string,
   readonly userId: string,
