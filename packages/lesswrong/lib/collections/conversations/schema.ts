@@ -63,6 +63,7 @@ const schema: SchemaType<DbConversation> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     optional: true,
+    nullable: true
   },
   archivedByIds: {
     ...arrayOfForeignKeysField({

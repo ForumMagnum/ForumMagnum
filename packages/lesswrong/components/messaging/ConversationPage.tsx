@@ -114,8 +114,8 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       <div className={classes.conversationSection}>
         <div className={classes.row}>
           <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
-          {userCanDo(currentUser, 'conversations.edit.all') && conversation.moderator && <Typography variant="body2" className={classes.backButton}>
-            <Link to="/inbox"> Moderator Inbox </Link>
+          {userCanDo(currentUser, 'conversations.moderate.all') && conversation.moderator && <Typography variant="body2" className={classes.backButton}>
+            <Link to="/moderatorInbox"> Moderator Inbox </Link>
           </Typography>}
         </div>
         <Typography variant="display2" className={classes.conversationTitle}>

@@ -15,14 +15,12 @@ const adminActions = [
   'conversations.edit.all',
   'conversations.remove.all',
   'conversations.view.all',
+  'conversations.moderate.all',
 ];
 adminsGroup.can(adminActions);
 
 const sunshineRegimentActions = [
-  'conversations.new.all',
-  'conversations.edit.all',
-  'conversations.remove.all',
-  'conversations.view.all',
+  'conversations.moderate.all',
 ];
 sunshineRegimentGroup.can(sunshineRegimentActions);
 

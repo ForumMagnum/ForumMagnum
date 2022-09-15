@@ -986,7 +986,7 @@ interface ConversationsDefaultFragment { // fragment on Conversations
   readonly latestActivity: Date,
   readonly af: boolean,
   readonly messageCount: number,
-  readonly moderator: boolean,
+  readonly moderator: boolean | null,
   readonly archivedByIds: Array<string>,
 }
 
@@ -1021,7 +1021,7 @@ interface conversationsListFragment { // fragment on Conversations
   readonly participants: Array<UsersMinimumInfo>,
   readonly archivedByIds: Array<string>,
   readonly messageCount: number,
-  readonly moderator: boolean,
+  readonly moderator: boolean | null,
 }
 
 interface newConversationFragment { // fragment on Conversations

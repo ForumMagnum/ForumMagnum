@@ -12,11 +12,11 @@ const ModeratorInboxWrapper = () => {
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
-  if (!userCanDo(currentUser, 'conversations.edit.all')) {
+  if (!userCanDo(currentUser, 'conversations.moderate.all')) {
     return <ErrorAccessDenied/>
   }
   const showArchive = query.showArchive === "true"
-  const terms: ConversationsViewTerms = {view: 'moderatorConversations', userId: currentUser._id, showArchive};
+  const terms: ConversationsViewTerms = {view: 'moderatorConversations', showArchive};
   return <div>
     <Components.InboxNavigation terms={terms} currentUser={currentUser} title="Moderator Conversations"/>
   </div>
