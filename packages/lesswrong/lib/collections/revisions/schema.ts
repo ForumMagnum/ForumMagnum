@@ -2,10 +2,12 @@ import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../ut
 import SimpleSchema from 'simpl-schema'
 import { userIsSharedOn } from '../users/helpers';
 import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
-import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib';
-import { GraphQLScalarType } from 'graphql';
 
+/**
+ * This covers the type of originalContents for all editor types. 
+ * (DraftJS uses object type. DraftJs is deprecated but there are still many documents that use it)
+ */
 export const ContentType = new SimpleSchema({
   type: String,
   data: SimpleSchema.oneOf(
@@ -19,30 +21,14 @@ export const ContentType = new SimpleSchema({
 
 SimpleSchema.extendOptions([ 'inputType' ]);
 
+// Graphql doesn't allow union types that include scalars, which is necessary
+// to accurately represent the data field the ContentType simple schema.
+
+// defining a custom scalar seems to allow it to pass through any data type,
+// but this doesn't seem much more permissive than ContentType was originally
 addGraphQLSchema(`
   scalar ContentTypeData
 `)
-
-const dateScalar = new GraphQLScalarType({
-  name: "ContentTypeData",
-  serialize(value) {
-    return value
-  }
-  // name: 'Date',
-  // description: 'Date custom scalar type',
-  // serialize(value) {
-  //   return value.getTime(); // Convert outgoing Date to integer for JSON
-  // },
-  // parseValue(value) {
-  //   return new Date(value); // Convert incoming integer to Date
-  // },
-  // parseLiteral(ast) {
-  //   if (ast.kind === Kind.INT) {
-  //     return new Date(parseInt(ast.value, 10)); // Convert hard-coded AST string to integer and then to Date
-  //   }
-  //   return null; // Invalid hard-coded value (not an integer)
-  // },
-});
 
 addGraphQLSchema(`
   type ContentType {
