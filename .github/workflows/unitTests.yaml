@@ -24,4 +24,6 @@ jobs:
       run: yarn run lint
 
     - name: yarn run test-ci
+      env:
+        PG_URL: ${{ secrets.PG_URL }}
       run: yarn run test-ci
