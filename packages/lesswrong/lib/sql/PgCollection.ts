@@ -9,12 +9,17 @@ import DeleteQuery from "./DeleteQuery";
 import CreateIndexQuery from "./CreateIndexQuery";
 import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
-import BulkWriter from "./BulkWriter";
+import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
 import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 
-// TODO: PgCollection should extend CollectionBase
+let executingQueries = 0;
+
+export const isAnyQueryPending = () => executingQueries > 0;
+
+// TODO: PgCollection should probably implement CollectionBase instead (assuming
+// we can someday delete MongoCollection)
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
   table: Table;
 
@@ -40,20 +45,24 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
    * the error message if something goes wrong
    */
   async executeQuery<R extends {} = T>(query: Query<T>, debugData?: any): Promise<RowList<TransformRow<R>[]>> {
-    const {sql, args} = query.compile();
-    const client = getSqlClientOrThrow();
+    executingQueries++;
+    let result: RowList<TransformRow<R>[]>;
     try {
-      // `return await` looks weird, but it's necessary for the correct semantics
-      // as the client doesn't begin executing the query until it's awaited
-      return await client.unsafe<R[]>(sql, args);
+      const {sql, args} = query.compile();
+      const client = getSqlClientOrThrow();
+      result = await client.unsafe<R[]>(sql, args);
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
       const {collectionName} = this as unknown as CollectionBase<T>;
       debugData = util.inspect({collectionName, ...debugData}, {depth: null});
+      const {sql, args} = query.compile();
       // eslint-disable-next-line no-console
       console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
       throw error;
+    } finally {
+      executingQueries--;
     }
+    return result;
   }
 
   getTable = () => {
@@ -160,8 +169,16 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   rawCollection = () => ({
     bulkWrite: async (operations: MongoBulkWriteOperations<T>, options: MongoBulkWriteOptions) => {
-      const client = getSqlClientOrThrow();
-      return new BulkWriter(this.getTable(), operations, options).execute(client);
+      executingQueries++;
+      let result: BulkWriterResult;
+      try {
+        const client = getSqlClientOrThrow();
+        const writer = new BulkWriter(this.getTable(), operations, options);
+        result = await writer.execute(client);
+      } finally {
+        executingQueries--;
+      }
+      return result;
     },
     findOneAndUpdate: async (
       selector: string | MongoSelector<T>,

@@ -42,6 +42,7 @@ const schema: SchemaType<DbReadStatus> = {
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
+  postgres: true,
   schema,
   logChanges: false,
 });

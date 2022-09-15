@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 
 import { isPromise } from './utils';
 import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
+import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 
 // TODO: It would be nice if callbacks could be enabled or disabled by collection
@@ -339,7 +340,7 @@ export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
       // TODO: Do we need an isAnyPostgresQueryPending here?
-      if (callbacksArePending() || isAnyMongoQueryPending()) {
+      if (callbacksArePending() || isAnyMongoQueryPending() || isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();

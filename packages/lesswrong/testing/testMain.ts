@@ -37,7 +37,7 @@ async function ensureDbConnection() {
     setDatabaseConnection(client, db);
   } catch(err) {
     // eslint-disable-next-line no-console
-    console.log("Failed to connect to mongodb: ", err);
+    console.error("Failed to connect to mongodb:", err);
     return;
   }
   
@@ -47,9 +47,15 @@ async function ensureDbConnection() {
 let pgConnected = false;
 const ensurePgConnection = async () => {
   if (!pgConnected) {
+    try {
+      const client = await createTestingSqlClient();
+      setSqlClient(client);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to connect to postgres:", err.message);
+      throw err;
+    }
     pgConnected = true;
-    const client = await createTestingSqlClient();
-    setSqlClient(client);
   }
 }
 
@@ -75,6 +81,8 @@ export function testStartup() {
   chai.should();
   chai.use(chaiAsPromised);
 
+  jest.setTimeout(10000);
+
   beforeAll(async () => {
     await oneTimeSetup();
   });
@@ -86,11 +94,10 @@ export function testStartup() {
       closeDatabaseConnection(),
       closeSqlClient(getSqlClientOrThrow()),
     ]);
-    /* TODO: This seems really janky
     if (process.env.JEST_WORKER_ID === "1") {
-      console.log("Dropping unit testing databases");
-      await dropTestingDatabases();
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 1);
+      await dropTestingDatabases(cutoff);
     }
-    */
   });
 }

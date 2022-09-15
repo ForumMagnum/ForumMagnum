@@ -13,7 +13,7 @@ import postgres from 'postgres';
  * connections will hit the limit of 100), and you probably want to leave a couple free
  * for connecting extenal clients for debugging/testing/migrations/etc.
  */
-const MAX_CONNECTIONS = 25;
+const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
 declare global {
   type SqlClient = postgres.Sql<any>;

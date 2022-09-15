@@ -45,7 +45,7 @@ export const createTestingSqlClient = async (): Promise<SqlClient> => {
   return sql;
 }
 
-export const dropTestingDatabases = async () => {
+export const dropTestingDatabases = async (olderThan?: string | Date) => {
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't drop testing databases - PG_URL not set");
@@ -58,8 +58,12 @@ export const dropTestingDatabases = async () => {
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `;
+  olderThan = new Date(olderThan ?? Date.now());
   for (const database of databases) {
     const {datname} = database;
-    await sql`DROP DATABASE ${sql(datname)}`;
+    const dateCreated = new Date(datname.split("_").slice(1, 7).join("_").toUpperCase());
+    if (dateCreated < olderThan) {
+      await sql`DROP DATABASE ${sql(datname)}`;
+    }
   }
 }

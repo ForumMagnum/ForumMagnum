@@ -12,5 +12,8 @@ export const getSqlClientOrThrow = () => {
 }
 
 export const closeSqlClient = async (client: SqlClient) => {
+  if (client === sql) {
+    sql = null;
+  }
   await client.end({ timeout: 0 });
 }

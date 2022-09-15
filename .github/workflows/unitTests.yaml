@@ -1,6 +1,6 @@
-
 name: Run Unit Tests
 on: [push, pull_request]
+concurrency: unittests
 jobs:
   buildAndTest:
     runs-on: ubuntu-latest

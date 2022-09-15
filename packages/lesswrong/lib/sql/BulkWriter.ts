@@ -4,6 +4,10 @@ import InsertQuery from "./InsertQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
 
+export type BulkWriterResult = {
+  ok: number,
+}
+
 class BulkWriter<T extends DbObject> {
   private queries: Query<T>[] = [];
 
@@ -71,7 +75,7 @@ class BulkWriter<T extends DbObject> {
     }
   }
 
-  async execute(client: SqlClient) {
+  async execute(client: SqlClient): Promise<BulkWriterResult> {
     await Promise.all(this.queries.map((query) => {
       const {sql, args} = query.compile();
       return client.unsafe(sql, args);
