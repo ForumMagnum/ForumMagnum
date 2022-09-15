@@ -297,4 +297,4 @@ abstract class Query<T extends DbObject> {
   }
 }
 
-  export default Query;
+export default Query;

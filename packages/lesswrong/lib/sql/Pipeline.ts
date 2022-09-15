@@ -43,13 +43,14 @@ class Unit<T extends DbObject> {
   }
 
   private addSimpleStage(name: string, data: any): Unit<T> {
-    this.empty = false;
     if (this[name] || this.group) {
       const unit = new Unit(this);
       unit[name] = data;
+      unit.empty = false;
       return unit;
     } else {
       this[name] = data;
+      this.empty = false;
       return this;
     }
   }
@@ -81,6 +82,7 @@ class Unit<T extends DbObject> {
   addGroupStage(data: any): Unit<T> {
     const unit: Unit<T> = this.empty ? this : new Unit(this);
     unit.group = data;
+    unit.empty = false;
     return unit;
   }
 

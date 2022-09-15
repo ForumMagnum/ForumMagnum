@@ -58,7 +58,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
       
       // Group by thing-that-was-voted-on and calculate the total karma change
       {$group: {
-        _id: "$documentId",
+        documentId: "$documentId",
         collectionName: { $first: "$collectionName" },
         scoreChange: { $sum: af ? "$afPower" : "$power" },
       }},
@@ -78,12 +78,12 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
       
       {$lookup: {
         from: "comments",
-        localField: "_id",
+        localField: "documentId",
         foreignField: "_id",
         as: "comment"
       }},
       {$project: {
-        _id:1,
+        _id: "$documentId",
         scoreChange:1,
         description: {$arrayElemAt: ["$comment.contents.html",0]},
         postId: {$arrayElemAt: ["$comment.postId",0]},
@@ -98,12 +98,12 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
       
       {$lookup: {
         from: "posts",
-        localField: "_id",
+        localField: "documentId",
         foreignField: "_id",
         as: "post"
       }},
       {$project: {
-        _id:1,
+        _id: "$documentId",
         scoreChange:1,
         title: {$arrayElemAt: ["$post.title",0]},
         slug: {$arrayElemAt: ["$post.slug",0]},
@@ -124,12 +124,12 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
       
       {$lookup: {
         from: "revisions",
-        localField: "_id",
+        localField: "documentId",
         foreignField: "_id",
         as: "revision"
       }},
       {$project: {
-        _id:1,
+        _id: "$documentId",
         scoreChange:1,
         tagId: {$arrayElemAt: ["$revision.documentId",0]},
       }},

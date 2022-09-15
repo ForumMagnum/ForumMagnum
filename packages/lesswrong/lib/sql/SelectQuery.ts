@@ -185,6 +185,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       }
     }
 
+    if (this.table instanceof SelectQuery && !this.table.syntheticFields._id) {
+      autoIncludeId = false;
+    }
+
     let fields: string[] = [this.getStarSelector()];
     if (include.length && !exclude.length) {
       if (autoIncludeId && !include.includes("_id")) {
