@@ -17,9 +17,7 @@ const ModeratorInboxWrapper = () => {
   }
   const showArchive = query.showArchive === "true"
   const terms: ConversationsViewTerms = {view: 'moderatorConversations', showArchive};
-  return <div>
-    <Components.InboxNavigation terms={terms} currentUser={currentUser} title="Moderator Conversations"/>
-  </div>
+  return <Components.InboxNavigation terms={terms} currentUser={currentUser} title="Moderator Conversations"/>
 }
 
 const ModeratorInboxWrapperComponent = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);
