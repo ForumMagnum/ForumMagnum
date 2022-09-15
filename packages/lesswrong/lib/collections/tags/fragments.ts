@@ -254,9 +254,6 @@ registerFragment(`
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
-    subforumShortDescription {
-      ...RevisionEdit
-    }
   }
 `);
 

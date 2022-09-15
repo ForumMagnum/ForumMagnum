@@ -1657,7 +1657,6 @@ interface TagEditFragment_parentTag { // fragment on Tags
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
   readonly lastVisitedAt: Date,
   readonly recentComments: Array<CommentsList>,
-  readonly subforumShortDescription: RevisionEdit|null,
 }
 
 interface TagRecentSubforumComments extends TagFragment { // fragment on Tags

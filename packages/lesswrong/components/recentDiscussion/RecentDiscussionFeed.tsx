@@ -117,7 +117,7 @@ const RecentDiscussionFeed = ({
                     tag={tag}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
-                    commentType={TagCommentType.Subforum}
+                    tagCommentType={TagCommentType.Subforum}
                   />
                 )
               },

@@ -58,15 +58,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, commentType = TagCommentType.Discussion, classes }: {
+const isSubforumFragment = (tag: TagRecentDiscussion | TagRecentSubforumComments): tag is TagRecentSubforumComments =>
+  (tag as TagRecentSubforumComments).subforumShortDescription !== undefined;
+
+const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = TagCommentType.Discussion, classes }: {
   tag: TagRecentDiscussion | TagRecentSubforumComments,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
-  commentType?: TagCommentType,
+  tagCommentType?: TagCommentType,
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-  const isSubforum = commentType === TagCommentType.Subforum
+  const isSubforum = tagCommentType === TagCommentType.Subforum && isSubforumFragment(tag)
 
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
@@ -78,14 +81,15 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
   
+  const onClickEventType = isSubforum ? "recentDiscussionSubforumClick" : "recentDiscussionTagClick"
   const markAsRead = useCallback(
     () => {
       setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordTagView({tag, extraEventProperties: {type: "recentDiscussionTagClick"}})
+      recordTagView({tag, extraEventProperties: {type: onClickEventType}})
     },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordTagView, tag]
+    [recordTagView, tag, onClickEventType]
   );
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);

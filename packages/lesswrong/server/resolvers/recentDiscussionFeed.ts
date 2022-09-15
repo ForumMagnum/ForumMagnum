@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { filterModeIsSubscribed } from '../../lib/filterSettings';
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -25,8 +26,7 @@ defineFeedResolver<Date>({
     
     const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
     
-    //, TODO don't just check for "Subscribed" here
-    const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => tag.filterMode == "Subscribed").map(tag => tag.tagId) || [];
+    const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
     
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
