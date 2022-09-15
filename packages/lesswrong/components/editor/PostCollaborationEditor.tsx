@@ -10,6 +10,7 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import { userCanDo } from '../../lib/vulcan-users';
+import { canUserUseFullEditor } from '../posts/PostsEditForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -75,10 +76,10 @@ const PostCollaborationEditor = ({ classes }: {
     return <Loading/>
   }
   
-  // If you're the primary author, or an admin, redirect to the main editor (rather than the
+  // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
-  if (post.userId === currentUser._id || userCanDo(currentUser, 'posts.edit.all')) {
-    return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
+  if (canUserUseFullEditor(currentUser, post)) {
+      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
   }
 
   // If the post has a link-sharing key which is not in the URL, redirect to add

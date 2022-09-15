@@ -105,19 +105,25 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
           setCollaborationMode(newMode);
         }}
       >
-        <MenuItem value="Viewing" key="Viewing">
-          Viewing
-        </MenuItem>
-        <MenuItem value="Commenting" key="Commenting"
-          disabled={!accessLevelCan(accessLevel, "comment")}
-        >
-          Commenting
-        </MenuItem>
-        <MenuItem value="Editing" key="Editing"
-          disabled={!accessLevelCan(accessLevel, "edit")}
-        >
-          Editing
-        </MenuItem>
+        <LWTooltip placement="right" title="You can comment, but not edit or suggest changes to the document.">
+          <MenuItem value="Viewing" key="Viewing">
+            Viewing
+          </MenuItem>
+        </LWTooltip>
+        <LWTooltip placement="right" title="You can comment, but neither edit nor suggest changes to the document.">
+          <MenuItem value="Commenting" key="Commenting"
+            disabled={!accessLevelCan(accessLevel, "comment")}
+          >
+            Commenting
+          </MenuItem>
+        </LWTooltip>
+        <LWTooltip placement="right" title="You can comment, suggest changes, or publish edits to the document.">
+          <MenuItem value="Editing" key="Editing"
+            disabled={!accessLevelCan(accessLevel, "edit")}
+          >
+            Editing
+          </MenuItem>
+        </LWTooltip>
       </Select>
       
       <LWTooltip title="Collaborative docs automatically save all changes">

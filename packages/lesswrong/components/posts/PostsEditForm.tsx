@@ -14,6 +14,14 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
+export const canUserUseFullEditor = (currentUser, document) => {
+  // Note, as of 09-15-2022, if the owner/admin changes a user's permissions, they take awhile to propagate through the system, and then still require a refresh to take effect. (This is a bug we should fix)
+  if (!document) return false
+  return document.userId===currentUser._id  || 
+         document.myEditorAccess === "edit" || 
+         userCanDo(currentUser, 'posts.edit.all')
+} 
+
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
   classes: ClassesType,
@@ -58,11 +66,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document
-    && document.userId!==currentUser._id
-    && document.sharingSettings
-    && !userCanDo(currentUser, 'posts.edit.all')
-  ) {
+  if (!canUserUseFullEditor(currentUser, document) && document?.sharingSettings) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
@@ -93,7 +97,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <Components.ErrorAccessDenied/>
   }
 
-  if (document?.fmCrosspost?.isCrosspost && !document?.fmCrosspost?.hostedHere) {
+  if (document.fmCrosspost?.isCrosspost && !document.fmCrosspost?.hostedHere) {
     return <ForeignCrosspostEditForm post={document} />;
   }
   
