@@ -8,8 +8,12 @@ import postgres from 'postgres';
  *
  * max_connections and shared_buffers are located in /var/lib/pgsql/{version_number}/data/postgresql.conf
  * kernel.shmmax is in /etc/sysctl.conf
+ *
+ * Make sure you take into account that this is per server instance (so 4 instances of 25
+ * connections will hit the limit of 100), and you probably want to leave a couple free
+ * for connecting extenal clients for debugging/testing/migrations/etc.
  */
-const MAX_CONNECTIONS = 100;
+const MAX_CONNECTIONS = 25;
 
 declare global {
   type SqlClient = postgres.Sql<any>;
