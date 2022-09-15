@@ -1,12 +1,10 @@
 import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 
-// TODO: The types for this seem badly broken?
-// @ts-ignore
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
     if (nodeName === 'img') {
-      const nodeImg = (node as unknown as HTMLImageElement);
+      const nodeImg = (node as HTMLImageElement);
       return createEntity(
         'IMAGE',
         'IMMUTABLE',
@@ -14,7 +12,7 @@ export const htmlToDraft = convertFromHTML({
       )
     }
     if (nodeName === 'a') {
-      const nodeA = (node as unknown as HTMLAnchorElement);
+      const nodeA = (node as HTMLAnchorElement);
       return createEntity(
         'LINK',
         'MUTABLE',

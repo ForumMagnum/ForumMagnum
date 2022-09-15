@@ -12,7 +12,6 @@ describe('AlignmentForum PostsEdit', () => {
     const post = await createDummyPost()
 
     const userIds = user._id
-    console.log("GFGFGFGFGFGFGF", user._id, post._id);
 
     const query = `
       mutation PostsEdit {

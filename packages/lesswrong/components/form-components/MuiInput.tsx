@@ -20,15 +20,15 @@ class MuiInput extends Component<any,any> {
   }
 
   componentDidMount() {
-    (this.context as any).addToSuccessForm(() => this.setState({contents: ""}))
-    (this.context as any).updateCurrentValues({
+    this.context.addToSuccessForm(() => this.setState({contents: ""}))
+    this.context.updateCurrentValues({
       [this.props.path]: (this.props.document && this.props.document[this.props.path]) || ""
     })
   }
 
   onChange = (event) => {
-    this.setState({contents: event.target.value});
-    (this.context as any).updateCurrentValues({
+    this.setState({contents: event.target.value})
+    this.context.updateCurrentValues({
       [this.props.path]: event.target.value
     })
   }

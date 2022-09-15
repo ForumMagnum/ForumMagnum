@@ -322,7 +322,7 @@ class FormComponent extends Component<any,any> {
         inputType={this.getInputType()}
         value={this.getValue()}
         errors={this.getErrors()}
-        document={(this.context as any).getDocument()}
+        document={this.context.getDocument()}
         showCharsRemaining={!!this.showCharsRemaining()}
         onChange={this.handleChange}
         clearField={this.clearField}

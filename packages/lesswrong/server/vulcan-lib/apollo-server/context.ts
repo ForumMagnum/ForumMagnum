@@ -19,7 +19,7 @@ import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
-import type { Request, Response } from 'express-serve-static-core';
+import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
@@ -104,12 +104,12 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
   return userAgent.startsWith("Dexador");
 }
 
-export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response,): Promise<ResolverContext> => {
+export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let context: ResolverContext = {
     ...getCollectionsByName(),
     ...generateDataLoaders(),
     req: req as any,
-    res: res as any,
+    res,
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isGreaterWrong: requestIsFromGreaterWrong(req),

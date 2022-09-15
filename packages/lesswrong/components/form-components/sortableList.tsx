@@ -1,34 +1,29 @@
 import React, {useCallback} from 'react';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import type {SortEvent, SortEventWithTag} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
-export type SortableItemProps = {
-  contents: string,
-  removeItem: (id: string) => void,
-  classes: ClassesType,
-}
-
-export const makeSortableListComponent = ({renderItem}: {renderItem: (props: SortableItemProps) => React.ReactNode}) => {
+export const makeSortableListComponent = ({renderItem}: {
+  renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id:string)=>void, classes: ClassesType }) => React.ReactNode
+}) => {
   // eslint-disable-next-line babel/new-cap
-  const SortableItem = SortableElement((props: SortableItemProps) => <>
-    {renderItem(props)}
+  const SortableItem = SortableElement(({contents, removeItem, classes}) => <>
+    {renderItem({contents, removeItem, classes})}
   </>);
   // eslint-disable-next-line babel/new-cap
   const SortableList = SortableContainer(({items, removeItem, className, classes}) => {
     return <span className={className}>
       {items.map((contents, index) => {
-        // TODO: TS says that removeItem doesn't exist, but we seem to use it quite heavily?
-        // @ts-ignore
         return <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} contents={contents} classes={classes}/>
       })}
     </span>
   });
   
-  const shouldCancelStart = (e) => {
+  const shouldCancelStart = (e: SortEvent | SortEventWithTag) => {
     // Cancel drag if the event target is a form field, so that if the draggable
     // things have form fields inside them, you can still click to focus them.
     const disabledElements = [ 'input', 'textarea', 'select', 'option', 'button', 'svg', 'path' ];
-    if (disabledElements.includes(e.target.tagName.toLowerCase())) {
+    if ('tagName' in e.target && disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
     } else {
       return false;
