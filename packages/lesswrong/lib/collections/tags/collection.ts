@@ -93,4 +93,18 @@ makeEditable({
   }
 });
 
+makeEditable({
+  collection: Tags,
+  options: {
+    formGroup: formGroups.subforumShortDescription,
+    fieldName: "subforumShortDescription",
+    hintText: "Short description for the subforum that appears e.g. when the subforum is in Recent Discussion on the front page",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
+});
+
 export default Tags;

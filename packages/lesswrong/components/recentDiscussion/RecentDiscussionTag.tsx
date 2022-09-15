@@ -2,12 +2,13 @@ import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,13 +58,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, classes }: {
-  tag: TagRecentDiscussion,
+const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, commentType = TagCommentType.Discussion, classes }: {
+  tag: TagRecentDiscussion | TagRecentSubforumComments,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
+  commentType?: TagCommentType,
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
+  const isSubforum = commentType === TagCommentType.Subforum
+
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
@@ -88,7 +92,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     setExpandAllThreads(true);
   }, []);
   
-  const descriptionHtml = tag.description?.html;
+  const descriptionHtml = (isSubforum ? tag.subforumShortDescription : tag.description)?.html;
   const maybeTruncatedDescriptionHtml = truncated
     ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
     : descriptionHtml;
@@ -102,29 +106,16 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     condensed: true,
   }
   
-  let metadataWording = ''
-  if (taggingNameIsSet.get()) {
-    if (tag.wikiOnly) {
-      metadataWording = `${taggingNameCapitalSetting.get()} page`
-    } else {
-      metadataWording = `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`
-    }
-  } else {
-    if (tag.wikiOnly) {
-      metadataWording = `Wiki page`
-    } else {
-      metadataWording = `Tag page - ${tag.postCount} posts`
-    }
-  }
+  const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
   return <div className={classes.root}>
     <div className={classes.tag}>
-      <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
-        {tag.name}
+      <Link to={isSubforum ? tagGetSubforumUrl(tag): tagGetDiscussionUrl(tag)} className={classes.title}>
+        {tag.name}{isSubforum && " Subforum"}
       </Link>
       
       <div className={classes.metadata}>
-        <span>{metadataWording}</span>
+        {!isSubforum && <span>{metadataWording}</span>}
       </div>
       
       <div onClick={clickExpandDescription}>
@@ -149,6 +140,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
               nestingLevel={1}
               comment={comment.item}
               childComments={comment.children}
+              displayMode={isSubforum ? "minimalist" : "default"}
               key={comment.item._id}
             />
           </div>

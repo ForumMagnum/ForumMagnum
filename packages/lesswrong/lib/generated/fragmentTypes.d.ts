@@ -117,6 +117,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly charsRemoved: number,
   readonly deleted: boolean,
   readonly lastCommentedAt: Date,
+  readonly lastSubforumCommentAt: Date,
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
@@ -1644,6 +1645,7 @@ interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
+  readonly subforumShortDescription: RevisionEdit|null,
 }
 
 interface TagEditFragment_parentTag { // fragment on Tags
@@ -1655,6 +1657,13 @@ interface TagEditFragment_parentTag { // fragment on Tags
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
   readonly lastVisitedAt: Date,
   readonly recentComments: Array<CommentsList>,
+  readonly subforumShortDescription: RevisionEdit|null,
+}
+
+interface TagRecentSubforumComments extends TagFragment { // fragment on Tags
+  readonly lastVisitedAt: Date,
+  readonly recentComments: Array<CommentsList>,
+  readonly subforumShortDescription: RevisionEdit|null,
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
@@ -2360,6 +2369,7 @@ interface FragmentTypes {
   TagFullContributorsList: TagFullContributorsList
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
+  TagRecentSubforumComments: TagRecentSubforumComments
   SunshineTagFragment: SunshineTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
@@ -2516,6 +2526,7 @@ interface CollectionNamesByFragmentName {
   TagFullContributorsList: "Tags"
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
+  TagRecentSubforumComments: "Tags"
   SunshineTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"

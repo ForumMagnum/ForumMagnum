@@ -722,6 +722,7 @@ interface DbTag extends DbObject {
   charsRemoved: number
   deleted: boolean
   lastCommentedAt: Date
+  lastSubforumCommentAt: Date
   needsReview: boolean
   reviewedByUserId: string
   wikiGrade: number
@@ -740,6 +741,7 @@ interface DbTag extends DbObject {
   createdAt: Date
   description: EditableFieldContents
   subforumWelcomeText: EditableFieldContents
+  subforumShortDescription: EditableFieldContents
   parentTagId: string
 }
 

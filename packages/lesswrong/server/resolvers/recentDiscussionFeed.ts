@@ -11,6 +11,7 @@ defineFeedResolver<Date>({
   resultTypesGraphQL: `
     postCommented: Post
     tagDiscussed: Tag
+    tagSubforumCommented: Tag
     tagRevised: Revision
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
@@ -23,6 +24,9 @@ defineFeedResolver<Date>({
     const {currentUser} = context;
     
     const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
+    
+    //, TODO don't just check for "Subscribed" here
+    const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => tag.filterMode == "Subscribed").map(tag => tag.tagId) || [];
     
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
@@ -51,6 +55,18 @@ defineFeedResolver<Date>({
           context,
           selector: {
             lastCommentedAt: {$exists: true},
+            ...(af ? {af: true} : undefined),
+          },
+        }),
+        // Tags with subforum comments
+        viewBasedSubquery({
+          type: "tagSubforumCommented",
+          collection: Tags,
+          sortField: "lastSubforumCommentAt",
+          context,
+          selector: {
+            _id: {$in: subforumTagIds},
+            lastSubforumCommentAt: {$exists: true},
             ...(af ? {af: true} : undefined),
           },
         }),
