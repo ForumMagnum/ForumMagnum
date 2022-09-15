@@ -31,7 +31,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -91,6 +91,10 @@ const PostsEditForm = ({ documentId, classes }: {
   // it's published, don't show the edit form.
   if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userCanDo(currentUser, 'posts.edit.all')) {
     return <Components.ErrorAccessDenied/>
+  }
+
+  if (document?.fmCrosspost?.isCrosspost && !document?.fmCrosspost?.hostedHere) {
+    return <ForeignCrosspostEditForm post={document} />;
   }
   
   const EditPostsSubmit = (props) => {
