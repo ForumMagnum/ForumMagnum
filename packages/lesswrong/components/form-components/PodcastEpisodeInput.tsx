@@ -7,7 +7,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 const styles = (theme: ThemeType): JssStyles => ({
   podcastEpisodeName: {
@@ -52,7 +52,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   // This is part of what controls whether the "Create episode" button and the episodeLink/episodeTitle fields are enabled
   const episodeNotFound = useMemo(
     () => externalEpisodeId.length > 0 && !existingPodcastEpisode,
-    [episodeLoading, externalEpisodeId, existingPodcastEpisode]
+    [externalEpisodeId, existingPodcastEpisode]
   );
 
   const { create: createEpisodeMutation, data: createdEpisode } = useCreate({
@@ -127,7 +127,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
         [path]: podcastEpisodeId
       });
     }
-  }, [podcastEpisodeId]);
+  }, [podcastEpisodeId, path, updateCurrentValues]);
 
   return (
     loading
