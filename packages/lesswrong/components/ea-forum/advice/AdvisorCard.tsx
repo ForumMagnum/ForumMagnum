@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { Link } from '../../lib/reactRouterWrapper';
+import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
+import { Link } from '../../../lib/reactRouterWrapper';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
