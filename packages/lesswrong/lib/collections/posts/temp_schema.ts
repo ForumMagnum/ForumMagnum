@@ -91,7 +91,7 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
-function eaFrontpageDate (document: Partial<DbPost>) {
+function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>) {
   if (document.isEvent || !document.submitToFrontpage) {
     return undefined
   }
