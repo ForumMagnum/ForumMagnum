@@ -12,6 +12,7 @@ registerFragment(`
     }
     archivedByIds
     messageCount
+    moderator
   }
 `);
 

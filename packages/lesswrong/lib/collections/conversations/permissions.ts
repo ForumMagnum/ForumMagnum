@@ -1,3 +1,4 @@
+import { sunshineRegimentGroup } from '../../permissions';
 import { userCanDo, membersGroup, adminsGroup } from '../../vulcan-users/permissions';
 import Conversations from './collection'
 
@@ -16,6 +17,14 @@ const adminActions = [
   'conversations.view.all',
 ];
 adminsGroup.can(adminActions);
+
+const sunshineRegimentActions = [
+  'conversations.new.all',
+  'conversations.edit.all',
+  'conversations.remove.all',
+  'conversations.view.all',
+];
+sunshineRegimentGroup.can(sunshineRegimentActions);
 
 Conversations.checkAccess = async (user: DbUser|null, document: DbConversation, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

@@ -1021,6 +1021,7 @@ interface conversationsListFragment { // fragment on Conversations
   readonly participants: Array<UsersMinimumInfo>,
   readonly archivedByIds: Array<string>,
   readonly messageCount: number,
+  readonly moderator: boolean,
 }
 
 interface newConversationFragment { // fragment on Conversations
