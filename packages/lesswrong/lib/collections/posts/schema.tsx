@@ -1005,6 +1005,10 @@ const schema: SchemaType<DbPost> = {
     }),
     optional: true,
     viewableBy: ['guests'],
+    insertableBy: ['admins', 'podcasters'],
+    editableBy: ['admins', 'podcasters'],
+    group: formGroups.audio,
+    hidden: isEAForum,
     nullable: true
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database

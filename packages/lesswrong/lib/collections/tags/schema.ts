@@ -115,6 +115,8 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
+    // schemaDefaultValue throws an error if this is set to null, but we want to allow that
+    onUpdate: () => {},
   },
   descriptionHtmlWithToc: {
     type: String,

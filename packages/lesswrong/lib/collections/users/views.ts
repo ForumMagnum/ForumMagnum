@@ -21,7 +21,8 @@ declare global {
     userId?: string,
     slug?: string,
     lng?: number
-    lat?: number
+    lat?: number,
+    profileTagId?: string
   }
 }
 
@@ -152,6 +153,20 @@ Users.addView("usersMapLocations", function () {
   }
 })
 ensureIndex(Users, {mapLocationSet: 1})
+
+Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      profileTagIds: terms.profileTagId
+    },
+    options: {
+      sort: {
+        karma: -1
+      }
+    }
+  }
+})
+ensureIndex(Users, {profileTagIds: 1})
 
 Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   return {

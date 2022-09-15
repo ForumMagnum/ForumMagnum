@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -299,7 +299,10 @@ export const PostSharedWithUserNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/collaborateOnPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("PostSharedWithUserNotification documentId is missing")
+    }
+    return getPostCollaborateUrl(documentId, false)
   }
 });
 

@@ -28,9 +28,10 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
-  importComponent("AdvisorsPage", () => require('../components/ea-forum/AdvisorsPage'))
-  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/AdvisorsRequestPage'))
-  importComponent("AdvisorCard", () => require('../components/ea-forum/AdvisorCard'))
+  importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
+  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/advice/AdvisorsRequestPage'))
+  importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
+  importComponent("CommunityMemberCard", () => require('../components/ea-forum/advice/CommunityMemberCard'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -388,6 +389,7 @@ importComponent("ModeratorComments", () => require('../components/comments/Moder
 
 importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
+importComponent("CommentOnPostWithReplies", () => require('../components/comments/CommentOnPostWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink'));
 importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));

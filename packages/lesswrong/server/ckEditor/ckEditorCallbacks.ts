@@ -11,6 +11,7 @@ import { updateMutator } from '../vulcan-lib/mutators';
 import { pushRevisionToCkEditor } from './ckEditorWebhook';
 import * as _ from 'underscore';
 import crypto from 'crypto';
+import { userCanDo } from '../../lib/vulcan-users';
 
 export function generateLinkSharingKey(): string {
   return randomSecret();
@@ -92,11 +93,15 @@ defineQuery({
     //  * Link-sharing is enabled and the post doesn't have a link-sharing key
     //  * Link-sharing is enabled and this user has provided the correct key in
     //    the past
+    //  * The logged-in user is the post author
+    //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
     if (
-      (post?.shareWithUsers && _.contains(post.shareWithUsers, currentUser._id))
+      (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser._id))
       || (linkSharingEnabled(post)
           && (!post.linkSharingKey || constantTimeCompare(post.linkSharingKey, linkSharingKey)))
       || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser._id))
+      || currentUser._id === post.userId
+      || userCanDo(currentUser, 'posts.edit.all')
     ) {
       // Add the user to linkSharingKeyUsedBy, if not already there
       if (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
