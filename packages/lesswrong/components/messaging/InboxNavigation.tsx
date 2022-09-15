@@ -11,7 +11,7 @@ const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations
   classes: ClassesType,
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
-  title: String
+  title?: String
 }) => {
   const location = useLocation();
   const { query } = location;
