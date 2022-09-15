@@ -48,7 +48,7 @@ export const createTestingSqlClient = async (): Promise<SqlClient> => {
 export const dropTestingDatabases = async () => {
   const {PG_URL} = process.env;
   if (!PG_URL) {
-    throw new Error("Can't initalize test DB - PG_URL not set");
+    throw new Error("Can't drop testing databases - PG_URL not set");
   }
   const sql = await createSqlConnection(PG_URL);
   const databases = await sql`
@@ -58,9 +58,8 @@ export const dropTestingDatabases = async () => {
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `;
-  const queries = databases.map(({datname}) => sql`DROP DATABASE ${sql(datname)}`);
-  // Don't use Promise.all here - it's easy to hit max_connections
-  for (const query of queries) {
-    await query;
+  for (const database of databases) {
+    const {datname} = database;
+    await sql`DROP DATABASE ${sql(datname)}`;
   }
 }

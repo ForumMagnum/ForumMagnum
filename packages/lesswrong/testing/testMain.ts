@@ -47,10 +47,9 @@ async function ensureDbConnection() {
 let pgConnected = false;
 const ensurePgConnection = async () => {
   if (!pgConnected) {
-    // await dropTestingDatabases();
+    pgConnected = true;
     const client = await createTestingSqlClient();
     setSqlClient(client);
-    pgConnected = true;
   }
 }
 
@@ -61,8 +60,8 @@ async function oneTimeSetup() {
   setServerSettingsCache({});
   setPublicSettings({});
 
-  await ensureDbConnection();
   await ensurePgConnection();
+  await ensureDbConnection();
   await runStartupFunctions();
 
   // define executableSchema
@@ -76,8 +75,6 @@ export function testStartup() {
   chai.should();
   chai.use(chaiAsPromised);
 
-  jest.setTimeout(10000);
-
   beforeAll(async () => {
     await oneTimeSetup();
   });
@@ -89,5 +86,11 @@ export function testStartup() {
       closeDatabaseConnection(),
       closeSqlClient(getSqlClientOrThrow()),
     ]);
+    /* TODO: This seems really janky
+    if (process.env.JEST_WORKER_ID === "1") {
+      console.log("Dropping unit testing databases");
+      await dropTestingDatabases();
+    }
+    */
   });
 }
