@@ -981,6 +981,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins', 'podcasters'],
     editableBy: ['admins', 'podcasters'],
     group: formGroups.audio,
+    hidden: isEAForum,
     nullable: true
   }
 };
