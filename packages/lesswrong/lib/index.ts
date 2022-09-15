@@ -127,8 +127,11 @@ import './collections/subscriptions';
 
 // Podcasts
 import './collections/podcasts/collection';
+import './collections/podcasts/fragments';
 // Podcast episodes
 import './collections/podcastEpisodes/collection';
+import './collections/podcastEpisodes/fragments';
+import './collections/podcastEpisodes/views';
 
 // Posts
 import './collections/posts/custom_fields';
