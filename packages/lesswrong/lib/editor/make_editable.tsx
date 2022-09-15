@@ -46,16 +46,16 @@ const isSharable = (document: any) : document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
 
-const getOriginalContents = (user: DbUser|null, doc: DbObject, docField: EditableFieldContents) => {
-  let canViewOriginalContents
+export const getOriginalContents = (user: DbUser|null, doc: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
+  let canViewOriginalContents: () => boolean
   if (isSharable(doc)) {
     canViewOriginalContents = () => userIsSharedOn(user, doc)
   } else {
     canViewOriginalContents = () => true
   }
 
-  const foo = userCanReadField(user, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, doc)
-  return foo ? docField.originalContents : null
+  const returnOriginalContents = userCanReadField(user, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, doc)
+  return returnOriginalContents ? originalContents : null
 }
 
 const defaultOptions: MakeEditableOptions = {
@@ -200,7 +200,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
             documentId: doc._id, 
             collectionName: collection.collectionName,
             editedAt: (docField.editedAt) || new Date(),
-            originalContents: getOriginalContents(context.currentUser, doc, docField),
+            originalContents: getOriginalContents(context.currentUser, doc, docField.originalContents),
           } 
           return result
           //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)

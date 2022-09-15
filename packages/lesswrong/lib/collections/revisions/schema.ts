@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema'
 import { userIsSharedOn } from '../users/helpers';
 import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
 import { addGraphQLSchema } from '../../vulcan-lib';
+import { getOriginalContents } from '../../editor/make_editable';
 
 /**
  * This covers the type of originalContents for all editor types. 
@@ -128,25 +129,17 @@ const schema: SchemaType<DbRevision> = {
     viewableBy: ['guests'],
     resolveAs: {
       type: 'ContentType',
-      // type: GraphQLJSON,
-      // addOriginalField: true,
       resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
         // Original contents sometimes contains private data (ckEditor suggestions 
         // via Track Changes plugin). In those cases the html field strips out the 
         // suggestion. Original contents is only visible to people who are invited 
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
-        let canViewOriginalContents: () => boolean
         if (document.collectionName === "Posts") {
           const post = await context.loaders["Posts"].load(document.documentId)
-          canViewOriginalContents = () => userIsSharedOn(context.currentUser, post)
-        } else {
-          canViewOriginalContents = () => true
+          return getOriginalContents(context.currentUser, post, document.originalContents)
         }
-        if (userCanReadField(context.currentUser, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, document)) {
-          return document.originalContents
-        }
-        return null
+        return document.originalContents
       }
     }
   },
