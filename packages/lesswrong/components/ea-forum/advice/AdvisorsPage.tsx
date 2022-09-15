@@ -1,14 +1,16 @@
 import React from 'react';
-import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useCreate } from '../../lib/crud/withCreate';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useLocation } from '../../lib/routeUtil';
-import { useCurrentUser } from '../common/withUser';
-import { useMessages } from '../common/withMessages';
+import { Components, getSiteUrl, registerComponent } from '../../../lib/vulcan-lib';
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { useCreate } from '../../../lib/crud/withCreate';
+import { useMulti } from '../../../lib/crud/withMulti';
+import { useLocation } from '../../../lib/routeUtil';
+import { useCurrentUser } from '../../common/withUser';
+import { useMessages } from '../../common/withMessages';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '@material-ui/core/Button';
 import type { Advisor } from './AdvisorCard';
+import { useDialog } from '../../common/withDialog';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 22,
     fontWeight: 700,
     marginTop: 30,
-    marginBottom: 14
+    marginBottom: 8
   },
   advisors: {
     display: 'grid',
@@ -89,17 +91,61 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: `2px solid ${theme.palette.primary.main}`,
     marginTop: 10,
   },
+  communityHeadlineRow: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "20px",
+    alignItems: "baseline",
+    marginTop: 70,
+  },
+  communityHeadline: {
+    flexGrow: 1,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 20,
+    fontWeight: 700,
+    marginBottom: 8
+  },
+  communityHeadlineButton: {
+    fontFamily: theme.typography.fontFamily,
+    background: 'none',
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.5
+    },
+    flex: "none",
+  },
+  communityBody: {
+    borderTop: `2px solid ${theme.palette.primary.main}`,
+    borderBottom: `2px solid ${theme.palette.primary.main}`,
+    paddingTop: 15
+  },
+  communitySubheadline: {
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 15,
+    color: theme.palette.grey[700]
+  },
+  communityMembers: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(325px, 1fr))',
+    columnGap: 30,
+    rowGap: '30px',
+    padding: '30px 10px 35px',
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    }
+  },
   feedbackText: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 16,
-    marginTop: 40
+    marginTop: 50
   },
   contactEmail: {
     color: theme.palette.primary.main,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 16,
     marginTop: 6
-  }
+  },
 })
 
 const advisors: Array<Advisor> = [
@@ -222,15 +268,20 @@ const advisors: Array<Advisor> = [
   },
 ]
 
+// This page only exists for the Biosecurity topic
+const TOPIC_ID = 'aELNHEKtcZtMwEkdK'
+
 const AdvisorsPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser()
   const { query } = useLocation()
   const { flash } = useMessages()
   const { captureEvent } = useTracking()
+  const { openDialog } = useDialog()
 
-  const { SingleColumnSection, HeadTags, AdvisorCard } = Components
+  const { SingleColumnSection, HeadTags, AdvisorCard, Loading, CommunityMemberCard } = Components
 
   const { create: createAdvisorRequest } = useCreate({
     collectionName: 'AdvisorRequests',
@@ -242,6 +293,12 @@ const AdvisorsPage = ({classes}: {
     fragmentName: 'AdvisorRequestsMinimumInfo',
     skip: !currentUser
   })
+  
+  const { results: communityMembers, loading: communityMembersLoading } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: TOPIC_ID},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile'
+  })
 
   const onRequest = async () => {
     captureEvent('advisorRequestBtnClicked')
@@ -250,6 +307,20 @@ const AdvisorsPage = ({classes}: {
       await createAdvisorRequest({
         data: {userId: currentUser._id}
       });
+    }
+  }
+  
+  const handleJoin = () => {
+    if (!currentUser) {
+      openDialog({componentName: "LoginPopup"})
+    } else {
+      void updateCurrentUser({profileTagIds: [...(currentUser.profileTagIds || []), TOPIC_ID]})
+    }
+  }
+
+  const handleRemove = () => {
+    if (currentUser) {
+      void updateCurrentUser({profileTagIds: currentUser.profileTagIds.filter((id) => id !== TOPIC_ID)});
     }
   }
 
@@ -293,6 +364,8 @@ const AdvisorsPage = ({classes}: {
       You can cancel your request at any time.
     </div>
   </>
+  
+  const isCurrentUserInList = communityMembers?.some(user => user._id === currentUser?._id)
 
   return <div>
     <HeadTags description="Request a chat with a biosecurity professional working on mitigating global catastrophic biological risks" />
@@ -334,6 +407,28 @@ const AdvisorsPage = ({classes}: {
           </div>
           
           {btnsNode}
+          
+          <div className={classes.communityHeadlineRow}>
+            <h2 className={classes.communityHeadline}>Meet others in the community</h2>
+            {isCurrentUserInList ? (
+              <button className={classes.communityHeadlineButton} onClick={handleRemove}>
+                Remove me
+              </button>
+            ) : (
+              <button className={classes.communityHeadlineButton} onClick={handleJoin}>
+                Add me to the list
+              </button>
+            )}
+          </div>
+          <div className={classes.communityBody}>
+            <div className={classes.communitySubheadline}>Find other people interested in working on biosecurity.</div>
+            <div className={classes.communityMembers}>
+              {(communityMembersLoading || !communityMembers) ? <Loading /> : <>
+                  {communityMembers.map(user => <CommunityMemberCard key={user._id} user={user} />)}
+                </>
+              }
+            </div>
+          </div>
           
           <div className={classes.feedbackText}>
             Feedback or questions? Let us know!
