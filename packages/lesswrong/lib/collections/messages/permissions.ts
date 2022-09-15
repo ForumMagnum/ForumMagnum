@@ -20,9 +20,6 @@ const adminActions = [
 adminsGroup.can(adminActions);
 
 const sunshineRegimentActions = [
-  'messages.new.all',
-  'messages.edit.all',
-  'messages.remove.all',
   'messages.view.all',
 ];
 sunshineRegimentGroup.can(sunshineRegimentActions);

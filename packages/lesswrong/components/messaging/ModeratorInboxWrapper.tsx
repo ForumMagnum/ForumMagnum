@@ -12,7 +12,7 @@ const ModeratorInboxWrapper = () => {
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
-  if (!userCanDo(currentUser, 'conversations.moderate.all')) {
+  if (!userCanDo(currentUser, 'conversations.view.all')) {
     return <ErrorAccessDenied/>
   }
   const showArchive = query.showArchive === "true"
