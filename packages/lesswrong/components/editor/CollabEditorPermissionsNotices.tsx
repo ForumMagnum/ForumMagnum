@@ -6,8 +6,8 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
-    marginTop: 8,
-    marginBottom: 8
+    marginTop: 4,
+    marginBottom: 12
   }
 });
 
