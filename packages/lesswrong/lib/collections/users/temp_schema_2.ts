@@ -2259,6 +2259,85 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.disabledPrivileges,
     order: 72,
   },
+
+  /* Alignment Forum fields */
+  afPostCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "afPostCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post: DbPost) => (post.af && !post.draft && post.status===postStatuses.STATUS_APPROVED),
+    }),
+    canRead: ['guests'],
+  },
+
+  afCommentCount: {
+    type: Number,
+    optional: true,
+    onInsert: (document, currentUser: DbUser) => 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "afCommentCount",
+      collectionName: "Users",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "userId",
+      filterFn: (comment: DbComment) => comment.af,
+    }),
+    canRead: ['guests'],
+  },
+
+  afSequenceCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "afSequenceCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: (sequence: DbSequence) => sequence.af && !sequence.draft && !sequence.isDeleted
+    }),
+    canRead: ['guests'],
+  },
+
+  afSequenceDraftCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "afSequenceDraftCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: (sequence: DbSequence) => sequence.af && sequence.draft && !sequence.isDeleted
+    }),
+    canRead: ['guests'],
+  },
+
+  reviewForAlignmentForumUserId: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['alignmentForumAdmins', 'admins'],
+    canCreate: ['alignmentForumAdmins', 'admins'],
+    group: formGroups.adminOptions,
+    label: "AF Review UserId"
+  },
+
+  afApplicationText: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'alignmentForumAdmins', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    hidden: true,
+  },
+
+  afSubmittedApplication: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns, 'alignmentForumAdmins', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['admins'],
+    hidden: true,
+  },
 };
 
 export default schema;

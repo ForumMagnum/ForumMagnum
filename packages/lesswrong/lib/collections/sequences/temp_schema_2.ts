@@ -157,8 +157,18 @@ const schema: SchemaType<DbSequence> = {
     editableBy: ['members'],
     insertableBy: ['members'],
     ...schemaDefaultValue(false),
-  }
-}
+  },
 
+  /* Alignment Forum fields */
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "Alignment Forum",
+    defaultValue: false,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentVoters'],
+    insertableBy: ['alignmentVoters'],
+  },
+}
 
 export default schema;

@@ -1,10 +1,13 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { commentGetPageUrlFromDB } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
+import { forumTypeSetting } from "../../instanceSettings";
+import GraphQLJSON from 'graphql-type-json';
+
 
 export enum TagCommentType {
   Subforum = "SUBFORUM",
@@ -17,6 +20,15 @@ export const moderationOptionsGroup: FormGroup = {
   label: "Moderator Options",
   startCollapsed: true
 };
+
+export const alignmentOptionsGroup = {
+  order: 50,
+  name: "alignment",
+  label: "Alignment Options",
+  startCollapsed: true
+};
+
+const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
 
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
@@ -601,8 +613,89 @@ const schema: SchemaType<DbComment> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true,
     ...schemaDefaultValue(false),
-  }
+  },
+  
+  /* Alignment Forum fields */
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "AI Alignment Forum",
+    ...schemaDefaultValue(false),
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForum', 'admins'],
+    insertableBy: ['alignmentForum', 'admins'],
+    hidden: (props) => alignmentForum || !props.alignmentForumPost
+  },
 
+  afBaseScore: {
+    type: Number,
+    optional: true,
+    label: "Alignment Base Score",
+    viewableBy: ['guests'],
+  },
+  afExtendedScore: {
+    type: GraphQLJSON,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
+  suggestForAlignmentUserIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "suggestForAlignmentUserIds",
+      resolverName: "suggestForAlignmentUsers",
+      collectionName: "Users",
+      type: "User"
+    }),
+    viewableBy: ['members'],
+    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
+    optional: true,
+    label: "Suggested for Alignment by",
+    control: "UsersListEditor",
+    group: alignmentOptionsGroup,
+    hidden: true
+  },
+  'suggestForAlignmentUserIds.$': {
+    type: String,
+    optional: true
+  },
+
+  reviewForAlignmentUserId: {
+    type: String,
+    optional: true,
+    group: alignmentOptionsGroup,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForumAdmins', 'admins'],
+    label: "AF Review UserId",
+    hidden: forumTypeSetting.get() === 'EAForum'
+  },
+
+  afDate: {
+    order:10,
+    type: Date,
+    optional: true,
+    label: "Alignment Forum",
+    defaultValue: false,
+    hidden: true,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    group: alignmentOptionsGroup,
+  },
+
+  moveToAlignmentUserId: {
+    ...foreignKeyField({
+      idFieldName: "moveToAlignmentUserId",
+      resolverName: "moveToAlignmentUser",
+      collectionName: "Users",
+      type: "User",
+    }),
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    group: alignmentOptionsGroup,
+    label: "Move to Alignment UserId",
+  },
 };
 
 export default schema;
