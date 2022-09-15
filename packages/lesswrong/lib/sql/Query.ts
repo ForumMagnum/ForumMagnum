@@ -135,9 +135,15 @@ abstract class Query<T extends DbObject> {
 
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
     const ty = this.getField(unresolvedField);
-    return ty && ty.isArray() && !Array.isArray(value)
-      ? [new Arg(value), `${op} ANY(${resolvedField})`]
-      : [`${resolvedField} ${op} `, new Arg(value)];
+    if (ty && ty.isArray() && !Array.isArray(value)) {
+      if (op === "<>") {
+        return ["NOT (", new Arg(value), `= ANY(${resolvedField}) )`];
+      } else {
+        return [new Arg(value), `${op} ANY(${resolvedField})`];
+      }
+    } else {
+      return [`${resolvedField} ${op} `, new Arg(value)];
+    }
   }
 
   private compileComparison(fieldName: string, value: any): Atom<T>[] {
@@ -205,6 +211,8 @@ abstract class Query<T extends DbObject> {
         return this.compileMultiSelector(value, "AND");
       case "$or":
         return this.compileMultiSelector(value, "OR");
+      case "$expr":
+        return this.compileExpression(value);
       case "$comment":
         return [];
     }
@@ -268,6 +276,11 @@ abstract class Query<T extends DbObject> {
 
     if (op === "$sum") {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    if (op === "$in") {
+      const [value, array] = expr[op];
+      return [...this.compileExpression(value), "= ANY(", ...this.compileExpression(array), ")"];
     }
 
     // This algorithm is over-specialized, but we only seem to use it in a very particular way...
