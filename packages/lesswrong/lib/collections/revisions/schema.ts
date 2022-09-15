@@ -1,9 +1,8 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
-import { userIsSharedOn } from '../users/helpers';
-import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
 import { addGraphQLSchema } from '../../vulcan-lib';
-import { getOriginalContents } from '../../editor/make_editable';
+import { userCanReadField, userOwns } from '../../vulcan-users';
+import { SharableDocument, userIsSharedOn } from '../users/helpers';
 
 /**
  * This covers the type of originalContents for all editor types. 
@@ -37,6 +36,17 @@ addGraphQLSchema(`
     data: ContentTypeData
   }
 `)
+
+const isSharable = (document: any) : document is SharableDocument => {
+  return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
+}
+
+export const getOriginalContents = (currentUser: DbUser|null, document: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
+  const canViewOriginalContents = (user: DbUser|null, doc: DbObject) => isSharable(doc) ? userIsSharedOn(user, doc) : true
+
+  const returnOriginalContents = userCanReadField(currentUser, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, document)
+  return returnOriginalContents ? originalContents : null
+}
 
 const schema: SchemaType<DbRevision> = {
   documentId: {

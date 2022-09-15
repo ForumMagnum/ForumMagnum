@@ -47,7 +47,7 @@ import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
-import { isPromise, removeProperty } from '../../lib/vulcan-lib/utils';
+import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 

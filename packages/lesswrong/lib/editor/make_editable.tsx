@@ -1,10 +1,9 @@
 import React from 'react';
-import { userCanReadField, userOwns } from '../vulcan-users/permissions';
+import { userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
-import { ContentType } from '../collections/revisions/schema'
+import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
-import { SharableDocument, userIsSharedOn } from '../collections/users/helpers';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -40,22 +39,6 @@ export interface MakeEditableOptions {
   pingbacks?: boolean,
   revisionsHaveCommitMessages?: boolean,
   hidden?: boolean,
-}
-
-const isSharable = (document: any) : document is SharableDocument => {
-  return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
-}
-
-export const getOriginalContents = (user: DbUser|null, doc: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
-  let canViewOriginalContents: () => boolean
-  if (isSharable(doc)) {
-    canViewOriginalContents = () => userIsSharedOn(user, doc)
-  } else {
-    canViewOriginalContents = () => true
-  }
-
-  const returnOriginalContents = userCanReadField(user, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, doc)
-  return returnOriginalContents ? originalContents : null
 }
 
 const defaultOptions: MakeEditableOptions = {
