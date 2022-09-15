@@ -26,25 +26,27 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: "0 !important",
       alignItems: "center !important",
     },
-
     '& .ck-user__name': {
       color: 'unset !important',
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
     },
-    
     '& .ck-presence-list__counter': {
       fontSize: '1rem !important',
       marginBottom: "0 !important",
       display: "block !important", //doesn't hide when more than 1 user, helps in cases with many users present
       wordBreak: "normal !important"
     },
-    
     '& .ck-presence-list__list': {
-      "&:nth-child(3)": {
-        display: "none"
+      flexWrap: "wrap"
+    },
+    '& .ck-presence-list__list-item:nth-child(n+4)': {
+      display:"none"
+    },
+    [theme.breakpoints.down('xs')]: {
+      '& .ck-presence-list__list-item:nth-child(n+3)': {
+        display:"none"
       }
     },
-
     "& .ck-tooltip": {
       transform: "initial !important",
       bottom: "initial !important",
