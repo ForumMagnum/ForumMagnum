@@ -109,7 +109,7 @@ import './collections/tags/collection';
 import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
-import './collections/tags/custom_fields';
+import './collections/tags/schema';
 
 import './collections/chapters/views';
 
@@ -134,7 +134,7 @@ import './collections/podcastEpisodes/fragments';
 import './collections/podcastEpisodes/views';
 
 // Posts
-import './collections/posts/custom_fields';
+import './collections/posts/schema';
 import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
@@ -146,7 +146,7 @@ import './collections/revisions/views'
 // Users
 import './collections/users/permissions';
 import './collections/users/helpers';
-import './collections/users/custom_fields';
+import './collections/users/schema';
 import './collections/users/recommendationSettings';
 import './collections/users/karmaChangesGraphQL';
 import './collections/users/views';
@@ -178,18 +178,13 @@ import './collections/postRelations';
 
 // Alignment Forum
 import './alignment-forum/permissions';
-import './alignment-forum/posts/custom_fields';
 import './alignment-forum/posts/helpers';
 import './alignment-forum/posts/views';
 
-import './alignment-forum/comments/custom_fields';
 import './alignment-forum/comments/helpers';
 import './alignment-forum/comments/views';
 import './alignment-forum/comments/fragments';
 
-import './alignment-forum/sequences/custom_fields'
-
-import './alignment-forum/users/custom_fields';
 import './alignment-forum/users/helpers';
 import './alignment-forum/users/views';
 

@@ -9,6 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { userCanDo } from '../../lib/vulcan-users';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -26,6 +27,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   backButton: {
     color: theme.palette.lwTertiary.main
+  },
+  row: {
+    display: "flex",
+    justifyContent: "space-between"
   }
 })
 
@@ -107,7 +112,12 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   return (
     <SingleColumnSection>
       <div className={classes.conversationSection}>
-        <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+        <div className={classes.row}>
+          <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+          {userCanDo(currentUser, 'conversations.view.all') && conversation.moderator && <Typography variant="body2" className={classes.backButton}>
+            <Link to="/moderatorInbox"> Moderator Inbox </Link>
+          </Typography>}
+        </div>
         <Typography variant="display2" className={classes.conversationTitle}>
           { conversationGetTitle(conversation, currentUser)}
         </Typography>

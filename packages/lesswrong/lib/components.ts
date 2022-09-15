@@ -43,6 +43,7 @@ importComponent("ConversationPreview", () => require('../components/messaging/Co
 importComponent("MessageItem", () => require('../components/messaging/MessageItem'));
 importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePhoto'));
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
+importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));

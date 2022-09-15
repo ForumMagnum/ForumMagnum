@@ -201,6 +201,12 @@ addRoute(
     title: "Inbox"
   },
   {
+    name: 'moderatorInbox',
+    path: '/moderatorInbox',
+    componentName: 'ModeratorInboxWrapper',
+    title: "Moderator Inbox"
+  },
+  {
     name: 'conversation',
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
