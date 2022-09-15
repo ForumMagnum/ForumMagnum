@@ -3,12 +3,6 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbConversation> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['members'],
-    onInsert: (document) => new Date(),
-  },
   title: {
     type: String,
     viewableBy: ['members'],

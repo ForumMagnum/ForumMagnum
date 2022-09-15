@@ -11,7 +11,7 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
   const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
     collectionName: "Comments",
-    fragmentName: 'CommentsList',
+    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
@@ -22,16 +22,15 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
     return null;
   }
 
-  const nestedComments = unflattenComments(results);
   return (
     <Components.CommentsTimelineSection
       tag={tag}
-      comments={nestedComments}
+      comments={results}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
       commentCount={(results && results.length) || 0}
       loadingMoreComments={loadingMore}
-      loadMoreCount={10}
+      loadMoreCount={50}
       newForm={newForm}
       refetch={refetch}
     />

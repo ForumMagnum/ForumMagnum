@@ -417,6 +417,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         updateType: 'initial',
         commitMessage,
         changeMetrics,
+        createdAt: editedAt,
       };
       const firstRevision = await createMutator({
         collection: Revisions,
@@ -477,6 +478,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           updateType,
           commitMessage,
           changeMetrics,
+          createdAt: editedAt,
         }
         const newRevisionDoc = await createMutator({
           collection: Revisions,

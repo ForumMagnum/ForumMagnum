@@ -501,6 +501,11 @@ ensureIndex(Comments,
   { name: "comments.tagId" }
 );
 
+export const subforumSorting = {
+  new: { postedAt: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 },
+}
+
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
@@ -509,12 +514,18 @@ Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   },
 }));
 
-Comments.addView('tagSubforumComments', (terms: CommentsViewTerms) => ({
+Comments.addView('tagSubforumComments', ({tagId, sortBy="new"}: CommentsViewTerms) => {
+  const sorting = subforumSorting[sortBy] || subforumSorting.new
+  return {
   selector: {
-    tagId: terms.tagId,
-    tagCommentType: TagCommentType.Subforum as string
+    tagId: tagId,
+    tagCommentType: TagCommentType.Subforum as string,
+    topLevelCommentId: viewFieldNullOrMissing,
   },
-}));
+  options: {
+    sort: sorting,
+  },
+}});
 
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({

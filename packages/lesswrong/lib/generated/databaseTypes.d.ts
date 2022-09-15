@@ -13,7 +13,6 @@ interface AdvisorRequestsCollection extends CollectionBase<DbAdvisorRequest, "Ad
 interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   userId: string
-  createdAt: Date
   timezone: string
   availability: string
   questions: string
@@ -21,6 +20,7 @@ interface DbAdvisorRequest extends DbObject {
   previousExperience: string
   selectedAdvisors: Array<string>
   referrer: string
+  createdAt: Date
 }
 
 interface BansCollection extends CollectionBase<DbBan, "Bans"> {
@@ -28,13 +28,13 @@ interface BansCollection extends CollectionBase<DbBan, "Bans"> {
 
 interface DbBan extends DbObject {
   __collectionName?: "Bans"
-  createdAt: Date
   expirationDate: Date
   userId: string
   ip: string
   reason: string
   comment: string
   properties: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
 }
 
 interface BooksCollection extends CollectionBase<DbBook, "Books"> {
@@ -42,7 +42,6 @@ interface BooksCollection extends CollectionBase<DbBook, "Books"> {
 
 interface DbBook extends DbObject {
   __collectionName?: "Books"
-  createdAt: Date
   postedAt: Date
   title: string
   subtitle: string
@@ -55,6 +54,7 @@ interface DbBook extends DbObject {
   showChapters: boolean
   contents: EditableFieldContents
   contents_latest: string
+  createdAt: Date
 }
 
 interface ChaptersCollection extends CollectionBase<DbChapter, "Chapters"> {
@@ -62,7 +62,6 @@ interface ChaptersCollection extends CollectionBase<DbChapter, "Chapters"> {
 
 interface DbChapter extends DbObject {
   __collectionName?: "Chapters"
-  createdAt: Date
   title: string
   subtitle: string
   number: number
@@ -70,6 +69,7 @@ interface DbChapter extends DbObject {
   postIds: Array<string>
   contents: EditableFieldContents
   contents_latest: string
+  createdAt: Date
 }
 
 interface CollectionsCollection extends CollectionBase<DbCollection, "Collections"> {
@@ -77,7 +77,6 @@ interface CollectionsCollection extends CollectionBase<DbCollection, "Collection
 
 interface DbCollection extends DbObject {
   __collectionName?: "Collections"
-  createdAt: Date
   userId: string
   title: string
   slug: string
@@ -86,6 +85,7 @@ interface DbCollection extends DbObject {
   hideStartReadingButton: boolean
   contents: EditableFieldContents
   contents_latest: string
+  createdAt: Date
 }
 
 interface CommentsCollection extends CollectionBase<DbComment, "Comments"> {
@@ -95,7 +95,6 @@ interface DbComment extends DbObject {
   __collectionName?: "Comments"
   parentCommentId: string
   topLevelCommentId: string
-  createdAt: Date
   postedAt: Date
   author: string
   postId: string
@@ -119,6 +118,7 @@ interface DbComment extends DbObject {
   promotedByUserId: string
   promotedAt: Date
   hideKarma: boolean
+  createdAt: Date
   legacy: boolean
   legacyId: string
   legacyPoll: boolean
@@ -157,13 +157,13 @@ interface ConversationsCollection extends CollectionBase<DbConversation, "Conver
 
 interface DbConversation extends DbObject {
   __collectionName?: "Conversations"
-  createdAt: Date
   title: string
   participantIds: Array<string>
   latestActivity: Date
   af: boolean
   messageCount: number
   archivedByIds: Array<string>
+  createdAt: Date
 }
 
 interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata, "DatabaseMetadata"> {
@@ -173,6 +173,7 @@ interface DbDatabaseMetadata extends DbObject {
   __collectionName?: "DatabaseMetadata"
   name: string
   value: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
 }
 
 interface DebouncerEventsCollection extends CollectionBase<DbDebouncerEvents, "DebouncerEvents"> {
@@ -188,6 +189,7 @@ interface DbDebouncerEvents extends DbObject {
   upperBoundTime: Date
   key: string
   pendingEvents: Array<any /*{"definitions":[{"blackbox":true}]}*/>
+  createdAt: Date
 }
 
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
@@ -200,6 +202,7 @@ interface DbEmailTokens extends DbObject {
   userId: string
   usedAt: Date
   params: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
 }
 
 interface FeaturedResourcesCollection extends CollectionBase<DbFeaturedResource, "FeaturedResources"> {
@@ -212,6 +215,7 @@ interface DbFeaturedResource extends DbObject {
   ctaText: string
   ctaUrl: string
   expiresAt: Date
+  createdAt: Date
 }
 
 interface GardenCodesCollection extends CollectionBase<DbGardenCode, "GardenCodes"> {
@@ -219,7 +223,6 @@ interface GardenCodesCollection extends CollectionBase<DbGardenCode, "GardenCode
 
 interface DbGardenCode extends DbObject {
   __collectionName?: "GardenCodes"
-  createdAt: Date
   code: string
   title: string
   userId: string
@@ -231,6 +234,7 @@ interface DbGardenCode extends DbObject {
   hidden: boolean
   deleted: boolean
   afOnly: boolean
+  createdAt: Date
   contents: EditableFieldContents
   contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
@@ -241,13 +245,13 @@ interface LWEventsCollection extends CollectionBase<DbLWEvent, "LWEvents"> {
 
 interface DbLWEvent extends DbObject {
   __collectionName?: "LWEvents"
-  createdAt: Date
   userId: string
   name: string
   documentId: string
   important: boolean
   properties: any /*{"definitions":[{"blackbox":true}]}*/
   intercom: boolean
+  createdAt: Date
 }
 
 interface LegacyDataCollection extends CollectionBase<DbLegacyData, "LegacyData"> {
@@ -258,6 +262,7 @@ interface DbLegacyData extends DbObject {
   objectId: string
   collectionName: string
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
 }
 
 interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroups"> {
@@ -265,7 +270,6 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup, "Localgroup
 
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
-  createdAt: Date
   name: string
   organizerIds: Array<string>
   lastActivity: Date
@@ -286,6 +290,7 @@ interface DbLocalgroup extends DbObject {
   deleted: boolean
   contents: EditableFieldContents
   contents_latest: string
+  createdAt: Date
 }
 
 interface MessagesCollection extends CollectionBase<DbMessage, "Messages"> {
@@ -294,11 +299,11 @@ interface MessagesCollection extends CollectionBase<DbMessage, "Messages"> {
 interface DbMessage extends DbObject {
   __collectionName?: "Messages"
   userId: string
-  createdAt: Date
   conversationId: string
   noEmail: boolean
   contents: EditableFieldContents
   contents_latest: string
+  createdAt: Date
 }
 
 interface MigrationsCollection extends CollectionBase<DbMigration, "Migrations"> {
@@ -310,6 +315,7 @@ interface DbMigration extends DbObject {
   started: Date
   finished: Date
   succeeded: boolean
+  createdAt: Date
 }
 
 interface NotificationsCollection extends CollectionBase<DbNotification, "Notifications"> {
@@ -318,7 +324,6 @@ interface NotificationsCollection extends CollectionBase<DbNotification, "Notifi
 interface DbNotification extends DbObject {
   __collectionName?: "Notifications"
   userId: string
-  createdAt: Date
   documentId: string
   documentType: string
   extraData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -330,6 +335,7 @@ interface DbNotification extends DbObject {
   viewed: boolean
   emailed: boolean
   waitingForBatch: boolean
+  createdAt: Date
 }
 
 interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch, "PetrovDayLaunchs"> {
@@ -337,10 +343,10 @@ interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch, "
 
 interface DbPetrovDayLaunch extends DbObject {
   __collectionName?: "PetrovDayLaunchs"
-  createdAt: Date
   launchCode: string
   hashedLaunchCode: string
   userId: string
+  createdAt: Date
 }
 
 interface PodcastEpisodesCollection extends CollectionBase<DbPodcastEpisode, "PodcastEpisodes"> {
@@ -352,6 +358,7 @@ interface DbPodcastEpisode extends DbObject {
   title: string
   episodeLink: string
   externalEpisodeId: string
+  createdAt: Date
 }
 
 interface PodcastsCollection extends CollectionBase<DbPodcast, "Podcasts"> {
@@ -362,6 +369,7 @@ interface DbPodcast extends DbObject {
   title: string
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
+  createdAt: Date
 }
 
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
@@ -369,11 +377,11 @@ interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRe
 
 interface DbPostRelation extends DbObject {
   __collectionName?: "PostRelations"
-  createdAt: Date
   type: string
   sourcePostId: string
   targetPostId: string
   order: number
+  createdAt: Date
 }
 
 interface PostsCollection extends CollectionBase<DbPost, "Posts"> {
@@ -381,7 +389,6 @@ interface PostsCollection extends CollectionBase<DbPost, "Posts"> {
 
 interface DbPost extends DbObject {
   __collectionName?: "Posts"
-  createdAt: Date
   postedAt: Date
   modifiedAt: Date
   url: string
@@ -444,6 +451,7 @@ interface DbPost extends DbObject {
   onlyVisibleToEstablishedAccounts: boolean
   votingSystem: string
   podcastEpisodeId: string | null
+  createdAt: Date
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -550,7 +558,6 @@ interface RSSFeedsCollection extends CollectionBase<DbRSSFeed, "RSSFeeds"> {
 interface DbRSSFeed extends DbObject {
   __collectionName?: "RSSFeeds"
   userId: string
-  createdAt: Date
   ownedByUser: boolean
   displayFullContent: boolean
   nickname: string
@@ -558,6 +565,7 @@ interface DbRSSFeed extends DbObject {
   status: string
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
+  createdAt: Date
 }
 
 interface ReadStatusesCollection extends CollectionBase<DbReadStatus, "ReadStatuses"> {
@@ -570,6 +578,7 @@ interface DbReadStatus extends DbObject {
   userId: string
   isRead: boolean
   lastUpdated: Date
+  createdAt: Date
 }
 
 interface ReportsCollection extends CollectionBase<DbReport, "Reports"> {
@@ -584,10 +593,10 @@ interface DbReport extends DbObject {
   link: string
   claimedUserId: string
   description: string
-  createdAt: Date
   closedAt: Date
   markedAsSpam: boolean
   reportedAsSpam: boolean
+  createdAt: Date
 }
 
 interface ReviewVotesCollection extends CollectionBase<DbReviewVote, "ReviewVotes"> {
@@ -595,7 +604,6 @@ interface ReviewVotesCollection extends CollectionBase<DbReviewVote, "ReviewVote
 
 interface DbReviewVote extends DbObject {
   __collectionName?: "ReviewVotes"
-  createdAt: Date
   userId: string
   postId: string
   qualitativeScore: number
@@ -604,6 +612,7 @@ interface DbReviewVote extends DbObject {
   year: string
   dummy: boolean
   reactions: Array<string>
+  createdAt: Date
 }
 
 interface RevisionsCollection extends CollectionBase<DbRevision, "Revisions"> {
@@ -628,6 +637,7 @@ interface DbRevision extends DbObject {
   html: string
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -640,7 +650,6 @@ interface SequencesCollection extends CollectionBase<DbSequence, "Sequences"> {
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
-  createdAt: Date
   userId: string
   title: string
   gridImageId: string
@@ -654,6 +663,7 @@ interface DbSequence extends DbObject {
   hideFromAuthorPage: boolean
   contents: EditableFieldContents
   contents_latest: string
+  createdAt: Date
   af: boolean
 }
 
@@ -662,13 +672,13 @@ interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscr
 
 interface DbSubscription extends DbObject {
   __collectionName?: "Subscriptions"
-  createdAt: Date
   userId: string
   state: "subscribed" | "suppressed"
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
   type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts"
+  createdAt: Date
 }
 
 interface TagFlagsCollection extends CollectionBase<DbTagFlag, "TagFlags"> {
@@ -676,11 +686,11 @@ interface TagFlagsCollection extends CollectionBase<DbTagFlag, "TagFlags"> {
 
 interface DbTagFlag extends DbObject {
   __collectionName?: "TagFlags"
-  createdAt: Date
   name: string
   deleted: boolean
   slug: string
   order: number
+  createdAt: Date
   contents: EditableFieldContents
   contents_latest: string
 }
@@ -690,13 +700,13 @@ interface TagRelsCollection extends CollectionBase<DbTagRel, "TagRels"> {
 
 interface DbTagRel extends DbObject {
   __collectionName?: "TagRels"
-  createdAt: Date
   tagId: string
   postId: string
   deleted: boolean
   userId: string
   afBaseScore: number
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  createdAt: Date
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -709,7 +719,6 @@ interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
 
 interface DbTag extends DbObject {
   __collectionName?: "Tags"
-  createdAt: Date
   name: string
   slug: string
   oldSlugs: Array<string>
@@ -740,8 +749,11 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   isSubforum: boolean
+  createdAt: Date
   description: EditableFieldContents
   description_latest: string
+  subforumWelcomeText: EditableFieldContents
+  subforumWelcomeText_latest: string
   parentTagId: string
 }
 
@@ -752,7 +764,6 @@ interface DbUser extends DbObject {
   __collectionName?: "Users"
   username: string
   emails: Array<any /*{"definitions":[{}]}*/>
-  createdAt: Date
   isAdmin: boolean
   profile: any /*{"definitions":[{"blackbox":true}]}*/
   services: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1006,6 +1017,7 @@ interface DbUser extends DbObject {
   howICanHelpOthers_latest: string
   biography: EditableFieldContents
   biography_latest: string
+  createdAt: Date
   recommendationSettings: {
     frontpage: {
       method: string,
@@ -1064,6 +1076,7 @@ interface DbVote extends DbObject {
   isUnvote: boolean
   votedAt: Date
   documentIsAf: boolean
+  createdAt: Date
 }
 
 interface CollectionsByName {

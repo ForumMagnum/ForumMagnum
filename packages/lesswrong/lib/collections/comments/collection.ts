@@ -72,6 +72,9 @@ Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, cont
   // anyways, so I'm not sure that matters much.
 }
 
-addUniversalFields({collection: Comments})
+addUniversalFields({
+  collection: Comments,
+  createdAtOptions: {canRead: ['admins']},
+});
 
 export default Comments;

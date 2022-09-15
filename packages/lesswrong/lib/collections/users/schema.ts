@@ -104,14 +104,6 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
   },
-  createdAt: {
-    type: Date,
-    optional: true,
-    canRead: ["guests"],
-    onCreate: () => {
-      return new Date();
-    },
-  },
   isAdmin: {
     type: Boolean,
     label: 'Admin',

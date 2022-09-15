@@ -49,6 +49,9 @@ export const Posts: ExtendedPostsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: Posts})
+addUniversalFields({
+  collection: Posts,
+  createdAtOptions: {viewableBy: ['admins']},
+});
 
 export default Posts;
