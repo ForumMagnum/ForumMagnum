@@ -3,7 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
-import schema from './temp_schema_2';
+import schema from './schema';
 import { tagUserHasSufficientKarma } from './helpers';
 import { formGroups } from './formGroups';
 

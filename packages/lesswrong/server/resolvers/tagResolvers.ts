@@ -17,7 +17,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
-import { TagCommentType } from '../../lib/collections/comments/temp_schema_2';
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 addGraphQLSchema(`
   type TagUpdates {

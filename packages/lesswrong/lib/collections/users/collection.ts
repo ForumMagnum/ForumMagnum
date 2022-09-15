@@ -1,4 +1,4 @@
-import schema from './temp_schema_2';
+import schema from './schema';
 import { createCollection, addGraphQLQuery, addGraphQLResolvers } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';

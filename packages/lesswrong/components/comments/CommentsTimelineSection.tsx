@@ -6,7 +6,7 @@ import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
-import { TagCommentType } from '../../lib/collections/comments/temp_schema_2';
+import { TagCommentType } from '../../lib/collections/comments/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

@@ -11,7 +11,7 @@ import withTimezone from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import type { KarmaChangeSettingsType } from '../../lib/collections/users/temp_schema_2';
+import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({

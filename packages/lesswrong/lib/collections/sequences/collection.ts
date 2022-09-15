@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
-import schema from './temp_schema_2';
+import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';

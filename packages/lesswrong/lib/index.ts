@@ -109,7 +109,7 @@ import './collections/tags/collection';
 import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
-import './collections/tags/temp_schema_2';
+import './collections/tags/schema';
 
 import './collections/chapters/views';
 
@@ -131,7 +131,7 @@ import './collections/podcasts/collection';
 import './collections/podcastEpisodes/collection';
 
 // Posts
-import './collections/posts/temp_schema_2';
+import './collections/posts/schema';
 import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
@@ -143,7 +143,7 @@ import './collections/revisions/views'
 // Users
 import './collections/users/permissions';
 import './collections/users/helpers';
-import './collections/users/temp_schema_2';
+import './collections/users/schema';
 import './collections/users/recommendationSettings';
 import './collections/users/karmaChangesGraphQL';
 import './collections/users/views';

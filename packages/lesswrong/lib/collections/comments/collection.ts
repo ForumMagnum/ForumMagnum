@@ -1,4 +1,4 @@
-import schema from './temp_schema_2';
+import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
