@@ -1,5 +1,5 @@
-import { Posts } from "../../collections/posts";
-import { formGroups } from "../../collections/posts/formGroups"
+import { Posts } from ".";
+import { formGroups } from "./formGroups"
 import { arrayOfForeignKeysField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { forumTypeSetting } from "../../instanceSettings";
