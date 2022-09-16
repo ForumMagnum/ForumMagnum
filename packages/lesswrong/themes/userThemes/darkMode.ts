@@ -111,6 +111,7 @@ export const darkModeTheme: UserThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     text: {
+      alwaysWhite: '#fff',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",

@@ -109,6 +109,7 @@ declare global {
       error: ColorString,
       error2: ColorString,
       red: ColorString,
+      alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
     
