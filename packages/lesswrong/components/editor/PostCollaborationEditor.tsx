@@ -9,8 +9,7 @@ import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
-import { userCanDo } from '../../lib/vulcan-users';
-import { canUserUseFullEditor } from '../posts/PostsEditForm';
+import { canUserEditPost } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -78,7 +77,7 @@ const PostCollaborationEditor = ({ classes }: {
   
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
-  if (canUserUseFullEditor(currentUser, post)) {
+  if (canUserEditPost(currentUser, post)) {
       return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
   }
 

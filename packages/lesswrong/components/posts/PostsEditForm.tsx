@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
-import { userIsSharedOn } from '../../lib/collections/users/helpers';
+import { canUserEditPost, userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -13,14 +13,6 @@ import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-
-export const canUserUseFullEditor = (currentUser, document) => {
-  // Note, as of 09-15-2022, if the owner/admin changes a user's permissions, they take awhile to propagate through the system, and then still require a refresh to take effect. (This is a bug we should fix)
-  if (!document) return false
-  return document.userId===currentUser._id  || 
-         document.myEditorAccess === "edit" || 
-         userCanDo(currentUser, 'posts.edit.all')
-} 
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -66,7 +58,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (!canUserUseFullEditor(currentUser, document) && document?.sharingSettings) {
+  if (document && !canUserEditPost(currentUser, document) && document.sharingSettings) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   

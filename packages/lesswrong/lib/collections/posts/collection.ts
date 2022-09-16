@@ -6,6 +6,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
+import { canUserEditPost } from '../users/helpers';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -26,7 +27,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
     
-    return userOwns(user, document) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPost(user, document) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, document)
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
