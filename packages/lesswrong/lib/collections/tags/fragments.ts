@@ -27,6 +27,7 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
+    isSubforum
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -227,7 +228,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    ...TagBasicInfo
+    ...TagDetailsFragment
     parentTag {
       _id
       name

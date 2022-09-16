@@ -104,6 +104,7 @@ const RecentDiscussionFeed = ({
                 render: (tag: TagRecentDiscussion) => (
                   <RecentDiscussionTag
                     tag={tag}
+                    refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
                   />
