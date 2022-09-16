@@ -64,7 +64,7 @@ export const multiagentmodels: CuratedContent = {
     _id: "ZbmRyDN8TCpBTZSip",
     title: "Multiagent Models of Mind",
   },
-  description: "People tend to think of themselves as consequentialist agents: entities who can be usefully modeled as having beliefs and goals, who are then acting according to their beliefs to achieve their goals. This is often a useful model, but it doesn’t quite capture reality.",
+  description: 'We often regard ourselves as unified minds – agents with a single set of beliefs and goals. This is not entirely true of humans. In this sequence, Kaj Sotala draws upon neuroscience, psychotherapy, and meditation to describe a theory of mental "subagents".',
   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660861487/DALL_E_2022-08-18_15.08.28_-_multiagent_models_of_mind_aquarelle_painting_by_Thomas_Schaller_as_digital_art_edited_j9bttt.png",
   firstPost: {
     _id: "M4w2rdYgCKctbADMn",
