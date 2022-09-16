@@ -109,7 +109,6 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     return podcastEpisodesFieldsFilled && episodeNotFound;
   }, [podcastId, externalEpisodeId, episodeLink, episodeTitle, episodeNotFound]);
 
-  const externalEpisodeIdProps = episodeNotFound ? { value: externalEpisodeId } : { disabled: true, value: externalEpisodeId };
   const episodeTitleProps = episodeNotFound ? { value: episodeTitle } : { disabled: true, value: episodeTitle };
 
   const createNewEpisode = useCallback(async () => {
@@ -139,7 +138,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
       setEpisodeLink(existingPodcastEpisode.episodeLink);
       setEpisodeTitle(existingPodcastEpisode.title);
     }
-  }, [existingPodcastEpisode]);
+  }, [existingPodcastEpisode, episodeLink]);
 
   // Ensure consistency after creating an episode by clicking the "Create episode" button
   useEffect(() => {
@@ -178,7 +177,6 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
             onChange={(e) => updateEpisodeLink(e.target.value)}
             error={!validEpisodeLink}
             value={episodeLink}
-            // { ...episodeLinkProps }
           />
         </div>
         {episodeLoading
@@ -189,8 +187,8 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
                 className={classes.podcastEpisodeName}
                 placeholder={'Podcast episode Buzzsprout ID'}
                 onChange={(e) => setExternalEpisodeId(e.target.value)}
-                // value={externalEpisodeId}
-                { ...externalEpisodeIdProps }
+                value={externalEpisodeId}
+                disabled
               />
             </div>
             <div>
