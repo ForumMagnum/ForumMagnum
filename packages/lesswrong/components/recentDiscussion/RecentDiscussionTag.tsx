@@ -9,6 +9,7 @@ import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/schema';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -58,11 +59,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const isSubforumFragment = (tag: TagRecentDiscussion | TagRecentSubforumComments): tag is TagRecentSubforumComments =>
-  (tag as TagRecentSubforumComments).subforumShortDescription !== undefined;
-
 const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = TagCommentType.Discussion, classes }: {
-  tag: TagRecentDiscussion,
+  tag: TagRecentDiscussion | TagRecentSubforumComments,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
@@ -70,7 +68,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-  const isSubforum = tagCommentType === TagCommentType.Subforum && isSubforumFragment(tag)
+  const isSubforum = tagCommentType === TagCommentType.Subforum
 
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
@@ -80,7 +78,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
   
   const onClickEventType = isSubforum ? "recentDiscussionSubforumClick" : "recentDiscussionTagClick"
   const markAsRead = useCallback(
@@ -97,7 +95,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     setExpandAllThreads(true);
   }, []);
   
-  const descriptionHtml = (isSubforum ? tag.subforumShortDescription : tag.description)?.html;
+  const descriptionHtml = tag.description?.html;
   const maybeTruncatedDescriptionHtml = truncated
     ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
     : descriptionHtml;
@@ -124,7 +122,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
         {!isSubforum && <span>{metadataWording}</span>}
       </div>
       
-      <div onClick={clickExpandDescription}>
+      {!isSubforum && <div onClick={clickExpandDescription}>
         <ContentStyles contentType="comment">
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
@@ -132,7 +130,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
             className={classes.description}
           />
         </ContentStyles>
-      </div>
+      </div>}
     </div>
     
     {nestedComments.length ? <div className={classes.content}>

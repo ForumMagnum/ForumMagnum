@@ -13,10 +13,4 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Subforum Welcome Message",
     startCollapsed: true,
   },
-  subforumShortDescription: {
-    name: "subforumShortDescription",
-    order: 40,
-    label: "Subforum Short Description",
-    startCollapsed: true,
-  },
 };

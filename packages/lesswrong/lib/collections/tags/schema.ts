@@ -247,7 +247,9 @@ const schema: SchemaType<DbTag> = {
     graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
     resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false, tagCommentType = TagCommentType.Discussion }, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const lastCommentTime = tagCommentType === TagCommentType.Subforum ? tag.lastSubforumCommentAt : tag.lastCommentedAt
+      const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
+
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         tagId: tag._id,

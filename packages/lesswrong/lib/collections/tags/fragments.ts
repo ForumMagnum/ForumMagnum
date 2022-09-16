@@ -241,9 +241,6 @@ registerFragment(`
     subforumWelcomeText {
       ...RevisionEdit
     }
-    subforumShortDescription {
-      ...RevisionEdit
-    }
   }
 `);
 
@@ -263,9 +260,6 @@ registerFragment(`
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
-    }
-    subforumShortDescription {
-      ...RevisionEdit
     }
   }
 `);
