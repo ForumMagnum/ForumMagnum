@@ -57,6 +57,14 @@ const schema: SchemaType<DbConversation> = {
     }),
     viewableBy: ['guests'],
   },
+  moderator: {
+    type: Boolean,
+    viewableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true
+  },
   archivedByIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "archivedByIds",

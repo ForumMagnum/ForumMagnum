@@ -46,7 +46,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
     const response = await createConversation({
-      data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
+      data: {moderator: true, participantIds:[user._id, currentUser?._id], ...alignmentFields},
     })
     const conversationId = response.data.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
