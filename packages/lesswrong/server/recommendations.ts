@@ -18,7 +18,7 @@ const MINIMUM_BASE_SCORE = 50
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
 // from the database.
-const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
+const scoreRelevantFields = {_id:1, baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
 
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
@@ -180,7 +180,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
       ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
 
       // Project out fields other than _id and scoreRelevantFields
-      { $project: {_id:1, ...scoreRelevantFields} },
+      { $project: scoreRelevantFields },
     ]).toArray();
   }
 }
