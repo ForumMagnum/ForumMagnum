@@ -49,6 +49,13 @@ const makeOutlookCalendarUrl = (event: CalendarEvent) => makeUrl("https://outloo
   path: "/calendar/view/Month"
 });
 
+const escapeIcsTextField = (text: string | null) => {
+  if(!text) {
+    return null;
+  }
+  return text.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+}
+
 const makeICSCalendarUrl = (event: CalendarEvent) => {
   const components = [
     "BEGIN:VCALENDAR",
@@ -64,14 +71,14 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
   components.push(
     `DTSTART:${makeTime(event.startsAt)}`,
     `DTEND:${makeTime(event.endsAt)}`,
-    `SUMMARY:${event.name}`,
-    `DESCRIPTION:${event.details}`,
-    `LOCATION:${event.location}`,
+    `SUMMARY:${escapeIcsTextField(event.name)}`,
+    `DESCRIPTION:${escapeIcsTextField(event.details)}`,
+    `LOCATION:${escapeIcsTextField(event.location)}`,
     "END:VEVENT",
     "END:VCALENDAR"
   );
 
-  return encodeURI(`data:text/calendar;charset=utf8,${components.join("\n")}`);
+  return encodeURI(`data:text/calendar;charset=utf8,${components.join("\r\n")}`);
 };
 
 type URLSet = { [key: string]: string };
