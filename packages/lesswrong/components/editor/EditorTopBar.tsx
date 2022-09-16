@@ -105,27 +105,26 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
           setCollaborationMode(newMode);
         }}
       >
-        <LWTooltip placement="right" title="You can comment, but not edit or suggest changes to the document.">
-          <MenuItem value="Viewing" key="Viewing">
-            Viewing
-          </MenuItem>
-        </LWTooltip>
-        <LWTooltip placement="right" title="You can comment, but neither edit nor suggest changes to the document.">
-          <MenuItem value="Commenting" key="Commenting"
-            disabled={!accessLevelCan(accessLevel, "comment")}
-          >
-            Commenting
-          </MenuItem>
-        </LWTooltip>
-        <LWTooltip placement="right" title="You can comment, suggest changes, or publish edits to the document.">
-          <MenuItem value="Editing" key="Editing"
-            disabled={!accessLevelCan(accessLevel, "edit")}
-          >
-            Editing
-          </MenuItem>
-        </LWTooltip>
+        <MenuItem value="Viewing" key="Viewing">
+          <LWTooltip placement="left" title="You can comment, but not edit or suggest changes to the document.">
+            <div>Viewing</div>
+          </LWTooltip>
+        </MenuItem>
+        <MenuItem value="Commenting" key="Commenting"
+          disabled={!accessLevelCan(accessLevel, "comment")}
+        >
+          <LWTooltip placement="left" title="You can comment, but neither edit nor suggest changes to the document.">
+            <div>Commenting</div>
+          </LWTooltip>
+        </MenuItem>
+        <MenuItem value="Editing" key="Editing"
+          disabled={!accessLevelCan(accessLevel, "edit")}
+        >
+          <LWTooltip placement="left" title="You can comment, suggest changes, or publish edits to the document.">
+            <div>Editing</div>
+          </LWTooltip>
+        </MenuItem>
       </Select>
-      
       <LWTooltip title="Collaborative docs automatically save all changes">
         <Button className={classes.saveStatus}>
           Auto-Saved
