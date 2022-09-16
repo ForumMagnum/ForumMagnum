@@ -201,7 +201,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
             </div>
         </>
         }
-        <Button onClick={createNewEpisode} disabled={!createEpisodeButtonEnabled}>
+        <Button variant="outlined" onClick={createNewEpisode} disabled={!createEpisodeButtonEnabled}>
           Create new podcast episode
         </Button>
       </>
