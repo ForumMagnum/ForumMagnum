@@ -57,7 +57,12 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
   ];
 
   // The ICS format requires escaping of certain characters
-  const escapeText = (text: string) => text.replace("\\", "\\\\").replace("\n", "\\n").replace(",", "\\,").replace(";", "\\;");
+const escapeText = (text: string | null) => {
+  if(!text) {
+    return null;
+  }
+  return text.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+}
 
   // In case of SSR, document won't be defined
   if (typeof document !== "undefined") {
