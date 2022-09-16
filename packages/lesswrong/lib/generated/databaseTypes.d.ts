@@ -162,6 +162,7 @@ interface DbConversation extends DbObject {
   latestActivity: Date
   af: boolean
   messageCount: number
+  moderator: boolean | null
   archivedByIds: Array<string>
   createdAt: Date
 }

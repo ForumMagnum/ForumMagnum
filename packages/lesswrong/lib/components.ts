@@ -28,9 +28,10 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
-  importComponent("AdvisorsPage", () => require('../components/ea-forum/AdvisorsPage'))
-  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/AdvisorsRequestPage'))
-  importComponent("AdvisorCard", () => require('../components/ea-forum/AdvisorCard'))
+  importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
+  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/advice/AdvisorsRequestPage'))
+  importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
+  importComponent("CommunityMemberCard", () => require('../components/ea-forum/advice/CommunityMemberCard'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -42,6 +43,7 @@ importComponent("ConversationPreview", () => require('../components/messaging/Co
 importComponent("MessageItem", () => require('../components/messaging/MessageItem'));
 importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePhoto'));
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
+importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));

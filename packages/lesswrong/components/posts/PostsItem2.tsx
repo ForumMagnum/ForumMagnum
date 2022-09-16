@@ -364,7 +364,7 @@ const PostsItem2 = ({
    */
   terms?: any,
   /** resumeReading: If this is a Resume Reading suggestion, the corresponding
-  /* partiallyReadSequenceItem (see schema in users/custom_fields). Used for
+  /* partiallyReadSequenceItem (see schema in users/schema). Used for
   /* the sequence-image background.*/
   resumeReading?: any,
   /** dismissRecommendation: If this is a Resume Reading suggestion, a callback to dismiss it.*/

@@ -46,7 +46,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
     const response = await createConversation({
-      data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
+      data: {moderator: true, participantIds:[user._id, currentUser?._id], ...alignmentFields},
     })
     const conversationId = response.data.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
@@ -70,6 +70,12 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
   }
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
+  
+  // in this case we show the button, but we don't actually let them create a conversation with themselves
+  if (currentUser?._id === user._id)
+    return <div>
+      {children}
+    </div>
   
   return (
     <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>

@@ -4,6 +4,8 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { userIsPostGroupOrganizer } from './helpers';
+import { makeEditable } from '../../editor/make_editable';
+import { formGroups } from './formGroups';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -49,9 +51,59 @@ export const Posts: ExtendedPostsCollection = createCollection({
   logChanges: true,
 });
 
+const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
+}
+
 addUniversalFields({
   collection: Posts,
   createdAtOptions: {viewableBy: ['admins']},
 });
+
+makeEditable({
+  collection: Posts,
+  options: {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      insertableBy: ['members']
+    },
+  }
+})
+
+makeEditable({
+  collection: Posts,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines]
+    },
+  }
+})
+
+makeEditable({
+  collection: Posts,
+  options: {
+    formGroup: formGroups.highlight,
+    fieldName: "customHighlight",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
+})
+
 
 export default Posts;
