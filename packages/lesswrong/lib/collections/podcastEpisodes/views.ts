@@ -10,7 +10,8 @@ declare global {
 }
 
 PodcastEpisodes.addView("episodeByExternalId", (terms: PodcastEpisodesViewTerms) => {
-  const selector = terms._id ? { _id: terms._id } : { externalEpisodeId: terms.externalEpisodeId };
+  const { _id, externalEpisodeId } = terms;
+  const selector = { _id, externalEpisodeId };
   return { selector };
 });
 
