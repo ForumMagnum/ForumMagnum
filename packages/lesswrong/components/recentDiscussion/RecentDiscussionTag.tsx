@@ -61,8 +61,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const isSubforumFragment = (tag: TagRecentDiscussion | TagRecentSubforumComments): tag is TagRecentSubforumComments =>
   (tag as TagRecentSubforumComments).subforumShortDescription !== undefined;
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = TagCommentType.Discussion, classes }: {
-  tag: TagRecentDiscussion | TagRecentSubforumComments,
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = TagCommentType.Discussion, classes }: {
+  tag: TagRecentDiscussion,
+  refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
@@ -102,6 +103,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {
+    refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
     markAsRead: markAsRead,

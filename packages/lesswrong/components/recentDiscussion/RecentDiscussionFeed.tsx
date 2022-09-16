@@ -105,6 +105,7 @@ const RecentDiscussionFeed = ({
                 render: (tag: TagRecentDiscussion) => (
                   <RecentDiscussionTag
                     tag={tag}
+                    refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
                   />
@@ -115,6 +116,7 @@ const RecentDiscussionFeed = ({
                 render: (tag: TagRecentSubforumComments) => (
                   <RecentDiscussionTag
                     tag={tag}
+                    refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
                     tagCommentType={TagCommentType.Subforum}
