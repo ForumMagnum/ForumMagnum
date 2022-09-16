@@ -6,14 +6,15 @@ import type { SimpleSchema } from 'simpl-schema';
 declare global {
 
 // TODO: This should probably be defined in some central permissions file
-type PermissionGroups = 'guests' |
-  'members' |
-  'admins' |
-  'sunshineRegiment' |
-  'alignmentForumAdmins' |
-  'alignmentForum' |
-  'alignmentVoters' |
-  'podcasters'
+type PermissionGroups = 'guests'
+  | 'members'
+  | 'admins'
+  | 'sunshineRegiment'
+  | 'alignmentForumAdmins'
+  | 'alignmentForum'
+  | 'alignmentVoters'
+  | 'podcasters'
+  | 'canSuggestCuration'
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)

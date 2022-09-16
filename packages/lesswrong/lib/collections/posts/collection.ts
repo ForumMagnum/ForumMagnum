@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { userIsPostGroupOrganizer } from './helpers';
@@ -22,9 +22,11 @@ const options: MutationOptions<DbPost> = {
   editCheck: async (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
     if (userCanDo(user, 'posts.alignment.move.all') ||
-        userCanDo(user, 'posts.alignment.suggest')) {
+        userCanDo(user, 'posts.alignment.suggest') ||
+        userIsMemberOf(user, 'canSuggestCuration')) {
       return true
     }
+
     
     return userOwns(user, document) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, document)
   },
