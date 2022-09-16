@@ -3,10 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
+const SubforumCommentsThread = ({ tag, terms }: {
   tag: TagBasicInfo,
   terms: CommentsViewTerms,
-  newForm?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
@@ -31,7 +30,6 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
       commentCount={(results && results.length) || 0}
       loadingMoreComments={loadingMore}
       loadMoreCount={50}
-      newForm={newForm}
       refetch={refetch}
     />
   );
