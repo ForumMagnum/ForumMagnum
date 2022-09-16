@@ -10,14 +10,8 @@ declare global {
 }
 
 PodcastEpisodes.addView("episodeByExternalId", (terms: PodcastEpisodesViewTerms) => {
-  return {
-    selector: {
-      $or: [
-        { _id: terms._id },
-        { externalEpisodeId: terms.externalEpisodeId }
-      ]
-    }
-  };
+  const selector = terms._id ? { _id: terms._id } : { externalEpisodeId: terms.externalEpisodeId };
+  return { selector };
 });
 
 ensureIndex(PodcastEpisodes, { externalEpisodeId: 1 }, { unique: true });

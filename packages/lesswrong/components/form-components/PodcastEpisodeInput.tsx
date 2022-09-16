@@ -22,12 +22,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: {
   value: string,
   path: string,
-  document: any,
+  document: PostsBase,
   classes: ClassesType,
   label?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
   const { Loading } = Components;
+
+  const { title: postTitle } = document;
 
   const { results: podcasts = [], loading } = useMulti({
     collectionName: 'Podcasts',
@@ -37,16 +39,21 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   const [externalEpisodeId, setExternalEpisodeId] = useState('');
 
+  const terms: PodcastEpisodesViewTerms = useMemo(
+    () => externalEpisodeId
+      ? { view: 'episodeByExternalId', externalEpisodeId }
+      : { view: 'episodeByExternalId', _id: value },
+    [externalEpisodeId, value]
+  );
+
   // If the post already has an attached episode, fetch it by _id.  Otherwise, refetch it by externalEpisodeId (only when `refetchPodcastEpisode` is called)
   const { results: [existingPodcastEpisode] = [], refetch: refetchPodcastEpisode, loading: episodeLoading } = useMulti({
     collectionName: 'PodcastEpisodes',
     fragmentName: 'FullPodcastEpisode',
-    terms: {
-      view: 'episodeByExternalId',
-      _id: value,
-      externalEpisodeId
-    },
+    terms,
   });
+
+  const debouncedRefetchPodcastEpisode = debounce(async () => await refetchPodcastEpisode(), 300);
 
   // If we have an external episode ID but no corresponding episode, we want to do a few things differently
   // This is part of what controls whether the "Create episode" button and the episodeLink/episodeTitle fields are enabled
@@ -63,18 +70,37 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   const [podcastId, setPodcastId] = useState(podcasts[0]?._id ?? '');
 
   const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value);
-  const [episodeTitle, setEpisodeTitle] = useState('');
+  const [episodeTitle, setEpisodeTitle] = useState(postTitle);
   const [episodeLink, setEpisodeLink] = useState('');
+
+  const [validEpisodeLink, setValidEpisodeLink] = useState(true);
 
   const selectPodcastId = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPodcastId(e.target.value);
   };
 
-  // Ideally the ID is pasted in, but if it's typed, don't make a bunch of unnecessary queries
-  const updateExternalEpisodeId = debounce(async (episodeId: string) => {
-    setExternalEpisodeId(episodeId);
-    await refetchPodcastEpisode();
-  }, 300);
+  // Ideally the link is pasted in, but if it's typed, don't make a bunch of unnecessary queries
+  const updateEpisodeLink = async (episodeLink: string) => {
+    try {
+      const url = new URL(episodeLink);
+      const externalEpisodeId = url.searchParams.get('container_id')?.split('-').slice(-1)[0];
+      if (externalEpisodeId) {
+        // Success case is if we manage to parse an external (buzzsprout) ID from the pasted link
+        // If not, it's probably a bad copy & paste job
+        setEpisodeLink(url.toString());
+        setValidEpisodeLink(true);
+        setExternalEpisodeId(externalEpisodeId);
+        await debouncedRefetchPodcastEpisode();
+      } else {
+        setEpisodeLink(episodeLink);
+        setValidEpisodeLink(false);
+      }
+    } catch (err) {
+      setEpisodeLink(episodeLink);
+      const isEmptyString = !episodeLink;
+      setValidEpisodeLink(isEmptyString);
+    }
+  };
 
   // Only enable the "Create episode button" if the fields were manually filled in by the user
   // We don't want to enable it if the episode already existed and we fetched it by the given buzzsprout ID
@@ -83,7 +109,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     return podcastEpisodesFieldsFilled && episodeNotFound;
   }, [podcastId, externalEpisodeId, episodeLink, episodeTitle, episodeNotFound]);
 
-  const episodeLinkProps = episodeNotFound ? { value: episodeLink } : { disabled: true, value: episodeLink };
+  const externalEpisodeIdProps = episodeNotFound ? { value: externalEpisodeId } : { disabled: true, value: externalEpisodeId };
   const episodeTitleProps = episodeNotFound ? { value: episodeTitle } : { disabled: true, value: episodeTitle };
 
   const createNewEpisode = useCallback(async () => {
@@ -106,7 +132,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   // Ensure consistency while refetching after typing
   useEffect(() => {
-    if (existingPodcastEpisode) {
+    if (existingPodcastEpisode && !episodeLink) {
       setPodcastEpisodeId(existingPodcastEpisode._id);
       setExternalEpisodeId(existingPodcastEpisode.externalEpisodeId);
       setPodcastId(existingPodcastEpisode.podcastId);
@@ -148,30 +174,33 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
         <div>
           <Input
             className={classes.podcastEpisodeName}
-            placeholder={'Podcast episode Buzzsprout ID'}
-            onChange={(e) => updateExternalEpisodeId(e.target.value)}
-            value={externalEpisodeId}
+            placeholder={'Podcast episode player script URL'}
+            onChange={(e) => updateEpisodeLink(e.target.value)}
+            error={!validEpisodeLink}
+            value={episodeLink}
+            // { ...episodeLinkProps }
           />
         </div>
         {episodeLoading
         ? <Loading />
         : <>
             <div>
-            <Input
-              className={classes.podcastEpisodeName}
-              placeholder={'Podcast episode player script URL'}
-              onChange={(e) => setEpisodeLink(e.target.value)}
-              { ...episodeLinkProps }
-            />
-          </div>
-          <div>
-            <Input
-              className={classes.podcastEpisodeName}
-              placeholder={'Podcast episode title'}
-              onChange={(e) => setEpisodeTitle(e.target.value)}
-              { ...episodeTitleProps }
-            />
-          </div>
+              <Input
+                className={classes.podcastEpisodeName}
+                placeholder={'Podcast episode Buzzsprout ID'}
+                onChange={(e) => setExternalEpisodeId(e.target.value)}
+                // value={externalEpisodeId}
+                { ...externalEpisodeIdProps }
+              />
+            </div>
+            <div>
+              <Input
+                className={classes.podcastEpisodeName}
+                placeholder={'Podcast episode title'}
+                onChange={(e) => setEpisodeTitle(e.target.value)}
+                { ...episodeTitleProps }
+              />
+            </div>
         </>
         }
         <Button onClick={createNewEpisode} disabled={!createEpisodeButtonEnabled}>
