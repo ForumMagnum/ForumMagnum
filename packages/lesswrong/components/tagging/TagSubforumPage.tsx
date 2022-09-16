@@ -43,6 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 380,
   },
   title: {
+    textTransform: "capitalize",
     marginLeft: 24,
     marginBottom: 10,
   },
