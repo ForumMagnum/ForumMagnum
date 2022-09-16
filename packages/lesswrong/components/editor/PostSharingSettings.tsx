@@ -191,7 +191,9 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         >
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="read">Read</MenuItem>
-          <MenuItem value="comment">Comment</MenuItem>
+          <LWTooltip placement="right" title="(suggest changes requires edit permission)" inlineBlock={false}>
+            <MenuItem value="comment">Comment</MenuItem>
+          </LWTooltip>
           <MenuItem value="edit">Edit</MenuItem>
         </Select>
       </div>
@@ -207,7 +209,9 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         >
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="read">Read</MenuItem>
-          <MenuItem value="comment">Comment</MenuItem>
+          <LWTooltip placement="right" title="(suggest changes requires edit permission)">
+            <MenuItem value="comment">Comment</MenuItem>
+          </LWTooltip>
           <MenuItem value="edit">Edit</MenuItem>
         </Select>
       </div>
