@@ -12,6 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: 'default'
   },
   removeTag: {
+    background: 'transparent',
+    color: 'inherit',
     '&:hover': {
       opacity: 0.5
     }

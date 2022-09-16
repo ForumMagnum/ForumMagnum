@@ -322,6 +322,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primaryDim2: ColorString,
     },
     header: {
       text: ColorString,
@@ -347,7 +348,6 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
-    eaForumGroupsMobileImg: ColorString,
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   

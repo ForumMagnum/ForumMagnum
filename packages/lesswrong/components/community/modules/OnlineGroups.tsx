@@ -5,6 +5,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
+import { useTheme } from '../../themes/useTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -48,7 +49,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.eaForumGroupsMobileImg,
+    backgroundColor: theme.palette.background.primaryDim2,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -139,6 +140,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType,
 }) => {
+  const theme = useTheme()
   const { CloudinaryImage2 } = Components
   
   const { results, loading } = useMulti({
@@ -177,9 +179,9 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
       <div className={classes.onlineGroupsList}>
         {onlineGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
-            backgroundImage: `linear-gradient(to right, transparent, white 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
+            backgroundImage: `linear-gradient(to right, transparent, ${theme.palette.panelBackground.default} 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
           } : {
-            backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 200px)'
+            backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, ${theme.palette.background.primaryDim2}, ${theme.palette.panelBackground.default} 200px)`
           }
           
           return <div key={group._id} className={classes.onlineGroup}>

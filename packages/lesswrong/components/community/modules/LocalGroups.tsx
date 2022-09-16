@@ -59,7 +59,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.eaForumGroupsMobileImg,
+    backgroundColor: theme.palette.background.primaryDim2,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -213,7 +213,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
           const rowStyle = group.bannerImageId ? {
             backgroundImage: `linear-gradient(to right, transparent, ${theme.palette.panelBackground.default} 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
           } : {
-            backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, ${theme.palette.eaForumGroupsMobileImg}, ${theme.palette.panelBackground.default} 140px)`
+            backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, ${theme.palette.background.primaryDim2}, ${theme.palette.panelBackground.default} 140px)`
           }
           // the distance from the user's location to the group's location
           let distanceToGroup;

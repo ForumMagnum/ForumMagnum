@@ -288,7 +288,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2'
+    primaryDim: '#d3edf2',
+    primaryDim2: '#e2f1f4',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -429,7 +430,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  eaForumGroupsMobileImg: '#e2f1f4',
   
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',

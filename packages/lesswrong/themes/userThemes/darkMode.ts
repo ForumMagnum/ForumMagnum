@@ -129,11 +129,17 @@ export const darkModeTheme: UserThemeSpecification = {
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
+      primaryDim: "#303435",
+      primaryDim2: "#303435",
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
+      primaryHighlight: '#314a4e',
+      primaryHighlight2: '#314a4e',
+      secondaryHighlight: '#3e503a',
+      secondaryHighlight2: '#3e503a',
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
@@ -144,7 +150,6 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
-    eaForumGroupsMobileImg: "#303435",
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
