@@ -3,8 +3,8 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
-import { canUserEditPost, userIsSharedOn } from '../../lib/collections/users/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, canUserEditPost } from '../../lib/collections/posts/helpers';
+import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';

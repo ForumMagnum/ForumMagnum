@@ -2,14 +2,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { getPostCollaborateUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { getPostCollaborateUrl, canUserEditPost, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
-import { canUserEditPost } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {

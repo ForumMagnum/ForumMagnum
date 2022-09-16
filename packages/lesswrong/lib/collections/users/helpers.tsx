@@ -35,7 +35,7 @@ export const userOwnsAndInGroup = (group: string) => {
   }
 }
 
-export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
+export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase|DbPost): boolean => {
   if (!currentUser) return false;
   
   // Shared as a coauthor? Always give access
@@ -54,22 +54,6 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
       && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
     )
   }
-}
-
-export const canUserEditPost = (user: DbUser|UsersCurrent|null, doc: PostsList|DbPost): boolean => {
-  if (!user) return false;
-
-  if (userOwns(user, doc)) return true
-
-  if (userCanDo(user, 'posts.edit.all')) return true
-  
-  // Shared as a coauthor? Always give access
-  if (doc.coauthorStatuses?.findIndex(({ userId }) => userId === user._id) >= 0) return true
-
-
-  if (userIsSharedOn(user, doc) && doc.sharingSettings?.anyoneWithLinkCan === "edit") return true 
-  if (doc.shareWithUsers.includes(user._id) && doc.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
-  return false
 }
 
 export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {

@@ -6,7 +6,7 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
-import { postCanEdit } from '../../../lib/collections/posts/helpers';
+import { canUserEditPost } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { useItemsRead } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -178,7 +178,7 @@ const PostActions = ({post, closeMenu, classes}: {
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
   
   let editLink: React.ReactNode|null = null;
-  const isAuthor = postCanEdit(currentUser,post);
+  const isAuthor = canUserEditPost(currentUser,post);
   const isShared = userIsSharedOn(currentUser, post);
   if (isAuthor || isShared) {
     const link = isAuthor ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
@@ -209,7 +209,7 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
-        { postCanEdit(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
+        { canUserEditPost(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
             <ListItemIcon>
               <EditIcon />
@@ -218,7 +218,7 @@ const PostActions = ({post, closeMenu, classes}: {
           </MenuItem>
         </Link>}
         {editLink}
-        { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
+        { forumTypeSetting.get() === 'EAForum' && canUserEditPost(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
           <MenuItem>
