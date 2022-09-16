@@ -49,7 +49,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   // If the post already has an attached episode, fetch it by _id.  Otherwise, refetch it by externalEpisodeId (only when `refetchPodcastEpisode` is called)
   const { results: [existingPodcastEpisode] = [], refetch: refetchPodcastEpisode, loading: episodeLoading } = useMulti({
     collectionName: 'PodcastEpisodes',
-    fragmentName: 'FullPodcastEpisode',
+    fragmentName: 'PodcastEpisodeFull',
     terms,
   });
 

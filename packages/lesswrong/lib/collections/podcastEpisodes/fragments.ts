@@ -1,7 +1,7 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment FullPodcastEpisode on PodcastEpisode {
+  fragment PodcastEpisodeFull on PodcastEpisode {
     _id
     podcastId
     title
