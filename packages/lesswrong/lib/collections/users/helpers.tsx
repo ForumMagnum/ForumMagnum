@@ -61,7 +61,7 @@ export const canUserEditPost = (user: DbUser|UsersCurrent|null, doc: PostsList|D
 
   if (userOwns(user, doc)) return true
 
-  if (userCanDo(user, 'posts.edit.all'))
+  if (userCanDo(user, 'posts.edit.all')) return true
   
   // Shared as a coauthor? Always give access
   if (doc.coauthorStatuses?.findIndex(({ userId }) => userId === user._id) >= 0) return true
