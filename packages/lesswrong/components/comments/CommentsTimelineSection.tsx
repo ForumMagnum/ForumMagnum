@@ -63,8 +63,6 @@ const CommentsTimelineSection = ({
   refetch?: any,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
-  
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
@@ -84,7 +82,7 @@ const CommentsTimelineSection = ({
   return (
     <div
       ref={bodyRef}
-      className={classNames(classes.root, { [classes.maxWidthRoot]: !tag})}
+      className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}
       style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
     >
       <Components.CommentsTimeline
@@ -103,7 +101,7 @@ const CommentsTimelineSection = ({
         loadingMoreComments={loadingMoreComments}
       />
       {/* TODO add permissions check here */}
-      {/* TODO add sorting here */}
+      <span>Sorted by</span>
       {newForm && (
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <Components.CommentsNewForm

@@ -70,6 +70,7 @@ const CommentsViews = ({post, classes}: {
     views = views.concat(afViews);
   }
 
+  return <SelectSorting options={views} selected={currentView} handleSelect={handleViewClick}/>
   return <div className={classes.root}>
     <a className={classes.link} onClick={handleClick}>
       {viewNames[currentView]}
