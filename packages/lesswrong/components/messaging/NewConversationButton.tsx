@@ -50,7 +50,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
       participantIds:[user._id, currentUser?._id], 
       ...alignmentFields
     }
-    const data = moderator ? { moderator: true, ...baseData} : {...baseData}
+    const data = includeModerators ? { moderator: true, ...baseData} : {...baseData}
 
     const response = await createConversation({data})
     const conversationId = response.data.createConversation.data._id
