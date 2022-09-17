@@ -9,14 +9,15 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, templateCommentId, from }: {
+const NewConversationButton = ({ user, currentUser, children, templateCommentId, from, moderator }: {
   user: {
     _id: string
   },
   currentUser: UsersCurrent|null,
   templateCommentId?: string,
   from?: string,
-  children: any
+  children: any,
+  moderator?: boolean
 }) => {
   
   const { history } = useNavigation();
@@ -45,8 +46,15 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
   const newConversation = useCallback(async (search) =>  {
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
+    let baseData = {
+      participantIds:[user._id, currentUser?._id], 
+      ...alignmentFields
+    }
+
+    const data = moderator ? { moderator: true, ...baseData} : {...baseData}
+
     const response = await createConversation({
-      data: {moderator: true, participantIds:[user._id, currentUser?._id], ...alignmentFields},
+      data: data,
     })
     const conversationId = response.data.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
