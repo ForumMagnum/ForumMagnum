@@ -1856,6 +1856,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly isSubforum: boolean,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
@@ -1995,7 +1996,7 @@ interface TagFullContributorsList { // fragment on Tags
   readonly contributors: any,
 }
 
-interface TagEditFragment extends TagBasicInfo { // fragment on Tags
+interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
