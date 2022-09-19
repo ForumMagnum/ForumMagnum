@@ -72,7 +72,9 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     */
     const field: CollectionFieldSpecification<T> = schema[fieldName];
     // OpenCRUD backwards compatibility
-    return (field.resolveAs && !field.resolveAs.addOriginalField) || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
+
+    const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
+    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
   });
 
   if (fieldNames.length) {
