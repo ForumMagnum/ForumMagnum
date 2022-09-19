@@ -108,13 +108,13 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
         <MenuItem value="Viewing" key="Viewing">
           Viewing
         </MenuItem>
-        <MenuItem value="Commenting" key="Commenting"
-          disabled={!accessLevelCan(accessLevel, "comment")}
-        >
-          <LWTooltip placement="left" title="To suggest changes, you must be in edit mode">
+        <LWTooltip inlineBlock={false} placement="left" title="To suggest changes, you must be in edit mode">
+          <MenuItem value="Commenting" key="Commenting"
+            disabled={!accessLevelCan(accessLevel, "comment")}
+          >
             Commenting
-          </LWTooltip>
-        </MenuItem>
+          </MenuItem>
+        </LWTooltip>
         <MenuItem value="Editing" key="Editing"
           disabled={!accessLevelCan(accessLevel, "edit")}
         >
