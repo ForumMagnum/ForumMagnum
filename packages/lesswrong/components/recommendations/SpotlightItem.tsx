@@ -9,10 +9,10 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import {useTracking} from "../../lib/analyticsEvents";
 
-type CuratedContentDocType = "Sequence"|"Collection"|"Post"
+type SpotlightDocType = "Sequence"|"Collection"|"Post"
 
-export interface CuratedContent {
-  documentType: CuratedContentDocType,
+export interface SpotlightContent {
+  documentType: SpotlightDocType,
   document: {
     _id?: string,
     title: string,
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[300],
     top: 0,
     right: 0,
-    zIndex: theme.zIndexes.curatedContentItemCloseButton,
+    zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   content: {
     padding: 16,
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     marginRight: 150,
     position: "relative",
-    zIndex: theme.zIndexes.curatedContentItem,
+    zIndex: theme.zIndexes.spotlightItem,
     [theme.breakpoints.up('sm')]: {
       minHeight: 100
     },
@@ -107,7 +107,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
-    zIndex: theme.zIndexes.curatedContentItemCloseButton,
+    zIndex: theme.zIndexes.spotlightItemCloseButton,
     color: theme.palette.grey[500],
     '& a': {
       color: theme.palette.primary.main
@@ -115,7 +115,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getUrlFromDocument = (document: any, documentType: CuratedContentDocType) => {
+const getUrlFromDocument = (document: any, documentType: SpotlightDocType) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;
@@ -128,8 +128,8 @@ const getUrlFromDocument = (document: any, documentType: CuratedContentDocType) 
 
 const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 
-export const CuratedContentItem = ({classes, content}: {
-  content: CuratedContent,
+export const SpotlightItem = ({classes, content}: {
+  content: SpotlightContent,
   classes: ClassesType,
 }) => {
   const { AnalyticsTracker, LinkCard, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle} = Components
@@ -184,11 +184,11 @@ export const CuratedContentItem = ({classes, content}: {
   </AnalyticsTracker>
 }
 
-const CuratedContentItemComponent = registerComponent('CuratedContentItem', CuratedContentItem, {styles});
+const SpotlightItemComponent = registerComponent('SpotlightItem', SpotlightItem, {styles});
 
 declare global {
   interface ComponentTypes {
-    CuratedContentItem: typeof CuratedContentItemComponent
+    SpotlightItem: typeof SpotlightItemComponent
   }
 }
 

@@ -1,4 +1,4 @@
-import type { CuratedContent } from "./CuratedContentItem"
+import type { SpotlightContent } from "./SpotlightItem"
 
 // export const acxEverywhere: CuratedContent = {
 //   documentType: "Post",
@@ -58,7 +58,7 @@ import type { CuratedContent } from "./CuratedContentItem"
 //   }
 // }
 
-export const multiagentmodels: CuratedContent = {
+export const multiagentmodels: SpotlightContent = {
   documentType: "Sequence",
   document: {
     _id: "ZbmRyDN8TCpBTZSip",

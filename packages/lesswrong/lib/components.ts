@@ -662,7 +662,7 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
-importComponent("CuratedContentItem", () => require('../components/recommendations/CuratedContentItem'));
+importComponent("SpotlightItem", () => require('../components/recommendations/SpotlightItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

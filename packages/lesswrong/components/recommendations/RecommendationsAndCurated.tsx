@@ -105,7 +105,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CuratedContentItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
+    const { SpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -161,7 +161,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CuratedContentItem content={multiagentmodels} />
+          <SpotlightItem content={multiagentmodels} />
         </AnalyticsContext>}
   
         {/*Delete after the dust has settled on other Recommendations stuff*/}
