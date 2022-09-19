@@ -307,3 +307,7 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
   }
   return coauthorStatuses.map(({ userId }) => userId);
 }
+
+export const isNotHostedHere = (post: PostsPage) => {
+  return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
+}

@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
@@ -13,10 +13,6 @@ import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-
-export const isNotHostedHere = (post: PostsPage) => {
-  return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
-}
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
