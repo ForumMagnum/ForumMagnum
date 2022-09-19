@@ -1,13 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 import { TagCommentType } from '../../lib/collections/comments/schema';
-import { filterModeIsSubscribed, FilterSettings } from '../../lib/filterSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -69,8 +66,7 @@ const CommentsTimelineSection = ({
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
 
-  const filterMode = (currentUser?.frontpageFilterSettings as FilterSettings)?.tags.find((t) => t.tagId === tag._id)?.filterMode;
-  const isSubscribed = filterMode && filterModeIsSubscribed(filterMode);
+  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
 
   useEffect(() => {
     recalculateTopAbsolutePosition()

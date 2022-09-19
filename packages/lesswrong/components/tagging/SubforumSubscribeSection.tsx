@@ -6,7 +6,7 @@ import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import { useSubscribeUserToTag } from '../../lib/filterSettings';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,20 +36,19 @@ const SubforumSubscribeSection = ({
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const { subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
+  const updateCurrentUser = useUpdateCurrentUser()
   const { LWTooltip } = Components
 
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       e.preventDefault();
 
-      const newMode = "Subscribed";
-      captureEvent('subforumSubscribeClicked', {tagId: tag._id, newMode});
+      captureEvent('subforumSubscribeClicked', {tagId: tag._id});
 
       if (currentUser) {
-        subscribeUserToTag(tag, newMode);
+        void updateCurrentUser({profileTagIds: [...(currentUser.profileTagIds || []), tag._id]})
       } else {
         openDialog({
           componentName: "LoginPopup",
