@@ -129,7 +129,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     }
   }, [podcasts]);
 
-  // Ensure consistency while refetching after typing
+  // Ensure consistency between input fields while refetching after typing
   useEffect(() => {
     if (existingPodcastEpisode && !episodeLink) {
       setPodcastEpisodeId(existingPodcastEpisode._id);
