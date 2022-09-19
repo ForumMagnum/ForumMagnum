@@ -178,10 +178,10 @@ const PostActions = ({post, closeMenu, classes}: {
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
   
   let editLink: React.ReactNode|null = null;
-  const isAuthor = canUserEditPost(currentUser,post);
+  const isEditor = canUserEditPost(currentUser,post);
   const isShared = userIsSharedOn(currentUser, post);
-  if (isAuthor || isShared) {
-    const link = isAuthor ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
+  if (isEditor || isShared) {
+    const link = isEditor ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
     editLink = <Link to={link}>
       <MenuItem>
         <ListItemIcon>
