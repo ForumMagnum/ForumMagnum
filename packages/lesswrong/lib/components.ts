@@ -625,6 +625,7 @@ importComponent("ManageSubscriptionsLink", () => require('../components/form-com
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
+importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 
 importComponent("HomepageCommunityMap", () => require('../components/seasonal/HomepageMap/HomepageCommunityMap'));
 importComponent("HomepageMapFilter", () => require('../components/seasonal/HomepageMap/HomepageMapFilter'));
