@@ -9,6 +9,7 @@ import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
+import { isNotHostedHere } from '../posts/PostsEditForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect } = Components
+  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm } = Components
   const currentUser = useCurrentUser();
   const [editorLoaded, setEditorLoaded] = useState(false)
 
@@ -90,6 +91,10 @@ const PostCollaborationEditor = ({ classes }: {
   // the link-sharing key to the URL
   if (post.linkSharingKey && !key) {
     return <PermanentRedirect url={getPostCollaborateUrl(post._id, false, post.linkSharingKey)} status={302}/>
+  }
+
+  if (isNotHostedHere(post)) {
+    return <ForeignCrosspostEditForm post={post} />;
   }
   
   return <SingleColumnSection>

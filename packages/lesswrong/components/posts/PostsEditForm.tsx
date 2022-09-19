@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, canUserEditPost } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
@@ -13,6 +13,10 @@ import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+
+export const isNotHostedHere = (post: PostsPage) => {
+  return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
+}
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -58,7 +62,11 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document && !canUserEditPost(currentUser, document) && document.sharingSettings) {
+  if (document
+    && document.userId!==currentUser._id
+    && document.sharingSettings
+    && !userCanDo(currentUser, 'posts.edit.all')
+  ) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
@@ -89,7 +97,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <Components.ErrorAccessDenied/>
   }
 
-  if (document.fmCrosspost?.isCrosspost && !document.fmCrosspost?.hostedHere) {
+  if (isNotHostedHere(document)) {
     return <ForeignCrosspostEditForm post={document} />;
   }
   
