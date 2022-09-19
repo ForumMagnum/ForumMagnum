@@ -106,19 +106,19 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
         }}
       >
         <MenuItem value="Viewing" key="Viewing">
-          <div>Viewing</div>
+          Viewing
         </MenuItem>
         <MenuItem value="Commenting" key="Commenting"
           disabled={!accessLevelCan(accessLevel, "comment")}
         >
           <LWTooltip placement="left" title="To suggest changes, you must be in edit mode">
-            <div>Commenting</div>
+            Commenting
           </LWTooltip>
         </MenuItem>
         <MenuItem value="Editing" key="Editing"
           disabled={!accessLevelCan(accessLevel, "edit")}
         >
-          <div>Editing</div>
+          Editing
         </MenuItem>
       </Select>
       <LWTooltip title="Collaborative docs automatically save all changes">

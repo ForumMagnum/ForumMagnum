@@ -27,6 +27,7 @@ const options: MutationOptions<DbPost> = {
     }
     
     return canUserEditPost(user, document) || await userIsPostGroupOrganizer(user, document)
+    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
