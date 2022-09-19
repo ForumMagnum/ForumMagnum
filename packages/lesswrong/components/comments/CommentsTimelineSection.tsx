@@ -9,6 +9,7 @@ import { isEmpty } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
 import { subforumDefaultSorting } from '../../lib/collections/comments/views';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const sortOptions: Option[] = [
   {value: "new", label: "new"},
@@ -79,6 +80,7 @@ const CommentsTimelineSection = ({
   const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
+  const { captureEvent } = useTracking()
 
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
@@ -91,6 +93,7 @@ const CommentsTimelineSection = ({
     const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
     const newQuery = {...currentQuery, sortBy: option.value}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+    captureEvent("subforumSortingChanges", {oldSorting: currentQuery.sortBy, newSorting: option.value})
   };
 
   useEffect(() => {

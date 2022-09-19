@@ -1,9 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
