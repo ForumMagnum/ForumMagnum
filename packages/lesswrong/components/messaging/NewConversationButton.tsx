@@ -55,7 +55,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     const response = await createConversation({data})
     const conversationId = response.data?.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, currentUser, history, includeModerators]);
+  }, [createConversation, user, history, includeModerators]);
 
   const existingConversationCheck = (initiatingUser: UsersCurrent) => () => {
     let searchParams: Array<string> = []
