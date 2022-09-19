@@ -200,7 +200,7 @@ const CommunityMemberCard = ({user, classes}: {
           />
         </Link>}
         <div className={classes.photoRowText}>
-          <Typography variant="headline" className={classes.name}>
+          <Typography variant="headline" className={classes.name} component="div">
             <Link to={`/users/${user.slug}?from=advisors_page`} className={classes.displayName}>
               {user.displayName}
             </Link>

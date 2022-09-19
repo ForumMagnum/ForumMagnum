@@ -164,7 +164,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
     setIsChanged(true);
   };
   
-  const collabEditorLink = getPostCollaborateUrl(postId, false, linkSharingKey)
+  const collabEditorLink = getPostCollaborateUrl(postId, true, linkSharingKey)
   
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
