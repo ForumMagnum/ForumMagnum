@@ -1,7 +1,7 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 import { addGraphQLSchema } from '../../vulcan-lib';
-import { userCanReadField, userOwns } from '../../vulcan-users';
+import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
 
 /**
