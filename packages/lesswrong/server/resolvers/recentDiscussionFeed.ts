@@ -26,7 +26,9 @@ defineFeedResolver<Date>({
     
     const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
     
-    const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
+    const subforumTagIds = currentUser?.profileTagIds || [];
+    // TODO possibly include subforums for tags that a user is subscribed to as below
+    // const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
     
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
