@@ -5,6 +5,7 @@ import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
+import { subforumDefaultSorting } from "../../lib/collections/comments/views";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -53,7 +54,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
 
   const { params, query } = useLocation();
   const { slug } = params;
-  const sortBy = query.sortBy || "new";
+  const sortBy = query.sortBy || subforumDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
 

@@ -17,7 +17,7 @@ export interface Option {
   label: string;
 }
 
-function SelectSorting({
+function InlineSelect({
   options,
   selected,
   handleSelect,
@@ -62,10 +62,10 @@ function SelectSorting({
   );
 }
 
-const SelectSortingComponent = registerComponent("SelectSorting", SelectSorting, { styles });
+const InlineSelectComponent = registerComponent("InlineSelect", InlineSelect, { styles });
 
 declare global {
   interface ComponentTypes {
-    SelectSorting: typeof SelectSortingComponent;
+    InlineSelect: typeof InlineSelectComponent;
   }
 }

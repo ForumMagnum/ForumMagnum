@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { Option } from '../common/SelectSorting';
+import { Option } from '../common/InlineSelect';
 
 export const viewNames: Partial<Record<CommentsViewName,string>> = {
   'postCommentsTop': 'top scoring',
@@ -30,7 +30,7 @@ const CommentsViews = ({post, classes}: {
   const location = useLocation();
   const { query } = location;
 
-  const {SelectSorting} = Components
+  const {InlineSelect} = Components
 
   const handleViewClick = (opt: Option) => {
     const view = opt.value as CommentsViewName
@@ -60,7 +60,7 @@ const CommentsViews = ({post, classes}: {
   })
   const selectedOption = viewOptions.find((option) => option.value === currentView) || viewOptions[0]
 
-  return <SelectSorting options={viewOptions} selected={selectedOption} handleSelect={handleViewClick}/>
+  return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick}/>
 
 };
 

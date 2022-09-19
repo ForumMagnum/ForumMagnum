@@ -4,14 +4,15 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 import { TagCommentType } from '../../lib/collections/comments/schema';
-import { Option } from '../common/SelectSorting';
+import { Option } from '../common/InlineSelect';
 import { isEmpty } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
+import { subforumDefaultSorting } from '../../lib/collections/comments/views';
 
 const sortOptions: Option[] = [
-  {value: "new", label: "New"},
-  {value: "recentDiscussion", label: "Recent Discussion"},
+  {value: "new", label: "new"},
+  {value: "recentDiscussion", label: "recent discussion"},
 ]
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sortBy: {
     marginLeft: 8,
     marginTop: 14,
-    marginBottom: 4,
+    marginBottom: 2,
     display: 'inline',
     color: theme.palette.text.secondary,
   },
@@ -82,10 +83,12 @@ const CommentsTimelineSection = ({
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
-  const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === query.sortBy) || sortOptions[0], [query.sortBy])
+
+  const sorting = query.sortBy || subforumDefaultSorting
+  const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
 
   const handleSortingSelect = (option: Option) => {
-    const currentQuery = isEmpty(query) ? {sortBy: 'new'} : query
+    const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
     const newQuery = {...currentQuery, sortBy: option.value}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
@@ -102,7 +105,7 @@ const CommentsTimelineSection = ({
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
   }
   
-  const {CommentsTimeline, SelectSorting, CommentsNewForm, Typography} = Components
+  const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography} = Components
 
   return (
     <div
@@ -132,7 +135,7 @@ const CommentsTimelineSection = ({
           variant="body2"
           component='span'
           className={classes.sortBy}>
-            <span>Sorted by <SelectSorting options={sortOptions} selected={selectedSorting} handleSelect={handleSortingSelect} /></span>
+            <span>Sorted by <InlineSelect options={sortOptions} selected={selectedSorting} handleSelect={handleSortingSelect} /></span>
           </Typography>
           <div id="posts-thread-new-comment" className={classes.newComment}>
           <CommentsNewForm

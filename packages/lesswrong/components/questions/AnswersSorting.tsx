@@ -1,11 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import qs from 'qs'
 import * as _ from 'underscore';
-import { Option } from '../common/SelectSorting';
+import { Option } from '../common/InlineSelect';
 
 export const sortingNames = {
   'top': 'top scoring',
@@ -21,7 +19,7 @@ const AnswersSorting = ({ post, classes }: {
   const location = useLocation();
   const { query } = location;
   
-  const {SelectSorting} = Components;
+  const {InlineSelect} = Components;
 
   const handleSortingClick = (opt: Option) => {
     const sorting = opt.value;
@@ -39,7 +37,7 @@ const AnswersSorting = ({ post, classes }: {
   })
   const selectedOption = viewOptions.find((option) => option.value === currentSorting) || viewOptions[0]
 
-  return <SelectSorting options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
+  return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
 };
 
 const AnswersSortingComponent = registerComponent('AnswersSorting', AnswersSorting);
