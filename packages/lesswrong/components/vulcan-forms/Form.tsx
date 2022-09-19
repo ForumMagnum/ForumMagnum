@@ -240,7 +240,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   Also remove any deleted values.
 
   */
-  getData = customArgs => {
+  getData = async customArgs => {
     // we want to keep prefilled data even for hidden/removed fields
     const args = {
       excludeRemovedFields: false,
@@ -270,7 +270,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacksList({
+    data = await runCallbacksList({
       callbacks: this.submitFormCallbacks,
       iterator: data,
       properties: [this],
@@ -985,7 +985,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
     // complete the data with values from custom components
     // note: it follows the same logic as SmartForm's getDocument method
-    let data = this.getData({ addExtraFields: false });
+    let data = await this.getData({ addExtraFields: false });
 
     // if there's a submit callback, run it
     if (this.props.submitCallback) {

@@ -127,11 +127,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm((submission) => {
+      const cleanupSubmitForm = context.addToSubmitForm(async (submission) => {
         if (editorRef.current)
           return {
             ...submission,
-            [fieldName]: editorRef.current.submitData(submission)
+            [fieldName]: await editorRef.current.submitData(submission)
           };
         else
           return submission;

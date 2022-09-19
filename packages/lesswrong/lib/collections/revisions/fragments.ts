@@ -23,7 +23,10 @@ registerFragment(`
     updateType
     editedAt
     userId
-    originalContents
+    originalContents {
+      type
+      data
+    }
     html
     markdown
     draftJS
