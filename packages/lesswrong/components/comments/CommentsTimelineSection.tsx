@@ -1,12 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import { useCurrentUser } from '../common/withUser';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 import { TagCommentType } from '../../lib/collections/comments/schema';
+import { Option } from '../common/SelectSorting';
+import { isEmpty } from 'underscore';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import qs from 'qs';
+
+const sortOptions: Option[] = [
+  {value: "new", label: "New"},
+  {value: "recentDiscussion", label: "Recent Discussion"},
+]
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,13 +32,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
-    marginTop: 30,
     marginLeft: 5,
     marginRight: 5,
     "@media print": {
       display: "none"
     },
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+  },
+  sortBy: {
+    marginLeft: 8,
+    marginTop: 14,
+    marginBottom: 4,
+    display: 'inline',
+    color: theme.palette.text.secondary,
   },
 })
 
@@ -63,10 +75,21 @@ const CommentsTimelineSection = ({
   refetch?: any,
   classes: ClassesType,
 }) => {
+  const { history } = useNavigation();
+  const location = useLocation();
+  const { query } = location;
+
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
-  
+  const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === query.sortBy) || sortOptions[0], [query.sortBy])
+
+  const handleSortingSelect = (option: Option) => {
+    const currentQuery = isEmpty(query) ? {sortBy: 'new'} : query
+    const newQuery = {...currentQuery, sortBy: option.value}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  };
+
   useEffect(() => {
     recalculateTopAbsolutePosition()
     window.addEventListener('resize', recalculateTopAbsolutePosition)
@@ -78,6 +101,8 @@ const CommentsTimelineSection = ({
     if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
   }
+  
+  const {CommentsTimeline, SelectSorting, CommentsNewForm, Typography} = Components
 
   return (
     <div
@@ -85,7 +110,7 @@ const CommentsTimelineSection = ({
       className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}
       style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
     >
-      <Components.CommentsTimeline
+      <CommentsTimeline
         treeOptions={{
           refetch,
           postPage: true,
@@ -101,10 +126,16 @@ const CommentsTimelineSection = ({
         loadingMoreComments={loadingMoreComments}
       />
       {/* TODO add permissions check here */}
-      <span>Sorted by</span>
       {newForm && (
-        <div id="posts-thread-new-comment" className={classes.newComment}>
-          <Components.CommentsNewForm
+        <>
+          <Typography
+          variant="body2"
+          component='span'
+          className={classes.sortBy}>
+            <span>Sorted by <SelectSorting options={sortOptions} selected={selectedSorting} handleSelect={handleSortingSelect} /></span>
+          </Typography>
+          <div id="posts-thread-new-comment" className={classes.newComment}>
+          <CommentsNewForm
             tag={tag}
             tagCommentType={TagCommentType.Subforum}
             prefilledProps={{
@@ -116,9 +147,8 @@ const CommentsTimelineSection = ({
             successCallback={refetch}
             type="comment"
             enableGuidelines={false}
-            displayMode="minimalist"
-          />
-        </div>
+            displayMode="minimalist" />
+        </div></>
       )}
     </div>
   );
