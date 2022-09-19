@@ -1,7 +1,7 @@
 import React from 'react';
 import { userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
-import { ContentType } from '../collections/revisions/schema'
+import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 
@@ -13,7 +13,11 @@ export const RevisionStorageType = new SimpleSchema({
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
   editedAt: {type: Date, optional: true},
-  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true}
+  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true},
+  // dataWithDiscardedSuggestions is not actually stored in the database, just passed 
+  // through the mutation so that we can provide html that doesn't include private
+  // information.
+  dataWithDiscardedSuggestions: {type: String, optional: true, nullable: true}
 })
 
 export interface MakeEditableOptions {
@@ -148,7 +152,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
-          
           if (version) {
             if (version === "draft") {
               // If version is the special string "draft", that means
@@ -156,6 +159,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
               // (what we'd normally do), we instead return the latest
               // version period, including draft versions.
               const revision = await Revisions.findOne({documentId: doc._id, fieldName: field}, {sort: {editedAt: -1}})
+
               if (!revision) return null;
               return await checkAccess(currentUser, revision, context) ? revision : null
             } else {
@@ -166,17 +170,22 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           }
           const docField = doc[field];
           if (!docField) return null
-          return {
+
+          const result: DbRevision = {
+            ...docField, 
+            // we're specifying these fields manually because docField doesn't have them, 
+            // or becaause we need to control the permissions on them.
+            //
+            // The reason we need to return documentId and collectionName is because this 
+            // entire result gets recursively resolved by revision field resolvers, and those
+            // resolvers depend on these fields existing.
             _id: `${doc._id}_${fieldName}`, //HACK
-            editedAt: (docField?.editedAt) || new Date(),
-            userId: docField?.userId,
-            commitMessage: docField?.commitMessage,
-            originalContents: (docField?.originalContents) || {},
-            html: docField?.html,
-            updateType: docField?.updateType,
-            version: docField?.version,
-            wordCount: docField?.wordCount,
-          } as DbRevision;
+            documentId: doc._id, 
+            collectionName: collection.collectionName,
+            editedAt: (docField.editedAt) || new Date(),
+            originalContents: getOriginalContents(context.currentUser, doc, docField.originalContents),
+          } 
+          return result
           //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
       },

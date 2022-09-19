@@ -9,14 +9,15 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, templateCommentId, from }: {
+const NewConversationButton = ({ user, currentUser, children, templateCommentId, from, includeModerators }: {
   user: {
     _id: string
   },
   currentUser: UsersCurrent|null,
   templateCommentId?: string,
   from?: string,
-  children: any
+  children: any,
+  includeModerators?: boolean
 }) => {
   
   const { history } = useNavigation();
@@ -45,12 +46,16 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
   const newConversation = useCallback(async (search, initiatingUser: UsersCurrent) =>  {
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
-    const response = await createConversation({
-      data: {moderator: true, participantIds:[user._id, initiatingUser._id], ...alignmentFields},
-    })
-    const conversationId = response.data?.createConversation.data._id
+    let baseData = {
+      participantIds:[user._id, currentUser?._id], 
+      ...alignmentFields
+    }
+    const data = includeModerators ? { moderator: true, ...baseData} : {...baseData}
+
+    const response = await createConversation({data})
+    const conversationId = response.data.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, history]);
+  }, [createConversation, user, currentUser, history, includeModerators]);
 
   const existingConversationCheck = (initiatingUser: UsersCurrent) => () => {
     let searchParams: Array<string> = []

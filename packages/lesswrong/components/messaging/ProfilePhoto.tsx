@@ -86,7 +86,7 @@ const ProfilePhoto = ({user, className, classes}: {
   if (user.profileImageId) {
     // use the profile photo if possible
     imgNode = <Components.CloudinaryImage2
-      imgProps={{q: '100', h: `${PROFILE_IMG_DIAMETER}`, w: `${PROFILE_IMG_DIAMETER}`}}
+      imgProps={{q: '100', h: `${PROFILE_IMG_DIAMETER*2}`, w: `${PROFILE_IMG_DIAMETER*2}`}}
       publicId={user.profileImageId}
       className={classNames(classes.img, classes.profileImg)}
     />

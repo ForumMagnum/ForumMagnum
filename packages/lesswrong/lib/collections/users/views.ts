@@ -22,7 +22,8 @@ declare global {
     slug?: string,
     lng?: number
     lat?: number,
-    profileTagId?: string
+    profileTagId?: string,
+    hasBio?: boolean
   }
 }
 
@@ -155,9 +156,17 @@ Users.addView("usersMapLocations", function () {
 ensureIndex(Users, {mapLocationSet: 1})
 
 Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
+  const bioSelector = terms.hasBio ? {
+    $and: [
+      {'biography.html': {$exists: true}},
+      {'biography.html': {$ne: ''}}
+    ]
+  } : {}
+  
   return {
     selector: {
-      profileTagIds: terms.profileTagId
+      profileTagIds: terms.profileTagId,
+      ...bioSelector
     },
     options: {
       sort: {

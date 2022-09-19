@@ -45,7 +45,11 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
     // Resolver-only field?
     if (fieldSchema.resolveAs && !fieldSchema.resolveAs.addOriginalField) {
       // HACK: Special case for make_editable
-      if (schema[fieldName].resolveAs?.type !== "Revision") {
+      // We also need to generate for the originalContents field on the actual Revision schema, which has type ContentType.
+      // That one has a custom resolver to manage a permissions issue which would otherwise require refactoring permission functions to be async...
+      // ...but it's not actually a resolver-only field.
+      // And we can't use addOriginalField because it gets added twice by `getFields` in initGraphQL, which causes a runtime error.
+      if (fieldSchema.resolveAs.type !== "Revision" && fieldSchema.resolveAs.type !== "ContentType") {
         continue;
       }
     }
