@@ -70,10 +70,16 @@ const PostCollaborationEditor = ({ classes }: {
     return <SingleColumnSection>Sorry, you don't have access to this draft</SingleColumnSection>
   }
   
-  if (loading || !post) {
+  if (loading) {
     return <Loading/>
   }
   
+  if (!post) {
+    // This branch is most commonly expected for users who were shared on the post, 
+    // but whose editing privileged have explicitly been set to "None"
+    return <ErrorAccessDenied/> 
+  }
+
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
   if (canUserEditPost(currentUser, post)) {
