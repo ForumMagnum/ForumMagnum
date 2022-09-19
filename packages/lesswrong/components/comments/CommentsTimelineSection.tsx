@@ -93,7 +93,7 @@ const CommentsTimelineSection = ({
     const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
     const newQuery = {...currentQuery, sortBy: option.value}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
-    captureEvent("subforumSortingChanges", {oldSorting: currentQuery.sortBy, newSorting: option.value})
+    captureEvent("subforumSortingChanged", {oldSorting: currentQuery.sortBy, newSorting: option.value})
   };
 
   useEffect(() => {
