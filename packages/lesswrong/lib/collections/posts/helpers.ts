@@ -196,7 +196,7 @@ export const canUserEditPost = (currentUser: UsersCurrent|DbUser|null, post: Pos
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
-  if (post.shareWithUsers.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
+  if (post.shareWithUsers?.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
 
   return false
 }
