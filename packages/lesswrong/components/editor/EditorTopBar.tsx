@@ -81,6 +81,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  tooltipWrapped: {
+    marginRight: 16
+  }
 });
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
@@ -108,13 +111,14 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
         <MenuItem value="Viewing" key="Viewing">
           Viewing
         </MenuItem>
-        <LWTooltip inlineBlock={false} placement="left" title="To suggest changes, you must be in edit mode">
-          <MenuItem value="Commenting" key="Commenting"
-            disabled={!accessLevelCan(accessLevel, "comment")}
-          >
-            Commenting
-          </MenuItem>
-        </LWTooltip>
+        <MenuItem value="Commenting" key="Commenting"
+          disabled={!accessLevelCan(accessLevel, "comment")}
+        >
+          {/* TODO: Figure out how to wrap tooltip properly around MenuItem without breaking select */}
+          <LWTooltip placement="right" title="To suggest changes, you must be in edit mode">
+            <div className={classes.tooltipWrapped}>Commenting</div>
+          </LWTooltip>
+        </MenuItem>
         <MenuItem value="Editing" key="Editing"
           disabled={!accessLevelCan(accessLevel, "edit")}
         >
