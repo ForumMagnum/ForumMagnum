@@ -260,6 +260,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
+    },{
+      id: 'subforumList',
+      customComponentName: "SubforumList",
     }, {
       id: 'library',
       title: 'Library',
