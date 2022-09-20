@@ -60,15 +60,15 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value);
 
-  const syncPodcastEpisodeId = (id: string) => {
+  const syncPodcastEpisodeId = useCallback((id: string) => {
     setPodcastEpisodeId(id);
     updateCurrentValues({
       [path]: id
     });
-  };
+  }, [path, updateCurrentValues]);
 
-  const debouncedRefetchPodcastEpisode = useCallback(
-    debounce(async () => await refetchPodcastEpisode(), 300),
+  const debouncedRefetchPodcastEpisode = useMemo(
+    () => debounce(async () => await refetchPodcastEpisode(), 300),
     [refetchPodcastEpisode]
   );
 
@@ -82,7 +82,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   const [podcastId, setPodcastId] = useState(podcasts[0]?._id ?? '');
 
   const [episodeTitle, setEpisodeTitle] = useState(postTitle);
-  const [episodeLink, setEpisodeLink] = useState('');
+  const [episodeLink, setEpisodeLink] = useState(existingPodcastEpisode?.episodeLink ?? '');
 
   const [validEpisodeLink, setValidEpisodeLink] = useState(true);
 
@@ -146,9 +146,11 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
       syncPodcastEpisodeId(existingPodcastEpisode._id);
       setExternalEpisodeId(existingPodcastEpisode.externalEpisodeId);
       setPodcastId(existingPodcastEpisode.podcastId);
+      // We don't want to prevent a user's changes to the episode link even if we already have one
+      setEpisodeLink(episodeLink || existingPodcastEpisode.episodeLink);
       setEpisodeTitle(existingPodcastEpisode.title);
     }
-  }, [existingPodcastEpisode, episodeLink]);
+  }, [existingPodcastEpisode, episodeLink, syncPodcastEpisodeId]);
 
   return (
     loading
