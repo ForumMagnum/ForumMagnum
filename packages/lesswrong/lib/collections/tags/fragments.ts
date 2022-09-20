@@ -28,6 +28,10 @@ registerFragment(`
     reviewedByUserId
     wikiGrade
     isSubforum
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
