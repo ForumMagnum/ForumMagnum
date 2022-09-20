@@ -167,6 +167,7 @@ import './collections/votes';
 // Spotlights
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';
+import './collections/spotlights/permissions';
 
 // Internationalization
 import './i18n-en-us/en_US';

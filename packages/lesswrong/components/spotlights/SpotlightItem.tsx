@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -8,6 +8,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import {useTracking} from "../../lib/analyticsEvents";
+import { userCanDo } from '../../lib/vulcan-users';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { useCurrentUser } from '../common/withUser';
+import EditIcon from '@material-ui/icons/Edit';
 
 type SpotlightDocType = "Sequence"|"Collection"|"Post"
 
@@ -30,9 +34,14 @@ export interface SpotlightContent {
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
-    overflow: "hidden",
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
+    },
+    '& $editButtonIcon': {
+      opacity: 0
+    },
+    '&:hover  $editButtonIcon': {
+      opacity:.2
     }
   },
   linkCard: {
@@ -57,6 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 35,
     paddingBottom: 0,
     display: "flex",
+    overflow: "hidden",
     flexDirection: "column",
     justifyContent: "space-between",
     marginRight: 150,
@@ -114,6 +124,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& a': {
       color: theme.palette.primary.main
     }
+  },
+  editButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      bottom: 6,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      bottom: 4,
+      right: 8
+    },
+  },
+  editButtonIcon: {
+    width: 20,
+    opacity: 0,
+    [theme.breakpoints.down('sm')]: {
+      color: "white",
+      width: 16,
+      opacity:.2
+    },
+    '&:hover': {
+      opacity: .5
+    }
   }
 });
 
@@ -136,6 +170,10 @@ export const SpotlightItem = ({classes, spotlight}: {
 }) => {
   const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle} = Components
   
+  const currentUser = useCurrentUser()
+
+  const [edit, setEdit] = useState<boolean>(false)
+
   const { captureEvent } = useTracking()
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
   
@@ -178,11 +216,16 @@ export const SpotlightItem = ({classes, spotlight}: {
           <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
         </LWTooltip>
         </div>} */}
-        <Tooltip title="Hide this item for the next month">
+        <LWTooltip title="Hide this item for the next month" placement="right">
           <Button className={classes.closeButton} onClick={hideBanner}>
             <CloseIcon className={classes.closeIcon} />
           </Button>
-        </Tooltip>
+        </LWTooltip>
+        <div className={classes.editButton}>
+          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+            <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
+          </LWTooltip>}
+        </div>
       </LinkCard>
     </div>
   </AnalyticsTracker>
