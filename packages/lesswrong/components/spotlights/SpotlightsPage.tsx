@@ -30,7 +30,7 @@ export const SpotlightsPage = ({classes}: {
       {loading
         ? <Loading />
         : spotlights.map(spotlight => {
-          return <SpotlightItem spotlight={spotlight}/>
+          return <SpotlightItem key={spotlight._id} spotlight={spotlight}/>
         })
       }
     </SingleColumnSection>
