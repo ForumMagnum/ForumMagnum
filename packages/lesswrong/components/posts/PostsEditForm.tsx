@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
@@ -93,7 +93,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <Components.ErrorAccessDenied/>
   }
 
-  if (document?.fmCrosspost?.isCrosspost && !document?.fmCrosspost?.hostedHere) {
+  if (isNotHostedHere(document)) {
     return <ForeignCrosspostEditForm post={document} />;
   }
   
