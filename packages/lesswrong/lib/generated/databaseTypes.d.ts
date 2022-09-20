@@ -663,7 +663,7 @@ interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights">
 interface DbSpotlight extends DbObject {
   __collectionName?: "Spotlights"
   documentId: string
-  documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/
+  documentType: SpotlightDocumentType
   spotlightImageId: string
   createdAt: Date
   description: EditableFieldContents

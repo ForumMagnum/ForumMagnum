@@ -4,6 +4,6 @@ export const formGroups = {
     name: "spotlight",
     order: 0,
     paddingStyle: true,
-    label: "New Spotlight"
+    label: "Spotlight"
   },
 };

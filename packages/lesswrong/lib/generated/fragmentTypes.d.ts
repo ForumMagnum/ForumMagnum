@@ -2597,14 +2597,35 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 
 interface SpotlightDisplay { // fragment on Spotlights
   readonly _id: string,
-  readonly document: any /*SpotlightDocumentType*/,
+  readonly document: SpotlightDisplay_document,
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly description: SpotlightDisplay_description|null,
   readonly spotlightImageId: string,
+  readonly firstPost: SpotlightDisplay_firstPost|null,
+}
+
+interface SpotlightDisplay_document { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions
   readonly html: string,
+}
+
+interface SpotlightDisplay_firstPost { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly url: string,
+}
+
+interface SpotlightEditQueryFragment { // fragment on Spotlights
+  readonly _id: string,
+  readonly documentId: string,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly description: RevisionEdit|null,
+  readonly spotlightImageId: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -2775,6 +2796,7 @@ interface FragmentTypes {
   UserVotes: UserVotes
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightDisplay: SpotlightDisplay
+  SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -2935,6 +2957,7 @@ interface CollectionNamesByFragmentName {
   UserVotes: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightDisplay: "Spotlights"
+  SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"
 }
 

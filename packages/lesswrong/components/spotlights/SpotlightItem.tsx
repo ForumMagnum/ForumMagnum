@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
@@ -12,6 +12,7 @@ import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { useCurrentUser } from '../common/withUser';
 import EditIcon from '@material-ui/icons/Edit';
+import Spotlights from '../../lib/collections/spotlights/collection';
 
 type SpotlightDocType = "Sequence"|"Collection"|"Post"
 
@@ -162,38 +163,20 @@ const getUrlFromDocument = (document: SpotlightContent['document'], documentType
   }
 }
 
-const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 
-export const SpotlightItem = ({classes, spotlight}: {
+export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   spotlight: SpotlightDisplay,
+  hideBanner?: () => void,
   classes: ClassesType,
 }) => {
-  const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle} = Components
+  const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm } = Components
   
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
 
-  const { captureEvent } = useTracking()
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
   
-  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${spotlight.document._id}`; //hiding in one place, hides everywhere
-  const [cookies, setCookie] = useCookies([cookieName]);
-  
-  const hideBanner = () => {
-    setCookie(
-      cookieName,
-      "true", {
-        expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
-        path: "/"
-      });
-    captureEvent("spotlightItemHideItemClicked", { document: spotlight.document})
-  }
-  
-  if (cookies[cookieName]) {
-    return null;
-  }
-
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
       <LinkCard to={url} className={classes.linkCard}>
@@ -211,22 +194,31 @@ export const SpotlightItem = ({classes, spotlight}: {
         <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>
-        {/* {spotlight.firstPost && <div className={classes.firstPost}>
+        {spotlight.firstPost && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
           <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
         </LWTooltip>
-        </div>} */}
-        <LWTooltip title="Hide this item for the next month" placement="right">
+        </div>}
+        {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
           <Button className={classes.closeButton} onClick={hideBanner}>
             <CloseIcon className={classes.closeIcon} />
           </Button>
-        </LWTooltip>
+        </LWTooltip>}
         <div className={classes.editButton}>
           {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
       </LinkCard>
+      {edit &&
+        <WrappedSmartForm
+          collection={Spotlights}
+          documentId={spotlight._id}
+          mutationFragment={getFragment('SpotlightEditQueryFragment')}
+          queryFragment={getFragment('SpotlightEditQueryFragment')}
+          successCallback={() => setEdit(false)}
+        />
+      }
     </div>
   </AnalyticsTracker>
 }
