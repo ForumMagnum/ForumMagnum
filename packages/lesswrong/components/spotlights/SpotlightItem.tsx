@@ -14,10 +14,8 @@ import { useCurrentUser } from '../common/withUser';
 import EditIcon from '@material-ui/icons/Edit';
 import Spotlights from '../../lib/collections/spotlights/collection';
 
-type SpotlightDocType = "Sequence"|"Collection"|"Post"
-
 export interface SpotlightContent {
-  documentType: SpotlightDocType,
+  documentType: SpotlightDocumentType,
   document: {
     _id?: string,
     title: string,
@@ -152,7 +150,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getUrlFromDocument = (document: SpotlightContent['document'], documentType: SpotlightDocType) => {
+const getUrlFromDocument = (document: SpotlightContent['document'], documentType: SpotlightDocumentType) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;
