@@ -2063,7 +2063,20 @@ interface PodcastsDefaultFragment { // fragment on Podcasts
   readonly spotifyPodcastLink: string | null,
 }
 
+interface PodcastSelect { // fragment on Podcasts
+  readonly _id: string,
+  readonly title: string,
+}
+
 interface PodcastEpisodesDefaultFragment { // fragment on PodcastEpisodes
+  readonly podcastId: string,
+  readonly title: string,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PodcastEpisodeFull { // fragment on PodcastEpisodes
+  readonly _id: string,
   readonly podcastId: string,
   readonly title: string,
   readonly episodeLink: string,
@@ -2718,7 +2731,9 @@ interface FragmentTypes {
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
+  PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
+  PodcastEpisodeFull: PodcastEpisodeFull
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -2874,7 +2889,9 @@ interface CollectionNamesByFragmentName {
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
+  PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
+  PodcastEpisodeFull: "PodcastEpisodes"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"

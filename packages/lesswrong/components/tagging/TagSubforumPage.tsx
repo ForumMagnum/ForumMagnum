@@ -99,7 +99,6 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           <SubforumCommentsThread
             tag={tag}
             terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
-            newForm
           />
         </AnalyticsContext>
       </SingleColumnSection>

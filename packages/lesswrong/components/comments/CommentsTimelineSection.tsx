@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
@@ -41,6 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
   },
+  joinButton: {
+    marginTop: 37,
+  },
   sortBy: {
     marginLeft: 8,
     marginTop: 14,
@@ -60,11 +64,10 @@ const CommentsTimelineSection = ({
   comments,
   parentAnswerId,
   startThreadTruncated,
-  newForm=true,
   refetch = () => {},
   classes,
 }: {
-  tag?: TagBasicInfo,
+  tag: TagBasicInfo,
   commentCount: number,
   loadMoreCount: number,
   totalComments: number,
@@ -73,14 +76,13 @@ const CommentsTimelineSection = ({
   comments: CommentWithRepliesFragment[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
-  newForm: boolean,
   refetch?: any,
   classes: ClassesType,
 }) => {
   const { history } = useNavigation();
-  const location = useLocation();
-  const { query } = location;
+  const { location, query } = useLocation();
   const { captureEvent } = useTracking()
+  const currentUser = useCurrentUser();
 
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
@@ -92,23 +94,24 @@ const CommentsTimelineSection = ({
   const handleSortingSelect = (option: Option) => {
     const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
     const newQuery = {...currentQuery, sortBy: option.value}
-    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+    history.push({...location, search: `?${qs.stringify(newQuery)}`})
     captureEvent("subforumSortingChanged", {oldSorting: currentQuery.sortBy, newSorting: option.value})
   };
+  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
 
   useEffect(() => {
     recalculateTopAbsolutePosition()
     window.addEventListener('resize', recalculateTopAbsolutePosition)
     return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
+
   const recalculateTopAbsolutePosition = () => {
     if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
   }
   
-  const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography} = Components
+  const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
 
   return (
     <div
@@ -132,7 +135,7 @@ const CommentsTimelineSection = ({
         loadingMoreComments={loadingMoreComments}
       />
       {/* TODO add permissions check here */}
-      {newForm && (
+      {isSubscribed ? (
         <>
           <Typography
           variant="body2"
@@ -141,20 +144,26 @@ const CommentsTimelineSection = ({
             <span>Sorted by <InlineSelect options={sortOptions} selected={selectedSorting} handleSelect={handleSortingSelect} /></span>
           </Typography>
           <div id="posts-thread-new-comment" className={classes.newComment}>
-          <CommentsNewForm
-            tag={tag}
-            tagCommentType={TagCommentType.Subforum}
-            prefilledProps={{
-              parentAnswerId: parentAnswerId,
-            }}
-            formProps={{
-              editorHintText: `Message...`,
-            }}
-            successCallback={refetch}
-            type="comment"
-            enableGuidelines={false}
-            displayMode="minimalist" />
-        </div></>
+            <CommentsNewForm
+              tag={tag}
+              tagCommentType={TagCommentType.Subforum}
+              prefilledProps={{
+                parentAnswerId: parentAnswerId,
+              }}
+              formProps={{
+                editorHintText: `Message...`,
+              }}
+              successCallback={refetch}
+              type="comment"
+              enableGuidelines={false}
+              displayMode="minimalist" />
+          </div>
+        </>
+      ) : (
+        <SubforumSubscribeSection
+          tag={tag}
+          className={classNames(classes.newComment, classes.joinButton)}
+        />
       )}
     </div>
   );
@@ -167,4 +176,3 @@ declare global {
     CommentsTimelineSection: typeof CommentsTimelineSectionComponent,
   }
 }
-

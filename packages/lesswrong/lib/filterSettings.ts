@@ -171,6 +171,8 @@ export const useFilterSettings = () => {
   }
 }
 
+export const filterModeIsSubscribed = (filterMode: FilterMode) => filterMode === "Subscribed" || filterMode >= 25
+
 /**
  * A simple wrapper on top of useFilterSettings focused on a single tag
  * subscription

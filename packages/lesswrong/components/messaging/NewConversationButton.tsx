@@ -23,7 +23,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
   const { history } = useNavigation();
   const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
-    collection: Conversations,
+    collectionName: 'Conversations',
     fragmentName: 'newConversationFragment',
   });
   
@@ -43,21 +43,21 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     skip: !currentUser
   });
   
-  const newConversation = useCallback(async (search) =>  {
+  const newConversation = useCallback(async (search, initiatingUser: UsersCurrent) =>  {
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
     let baseData = {
-      participantIds:[user._id, currentUser?._id], 
+      participantIds:[user._id, initiatingUser._id], 
       ...alignmentFields
     }
     const data = includeModerators ? { moderator: true, ...baseData} : {...baseData}
 
     const response = await createConversation({data})
-    const conversationId = response.data.createConversation.data._id
+    const conversationId = response.data?.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, currentUser, history, includeModerators]);
+  }, [createConversation, user, history, includeModerators]);
 
-  const existingConversationCheck = () => {
+  const existingConversationCheck = (initiatingUser: UsersCurrent) => () => {
     let searchParams: Array<string> = []
     if (templateCommentId) {
       searchParams.push(qs.stringify({templateCommentId: templateCommentId}))
@@ -71,7 +71,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
       history.push({pathname: `/inbox/${conversation._id}`, ...search})
       return
     }
-    void newConversation(search);
+    void newConversation(search, initiatingUser);
   }
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
@@ -83,7 +83,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     </div>
   
   return (
-    <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>
+    <div onClick={currentUser ? existingConversationCheck(currentUser) : () => openDialog({componentName: "LoginPopup"})}>
       {children}
     </div>
   )
