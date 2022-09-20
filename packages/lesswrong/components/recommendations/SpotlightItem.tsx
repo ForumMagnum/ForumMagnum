@@ -94,10 +94,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: "1.2em"
   },
   image: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    height: "100%",
+    '& img': {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      height: "100%",  
+    }
   },
   firstPost: {
     ...theme.typography.body2,
@@ -115,7 +117,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getUrlFromDocument = (document: any, documentType: SpotlightDocType) => {
+const getUrlFromDocument = (document: SpotlightContent['document'], documentType: SpotlightDocType) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;
@@ -128,16 +130,16 @@ const getUrlFromDocument = (document: any, documentType: SpotlightDocType) => {
 
 const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 
-export const SpotlightItem = ({classes, content}: {
-  content: SpotlightContent,
+export const SpotlightItem = ({classes, spotlight}: {
+  spotlight: SpotlightDisplay,
   classes: ClassesType,
 }) => {
-  const { AnalyticsTracker, LinkCard, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle} = Components
+  const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle} = Components
   
   const { captureEvent } = useTracking()
-  const url = getUrlFromDocument(content.document, content.documentType)
+  const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
   
-  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${content.document._id}`; //hiding in one place, hides everywhere
+  const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${spotlight.document._id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookies([cookieName]);
   
   const hideBanner = () => {
@@ -147,7 +149,7 @@ export const SpotlightItem = ({classes, content}: {
         expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
         path: "/"
       });
-    captureEvent("spotlightItemHideItemClicked", { document: content.document})
+    captureEvent("spotlightItemHideItemClicked", { document: spotlight.document})
   }
   
   if (cookies[cookieName]) {
@@ -159,21 +161,23 @@ export const SpotlightItem = ({classes, content}: {
       <LinkCard to={url} className={classes.linkCard}>
         <div className={classes.content}>
           <Link to={url} className={classes.title}>
-            {content.document.title}
+            {spotlight.document.title}
           </Link>
           <div className={classes.description}>
             <ContentItemBody
-              dangerouslySetInnerHTML={{__html: content.description}}
-              description={`${content.documentType} ${content.document._id}`}
+              dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+              description={`${spotlight.documentType} ${spotlight.document._id}`}
             />
           </div>
         </div>
-        {content.imageUrl && <img src={content.imageUrl} className={classes.image}/>}
-        {content.firstPost && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
-          <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
+        <div className={classes.image}>
+          <CloudinaryImage publicId={spotlight.spotlightImageId} />
+        </div>
+        {/* {spotlight.firstPost && <div className={classes.firstPost}>
+          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
+          <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
         </LWTooltip>
-        </div>}
+        </div>} */}
         <Tooltip title="Hide this item for the next month">
           <Button className={classes.closeButton} onClick={hideBanner}>
             <CloseIcon className={classes.closeIcon} />

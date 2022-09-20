@@ -664,6 +664,8 @@ importComponent("RecommendationsPageCuratedList", () => require('../components/r
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 importComponent("SpotlightItem", () => require('../components/recommendations/SpotlightItem'));
 
+importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
+
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));

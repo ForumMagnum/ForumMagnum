@@ -161,7 +161,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <SpotlightItem content={multiagentmodels} />
+          <SpotlightItem spotlight={multiagentmodels} />
         </AnalyticsContext>}
   
         {/*Delete after the dust has settled on other Recommendations stuff*/}

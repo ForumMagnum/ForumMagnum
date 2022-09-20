@@ -941,6 +941,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'SpotlightsPage',
+      path: '/spotlights',
+      componentName: 'SpotlightsPage',
+      title: 'Spotlights Page'
+    }
   ],
   AlignmentForum: [
     {

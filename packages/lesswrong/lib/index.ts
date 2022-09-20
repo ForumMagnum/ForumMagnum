@@ -164,6 +164,10 @@ import './collections/featuredResources/fragments'
 // Votes
 import './collections/votes';
 
+// Spotlights
+import './collections/spotlights/collection';
+import './collections/spotlights/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
