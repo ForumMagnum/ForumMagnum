@@ -7,10 +7,11 @@ import qs from 'qs'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({classes, terms, currentUser}: {
+const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations"}: {
   classes: ClassesType,
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
+  title?: String
 }) => {
   const location = useLocation();
   const { query } = location;
@@ -44,7 +45,7 @@ const InboxNavigation = ({classes, terms, currentUser}: {
 
   return (
     <SingleColumnSection>
-        <SectionTitle title="Your Conversations">
+        <SectionTitle title={title}>
           <SectionFooterCheckbox
             onClick={expandCheckboxClick}
             value={expanded}

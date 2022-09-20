@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export type Advisor = {
   profileImageId: string,
   name: string,
-  slug: string,
+  slug?: string,
   jobTitle: string,
   organization: string,
   location: string,
@@ -92,8 +92,8 @@ const AdvisorCard = ({user, classes}: {
   classes: ClassesType,
 }) => {
   const { CloudinaryImage2, ContentStyles, Typography } = Components
-
-  return <div className={classes.root}>
+  
+  const photoAndName = user.slug ? <>
     <Link to={`/users/${user.slug}?from=advisors_page_advisor`} className={classes.photoLink}>
       <CloudinaryImage2
         imgProps={{q: '100', w: '150', h: '150'}}
@@ -104,6 +104,19 @@ const AdvisorCard = ({user, classes}: {
     <Typography variant="headline" className={classes.name}>
       <Link to={`/users/${user.slug}?from=advisors_page_advisor`}>{user.name}</Link>
     </Typography>
+  </> : <>
+    <CloudinaryImage2
+      imgProps={{q: '100', w: '150', h: '150'}}
+      publicId={user.profileImageId}
+      className={classes.profileImage}
+    />
+    <Typography variant="headline" className={classes.name}>
+      {user.name}
+    </Typography>
+  </>
+
+  return <div className={classes.root}>
+    {photoAndName}
     <div className={classes.role}>
       {user.jobTitle} @ {user.organization}
     </div>

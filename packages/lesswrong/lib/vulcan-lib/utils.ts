@@ -228,7 +228,7 @@ export const decodeIntlError = (error, options = {stripped: false}) => {
   }
 };
 
-export const isPromise = (value: any): boolean => isFunction(get(value, 'then'));
+export const isPromise = (value: any): value is Promise<any> => isFunction(get(value, 'then'));
 
 export const removeProperty = (obj: any, propertyName: string): void => {
   for(const prop in obj) {

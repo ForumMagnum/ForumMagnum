@@ -43,6 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 380,
   },
   title: {
+    textTransform: "capitalize",
     marginLeft: 24,
     marginBottom: 10,
   },
@@ -96,7 +97,6 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           <SubforumCommentsThread
             tag={tag}
             terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy: "new" }}
-            newForm
           />
         </AnalyticsContext>
       </SingleColumnSection>

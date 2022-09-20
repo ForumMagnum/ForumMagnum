@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
@@ -46,11 +44,10 @@ const CommentsTimelineSection = ({
   comments,
   parentAnswerId,
   startThreadTruncated,
-  newForm=true,
   refetch = () => {},
   classes,
 }: {
-  tag?: TagBasicInfo,
+  tag: TagBasicInfo,
   commentCount: number,
   loadMoreCount: number,
   totalComments: number,
@@ -59,23 +56,25 @@ const CommentsTimelineSection = ({
   comments: CommentWithRepliesFragment[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
-  newForm: boolean,
   refetch?: any,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  
+  const { SubforumSubscribeSection, CommentsNewForm } = Components;
+
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
-  
+
+  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
+
   useEffect(() => {
     recalculateTopAbsolutePosition()
     window.addEventListener('resize', recalculateTopAbsolutePosition)
     return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
+
   const recalculateTopAbsolutePosition = () => {
     if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
       setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
@@ -104,9 +103,9 @@ const CommentsTimelineSection = ({
       />
       {/* TODO add permissions check here */}
       {/* TODO add sorting here */}
-      {newForm && (
+      {isSubscribed ? (
         <div id="posts-thread-new-comment" className={classes.newComment}>
-          <Components.CommentsNewForm
+          <CommentsNewForm
             tag={tag}
             tagCommentType={TagCommentType.Subforum}
             prefilledProps={{
@@ -121,6 +120,11 @@ const CommentsTimelineSection = ({
             displayMode="minimalist"
           />
         </div>
+      ) : (
+        <SubforumSubscribeSection
+          tag={tag}
+          className={classes.newComment}
+        />
       )}
     </div>
   );
@@ -133,4 +137,3 @@ declare global {
     CommentsTimelineSection: typeof CommentsTimelineSectionComponent,
   }
 }
-

@@ -115,7 +115,6 @@ interface DbComment extends DbObject {
   promotedByUserId: string
   promotedAt: Date
   hideKarma: boolean
-  createdAt: Date
   legacy: boolean
   legacyId: string
   legacyPoll: boolean
@@ -133,12 +132,6 @@ interface DbComment extends DbObject {
   hideAuthor: boolean
   moderatorHat: boolean
   isPinnedOnProfile: boolean
-  contents: EditableFieldContents
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   af: boolean
   afBaseScore: number
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -146,6 +139,13 @@ interface DbComment extends DbObject {
   reviewForAlignmentUserId: string
   afDate: Date
   moveToAlignmentUserId: string
+  createdAt: Date
+  contents: EditableFieldContents
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
 }
 
 interface ConversationsCollection extends CollectionBase<DbConversation, "Conversations"> {
@@ -158,6 +158,7 @@ interface DbConversation extends DbObject {
   latestActivity: Date
   af: boolean
   messageCount: number
+  moderator: boolean | null
   archivedByIds: Array<string>
   createdAt: Date
 }
@@ -444,12 +445,6 @@ interface DbPost extends DbObject {
   onlyVisibleToEstablishedAccounts: boolean
   votingSystem: string
   podcastEpisodeId: string | null
-  createdAt: Date
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -527,10 +522,6 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
-  contents: EditableFieldContents
-  pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines: EditableFieldContents
-  customHighlight: EditableFieldContents
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -540,6 +531,16 @@ interface DbPost extends DbObject {
   afSticky: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
+  createdAt: Date
+  contents: EditableFieldContents
+  pingbacks: any /*{"definitions":[{}]}*/
+  moderationGuidelines: EditableFieldContents
+  customHighlight: EditableFieldContents
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
 }
 
 interface RSSFeedsCollection extends CollectionBase<DbRSSFeed, "RSSFeeds"> {
@@ -651,9 +652,9 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  af: boolean
   contents: EditableFieldContents
   createdAt: Date
-  af: boolean
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
@@ -737,10 +738,10 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   isSubforum: boolean
+  parentTagId: string
   createdAt: Date
   description: EditableFieldContents
   subforumWelcomeText: EditableFieldContents
-  parentTagId: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -995,11 +996,18 @@ interface DbUser extends DbObject {
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
+  afPostCount: number
+  afCommentCount: number
+  afSequenceCount: number
+  afSequenceDraftCount: number
+  reviewForAlignmentForumUserId: string
+  afApplicationText: string
+  afSubmittedApplication: boolean
+  createdAt: Date
   moderationGuidelines: EditableFieldContents
   howOthersCanHelpMe: EditableFieldContents
   howICanHelpOthers: EditableFieldContents
   biography: EditableFieldContents
-  createdAt: Date
   recommendationSettings: {
     frontpage: {
       method: string,
@@ -1032,13 +1040,6 @@ interface DbUser extends DbObject {
       onlyUnread: boolean,
     },
   }
-  afPostCount: number
-  afCommentCount: number
-  afSequenceCount: number
-  afSequenceDraftCount: number
-  reviewForAlignmentForumUserId: string
-  afApplicationText: string
-  afSubmittedApplication: boolean
 }
 
 interface VotesCollection extends CollectionBase<DbVote, "Votes"> {
