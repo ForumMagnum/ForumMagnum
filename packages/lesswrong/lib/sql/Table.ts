@@ -34,6 +34,10 @@ class Table {
     return this.indexes.some((index) => index.equals(fields, options));
   }
 
+  getIndex(fields: string[], options?: MongoEnsureIndexOptions) {
+    return this.indexes.find((index) => index.equals(fields, options));
+  }
+
   getIndexes() {
     return this.indexes;
   }

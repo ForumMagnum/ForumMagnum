@@ -1183,9 +1183,7 @@ ensureIndex(Posts,
 ensureIndex(Posts, {userId:1, createdAt:-1});
 
 // Used in routes
-if (forumTypeSetting.get() !== "EAForum") {
-  ensureIndex(Posts, {agentFoundationsId: "hashed"});
-}
+ensureIndex(Posts, {agentFoundationsId: "hashed"});
 
 // Used in checkScheduledPosts cronjob
 ensureIndex(Posts, {isFuture:1, postedAt:1});

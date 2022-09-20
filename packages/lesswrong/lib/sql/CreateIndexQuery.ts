@@ -12,14 +12,17 @@ import TableIndex from "./TableIndex";
  * ordinarily wouldn't be allowed.
  */
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
+  private isUnique: boolean;
+
   constructor(table: Table, index: TableIndex, ifNotExists = true) {
     super(table, [
-      `CREATE INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
+      `CREATE ${index.isUnique() ? "UNIQUE " : ""}INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
       `"${index.getName()}"`,
       "ON",
       table,
       "USING",
     ]);
+    this.isUnique = index.isUnique();
     const {useGin, fields} = this.getFieldList(index);
     this.atoms = this.atoms.concat([useGin ? "gin (" : "btree (", ...fields, ")"]);
   }
@@ -33,11 +36,23 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     };
   }
 
+  /**
+   * In mongo, indexes consider nulls to be distinct so trying to, for instance, insert
+   * a duplicate null during an upsert will trigger an update instead of an insert.
+   * Postgres on the other hand considers nulls to not be distinct, so in the example
+   * above we'd get an insert instead of an update. This is fixed in Postgres 15 where
+   * you can create a constraint with 'UNIQUE NULLS NOT DISTINCT', but PG 15 is still in
+   * beta (it would also be an awkward special case for us to use a constraint for this
+   * instead of an index). A simple workaround is to simply coalesce where needed.
+   */
   private fieldNameToIndexField(fieldName: string) {
+    const type = this.table.getField(fieldName);
+    const coalesceValue = type?.getIndexCoalesceValue();
     const tokens = fieldName.split(".");
+    const name = `"${tokens[0]}"`;
     return {
       useGin: tokens.length > 1,
-      field: `"${tokens[0]}"`,
+      field: coalesceValue && this.isUnique ? `COALESCE(${name}, ${coalesceValue})` : name,
     };
   }
 }

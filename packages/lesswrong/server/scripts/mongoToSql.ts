@@ -23,6 +23,11 @@ const formatters = {
 
 const showArray = <T>(array: T[]) => util.inspect(array, {maxArrayLength: null});
 
+/**
+ * When importing large amounts of data, you can get a decent speed boost by running
+ * `SET LOCAL synchronous_commit TO OFF` before this script. This is dangerous though,
+ * and be sure to switch it back on afterwards.
+ */
 Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   console.log(`=== Migrating collection '${collectionName}' from Mongo to Postgres ===`);
 
@@ -53,6 +58,8 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     console.log(table);
     throw e;
   }
+
+  sql`ALTER TABLE ${sql(table.getName())} SET UNLOGGED`;
 
   console.log("...Creating indexes");
   const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
@@ -89,6 +96,8 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
       }
     },
   });
+
+  sql`ALTER TABLE ${sql(table.getName())} SET LOGGED`;
 
   if (errorIds.length) {
     console.log(`...${errorIds.length} import errors:`, errorIds);

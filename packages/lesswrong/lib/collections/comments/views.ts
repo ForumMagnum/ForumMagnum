@@ -349,9 +349,7 @@ ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 ensureIndex(Comments, {topLevelCommentId:1});
 
 // Used in findCommentByLegacyAFId
-if (forumTypeSetting.get() !== "EAForum") {
-  ensureIndex(Comments, {agentFoundationsId:1});
-}
+ensureIndex(Comments, {agentFoundationsId:1});
 
 Comments.addView('topShortform', (terms: CommentsViewTerms) => {
   const timeRange = ((terms.before || terms.after)

@@ -82,7 +82,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     let result: Atom<T>[] = ["ON CONFLICT ("];
 
     if (selector) {
-      result.push(Object.keys(selector).map((field) => this.resolveFieldName(field)).join(","));
+      result.push(Object.keys(selector).map((field) => this.getConflictField(field)).join(","));
     } else {
       result.push("_id");
     }
@@ -93,12 +93,16 @@ class InsertQuery<T extends DbObject> extends Query<T> {
       .flatMap((key) => key === "_id" ? [] : [",", `"${key}" =`, this.createArg(data[key])])
       .slice(1));
 
-    if (selector) {
-      result.push("WHERE");
-      result = result.concat(this.compileSelector(selector));
-    }
-
     return result;
+  }
+
+  private getConflictField(fieldName: string): string {
+    const resolved = this.resolveFieldName(fieldName);
+    const type = this.table.getField(fieldName);
+    const coalesceValue = type.getIndexCoalesceValue();
+    return coalesceValue
+      ? `COALESCE(${resolved}, ${coalesceValue})`
+      : resolved;
   }
 }
 

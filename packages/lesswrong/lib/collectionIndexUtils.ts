@@ -1,7 +1,13 @@
 import * as _ from 'underscore';
 import { isServer, isAnyTest } from './executionEnvironment';
 
-export const expectedIndexes: Partial<Record<CollectionNameString,Array<any>>> = {};
+export type IndexDefinition = {
+  key: Record<string, 1>,
+  partialFilterExpression?: Record<string, any>,
+  unique?: boolean,
+}
+
+export const expectedIndexes: Partial<Record<CollectionNameString, Array<IndexDefinition>>> = {};
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
@@ -40,6 +46,13 @@ async function conflictingIndexExists<T extends DbObject>(collection: Collection
 
 export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}): void
 {
+  if (!expectedIndexes[collection.collectionName])
+    expectedIndexes[collection.collectionName] = [];
+  expectedIndexes[collection.collectionName]!.push({
+    key: index,
+    partialFilterExpression: options.partialFilterExpression,
+    unique: options.unique,
+  });
   void ensureIndexAsync(collection, index, options);
 }
 
@@ -59,13 +72,6 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
         
         const mergedOptions = {background: true, ...options};
         collection._ensureIndex(index, mergedOptions);
-        
-        if (!expectedIndexes[collection.collectionName])
-          expectedIndexes[collection.collectionName] = [];
-        expectedIndexes[collection.collectionName]!.push({
-          key: index,
-          partialFilterExpression: options.partialFilterExpression,
-        });
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);

@@ -227,8 +227,8 @@ describe("Query", () => {
         {},
         {conflictStrategy: "upsert", upsertSelector: {b: "test2"}},
       ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( "b" ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8 WHERE "b" = $9',
-      expectedArgs: ["abc", 3, "test", null, 1, 3, "test", 1, "test2"],
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( COALESCE("b", \'\') ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8',
+      expectedArgs: ["abc", 3, "test", null, 1, 3, "test", 1],
     },
     {
       name: "can build insert query with multiple items",
@@ -445,6 +445,12 @@ describe("Query", () => {
       name: "can build create index query with json field",
       getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[1]),
       expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_c" ON "TestCollection" USING gin ( "a" , "c" )',
+      expectedArgs: [],
+    },
+    {
+      name: "can build create index query with unique constraint",
+      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[2]),
+      expectedSql: 'CREATE UNIQUE INDEX IF NOT EXISTS "idx_TestCollection_a_b" ON "TestCollection" USING btree ( "a" , COALESCE("b", \'\') )',
       expectedArgs: [],
     },
     {

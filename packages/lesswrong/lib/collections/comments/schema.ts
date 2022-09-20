@@ -698,6 +698,15 @@ Object.assign(schema, {
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
   },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
+  },
 });
 
 export default schema;

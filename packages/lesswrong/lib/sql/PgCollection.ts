@@ -1,5 +1,6 @@
 import { MongoCollection } from "../mongoCollection";
 import { randomId } from '../random';
+import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -12,7 +13,6 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import type { RowList, TransformRow } from "postgres";
-import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 
 let executingQueries = 0;
 
@@ -30,7 +30,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   isPostgres() {
     return true;
   }
-  
+
   isConnected() {
     return !!getSqlClient();
   }
@@ -105,12 +105,25 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
-    if (!data._id) {
-      data._id = randomId();
-    }
+    data._id = data._id ?? randomId();
     const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeQuery(insert, {data, options});
     return result[0]._id;
+  }
+
+  private async upsert(
+    selector: string | MongoSelector<T>,
+    modifier: MongoModifier<T>,
+    options: MongoUpdateOptions<T> & {upsert: true},
+  ) {
+    const data = modifier.$set ?? modifier as T;
+    data._id = data._id ?? randomId();
+    const upsert = new InsertQuery<T>(this.getTable(), data, options, {
+        conflictStrategy: "upsert",
+        upsertSelector: selector,
+    });
+    const result = await this.executeQuery(upsert, {selector, modifier, options});
+    return result.count;
   }
 
   rawUpdateOne = async (
@@ -118,12 +131,10 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T>,
   ) => {
-    const update = options?.upsert
-      ? new InsertQuery<T>(this.getTable(), modifier.$set ?? modifier as T, options, {
-        conflictStrategy: "upsert",
-        upsertSelector: selector,
-      })
-      : new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
+    if (options?.upsert) {
+      return this.upsert(selector, modifier, options);
+    }
+    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
     const result = await this.executeQuery(update, {selector, modifier, options});
     return result.count;
   }
@@ -146,11 +157,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
 
   _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
     const fields = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
-    if (!this.getTable().hasIndex(fields, options)) {
-      const index = this.getTable().addIndex(fields, options);
-      const query = new CreateIndexQuery(this.getTable(), index);
-      await this.executeQuery(query, {fieldOrSpec, options})
-    }
+    const index = this.table.getIndex(fields, options) ?? this.getTable().addIndex(fields, options);
+    const query = new CreateIndexQuery(this.getTable(), index, true);
+    await this.executeQuery(query, {fieldOrSpec, options})
   }
 
   aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {

@@ -2,6 +2,8 @@ import { Collections } from "../../vulcan-lib/getCollection";
 import PgCollection from "../PgCollection";
 import CreateTableQuery from "../CreateTableQuery";
 import { createSqlConnection } from "../../../server/sqlConnection";
+import { closeSqlClient, setSqlClient } from "../sqlClient";
+import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 
 const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
@@ -19,12 +21,19 @@ const buildTables = async (client: SqlClient) => {
       if (!collection.table) {
         collection.buildPostgresTable();
       }
-      const query = new CreateTableQuery(collection.table);
-      const {sql, args} = query.compile();
+
+      const createTableQuery = new CreateTableQuery(collection.table);
+      const {sql, args} = createTableQuery.compile();
       try {
         await client.unsafe(sql, args);
       } catch (e) {
         throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
+      }
+
+      const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
+      for (const index of rawIndexes) {
+        const {key, ...options} = index;
+        await collection._ensureIndex(key, options);
       }
     }
   }
@@ -35,12 +44,14 @@ export const createTestingSqlClient = async (): Promise<SqlClient> => {
   const dbName = `unittest_${date}_${process.pid}_${process.env.JEST_WORKER_ID}`.toLowerCase();
   const {PG_URL} = process.env;
   if (!PG_URL) {
-    throw new Error("Can't initalize test DB - PG_URL not set");
+    throw new Error("Can't initialize test DB - PG_URL not set");
   }
   let sql = await createSqlConnection(PG_URL);
   await sql`CREATE DATABASE ${sql(dbName)}`;
+  await closeSqlClient(sql);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
+  setSqlClient(sql);
   await buildTables(sql);
   return sql;
 }
@@ -61,7 +72,12 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
   olderThan = new Date(olderThan ?? Date.now());
   for (const database of databases) {
     const {datname} = database;
-    const dateCreated = new Date(datname.split("_").slice(1, 7).join("_").toUpperCase());
+    const tokens = datname.split("_").slice(1, 7);
+    const day = tokens.slice(0, 2);
+    const time = tokens.slice(2, 5);
+    const millis = tokens[5];
+    const dateString = (day.join("-") + "-" + time.join(":") + "." + millis).toUpperCase();
+    const dateCreated = new Date(dateString);
     if (dateCreated < olderThan) {
       await sql`DROP DATABASE ${sql(datname)}`;
     }

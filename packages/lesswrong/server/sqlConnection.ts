@@ -19,7 +19,11 @@ declare global {
   type SqlClient = postgres.Sql<any>;
 }
 
-export const createSqlConnection = async (url: string) => {
+export const createSqlConnection = async (url?: string) => {
+  url = url ?? process.env.PG_URL;
+  if (!url) {
+    throw new Error("PG_URL not configured");
+  }
   const sql = postgres(url, {
     max: MAX_CONNECTIONS,
     onnotice: () => {},

@@ -2381,6 +2381,15 @@ Object.assign(schema, {
     group: formGroups.adminOptions,
     label: "AF Review UserId"
   },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
+  },
 });
 
 export default schema;

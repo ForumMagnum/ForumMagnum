@@ -9,7 +9,7 @@ export const isResolverOnly =
     schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 
 export abstract class Type {
-  abstract toString() : string;
+  abstract toString(): string;
 
   toConcrete(): Type {
     return this;
@@ -17,6 +17,10 @@ export abstract class Type {
 
   isArray(): boolean {
     return false;
+  }
+
+  getIndexCoalesceValue(): string | null {
+    return null;
   }
 
   static fromSchema<T extends DbObject>(
@@ -74,6 +78,10 @@ export class StringType extends Type {
 
   toString() {
     return this.maxLength === undefined ? "TEXT" : `VARCHAR(${this.maxLength})`;
+  }
+
+  getIndexCoalesceValue(): string | null {
+    return "''";
   }
 }
 

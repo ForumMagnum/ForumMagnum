@@ -39,6 +39,7 @@ export const testTable = Table.fromCollection(TestCollection);
 
 testTable.addIndex(["a", "b"]);
 testTable.addIndex(["a", "c.d"]);
+testTable.addIndex(["a", "b"], {unique: true});
 
 export type DbTestObject2 = {
   _id: string,

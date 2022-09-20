@@ -2,8 +2,12 @@ class TableIndex {
   constructor(
     private tableName: string,
     private fields: string[],
-    private options?: MongoEnsureIndexOptions, // TODO: What can options be?
-  ) {}
+    private options?: MongoEnsureIndexOptions,
+  ) {
+    if (options?.partialFilterExpression) {
+      console.warn("partialFilterExpression not supported", tableName, fields, options);
+    }
+  }
 
   getFields() {
     return this.fields;
@@ -31,6 +35,10 @@ class TableIndex {
     };
   }
 
+  isUnique() {
+    return !!this.options?.unique;
+  }
+
   equals(fields: string[], options?: MongoEnsureIndexOptions) {
     if (this.fields.length !== fields.length) {
       return false;
@@ -39,6 +47,12 @@ class TableIndex {
       if (this.fields[i] !== fields[i]) {
         return false;
       }
+    }
+    if (options?.unique !== this.options?.unique) {
+      return false;
+    }
+    if (options?.partialFilterExpression !== this.options?.partialFilterExpression) {
+      return false;
     }
     return true;
   }
