@@ -3,7 +3,7 @@ import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import * as _ from 'underscore';
-import { Option } from '../common/InlineSelect';
+import type { Option } from '../common/InlineSelect';
 
 export const sortingNames = {
   'top': 'top scoring',

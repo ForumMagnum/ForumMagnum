@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 
 type OrderPreservingArrayPolicy = "prepend-new" | "append-new" | "interleave-new" | "no-reorder";
 type IndexType = string | number;

@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeOptions } from './commentTree';
 import { CommentFormDisplayMode } from './CommentsNewForm';
-import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
