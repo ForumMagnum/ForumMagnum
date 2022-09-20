@@ -663,10 +663,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly commitMessage: string,
   readonly userId: string,
   readonly draft: boolean,
-  readonly originalContents: {
-    type: string,
-    data: string,
-  },
+  readonly originalContents: any /*ContentType*/,
   readonly html: string,
   readonly markdown: string,
   readonly draftJS: any,
@@ -1253,10 +1250,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly updateType: "initial" | "patch" | "minor" | "major",
   readonly editedAt: Date,
   readonly userId: string,
-  readonly originalContents: {
-    type: string,
-    data: string,
-  },
+  readonly originalContents: any,
   readonly html: string,
   readonly markdown: string,
   readonly draftJS: any,
@@ -1856,6 +1850,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly isSubforum: boolean,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
@@ -1995,7 +1990,7 @@ interface TagFullContributorsList { // fragment on Tags
   readonly contributors: any,
 }
 
-interface TagEditFragment extends TagBasicInfo { // fragment on Tags
+interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
@@ -2068,7 +2063,20 @@ interface PodcastsDefaultFragment { // fragment on Podcasts
   readonly spotifyPodcastLink: string | null,
 }
 
+interface PodcastSelect { // fragment on Podcasts
+  readonly _id: string,
+  readonly title: string,
+}
+
 interface PodcastEpisodesDefaultFragment { // fragment on PodcastEpisodes
+  readonly podcastId: string,
+  readonly title: string,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PodcastEpisodeFull { // fragment on PodcastEpisodes
+  readonly _id: string,
   readonly podcastId: string,
   readonly title: string,
   readonly episodeLink: string,
@@ -2723,7 +2731,9 @@ interface FragmentTypes {
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
+  PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
+  PodcastEpisodeFull: PodcastEpisodeFull
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -2879,7 +2889,9 @@ interface CollectionNamesByFragmentName {
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
+  PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
+  PodcastEpisodeFull: "PodcastEpisodes"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
