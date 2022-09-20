@@ -58,11 +58,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document
-    && document.userId!==currentUser._id
-    && document.sharingSettings
-    && !userCanDo(currentUser, 'posts.edit.all')
-  ) {
+  if (document && !canUserEditPost(currentUser, document)) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
