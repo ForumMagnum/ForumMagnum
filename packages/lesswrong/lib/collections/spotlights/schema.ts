@@ -17,26 +17,6 @@ const SpotlightDocumentType = new SimpleSchema({
   }
 });
 
-const SpotlightFirstPost = new SimpleSchema({
-  _id: {
-    type: String
-  },
-  title: {
-    type: String
-  },
-  slug: {
-    type: String
-  }
-});
-
-addGraphQLSchema(`
-  type SpotlightFirstPost {
-    _id: String
-    title: String
-    slug: String
-  }
-`);
-
 const schema: SchemaType<DbSpotlight> = {
   documentId: {
     type: String,
@@ -119,15 +99,18 @@ const schema: SchemaType<DbSpotlight> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     onCreate: async ({ newDocument, context }) => {
-      // const getCurrentSpotlight = () => context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } });
-      // const getLastSpotlightByPosition = () => context.Spotlights.findOne({}, { sort: { position: -1 } });
-      const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
-        context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),
-        context.Spotlights.findOne({}, { sort: { position: -1 } })
-      ]);
+      // We only need to fetch this one in one of the branches below
+      const getCurrentSpotlight = () => context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } });
+      // But this one we need to fetch in both
+      const getLastSpotlightByPosition = () => context.Spotlights.findOne({}, { sort: { position: -1 } });
 
       // Creating a new spotlight without specifying a position
       if (typeof newDocument.position !== 'number') {
+        const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
+          getCurrentSpotlight(),
+          getLastSpotlightByPosition()
+        ]);
+
         // If we don't have an active spotlight (or any spotlight), the new one should be first
         if (!currentSpotlight || !lastSpotlightByPosition) {
           return 0;
@@ -149,31 +132,48 @@ const schema: SchemaType<DbSpotlight> = {
 
       // Creating a new spotlight while specifying the position
       } else {
+        const lastSpotlightByPosition = await getLastSpotlightByPosition();
         // If no spotlight exists, the new one should be first regardless of what we say
         if (!lastSpotlightByPosition) {
           return 0;
         }
 
+        const endBound = lastSpotlightByPosition.position + 1;
+
         // Don't let us create a new spotlight with an arbitrarily large position
-        if (newDocument.position > lastSpotlightByPosition.position + 1) {
+        // Also handle "correct" appends (where the created spotlight's position is the current max + 1)
+        if (newDocument.position >= endBound) {
           return lastSpotlightByPosition.position + 1;
         }
 
-        
+        // If we're instead putting the created spotlight somewhere before the last spotlight, shift everything at and after the desired position back
+        const startBound = newDocument.position;
+
+        // range is not inclusive of the "end"
+        // ex: Creating item in position 3
+        // We want to shift items in the range of positions [3..end] to [4..end+1]
+        // So range(3, 7) gives us [3,4,5,6, ...]
+        const shiftRange = range(startBound, endBound);
+
+        // Shift the other spotlights back
+        await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: 1 } });
+
+        // The to-be-create spotlight's position
+        return startBound;
       }
     },
     onUpdate: async ({ data, oldDocument, context }) => {
       if (typeof data.position === 'number' && data.position !== oldDocument.position) {
         // Moving an existing spotlight item to an earlier position
         if (data.position < oldDocument.position) {
-          const shiftStartBound = data.position;
-          const shiftEndBound = oldDocument.position;
+          const startBound = data.position;
+          const endBound = oldDocument.position;
 
           // range is not inclusive of the "end"
           // ex: Moving item from position 7 to position 3
           // We want to shift items in the range of positions [3..6] to [4..7]
           // So range(3, 7) gives us [3,4,5,6]
-          const shiftRange = range(shiftStartBound, shiftEndBound);
+          const shiftRange = range(startBound, endBound);
 
           // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift back
           await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
@@ -182,18 +182,18 @@ const schema: SchemaType<DbSpotlight> = {
           await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: 1 } });
 
           // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
-          return data.position;
+          return startBound;
 
         // Moving an existing spotlight item to a later position
         } else {
-          const shiftStartBound = oldDocument.position + 1;
-          const shiftEndBound = data.position + 1;
+          const startBound = oldDocument.position + 1;
+          const endBound = data.position + 1;
 
           // range is not inclusive of the "end"
           // ex: Moving item from position 3 to position 7
           // We want to shift items in the range of positions [4..7] to [3..6]
           // So range(4, 8) gives us [4,5,6,7]
-          const shiftRange = range(shiftStartBound, shiftEndBound);
+          const shiftRange = range(startBound, endBound);
 
           // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift forward
           await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
