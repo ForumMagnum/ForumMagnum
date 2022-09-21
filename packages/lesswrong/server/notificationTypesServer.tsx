@@ -23,6 +23,7 @@ import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
+import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 
 interface ServerNotificationType {
   name: string,
@@ -514,17 +515,16 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const newUser = await Users.findOne(notifications[0].documentId)
     const subforum = await Tags.findOne(notifications[0].extraData?.subforumId)
+    if (!newUser) throw new Error(`Cannot find user for which this notification is being sent, user id: ${notifications[0].documentId}`)
+    if (!subforum) throw new Error(`Cannot find subforum for which this notification is being sent, subforum id: ${notifications[0].extraData?.subforumId}`)
 
     return <div>
       <p>
         Hi {user.displayName},
       </p>
       <p>
-        Your subforum, <a
-          href={combineUrls(getSiteUrl(), `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : "tag"}/${subforum?.slug}/subforum`)}
-        >
-          {subforum?.name}
-        </a> has a new member: <a href={userGetProfileUrl(newUser)}>{newUser?.displayName}</a>.
+        Your subforum, <a href={tagGetSubforumUrl(subforum)}> {subforum?.name}</a> has a new
+        member: <a href={userGetProfileUrl(newUser)}>{newUser?.displayName}</a>.
       </p>
       <p>
         - The {forumTitleSetting.get()} Team
