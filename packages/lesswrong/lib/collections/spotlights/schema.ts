@@ -1,8 +1,7 @@
-import GraphQLJSON from "graphql-type-json";
-import { range } from "lodash";
+import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
 import { accessFilterSingle } from "../../utils/schemaUtils";
-import { addGraphQLSchema, getCollectionName } from "../../vulcan-lib";
+import { getCollectionName } from "../../vulcan-lib";
 import { collectionGetAllPostIDs } from "../collections/helpers";
 import { Posts } from "../posts";
 import { sequenceGetAllPostIDs } from "../sequences/helpers";
