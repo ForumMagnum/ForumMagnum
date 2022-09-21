@@ -665,6 +665,7 @@ interface DbSpotlight extends DbObject {
   documentId: string
   documentType: SpotlightDocumentType
   spotlightImageId: string
+  position: number
   createdAt: Date
   description: EditableFieldContents
 }

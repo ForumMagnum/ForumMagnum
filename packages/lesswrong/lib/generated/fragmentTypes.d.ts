@@ -2593,6 +2593,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly spotlightImageId: string,
+  readonly position: number,
 }
 
 interface SpotlightDisplay { // fragment on Spotlights

@@ -1,4 +1,5 @@
 import GraphQLJSON from "graphql-type-json";
+import { range } from "lodash";
 import SimpleSchema from "simpl-schema";
 import { accessFilterSingle } from "../../utils/schemaUtils";
 import { addGraphQLSchema, getCollectionName } from "../../vulcan-lib";
@@ -39,9 +40,9 @@ addGraphQLSchema(`
 const schema: SchemaType<DbSpotlight> = {
   documentId: {
     type: String,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.spotlight,
     order: 10,
     resolveAs: {
@@ -64,24 +65,24 @@ const schema: SchemaType<DbSpotlight> = {
     form: {
       options: () => DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
     },
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.spotlight,
     order: 20,
   },
   spotlightImageId: {
     type: String,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
     control: "ImageUpload",
     group: formGroups.spotlight,
     order: 30,
   },
   firstPost: {
     type: 'Post',
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
     nullable: true,
     resolveAs: {
@@ -108,6 +109,100 @@ const schema: SchemaType<DbSpotlight> = {
             const firstPost = await context.loaders.Posts.load(firstPostId);
             return accessFilterSingle(context.currentUser, Posts, firstPost, context);
           }
+        }
+      }
+    }
+  },
+  position: {
+    type: SimpleSchema.Integer,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    onCreate: async ({ newDocument, context }) => {
+      // const getCurrentSpotlight = () => context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } });
+      // const getLastSpotlightByPosition = () => context.Spotlights.findOne({}, { sort: { position: -1 } });
+      const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
+        context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),
+        context.Spotlights.findOne({}, { sort: { position: -1 } })
+      ]);
+
+      // Creating a new spotlight without specifying a position
+      if (typeof newDocument.position !== 'number') {
+        // If we don't have an active spotlight (or any spotlight), the new one should be first
+        if (!currentSpotlight || !lastSpotlightByPosition) {
+          return 0;
+        }
+
+        // Don't let us create a new spotlight with an arbitrarily large position
+        if (newDocument.position > lastSpotlightByPosition.position + 1) {
+          return lastSpotlightByPosition.position + 1;
+        }
+
+        // If we didn't specify a position, by default we probably want to be inserting it right after the currently-active spotlight
+        const newSpotlightPosition = currentSpotlight.position + 1;
+
+        // Push all the spotlight items both at and after the about-to-be-created item's position back by 1
+        await context.Spotlights.rawUpdateMany({ position: { $gte: newSpotlightPosition } }, { $inc: { position: 1 } });
+ 
+        // The to-be-created spotlight's position
+        return newSpotlightPosition;
+
+      // Creating a new spotlight while specifying the position
+      } else {
+        // If no spotlight exists, the new one should be first regardless of what we say
+        if (!lastSpotlightByPosition) {
+          return 0;
+        }
+
+        // Don't let us create a new spotlight with an arbitrarily large position
+        if (newDocument.position > lastSpotlightByPosition.position + 1) {
+          return lastSpotlightByPosition.position + 1;
+        }
+
+        
+      }
+    },
+    onUpdate: async ({ data, oldDocument, context }) => {
+      if (typeof data.position === 'number' && data.position !== oldDocument.position) {
+        // Moving an existing spotlight item to an earlier position
+        if (data.position < oldDocument.position) {
+          const shiftStartBound = data.position;
+          const shiftEndBound = oldDocument.position;
+
+          // range is not inclusive of the "end"
+          // ex: Moving item from position 7 to position 3
+          // We want to shift items in the range of positions [3..6] to [4..7]
+          // So range(3, 7) gives us [3,4,5,6]
+          const shiftRange = range(shiftStartBound, shiftEndBound);
+
+          // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift back
+          await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
+
+          // Shift the intermediate spotlights back
+          await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: 1 } });
+
+          // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
+          return data.position;
+
+        // Moving an existing spotlight item to a later position
+        } else {
+          const shiftStartBound = oldDocument.position + 1;
+          const shiftEndBound = data.position + 1;
+
+          // range is not inclusive of the "end"
+          // ex: Moving item from position 3 to position 7
+          // We want to shift items in the range of positions [4..7] to [3..6]
+          // So range(4, 8) gives us [4,5,6,7]
+          const shiftRange = range(shiftStartBound, shiftEndBound);
+
+          // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift forward
+          await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
+
+          // Shift the intermediate spotlights forward
+          await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: -1 } });
+
+          // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
+          return data.position;
         }
       }
     }
