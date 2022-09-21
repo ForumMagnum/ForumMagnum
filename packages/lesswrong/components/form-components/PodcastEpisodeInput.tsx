@@ -53,7 +53,24 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     terms,
   });
 
-  const debouncedRefetchPodcastEpisode = debounce(async () => await refetchPodcastEpisode(), 300);
+  const { create: createEpisodeMutation, data: createdEpisode } = useCreate({
+    collectionName: 'PodcastEpisodes',
+    fragmentName: 'PodcastEpisodesDefaultFragment'
+  });
+
+  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value);
+
+  const syncPodcastEpisodeId = useCallback((id: string) => {
+    setPodcastEpisodeId(id);
+    updateCurrentValues({
+      [path]: id
+    });
+  }, [path, updateCurrentValues]);
+
+  const debouncedRefetchPodcastEpisode = useMemo(
+    () => debounce(async () => await refetchPodcastEpisode(), 300),
+    [refetchPodcastEpisode]
+  );
 
   // If we have an external episode ID but no corresponding episode, we want to do a few things differently
   // This is part of what controls whether the "Create episode" button and the episodeLink/episodeTitle fields are enabled
@@ -62,16 +79,10 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     [externalEpisodeId, existingPodcastEpisode]
   );
 
-  const { create: createEpisodeMutation, data: createdEpisode } = useCreate({
-    collectionName: 'PodcastEpisodes',
-    fragmentName: 'PodcastEpisodesDefaultFragment'
-  });
-
   const [podcastId, setPodcastId] = useState(podcasts[0]?._id ?? '');
 
-  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value);
   const [episodeTitle, setEpisodeTitle] = useState(postTitle);
-  const [episodeLink, setEpisodeLink] = useState('');
+  const [episodeLink, setEpisodeLink] = useState(existingPodcastEpisode?.episodeLink ?? '');
 
   const [validEpisodeLink, setValidEpisodeLink] = useState(true);
 
@@ -131,34 +142,21 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   // Ensure consistency between input fields while refetching after typing
   useEffect(() => {
-    if (existingPodcastEpisode && !episodeLink) {
-      setPodcastEpisodeId(existingPodcastEpisode._id);
+    if (existingPodcastEpisode) {
+      syncPodcastEpisodeId(existingPodcastEpisode._id);
       setExternalEpisodeId(existingPodcastEpisode.externalEpisodeId);
       setPodcastId(existingPodcastEpisode.podcastId);
-      setEpisodeLink(existingPodcastEpisode.episodeLink);
+      // We don't want to prevent a user's changes to the episode link even if we already have one
+      setEpisodeLink(episodeLink || existingPodcastEpisode.episodeLink);
       setEpisodeTitle(existingPodcastEpisode.title);
     }
-  }, [existingPodcastEpisode, episodeLink]);
-
-  // Ensure consistency after creating an episode by clicking the "Create episode" button
-  useEffect(() => {
-    if (createdEpisode) setPodcastEpisodeId(createdEpisode._id);
-  }, [createdEpisode]);
-
-  // Keep the form's current podcastEpisodeId value up to date after all of the above
-  useEffect(() => {
-    if (podcastEpisodeId) {
-      updateCurrentValues({
-        [path]: podcastEpisodeId
-      });
-    }
-  }, [podcastEpisodeId, path, updateCurrentValues]);
+  }, [existingPodcastEpisode, episodeLink, syncPodcastEpisodeId]);
 
   return (
     loading
     ? <></>
     : (
-      // Should I use FormComponentSelect here?
+      // Should we use FormComponentSelect here?
       <>
         <div>
           <Select
@@ -197,6 +195,14 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
                 placeholder={'Podcast episode title'}
                 onChange={(e) => setEpisodeTitle(e.target.value)}
                 { ...episodeTitleProps }
+              />
+            </div>
+            <div>
+              <Input
+                className={classes.podcastEpisodeName}
+                placeholder={'Podcast episode internal ID'}
+                onChange={(e) => syncPodcastEpisodeId(e.target.value)}
+                value={podcastEpisodeId}
               />
             </div>
         </>

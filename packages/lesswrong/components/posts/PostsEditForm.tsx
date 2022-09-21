@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
@@ -58,11 +58,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document
-    && document.userId!==currentUser._id
-    && document.sharingSettings
-    && !userCanDo(currentUser, 'posts.edit.all')
-  ) {
+  if (document && !canUserEditPostMetadata(currentUser, document)) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   

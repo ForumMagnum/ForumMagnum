@@ -28,6 +28,10 @@ registerFragment(`
     reviewedByUserId
     wikiGrade
     isSubforum
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -250,6 +254,16 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRecentSubforumComments on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }
