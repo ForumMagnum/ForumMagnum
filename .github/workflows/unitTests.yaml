@@ -26,4 +26,5 @@ jobs:
     - name: yarn run test-ci
       env:
         PG_URL: ${{ secrets.PG_URL }}
+        NODE_OPTIONS: "--max_old_space_size=4096"
       run: yarn run test-ci
