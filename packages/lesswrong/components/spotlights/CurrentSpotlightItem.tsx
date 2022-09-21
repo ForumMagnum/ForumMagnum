@@ -40,7 +40,7 @@ export const CurrentSpotlightItem = ({classes}: {
         path: "/"
       });
     captureEvent("spotlightItemHideItemClicked", { document: spotlight.document })
-  }, [cookieName, spotlight]);  
+  }, [setCookie, cookieName, spotlight, captureEvent]);  
 
   return <div className={classes.root}>
     {spotlight && !isHidden && <SpotlightItem key={spotlight._id} spotlight={spotlight} hideBanner={hideBanner}/>}

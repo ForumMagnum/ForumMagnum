@@ -50,7 +50,6 @@ const schema: SchemaType<DbSpotlight> = {
       // TODO: try a graphql union type?
       type: 'Post!',
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
-        // console.log({ spotlight });
         const collectionName = getCollectionName(spotlight.documentType) as SpotlightDocumentType;
         const collection = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
@@ -88,7 +87,6 @@ const schema: SchemaType<DbSpotlight> = {
     resolveAs: {
       type: 'Post',
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | null> => {
-        console.log({ spotlight });
         switch (spotlight.documentType) {
           case 'Post':
             return null;
@@ -99,7 +97,6 @@ const schema: SchemaType<DbSpotlight> = {
             }
 
             const firstPost = await context.loaders.Posts.load(firstPostId);
-            console.log({ firstPost });
             return accessFilterSingle(context.currentUser, Posts, firstPost, context);
           }
           case 'Collection': {
@@ -118,4 +115,3 @@ const schema: SchemaType<DbSpotlight> = {
 };
   
 export default schema;
-  
