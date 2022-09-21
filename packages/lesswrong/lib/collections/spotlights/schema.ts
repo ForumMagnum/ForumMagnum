@@ -98,6 +98,7 @@ const schema: SchemaType<DbSpotlight> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
     onCreate: async ({ newDocument, context }) => {
       // We only need to fetch this one in one of the branches below
       const getCurrentSpotlight = () => context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } });
@@ -206,6 +207,15 @@ const schema: SchemaType<DbSpotlight> = {
         }
       }
     }
+  },
+  lastPromotedAt: {
+    type: Date,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    // Default to the epoch date if not specified
+    onCreate: ({ newDocument }) => newDocument.lastPromotedAt ?? new Date(0)
   }
 };
   
