@@ -261,8 +261,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     },{
-      id: 'subforumList',
-      customComponentName: "SubforumList",
+      id: 'subforumsList',
+      customComponentName: "SubforumsList",
     }, {
       id: 'library',
       title: 'Library',

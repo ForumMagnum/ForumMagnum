@@ -43,6 +43,16 @@ Tags.addView("userTags", (terms: TagsViewTerms) => {
 });
 ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
 
+Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: ResolverContext) => {
+  return {
+    selector: {
+      _id: {$in: context?.currentUser?.profileTagIds ?? []},
+      isSubforum: true
+    },
+    options: {sort: {createdAt: -1}},
+  }
+});
+
 Tags.addView('allPagesByNewest', (terms: TagsViewTerms) => {
   return {
     selector: {

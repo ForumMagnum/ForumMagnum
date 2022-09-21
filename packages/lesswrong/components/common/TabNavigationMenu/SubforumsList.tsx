@@ -1,93 +1,69 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { forumTypeSetting } from "../../../lib/instanceSettings";
-import { useUserLocation } from "../../../lib/collections/users/helpers";
-import { useFilterSettings } from "../../../lib/filterSettings";
+import { taggingNamePluralSetting } from "../../../lib/instanceSettings";
+import { useMulti } from "../../../lib/crud/withMulti";
+import MenuItem from "@material-ui/core/MenuItem";
+import { Link } from "../../../lib/reactRouterWrapper";
 
-// const TabNavigationEventSingleLine = ({
-//   event,
-//   onClick,
-//   classes,
-// }: {
-//   event: PostsList;
-//   onClick: () => void;
-//   classes: ClassesType;
-// }) => {
-//   const { TabNavigationSubItem } = Components;
+const styles = ((theme: ThemeType): JssStyles => ({
+  menuItem: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    '&:hover': {
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    }
+  },
+  subItem: {
+    textTransform: 'capitalize',
+    textOverflow: "ellipsis",
+  },
+}))
 
-//   // MenuItem takes a component and passes unrecognized props to that component,
-//   // but its material-ui-provided type signature does not include this feature.
-//   // Cast to any to work around it, to be able to pass a "to" parameter.
-//   const MenuItemUntyped = MenuItem as any;
-
-//   return (
-//     <MenuItemUntyped
-//       onClick={onClick}
-//       component={Link}
-//       to={postGetPageUrl(event)}
-//       classes={{ root: classes.eventWrapper }}
-//     >
-//       <TabNavigationSubItem className={classes.event}>
-//         {displayTime && displayTime !== " " && (
-//           <span className={classNames(classes.displayTime, { [classes.yesterday]: displayTime === YESTERDAY_STRING })}>
-//             {displayTime}
-//           </span>
-//         )}
-//         <span className={classes.title}>{event.title}</span>
-//       </TabNavigationSubItem>
-//     </MenuItemUntyped>
-//   );
-// };
-
-const SubforumsList = ({ currentUser, onClick }) => {
-  const {filterSettings} = useFilterSettings();
+const SubforumsList = ({ onClick, classes }) => {
+  const { results } = useMulti({
+    terms: {view: 'currentUserSubforums'},
+    collectionName: "Tags",
+    fragmentName: 'TagBasicInfo',
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+  })
   
-  //, TODO use function for this
-  const subscribedTags = filterSettings.tags.filter((tag) => tag.filterMode === "Subscribed" || tag.filterMode >= 25);
+  if (!results) return null
   
+  // MenuItem takes a component and passes unrecognized props to that component,
+  // but its material-ui-provided type signature does not include this feature.
+  // Cast to any to work around it, to be able to pass a "to" parameter.
+  const MenuItemUntyped = MenuItem as any
   
-  
-  return <></>
-  // return (
-  //   <span>
-  //     <AnalyticsContext pageSubSectionContext="menuSubforumsList">
-  //       {/* <TabNavigationEventsList onClick={onClick} terms={globalTerms} /> */}
-  //       <div>
-  //         {results.map((event) => (
-  //           <LWTooltip
-  //             key={event._id}
-  //             placement="right-start"
-  //             title={<EventSidebarTooltip event={event} classes={classes} />}
-  //           >
-  //             <MenuItemUntyped
-  //               onClick={onClick}
-  //               component={Link}
-  //               to={postGetPageUrl(event)}
-  //               classes={{ root: classes.eventWrapper }}
-  //             >
-  //               <TabNavigationSubItem className={classes.event}>
-  //                 {displayTime && displayTime !== " " && (
-  //                   <span
-  //                     className={classNames(classes.displayTime, {
-  //                       [classes.yesterday]: displayTime === YESTERDAY_STRING,
-  //                     })}
-  //                   >
-  //                     {displayTime}
-  //                   </span>
-  //                 )}
-  //                 <span className={classes.title}>{event.title}</span>
-  //               </TabNavigationSubItem>
-  //             </MenuItemUntyped>
-  //           </LWTooltip>
-  //         ))}
-  //       </div>
-  //     </AnalyticsContext>
-  //   </span>
-  );
-};
+  const { TabNavigationSubItem } = Components
 
-const SubforumsListComponent = registerComponent("SubforumsList", SubforumsList);
+  return (
+    <span>
+      <AnalyticsContext pageSubSectionContext="menuSubforumsList">
+        <div>
+          {results.map((subforum) => (
+            <MenuItemUntyped
+              key={subforum._id}
+              onClick={onClick}
+              component={Link}
+              to={`/${taggingNamePluralSetting.get()}/${subforum.slug}/subforum`}
+              classes={{ root: classes.menuItem }}
+            >
+              <TabNavigationSubItem className={classes.subItem}>
+                {subforum.name} Subforum
+              </TabNavigationSubItem>
+            </MenuItemUntyped>
+          ))}
+        </div>
+      </AnalyticsContext>
+    </span>
+  )
+}
+
+const SubforumsListComponent = registerComponent("SubforumsList", SubforumsList, {styles})
 
 declare global {
   interface ComponentTypes {
