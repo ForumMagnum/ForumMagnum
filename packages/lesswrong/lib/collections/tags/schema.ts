@@ -197,6 +197,12 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     viewableBy: ['guests'],
   },
+  lastSubforumCommentAt: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+  },
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -238,17 +244,19 @@ const schema: SchemaType<DbTag> = {
     type: Array,
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
-    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
+    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false, tagCommentType = TagCommentType.Discussion }, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const lastCommentTime = tagCommentType === TagCommentType.Subforum ? tag.lastSubforumCommentAt : tag.lastCommentedAt
+      const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
+
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         tagId: tag._id,
         score: {$gt:0},
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
-        tagCommentType: TagCommentType.Discussion,
+        tagCommentType: tagCommentType,
         ...(af ? {af:true} : {}),
       }, {
         limit: tagCommentsLimit,
