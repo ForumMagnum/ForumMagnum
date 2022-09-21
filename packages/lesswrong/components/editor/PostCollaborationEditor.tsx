@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { getPostCollaborateUrl, canUserEditPost, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
@@ -82,7 +82,7 @@ const PostCollaborationEditor = ({ classes }: {
 
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
-  if (canUserEditPost(currentUser, post)) {
+  if (canUserEditPostMetadata(currentUser, post)) {
       return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
   }
 
