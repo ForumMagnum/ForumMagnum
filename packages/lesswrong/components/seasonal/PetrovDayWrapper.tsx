@@ -9,23 +9,9 @@ import moment from '../../lib/moment-timezone';
 
 const PetrovDayWrapper = () => {
   
-  const [timeTillForeignMissileArrival, setTimeTillForeignMissileArrival] = useState<number|undefined>(undefined)
-  
-  
-  const { data: externalData } = useQuery(gql` 
-    query petrovDayLaunchResolvers {
-      PetrovDayCheckIfIncoming(external: true) {
-        launched
-        createdAt
-      }
-    }
-  `, {
-    ssr: true
-  });
-  
   const { data: internalData } = useQuery(gql`
     query petrovDayLaunchResolvers {
-      PetrovDayCheckIfIncoming(external: false) {
+      PetrovDayCheckIfIncoming {
         launched
         createdAt
       }
@@ -35,27 +21,16 @@ const PetrovDayWrapper = () => {
   });
   
   // eslint-disable-next-line no-console
-  console.log({internal: internalData?.PetrovDayCheckIfIncoming, external: externalData?.PetrovDayCheckIfIncoming})
+  console.log({internal: internalData?.PetrovDayCheckIfIncoming})
   
-  const foreignLaunchedAt = externalData?.PetrovDayCheckIfIncoming?.createdAt
   
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (foreignLaunchedAt) {
-        setTimeTillForeignMissileArrival(-(moment(new Date()).diff(moment(foreignLaunchedAt).add(1, 'hour'),'seconds')))
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [foreignLaunchedAt]);
+  const missilesHaveArrived = internalData?.PetrovDayCheckIfIncoming.launched  //timeTillForeignMissileArrival && timeTillForeignMissileArrival < 0  
   
-  const foreignMissilesHaveArrived = timeTillForeignMissileArrival && timeTillForeignMissileArrival < 0  
-  
-  if (foreignMissilesHaveArrived) {
+  if (missilesHaveArrived) {
     return <Components.PetrovDayLossScreen/>
   } else {
     return <Components.PetrovDayButton
       alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched}
-      timeTillArrival={timeTillForeignMissileArrival}
     />
   }
 }
