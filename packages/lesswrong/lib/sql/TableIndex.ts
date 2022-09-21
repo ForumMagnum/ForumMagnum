@@ -5,6 +5,7 @@ class TableIndex {
     private options?: MongoEnsureIndexOptions,
   ) {
     if (options?.partialFilterExpression) {
+      // eslint-disable-next-line no-console
       console.warn("partialFilterExpression not supported", tableName, fields, options);
     }
   }
