@@ -11,7 +11,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
-import {petrovBeforeTime} from "../Layout";
+import { petrovBeforeTime } from "../Layout";
 
 const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -131,7 +131,6 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
   const [launchCode, setLaunchCode] = useState('')
-  const [launched, setLaunched] = useState(!!alreadyLaunched)
 
 
   const [ mutate ] = useMutation(gql`
@@ -152,7 +151,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const pressButton = () => {
     setPressed(true)
     void updateCurrentUser({
-      petrovPressedButtonDate: new Date() 
+      petrovPressedButtonDate: new Date()
     });
   }
 
@@ -165,7 +164,6 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const launch = async () => {
     if (!currentUser) return
     void mutate({ variables: { launchCode } })
-    setLaunched(true)
     
     if (launchCode !== petrovDayLaunchCode) {
       flash({ messageString: "incorrect code, missile launch aborted", type: 'failure'});
@@ -178,10 +176,10 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
   
-  const petrovStartTime = (new Date()).valueOf() - 3600*1000*3.5 //petrovBeforeTime.get()
+  const petrovStartTime = petrovBeforeTime.get()
   const currentTime = (new Date()).valueOf()
   const karmaStartingThreshold = 2300
-  const currentKarmaThreshold = karmaStartingThreshold - 100 * Math.floor((currentTime - petrovStartTime)/(3600*1000))
+  const currentKarmaThreshold = karmaStartingThreshold - (100*Math.floor((currentTime - petrovStartTime)/(3600*1000)))
   
   const manuallyExcludedUsers: String[] = ['aaaa']
   const disableLaunchButton: boolean = !currentUser || manuallyExcludedUsers.includes(currentUser?._id) || !!currentUser?.banned || currentUser?.deleted || (currentUser?.karma < currentKarmaThreshold)  

@@ -20,13 +20,8 @@ const PetrovDayWrapper = () => {
     ssr: true
   });
   
-  // eslint-disable-next-line no-console
-  console.log({internal: internalData?.PetrovDayCheckIfIncoming})
   
-  
-  const missilesHaveArrived = internalData?.PetrovDayCheckIfIncoming.launched  //timeTillForeignMissileArrival && timeTillForeignMissileArrival < 0  
-  
-  if (missilesHaveArrived) {
+  if (internalData?.PetrovDayCheckIfIncoming.launched) {
     return <Components.PetrovDayLossScreen/>
   } else {
     return <Components.PetrovDayButton

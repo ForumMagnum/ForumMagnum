@@ -26,8 +26,8 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 //For 2022, start-time: 1664161200000, end-time 1664247600000
-export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1363754893000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1764100493000)
+export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //

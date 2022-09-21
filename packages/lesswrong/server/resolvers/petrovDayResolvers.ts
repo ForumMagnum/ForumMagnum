@@ -1,10 +1,6 @@
 import { PetrovDayLaunchs } from '../../lib/collections/petrovDayLaunchs/collection';
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, addGraphQLQuery } from "../../lib/vulcan-lib/graphql";
-import fetch from 'node-fetch'
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
-import { Users } from "../../lib/collections/users/collection";
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
 const crypto = require('crypto');
 import { petrovDayLaunchCode } from "../../components/seasonal/PetrovDayButton";
 
@@ -34,10 +30,9 @@ const petrovDayLaunchResolvers = {
   Query: {
     async PetrovDayCheckIfIncoming(root: void, context: ResolverContext) {
       const launches = await PetrovDayLaunchs.find().fetch()
-      const launchCode = petrovDayLaunchCode
 
       for (const launch of launches) {
-        if (launch.launchCode === launchCode) {
+        if (launch.launchCode === petrovDayLaunchCode) {
           return { launched: true, createdAt: launch.createdAt }
         }
       }
