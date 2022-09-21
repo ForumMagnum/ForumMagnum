@@ -376,6 +376,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly postsDefaultSortOrder: string,
   readonly canVoteOnRels: Array<string>,
   readonly isSubforum: boolean,
+  readonly subforumModeratorIds: Array<string>,
   readonly parentTagId: string,
 }
 
@@ -1852,6 +1853,8 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
   readonly isSubforum: boolean,
+  readonly subforumModeratorIds: Array<string>,
+  readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
