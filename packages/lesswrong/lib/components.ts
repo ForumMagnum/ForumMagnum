@@ -143,6 +143,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
+importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
