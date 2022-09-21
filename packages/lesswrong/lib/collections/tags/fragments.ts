@@ -260,6 +260,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRecentSubforumComments on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {

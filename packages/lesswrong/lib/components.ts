@@ -91,6 +91,7 @@ importComponent("BatchTimePicker", () => require('../components/common/BatchTime
 importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
+importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
@@ -142,6 +143,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
+importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
