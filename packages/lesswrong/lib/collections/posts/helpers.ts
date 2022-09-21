@@ -182,7 +182,10 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
-export const canUserEditPost = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+/**
+ * Whether the user can make updates to the post document (including both the main post body and most other post fields)
+ */
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (!currentUser) return false;
 
   const organizerIds = (post as PostsBase)?.group?.organizerIds;
