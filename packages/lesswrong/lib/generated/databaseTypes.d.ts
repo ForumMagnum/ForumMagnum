@@ -739,6 +739,7 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   isSubforum: boolean
+  subforumModeratorIds: Array<string>
   parentTagId: string
   createdAt: Date
   description: EditableFieldContents
@@ -777,6 +778,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  petrovOptOut: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/

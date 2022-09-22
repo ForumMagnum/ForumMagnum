@@ -13,6 +13,7 @@ import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
+import {petrovBeforeTime} from "../../../components/Layout";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -705,6 +706,21 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
+  },
+  
+  petrovOptOut: {
+    order: 95,
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Opt out of Petrov Day - you will not be able to launch",
+    hidden: false//(new Date()).valueOf() > petrovBeforeTime.get()
   },
 
   hideNavigationSidebar: {

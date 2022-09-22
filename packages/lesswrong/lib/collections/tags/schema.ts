@@ -464,6 +464,26 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  subforumModeratorIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "subforumModeratorIds",
+      resolverName: "subforumModerators",
+      collectionName: "Users",
+      type: "User",
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    control: "UsersListEditor",
+    label: "Subforum Moderators",
+  },
+  'subforumModeratorIds.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true,
+  },
   parentTagId: {
     ...foreignKeyField({
       idFieldName: "parentTagId",
