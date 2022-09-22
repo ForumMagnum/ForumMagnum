@@ -13,7 +13,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
 import { getPetrovDayKarmaThreshold, userCanLaunchPetrovMissile } from "../../lib/petrovHelpers";
 
-const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
+export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 

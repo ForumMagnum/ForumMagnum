@@ -712,6 +712,7 @@ const schema: SchemaType<DbUser> = {
     order: 95,
     type: Boolean,
     optional: true,
+    nullable: true,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
