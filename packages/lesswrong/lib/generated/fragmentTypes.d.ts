@@ -2594,6 +2594,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly spotlightImageId: string,
   readonly position: number,
+  readonly lastPromotedAt: Date,
 }
 
 interface SpotlightDisplay { // fragment on Spotlights
