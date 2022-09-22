@@ -1,3 +1,4 @@
+import { ensureIndex } from "../../collectionUtils";
 import Spotlights from "./collection";
 
 declare global {
@@ -6,16 +7,15 @@ declare global {
   }
 }
 
-// will be common to all other view unless specific properties are overwritten
-Spotlights.addDefaultView(function (terms: ConversationsViewTerms) {
+Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: SpotlightsViewTerms) {
+  const limit = terms.limit ? { limit: terms.limit } : {};
   return {
-    selector: {
-      
-    },
     options: {
-      sort: {
-        spotlightImageId: -1
-      }
-    },
-  };
+      sort: { lastPromotedAt: -1 },
+      ...limit
+    }
+  }
 });
+
+ensureIndex(Spotlights, { lastPromotedAt: -1 });
+ensureIndex(Spotlights, { position: -1 }, { unique: true });

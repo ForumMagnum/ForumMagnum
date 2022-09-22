@@ -23,6 +23,7 @@ export const CurrentSpotlightItem = ({classes}: {
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
+      view: 'mostRecentlyPromotedSpotlights',
       limit: 1
     }
   });
