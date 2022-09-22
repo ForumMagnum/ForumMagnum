@@ -778,6 +778,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  petrovOptOut: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
