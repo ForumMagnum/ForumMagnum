@@ -152,8 +152,10 @@ const schema: SchemaType<DbSpotlight> = {
     },
     onUpdate: async ({ data, oldDocument, context }) => {
       if (typeof data.position === 'number' && data.position !== oldDocument.position) {
-        // Moving an existing spotlight item to an earlier position
+        // Figure out whether we're moving an existing spotlight item to an earlier position or a later position
         const pullingSpotlightForward = data.position < oldDocument.position;
+
+        // Use that to determine which other spotlight items we need to move, and whether we correspondingly push them back or pull them forward
         const startBound = pullingSpotlightForward ? data.position : oldDocument.position + 1;
         const endBound = pullingSpotlightForward ? oldDocument.position : data.position + 1;
         const offset = pullingSpotlightForward ? 1 : -1;
