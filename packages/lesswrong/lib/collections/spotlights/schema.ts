@@ -183,8 +183,9 @@ const schema: SchemaType<DbSpotlight> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,
+    order: 60,
     // Default to the epoch date if not specified
-    onCreate: ({ newDocument }) => newDocument.lastPromotedAt ?? new Date(0)
+    ...schemaDefaultValue(new Date(0)),
   }
 };
   
