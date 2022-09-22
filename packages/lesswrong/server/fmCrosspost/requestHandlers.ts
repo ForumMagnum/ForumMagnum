@@ -93,7 +93,7 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
   const {data: post} = await Utils.createMutator({
     document,
     collection: Posts,
-    validate: true,
+    validate: false,
     currentUser: user,
     context: {
       currentUser: user,
