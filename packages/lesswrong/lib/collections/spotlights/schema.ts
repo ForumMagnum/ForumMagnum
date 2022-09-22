@@ -107,7 +107,7 @@ const schema: SchemaType<DbSpotlight> = {
     }
   },
   position: {
-    type: SimpleSchema.Integer,
+    type: Number,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -118,24 +118,32 @@ const schema: SchemaType<DbSpotlight> = {
         context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),
         context.Spotlights.findOne({}, { sort: { position: -1 } })
       ]);
-
+      console.log("step 1", {currentSpotlight, lastSpotlightByPosition})
+      
       // If we don't have an active spotlight (or any spotlight), the new one should be first
       if (!currentSpotlight || !lastSpotlightByPosition) {
         return 0;
       }
+      console.log("step 2")
 
       // If we didn't specify a position, by default we probably want to be inserting it right after the currently-active spotlight
       // If we're instead putting the created spotlight somewhere before the last spotlight, shift everything at and after the desired position back
       const startBound = typeof newDocument.position !== 'number' ? currentSpotlight.position + 1 : newDocument.position;
       const endBound = lastSpotlightByPosition.position + 1;
 
+      console.log("step 3", {startBound, endBound})
+
       // Don't let us create a new spotlight with an arbitrarily large position
       if (newDocument.position > endBound) {
         return endBound;
       }
 
+      console.log("step 4")
+
       // Push all the spotlight items both at and after the about-to-be-created item's position back by 1
       await shiftSpotlightItems({ startBound, endBound, offset: 1, context });
+
+      console.log("step 5")
 
       // The to-be-created spotlight's position
       return startBound;
@@ -167,6 +175,8 @@ const schema: SchemaType<DbSpotlight> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     control: "ImageUpload",
+    optional: true,
+    nullable: true,
     order: 40,
   },
   draft: {

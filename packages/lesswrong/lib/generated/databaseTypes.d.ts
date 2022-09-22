@@ -664,8 +664,9 @@ interface DbSpotlight extends DbObject {
   __collectionName?: "Spotlights"
   documentId: string
   documentType: SpotlightDocumentType
-  spotlightImageId: string
   position: number
+  spotlightImageId: string | null
+  draft: boolean
   lastPromotedAt: Date
   createdAt: Date
   description: EditableFieldContents

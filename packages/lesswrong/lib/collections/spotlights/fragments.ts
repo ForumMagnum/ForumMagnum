@@ -1,18 +1,28 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment SpotlightDisplay on Spotlight {
+  fragment SpotlightMinimumInfo on Spotlight {
     _id
+    documentId
+    documentType
+    spotlightImageId
+    draft
+    position
+    lastPromotedAt
+  }
+`)
+
+registerFragment(`
+  fragment SpotlightDisplay on Spotlight {
+    ...SpotlightMinimumInfo
     document {
       _id
       title
       slug
     }
-    documentType
     description {
       html
     }
-    spotlightImageId
     firstPost {
       _id
       title
@@ -23,12 +33,9 @@ registerFragment(`
 
 registerFragment(`
   fragment SpotlightEditQueryFragment on Spotlight {
-    _id
-    documentId
-    documentType
+    ...SpotlightMinimumInfo
     description {
       ...RevisionEdit
     }
-    spotlightImageId
   }
 `);

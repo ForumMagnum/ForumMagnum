@@ -19,7 +19,7 @@ export const CurrentSpotlightItem = ({classes}: {
   const { SpotlightItem } = Components
   const { captureEvent } = useTracking()  
 
-  const { results: [spotlight] = [], loading } = useMulti({
+  const { results: [spotlight] = [] } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {

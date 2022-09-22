@@ -10,6 +10,9 @@ declare global {
 Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};
   return {
+    selector: {
+      draft: false
+    },
     options: {
       sort: { lastPromotedAt: -1 },
       ...limit

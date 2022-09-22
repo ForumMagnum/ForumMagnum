@@ -54,11 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0
     },
     '&:hover  $editButtonIcon': {
-      opacity:.2
+      opacity:1
     }
-  },
-  linkCard: {
-
   },
   closeButton: {
     padding: '.5em',
@@ -75,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 35,
     paddingBottom: 0,
     display: "flex",
-    overflow: "hidden",
+    // overflow: "hidden",
     flexDirection: "column",
     justifyContent: "space-between",
     marginRight: 150,
@@ -97,6 +94,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 14,
     ...theme.typography.body2,
     ...descriptionStyles(theme),
+    position: "relative",
     lineHeight: '1.65rem',
     [theme.breakpoints.down('xs')]: {
       display: "none"
@@ -142,11 +140,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       right: 8
     },
   },
+  editDescriptionButton: {
+
+  },
   editButtonIcon: {
     width: 20,
     opacity: 0,
+    zIndex: theme.zIndexes.spotlightItemCloseButton,
     [theme.breakpoints.down('sm')]: {
-      color: "white",
+      color: theme.palette.background.pageActiveAreaBackground,
       width: 16,
       opacity:.2
     },
@@ -171,13 +173,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "absolute",
       bottom: 0,
       right: 0,
-      background: theme.palette.background.paper,
+      background: theme.palette.background.translucentBackground,
       marginLeft: 12,
       opacity: .5,
       '&:hover': {
         opacity: 1
       }
     }
+  },
+  form: {
+    background: theme.palette.background.translucentBackground,
+    padding: 16
   }
 });
 
@@ -198,68 +204,82 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   hideBanner?: () => void,
   classes: ClassesType,
 }) => {
-  const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
   
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
+  const [editDescription, setEditDescription] = useState<boolean>(false)
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classes.root}>
-      <div className={classes.content}>
-        <Link to={url} className={classes.title}>
-          {spotlight.document.title}
-        </Link>
-        <div className={classes.description}>
-          {edit ? 
-            <div className={classes.editDescription}>
-              <WrappedSmartForm
-                collection={Spotlights}
-                fields={['description']}
-                documentId={spotlight._id}
-                mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                queryFragment={getFragment('SpotlightEditQueryFragment')}
-                successCallback={() => setEdit(false)}
-              />
-            </div>
-            :
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-              description={`${spotlight.documentType} ${spotlight.document._id}`}
-            />
-          }
+    <div>
+      <div className={classes.root}>
+        <div className={classes.content}>
+          <Link to={url} className={classes.title}>
+            {spotlight.document.title}
+          </Link>
+          <div className={classes.description}>
+            {editDescription ? 
+              <div className={classes.editDescription}>
+                <WrappedSmartForm
+                  collection={Spotlights}
+                  fields={['description']}
+                  documentId={spotlight._id}
+                  mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                  queryFragment={getFragment('SpotlightEditQueryFragment')}
+                  successCallback={() => setEdit(false)}
+                />
+              </div>
+              :
+              <div>
+                {/* <div className={classes.overflow}> */}
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                    description={`${spotlight.documentType} ${spotlight.document._id}`}
+                  />
+                {/* </div> */}
+                <div className={classes.editButton}>
+                  {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                    <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!edit)}/>
+                  </LWTooltip>}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        {spotlight.spotlightImageId && <div className={classes.image}>
+          <CloudinaryImage publicId={spotlight.spotlightImageId} />
+        </div>}
+        {spotlight.firstPost && <div className={classes.firstPost}>
+          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
+          <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
+        </LWTooltip>
+        </div>}
+        {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
+          <Button className={classes.closeButton} onClick={hideBanner}>
+            <CloseIcon className={classes.closeIcon} />
+          </Button>
+        </LWTooltip>}
+        <div className={classes.editButton}>
+          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+            <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
+          </LWTooltip>}
         </div>
       </div>
-      <div className={classes.image}>
-        <CloudinaryImage publicId={spotlight.spotlightImageId} />
+      {edit && <div className={classes.form}>
+        <SpotlightEditorStyles>
+          <WrappedSmartForm
+            collection={Spotlights}
+            documentId={spotlight._id}
+            mutationFragment={getFragment('SpotlightEditQueryFragment')}
+            queryFragment={getFragment('SpotlightEditQueryFragment')}
+            successCallback={() => setEdit(false)}
+          />
+        </SpotlightEditorStyles>
       </div>
-      {spotlight.firstPost && <div className={classes.firstPost}>
-        First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-        <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
-      </LWTooltip>
-      </div>}
-      {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
-        <Button className={classes.closeButton} onClick={hideBanner}>
-          <CloseIcon className={classes.closeIcon} />
-        </Button>
-      </LWTooltip>}
-      <div className={classes.editButton}>
-        {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-          <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
-        </LWTooltip>}
-      </div>
-      {/* {edit && <SpotlightEditorStyles>
-        <WrappedSmartForm
-          collection={Spotlights}
-          documentId={spotlight._id}
-          mutationFragment={getFragment('SpotlightEditQueryFragment')}
-          queryFragment={getFragment('SpotlightEditQueryFragment')}
-          successCallback={() => setEdit(false)}
-        />
-      </SpotlightEditorStyles>
-      } */}
+      }
     </div>
   </AnalyticsTracker>
 }

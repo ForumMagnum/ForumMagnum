@@ -2592,17 +2592,25 @@ interface UserVotes { // fragment on Votes
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
-  readonly spotlightImageId: string,
+  readonly position: number,
+  readonly spotlightImageId: string | null,
+  readonly draft: boolean,
+  readonly lastPromotedAt: Date,
+}
+
+interface SpotlightMinimumInfo { // fragment on Spotlights
+  readonly _id: string,
+  readonly documentId: string,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly spotlightImageId: string | null,
+  readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
 }
 
-interface SpotlightDisplay { // fragment on Spotlights
-  readonly _id: string,
+interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly document: SpotlightDisplay_document,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly description: SpotlightDisplay_description|null,
-  readonly spotlightImageId: string,
   readonly firstPost: SpotlightDisplay_firstPost|null,
 }
 
@@ -2622,12 +2630,8 @@ interface SpotlightDisplay_firstPost { // fragment on Posts
   readonly url: string,
 }
 
-interface SpotlightEditQueryFragment { // fragment on Spotlights
-  readonly _id: string,
-  readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly description: RevisionEdit|null,
-  readonly spotlightImageId: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -2797,6 +2801,7 @@ interface FragmentTypes {
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
+  SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -2958,6 +2963,7 @@ interface CollectionNamesByFragmentName {
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
+  SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"

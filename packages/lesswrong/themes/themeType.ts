@@ -317,6 +317,7 @@ declare global {
       default: ColorString
       paper: ColorString,
       pageActiveAreaBackground: ColorString,
+      translucentBackground: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
