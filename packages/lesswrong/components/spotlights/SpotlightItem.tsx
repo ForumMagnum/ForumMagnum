@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { commentBodyStyles } from '../../themes/stylePiping';
-import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
-import { useCookies } from 'react-cookie';
-import moment from 'moment';
-import {useTracking} from "../../lib/analyticsEvents";
-import { userCanDo } from '../../lib/vulcan-users';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { useCurrentUser } from '../common/withUser';
 import EditIcon from '@material-ui/icons/Edit';
+import React, { useState } from 'react';
 import Spotlights from '../../lib/collections/spotlights/collection';
+import { Link } from '../../lib/reactRouterWrapper';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import { userCanDo } from '../../lib/vulcan-users';
+import { useCurrentUser } from '../common/withUser';
 
 export interface SpotlightContent {
   documentType: SpotlightDocumentType,
