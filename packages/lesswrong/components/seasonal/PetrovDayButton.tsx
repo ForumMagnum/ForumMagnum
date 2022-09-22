@@ -177,7 +177,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const renderLaunchButton = (launchCode?.length >= 8)
   
   const currentKarmaThreshold = getPetrovDayKarmaThreshold()
-  const disableLaunchButton = userCanLaunchPetrovMissile(currentUser) 
+  const disableLaunchButton = !userCanLaunchPetrovMissile(currentUser) 
   
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
@@ -251,10 +251,6 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
               Learn More
             </Link>
           </div>}
-        
-        
-        
-        
         </div>
     </div>
   )

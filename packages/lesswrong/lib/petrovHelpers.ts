@@ -11,5 +11,5 @@ export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): bool
   const currentKarmaThreshold = getPetrovDayKarmaThreshold()
   const manuallyExcludedUsers: String[] = ['aaaa']
   
-  return  !user || manuallyExcludedUsers.includes(user?._id) || !!user?.banned || user?.deleted || (user?.karma < currentKarmaThreshold)
+  return !!user && !(manuallyExcludedUsers.includes(user._id) || !!user.banned || user.deleted || (user.karma < currentKarmaThreshold) || (user.karma < 0))
 }
