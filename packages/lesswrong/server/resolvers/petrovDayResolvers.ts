@@ -3,6 +3,7 @@ import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, addGraphQLQu
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 const crypto = require('crypto');
 import { petrovDayLaunchCode } from "../../components/seasonal/PetrovDayButton";
+import { userCanLaunchPetrovMissile } from "../../lib/petrovHelpers";
 
 
 const PetrovDayCheckIfIncoming = `type PetrovDayCheckIfIncomingData {
@@ -42,15 +43,16 @@ const petrovDayLaunchResolvers = {
   Mutation: {
     async PetrovDayLaunchMissile(root: void, {launchCode}: {launchCode: string}, context: ResolverContext) {
       const { currentUser } = context
-      const newLaunch = await createMutator({
-        collection: PetrovDayLaunchs,
-        document: {
-          launchCode,
-          // hashedLaunchCode: hashPetrovCode(launchCode),
-          // userId: currentUser._id
-        },
-        validate: false,
-      });
+      if (userCanLaunchPetrovMissile(currentUser)) {
+        const newLaunch = await createMutator({
+          collection: PetrovDayLaunchs,
+          document: {
+            launchCode,
+            // hashedLaunchCode: hashPetrovCode(launchCode),
+            // userId: currentUser._id
+          },
+          validate: false,
+        });
         // await updateMutator({
         //   collection: Users,
         //   documentId: currentUser._id,
@@ -59,7 +61,10 @@ const petrovDayLaunchResolvers = {
         //   },
         //   validate: false
         // })
-      return newLaunch.data
+        return newLaunch.data
+      } else {
+        throw new Error("User not authorized to launch")
+      }
     } 
   }
 };

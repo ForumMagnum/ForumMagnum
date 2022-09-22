@@ -11,7 +11,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
-import { petrovBeforeTime } from "../Layout";
+import { getPetrovDayKarmaThreshold, userCanLaunchPetrovMissile } from "../../lib/petrovHelpers";
 
 const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -176,13 +176,8 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
   
-  const petrovStartTime = petrovBeforeTime.get()
-  const currentTime = (new Date()).valueOf()
-  const karmaStartingThreshold = 2300
-  const currentKarmaThreshold = karmaStartingThreshold - (100*Math.floor((currentTime - petrovStartTime)/(3600*1000)))
-  
-  const manuallyExcludedUsers: String[] = ['aaaa']
-  const disableLaunchButton: boolean = !currentUser || manuallyExcludedUsers.includes(currentUser?._id) || !!currentUser?.banned || currentUser?.deleted || (currentUser?.karma < currentKarmaThreshold)  
+  const currentKarmaThreshold = getPetrovDayKarmaThreshold()
+  const disableLaunchButton = userCanLaunchPetrovMissile(currentUser) 
   
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
