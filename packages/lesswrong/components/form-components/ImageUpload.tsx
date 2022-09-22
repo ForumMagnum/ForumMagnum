@@ -82,8 +82,8 @@ const cloudinaryArgsByImageType = {
     uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
   },
   spotlightImageId: {
-    minImageHeight: 300,
-    minImageWidth: 400,
+    minImageHeight: 232,
+    minImageWidth: 345,
     cropping: false,
     // TODO: preset spotlight image url????
     uploadPreset: cloudinaryUploadPresetGridImageSetting.get()
@@ -112,8 +112,8 @@ const formPreviewSizeByImageType = {
     height: 180
   },
   spotlightImageId: {
-    width: 400,
-    height: 300
+    width: 345,
+    height: 232
   }
 }
 

@@ -24,7 +24,6 @@ export interface MakeEditableOptions {
   commentEditor?: boolean,
   commentStyles?: boolean,
   commentLocalStorage?: boolean,
-  multiline?: boolean,
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
   formGroup?: any,
   permissions?: {
@@ -47,8 +46,6 @@ const defaultOptions: MakeEditableOptions = {
   commentEditor: false,
   // Determines whether to use the comment editor styles (e.g. Fonts)
   commentStyles: false,
-  // Determines whether the editor should have multiple lines open by default
-  multiline: true,
   // Determines whether to use the comment local storage restoration system
   commentLocalStorage: false,
   // Given a document and a field name, return:

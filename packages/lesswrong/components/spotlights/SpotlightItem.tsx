@@ -31,7 +31,7 @@ export interface SpotlightContent {
 }
 
 export const descriptionStyles = theme => ({
-  fontFamily: `${theme.typography.postStyle} !important`,
+  fontFamily: `${theme.typography.postStyle.fontFamily} !important`,
   '& p': {
     marginTop: '0.5em !important',
     marginBottom: '0.5em !important'
@@ -164,14 +164,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
       minHeight: "unset"
     },
-    '& .ck .ck-content .ck-editor__editable': {
+    '& .ck.ck-content.ck-editor__editable': {
       ...descriptionStyles(theme)
     },
-    '& .form-submit': {
+    '& .form-submit button': {
       position: "absolute",
       bottom: 0,
       right: 0,
-      background: theme.palette.background.primaryDim
+      background: theme.palette.background.paper,
+      marginLeft: 12,
+      opacity: .5,
+      '&:hover': {
+        opacity: 1
+      }
     }
   }
 });
