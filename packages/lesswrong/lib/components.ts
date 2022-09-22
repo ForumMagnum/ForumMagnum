@@ -663,6 +663,7 @@ importComponent("CuratedPostsList", () => require('../components/recommendations
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
+importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
 
 importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
 importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));

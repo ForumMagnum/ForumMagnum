@@ -30,9 +30,23 @@ export interface SpotlightContent {
   }
 }
 
+export const descriptionStyles = theme => ({
+  fontFamily: `${theme.typography.postStyle} !important`,
+  '& p': {
+    marginTop: '0.5em !important',
+    marginBottom: '0.5em !important'
+  },
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
+    position: "relative",
+    background: theme.palette.panelBackground.default,
+    boxShadow: theme.palette.boxShadow.default,
+    '&:hover': {
+      boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
+    },
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
     },
@@ -44,11 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   linkCard: {
-    boxShadow: theme.palette.boxShadow.default,
-    background: theme.palette.panelBackground.default,
-    '&:hover': {
-      boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
-    }
+
   },
   closeButton: {
     padding: '.5em',
@@ -86,12 +96,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: 14,
     ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    lineHeight: "1.65rem",
-    '& p': {
-      marginTop: '0.5em',
-      marginBottom: '0.5em'
-    },
+    ...descriptionStyles(theme),
+    lineHeight: '1.65rem',
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
@@ -147,6 +153,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: .5
     }
+  },
+  editDescription: {
+    '& .form-input': {
+      margin: 0
+    },
+    '& .EditorFormComponent-commentEditorHeight': {
+      minHeight: "unset"
+    },
+    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
+      minHeight: "unset"
+    },
+    '& .ck .ck-content .ck-editor__editable': {
+      ...descriptionStyles(theme)
+    },
+    '& .form-submit': {
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      background: theme.palette.background.primaryDim
+    }
   }
 });
 
@@ -167,7 +193,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   hideBanner?: () => void,
   classes: ClassesType,
 }) => {
-  const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm } = Components
+  const { AnalyticsTracker, LinkCard, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
   
   const currentUser = useCurrentUser()
 
@@ -177,38 +203,49 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
-      <LinkCard to={url} className={classes.linkCard}>
-        <div className={classes.content}>
-          <Link to={url} className={classes.title}>
-            {spotlight.document.title}
-          </Link>
-          <div className={classes.description}>
+      <div className={classes.content}>
+        <Link to={url} className={classes.title}>
+          {spotlight.document.title}
+        </Link>
+        <div className={classes.description}>
+          {edit ? 
+            <div className={classes.editDescription}>
+              <WrappedSmartForm
+                collection={Spotlights}
+                fields={['description']}
+                documentId={spotlight._id}
+                mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                queryFragment={getFragment('SpotlightEditQueryFragment')}
+                successCallback={() => setEdit(false)}
+              />
+            </div>
+            :
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
               description={`${spotlight.documentType} ${spotlight.document._id}`}
             />
-          </div>
+          }
         </div>
-        <div className={classes.image}>
-          <CloudinaryImage publicId={spotlight.spotlightImageId} />
-        </div>
-        {spotlight.firstPost && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-          <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
-        </LWTooltip>
-        </div>}
-        {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
-          <Button className={classes.closeButton} onClick={hideBanner}>
-            <CloseIcon className={classes.closeIcon} />
-          </Button>
+      </div>
+      <div className={classes.image}>
+        <CloudinaryImage publicId={spotlight.spotlightImageId} />
+      </div>
+      {spotlight.firstPost && <div className={classes.firstPost}>
+        First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
+        <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
+      </LWTooltip>
+      </div>}
+      {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
+        <Button className={classes.closeButton} onClick={hideBanner}>
+          <CloseIcon className={classes.closeIcon} />
+        </Button>
+      </LWTooltip>}
+      <div className={classes.editButton}>
+        {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+          <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
         </LWTooltip>}
-        <div className={classes.editButton}>
-          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
-          </LWTooltip>}
-        </div>
-      </LinkCard>
-      {edit &&
+      </div>
+      {/* {edit && <SpotlightEditorStyles>
         <WrappedSmartForm
           collection={Spotlights}
           documentId={spotlight._id}
@@ -216,7 +253,8 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
           queryFragment={getFragment('SpotlightEditQueryFragment')}
           successCallback={() => setEdit(false)}
         />
-      }
+      </SpotlightEditorStyles>
+      } */}
     </div>
   </AnalyticsTracker>
 }

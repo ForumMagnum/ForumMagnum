@@ -18,6 +18,9 @@ makeEditable({
   collection: Spotlights,
   options: {
     fieldName: "description",
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
     getLocalStorageId: (spotlight) => {
       if (spotlight._id) { return {id: `spotlight:${spotlight._id}`, verify:true} }
       return {id: `spotlight:create`, verify:true}
@@ -27,8 +30,7 @@ makeEditable({
       editableBy: ['admins', 'sunshineRegiment'],
       insertableBy: ['admins', 'sunshineRegiment']
     },
-    formGroup: formGroups.spotlight,
-    order: 40
+    order: 60
   }
 });
 

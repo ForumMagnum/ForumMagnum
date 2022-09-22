@@ -1,12 +1,12 @@
 import GraphQLJSON from "graphql-type-json";
 import { range } from "lodash";
 import SimpleSchema from "simpl-schema";
+import { schemaDefaultValue } from "../../collectionUtils";
 import { accessFilterSingle } from "../../utils/schemaUtils";
 import { addGraphQLSchema, getCollectionName } from "../../vulcan-lib";
 import { collectionGetAllPostIDs } from "../collections/helpers";
 import { Posts } from "../posts";
 import { sequenceGetAllPostIDs } from "../sequences/helpers";
-import { formGroups } from "./formGroups";
 
 const DOCUMENT_TYPES = ['Post', 'Sequence', 'Collection'];
 
@@ -43,7 +43,6 @@ const schema: SchemaType<DbSpotlight> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    group: formGroups.spotlight,
     order: 10,
     resolveAs: {
       fieldName: 'document',
@@ -68,17 +67,7 @@ const schema: SchemaType<DbSpotlight> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    group: formGroups.spotlight,
     order: 20,
-  },
-  spotlightImageId: {
-    type: String,
-    canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'],
-    control: "ImageUpload",
-    group: formGroups.spotlight,
-    order: 30,
   },
   firstPost: {
     type: 'Post',
@@ -118,6 +107,7 @@ const schema: SchemaType<DbSpotlight> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
+    order: 30,
     onCreate: async ({ newDocument, context }) => {
       // const getCurrentSpotlight = () => context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } });
       // const getLastSpotlightByPosition = () => context.Spotlights.findOne({}, { sort: { position: -1 } });
@@ -206,7 +196,23 @@ const schema: SchemaType<DbSpotlight> = {
         }
       }
     }
-  }
+  },
+  spotlightImageId: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: "ImageUpload",
+    order: 40,
+  },
+  draft: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 50,
+    ...schemaDefaultValue(true),
+  },
 };
   
 export default schema;

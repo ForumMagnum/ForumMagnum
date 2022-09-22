@@ -226,6 +226,7 @@ interface EditorProps {
   answerStyles?: boolean,
   questionStyles?: boolean,
   commentEditor?: boolean,
+  multiline?: boolean,
   hideControls?: boolean,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
@@ -524,7 +525,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderPlaintextEditor = (contents: EditorContents) => {
     const { markdownImgErrs } = this.state
-    const { _classes: classes, commentStyles, questionStyles, formProps } = this.props
+    const { _classes: classes, commentStyles, questionStyles, multiline, formProps } = this.props
     const {contentType} = this.getBodyStyles();
     const value = contents.value || "";
     return <div>
@@ -537,7 +538,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           onChange={(ev) => {
             this.setContents(contents.type, ev.target.value);
           }}
-          multiline={true}
+          multiline={multiline} // if multiline is false, this ignores the rows field
           rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
           rowsMax={99999}
           fullWidth={true}
