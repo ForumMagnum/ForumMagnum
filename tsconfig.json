@@ -19,7 +19,7 @@
   "include": [
     "packages/lesswrong",
     "public/lesswrong-editor/src/editorConfigs.js",
-    "cypress"
+    "e2e"
   ],
   "exclude": [
     "node_modules",
