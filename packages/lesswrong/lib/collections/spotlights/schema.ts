@@ -22,8 +22,8 @@ interface ShiftSpotlightItemParams {
   offset: -1 | 1;
   context: ResolverContext;
 }
+
 /**
- * 
  * Range is not inclusive of the "end"
  * 
  * ex: Moving item from position 7 to position 3.  We want to shift items in the range of positions [3..6] to [4..7].
@@ -35,13 +35,9 @@ interface ShiftSpotlightItemParams {
  * `offset: 1` is to pull items "forward" (when you're moving an existing item back)
  */
 const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: ShiftSpotlightItemParams) => {
-  // range is not inclusive of the "end"
-  // ex: Moving item from position 7 to position 3
-  // We want to shift items in the range of positions [3..6] to [4..7]
-  // So range(3, 7) gives us [3,4,5,6]
   const shiftRange = range(startBound, endBound);
 
-  // Shift the intermediate spotlights back
+  // Shift the intermediate spotlights backward or forward (according to `offset`)
   await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: offset } });
 };
 
@@ -157,33 +153,19 @@ const schema: SchemaType<DbSpotlight> = {
     onUpdate: async ({ data, oldDocument, context }) => {
       if (typeof data.position === 'number' && data.position !== oldDocument.position) {
         // Moving an existing spotlight item to an earlier position
-        if (data.position < oldDocument.position) {
-          const startBound = data.position;
-          const endBound = oldDocument.position;
+        const pullingSpotlightForward = data.position < oldDocument.position;
+        const startBound = pullingSpotlightForward ? data.position : oldDocument.position + 1;
+        const endBound = pullingSpotlightForward ? oldDocument.position : data.position + 1;
+        const offset = pullingSpotlightForward ? 1 : -1;
 
-          // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift back
-          await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
+        // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift back
+        await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
 
-          // Shift the intermediate items backward
-          await shiftSpotlightItems({ startBound, endBound, offset: 1, context });
+        // Shift the intermediate items backward
+        await shiftSpotlightItems({ startBound, endBound, offset, context });        
 
-          // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
-          return startBound;
-
-        // Moving an existing spotlight item to a later position
-        } else {
-          const startBound = oldDocument.position + 1;
-          const endBound = data.position + 1;
-
-          // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift forward
-          await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
-
-          // Shift the intermediate items forward
-          await shiftSpotlightItems({ startBound, endBound, offset: -1, context });
-
-          // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
-          return data.position;
-        }
+        // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
+        return data.position;
       }
     }
   },
