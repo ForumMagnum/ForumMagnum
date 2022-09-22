@@ -14,7 +14,7 @@ Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: Spotlights
       draft: false
     },
     options: {
-      sort: { lastPromotedAt: -1 },
+      sort: { lastPromotedAt: -1, position: 1 },
       ...limit
     }
   }

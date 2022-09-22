@@ -189,10 +189,10 @@ const schema: SchemaType<DbSpotlight> = {
   },
   lastPromotedAt: {
     type: Date,
+    control: "datetime",
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    optional: true,
     order: 60,
     // Default to the epoch date if not specified
     ...schemaDefaultValue(new Date(0)),

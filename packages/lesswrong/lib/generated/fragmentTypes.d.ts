@@ -2627,7 +2627,7 @@ interface SpotlightDisplay_description { // fragment on Revisions
 interface SpotlightDisplay_firstPost { // fragment on Posts
   readonly _id: string,
   readonly title: string,
-  readonly url: string,
+  readonly slug: string,
 }
 
 interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights

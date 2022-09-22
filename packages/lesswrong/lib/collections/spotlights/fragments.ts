@@ -26,7 +26,7 @@ registerFragment(`
     firstPost {
       _id
       title
-      url
+      slug
     }
   }
 `);

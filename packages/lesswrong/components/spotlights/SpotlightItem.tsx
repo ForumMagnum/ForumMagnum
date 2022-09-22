@@ -2,6 +2,7 @@ import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
 import React, { useState } from 'react';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -206,6 +207,13 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   const [editDescription, setEditDescription] = useState<boolean>(false)
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
+
+  // Note: this won't reliably generate a good reading experience for all possible Collection type spotlights, 
+  // although it happens to work for the existing 5 collections on LessWrong. (if the first post of a collection has a canonical 
+  // sequence that's not in that collection it wouldn't provide the right 'next post')
+
+  // But, also, the real proper fix here is to integrate continue reading here.
+  const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div>
@@ -246,9 +254,9 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>}
-        {spotlight.firstPost && <div className={classes.firstPost}>
+        {firstPostUrl && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-          <Link to={spotlight.firstPost.url}>{spotlight.firstPost.title}</Link>
+          <Link to={firstPostUrl}>{spotlight.firstPost.title}</Link>
         </LWTooltip>
         </div>}
         {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
