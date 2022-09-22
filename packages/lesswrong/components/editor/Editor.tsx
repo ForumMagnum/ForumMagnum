@@ -226,7 +226,6 @@ interface EditorProps {
   answerStyles?: boolean,
   questionStyles?: boolean,
   commentEditor?: boolean,
-  multiline?: boolean,
   hideControls?: boolean,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,

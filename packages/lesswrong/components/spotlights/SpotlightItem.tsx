@@ -167,7 +167,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ck.ck-content.ck-editor__editable': {
       ...descriptionStyles(theme)
     },
-    '& .form-submit': {
+    '& .form-submit button': {
       position: "absolute",
       bottom: 0,
       right: 0,
