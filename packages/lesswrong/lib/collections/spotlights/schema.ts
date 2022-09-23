@@ -35,11 +35,10 @@ interface ShiftSpotlightItemParams {
  * `offset: 1` is to pull items "forward" (when you're moving an existing item back)
  */
 const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: ShiftSpotlightItemParams) => {
-  const shiftRange = range(startBound, endBound).reverse();
-  console.log({shiftRange})
+  const shiftRange = range(startBound, endBound);
 
   // Shift the intermediate spotlights backward or forward (according to `offset`)
-  await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: offset } }, {multi:true});
+  await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: offset } }, { multi:true });
 };
 
 const schema: SchemaType<DbSpotlight> = {
@@ -129,8 +128,6 @@ const schema: SchemaType<DbSpotlight> = {
       // If we're instead putting the created spotlight somewhere before the last spotlight, shift everything at and after the desired position back
       const startBound = typeof newDocument.position !== 'number' ? currentSpotlight.position + 1 : newDocument.position;
       const endBound = lastSpotlightByPosition.position + 1;
-
-      console.log("step 3", {startBound, endBound})
 
       // Don't let us create a new spotlight with an arbitrarily large position
       if (newDocument.position > endBound) {
