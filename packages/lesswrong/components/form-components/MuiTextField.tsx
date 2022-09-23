@@ -42,12 +42,11 @@ const MuiTextField = ({
     })
   }
 
-  const safeValue = (value === undefined || value === null) ? "" : value
 
   return <TextField
     variant={variant || 'standard'}
     select={select}
-    value={safeValue}
+    value={value ?? ""}
     defaultValue={defaultValue}
     label={label}
     onChange={onChange}
