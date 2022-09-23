@@ -1,6 +1,8 @@
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import classNames from 'classnames';
 import React, { useState } from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
@@ -44,24 +46,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
+    '&:hover $editButtonIcon': {
+      opacity: .2
+    },
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
-    },
-    '& $editButtonIcon': {
-      opacity: 0
-    },
-    '&:hover  $editButtonIcon': {
-      opacity:1
     }
+  },
+  closeButtonWrapper: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
   closeButton: {
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    position: 'absolute',
     color: theme.palette.grey[300],
-    top: 0,
-    right: 0,
     zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   content: {
@@ -101,7 +102,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.headerStyle,
     fontSize: 20,
     fontVariant: "small-caps",
-    lineHeight: "1.2em"
+    lineHeight: "1.2em",
+    display: "flex",
+    alignItems: "center"
   },
   image: {
     '& img': {
@@ -125,24 +128,25 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.primary.main
     }
   },
-  editButton: {
+  editAllButton: {
     [theme.breakpoints.up('md')]: {
       position: "absolute",
-      bottom: 6,
+      top: 6,
       right: -28,
     },
     [theme.breakpoints.down('sm')]: {
       position: "absolute",
-      bottom: 4,
+      top: 4,
       right: 8
     },
   },
-  editDescriptionButton: {
-
+  editAllButtonIcon: {
+    width: 20
   },
   editButtonIcon: {
-    width: 20,
+    width: 18,
     opacity: 0,
+    cursor: "pointer",
     zIndex: theme.zIndexes.spotlightItemCloseButton,
     [theme.breakpoints.down('sm')]: {
       color: theme.palette.background.pageActiveAreaBackground,
@@ -152,6 +156,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: .5
     }
+  },
+  editDescriptionButton: {
+    marginLeft: 8
   },
   editDescription: {
     '& .form-input': {
@@ -201,7 +208,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   hideBanner?: () => void,
   classes: ClassesType,
 }) => {
-  const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles, MetaInfo } = Components
   
   const currentUser = useCurrentUser()
 
@@ -221,9 +228,16 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
     <div className={classes.root}>
       <div className={classes.spotlightItem}>
         <div className={classes.content}>
-          <Link to={url} className={classes.title}>
-            {spotlight.draft && "[Draft] "}{spotlight.document.title}
-          </Link>
+          <div className={classes.title}>
+            <Link to={url}>
+              {spotlight.document.title}
+            </Link>
+            <span className={classes.editDescriptionButton}>
+              {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!edit)}/>
+              </LWTooltip>}
+            </span>
+          </div>
           <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
@@ -237,19 +251,10 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
                 />
               </div>
               :
-              <div>
-                {/* <div className={classes.overflow}> */}
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                    description={`${spotlight.documentType} ${spotlight.document._id}`}
-                  />
-                {/* </div> */}
-                <div className={classes.editButton}>
-                  {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                    <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!edit)}/>
-                  </LWTooltip>}
-                </div>
-              </div>
+              <ContentItemBody
+                dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                description={`${spotlight.documentType} ${spotlight.document._id}`}
+              />
             }
           </div>
         </div>
@@ -258,17 +263,19 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
         </div>}
         {firstPostUrl && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-          <Link to={firstPostUrl}>{spotlight.firstPost.title}</Link>
-        </LWTooltip>
+            <Link to={firstPostUrl}>{spotlight.firstPost.title}</Link>
+          </LWTooltip>
         </div>}
-        {hideBanner && <LWTooltip title="Hide this item for the next month" placement="right">
-          <Button className={classes.closeButton} onClick={hideBanner}>
-            <CloseIcon className={classes.closeIcon} />
-          </Button>
-        </LWTooltip>}
-        <div className={classes.editButton}>
+        {hideBanner && <div className={classes.closeButtonWrapper}>
+          <LWTooltip title="Hide this item for the next month" placement="right">
+            <Button className={classes.closeButton} onClick={hideBanner}>
+              <CloseIcon className={classes.closeIcon} />
+            </Button>
+          </LWTooltip>
+        </div>}
+        <div className={classes.editAllButton}>
           {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <EditIcon className={classes.editButtonIcon} onClick={() => setEdit(!edit)}/>
+            <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
       </div>
