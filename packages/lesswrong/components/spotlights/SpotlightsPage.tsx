@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -21,17 +21,27 @@ export const SpotlightsPage = ({classes}: {
 
   const currentUser = useCurrentUser();
 
-  const { results: spotlights = [], loading } = useMulti({
+  const { results: spotlights = [], loading, refetch } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: "spotlightsPage"
-    }
+    },
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only'
   });
 
   if (!userIsAdmin(currentUser)) {
     return <div>You must be logged in as an admin to use this page.</div>;
   }
+
+  const spotlightsInDisplayOrder = useMemo(() => {
+    if (!spotlights.length) return spotlights;
+    const [currentSpotlight] = spotlights;
+    const upcomingSpotlights = spotlights.filter(spotlight => spotlight.position > currentSpotlight.position);
+    const recycledSpotlights = spotlights.filter(spotlight => spotlight.position < currentSpotlight.position);
+    return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
+  }, [spotlights]);
 
   return <SingleColumnSection>
     <SectionTitle title={'Spotlights'} />
@@ -46,8 +56,8 @@ export const SpotlightsPage = ({classes}: {
     </div>
     {loading
       ? <Loading />
-      : spotlights.map(spotlight => {
-        return <SpotlightItem key={spotlight._id} spotlight={spotlight}/>
+      : spotlightsInDisplayOrder.map(spotlight => {
+        return <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch}/>
       })
     }
   </SingleColumnSection>
