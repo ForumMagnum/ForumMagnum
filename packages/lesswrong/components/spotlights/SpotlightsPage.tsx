@@ -2,6 +2,8 @@ import React from 'react';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,6 +22,8 @@ export const SpotlightsPage = ({classes}: {
 }) => {
   const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, Typography, SpotlightEditorStyles } = Components;
 
+  const currentUser = useCurrentUser();
+
   const { results: spotlights = [], loading } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
@@ -27,6 +31,10 @@ export const SpotlightsPage = ({classes}: {
       view: "spotlightsPage"
     }
   });
+
+  if (!userIsAdmin(currentUser)) {
+    return <div>You must be logged in as an admin to use this page.</div>;
+  }
 
   return <div className={classes.root}>
     <SingleColumnSection>
