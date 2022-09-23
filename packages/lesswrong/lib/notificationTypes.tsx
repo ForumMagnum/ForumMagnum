@@ -388,6 +388,20 @@ export const NewGroupOrganizerNotification = registerNotificationType({
   }
 })
 
+export const NewSubforumMemberNotification = registerNotificationType({
+  name: "newSubforumMember",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'user') throw new Error("documentType must be user")
+    const newUser = await Users.findOne(documentId)
+    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
+    return `A new user has joined your subforum: ${newUser.displayName}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
 export const NewCommentOnDraftNotification = registerNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",

@@ -304,8 +304,6 @@ export const userCanEdit = (currentUser, user) => {
   return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
 }
 
-
-
 interface UserLocation {
   lat: number,
   lng: number,

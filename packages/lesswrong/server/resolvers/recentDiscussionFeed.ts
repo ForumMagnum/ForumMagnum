@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { filterModeIsSubscribed } from '../../lib/filterSettings';
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -11,6 +12,7 @@ defineFeedResolver<Date>({
   resultTypesGraphQL: `
     postCommented: Post
     tagDiscussed: Tag
+    tagSubforumCommented: Tag
     tagRevised: Revision
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
@@ -23,6 +25,10 @@ defineFeedResolver<Date>({
     const {currentUser} = context;
     
     const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
+    
+    const subforumTagIds = currentUser?.profileTagIds || [];
+    // TODO possibly include subforums for tags that a user is subscribed to as below
+    // const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
     
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
@@ -51,6 +57,18 @@ defineFeedResolver<Date>({
           context,
           selector: {
             lastCommentedAt: {$exists: true},
+            ...(af ? {af: true} : undefined),
+          },
+        }),
+        // Tags with subforum comments
+        viewBasedSubquery({
+          type: "tagSubforumCommented",
+          collection: Tags,
+          sortField: "lastSubforumCommentAt",
+          context,
+          selector: {
+            _id: {$in: subforumTagIds},
+            lastSubforumCommentAt: {$exists: true},
             ...(af ? {af: true} : undefined),
           },
         }),
