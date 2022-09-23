@@ -42,7 +42,6 @@ const MuiTextField = ({
     })
   }
 
-
   return <TextField
     variant={variant || 'standard'}
     select={select}
