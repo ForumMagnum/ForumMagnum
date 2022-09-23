@@ -31,10 +31,6 @@ export const SpotlightsPage = ({classes}: {
     nextFetchPolicy: 'network-only'
   });
 
-  if (!userIsAdmin(currentUser)) {
-    return <div>You must be logged in as an admin to use this page.</div>;
-  }
-
   const spotlightsInDisplayOrder = useMemo(() => {
     if (!spotlights.length) return spotlights;
     const [currentSpotlight] = spotlights;
@@ -42,6 +38,10 @@ export const SpotlightsPage = ({classes}: {
     const recycledSpotlights = spotlights.filter(spotlight => spotlight.position < currentSpotlight.position);
     return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
   }, [spotlights]);
+
+  if (!userIsAdmin(currentUser)) {
+    return <div>You must be logged in as an admin to use this page.</div>;
+  }
 
   return <SingleColumnSection>
     <SectionTitle title={'Spotlights'} />
