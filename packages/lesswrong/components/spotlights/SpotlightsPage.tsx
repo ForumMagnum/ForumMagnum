@@ -6,9 +6,6 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-
-  },
   form: {
     padding: 16,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -36,29 +33,24 @@ export const SpotlightsPage = ({classes}: {
     return <div>You must be logged in as an admin to use this page.</div>;
   }
 
-  return <div className={classes.root}>
-    <SingleColumnSection>
-      <SectionTitle title={'Spotlights'} />
-      <div className={classes.form}>
-        <Typography variant="body2">New Spotlight</Typography>
-        <SpotlightEditorStyles>
-          <WrappedSmartForm
-            collection={Spotlights}
-            mutationFragment={getFragment('SpotlightsDefaultFragment')}
-          />
-        </SpotlightEditorStyles>
-      </div>
-      {loading
-        ? <Loading />
-        : spotlights.map(spotlight => {
-          return <div key={spotlight._id} >
-              {spotlight.position}
-              <SpotlightItem spotlight={spotlight}/>
-            </div>
-        })
-      }
-    </SingleColumnSection>
-  </div>;
+  return <SingleColumnSection>
+    <SectionTitle title={'Spotlights'} />
+    <div className={classes.form}>
+      <Typography variant="body2">New Spotlight</Typography>
+      <SpotlightEditorStyles>
+        <WrappedSmartForm
+          collection={Spotlights}
+          mutationFragment={getFragment('SpotlightsDefaultFragment')}
+        />
+      </SpotlightEditorStyles>
+    </div>
+    {loading
+      ? <Loading />
+      : spotlights.map(spotlight => {
+        return <SpotlightItem key={spotlight._id} spotlight={spotlight}/>
+      })
+    }
+  </SingleColumnSection>
 }
 
 const SpotlightsPageComponent = registerComponent('SpotlightsPage', SpotlightsPage, {styles});

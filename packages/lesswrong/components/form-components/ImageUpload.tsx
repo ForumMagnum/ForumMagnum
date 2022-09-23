@@ -17,6 +17,7 @@ const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('c
 const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
+const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,8 +86,7 @@ const cloudinaryArgsByImageType = {
     minImageHeight: 232,
     minImageWidth: 345,
     cropping: false,
-    // TODO: preset spotlight image url????
-    uploadPreset: cloudinaryUploadPresetGridImageSetting.get()
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
   }
 }
 
