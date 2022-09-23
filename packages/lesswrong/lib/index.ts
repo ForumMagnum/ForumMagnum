@@ -168,6 +168,7 @@ import './collections/votes';
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';
 import './collections/spotlights/permissions';
+import './collections/spotlights/views';
 
 // Internationalization
 import './i18n-en-us/en_US';

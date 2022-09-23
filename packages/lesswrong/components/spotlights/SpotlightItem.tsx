@@ -36,9 +36,11 @@ export const descriptionStyles = theme => ({
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
+    boxShadow: theme.palette.boxShadow.default,
+  },
+  spotlightItem: {
     position: "relative",
     background: theme.palette.panelBackground.default,
-    boxShadow: theme.palette.boxShadow.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
@@ -216,11 +218,11 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
   const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div>
-      <div className={classes.root}>
+    <div className={classes.root}>
+      <div className={classes.spotlightItem}>
         <div className={classes.content}>
           <Link to={url} className={classes.title}>
-            {spotlight.document.title}
+            {spotlight.draft && "[Draft] "}{spotlight.document.title}
           </Link>
           <div className={classes.description}>
             {editDescription ? 

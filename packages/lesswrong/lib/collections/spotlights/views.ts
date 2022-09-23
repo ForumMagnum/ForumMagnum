@@ -22,3 +22,14 @@ Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: Spotlights
 
 ensureIndex(Spotlights, { lastPromotedAt: -1 });
 ensureIndex(Spotlights, { position: -1 }, { unique: true });
+
+Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
+  const limit = terms.limit ? { limit: terms.limit } : {};
+  return {
+    options: {
+      sort: { lastPromotedAt: -1, position: 1 },
+      ...limit
+    }
+  }
+});
+

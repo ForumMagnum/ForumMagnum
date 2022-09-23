@@ -23,7 +23,9 @@ export const SpotlightsPage = ({classes}: {
   const { results: spotlights = [], loading } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
-    terms: {}
+    terms: {
+      view: "spotlightsPage"
+    }
   });
 
   return <div className={classes.root}>
@@ -41,7 +43,10 @@ export const SpotlightsPage = ({classes}: {
       {loading
         ? <Loading />
         : spotlights.map(spotlight => {
-          return <SpotlightItem key={spotlight._id} spotlight={spotlight}/>
+          return <div key={spotlight._id} >
+              {spotlight.position}
+              <SpotlightItem spotlight={spotlight}/>
+            </div>
         })
       }
     </SingleColumnSection>

@@ -36,6 +36,7 @@ interface ShiftSpotlightItemParams {
  */
 const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: ShiftSpotlightItemParams) => {
   const shiftRange = range(startBound, endBound);
+  console.log({shiftRange})
 
   // Shift the intermediate spotlights backward or forward (according to `offset`)
   await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: offset } });
@@ -118,13 +119,11 @@ const schema: SchemaType<DbSpotlight> = {
         context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),
         context.Spotlights.findOne({}, { sort: { position: -1 } })
       ]);
-      console.log("step 1", {currentSpotlight, lastSpotlightByPosition})
       
       // If we don't have an active spotlight (or any spotlight), the new one should be first
       if (!currentSpotlight || !lastSpotlightByPosition) {
         return 0;
       }
-      console.log("step 2")
 
       // If we didn't specify a position, by default we probably want to be inserting it right after the currently-active spotlight
       // If we're instead putting the created spotlight somewhere before the last spotlight, shift everything at and after the desired position back
@@ -138,12 +137,8 @@ const schema: SchemaType<DbSpotlight> = {
         return endBound;
       }
 
-      console.log("step 4")
-
       // Push all the spotlight items both at and after the about-to-be-created item's position back by 1
       await shiftSpotlightItems({ startBound, endBound, offset: 1, context });
-
-      console.log("step 5")
 
       // The to-be-created spotlight's position
       return startBound;
