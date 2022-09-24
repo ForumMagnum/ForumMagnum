@@ -9,8 +9,8 @@ addCronJob({
   interval: `every 30 minutes`,
   async job() {
     const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
-      Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),
-      Spotlights.findOne({}, { sort: { position: -1 } })
+      Spotlights.findOne({ draft: false }, { sort: { lastPromotedAt: -1 } }),
+      Spotlights.findOne({ draft: false }, { sort: { position: -1 } })
     ]);
 
     if (!currentSpotlight || !lastSpotlightByPosition) return;
@@ -40,6 +40,6 @@ addCronJob({
     const newPromotionDate = new Date(lastPromotionDate);
     newPromotionDate.setDate(lastPromotionDate.getDate() + ACTIVE_DAYS);
 
-    await Spotlights.rawUpdateOne({ position: positionToPromote }, { $set: { lastPromotedAt: newPromotionDate } });
+    await Spotlights.rawUpdateOne({ position: positionToPromote, draft: false }, { $set: { lastPromotedAt: newPromotionDate } });
   }
 });
