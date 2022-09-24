@@ -268,6 +268,7 @@ const advisors: Array<Advisor> = [
   }, {
     profileImageId: 'v1663346534/advisors/harshu_musunuri_-_Harshu_Musunuri.jpg',
     name: 'Harshu Musunuri',
+    slug: 'harshu-musunuri-1',
     jobTitle: 'MD-PhD Student',
     organization: 'UCSF',
     location: 'San Francisco, CA, USA',

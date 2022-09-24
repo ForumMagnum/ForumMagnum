@@ -486,8 +486,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         onChange: (event, editor) => {
-          // The getData call needs to be wrapped in a closure to avoid `this` reference errors
-          this.throttledSetCkEditor(() => editor.getData());
+          // If transitioning from empty to nonempty or nonempty to empty,
+          // bypass throttling. These cases don't have the performance
+          // implications that motivated having throttling in the first place,
+          // and this prevents a timing bug with form-clearing on submit.
+          if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+            this.throttledSetCkEditor.cancel();
+            this.setContents("ckEditorMarkup", editor.getData());
+          } else {
+            this.throttledSetCkEditor(() => editor.getData())
+          }
         },
         onInit: editor => this.setState({ckEditorReference: editor})
       }
