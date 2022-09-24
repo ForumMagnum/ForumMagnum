@@ -203,10 +203,12 @@ const getUrlFromDocument = (document: SpotlightContent['document'], documentType
 }
 
 
-export const SpotlightItem = ({classes, spotlight, hideBanner}: {
+export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlights}: {
   spotlight: SpotlightDisplay,
   hideBanner?: () => void,
   classes: ClassesType,
+  // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
+  refetchAllSpotlights?: () => void,
 }) => {
   const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
   
@@ -224,6 +226,11 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
 
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
+
+  const onUpdate = () => {
+    setEdit(false);
+    refetchAllSpotlights?.();
+  };
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
@@ -287,7 +294,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner}: {
             documentId={spotlight._id}
             mutationFragment={getFragment('SpotlightEditQueryFragment')}
             queryFragment={getFragment('SpotlightEditQueryFragment')}
-            successCallback={() => setEdit(false)}
+            successCallback={onUpdate}
           />
         </SpotlightEditorStyles>
       </div>
