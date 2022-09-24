@@ -7,7 +7,7 @@ import { collectionGetAllPostIDs } from "../collections/helpers";
 import { Posts } from "../posts";
 import { sequenceGetAllPostIDs } from "../sequences/helpers";
 
-const DOCUMENT_TYPES = ['Post', 'Sequence', 'Collection'];
+const DOCUMENT_TYPES = ['Sequence', 'Collection', 'Post'];
 
 const SpotlightDocumentType = new SimpleSchema({
   documentType: {
@@ -68,6 +68,7 @@ const schema: SchemaType<DbSpotlight> = {
     form: {
       options: () => DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
     },
+    ...schemaDefaultValue(DOCUMENT_TYPES[0]),
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],

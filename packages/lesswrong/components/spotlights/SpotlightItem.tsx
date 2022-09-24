@@ -210,7 +210,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles, MetaInfo } = Components
+  const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
   
   const currentUser = useCurrentUser()
 
@@ -219,9 +219,10 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
 
-  // Note: this won't reliably generate a good reading experience for all possible Collection type spotlights, 
-  // although it happens to work for the existing 5 collections on LessWrong. (if the first post of a collection has a canonical 
-  // sequence that's not in that collection it wouldn't provide the right 'next post')
+  // Note: the firstPostUrl won't reliably generate a good reading experience for all
+  // possible Collection type spotlights, although it happens to work for the existing 5 collections 
+  // on LessWrong. (if the first post of a collection has a canonical sequence that's not 
+  // in that collection it wouldn't provide the right 'next post')
 
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
@@ -241,7 +242,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
             </Link>
             <span className={classes.editDescriptionButton}>
               {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!edit)}/>
+                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
               </LWTooltip>}
             </span>
           </div>
@@ -254,7 +255,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
                   queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => setEdit(false)}
+                  successCallback={() => setEditDescription(false)}
                 />
               </div>
               :
