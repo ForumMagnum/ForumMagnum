@@ -154,7 +154,11 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun: boolean) => {
+Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
+  sourceUserId: string, 
+  targetUserId: string, 
+  dryRun: boolean
+}) => {
   if (typeof dryRun !== "boolean") throw Error("dryRun value missing")
 
   const sourceUser = await Users.findOne({_id: sourceUserId})
@@ -342,6 +346,40 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string, dryRun
     console.log()
     // eslint-disable-next-line no-console
     console.log("%c Error changing slugs", "color: red")
+    // eslint-disable-next-line no-console
+    console.log(err)
+  }
+
+  // if the two accounts share an email address, change the sourceUser email to "+old"
+  try {
+    if (!dryRun) {
+      if (sourceUser.email === targetUser.email) {
+        const splitEmail = sourceUser.email.split("@")
+        const updatedEmail = `${splitEmail[0]}+old@${splitEmail[1]}` 
+        // appending "+old" should still allow the email to work if need be
+        await Users.rawUpdateOne(
+          {_id: sourceUserId},
+          {$set: {
+            email: updatedEmail
+          }}
+        );
+      }
+      const sourceEmailsEmail = (sourceUser.emails.length > 0) && sourceUser.emails[0]
+      const targetEmailsEmail = (targetUser.emails.length > 0) && targetUser.emails[0]
+      if (sourceEmailsEmail === targetEmailsEmail) {
+        await Users.rawUpdateOne(
+          {_id: sourceUserId},
+          {$set: {
+            'emails.0': '${sourceEmailsEmail}-old'
+          }}
+        );
+      }
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log()
+    // eslint-disable-next-line no-console
+    console.log("%c Error changing emails", "color: red")
     // eslint-disable-next-line no-console
     console.log(err)
   }
