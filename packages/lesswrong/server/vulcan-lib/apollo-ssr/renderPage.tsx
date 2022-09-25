@@ -23,7 +23,7 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions } from '../../../themes/themeNames';
+import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
@@ -134,13 +134,9 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-export function getThemeOptions(req: Request, user: DbUser|null) {
+export function getThemeOptionsFromReq(req: Request, user: DbUser|null) {
   const themeCookie = getCookieFromReq(req, "theme");
-  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
-  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
-  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
-  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
-  return themeOptions;
+  return getThemeOptions(themeCookie, user);
 }
 
 export const renderRequest = async ({req, user, startTime, res, clientId}: {
@@ -183,7 +179,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     timeOverride={timeOverride}
   />;
   
-  const themeOptions = getThemeOptions(req, user);
+  const themeOptions = getThemeOptionsFromReq(req, user);
 
   const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
@@ -246,6 +242,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
       }
     });
   }
+  
+  await client.clearStore();
   
   return {
     ssrBody,

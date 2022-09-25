@@ -195,6 +195,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     red: "#ff0000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: "rgba(255,255,255,.5)",
+
+    eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
@@ -335,6 +337,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
+    restoreSavedContentNotice: "rgba(255,0,0,.1)",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -414,6 +417,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   datePicker: {
     selectedDate: "#428bca",
   },
+  editor: {
+    commentPanelBackground: "#ffffff",
+    sideCommentEditorBackground: "#f3f7fb",
+    commentMarker: "#fef7a9",
+    commentMarkerActive: "#fdf05d",
+  },
   
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
@@ -421,10 +430,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eaForumGroupsMobileImg: '#e2f1f4',
   
   contrastText: shades.grey[0],
-  event: '#2b6a99',
-  group: '#588f27',
-  individual: '#3f51b5',
-  
+  event: 'rgba(67,151,71,.65)',
+  group: 'rgba(24,68,155,.65)',
+  individual: 'rgba(90,90,90,.65)',
   primary: {
     main: "#5f9b65",
     dark: "#426c46",

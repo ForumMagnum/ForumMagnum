@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
@@ -23,11 +22,12 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { HomepageCommunityMap } from './seasonal/HomepageCommunityMap';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
+//For 2022, start-time: 1664161200000, end-time 1664247600000
+export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -50,13 +50,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
+    // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
+    // but almost all pages are bigger than this anyway so it's not that important
+    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: 8,
       paddingRight: 8,
     },
+  },
+  mainNoPadding: {
+    padding: 0,
   },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -205,7 +210,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, cookies} = this.props;
     const {hideNavigationSidebar} = this.state
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
 
@@ -216,7 +221,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
             <Intercom
               appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
-              email={currentUser.email}
+              email={getUserEmail(currentUser)}
               name={currentUser.displayName}/>
           </ErrorBoundary>
         </div>
@@ -242,18 +247,20 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
     
-    const showSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
+    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
-    const currentTime = new Date()
-    const beforeTime = petrovBeforeTime.get()
-    const afterTime = petrovAfterTime.get()
-
-    const renderPetrovDay = 
-      currentRoute?.name === "home"
-      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
-      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+    const renderPetrovDay = () => {
+      const currentTime = (new Date()).valueOf()
+      const beforeTime = petrovBeforeTime.get()
+      const afterTime = petrovAfterTime.get()
+    
+      return currentRoute?.name === "home"
+        && ('LessWrong' === forumTypeSetting.get())
+        && beforeTime < currentTime 
+        && currentTime < afterTime
+    }
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -301,28 +308,28 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
-              {forumTypeSetting.get() === "LessWrong" && currentRoute?.name === 'home' && <HomepageCommunityMap />}
-              {renderPetrovDay && <PetrovDayWrapper/>}
+              {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white"
+                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.mainNoPadding]: currentRoute?.noPadding,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {currentUser?.usernameUnset
-                      ? <NewUserCompleteProfile />
+                      ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
-                  <Footer />
+                  {!currentRoute?.hideFooter && <Footer />}
                 </div>
-                {showSunshineSidebar && <div className={classes.sunshine}>
+                {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>
                 </div>}
               </div>

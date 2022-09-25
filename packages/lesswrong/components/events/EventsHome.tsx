@@ -14,11 +14,11 @@ import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationForm
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
+import { EVENT_TYPES } from '../../lib/collections/posts/schema';
 import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';

@@ -173,7 +173,7 @@ export const allQueries = {
   `,
   PetrovDayLaunchResolvers: `
     query PetrovDayLaunchResolvers {
-      PetrovDayCheckIfIncoming(external: false) {
+      PetrovDayCheckIfIncoming {
         launched
         createdAt
       }

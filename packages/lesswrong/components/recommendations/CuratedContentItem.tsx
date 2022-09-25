@@ -9,12 +9,12 @@ import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import {useTracking} from "../../lib/analyticsEvents";
 
-type CuratedContentDocType = "Sequence"|"Collection"
+type CuratedContentDocType = "Sequence"|"Collection"|"Post"
 
 export interface CuratedContent {
   documentType: CuratedContentDocType,
   document: {
-    _id: string,
+    _id?: string,
     title: string,
     slug?: string
   },
@@ -49,12 +49,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     color: theme.palette.grey[300],
     top: 0,
-    right: 0
+    right: 0,
+    zIndex: theme.zIndexes.curatedContentItemCloseButton,
   },
   content: {
     padding: 16,
     paddingRight: 35,
-    paddingBottom: 12,
+    paddingBottom: 0,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -66,6 +67,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginRight: 100
+    },
+    '& br': {
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
     }
   },
   description: {
@@ -95,8 +101,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   firstPost: {
     ...theme.typography.body2,
-    fontSize: "1rem",
-    ...commentBodyStyles(theme),
+    padding: 16,
+    paddingTop: 10,
+    paddingBottom: 12,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle,
+    position: "relative",
+    zIndex: theme.zIndexes.curatedContentItemCloseButton,
     color: theme.palette.grey[500],
     '& a': {
       color: theme.palette.primary.main
@@ -110,6 +121,8 @@ const getUrlFromDocument = (document: any, documentType: CuratedContentDocType) 
       return `/s/${document._id}`;
     case "Collection":
       return `/${document.slug}`
+    case "Post":
+      return `/posts/${document._id}/${document.slug}`
   }
 }
 
@@ -154,13 +167,13 @@ export const CuratedContentItem = ({classes, content}: {
               description={`${content.documentType} ${content.document._id}`}
             />
           </div>
-          {content.firstPost && <div className={classes.firstPost}>
-            First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
-              <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
-            </LWTooltip>
-          </div>}
         </div>
         {content.imageUrl && <img src={content.imageUrl} className={classes.image}/>}
+        {content.firstPost && <div className={classes.firstPost}>
+          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={content.firstPost._id}/>} tooltip={false}>
+          <Link to={content.firstPost.url}>{content.firstPost.title}</Link>
+        </LWTooltip>
+        </div>}
         <Tooltip title="Hide this item for the next month">
           <Button className={classes.closeButton} onClick={hideBanner}>
             <CloseIcon className={classes.closeIcon} />
