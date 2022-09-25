@@ -15,8 +15,8 @@ const mobileImageId = eventBannerMobileImageSetting.get()
 const desktopImageId = eventBannerDesktopImageSetting.get()
 const featuredPost = eventBannerLinkSetting.get()
 
-const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
-const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
+const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${mobileImageId}`
+const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${desktopImageId}`
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
