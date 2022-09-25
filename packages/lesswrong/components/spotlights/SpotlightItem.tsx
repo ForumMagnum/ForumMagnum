@@ -9,6 +9,7 @@ import Spotlights from '../../lib/collections/spotlights/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
+import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
 export interface SpotlightContent {
@@ -28,11 +29,9 @@ export interface SpotlightContent {
 }
 
 export const descriptionStyles = theme => ({
-  fontFamily: `${theme.typography.postStyle.fontFamily} !important`,
-  '& p': {
-    marginTop: '0.5em !important',
-    marginBottom: '0.5em !important'
-  },
+  ...postBodyStyles(theme),
+  ...theme.typography.body2,
+  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, `
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -90,7 +89,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     marginTop: 14,
-    ...theme.typography.body2,
     ...descriptionStyles(theme),
     position: "relative",
     lineHeight: '1.65rem',
@@ -171,7 +169,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       minHeight: "unset"
     },
     '& .ck.ck-content.ck-editor__editable': {
-      ...descriptionStyles(theme)
+      ...theme.typography.body2,
     },
     '& .form-submit button': {
       position: "absolute",
@@ -186,6 +184,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   form: {
+    borderTop: theme.palette.border.faint,
     background: theme.palette.background.translucentBackground,
     padding: 16
   }
@@ -210,7 +209,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
   
   const currentUser = useCurrentUser()
 
@@ -287,18 +286,24 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
           </LWTooltip>}
         </div>
       </div>
-      {edit && <div className={classes.form}>
-        <SpotlightEditorStyles>
-          <WrappedSmartForm
-            collection={Spotlights}
-            documentId={spotlight._id}
-            mutationFragment={getFragment('SpotlightEditQueryFragment')}
-            queryFragment={getFragment('SpotlightEditQueryFragment')}
-            successCallback={onUpdate}
-          />
-        </SpotlightEditorStyles>
+      <div className={classes.form}>
+        {edit ? <SpotlightEditorStyles>
+           <WrappedSmartForm
+              collection={Spotlights}
+              documentId={spotlight._id}
+              mutationFragment={getFragment('SpotlightEditQueryFragment')}
+              queryFragment={getFragment('SpotlightEditQueryFragment')}
+              successCallback={onUpdate}
+            /> 
+          </SpotlightEditorStyles>
+           :
+          <div>
+            <MetaInfo>{spotlight.position}</MetaInfo>
+            <MetaInfo><FormatDate date={spotlight.lastPromotedAt}/></MetaInfo>
+            {spotlight.draft && <MetaInfo>Draft</MetaInfo>}
+          </div>
+        }
       </div>
-      }
     </div>
   </AnalyticsTracker>
 }

@@ -25,7 +25,8 @@ export const SpotlightsPage = ({classes}: {
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
-      view: "spotlightsPage"
+      view: "spotlightsPage",
+      limit: 100
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only'

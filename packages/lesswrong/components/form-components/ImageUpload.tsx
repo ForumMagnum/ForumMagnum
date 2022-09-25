@@ -112,8 +112,8 @@ const formPreviewSizeByImageType = {
     height: 180
   },
   spotlightImageId: {
-    width: 345,
-    height: 232
+    width: 690,
+    height: 464
   }
 }
 

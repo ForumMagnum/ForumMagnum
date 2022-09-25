@@ -162,15 +162,15 @@ const schema: SchemaType<DbSpotlight> = {
       }
     }
   },
-  spotlightImageId: {
-    type: String,
+  lastPromotedAt: {
+    type: Date,
+    control: "datetime",
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    control: "ImageUpload",
-    optional: true,
-    nullable: true,
     order: 40,
+    // Default to the epoch date if not specified
+    ...schemaDefaultValue(new Date(0)),
   },
   draft: {
     type: Boolean,
@@ -180,16 +180,17 @@ const schema: SchemaType<DbSpotlight> = {
     order: 50,
     ...schemaDefaultValue(true),
   },
-  lastPromotedAt: {
-    type: Date,
-    control: "datetime",
+  spotlightImageId: {
+    type: String,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
+    control: "ImageUpload",
+    optional: true,
+    nullable: true,
     order: 60,
-    // Default to the epoch date if not specified
-    ...schemaDefaultValue(new Date(0)),
-  }
+  },
+
 };
   
 export default schema;
