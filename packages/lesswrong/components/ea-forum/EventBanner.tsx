@@ -28,6 +28,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: bannerHeight,
     width: '100%',
     objectFit: 'cover',
+    [theme.breakpoints.down('md')]: {
+      width: 'calc(100% + 16px)',
+      marginRight: -8,
+      marginLeft: -8,
+    },
   }
 }))
 
