@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -40,7 +40,10 @@ export const SpotlightsPage = ({classes}: {
     return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
   }, [spotlights]);
 
-  if (!userIsAdmin(currentUser)) {
+  const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
+  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
+
+  if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <div>You must be logged in as an admin to use this page.</div>;
   }
 
@@ -55,12 +58,11 @@ export const SpotlightsPage = ({classes}: {
         />
       </SpotlightEditorStyles>
     </div>
-    {loading
-      ? <Loading />
-      : spotlightsInDisplayOrder.map(spotlight => {
-        return <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch}/>
-      })
-    }
+    {loading && <Loading/>}
+    <SectionTitle title="Upcoming Spotlights"/>
+    {upcomingSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+    <SectionTitle title="Draft Spotlights"/>
+    {draftSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
   </SingleColumnSection>
 }
 

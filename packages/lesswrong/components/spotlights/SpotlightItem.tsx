@@ -186,7 +186,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   form: {
     borderTop: theme.palette.border.faint,
     background: theme.palette.background.translucentBackground,
-    padding: 16
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+    paddingBottom: 8
   }
 });
 
@@ -202,8 +205,9 @@ const getUrlFromDocument = (document: SpotlightContent['document'], documentType
 }
 
 
-export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlights}: {
+export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, refetchAllSpotlights}: {
   spotlight: SpotlightDisplay,
+  showAdminInfo?: boolean,
   hideBanner?: () => void,
   classes: ClassesType,
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
@@ -286,7 +290,7 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
           </LWTooltip>}
         </div>
       </div>
-      <div className={classes.form}>
+      {showAdminInfo && <div className={classes.form}>
         {edit ? <SpotlightEditorStyles>
            <WrappedSmartForm
               collection={Spotlights}
@@ -298,12 +302,12 @@ export const SpotlightItem = ({classes, spotlight, hideBanner, refetchAllSpotlig
           </SpotlightEditorStyles>
            :
           <div>
+            {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
-            <MetaInfo><FormatDate date={spotlight.lastPromotedAt}/></MetaInfo>
-            {spotlight.draft && <MetaInfo>Draft</MetaInfo>}
+            <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
           </div>
         }
-      </div>
+      </div>}
     </div>
   </AnalyticsTracker>
 }
