@@ -16,6 +16,7 @@ export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): bool
   return !!user && userCreatedBeforeCutoff && !(manuallyExcludedUsers.includes(user._id) 
     || !!user.banned 
     || user.deleted 
+    || !user.karma
     || (user.karma && user.karma < currentKarmaThreshold) 
     || (user.karma && user.karma < 0) 
     || user.petrovOptOut)
