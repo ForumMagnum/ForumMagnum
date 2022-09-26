@@ -343,8 +343,6 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
     }
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log()
-    // eslint-disable-next-line no-console
     console.log("%c Error changing slugs", "color: red")
     // eslint-disable-next-line no-console
     console.log(err)
@@ -353,14 +351,14 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
   // if the two accounts share an email address, change the sourceUser email to "+old"
   try {
     if (!dryRun) {
+      const splitEmail = sourceUser.email.split("@")
+      const newEmail = `${splitEmail[0]}+old@${splitEmail[1]}` 
       if (sourceUser.email === targetUser.email) {
-        const splitEmail = sourceUser.email.split("@")
-        const updatedEmail = `${splitEmail[0]}+old@${splitEmail[1]}` 
         // appending "+old" should still allow the email to work if need be
         await Users.rawUpdateOne(
           {_id: sourceUserId},
           {$set: {
-            email: updatedEmail
+            email: newEmail
           }}
         );
       }
@@ -370,16 +368,30 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
         await Users.rawUpdateOne(
           {_id: sourceUserId},
           {$set: {
-            'emails.0': '${sourceEmailsEmail}-old'
+            'emails.0': newEmail
           }}
         );
       }
     }
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log()
-    // eslint-disable-next-line no-console
     console.log("%c Error changing emails", "color: red")
+    // eslint-disable-next-line no-console
+    console.log(err)
+  }
+
+  // if the two accounts share a displayName, change the sourceUSer to " (Old)"
+  try {
+    if (!dryRun) {
+      if (sourceUser.displayName === targetUser.displayName) {
+        const newDisplayName = sourceUser.displayName + " (Old)"
+        await Users.rawUpdateOne({_id: sourceUserId}, {$set: { email: newDisplayName}}
+        );
+      }
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log("%c Error changing displayName", "color: red")
     // eslint-disable-next-line no-console
     console.log(err)
   }
