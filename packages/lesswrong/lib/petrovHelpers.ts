@@ -1,7 +1,7 @@
 import { petrovBeforeTime } from "../components/Layout";
 import moment from "moment";
 
-export const getPetrovDayKarmaThreshold = () => {
+export const getPetrovDayKarmaThreshold = (): number => {
   const petrovStartTime = petrovBeforeTime.get()
   const currentTime = (new Date()).valueOf()
   const karmaStartingThreshold = 2300
