@@ -65,7 +65,7 @@ export const petrovDay: CuratedContent = {
     title: "Petrov Day 2022",
     slug: "lw-petrov-day-2022-monday-9-26"
   },
-  description: 'On September 26th, 1983, to the system reported five incoming missiles. Petrov’s job was to report this as an attack to his superiors, who would launch a retaliative nuclear response. But he called it in as a false alarm.',
+  description: 'On September 26th, 1983, the system reported five incoming missiles. Petrov’s job was to report this as an attack to his superiors, who would launch a retaliative nuclear response. But he called it in as a false alarm.',
   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1664163448/petrov3_vlucr7.png"
 }
 
