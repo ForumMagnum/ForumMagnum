@@ -10,7 +10,7 @@ export const getPetrovDayKarmaThreshold = (): number => {
 
 export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): boolean  => {
   const currentKarmaThreshold = getPetrovDayKarmaThreshold()
-  const manuallyExcludedUsers: String[] = ['aaaa']
+  const manuallyExcludedUsers: String[] = ['KneTmopEjYGsaPYNi']
   const userCreatedBeforeCutoff = moment('2022-09-21').isSameOrAfter(moment(user?.createdAt))
   
   return !!user && userCreatedBeforeCutoff && !(manuallyExcludedUsers.includes(user._id) 
