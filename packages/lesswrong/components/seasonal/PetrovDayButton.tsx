@@ -11,7 +11,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
-import { getPetrovDayKarmaThreshold, userCanLaunchPetrovMissile } from "../../lib/petrovHelpers";
+import {
+  getPetrovDayKarmaThreshold,
+  userCanLaunchPetrovMissile,
+  usersAboveKarmaThresholdHardcoded20220922
+} from "../../lib/petrovHelpers";
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -61,6 +65,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
+  },
+  usersAboveThreshold: {
+    marginTop: theme.spacing.unit*1.5,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    fontSize: "1.6rem"
+  },
+  yourKarma: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    fontSize: "1.6rem"
   },
   timer: {
     fontSize: '3rem',
@@ -113,8 +130,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*1.5,
     width: 255,
     textAlign: "center",
-    lineHeight: "1.8em",
-    color: theme.palette.grey[600]
+    lineHeight: "1.4em",
+    color: theme.palette.grey[600],
+    fontSize: "1.4rem"
   },
   link: {
     marginTop: theme.spacing.unit*1.5,
@@ -181,6 +199,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
+  
 
   return (
     <div className={classes.root}>
@@ -201,7 +220,8 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
           <Typography variant="display1" className={classes.karmaThreshold}>
             <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
               <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
-              {!!currentUser && <div>{`Your Karma: ${currentUser.karma ?? 0}`}</div>}
+              <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
+              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma ?? 0}`}</div>}
             </Link>
           </Typography>
           {currentUser ? 
