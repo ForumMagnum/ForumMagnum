@@ -720,7 +720,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     control: 'checkbox',
     label: "Opt out of Petrov Day - you will not be able to launch",
-    hidden: false//(new Date()).valueOf() > petrovBeforeTime.get()
+    hidden: (new Date()).valueOf() > petrovBeforeTime.get()
   },
 
   hideNavigationSidebar: {
