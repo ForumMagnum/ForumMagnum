@@ -58,20 +58,31 @@ import type { CuratedContent } from "./CuratedContentItem"
 //   }
 // }
 
-export const multiagentmodels: CuratedContent = {
-  documentType: "Sequence",
+export const petrovDay: CuratedContent = {
+  documentType: "Post",
   document: {
-    _id: "ZbmRyDN8TCpBTZSip",
-    title: "Multiagent Models of Mind",
+    _id: "KTEciTeFwL2tTujZk",
+    title: "Petrov Day 2022",
+    slug: "lw-petrov-day-2022-monday-9-26"
   },
-  description: 'We often regard ourselves as unified minds – agents with a single set of beliefs and goals. This is not entirely true of humans. In this sequence, Kaj Sotala draws upon neuroscience, psychotherapy, and meditation to describe a theory of mental "subagents".',
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660861487/DALL_E_2022-08-18_15.08.28_-_multiagent_models_of_mind_aquarelle_painting_by_Thomas_Schaller_as_digital_art_edited_j9bttt.png",
-  firstPost: {
-    _id: "M4w2rdYgCKctbADMn",
-    url: "/s/ZbmRyDN8TCpBTZSip/p/M4w2rdYgCKctbADMn",
-    title: "Sequence introduction: non-agent and multiagent models of mind"
-  }
+  description: 'On September 26th, 1983, to the system reported five incoming missiles. Petrov’s job was to report this as an attack to his superiors, who would launch a retaliative nuclear response. But he called it in as a false alarm.',
+  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1664163448/petrov3_vlucr7.png"
 }
+
+// export const multiagentmodels: CuratedContent = {
+//   documentType: "Sequence",
+//   document: {
+//     _id: "ZbmRyDN8TCpBTZSip",
+//     title: "Multiagent Models of Mind",
+//   },
+//   description: 'We often regard ourselves as unified minds – agents with a single set of beliefs and goals. This is not entirely true of humans. In this sequence, Kaj Sotala draws upon neuroscience, psychotherapy, and meditation to describe a theory of mental "subagents".',
+//   imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660861487/DALL_E_2022-08-18_15.08.28_-_multiagent_models_of_mind_aquarelle_painting_by_Thomas_Schaller_as_digital_art_edited_j9bttt.png",
+//   firstPost: {
+//     _id: "M4w2rdYgCKctbADMn",
+//     url: "/s/ZbmRyDN8TCpBTZSip/p/M4w2rdYgCKctbADMn",
+//     title: "Sequence introduction: non-agent and multiagent models of mind"
+//   }
+// }
 
 // export const cfarHandbook: CuratedContent = {
 //   documentType: "Sequence",
