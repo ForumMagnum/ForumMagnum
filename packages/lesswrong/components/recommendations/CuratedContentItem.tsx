@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: 16,
     paddingRight: 35,
-    paddingBottom: 0,
+    paddingBottom: 8,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
