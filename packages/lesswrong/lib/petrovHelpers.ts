@@ -2,7 +2,7 @@ import { petrovBeforeTime } from "../components/Layout";
 import moment from "moment";
 
 export const getPetrovDayKarmaThreshold = (): number => {
-  const petrovStartTime = petrovBeforeTime.get()
+  const petrovStartTime = (new Date).valueOf() - 3600*1000*4.6 //petrovBeforeTime.get()
   const currentTime = (new Date()).valueOf()
   const karmaStartingThreshold = 2300
   return karmaStartingThreshold - (100*Math.floor((currentTime - petrovStartTime)/(3600*1000)))
@@ -19,4 +19,31 @@ export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): bool
     || (user.karma && user.karma < currentKarmaThreshold) 
     || (user.karma && user.karma < 0) 
     || user.petrovOptOut)
+}
+
+export const usersAboveKarmaThresholdHardcoded20220922 = {
+    0: 98606,
+    100: 2212,
+    200: 1504,
+    300: 1178,
+    400: 984,
+    500: 856,
+    600: 756,
+    700: 675,
+    800: 612,
+    900: 566,
+    1000: 524,
+    1100: 488,
+    1200: 460,
+    1300: 429,
+    1400: 406,
+    1500: 388,
+    1600: 370,
+    1700: 342,
+    1800: 326,
+    1900: 315,
+    2000: 305,
+    2100: 290,
+    2200: 274,
+    2300: 264
 }
