@@ -13,7 +13,6 @@ import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
-import {petrovBeforeTime} from "../../../components/Layout";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -720,7 +719,10 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     control: 'checkbox',
     label: "Opt out of Petrov Day - you will not be able to launch",
-    hidden: false//(new Date()).valueOf() > petrovBeforeTime.get()
+    hidden: (new Date()).valueOf() > 1664161200000 
+    // note this date is hard coded as a hack
+    // we originally were using petrovBeforeTime but it didn't work in this file because the database
+    // public settings aren't been loaded yet.
   },
 
   hideNavigationSidebar: {

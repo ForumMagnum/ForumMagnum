@@ -8,7 +8,7 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { multiagentmodels } from './curatedContents';
+import { petrovDay } from './curatedContents';
 
 export const curatedUrl = "/recommendations"
 
@@ -161,7 +161,7 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CuratedContentItem content={multiagentmodels} />
+          <CuratedContentItem content={petrovDay} />
         </AnalyticsContext>}
   
         {/*Delete after the dust has settled on other Recommendations stuff*/}
