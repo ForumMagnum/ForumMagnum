@@ -2,7 +2,7 @@ import { petrovBeforeTime } from "../components/Layout";
 import moment from "moment";
 
 export const getPetrovDayKarmaThreshold = (): number => {
-  const petrovStartTime = (new Date).valueOf() - 3600*1000*4.6 //petrovBeforeTime.get()
+  const petrovStartTime = petrovBeforeTime.get()
   const currentTime = (new Date()).valueOf()
   const karmaStartingThreshold = 2300
   return karmaStartingThreshold - (100*Math.floor((currentTime - petrovStartTime)/(3600*1000)))
