@@ -59,11 +59,11 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   };
 
   if (!contextValue.hostedHere) {
-    contextValue.combinedPost = {
-      ...document,
-      ...post,
-      contents: document?.contents ?? post.contents,
-    };
+    const overrideFields = ["contents", "readTimeMinutes"];
+    contextValue.combinedPost = {...document, ...post};
+    for (const field of overrideFields) {
+      contextValue.combinedPost[field] = document?.[field] ?? post[field];
+    }
   }
 
   return (
