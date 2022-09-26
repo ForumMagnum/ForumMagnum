@@ -1,7 +1,7 @@
 import { petrovBeforeTime } from "../components/Layout";
 import moment from "moment";
 
-export const getPetrovDayKarmaThreshold = (): number => {
+export const getPetrovDayKarmaThreshold = () => {
   const petrovStartTime = petrovBeforeTime.get()
   const currentTime = (new Date()).valueOf()
   const karmaStartingThreshold = 2300
@@ -16,6 +16,7 @@ export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): bool
   return !!user && userCreatedBeforeCutoff && !(manuallyExcludedUsers.includes(user._id) 
     || !!user.banned 
     || user.deleted 
+    || !user.karma
     || (user.karma && user.karma < currentKarmaThreshold) 
     || (user.karma && user.karma < 0) 
     || user.petrovOptOut)
