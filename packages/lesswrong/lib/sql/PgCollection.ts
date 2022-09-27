@@ -1,5 +1,4 @@
 import { MongoCollection } from "../mongoCollection";
-import { randomId } from '../random';
 import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
@@ -105,7 +104,6 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
-    data._id = data._id ?? randomId();
     const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeQuery(insert, {data, options});
     return result[0]._id;
@@ -117,7 +115,6 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options: MongoUpdateOptions<T> & {upsert: true},
   ) {
     const data = modifier.$set ?? modifier as T;
-    data._id = data._id ?? randomId();
     const upsert = new InsertQuery<T>(this.getTable(), data, options, {
         conflictStrategy: "upsert",
         upsertSelector: selector,

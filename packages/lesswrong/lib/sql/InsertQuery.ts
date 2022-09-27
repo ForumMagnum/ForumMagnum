@@ -1,5 +1,6 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
+import { randomId } from '../random';
 
 export type ConflictStrategy = "error" | "ignore" | "upsert";
 
@@ -26,6 +27,9 @@ class InsertQuery<T extends DbObject> extends Query<T> {
   ) {
     super(table, [`INSERT INTO "${table.getName()}"`]);
     data = Array.isArray(data) ? data : [data];
+    if (data.length === 1 && sqlOptions?.upsertSelector) {
+      data[0] = {...data[0], ...sqlOptions?.upsertSelector};
+    }
     this.appendValuesList(data);
 
     switch (sqlOptions?.conflictStrategy ?? "error") {
@@ -72,6 +76,9 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     let prefix = "(";
     for (const key of keys) {
       this.atoms.push(prefix);
+      if (key === "_id" && !item[key]) {
+        item[key] = randomId();
+      }
       this.atoms.push(this.createArg(item[key] ?? null));
       prefix = ", ";
     }
