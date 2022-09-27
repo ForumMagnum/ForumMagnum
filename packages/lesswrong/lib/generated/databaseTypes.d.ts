@@ -672,6 +672,7 @@ interface DbSpotlight extends DbObject {
   customTitle: string | null
   customSubtitle: string | null
   createdAt: Date
+  description: EditableFieldContents
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {

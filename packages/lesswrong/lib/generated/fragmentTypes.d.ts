@@ -2626,8 +2626,15 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly duration: number,
 }
 
+interface SpotlightTest { // fragment on Spotlights
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
+  readonly duration: number,
+}
+
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly document: SpotlightDisplay_document,
+  readonly description: SpotlightDisplay_description|null,
   readonly firstPost: SpotlightDisplay_firstPost|null,
 }
 
@@ -2637,6 +2644,10 @@ interface SpotlightDisplay_document { // fragment on Posts
   readonly slug: string,
 }
 
+interface SpotlightDisplay_description { // fragment on Revisions
+  readonly html: string,
+}
+
 interface SpotlightDisplay_firstPost { // fragment on Posts
   readonly _id: string,
   readonly title: string,
@@ -2644,6 +2655,7 @@ interface SpotlightDisplay_firstPost { // fragment on Posts
 }
 
 interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
+  readonly description: RevisionEdit|null,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -2815,6 +2827,7 @@ interface FragmentTypes {
   UserVotes: UserVotes
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
+  SpotlightTest: SpotlightTest
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -2978,6 +2991,7 @@ interface CollectionNamesByFragmentName {
   UserVotes: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
+  SpotlightTest: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"

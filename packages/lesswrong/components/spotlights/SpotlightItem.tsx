@@ -9,7 +9,6 @@ import Spotlights from '../../lib/collections/spotlights/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
-import { DEFAULT_ACTIVE_DAYS } from '../../server/spotlightCron';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
@@ -241,7 +240,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
 
-  const duration = spotlight.duration || DEFAULT_ACTIVE_DAYS
+  const duration = spotlight.duration
 
   const onUpdate = () => {
     setEdit(false);
