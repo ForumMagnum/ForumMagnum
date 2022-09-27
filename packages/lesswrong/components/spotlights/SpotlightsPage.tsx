@@ -44,7 +44,9 @@ export const SpotlightsPage = ({classes}: {
   const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
-    return <div>You must be logged in as an admin to use this page.</div>;
+    return <SingleColumnSection>
+      <Typography variant="body2">You must be logged in as an admin to use this page.</Typography>
+    </SingleColumnSection>;
   }
 
   return <SingleColumnSection>
