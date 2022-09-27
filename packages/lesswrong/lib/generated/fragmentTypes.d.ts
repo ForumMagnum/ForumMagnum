@@ -2601,6 +2601,51 @@ interface UserVotes { // fragment on Votes
   readonly collectionName: string,
 }
 
+interface SpotlightsDefaultFragment { // fragment on Spotlights
+  readonly documentId: string,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly position: number,
+  readonly spotlightImageId: string | null,
+  readonly draft: boolean,
+  readonly lastPromotedAt: Date,
+}
+
+interface SpotlightMinimumInfo { // fragment on Spotlights
+  readonly _id: string,
+  readonly documentId: string,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly spotlightImageId: string | null,
+  readonly draft: boolean,
+  readonly position: number,
+  readonly lastPromotedAt: Date,
+}
+
+interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
+  readonly document: SpotlightDisplay_document,
+  readonly description: SpotlightDisplay_description|null,
+  readonly firstPost: SpotlightDisplay_firstPost|null,
+}
+
+interface SpotlightDisplay_document { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+}
+
+interface SpotlightDisplay_description { // fragment on Revisions
+  readonly html: string,
+}
+
+interface SpotlightDisplay_firstPost { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+}
+
+interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
+  readonly description: RevisionEdit|null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -2768,6 +2813,10 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
+  SpotlightsDefaultFragment: SpotlightsDefaultFragment
+  SpotlightMinimumInfo: SpotlightMinimumInfo
+  SpotlightDisplay: SpotlightDisplay
+  SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -2927,8 +2976,12 @@ interface CollectionNamesByFragmentName {
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
+  SpotlightsDefaultFragment: "Spotlights"
+  SpotlightMinimumInfo: "Spotlights"
+  SpotlightDisplay: "Spotlights"
+  SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

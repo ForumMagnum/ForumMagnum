@@ -11,12 +11,6 @@ const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBa
 
 const bannerHeight = 250
 const container = cloudinaryCloudNameSetting.get()
-const mobileImageId = eventBannerMobileImageSetting.get()
-const desktopImageId = eventBannerDesktopImageSetting.get()
-const featuredPost = eventBannerLinkSetting.get()
-
-const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${mobileImageId}`
-const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${desktopImageId}`
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -38,6 +32,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const EventBanner = ({ classes }) => {
   const { SingleColumnSection } = Components
+
+  const mobileImageId = eventBannerMobileImageSetting.get()
+  const desktopImageId = eventBannerDesktopImageSetting.get()
+  const featuredPost = eventBannerLinkSetting.get()
+
+  const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${mobileImageId}`
+  const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${desktopImageId}`
   
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>
