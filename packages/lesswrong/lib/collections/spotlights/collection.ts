@@ -13,24 +13,24 @@ export const Spotlights: SpotlightsCollection = createCollection({
 
 addUniversalFields({ collection: Spotlights });
 
-// makeEditable({
-//   collection: Spotlights,
-//   options: {
-//     fieldName: "description",
-//     commentEditor: true,
-//     commentStyles: true,
-//     hideControls: true,
-//     getLocalStorageId: (spotlight) => {
-//       if (spotlight._id) { return {id: `spotlight:${spotlight._id}`, verify:true} }
-//       return {id: `spotlight:create`, verify:true}
-//     },
-//     permissions: {
-//       viewableBy: ['guests'],
-//       editableBy: ['admins', 'sunshineRegiment'],
-//       insertableBy: ['admins', 'sunshineRegiment']
-//     },
-//     order: 100
-//   }
-// });
+makeEditable({
+  collection: Spotlights,
+  options: {
+    fieldName: "description",
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    getLocalStorageId: (spotlight) => {
+      if (spotlight._id) { return {id: `spotlight:${spotlight._id}`, verify:true} }
+      return {id: `spotlight:create`, verify:true}
+    },
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['admins', 'sunshineRegiment'],
+      insertableBy: ['admins', 'sunshineRegiment']
+    },
+    order: 100
+  }
+});
 
 export default Spotlights;
