@@ -2,7 +2,7 @@ import { Collections } from "../../vulcan-lib/getCollection";
 import PgCollection from "../PgCollection";
 import CreateTableQuery from "../CreateTableQuery";
 import { createSqlConnection } from "../../../server/sqlConnection";
-import { closeSqlClient, setSqlClient } from "../sqlClient";
+import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 
@@ -39,14 +39,22 @@ const buildTables = async (client: SqlClient) => {
   }
 }
 
-export const createTestingSqlClient = async (): Promise<SqlClient> => {
+const makeDbName = (id?: string) => {
   const date = new Date().toISOString().replace(/[:.-]/g,"_");
-  const dbName = `unittest_${date}_${process.pid}_${process.env.JEST_WORKER_ID}`.toLowerCase();
+  id = id ?? `${date}_${process.pid}_${process.env.JEST_WORKER_ID}`;
+  return `unittest_${id}`.toLowerCase();
+}
+
+export const createTestingSqlClient = async (id?: string, dropExisting?: boolean): Promise<SqlClient> => {
+  const dbName = makeDbName(id);
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't initialize test DB - PG_URL not set");
   }
   let sql = await createSqlConnection(PG_URL);
+  if (dropExisting) {
+    await sql`DROP DATABASE IF EXISTS ${sql(dbName)}`;
+  }
   await sql`CREATE DATABASE ${sql(dbName)}`;
   await closeSqlClient(sql);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
@@ -81,5 +89,23 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
     if (dateCreated < olderThan) {
       await sql`DROP DATABASE ${sql(datname)}`;
     }
+  }
+}
+
+export const killAllConnections = async (id?: string) => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't kill connections - PG_URL not set");
+  }
+  const sql = await createSqlConnection(PG_URL);
+  const dbName = makeDbName(id);
+  await sql`
+    SELECT pg_terminate_backend(pg_stat_activity.pid)
+    FROM pg_stat_activity
+    WHERE pg_stat_activity.datname = '${sql(dbName)}' AND pid <> pg_backend_pid()
+  `;
+  const client = getSqlClient();
+  if (client) {
+    await closeSqlClient(client);
   }
 }

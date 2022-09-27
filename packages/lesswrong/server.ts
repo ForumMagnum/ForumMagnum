@@ -39,6 +39,7 @@ import './server/scripts/fillUserEmail';
 import './server/scripts/mongoToSql';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
+import './server/scripts/dropAndSeedCypressPg';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';

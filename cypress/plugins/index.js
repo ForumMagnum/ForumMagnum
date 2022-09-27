@@ -2,6 +2,8 @@
 
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
+const childProcess = require('child_process');
+const path = require('path');
 
 const seedPosts = require('../fixtures/posts');
 const seedComments = require('../fixtures/comments');
@@ -18,7 +20,7 @@ function hashLoginToken(loginToken) {
 let dbConnection = null;
 
 /**
- * Note: 
+ * Note:
  * There are 2 broad ways to connect MongoClient to a database:
  * 1. using a callback, e.g. MongoClient.connect(url, (err, dbConnection) => {...})
  * 2. using a promise, e.g. const dbConnection = await MongoClient.connect(url)
@@ -30,39 +32,62 @@ let dbConnection = null;
  * 
  * Note that there are also instance method versions of both approaches above:
  * 1. (new MongoClient(url)).connect((err, dbConnection) => {...})
- * 2. const dbConnection = await (new Mongoclient(url)).connect()
+ * 2. const dbConnection = await (new MongoClient(url)).connect()
  * These show the same behavior: the callback version fails, and the promise version succeeds.
  * 
  * 
  * @type {Cypress.PluginConfig}
  */
+const dropAndSeedMongo = async (url) => {
+  if (!dbConnection) {
+    dbConnection = new MongoClient(url);
+    await dbConnection.connect();
+  }
+  const isProd = (await dbConnection.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
+  if(isProd) {
+    throw new Error('Cannot run tests on production DB.');
+  }
+
+  const db = dbConnection.db();
+
+  await Promise.all((await db.collections()).map(collection => {
+    if (collection.collectionName !== "databasemetadata") {
+      return collection.deleteMany({});
+    }
+  }));
+
+  await Promise.all([
+    db.collection('comments').insertMany(seedComments),
+    db.collection('users').insertMany(seedUsers),
+    db.collection('conversations').insertMany(seedConversations),
+    db.collection('posts').insertMany(seedPosts),
+    db.collection('messages').insertMany(seedMessages),
+  ]);
+}
+
+const dropAndSeedPostgres = () => {
+  return new Promise((resolve, reject) => {
+    childProcess.exec(
+      `${path.resolve(process.cwd(), "./scripts/serverShellCommand.sh")} --wait 'Vulcan.dropAndSeedCypressPg()'`,
+      {},
+      (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(undefined);
+        }
+      },
+    );
+  });
+}
+
 // eslint-disable-next-line no-unused-vars
 module.exports = (on, config) => {
   on('task', {
     async dropAndSeedDatabase() {
-      if (!dbConnection) {
-        dbConnection = new MongoClient(config.env.TESTING_DB_URL);
-        await dbConnection.connect();
-      }
-      const isProd = (await dbConnection.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
-      if(isProd) {
-        throw new Error('Cannot run tests on production DB.');
-      }
-
-      const db = await dbConnection.db();
-
-      await Promise.all((await db.collections()).map(collection => {
-        if(collection.collectionName  !== "databasemetadata") {
-          return collection.deleteMany({});
-        }
-      }));
-
       await Promise.all([
-        db.collection('comments').insertMany(seedComments),
-        db.collection('users').insertMany(seedUsers),
-        db.collection('conversations').insertMany(seedConversations),
-        db.collection('posts').insertMany(seedPosts),
-        db.collection('messages').insertMany(seedMessages),
+        dropAndSeedMongo(config.env.TESTING_DB_URL),
+        dropAndSeedPostgres(),
       ]);
       return null;
     },

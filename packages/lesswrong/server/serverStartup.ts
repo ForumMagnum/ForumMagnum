@@ -162,7 +162,7 @@ function initShell()
 }
 
 const compileWithGlobals = (code: string) => {
-  const callable = new Function(`with(this){${code}}`);
+  const callable = (async function () {}).constructor(`with(this) { await ${code} }`);
   const scope = {Globals, Vulcan};
   return () => {
     return callable.call(new Proxy({}, {
@@ -186,7 +186,6 @@ const watchForShellCommands = () => {
     const fileContents = fs.readFileSync(path, 'utf8');
     // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
-    fs.unlinkSync(path);
     try {
       const func = compileWithGlobals(fileContents);
       const result = await func();
@@ -197,6 +196,8 @@ const watchForShellCommands = () => {
       console.log("Failed.");
       // eslint-disable-next-line no-console
       console.log(e);
+    } finally {
+      fs.unlinkSync(path);
     }
   });
 }
