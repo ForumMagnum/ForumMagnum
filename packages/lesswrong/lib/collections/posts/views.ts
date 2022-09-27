@@ -45,6 +45,7 @@ declare global {
     forum?: boolean,
     question?: boolean,
     tagId?: string,
+    subforumTagId?: string,
     legacyId?: string,
     postId?: string,
     authorIsUnreviewed?: boolean|null,
@@ -1410,4 +1411,15 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
       sort: {},
     },
   };
+});
+
+Posts.addView('tagSubforumPosts', ({subforumTagId}: PostsViewTerms) => {
+  return {
+    selector: {
+      subforumTagId: subforumTagId,
+    },
+    options: {
+      sort: sortings.magic,
+    },
+  }
 });

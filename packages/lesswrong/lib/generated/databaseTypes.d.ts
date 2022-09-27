@@ -522,6 +522,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  subforumTagId: string
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -665,9 +666,9 @@ interface DbSpotlight extends DbObject {
   documentId: string
   documentType: SpotlightDocumentType
   position: number
-  spotlightImageId: string | null
-  draft: boolean
   lastPromotedAt: Date
+  draft: boolean
+  spotlightImageId: string | null
   createdAt: Date
   description: EditableFieldContents
 }
@@ -793,7 +794,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
-  petrovOptOut: boolean
+  petrovOptOut: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
