@@ -2,7 +2,7 @@ import { getCollection } from "../vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 
-const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight"];
+const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents"];
 
 export const isResolverOnly =
   <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
