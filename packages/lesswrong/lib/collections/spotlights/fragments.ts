@@ -9,6 +9,8 @@ registerFragment(`
     draft
     position
     lastPromotedAt
+    customTitle
+    customSubtitle
   }
 `)
 

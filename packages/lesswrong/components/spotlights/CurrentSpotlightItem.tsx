@@ -5,12 +5,6 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-
-  }
-});
-
 const HIDE_SPOTLIGHT_ITEM_PREFIX = 'hide_spotlight_item_';
 
 export const CurrentSpotlightItem = ({classes}: {
@@ -43,12 +37,13 @@ export const CurrentSpotlightItem = ({classes}: {
     captureEvent("spotlightItemHideItemClicked", { document: spotlight.document })
   }, [setCookie, cookieName, spotlight, captureEvent]);  
 
-  return <div className={classes.root}>
-    {spotlight && !isHidden && <SpotlightItem key={spotlight._id} spotlight={spotlight} hideBanner={hideBanner}/>}
-  </div>;
+  if (spotlight && !isHidden) {
+    return <SpotlightItem key={spotlight._id} spotlight={spotlight} hideBanner={hideBanner}/>
+  }
+  return null
 }
 
-const CurrentSpotlightItemComponent = registerComponent('CurrentSpotlightItem', CurrentSpotlightItem, {styles});
+const CurrentSpotlightItemComponent = registerComponent('CurrentSpotlightItem', CurrentSpotlightItem);
 
 declare global {
   interface ComponentTypes {

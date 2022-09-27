@@ -190,7 +190,32 @@ const schema: SchemaType<DbSpotlight> = {
     nullable: true,
     order: 60,
   },
-
+  duration: {
+    type: Number,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 70,
+    ...schemaDefaultValue(3),
+  },
+  customTitle: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 70,
+    optional: true,
+    nullable: true
+  },
+  customSubtitle: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 70,
+    optional: true,
+    nullable: true
+  },
 };
   
 export default schema;
