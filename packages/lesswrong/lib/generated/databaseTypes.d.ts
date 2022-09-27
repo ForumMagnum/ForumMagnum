@@ -657,6 +657,21 @@ interface DbSequence extends DbObject {
   createdAt: Date
 }
 
+interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
+}
+
+interface DbSpotlight extends DbObject {
+  __collectionName?: "Spotlights"
+  documentId: string
+  documentType: SpotlightDocumentType
+  position: number
+  spotlightImageId: string | null
+  draft: boolean
+  lastPromotedAt: Date
+  createdAt: Date
+  description: EditableFieldContents
+}
+
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
 }
 
@@ -1095,6 +1110,7 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
@@ -1133,6 +1149,7 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
   TagRels: DbTagRel

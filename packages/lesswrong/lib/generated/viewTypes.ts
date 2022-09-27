@@ -27,6 +27,7 @@ type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminCl
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesAdminDashboard";
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
+type SpotlightsViewName = never
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
@@ -64,6 +65,7 @@ interface ViewTermsByCollectionName {
   ReviewVotes: ReviewVotesViewTerms
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
+  Spotlights: ViewTermsBase
   Subscriptions: SubscriptionsViewTerms
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
