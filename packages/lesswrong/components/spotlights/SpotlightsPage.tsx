@@ -54,7 +54,7 @@ export const SpotlightsPage = ({classes}: {
       <SpotlightEditorStyles>
         <WrappedSmartForm
           collection={Spotlights}
-          mutationFragment={getFragment('SpotlightsDefaultFragment')}
+          mutationFragment={getFragment('SpotlightEditQueryFragment')}
         />
       </SpotlightEditorStyles>
     </div>

@@ -665,14 +665,13 @@ interface DbSpotlight extends DbObject {
   documentId: string
   documentType: SpotlightDocumentType
   position: number
-  duration: number
-  customTitle: string | null
-  customSubtitle: string | null
   lastPromotedAt: Date
   draft: boolean
   spotlightImageId: string | null
+  duration: number
+  customTitle: string | null
+  customSubtitle: string | null
   createdAt: Date
-  description: EditableFieldContents
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
