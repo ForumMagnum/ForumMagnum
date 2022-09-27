@@ -100,11 +100,6 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
     </a> : "Online Event"
   }
 
-  let podcastInfo: JSX.Element | undefined;
-  if (document.podcastEpisode) {
-    podcastInfo = getPodcastInfoElement(document.podcastEpisode);
-  }
-
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
@@ -131,8 +126,8 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
       </div>}
     </div>
 
-    {podcastInfo && <div className={classes.podcastRow}>
-      {podcastInfo}
+    {document.podcastEpisode && <div className={classes.podcastRow}>
+      {getPodcastInfoElement(document.podcastEpisode)}
       <hr />
     </div>}
     
