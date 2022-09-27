@@ -17,6 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   headingRow: {
     marginBottom: 8
   },
+
+  podcastRow: {
+    '& p': {
+      marginBottom: 16,
+    },
+    fontStyle: "italic"
+  },
   
   headingLink: {
     color: theme.palette.text.maxIntensity,
@@ -38,6 +45,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 30,
   },
 });
+
+const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
+  const { podcast: { title, applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
+  const episodeUrl = new URL(episodeLink);
+
+  // episodeLink is something like https://www.buzzsprout.com/2037297/11391281-...
+  // But they can also have multiple forward slashes between the origin and the podcast ID
+  // Therefore, the first element returned by `episodeUrl.pathname.split('/').filter(pathSection => !!pathSection)` is `2037297`
+  const [buzzsproutPodcastId] = episodeUrl.pathname.split('/').filter(pathSection => !!pathSection);
+  const buzzsproutEpisodePath = `${buzzsproutPodcastId}/${externalEpisodeId}`;
+
+  const directEpisodeUrl = new URL(episodeUrl.origin);
+  directEpisodeUrl.pathname = buzzsproutEpisodePath;
+
+  const buzzsproutLinkElement = <a href={directEpisodeUrl.toString()}>Buzzsprout</a>
+  const spotifyLinkElement = spotifyPodcastLink ? <a href={spotifyPodcastLink}>Spotify</a> : undefined;
+  const appleLinkElement = applePodcastLink ? <a href={applePodcastLink}>Apple Podcasts</a> : undefined;
+
+  const externalDirectoryAvailability = !!spotifyLinkElement && !!appleLinkElement;
+
+  return <p>
+    This post has been recorded as part of the {title}, and can be listened to on {buzzsproutLinkElement}.
+    {externalDirectoryAvailability ? '  It is also available on ' + spotifyLinkElement + ' and ' + appleLinkElement + '.' : ''}
+  </p>;
+};
 
 const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   documentId: string,
@@ -68,6 +100,11 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
     </a> : "Online Event"
   }
 
+  let podcastInfo: JSX.Element | undefined;
+  if (document.podcastEpisode) {
+    podcastInfo = getPodcastInfoElement(document.podcastEpisode);
+  }
+
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
@@ -93,6 +130,11 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
         This is a linkpost for <a href={postGetLink(document)} target={postGetLinkTarget(document)}>{document.url}</a>
       </div>}
     </div>
+
+    {podcastInfo && <div className={classes.podcastRow}>
+      {podcastInfo}
+      <hr />
+    </div>}
     
     {document.contents && <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
       __html: document.contents.html
