@@ -11,6 +11,7 @@ registerFragment(`
     lastPromotedAt
     customTitle
     customSubtitle
+    duration
   }
 `)
 

@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '& .input-spotlightImageId': {
         width: "66%"
       },
-      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft': {
+      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle': {
         width: "calc(33% - 12px)",
         overflow: "hidden",
         marginRight: 12

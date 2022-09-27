@@ -2605,12 +2605,12 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly position: number,
-  readonly lastPromotedAt: Date,
-  readonly draft: boolean,
-  readonly spotlightImageId: string | null,
   readonly duration: number,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly lastPromotedAt: Date,
+  readonly draft: boolean,
+  readonly spotlightImageId: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -2623,6 +2623,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly duration: number,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights

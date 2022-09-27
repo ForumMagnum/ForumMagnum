@@ -2,7 +2,7 @@ import Spotlights from '../lib/collections/spotlights/collection';
 import { addCronJob } from './cronUtil';
 
 const MS_IN_DAY = 1000 * 60 * 60 * 24;
-const DEFAULT_ACTIVE_DAYS = 3;
+export const DEFAULT_ACTIVE_DAYS = 3;
 
 addCronJob({
   name: 'updatePromotedSpotlightItem',

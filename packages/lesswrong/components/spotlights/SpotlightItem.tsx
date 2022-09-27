@@ -9,6 +9,7 @@ import Spotlights from '../../lib/collections/spotlights/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
+import { DEFAULT_ACTIVE_DAYS } from '../../server/spotlightCron';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
@@ -240,6 +241,8 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
 
+  const duration = spotlight.duration || DEFAULT_ACTIVE_DAYS
+
   const onUpdate = () => {
     setEdit(false);
     refetchAllSpotlights?.();
@@ -318,6 +321,9 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+            <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+              <MetaInfo>{duration} days</MetaInfo>
+            </LWTooltip>
           </div>
         }
       </div>}
