@@ -91,6 +91,7 @@ importComponent("BatchTimePicker", () => require('../components/common/BatchTime
 importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
+importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
@@ -142,6 +143,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
+importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
@@ -541,6 +543,7 @@ importComponent("TagActivityFeed", () => require('../components/tagging/TagActiv
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
+importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 
 // SequenceEditor
@@ -625,6 +628,7 @@ importComponent("ManageSubscriptionsLink", () => require('../components/form-com
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
+importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 
 importComponent("HomepageCommunityMap", () => require('../components/seasonal/HomepageMap/HomepageCommunityMap'));
 importComponent("HomepageMapFilter", () => require('../components/seasonal/HomepageMap/HomepageMapFilter'));
@@ -661,7 +665,11 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
-importComponent("CuratedContentItem", () => require('../components/recommendations/CuratedContentItem'));
+importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
+importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
+
+importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
+importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

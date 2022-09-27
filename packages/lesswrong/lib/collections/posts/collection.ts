@@ -3,7 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { userIsPostGroupOrganizer } from './helpers';
+import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 
@@ -26,7 +26,8 @@ const options: MutationOptions<DbPost> = {
       return true
     }
     
-    return userOwns(user, document) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPostMetadata(user, document) || await userIsPostGroupOrganizer(user, document)
+    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {

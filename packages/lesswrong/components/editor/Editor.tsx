@@ -330,8 +330,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  submitData = (submission) => {
+  submitData = async (submission) => {
     let data: any = null
+    let dataWithDiscardedSuggestions
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(this.props.value.type) {
@@ -346,11 +347,19 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
         data = ckEditorReference.getData()
+        if (ckEditorReference.plugins.has("TrackChangesData"))  {
+          // Suggested-edits made by the TrackChanges plugin should be treated as private, until they've actually been 
+          // accepted by a post-author/editor. getDataWithDiscardedSuggestions is ckEditor's preferred tool for reliably
+          // stripping out all suggestions from the body.
+          dataWithDiscardedSuggestions = await ckEditorReference.plugins.get( 'TrackChangesData' ).getDataWithDiscardedSuggestions()
+        }
         break
-    }
+    } 
+
     return {
       originalContents: {type, data},
       commitMessage, updateType,
+      dataWithDiscardedSuggestions
     };
   }
   
@@ -477,8 +486,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         onChange: (event, editor) => {
-          // The getData call needs to be wrapped in a closure to avoid `this` reference errors
-          this.throttledSetCkEditor(() => editor.getData());
+          // If transitioning from empty to nonempty or nonempty to empty,
+          // bypass throttling. These cases don't have the performance
+          // implications that motivated having throttling in the first place,
+          // and this prevents a timing bug with form-clearing on submit.
+          if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+            this.throttledSetCkEditor.cancel();
+            this.setContents("ckEditorMarkup", editor.getData());
+          } else {
+            this.throttledSetCkEditor(() => editor.getData())
+          }
         },
         onInit: editor => this.setState({ckEditorReference: editor})
       }

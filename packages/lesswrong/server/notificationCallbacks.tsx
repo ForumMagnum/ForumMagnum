@@ -28,6 +28,7 @@ import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotif
 import moment from 'moment';
 import difference from 'lodash/difference';
 import Messages from '../lib/collections/messages/collection';
+import Tags from '../lib/collections/tags/collection';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -128,20 +129,41 @@ export async function postsNewNotifications (post: DbPost) {
 
 postPublishedCallback.add(postsNewNotifications);
 
+function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
+  if (!!oldPost.mongoLocation !== !!newPost.mongoLocation) {
+    //Location added or removed
+    return true;
+  }
+  if (oldPost.mongoLocation && newPost.mongoLocation
+    && !_.isEqual(oldPost.mongoLocation, newPost.mongoLocation)
+  ) {
+    // Location changed
+    // NOTE: We treat the added/removed and changed cases separately because a
+    // dumb thing inside the mutation callback handlers mixes up null vs
+    // undefined, causing callbacks to get a spurious change from null to
+    // undefined which should not trigger a notification.
+    return true;
+  }
+  
+  if ((newPost.joinEventLink !== oldPost.joinEventLink)
+    || !moment(newPost.startTime).isSame(moment(oldPost.startTime))
+    || !moment(newPost.endTime).isSame(moment(oldPost.endTime))
+  ) {
+    // Link, start time, or end time changed
+    return true;
+  }
+  
+  return false;
+}
+
 getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
   // only send notifications if the event was already published *before* being edited
   const alreadyPublished = !oldPost.draft && !newPost.draft && !oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed
-  if (
-    (
-      !_.isEqual(newPost.mongoLocation, oldPost.mongoLocation) ||
-      (newPost.joinEventLink !== oldPost.joinEventLink) ||
-      !moment(newPost.startTime).isSame(moment(oldPost.startTime)) ||
-      !moment(newPost.endTime).isSame(moment(oldPost.endTime))
-    )
-    && newPost.isEvent && isUpcomingEvent && alreadyPublished)
-  {
+  if (eventHasRelevantChangeForNotification(oldPost, newPost)
+    && newPost.isEvent && isUpcomingEvent && alreadyPublished
+  ) {
     // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification
     let userIdsNotified: string[] = []
 
@@ -506,3 +528,21 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
+async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
+  const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)
+  for (const subforumId of newSubforumIds) {
+    const subforum = await Tags.findOne(subforumId)
+    if (subforum?.isSubforum) {
+      const modIds = subforum.subforumModeratorIds
+      await createNotifications({
+        userIds: modIds,
+        notificationType: 'newSubforumMember',
+        documentType: 'user',
+        documentId: user._id,
+        extraData: {subforumId}
+      })
+    }
+  }
+}
+
+getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)

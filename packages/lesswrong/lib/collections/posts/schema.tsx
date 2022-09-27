@@ -1028,6 +1028,7 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     insertableBy: ['admins', 'podcasters'],
     editableBy: ['admins', 'podcasters'],
+    control: 'PodcastEpisodeInput',
     group: formGroups.audio,
     hidden: isEAForum,
     nullable: true

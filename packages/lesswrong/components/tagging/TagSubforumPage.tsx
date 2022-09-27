@@ -5,6 +5,7 @@ import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
+import { subforumDefaultSorting } from "../../lib/collections/comments/views";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 380,
   },
   title: {
+    textTransform: "capitalize",
     marginLeft: 24,
     marginBottom: 10,
   },
@@ -51,8 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
   const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody } = Components;
 
-  const { params } = useLocation();
+  const { params, query } = useLocation();
   const { slug } = params;
+  const sortBy = query.sortBy || subforumDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
 
@@ -95,8 +98,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}
-            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy: "new" }}
-            newForm
+            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
           />
         </AnalyticsContext>
       </SingleColumnSection>

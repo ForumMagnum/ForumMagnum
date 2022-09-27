@@ -283,6 +283,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
     pageActiveAreaBackground: shades.grey[0],
+    translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),

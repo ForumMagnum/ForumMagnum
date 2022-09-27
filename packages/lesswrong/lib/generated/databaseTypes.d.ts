@@ -118,7 +118,6 @@ interface DbComment extends DbObject {
   promotedByUserId: string
   promotedAt: Date
   hideKarma: boolean
-  createdAt: Date
   legacy: boolean
   legacyId: string
   legacyPoll: boolean
@@ -136,13 +135,6 @@ interface DbComment extends DbObject {
   hideAuthor: boolean
   moderatorHat: boolean
   isPinnedOnProfile: boolean
-  contents: EditableFieldContents
-  contents_latest: string
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   af: boolean
   afBaseScore: number
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -150,6 +142,15 @@ interface DbComment extends DbObject {
   reviewForAlignmentUserId: string
   afDate: Date
   moveToAlignmentUserId: string
+  agentFoundationsId: string
+  createdAt: Date
+  contents: EditableFieldContents
+  contents_latest: string
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
 }
 
 interface ConversationsCollection extends CollectionBase<DbConversation, "Conversations"> {
@@ -452,12 +453,6 @@ interface DbPost extends DbObject {
   onlyVisibleToEstablishedAccounts: boolean
   votingSystem: string
   podcastEpisodeId: string | null
-  createdAt: Date
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -535,13 +530,6 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
-  contents: EditableFieldContents
-  contents_latest: string
-  pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines: EditableFieldContents
-  moderationGuidelines_latest: string
-  customHighlight: EditableFieldContents
-  customHighlight_latest: string
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -551,6 +539,20 @@ interface DbPost extends DbObject {
   afSticky: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
+  agentFoundationsId: string
+  createdAt: Date
+  contents: EditableFieldContents
+  contents_latest: string
+  pingbacks: any /*{"definitions":[{}]}*/
+  moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
+  customHighlight: EditableFieldContents
+  customHighlight_latest: string
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
 }
 
 interface RSSFeedsCollection extends CollectionBase<DbRSSFeed, "RSSFeeds"> {
@@ -662,10 +664,26 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  af: boolean
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
-  af: boolean
+}
+
+interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
+}
+
+interface DbSpotlight extends DbObject {
+  __collectionName?: "Spotlights"
+  documentId: string
+  documentType: SpotlightDocumentType
+  position: number
+  lastPromotedAt: Date
+  draft: boolean
+  spotlightImageId: string | null
+  createdAt: Date
+  description: EditableFieldContents
+  description_latest: string
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
@@ -735,6 +753,7 @@ interface DbTag extends DbObject {
   charsRemoved: number
   deleted: boolean
   lastCommentedAt: Date
+  lastSubforumCommentAt: Date
   needsReview: boolean
   reviewedByUserId: string
   wikiGrade: number
@@ -750,12 +769,13 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   isSubforum: boolean
+  subforumModeratorIds: Array<string>
+  parentTagId: string
   createdAt: Date
   description: EditableFieldContents
   description_latest: string
   subforumWelcomeText: EditableFieldContents
   subforumWelcomeText_latest: string
-  parentTagId: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -790,6 +810,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  petrovOptOut: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1010,6 +1031,14 @@ interface DbUser extends DbObject {
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
+  afPostCount: number
+  afCommentCount: number
+  afSequenceCount: number
+  afSequenceDraftCount: number
+  reviewForAlignmentForumUserId: string
+  afApplicationText: string
+  afSubmittedApplication: boolean
+  createdAt: Date
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
   howOthersCanHelpMe: EditableFieldContents
@@ -1018,7 +1047,6 @@ interface DbUser extends DbObject {
   howICanHelpOthers_latest: string
   biography: EditableFieldContents
   biography_latest: string
-  createdAt: Date
   recommendationSettings: {
     frontpage: {
       method: string,
@@ -1051,13 +1079,6 @@ interface DbUser extends DbObject {
       onlyUnread: boolean,
     },
   }
-  afPostCount: number
-  afCommentCount: number
-  afSequenceCount: number
-  afSequenceDraftCount: number
-  reviewForAlignmentForumUserId: string
-  afApplicationText: string
-  afSubmittedApplication: boolean
 }
 
 interface VotesCollection extends CollectionBase<DbVote, "Votes"> {
@@ -1110,6 +1131,7 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
@@ -1148,6 +1170,7 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
   TagRels: DbTagRel
