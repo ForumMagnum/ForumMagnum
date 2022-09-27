@@ -20,7 +20,7 @@ jobs:
       run: yarn install
 
     - name: Cypress run
-      uses: cypress-io/github-action@v2
+      uses: cypress-io/github-action@v4
       env:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} 
       with:

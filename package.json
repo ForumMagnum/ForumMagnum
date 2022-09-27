@@ -283,7 +283,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.3",
-    "cypress": "^10.8.0",
+    "cypress": "^10.9.0",
     "esbuild": "^0.15.7",
     "esbuild-jest": "^0.5.0",
     "esbuild-loader": "^2.6.1",
