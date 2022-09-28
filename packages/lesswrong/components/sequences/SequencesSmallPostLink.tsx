@@ -42,11 +42,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesSmallPostLink = ({classes, post, sequenceId, large}: {
+const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
   classes: ClassesType,
   post: PostsList,
   sequenceId: string,
-  large?: boolean
+  large?: boolean,
+  placement?: string
 }) => {
   const { LWTooltip, PostsPreviewTooltip } = Components
 
@@ -56,7 +57,7 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large}: {
 
   const icon = isPostRead ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
-  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false} flip>
+  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement={placement} inlineBlock={false} flip>
         <Link to={postGetPageUrl(post, false, sequenceId)} className={classNames(classes.title, {[classes.large]: large})}>
           {icon} {post.title}
         </Link>

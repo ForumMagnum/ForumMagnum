@@ -384,6 +384,7 @@ declare global {
       display4: JssStyles,
       postsItemTitle: JssStyles,
       chapterTitle: JssStyles,
+      largeChapterTitle: JssStyles,
       body1: JssStyles,
       body2: JssStyles,
       headline: JssStyles,

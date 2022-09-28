@@ -164,7 +164,12 @@ export const eaForumTheme: SiteThemeSpecification = {
         chapterTitle: {
           fontSize: "1.25em",
           fontStyle: "unset",
+          textTransform: "unset",
+          color: "unset"
         },
+        largeChapterTitle: {
+          fontSize: "2.2rem"
+        }
       },
       overrides: {
         MuiTooltip: {

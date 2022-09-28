@@ -109,8 +109,13 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: "1.3rem"
         },
         chapterTitle: {
-          fontSize: "1.4em",
-          fontStyle: "italic",
+          fontSize: "1.2em",
+          textTransform: "uppercase",
+          color: palette.grey[600]
+        },
+        largeChapterTitle: {
+          fontSize: '1.4rem',
+          margin: "1.5em 0 .2em 0"
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,

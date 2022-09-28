@@ -54,10 +54,10 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 
   return (
   <div>
-    {chapter.title && <div className={classes.title}>
-      <ChapterTitle title={chapter.title}/>
+    <div className={classes.title}>
+      {chapter.title && <ChapterTitle title={chapter.title} large/>}
       {canEdit && editButton}
-    </div>}
+    </div>
       {html && <ContentStyles contentType="post" className={classes.description}>
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: html}}
@@ -66,7 +66,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
       </ContentStyles>}
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
-          {chapter.posts.map(post => <SequencesSmallPostLink key={chapter._id + post._id} sequenceId={chapter.sequenceId} post={post} large/>)}
+          {chapter.posts.map(post => <SequencesSmallPostLink key={chapter._id + post._id} sequenceId={chapter.sequenceId} post={post} large placement="bottom-end"/>)}
         </AnalyticsContext>
       </div>
       {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}

@@ -1,18 +1,22 @@
+import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.chapterTitle,
-    margin: "1em 0",
+  },
+  large: {
+    ...theme.typography.largeChapterTitle,
   }
 });
 
-const ChapterTitle = ({classes, title}: {
+const ChapterTitle = ({classes, title, large}: {
   classes: ClassesType,
-  title: string
+  title: string,
+  large?: boolean
 }) => {
-  return  <div className={classes.root}>{title}</div>
+  return  <div className={classNames(classes.root, {[classes.large]:large})}>{title}</div>
 }
 
 const ChapterTitleComponent = registerComponent("ChapterTitle", ChapterTitle, {styles});
