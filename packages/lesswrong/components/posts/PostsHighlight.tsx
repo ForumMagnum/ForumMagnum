@@ -4,7 +4,7 @@ import React, {useState, useCallback} from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { useForeignCrosspost, isForeignCrosspost, ForeignCrosspost } from "../hooks/useForeignCrosspost";
+import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useCrosspostApolloClient } from "../hooks/useCrosspostApolloClient";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -76,7 +76,7 @@ const HighlightBody = ({
 }
 
 const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
-  post: PostsList & ForeignCrosspost,
+  post: PostsList & PostWithForeignId,
   maxLengthWords: number,
   forceSeeMore?: boolean,
   classes: ClassesType,
@@ -141,7 +141,7 @@ const PostsHighlight = ({post, ...rest}: {
   maxLengthWords: number,
   forceSeeMore?: boolean,
   classes: ClassesType,
-}) => isForeignCrosspost(post)
+}) => isPostWithForeignId(post)
   ? <ForeignPostsHighlight post={post} {...rest} />
   : <LocalPostsHighlight post={post} {...rest} />;
 

@@ -1,26 +1,32 @@
+import type { ApolloError } from "@apollo/client";
 import { useCrosspostApolloClient } from "./useCrosspostApolloClient";
 import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
 
-export type ForeignCrosspost = {
+export type PostWithForeignId = {
   fmCrosspost: {
     isCrosspost: true,
-    hostedHere: false,
+    hostedHere: boolean,
     foreignPostId: string,
-  }
-}
+  },
+};
 
-export const isForeignCrosspost =
-  <T extends {fmCrosspost: PostsList["fmCrosspost"]}>(post: T): post is T & ForeignCrosspost => {
-    return !!post.fmCrosspost &&
-      post.fmCrosspost.isCrosspost &&
-      !post.fmCrosspost.hostedHere &&
-      !!post.fmCrosspost.foreignPostId;
-  }
+export const isPostWithForeignId =
+  <T extends {fmCrosspost: PostsList["fmCrosspost"]}>(post: T): post is T & PostWithForeignId =>
+    !!post.fmCrosspost &&
+    !!post.fmCrosspost.isCrosspost &&
+    typeof post.fmCrosspost.hostedHere === "boolean" &&
+    !!post.fmCrosspost.foreignPostId;
 
-export const useForeignCrosspost = <Post extends ForeignCrosspost, FragmentTypeName extends keyof FragmentTypes>(
+export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends keyof FragmentTypes>(
   post: Post,
   fetchProps: Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">,
-) => {
+): {
+  loading: boolean,
+  error?: ApolloError,
+  localPost: Post,
+  foreignPost?: FragmentTypes[FragmentTypeName],
+  combinedPost?: Post & FragmentTypes[FragmentTypeName],
+} => {
   if (!post.fmCrosspost.foreignPostId) {
     throw new Error("Crosspost has not been created yet");
   }
@@ -32,7 +38,7 @@ export const useForeignCrosspost = <Post extends ForeignCrosspost, FragmentTypeN
     apolloClient,
   });
 
-  let combinedPost: Post | null = null;
+  let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!post.fmCrosspost.hostedHere) {
     /**
      * If this post was crossposted from elsewhere then we want to take most of the fields from
@@ -40,7 +46,7 @@ export const useForeignCrosspost = <Post extends ForeignCrosspost, FragmentTypeN
      * to actually get the correct content and some metadata that isn't denormalized across sites
      */
     const overrideFields = ["contents", "readTimeMinutes"];
-    combinedPost = {...document, ...post};
+    combinedPost = {...document, ...post} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
       combinedPost[field] = document?.[field] ?? post[field];
     }
