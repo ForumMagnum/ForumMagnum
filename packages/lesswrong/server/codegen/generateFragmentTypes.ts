@@ -253,6 +253,8 @@ function subfragmentTypeToCollection(fieldType: string): {
       nullable: false
     };
   } else {
+    if (fieldType.startsWith("Db"))
+      fieldType = fieldType.substr(2);
     const collectionName = getCollectionName(fieldType);
     if (isValidCollectionName(collectionName)) {
       return {

@@ -4,6 +4,7 @@ import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateQueryTypes, graphqlSchemasToTS, getGraphqlSchemaFieldTypes, getResolverResultTypes } from './generateQueryTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
+import { generateResolverTypes } from './generateResolverTypes';
 import fs from 'fs';
 import keyBy from 'lodash/keyBy';
 
@@ -44,6 +45,7 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateQueryTypes(context), "/packages/lesswrong/lib/generated/queryTypes.d.ts");
     writeIfChanged(generateDbTypes(context), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
+    writeIfChanged(generateResolverTypes(context), "/packages/lesswrong/lib/generated/resolverTypes.ts");
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);

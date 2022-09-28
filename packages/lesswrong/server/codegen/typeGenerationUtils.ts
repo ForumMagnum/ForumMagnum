@@ -156,18 +156,18 @@ export function graphqlTypeToTypescript(context: TypeGenerationContext, graphqlT
     return convertedPrimitiveType;
   
   if (typeof graphqlType=="string") {
-    if (graphqlType.endsWith("!") && isValidCollectionName(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
-      return graphqlType;
-    } else if (isValidCollectionName(getCollectionName(graphqlType))) {
+    if (isValidCollectionName(getCollectionName(graphqlType))) {
+      if (nonnull) return `Db${graphqlType}`;
+      else return `Db${graphqlType}|null`;
+    } else if (context.gqlSchemaFieldTypes[graphqlType]) {
       if (nonnull) return graphqlType;
       else return `${graphqlType}|null`;
-    } else if (context.gqlSchemaFieldTypes[graphqlType]) {
-      return graphqlType;
     }
   }
   
   if (graphqlType.collectionName) {
-    return graphqlType.collectionName;
+    throw new Error("wtf");
+    //return graphqlType.collectionName;
   } else {
     // TODO
     //return `any /* graphqlTypeToTypescript ${graphqlType}*/`;

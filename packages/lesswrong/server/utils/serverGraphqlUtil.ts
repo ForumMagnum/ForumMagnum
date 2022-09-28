@@ -18,12 +18,12 @@ import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery, addGraphQLMutat
 //     add to the schema, provided for convenience so you can define the types
 //     referenced in resultType and argTypes in the same place.
 //   fn: ((root,args,context)=>resultType). The GraphQL resolver.
-export const defineGqlQuery = ({name, resultType, argTypes=null, schema=null, fn}: {
-  name: string,
+export const defineGqlQuery = <N extends ResolverName>({name, resultType, argTypes=null, schema=null, fn}: {
+  name: N,
   resultType: string,
   argTypes?: string|null,
   schema?: string|null,
-  fn: (root: any, args: any, context: ResolverContext)=>any,
+  fn: (root: any, args: ResolverArgumentTypes[N], context: ResolverContext)=>ResolverResultTypes[N]|Promise<ResolverResultTypes[N]>,
 }) => {
   if (schema) {
     if (typeof(schema) !== 'string') {

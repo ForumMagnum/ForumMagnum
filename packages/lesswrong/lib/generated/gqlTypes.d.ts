@@ -11,7 +11,7 @@ interface LoginReturnData {
   token: string|null
 }
 interface TagContributor {
-  user: User|null
+  user: DbUser|null
   contributionScore: number
   numCommits: number
   voteCount: number
@@ -62,7 +62,7 @@ interface EmailPreview {
   text: string
 }
 interface TagUpdates {
-  tag: Tag
+  tag: DbTag
   revisionIds: Array<string>
   commentCount: number
   commentIds: Array<string>
@@ -70,7 +70,7 @@ interface TagUpdates {
   lastCommentedAt: Date
   added: number
   removed: number
-  users: Array<User>
+  users: Array<DbUser>
 }
 interface MigrationsDashboardData {
   migrations: Array<MigrationStatus>
@@ -88,9 +88,9 @@ interface MigrationRun {
   succeeded: boolean|null
 }
 interface RecommendResumeSequence {
-  sequence: Sequence|null
-  collection: Collection|null
-  nextPost: Post
+  sequence: DbSequence|null
+  collection: DbCollection|null
+  nextPost: DbPost
   numRead: number
   numTotal: number
   lastReadTime: Date
@@ -149,10 +149,10 @@ interface TagHistoryFeedQueryResults {
 }
 interface TagHistoryFeedEntryType {
   type: string
-  tagCreated: Tag|null
-  tagApplied: TagRel|null
-  tagRevision: Revision|null
-  tagDiscussionComment: Comment|null
+  tagCreated: DbTag|null
+  tagApplied: DbTagRel|null
+  tagRevision: DbRevision|null
+  tagDiscussionComment: DbComment|null
 }
 interface AllTagsActivityFeedQueryResults {
   cutoff: Date|null
@@ -161,9 +161,9 @@ interface AllTagsActivityFeedQueryResults {
 }
 interface AllTagsActivityFeedEntryType {
   type: string
-  tagCreated: Tag|null
-  tagRevision: Revision|null
-  tagDiscussionComment: Comment|null
+  tagCreated: DbTag|null
+  tagRevision: DbRevision|null
+  tagDiscussionComment: DbComment|null
 }
 interface RecentDiscussionFeedQueryResults {
   cutoff: Date|null
@@ -172,17 +172,17 @@ interface RecentDiscussionFeedQueryResults {
 }
 interface RecentDiscussionFeedEntryType {
   type: string
-  postCommented: Post|null
-  tagDiscussed: Tag|null
-  tagSubforumCommented: Tag|null
-  tagRevised: Revision|null
+  postCommented: DbPost|null
+  tagDiscussed: DbTag|null
+  tagSubforumCommented: DbTag|null
+  tagRevised: DbRevision|null
 }
 interface ElicitUser {
   isQuestionCreator: boolean
   displayName: string
   _id: string
   sourceUserId: string
-  lwUser: User
+  lwUser: DbUser
 }
 interface ElicitPrediction {
   _id: string
@@ -201,7 +201,7 @@ interface ElicitBlockData {
   notes: string
   resolvesBy: Date
   resolution: boolean
-  predictions: Array<ElicitPrediction>
+  predictions: Array<ElicitPrediction|null>
 }
 interface PetrovDayCheckIfIncomingData {
   launched: boolean|null
@@ -221,5 +221,5 @@ interface PostAnalyticsResult {
   uniqueClientViews10Sec: number|null
   medianReadingTime: number|null
   uniqueClientViews5Min: number|null
-  uniqueClientViewsSeries: Array<UniqueClientViewsSeries>
+  uniqueClientViewsSeries: Array<UniqueClientViewsSeries|null>
 }

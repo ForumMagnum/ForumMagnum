@@ -159,7 +159,7 @@ augmentFieldsDict(Tags, {
   contributors: {
     resolveAs: {
       arguments: 'limit: Int, version: String',
-      type: "TagContributorsList",
+      type: "TagContributorsList!",
       resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
         contributors: ContributorWithStats[],
         totalCount: number,

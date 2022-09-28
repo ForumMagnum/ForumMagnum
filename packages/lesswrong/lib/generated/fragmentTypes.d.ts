@@ -666,7 +666,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly commitMessage: string,
   readonly userId: string,
   readonly draft: boolean,
-  readonly originalContents: ContentType,
+  readonly originalContents: ContentType|null,
   readonly html: string,
   readonly markdown: string,
   readonly draftJS: any,
