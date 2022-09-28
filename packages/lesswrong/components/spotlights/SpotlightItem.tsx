@@ -224,7 +224,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles, SequenceCheckmark } = Components
   
   const currentUser = useCurrentUser()
 
@@ -303,7 +303,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>}
         {posts.length > 1 && <div>
-          {posts.map(post => <div key={post._id}>0</div>)}
+          {posts.map(post => <SequenceCheckmark post={post}/>)}
         </div>}
         {firstPostUrl && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
