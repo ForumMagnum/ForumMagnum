@@ -19,13 +19,16 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 });
 
-export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheObject> => {
+export const createApolloClient = (baseUrl = '/', ssrMode: boolean = false): ApolloClient<NormalizedCacheObject> => {
   const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()
     }
-  })
-    .restore(window.__APOLLO_STATE__); //ssr
+  });
+
+  if (!ssrMode) {
+    cache.restore(window.__APOLLO_STATE__); //ssr
+  }
 
   const httpLink = new BatchHttpLink({
     uri: baseUrl + 'graphql',
@@ -35,6 +38,7 @@ export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheO
 
   return new ApolloClient({
     link: ApolloLink.from([errorLink, httpLink]),
-    cache
+    cache,
+    ssrMode,
   });
 };
