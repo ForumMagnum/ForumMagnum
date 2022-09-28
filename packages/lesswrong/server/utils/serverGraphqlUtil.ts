@@ -18,7 +18,7 @@ import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery, addGraphQLMutat
 //     add to the schema, provided for convenience so you can define the types
 //     referenced in resultType and argTypes in the same place.
 //   fn: ((root,args,context)=>resultType). The GraphQL resolver.
-export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: {
+export const defineGqlQuery = ({name, resultType, argTypes=null, schema=null, fn}: {
   name: string,
   resultType: string,
   argTypes?: string|null,
@@ -26,7 +26,16 @@ export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: 
   fn: (root: any, args: any, context: ResolverContext)=>any,
 }) => {
   if (schema) {
+    if (typeof(schema) !== 'string') {
+      throw new Error(`Incorrect type for schema in defineGqlQuery: expected string, was ${typeof(schema)}. (Don't use graphql-tag here)`);
+    }
     addGraphQLSchema(schema);
+  }
+  if (argTypes && !argTypes.length) {
+    throw new Error("If argument types are provided, they must be nonempty");
+  }
+  if (argTypes && argTypes.charAt(0) !== '(') {
+    argTypes = `(${argTypes})`;
   }
   
   addGraphQLResolvers({
@@ -35,7 +44,7 @@ export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: 
     }
   });
   
-  addGraphQLQuery(`${name}${argTypes ? argTypes : ""}: ${resultType}`);
+  addGraphQLQuery(`${name}${argTypes??""}: ${resultType}`);
 }
 
 export const defineMutation = ({name, resultType, argTypes=null, schema=null, fn}: {
@@ -48,6 +57,12 @@ export const defineMutation = ({name, resultType, argTypes=null, schema=null, fn
   if (schema) {
     addGraphQLSchema(schema);
   }
+  if (argTypes && !argTypes.length) {
+    throw new Error("If argument types are provided, they must be nonempty");
+  }
+  if (argTypes && argTypes.charAt(0) !== '(') {
+    argTypes = `(${argTypes})`;
+  }
   
   addGraphQLResolvers({
     Mutation: {
@@ -55,5 +70,5 @@ export const defineMutation = ({name, resultType, argTypes=null, schema=null, fn
     }
   });
   
-  addGraphQLMutation(`${name}${argTypes ? argTypes : ""}: ${resultType}`);
+  addGraphQLMutation(`${name}${argTypes??""}: ${resultType}`);
 }

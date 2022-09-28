@@ -22,13 +22,13 @@ import { TagCommentType } from '../../lib/collections/comments/schema';
 addGraphQLSchema(`
   type TagUpdates {
     tag: Tag!
-    revisionIds: [String!]
-    commentCount: Int
-    commentIds: [String!]
-    lastRevisedAt: Date
-    lastCommentedAt: Date
-    added: Int
-    removed: Int
+    revisionIds: [String!]!
+    commentCount: Int!
+    commentIds: [String!]!
+    lastRevisedAt: Date!
+    lastCommentedAt: Date!
+    added: Int!
+    removed: Int!
     users: [User!]
   }
 `);

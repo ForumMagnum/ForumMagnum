@@ -80,7 +80,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined>((post?.lastVisitedAt && new Date(post.lastVisitedAt)) ?? undefined);
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
   const now = useCurrentTime();

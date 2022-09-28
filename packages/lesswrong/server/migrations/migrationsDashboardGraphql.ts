@@ -1,10 +1,10 @@
-import { defineQuery } from '../utils/serverGraphqlUtil';
+import { defineGqlQuery } from '../utils/serverGraphqlUtil';
 import Migrations from '../../lib/collections/migrations/collection';
 import { availableMigrations } from './migrationUtils';
 import * as _ from 'underscore';
 import moment from 'moment';
 
-defineQuery({
+defineGqlQuery({
   name: "MigrationsDashboard",
   resultType: "MigrationsDashboardData",
   schema: `
@@ -23,7 +23,7 @@ defineQuery({
       finished: Date
       succeeded: Boolean
     }`,
-  fn: async (root: void, args: void, context: ResolverContext) => {
+  fn: async function MigrationsDashboard(root: void, args: void, context: ResolverContext): Promise<MigrationsDashboardData> {
     if (!context.currentUser || !context.currentUser.isAdmin)
       throw new Error("MigrationsDashboard graphQL API requires being logged in as an admin");
     

@@ -55,7 +55,7 @@ const CompareRevisions = ({
   if (loadingDiff)
     return <Loading/>
   
-  const diffResultHtml = diffResult?.RevisionsDiff;
+  const diffResultHtml = diffResult?.RevisionsDiff || "";
   return (
     <div className={classes.differences}>
       <ContentItemBody dangerouslySetInnerHTML={{__html: diffResultHtml}}/>

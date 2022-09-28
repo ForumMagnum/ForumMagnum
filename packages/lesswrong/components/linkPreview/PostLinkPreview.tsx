@@ -741,7 +741,7 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
-            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
+            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html || ""}} id={id} />
           </ContentStyles>
         </Card>
       </LWPopper>

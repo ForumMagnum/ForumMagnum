@@ -151,7 +151,7 @@ export function getFragmentFieldType(context: TypeGenerationContext, namePrefix:
     const fieldWithResolver = schema[schemaFieldName];
     if (fieldWithResolver?.resolveAs?.fieldName == fieldName) {
       assert(!!fieldWithResolver.resolveAs.type);
-      fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      fieldType = graphqlTypeToTypescript(context, fieldWithResolver.resolveAs.type, false);
       break;
     }
   }
@@ -162,9 +162,9 @@ export function getFragmentFieldType(context: TypeGenerationContext, namePrefix:
       const fieldSchema = schema[fieldName];
       assert(fieldSchema?.type);
       if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
-        fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
+        fieldType = graphqlTypeToTypescript(context, fieldSchema.resolveAs.type, false);
       } else {
-        fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
+        fieldType = simplSchemaTypeToTypescript(context, schema, fieldName, schema[fieldName].type);
       }
     }
   }

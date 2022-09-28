@@ -5,6 +5,7 @@ import fs from 'fs';
 interface CommandLineArguments {
   mongoUrl: string
   settingsFileName: string
+  generateTypes: boolean
   shellMode: boolean,
 }
 
@@ -12,6 +13,7 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
     settingsFileName: "settings.json",
+    generateTypes: false,
     shellMode: false,
   }
   
@@ -23,8 +25,17 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   for (let i=2; i<argv.length; i++) {
     const arg = argv[i];
     switch(arg) {
+      case "-h":
+      case "-help":
+      case "--help":
+        printHelpText();
+        process.exit(0);
+        break;
       case "--settings":
         commandLine.settingsFileName = argv[++i];
+        break;
+      case "--generateTypes":
+        commandLine.generateTypes = true;
         break;
       case "--shell":
         commandLine.shellMode = true;
@@ -36,6 +47,13 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   
   return commandLine;
 }
+
+// eslint-disable-next-line no-console
+const printHelpText = () => console.log(`ForumMagnum
+Usage: ${process.argv[0]} ${process.argv[1]} --settings [settings-file.json] [--generate-types]
+  --settings        Load instance settings from the indicated file
+  --generate-types  Updated generated type definitions (instead of running a server)
+`)
 
 export const getCommandLineArguments = () => {
   return parseCommandLine(process.argv);

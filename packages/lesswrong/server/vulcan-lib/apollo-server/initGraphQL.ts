@@ -445,10 +445,14 @@ export const initGraphQL = () => {
     allResolvers = deepmerge(allResolvers, addedResolverGroup);
   }
   
-  executableSchema = makeExecutableSchema({
-    typeDefs: schemaText,
-    resolvers: allResolvers,
-  });
+  try {
+    executableSchema = makeExecutableSchema({
+      typeDefs: schemaText,
+      resolvers: allResolvers,
+    });
+  } catch(e) {
+    console.log(e);
+  }
 
   return executableSchema;
 };

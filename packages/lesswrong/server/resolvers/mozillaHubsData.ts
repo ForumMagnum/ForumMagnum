@@ -3,17 +3,17 @@ import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
 
 const MozillaHubsData = `type MozillaHubsData {
-  description: String
-  id: String
-  previewImage: String
-  lastActivatedAt: String
-  lobbyCount: Int
-  memberCount: Int
-  name: String
-  roomSize: Int
-  sceneId: String
-  type: String
-  url: String
+  description: String!
+  id: String!
+  previewImage: String!
+  lastActivatedAt: String!
+  lobbyCount: Int!
+  memberCount: Int!
+  name: String!
+  roomSize: Int!
+  sceneId: String!
+  type: String!
+  url: String!
 }`
 
 addGraphQLSchema(MozillaHubsData);
@@ -37,9 +37,9 @@ async function getDataFromMozillaHubs() {
   return await response.text()
 }
 
-const mozillaHubsResolvers = {
+addGraphQLResolvers({
   Query: {
-    async MozillaHubsRoomData(root: void, { roomId }: { roomId:string }, context: ResolverContext) {
+    async MozillaHubsRoomData(root: void, { roomId }: { roomId:string }, context: ResolverContext): Promise<MozillaHubsData|null> {
       const rawRoomData:any = await getDataFromMozillaHubs()
       if (!rawRoomData) return null
       const processedData = JSON.parse(rawRoomData)
@@ -74,8 +74,6 @@ const mozillaHubsResolvers = {
       }
     }
   },
-};
-
-addGraphQLResolvers(mozillaHubsResolvers);
+});
 
 addGraphQLQuery('MozillaHubsRoomData(roomId: String): MozillaHubsData');

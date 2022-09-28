@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isCollaborative } from '../../components/editor/EditorFormComponent';
-import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
+import { defineGqlQuery, defineMutation } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { updateMutator } from '../vulcan-lib/mutators';
@@ -69,7 +69,7 @@ defineMutation({
   }
 });
 
-defineQuery({
+defineGqlQuery({
   name: "getLinkSharedPost",
   resultType: "Post",
   argTypes: "(postId: String!, linkSharingKey: String!)",

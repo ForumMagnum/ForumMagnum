@@ -1,6 +1,6 @@
 import { testStartup } from './testMain';
 import { graphqlTypeToTypescript } from '../server/codegen/typeGenerationUtils';
-import { generateQueryArgumentsTypeDefinition, generateQueryTypes, graphqlTypeDeclarationStrToTypescript } from '../server/codegen/generateQueryTypes';
+import { generateQueryArgumentsTypeDefinition, generateQueryTypes, graphqlTypeDeclarationStrToTypescript, graphqlQueryPrototypeToNameAndReturnType } from '../server/codegen/generateQueryTypes';
 import chai from 'chai';
 import gql from 'graphql-tag';
 
@@ -19,9 +19,11 @@ function getTestTypeGenerationContext(): TypeGenerationContext {
 //  * Given a subselector that matches a TS type, get its TS type
 
 describe('Codegen', function() {
+  const context: TypeGenerationContext = getTestTypeGenerationContext();
+  
   it('maps primitive graphql types to typescript', () => {
     chai.assert.equal(
-      graphqlTypeToTypescript("Int!"),
+      graphqlTypeToTypescript(context, "Int!"),
       "number"
     );
   });
@@ -32,7 +34,6 @@ describe('Codegen', function() {
     );
   });
   /*it('extracts arguments from queries', () => {
-    const context: TypeGenerationContext = getTestTypeGenerationContext();
     generateQueryArgumentsTypeDefinition(
       context, "TestQuery", gql(`
         query TestQuery($n: Int, $s: String!) {
@@ -43,7 +44,17 @@ describe('Codegen', function() {
     //TODO
   });*/
   it('generates query types', () => {
-    const context: TypeGenerationContext = getTestTypeGenerationContext();
     generateQueryTypes(context);
+  });
+  it('gets query return types', () => {
+    chai.assert.deepEqual(
+      graphqlQueryPrototypeToNameAndReturnType(`QueryName(
+        arg1: Int,
+        arg2: String!
+      ): Int`), {
+        name: "QueryName",
+        returnTypeGql: "Int"
+      }
+    );
   });
 });

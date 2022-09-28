@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery } from './vulcan-lib';
+import { defineGqlQuery } from './utils/serverGraphqlUtil';
 import { getUnrecognizedIndexes, getMissingIndexes } from './indexUtil';
 import process from 'process';
 import os from 'os';
@@ -9,9 +9,10 @@ import { getPreloadedDatabaseId } from './loadDatabaseSettings';
 // Send this as stringified-JSON rather than as real JSON, because for Mongo
 // indexes the order of keys matters, and that ordering doesn't survive
 // traversal through GraphQL.
-const siteAdminMetadataResolvers = {
-  Query: {
-    async AdminMetadata(root: void, args: void, context: ResolverContext) {
+defineGqlQuery({
+  name: "AdminMetadata",
+  resultType: "String!",
+  fn: async function AdminMetadata(root: void, args: void, context: ResolverContext) {
       if (!context.currentUser || !context.currentUser.isAdmin)
         throw new Error("AdminMetadata graphQL API requires being logged in as an admin");
       
@@ -35,11 +36,8 @@ const siteAdminMetadataResolvers = {
           serverTimezoneOffset: new Date().getTimezoneOffset()/60.0,
         },
       });
-    }
   }
-};
-addGraphQLResolvers(siteAdminMetadataResolvers);
-addGraphQLQuery("AdminMetadata: String");
+});
 
 function getGitCommit(): string {
   try {

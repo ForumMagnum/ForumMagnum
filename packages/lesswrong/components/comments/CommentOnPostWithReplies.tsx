@@ -8,7 +8,7 @@ type CommentOnPostWithRepliesProps = Omit<CommentWithRepliesProps, 'lastRead' | 
 }
 
 const CommentOnPostWithReplies = ({post, ...otherProps}: CommentOnPostWithRepliesProps) => {
-  const [lastRead, setLastRead] = useState<Date>(post.lastVisitedAt);
+  const [lastRead, setLastRead] = useState<Date|undefined>(post.lastVisitedAt ?? undefined);
   const { recordPostView } = useRecordPostView(post);
 
   const markAsRead = useCallback(async () => {

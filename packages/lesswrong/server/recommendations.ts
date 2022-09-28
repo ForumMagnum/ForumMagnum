@@ -370,9 +370,9 @@ addGraphQLSchema(`
     sequence: Sequence
     collection: Collection
     nextPost: Post!
-    numRead: Int
-    numTotal: Int
-    lastReadTime: Date
+    numRead: Int!
+    numTotal: Int!
+    lastReadTime: Date!
   }
 `);
 

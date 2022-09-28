@@ -62,7 +62,7 @@ export function generateQueryArgumentsTypeDefinition(context: TypeGenerationCont
   for (let variableDefinition of parsedGraphqlVariables.variableDefinitions) {
     const parsedGraphqlType = variableDefinition.type;
     const variableName = variableDefinition?.variable?.name?.value;
-    sb.push(`  ${variableName}: ${parsedGraphqlTypeToTypescript(parsedGraphqlType)}\n`);
+    sb.push(`  ${variableName}: ${parsedGraphqlTypeToTypescript(context, parsedGraphqlType)}\n`);
   }
   sb.push(`}\n\n`);
   
@@ -230,7 +230,7 @@ function graphqlTypeAndSelectionToTypescript({context, graphqlType, selection, n
     };
   } else {
     return {
-      typescriptType: graphqlTypeToTypescript(graphqlType, nonnull),
+      typescriptType: graphqlTypeToTypescript(context, graphqlType, nonnull),
       subfragment: null
     };
   }
@@ -282,7 +282,7 @@ export function getCollectionResolverTypeGql({context, collection, fieldName}: {
     if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
       return graphqlTypeStringOrScalarTypeToString(fieldSchema.resolveAs.type);
     } else {
-      return simplSchemaTypeToGraphql(schema, fieldName, schema[fieldName].type);
+      return simplSchemaTypeToGraphql(context, schema, fieldName);
     }
   }
   
@@ -297,8 +297,9 @@ function graphqlTypeStringOrScalarTypeToString(gqlType: string|GraphQLScalarType
   if (gqlType === GraphQLJSON) {
     return "JSON!"; //(untested branch, not sure if correct)
   } else if (typeof gqlType === "string") {
-    return type;
+    return gqlType;
   } else {
+    return null;
   }
 }
 
@@ -372,7 +373,7 @@ export function graphqlTypeDeclarationToTypescript(context: TypeGenerationContex
   for (let field of declaration.fields) {
     const fieldName = field.name?.value;
     const fieldTypeGql = field.type;
-    const fieldTypeTS = parsedGraphqlTypeToTypescript(fieldTypeGql);
+    const fieldTypeTS = parsedGraphqlTypeToTypescript(context, fieldTypeGql);
     sb.push(`  ${fieldName}: ${fieldTypeTS}\n`);
   }
   sb.push('}\n');

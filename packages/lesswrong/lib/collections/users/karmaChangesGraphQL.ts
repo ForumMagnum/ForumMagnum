@@ -5,34 +5,34 @@ import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 
 addGraphQLSchema(`
   type PostKarmaChange {
-    _id: String
-    scoreChange: Int
-    title: String
-    slug: String
+    _id: String!
+    scoreChange: Int!
+    title: String!
+    slug: String!
   }
   type CommentKarmaChange {
-    _id: String
-    scoreChange: Int
-    description: String
-    postId: String
-    tagSlug: String
+    _id: String!
+    scoreChange: Int!
+    description: String!
+    postId: String!
+    tagSlug: String!
   }
   type RevisionsKarmaChange {
-    _id: String
-    scoreChange: Int
-    tagId: String
-    tagSlug: String
-    tagName: String
+    _id: String!
+    scoreChange: Int!
+    tagId: String!
+    tagSlug: String!
+    tagName: String!
   }
   type KarmaChanges {
-    totalChange: Int
-    startDate: Date
-    endDate: Date
-    nextBatchDate: Date
-    updateFrequency: String
-    posts: [PostKarmaChange]
-    comments: [CommentKarmaChange]
-    tagRevisions: [RevisionsKarmaChange]
+    totalChange: Int!
+    startDate: Date!
+    endDate: Date!
+    nextBatchDate: Date!
+    updateFrequency: String!
+    posts: [PostKarmaChange!]!
+    comments: [CommentKarmaChange!]!
+    tagRevisions: [RevisionsKarmaChange!]!
   }
 `);
 

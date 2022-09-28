@@ -200,7 +200,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
             onClick={() => {
-              if (currentUser) {
+              if (currentUser && data?.ElicitBlockData) {
                 const predictions = data?.ElicitBlockData?.predictions || []
                 const filteredPredictions = predictions.filter(prediction => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)

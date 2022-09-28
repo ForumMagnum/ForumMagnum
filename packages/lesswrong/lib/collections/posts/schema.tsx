@@ -2140,7 +2140,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     canRead: ['guests'],
     resolveAs: {
-      type: 'Boolean',
+      type: 'Boolean!',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
         const { LWEvents, currentUser } = context;
         if(currentUser){

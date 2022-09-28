@@ -7,7 +7,7 @@ import { htmlStartingAtHash } from '../extractHighlights';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
-import { defineQuery } from '../utils/serverGraphqlUtil';
+import { defineGqlQuery } from '../utils/serverGraphqlUtil';
 import htmlToText from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
 import { extractTableOfContents } from '../tableOfContents';
@@ -80,7 +80,7 @@ augmentFieldsDict(Revisions, {
   markdown: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
     }
   },
@@ -94,21 +94,21 @@ augmentFieldsDict(Revisions, {
   ckEditorMarkup: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       resolver: ({originalContents: {data, type}, html}) => (type === 'ckEditorMarkup' ? data : html) // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
     }
   },
   htmlHighlight: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       resolver: ({html}) => highlightFromHTML(html)
     }
   },
   htmlHighlightStartingAtHash: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       arguments: 'hash: String',
       resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
         const {hash} = args;
@@ -128,7 +128,7 @@ augmentFieldsDict(Revisions, {
   plaintextDescription: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       resolver: ({html}) => {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
@@ -142,7 +142,7 @@ augmentFieldsDict(Revisions, {
   plaintextMainText: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       resolver: ({html}) => {
         const mainTextHtml = sanitizeHtml(
           html, {
@@ -163,7 +163,7 @@ augmentFieldsDict(Revisions, {
   },
 })
 
-defineQuery({
+defineGqlQuery({
   name: "convertDocument",
   resultType: "JSON",
   argTypes: "(document: JSON, targetFormat: String)",

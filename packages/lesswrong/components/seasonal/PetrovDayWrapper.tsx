@@ -17,7 +17,7 @@ const PetrovDayWrapper = () => {
     return <Components.PetrovDayLossScreen/>
   } else {
     return <Components.PetrovDayButton
-      alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched}
+      alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched ?? undefined}
     />
   }
 }

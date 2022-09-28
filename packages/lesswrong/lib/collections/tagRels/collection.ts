@@ -64,7 +64,7 @@ const schema: SchemaType<DbTagRel> = {
 
   currentUserCanVote: resolverOnlyField({
     type: Boolean,
-    graphQLtype: 'Boolean',
+    graphQLtype: 'Boolean!',
     viewableBy: ['guests'],
     resolver: (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt

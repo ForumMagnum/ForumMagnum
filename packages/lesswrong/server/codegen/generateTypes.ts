@@ -42,7 +42,7 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(graphqlSchemasToTS(context), "/packages/lesswrong/lib/generated/gqlTypes.d.ts");
     writeIfChanged(generateFragmentTypes(context), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateQueryTypes(context), "/packages/lesswrong/lib/generated/queryTypes.d.ts");
-    writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
+    writeIfChanged(generateDbTypes(context), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
   } catch(e) {
     // eslint-disable-next-line no-console

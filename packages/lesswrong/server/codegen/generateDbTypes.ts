@@ -9,12 +9,12 @@ const dbTypesFileHeader = generatedFileHeader+`//
 //
 `
 
-export function generateDbTypes(): string {
+export function generateDbTypes(context: TypeGenerationContext): string {
   const sb: Array<string> = [];
   sb.push(dbTypesFileHeader);
   for (let collection of getAllCollections()) {
     sb.push(generateCollectionType(collection));
-    sb.push(generateCollectionDbType(collection));
+    sb.push(generateCollectionDbType(context, collection));
   }
   
   sb.push(generateNameMapTypes());
@@ -32,7 +32,7 @@ function generateCollectionType(collection: any): string {
   return sb.join('');
 }
 
-function generateCollectionDbType(collection: CollectionBase<any>): string {
+function generateCollectionDbType(context: TypeGenerationContext, collection: CollectionBase<any>): string {
   let sb: Array<string> = [];
   const typeName = collection.typeName;
   const schema = getSchema(collection);
@@ -62,7 +62,7 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
       continue;
     }
     
-    const typeName = schema[fieldName].typescriptType || simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
+    const typeName = schema[fieldName].typescriptType || simplSchemaTypeToTypescript(context, schema, fieldName, schema[fieldName].type);
     
     sb.push(`  ${fieldName}: ${typeName}\n`);
   }

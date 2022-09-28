@@ -9,9 +9,9 @@
 //
 interface UsersDefaultFragment { // fragment on Users
   readonly username: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<any>,
   readonly isAdmin: boolean,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly services: any,
   readonly displayName: string,
   readonly previousDisplayName: string,
   readonly email: string,
@@ -34,10 +34,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
-  readonly petrovOptOut: boolean,
+  readonly petrovOptOut: boolean | null,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
-  readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly frontpageFilterSettings: any,
   readonly allPostsTimeframe: string,
   readonly allPostsFilter: string,
   readonly allPostsSorting: string,
@@ -55,8 +55,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<any>,
+  readonly hiddenPostsMetadata: Array<any>,
   readonly legacyId: string,
   readonly deleted: boolean,
   readonly voteBanned: boolean,
@@ -172,16 +172,16 @@ interface UsersDefaultFragment { // fragment on Users
   readonly frontpagePostCount: number,
   readonly sequenceCount: number,
   readonly sequenceDraftCount: number,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
   readonly location: string,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mapLocation: any,
   readonly mapLocationSet: boolean,
   readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
   readonly nearbyEventsNotifications: boolean,
-  readonly nearbyEventsNotificationsLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly nearbyEventsNotificationsMongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly nearbyEventsNotificationsLocation: any,
+  readonly nearbyEventsNotificationsMongoLocation: any,
   readonly nearbyEventsNotificationsRadius: number,
   readonly nearbyPeopleNotificationThreshold: number,
   readonly hideFrontpageMap: boolean,
@@ -229,7 +229,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly maxCommentCount: number,
   readonly tagRevisionCount: number,
   readonly abTestKey: string,
-  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
+  readonly abTestOverrides: any,
   readonly reenableDraftJs: boolean,
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
@@ -271,7 +271,7 @@ interface LWEventsDefaultFragment { // fragment on LWEvents
   readonly name: string,
   readonly documentId: string,
   readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
   readonly intercom: boolean,
 }
 
@@ -281,7 +281,7 @@ interface newEventFragment { // fragment on LWEvents
   readonly userId: string,
   readonly name: string,
   readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
   readonly intercom: boolean,
 }
 
@@ -292,7 +292,7 @@ interface lastEventFragment { // fragment on LWEvents
   readonly userId: string,
   readonly name: string,
   readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
   readonly intercom: boolean,
 }
 
@@ -304,7 +304,7 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
   readonly name: string,
   readonly documentId: string,
   readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
   readonly intercom: boolean,
 }
 
@@ -312,7 +312,7 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
   readonly userId: string,
   readonly name: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations
@@ -329,8 +329,8 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly types: Array<string>,
   readonly categories: Array<string>,
   readonly isOnline: boolean,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
   readonly location: string,
   readonly contactInfo: string,
   readonly facebookLink: string,
@@ -351,7 +351,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
-  readonly descriptionHtmlWithToc: string,
+  readonly descriptionHtmlWithToc: string|null,
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
@@ -371,8 +371,8 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
   readonly htmlWithContributorAnnotations: string,
-  readonly contributors: any /*TagContributorsList*/,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly contributors: TagContributorsList,
+  readonly contributionStats: any,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
   readonly canVoteOnRels: Array<string>,
@@ -387,7 +387,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly deleted: boolean,
   readonly userId: string,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -474,7 +474,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
   readonly lastCommentPromotedAt: Date,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any,
   readonly noIndex: boolean,
   readonly rsvps: Array<{
     name: string,
@@ -548,8 +548,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly joinEventLink: string,
   readonly onlineEvent: boolean,
   readonly globalEvent: boolean,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
   readonly location: string,
   readonly contactInfo: string,
   readonly facebookLink: string,
@@ -558,7 +558,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly eventImageId: string,
   readonly types: Array<string>,
   readonly metaSticky: boolean,
-  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly sharingSettings: any,
   readonly shareWithUsers: Array<string>,
   readonly linkSharingKey: string,
   readonly linkSharingKeyUsedBy: Array<string>,
@@ -570,7 +570,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly af: boolean,
   readonly afDate: Date,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
@@ -584,7 +584,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly userId: string,
   readonly authorIds: Array<string>,
   readonly voteType: string,
-  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedVoteType: any,
   readonly power: number,
   readonly afPower: number,
   readonly cancelled: boolean,
@@ -638,7 +638,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly isPinnedOnProfile: boolean,
   readonly af: boolean,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly afDate: Date,
@@ -652,7 +652,7 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly nickname: string,
   readonly url: string,
   readonly status: string,
-  readonly rawFeed: any /*{"definitions":[{}]}*/,
+  readonly rawFeed: any,
   readonly setCanonicalUrl: boolean,
 }
 
@@ -666,7 +666,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly commitMessage: string,
   readonly userId: string,
   readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
+  readonly originalContents: ContentType,
   readonly html: string,
   readonly markdown: string,
   readonly draftJS: any,
@@ -676,7 +676,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly changeMetrics: any,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -707,7 +707,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly meta: boolean,
   readonly deletedDraft: boolean,
   readonly shareWithUsers: Array<string>,
-  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly sharingSettings: any,
   readonly coauthorStatuses: Array<{
     userId: string,
     confirmed: boolean,
@@ -717,7 +717,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly unlisted: boolean,
   readonly score: number,
   readonly lastVisitedAt: Date,
@@ -734,7 +734,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly originalPostRelationSourceId: string,
   readonly userId: string,
   readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any,
   readonly onlineEvent: boolean,
   readonly globalEvent: boolean,
   readonly startTime: Date | null,
@@ -754,14 +754,14 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly groupId: string,
   readonly reviewedByUserId: string,
   readonly suggestForCuratedUserIds: Array<string>,
-  readonly suggestForCuratedUsernames: string,
+  readonly suggestForCuratedUsernames: string|null,
   readonly reviewForCuratedUserId: string,
   readonly authorIsUnreviewed: boolean,
   readonly afDate: Date,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
@@ -799,17 +799,17 @@ interface PostsBase_group { // fragment on Localgroups
 }
 
 interface PostsWithVotes extends PostsBase { // fragment on Posts
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
 interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
@@ -862,7 +862,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -871,7 +871,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -885,7 +885,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly showModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
@@ -972,13 +972,13 @@ interface PostsPlaintextDescription_contents { // fragment on Revisions
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
-  readonly version: string,
+  readonly version: string|null,
   readonly contents: RevisionDisplay|null,
   readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
-  readonly version: string,
+  readonly version: string|null,
   readonly contents: RevisionEdit|null,
   readonly revisions: Array<RevisionMetadata>,
 }
@@ -1024,7 +1024,7 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 }
 
 interface PostsPage extends PostsDetails { // fragment on Posts
-  readonly version: string,
+  readonly version: string|null,
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string,
@@ -1033,7 +1033,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
   readonly linkSharingKey: string,
-  readonly version: string,
+  readonly version: string|null,
   readonly coauthorStatuses: Array<{
     userId: string,
     confirmed: boolean,
@@ -1076,7 +1076,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 }
 
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
@@ -1107,13 +1107,13 @@ interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
 interface WithVotePost { // fragment on Posts
   readonly __typename: string,
   readonly _id: string,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
   readonly voteCount: number,
 }
 
@@ -1142,17 +1142,17 @@ interface CommentsList { // fragment on Comments
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
   readonly user: UsersMinimumInfo|null,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
   readonly voteCount: number,
   readonly af: boolean,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly needsReview: boolean,
@@ -1225,13 +1225,13 @@ interface CommentsListWithParentMetadata extends CommentsList { // fragment on C
 interface WithVoteComment { // fragment on Comments
   readonly __typename: string,
   readonly _id: string,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
   readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afExtendedScore: any,
   readonly voteCount: number,
 }
 
@@ -1271,20 +1271,20 @@ interface RevisionMetadata { // fragment on Revisions
   readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly voteCount: number,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly changeMetrics: any,
   readonly user: UsersMinimumInfo|null,
 }
 
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
   readonly documentId: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly changeMetrics: any,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -1295,10 +1295,10 @@ interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revi
 interface WithVoteRevision { // fragment on Revisions
   readonly __typename: string,
   readonly _id: string,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
   readonly voteCount: number,
 }
@@ -1307,7 +1307,7 @@ interface NotificationsDefaultFragment { // fragment on Notifications
   readonly userId: string,
   readonly documentId: string,
   readonly documentType: string,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly extraData: any,
   readonly link: string,
   readonly title: string,
   readonly message: string,
@@ -1329,7 +1329,7 @@ interface NotificationsList { // fragment on Notifications
   readonly message: string,
   readonly type: string,
   readonly viewed: boolean,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly extraData: any,
 }
 
 interface ConversationsDefaultFragment { // fragment on Conversations
@@ -1567,7 +1567,7 @@ interface BansDefaultFragment { // fragment on Bans
   readonly ip: string,
   readonly reason: string,
   readonly comment: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
 }
 
 interface BansAdminPageFragment { // fragment on Bans
@@ -1579,7 +1579,7 @@ interface BansAdminPageFragment { // fragment on Bans
   readonly reason: string,
   readonly comment: string,
   readonly ip: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
@@ -1621,7 +1621,7 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<any>,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1633,8 +1633,8 @@ interface localGroupsBase { // fragment on Localgroups
   readonly name: string,
   readonly isOnline: boolean,
   readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any,
+  readonly mongoLocation: any,
   readonly types: Array<string>,
   readonly categories: Array<string>,
   readonly contactInfo: string,
@@ -1776,7 +1776,7 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly afBaseScore: number,
   readonly voteCount: number,
   readonly userId: string,
@@ -1787,7 +1787,7 @@ interface TagRelBasicInfo { // fragment on TagRels
 interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: PostsList|null,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly currentUserCanVote: boolean,
 }
@@ -1801,18 +1801,18 @@ interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
 interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: TagRelCreationFragment_post|null,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any,
   readonly tagRel: WithVoteTagRel|null,
 }
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly currentUserCanVote: boolean,
 }
@@ -1823,10 +1823,10 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly afBaseScore: number,
   readonly voteCount: number,
-  readonly currentUserVote: string,
+  readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
@@ -1887,7 +1887,7 @@ interface TagFragment_description { // fragment on Revisions
 }
 
 interface TagWithTocFragment extends TagFragment { // fragment on Tags
-  readonly descriptionHtmlWithToc: string,
+  readonly descriptionHtmlWithToc: string|null,
 }
 
 interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
@@ -2143,19 +2143,19 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly profileImageId: string,
   readonly bannedUserIds: Array<string>,
   readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any,
+  readonly mapLocation: any,
   readonly mapLocationSet: boolean,
   readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mongoLocation: any,
   readonly shortformFeedId: string,
   readonly viewUnreviewedComments: boolean,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly petrovPressedButtonDate: Date,
-  readonly petrovOptOut: boolean,
+  readonly petrovOptOut: boolean | null,
   readonly sortDraftsBy: string,
   readonly noindex: boolean,
   readonly paymentEmail: string,
@@ -2170,8 +2170,8 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
   readonly beta: boolean,
   readonly email: string,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly pageUrl: string,
+  readonly services: any,
+  readonly pageUrl: string|null,
   readonly voteBanned: boolean,
   readonly banned: Date,
   readonly isReviewed: boolean,
@@ -2179,7 +2179,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
-  readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly frontpageFilterSettings: any,
   readonly allPostsTimeframe: string,
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,
@@ -2201,21 +2201,21 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideAFNonMemberInitialWarning: boolean,
   readonly commentSorting: string,
   readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any,
+  readonly mongoLocation: any,
+  readonly mapLocation: any,
   readonly mapLocationSet: boolean,
   readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
   readonly nearbyEventsNotifications: boolean,
-  readonly nearbyEventsNotificationsLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly nearbyEventsNotificationsLocation: any,
   readonly nearbyEventsNotificationsRadius: number,
   readonly nearbyPeopleNotificationThreshold: number,
   readonly hideFrontpageMap: boolean,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<any>,
   readonly whenConfirmationEmailSent: Date,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
@@ -2264,8 +2264,8 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     },
   },
   readonly theme: string,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<any>,
+  readonly hiddenPostsMetadata: Array<any>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
@@ -2277,11 +2277,11 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2019Ad: boolean,
   readonly abTestKey: string,
-  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
+  readonly abTestOverrides: any,
   readonly sortDraftsBy: string,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
-  readonly petrovOptOut: boolean,
+  readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
 }
 
@@ -2308,7 +2308,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<any>,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly postCount: number,
@@ -2345,12 +2345,12 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
   readonly isAdmin: boolean,
   readonly groups: Array<string>,
   readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any,
+  readonly mapLocation: any,
   readonly mapLocationSet: boolean,
   readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mongoLocation: any,
 }
 
 interface UsersEdit extends UsersProfile { // fragment on Users
@@ -2384,10 +2384,10 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly username: string,
   readonly displayName: string,
   readonly fullName: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
   readonly location: string,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mapLocation: any,
   readonly reviewedByUserId: string,
   readonly reviewForAlignmentForumUserId: string,
   readonly groups: Array<string>,
@@ -2506,7 +2506,7 @@ interface UsersAdmin { // fragment on Users
   readonly email: string,
   readonly slug: string,
   readonly groups: Array<string>,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly services: any,
   readonly karma: number,
 }
 
@@ -2529,7 +2529,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mapLocation: any,
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,

@@ -148,11 +148,14 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   }
 }
 
-export const simplSchemaToGraphQLtype = (type: any): string|null => {
-  if (type === String) return "String";
-  else if (type === Number) return "Int";
-  else if (type === Date) return "Date";
-  else if (type === Boolean) return "Boolean";
+export const simplSchemaToGraphQLtype = (type: any, nullable: boolean): string|null => {
+  const maybeNullable = (gqlType: string): string =>
+    nullable ? gqlType : `${gqlType}!`;
+  
+  if (type === String) return maybeNullable("String");
+  else if (type === Number) return maybeNullable("Int");
+  else if (type === Date) return maybeNullable("Date");
+  else if (type === Boolean) return maybeNullable("Boolean");
   else return null;
 }
 
@@ -167,7 +170,7 @@ interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpeci
  * our GraphQL API using the supplied resolver function.
  */
 export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
-  const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
+  const resolverType = graphQLtype || simplSchemaToGraphQLtype(type, false);
   if (!type || !resolverType)
     throw new Error("Could not determine resolver graphQL type");
   return {

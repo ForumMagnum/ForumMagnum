@@ -33,7 +33,7 @@ interface DbBan extends DbObject {
   ip: string
   reason: string
   comment: string
-  properties: any /*{"definitions":[{"blackbox":true}]}*/
+  properties: any
   createdAt: Date
 }
 
@@ -134,7 +134,7 @@ interface DbComment extends DbObject {
   isPinnedOnProfile: boolean
   af: boolean
   afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afExtendedScore: any
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
   afDate: Date
@@ -143,7 +143,7 @@ interface DbComment extends DbObject {
   contents: EditableFieldContents
   voteCount: number
   baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  extendedScore: any
   score: number
   inactive: boolean
 }
@@ -169,7 +169,7 @@ interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata, 
 interface DbDatabaseMetadata extends DbObject {
   __collectionName?: "DatabaseMetadata"
   name: string
-  value: any /*{"definitions":[{"blackbox":true}]}*/
+  value: any
   createdAt: Date
 }
 
@@ -185,7 +185,7 @@ interface DbDebouncerEvents extends DbObject {
   delayTime: Date
   upperBoundTime: Date
   key: string
-  pendingEvents: Array<any /*{"definitions":[{"blackbox":true}]}*/>
+  pendingEvents: Array<any>
   createdAt: Date
 }
 
@@ -198,7 +198,7 @@ interface DbEmailTokens extends DbObject {
   tokenType: string
   userId: string
   usedAt: Date
-  params: any /*{"definitions":[{"blackbox":true}]}*/
+  params: any
   createdAt: Date
 }
 
@@ -233,7 +233,7 @@ interface DbGardenCode extends DbObject {
   afOnly: boolean
   createdAt: Date
   contents: EditableFieldContents
-  pingbacks: any /*{"definitions":[{}]}*/
+  pingbacks: any
 }
 
 interface LWEventsCollection extends CollectionBase<DbLWEvent, "LWEvents"> {
@@ -245,7 +245,7 @@ interface DbLWEvent extends DbObject {
   name: string
   documentId: string
   important: boolean
-  properties: any /*{"definitions":[{"blackbox":true}]}*/
+  properties: any
   intercom: boolean
   createdAt: Date
 }
@@ -257,7 +257,7 @@ interface DbLegacyData extends DbObject {
   __collectionName?: "LegacyData"
   objectId: string
   collectionName: string
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  legacyData: any
   createdAt: Date
 }
 
@@ -272,8 +272,8 @@ interface DbLocalgroup extends DbObject {
   types: Array<string>
   categories: Array<string>
   isOnline: boolean
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  mongoLocation: any
+  googleLocation: any
   location: string
   contactInfo: string
   facebookLink: string
@@ -320,7 +320,7 @@ interface DbNotification extends DbObject {
   userId: string
   documentId: string
   documentType: string
-  extraData: any /*{"definitions":[{"blackbox":true}]}*/
+  extraData: any
   link: string
   title: string
   message: string
@@ -429,7 +429,7 @@ interface DbPost extends DbObject {
   finalReviewVoteScoreAF: number
   finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
+  tagRelevance: any
   noIndex: boolean
   rsvps: Array<{
     name: string,
@@ -503,8 +503,8 @@ interface DbPost extends DbObject {
   joinEventLink: string
   onlineEvent: boolean
   globalEvent: boolean
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  mongoLocation: any
+  googleLocation: any
   location: string
   contactInfo: string
   facebookLink: string
@@ -513,7 +513,7 @@ interface DbPost extends DbObject {
   eventImageId: string
   types: Array<string>
   metaSticky: boolean
-  sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  sharingSettings: any
   shareWithUsers: Array<string>
   linkSharingKey: string
   linkSharingKeyUsedBy: Array<string>
@@ -525,7 +525,7 @@ interface DbPost extends DbObject {
   af: boolean
   afDate: Date
   afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afExtendedScore: any
   afCommentCount: number
   afLastCommentedAt: Date
   afSticky: boolean
@@ -533,12 +533,12 @@ interface DbPost extends DbObject {
   reviewForAlignmentUserId: string
   createdAt: Date
   contents: EditableFieldContents
-  pingbacks: any /*{"definitions":[{}]}*/
+  pingbacks: any
   moderationGuidelines: EditableFieldContents
   customHighlight: EditableFieldContents
   voteCount: number
   baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  extendedScore: any
   score: number
   inactive: boolean
 }
@@ -554,7 +554,7 @@ interface DbRSSFeed extends DbObject {
   nickname: string
   url: string
   status: string
-  rawFeed: any /*{"definitions":[{}]}*/
+  rawFeed: any
   setCanonicalUrl: boolean
   createdAt: Date
 }
@@ -627,11 +627,11 @@ interface DbRevision extends DbObject {
   }
   html: string
   wordCount: number
-  changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  changeMetrics: any
   createdAt: Date
   voteCount: number
   baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  extendedScore: any
   score: number
   inactive: boolean
 }
@@ -694,11 +694,11 @@ interface DbTagRel extends DbObject {
   deleted: boolean
   userId: string
   afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afExtendedScore: any
   createdAt: Date
   voteCount: number
   baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  extendedScore: any
   score: number
   inactive: boolean
 }
@@ -734,7 +734,7 @@ interface DbTag extends DbObject {
   lesswrongWikiImportSlug: string
   lesswrongWikiImportCompleted: boolean
   htmlWithContributorAnnotations: string
-  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  contributionStats: any
   introSequenceId: string
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
@@ -752,10 +752,10 @@ interface UsersCollection extends CollectionBase<DbUser, "Users"> {
 interface DbUser extends DbObject {
   __collectionName?: "Users"
   username: string
-  emails: Array<any /*{"definitions":[{}]}*/>
+  emails: Array<any>
   isAdmin: boolean
-  profile: any /*{"definitions":[{"blackbox":true}]}*/
-  services: any /*{"definitions":[{"blackbox":true}]}*/
+  profile: any
+  services: any
   displayName: string
   previousDisplayName: string
   email: string
@@ -778,10 +778,10 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
-  petrovOptOut: boolean
+  petrovOptOut: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
-  frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  frontpageFilterSettings: any
   allPostsTimeframe: string
   allPostsFilter: string
   allPostsSorting: string
@@ -799,8 +799,8 @@ interface DbUser extends DbObject {
   collapseModerationGuidelines: boolean
   bannedUserIds: Array<string>
   bannedPersonalUserIds: Array<string>
-  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
-  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  bookmarkedPostsMetadata: Array<any>
+  hiddenPostsMetadata: Array<any>
   legacyId: string
   deleted: boolean
   voteBanned: boolean
@@ -916,16 +916,16 @@ interface DbUser extends DbObject {
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  mongoLocation: any
+  googleLocation: any
   location: string
-  mapLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  mapLocation: any
   mapLocationSet: boolean
   mapMarkerText: string
   htmlMapMarkerText: string
   nearbyEventsNotifications: boolean
-  nearbyEventsNotificationsLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  nearbyEventsNotificationsMongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  nearbyEventsNotificationsLocation: any
+  nearbyEventsNotificationsMongoLocation: any
   nearbyEventsNotificationsRadius: number
   nearbyPeopleNotificationThreshold: number
   hideFrontpageMap: boolean
@@ -973,7 +973,7 @@ interface DbUser extends DbObject {
   maxCommentCount: number
   tagRevisionCount: number
   abTestKey: string
-  abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
+  abTestOverrides: any
   reenableDraftJs: boolean
   walledGardenInvite: boolean
   hideWalledGardenUI: boolean
@@ -1055,7 +1055,7 @@ interface DbVote extends DbObject {
   userId: string
   authorIds: Array<string>
   voteType: string
-  extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
+  extendedVoteType: any
   power: number
   afPower: number
   cancelled: boolean

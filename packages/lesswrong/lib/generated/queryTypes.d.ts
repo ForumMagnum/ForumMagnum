@@ -14,7 +14,7 @@ interface QueryRecommendationsQueryResult {
 interface QueryRecommendationsQueryResult_Recommendations extends PostsList {
 }
 interface QueryRecommendationsQueryVariables {
-  count: number
+  count: number|null
   algorithm: any
 }
 
@@ -33,7 +33,7 @@ interface QueryMozillaHubsRoomDataResult_MozillaHubsRoomData {
   name: string
 }
 interface QueryMozillaHubsRoomDataVariables {
-  roomId: string
+  roomId: string|null
 }
 
 interface QueryEmailPreviewQueryResult {
@@ -47,8 +47,8 @@ interface QueryEmailPreviewQueryResult_EmailPreview {
   text: string
 }
 interface QueryEmailPreviewQueryVariables {
-  notificationIds: Array<string>
-  postId: string
+  notificationIds: Array<string|null>
+  postId: string|null
 }
 
 interface QueryArbitalPageRequestResult {
@@ -56,8 +56,8 @@ interface QueryArbitalPageRequestResult {
 }
 
 interface QueryArbitalPageRequestResult_ArbitalPageData {
-  title: string
-  html: string
+  title: string|null
+  html: string|null
 }
 interface QueryArbitalPageRequestVariables {
   arbitalSlug: string
@@ -89,15 +89,15 @@ interface QueryMigrationsDashboardQueryResult_MigrationsDashboard {
 }
 interface QueryMigrationsDashboardQueryResult__migrationsmigrations {
   name: string
-  dateWritten: string
+  dateWritten: string|null
   runs: Array<QueryMigrationsDashboardQueryResult__migrations_runsruns>
-  lastRun: string
+  lastRun: string|null
 }
 interface QueryMigrationsDashboardQueryResult__migrations_runsruns {
   name: string
   started: Date
-  finished: Date
-  succeeded: boolean
+  finished: Date|null
+  succeeded: boolean|null
 }
 interface QueryMigrationsDashboardQueryVariables {
 }
@@ -134,7 +134,7 @@ interface QueryElicitQueryResult__predictions_creatorcreator {
 interface QueryElicitQueryResult__predictions_creator_lwUserlwUser extends UsersMinimumInfo {
 }
 interface QueryElicitQueryVariables {
-  questionId: string
+  questionId: string|null
 }
 
 interface QueryPostAnalyticsQueryResult {
@@ -142,16 +142,16 @@ interface QueryPostAnalyticsQueryResult {
 }
 
 interface QueryPostAnalyticsQueryResult_PostAnalytics {
-  allViews: number
-  uniqueClientViews: number
-  uniqueClientViews10Sec: number
-  medianReadingTime: number
-  uniqueClientViews5Min: number
+  allViews: number|null
+  uniqueClientViews: number|null
+  uniqueClientViews10Sec: number|null
+  medianReadingTime: number|null
+  uniqueClientViews5Min: number|null
   uniqueClientViewsSeries: Array<QueryPostAnalyticsQueryResult__uniqueClientViewsSeriesuniqueClientViewsSeries>
 }
 interface QueryPostAnalyticsQueryResult__uniqueClientViewsSeriesuniqueClientViewsSeries {
-  date: Date
-  uniqueClientViews: number
+  date: Date|null
+  uniqueClientViews: number|null
 }
 interface QueryPostAnalyticsQueryVariables {
   postId: string
@@ -162,27 +162,27 @@ interface QueryCoronaVirusDataResult {
 }
 
 interface QueryCoronaVirusDataResult_CoronaVirusData {
-  range: string
-  majorDimension: string
+  range: string|null
+  majorDimension: string|null
   values: Array<QueryCoronaVirusDataResult__valuesvalues>
 }
 interface QueryCoronaVirusDataResult__valuesvalues {
-  accepted: string
-  imp: string
-  link: string
-  shortDescription: string
-  url: string
-  description: string
-  domain: string
-  type: string
-  reviewerThoughts: string
-  foundVia: string
-  sourceLink: string
-  sourceLinkDomain: string
-  lastUpdated: string
-  title: string
-  dateAdded: string
-  category: string
+  accepted: string|null
+  imp: string|null
+  link: string|null
+  shortDescription: string|null
+  url: string|null
+  description: string|null
+  domain: string|null
+  type: string|null
+  reviewerThoughts: string|null
+  foundVia: string|null
+  sourceLink: string|null
+  sourceLinkDomain: string|null
+  lastUpdated: string|null
+  title: string|null
+  dateAdded: string|null
+  category: string|null
 }
 interface QueryCoronaVirusDataVariables {
 }
@@ -245,23 +245,23 @@ interface QueryPetrovDayLaunchResolversResult {
 }
 
 interface QueryPetrovDayLaunchResolversResult_PetrovDayCheckIfIncoming {
-  launched: boolean
-  createdAt: Date
+  launched: boolean|null
+  createdAt: Date|null
 }
 interface QueryPetrovDayLaunchResolversVariables {
 }
 
 interface QueryRevisionsDiffResult {
-  readonly RevisionsDiff: string,
+  readonly RevisionsDiff: string|null,
 }
 
 interface QueryRevisionsDiffVariables {
   collectionName: string
   fieldName: string
   id: string
-  beforeRev: string
+  beforeRev: string|null
   afterRev: string
-  trim: boolean
+  trim: boolean|null
 }
 
 interface QueryResultTypes {

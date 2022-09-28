@@ -66,6 +66,11 @@ async function serverStartup() {
   createVoteableUnionType();
   initGraphQL();
   
+  if (commandLineArguments.generateTypes) {
+    Globals.generateTypes('.');
+    process.exit(0);
+  }
+  
   if (commandLineArguments.shellMode) {
     initShell();
   } else {

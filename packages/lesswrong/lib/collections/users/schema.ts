@@ -1606,7 +1606,7 @@ const schema: SchemaType<DbUser> = {
   //   1.0: Reviewed user with 20+ karma
   spamRiskScore: resolverOnlyField({
     type: Number,
-    graphQLtype: "Float",
+    graphQLtype: "Float!",
     canRead: ['guests'],
     resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
@@ -2086,12 +2086,14 @@ const schema: SchemaType<DbUser> = {
     viewableBy: ['guests'],
     optional: true,
     hidden: true,
+    // resolveAs defined in userResolvers.js
   },
   htmlBio: {
     type: String,
     viewableBy: ['guests'],
     optional: true,
     hidden: true,
+    // resolveAs defined in userResolvers.js
   },
 
   fmCrosspostUserId: {

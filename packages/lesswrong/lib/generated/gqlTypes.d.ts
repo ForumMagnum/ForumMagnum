@@ -3,8 +3,12 @@ interface AnalyticsEvent {
   timestamp: Date
   props: any
 }
+interface ContentType {
+  type: string|null
+  data: any /*ContentTypeData*/
+}
 interface LoginReturnData {
-  token: string
+  token: string|null
 }
 interface TagContributor {
   user: User|null
@@ -13,13 +17,13 @@ interface TagContributor {
   voteCount: number
 }
 interface TagContributorsList {
-  contributors: Array<any /*TagContributor*/>
+  contributors: Array<TagContributor>
   totalCount: number
 }
 interface Site {
   title: string
   url: string
-  logoUrl: string
+  logoUrl: string|null
 }
 interface PostKarmaChange {
   _id: string
@@ -47,9 +51,15 @@ interface KarmaChanges {
   endDate: Date
   nextBatchDate: Date
   updateFrequency: string
-  posts: Array<any /*PostKarmaChange*/>
-  comments: Array<any /*CommentKarmaChange*/>
-  tagRevisions: Array<any /*RevisionsKarmaChange*/>
+  posts: Array<PostKarmaChange>
+  comments: Array<CommentKarmaChange>
+  tagRevisions: Array<RevisionsKarmaChange>
+}
+interface EmailPreview {
+  to: string
+  subject: string
+  html: string
+  text: string
 }
 interface TagUpdates {
   tag: Tag
@@ -63,25 +73,19 @@ interface TagUpdates {
   users: Array<User>
 }
 interface MigrationsDashboardData {
-  migrations: Array<any /*MigrationStatus*/>
+  migrations: Array<MigrationStatus>
 }
 interface MigrationStatus {
   name: string
-  dateWritten: string
-  runs: Array<any /*MigrationRun*/>
-  lastRun: string
+  dateWritten: string|null
+  runs: Array<MigrationRun>
+  lastRun: string|null
 }
 interface MigrationRun {
   name: string
   started: Date
-  finished: Date
-  succeeded: boolean
-}
-interface EmailPreview {
-  to: string
-  subject: string
-  html: string
-  text: string
+  finished: Date|null
+  succeeded: boolean|null
 }
 interface RecommendResumeSequence {
   sequence: Sequence|null
@@ -92,34 +96,34 @@ interface RecommendResumeSequence {
   lastReadTime: Date
 }
 interface NewUserCompletedProfile {
-  username: string
-  slug: string
-  displayName: string
-  subscribedToDigest: boolean
-  usernameUnset: boolean
+  username: string|null
+  slug: string|null
+  displayName: string|null
+  subscribedToDigest: boolean|null
+  usernameUnset: boolean|null
 }
 interface CoronaVirusDataRow {
-  accepted: string
-  imp: string
-  link: string
-  shortDescription: string
-  url: string
-  description: string
-  domain: string
-  type: string
-  reviewerThoughts: string
-  foundVia: string
-  sourceLink: string
-  sourceLinkDomain: string
-  lastUpdated: string
-  title: string
-  dateAdded: string
-  category: string
+  accepted: string|null
+  imp: string|null
+  link: string|null
+  shortDescription: string|null
+  url: string|null
+  description: string|null
+  domain: string|null
+  type: string|null
+  reviewerThoughts: string|null
+  foundVia: string|null
+  sourceLink: string|null
+  sourceLinkDomain: string|null
+  lastUpdated: string|null
+  title: string|null
+  dateAdded: string|null
+  category: string|null
 }
 interface CoronaVirusDataSchema {
-  range: string
-  majorDimension: string
-  values: Array<any /*CoronaVirusDataRow*/>
+  range: string|null
+  majorDimension: string|null
+  values: Array<CoronaVirusDataRow>
 }
 interface MozillaHubsData {
   description: string
@@ -135,13 +139,13 @@ interface MozillaHubsData {
   url: string
 }
 interface ArbitalPageData {
-  html: string
-  title: string
+  html: string|null
+  title: string|null
 }
 interface TagHistoryFeedQueryResults {
-  cutoff: Date
+  cutoff: Date|null
   endOffset: number
-  results: Array<any /*TagHistoryFeedEntryType*/>
+  results: Array<TagHistoryFeedEntryType>
 }
 interface TagHistoryFeedEntryType {
   type: string
@@ -151,9 +155,9 @@ interface TagHistoryFeedEntryType {
   tagDiscussionComment: Comment|null
 }
 interface AllTagsActivityFeedQueryResults {
-  cutoff: Date
+  cutoff: Date|null
   endOffset: number
-  results: Array<any /*AllTagsActivityFeedEntryType*/>
+  results: Array<AllTagsActivityFeedEntryType>
 }
 interface AllTagsActivityFeedEntryType {
   type: string
@@ -162,14 +166,15 @@ interface AllTagsActivityFeedEntryType {
   tagDiscussionComment: Comment|null
 }
 interface RecentDiscussionFeedQueryResults {
-  cutoff: Date
+  cutoff: Date|null
   endOffset: number
-  results: Array<any /*RecentDiscussionFeedEntryType*/>
+  results: Array<RecentDiscussionFeedEntryType>
 }
 interface RecentDiscussionFeedEntryType {
   type: string
   postCommented: Post|null
   tagDiscussed: Tag|null
+  tagSubforumCommented: Tag|null
   tagRevised: Revision|null
 }
 interface ElicitUser {
@@ -177,7 +182,7 @@ interface ElicitUser {
   displayName: string
   _id: string
   sourceUserId: string
-  lwUser: User|null
+  lwUser: User
 }
 interface ElicitPrediction {
   _id: string
@@ -185,7 +190,7 @@ interface ElicitPrediction {
   prediction: number
   createdAt: Date
   notes: string
-  creator: any /*ElicitUser*/
+  creator: ElicitUser
   sourceUrl: string
   sourceId: string
   binaryQuestionId: string
@@ -196,25 +201,25 @@ interface ElicitBlockData {
   notes: string
   resolvesBy: Date
   resolution: boolean
-  predictions: Array<any /*ElicitPrediction*/>
+  predictions: Array<ElicitPrediction>
 }
 interface PetrovDayCheckIfIncomingData {
-  launched: boolean
-  createdAt: Date
+  launched: boolean|null
+  createdAt: Date|null
 }
 interface PetrovDayLaunchMissileData {
-  launchCode: string
-  createdAt: Date
+  launchCode: string|null
+  createdAt: Date|null
 }
 interface UniqueClientViewsSeries {
-  uniqueClientViews: number
-  date: Date
+  uniqueClientViews: number|null
+  date: Date|null
 }
 interface PostAnalyticsResult {
-  allViews: number
-  uniqueClientViews: number
-  uniqueClientViews10Sec: number
-  medianReadingTime: number
-  uniqueClientViews5Min: number
-  uniqueClientViewsSeries: Array<any /*UniqueClientViewsSeries*/>
+  allViews: number|null
+  uniqueClientViews: number|null
+  uniqueClientViews10Sec: number|null
+  medianReadingTime: number|null
+  uniqueClientViews5Min: number|null
+  uniqueClientViewsSeries: Array<UniqueClientViewsSeries>
 }
