@@ -6,6 +6,8 @@ import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import startCase from "lodash/startCase";
+import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
-  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody } = Components;
+  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody, HeadTags } = Components;
 
   const { params, query } = useLocation();
   const { slug } = params;
@@ -88,13 +90,19 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     </div>
   ) : <></>;
 
+  const title = `${startCase(tag.name)} Subforum`;
+
   return (
     <div className={classes.root}>
+      <HeadTags
+        description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
+        title={title}
+      />
       <div className={classNames(classes.columnSection, classes.stickToBottom)}>
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
+        <SectionTitle title={title} className={classes.title} />
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}
