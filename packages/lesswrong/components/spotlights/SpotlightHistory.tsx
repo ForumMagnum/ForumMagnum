@@ -5,12 +5,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-
-  }
-});
-
 export const SpotlightHistory = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -39,7 +33,7 @@ export const SpotlightHistory = ({classes}: {
   </SingleColumnSection>;
 }
 
-const SpotlightHistoryComponent = registerComponent('SpotlightHistory', SpotlightHistory, {styles});
+const SpotlightHistoryComponent = registerComponent('SpotlightHistory', SpotlightHistory);
 
 declare global {
   interface ComponentTypes {
