@@ -665,9 +665,12 @@ interface DbSpotlight extends DbObject {
   documentId: string
   documentType: SpotlightDocumentType
   position: number
-  spotlightImageId: string | null
-  draft: boolean
   lastPromotedAt: Date
+  draft: boolean
+  spotlightImageId: string | null
+  duration: number
+  customTitle: string | null
+  customSubtitle: string | null
   createdAt: Date
   description: EditableFieldContents
 }
@@ -793,7 +796,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
-  petrovOptOut: boolean
+  petrovOptOut: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/

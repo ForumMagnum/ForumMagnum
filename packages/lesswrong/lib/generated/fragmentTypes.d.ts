@@ -34,7 +34,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
-  readonly petrovOptOut: boolean,
+  readonly petrovOptOut: boolean | null,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -2155,7 +2155,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly petrovPressedButtonDate: Date,
-  readonly petrovOptOut: boolean,
+  readonly petrovOptOut: boolean | null,
   readonly sortDraftsBy: string,
   readonly noindex: boolean,
   readonly paymentEmail: string,
@@ -2281,7 +2281,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly sortDraftsBy: string,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
-  readonly petrovOptOut: boolean,
+  readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
 }
 
@@ -2603,21 +2603,33 @@ interface UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly position: number,
-  readonly spotlightImageId: string | null,
-  readonly draft: boolean,
   readonly lastPromotedAt: Date,
+  readonly draft: boolean,
+  readonly spotlightImageId: string | null,
+  readonly duration: number,
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Post","Sequence","Collection"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly spotlightImageId: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
+  readonly duration: number,
+}
+
+interface SpotlightTest { // fragment on Spotlights
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
+  readonly duration: number,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2815,6 +2827,7 @@ interface FragmentTypes {
   UserVotes: UserVotes
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
+  SpotlightTest: SpotlightTest
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -2978,6 +2991,7 @@ interface CollectionNamesByFragmentName {
   UserVotes: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
+  SpotlightTest: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"
