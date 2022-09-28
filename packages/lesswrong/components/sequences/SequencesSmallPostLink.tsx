@@ -7,6 +7,7 @@ import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import { useItemsRead } from '../common/withRecordPostView';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -47,7 +48,7 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   post: PostsList,
   sequenceId: string,
   large?: boolean,
-  placement?: string
+  placement?: PopperPlacementType | undefined
 }) => {
   const { LWTooltip, PostsPreviewTooltip } = Components
 
