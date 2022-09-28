@@ -30,7 +30,7 @@ export const SpotlightHistory = ({classes}: {
     itemsPerPage: 50
   });
 
-  const title = userCanDo(currentUser, 'spotlights.edit.all') ? <Link to={"/spotlights"}>Spotlights</Link> : <div>Spotlights</div>
+  const title = userCanDo(currentUser, 'spotlights.edit.all') ? <Link to={"/spotlights"}>Spotlight Items</Link> : <div>Spotlight Items</div>
 
   return <SingleColumnSection className={classes.root}>
     <SectionTitle title={title}/>
