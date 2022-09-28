@@ -4,29 +4,29 @@
 // which will cause this file to be regenerated. This file should nevertheless be
 // checked in to version control.
 interface ResolverArgumentTypes {
-  currentUser: any
-  getTokenParams: any
-  SiteData: any
-  EmailPreview: any
-  getLinkSharedPost: any
-  TagUpdatesInTimeBlock: any
-  TagUpdatesByUser: any
-  RandomTag: any
-  MigrationsDashboard: any
-  AdminMetadata: any
-  ContinueReading: any
-  Recommendations: any
-  RevisionsDiff: any
-  convertDocument: any
-  CoronaVirusData: any
-  MozillaHubsRoomData: any
-  ArbitalPageData: any
-  TagHistoryFeed: any
-  AllTagsActivityFeed: any
-  RecentDiscussionFeed: any
-  PetrovDayCheckIfIncoming: any
-  PostAnalytics: any
-  ElicitBlockData: any
+  currentUser: void
+  getTokenParams: { token: string|null }
+  SiteData: void
+  EmailPreview: { notificationIds: Array<string|null>, postId: string|null }
+  getLinkSharedPost: { postId: string, linkSharingKey: string }
+  TagUpdatesInTimeBlock: { before: Date, after: Date }
+  TagUpdatesByUser: { userId: string, limit: number, skip: number }
+  RandomTag: void
+  MigrationsDashboard: void
+  AdminMetadata: void
+  ContinueReading: void
+  Recommendations: { count: number|null, algorithm: any }
+  RevisionsDiff: { collectionName: string, fieldName: string, id: string|null, beforeRev: string|null, afterRev: string, trim: boolean|null }
+  convertDocument: { document: any, targetFormat: string|null }
+  CoronaVirusData: void
+  MozillaHubsRoomData: { roomId: string|null }
+  ArbitalPageData: { pageAlias: string|null }
+  TagHistoryFeed: { limit: number|null, cutoff: Date|null, offset: number|null, tagId: string }
+  AllTagsActivityFeed: { limit: number|null, cutoff: Date|null, offset: number|null }
+  RecentDiscussionFeed: { limit: number|null, cutoff: Date|null, offset: number|null, af: boolean|null }
+  PetrovDayCheckIfIncoming: void
+  PostAnalytics: { postId: string }
+  ElicitBlockData: { questionId: string|null }
 }
 interface ResolverResultTypes {
   currentUser: DbUser|null

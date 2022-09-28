@@ -35,20 +35,18 @@ import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
 import * as _ from 'underscore';
 
-const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
-  `type Query {
-${queries.map(q =>
-        `${
-          q.description
-            ? `  # ${q.description}\n`
-            : ''
-        }  ${q.query}
-  `
-    )
-    .join('\n')}
+const queriesToGraphQL = (queries: QueryAndDescription[]): string => {
+  const sb: string[] = [];
+  sb.push('type Query {\n');
+  for (let q of queries) {
+    if (q.description)
+      sb.push(`  # ${q.description}\n`);
+    sb.push(`  ${q.query}\n`);
+  }
+  sb.push('}\n\n');
+  return sb.join('');
 }
 
-`;
 const mutationsToGraphQL = (mutations: MutationAndDescription[]): string =>
   mutations.length > 0
     ? `
@@ -445,14 +443,10 @@ export const initGraphQL = () => {
     allResolvers = deepmerge(allResolvers, addedResolverGroup);
   }
   
-  try {
-    executableSchema = makeExecutableSchema({
-      typeDefs: schemaText,
-      resolvers: allResolvers,
-    });
-  } catch(e) {
-    console.log(e);
-  }
+  executableSchema = makeExecutableSchema({
+    typeDefs: schemaText,
+    resolvers: allResolvers,
+  });
 
   return executableSchema;
 };
