@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
-  const { podcast: { title, applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
+  const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
   const episodeUrl = new URL(episodeLink);
 
   // episodeLink is something like https://www.buzzsprout.com/2037297/11391281-...
@@ -66,7 +66,7 @@ const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const externalDirectoryAvailability = !!spotifyLinkElement && !!appleLinkElement;
 
   return <p>
-    This post has been recorded as part of the {title}, and can be listened to on {buzzsproutLinkElement}.
+    Listen to the podcast recording version of this post on {buzzsproutLinkElement}.
     {externalDirectoryAvailability ? '  It is also available on ' + spotifyLinkElement + ' and ' + appleLinkElement + '.' : ''}
   </p>;
 };
