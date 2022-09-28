@@ -567,6 +567,7 @@ importComponent("SequencesPost", () => require('../components/sequences/Sequence
 importComponent("SequencesGridItem", () => require('../components/sequences/SequencesGridItem'));
 importComponent("LargeSequencesItem", () => require('../components/sequences/LargeSequencesItem'));
 importComponent("SequencesHoverOver", () => require('../components/sequences/SequencesHoverOver'));
+importComponent("ChapterTitle", () => require('../components/sequences/ChapterTitle')); 
 importComponent("SequencesSmallPostLink", () => require('../components/sequences/SequencesSmallPostLink'));
 importComponent("ChaptersItem", () => require('../components/sequences/ChaptersItem'));
 importComponent("ChaptersList", () => require('../components/sequences/ChaptersList'));

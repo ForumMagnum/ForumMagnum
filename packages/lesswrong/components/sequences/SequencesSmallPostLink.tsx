@@ -6,6 +6,7 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import { useItemsRead } from '../common/withRecordPostView';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -18,6 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginBottom: 6,
     marginTop: 6
+  },
+  large: {
+    ...theme.typography.postsItemTitle,
+    marginBottom: 10,
+    marginTop: 10
   },
   read: {
     width: 12,
@@ -36,10 +42,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesSmallPostLink = ({classes, post, sequenceId}: {
+const SequencesSmallPostLink = ({classes, post, sequenceId, large}: {
   classes: ClassesType,
   post: PostsList,
-  sequenceId: string
+  sequenceId: string,
+  large?: boolean
 }) => {
   const { LWTooltip, PostsPreviewTooltip } = Components
 
@@ -49,8 +56,8 @@ const SequencesSmallPostLink = ({classes, post, sequenceId}: {
 
   const icon = isPostRead ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
-  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false}>
-        <Link to={postGetPageUrl(post, false, sequenceId)} className={classes.title}>
+  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false} flip>
+        <Link to={postGetPageUrl(post, false, sequenceId)} className={classNames(classes.title, {[classes.large]: large})}>
           {icon} {post.title}
         </Link>
       </LWTooltip>

@@ -105,6 +105,13 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: '1.1rem',
           lineHeight: '1.5rem',
         },
+        postsItemTitle: {
+          fontSize: "1.3rem"
+        },
+        chapterTitle: {
+          fontSize: "1.4em",
+          fontStyle: "italic",
+        },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,
           fontWeight: 400,
