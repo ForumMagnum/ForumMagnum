@@ -844,6 +844,7 @@ const schema: SchemaType<DbPost> = {
     label: "Tags",
     group: formGroups.advancedOptions,
     control: "FormComponentPostEditorTagging",
+    order: 2,
     hidden: (props) => props.eventForm,
   },
   
@@ -1225,6 +1226,7 @@ const schema: SchemaType<DbPost> = {
     label: "Co-Authors",
     control: "CoauthorsListEditor",
     group: formGroups.advancedOptions,
+    order: 1,
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
@@ -1255,6 +1257,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['sunshineRegiment', 'admins'],
     control: "ImageUpload",
     group: formGroups.advancedOptions,
+    order: 4,
   },
   
   // Autoset OpenGraph image, derived from the first post image in a callback
@@ -1281,6 +1284,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['members'],
     control: "FMCrosspostControl",
     group: formGroups.advancedOptions,
+    order: 3,
     hidden: !fmCrosspostSiteNameSetting.get(),
     ...schemaDefaultValue({
       isCrosspost: false,

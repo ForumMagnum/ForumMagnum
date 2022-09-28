@@ -26,6 +26,7 @@ const FormComponentPostEditorTagging = ({value, path, document, label, placehold
     return <Components.FooterTagList
       post={document}
       hideScore
+      hidePostTypeTag
     />
   } else {
     return <Components.TagMultiselect
