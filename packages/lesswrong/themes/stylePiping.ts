@@ -514,7 +514,10 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main
+        '--ck-color-comment-count': theme.palette.primary.main,
+        '& ol, & ul': {
+          listStyleType: "revert !important",
+        }
       },
       
       "--ck-color-base-background": theme.palette.editor.commentPanelBackground,
