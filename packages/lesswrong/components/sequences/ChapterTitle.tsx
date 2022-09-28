@@ -1,9 +1,5 @@
 import React from 'react';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,9 +10,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ChapterTitle = ({classes, title}: {
   classes: ClassesType,
-  title?: string
+  title: string
 }) => {
-  if (!title) return null
   return  <div className={classes.root}>{title}</div>
 }
 

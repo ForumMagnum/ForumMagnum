@@ -76,7 +76,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
     {sequence && chapters?.flatMap(chapter => {
       return <div>
-        <ChapterTitle title={chapter.title}/>
+        {chapter.title && <ChapterTitle title={chapter.title}/>}
         {chapter.posts.map(post => <SequencesSmallPostLink 
           key={sequence._id + post._id} 
           post={post}

@@ -215,7 +215,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
       <div className={classes.right}>
         {sequence.chapters?.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
-            <ChapterTitle title={title}/>
+            {title && <ChapterTitle title={title}/>}
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
