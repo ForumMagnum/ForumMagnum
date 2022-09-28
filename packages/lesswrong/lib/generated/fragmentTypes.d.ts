@@ -852,6 +852,11 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -1078,6 +1083,11 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -2605,12 +2615,12 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly position: number,
-  readonly lastPromotedAt: Date,
-  readonly draft: boolean,
-  readonly spotlightImageId: string | null,
   readonly duration: number,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly lastPromotedAt: Date,
+  readonly draft: boolean,
+  readonly spotlightImageId: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -2621,12 +2631,6 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
-  readonly customTitle: string | null,
-  readonly customSubtitle: string | null,
-  readonly duration: number,
-}
-
-interface SpotlightTest { // fragment on Spotlights
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
   readonly duration: number,
@@ -2827,7 +2831,6 @@ interface FragmentTypes {
   UserVotes: UserVotes
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
-  SpotlightTest: SpotlightTest
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -2991,7 +2994,6 @@ interface CollectionNamesByFragmentName {
   UserVotes: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
-  SpotlightTest: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"
