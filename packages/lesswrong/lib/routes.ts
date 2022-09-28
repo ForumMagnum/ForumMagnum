@@ -201,6 +201,12 @@ addRoute(
     title: "Inbox"
   },
   {
+    name: 'moderatorInbox',
+    path: '/moderatorInbox',
+    componentName: 'ModeratorInboxWrapper',
+    title: "Moderator Inbox"
+  },
+  {
     name: 'conversation',
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
@@ -492,7 +498,8 @@ if (taggingNameIsSet.get()) {
       name: 'taggingSubforumCustomName',
       path: `/topics/:slug/subforum`,
       componentName: 'TagSubforumPage',
-      hideFooter: true
+      hideFooter: true,
+      noPadding: true,
     }
   )
 } else {
@@ -934,6 +941,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'SpotlightsPage',
+      path: '/spotlights',
+      componentName: 'SpotlightsPage',
+      title: 'Spotlights Page'
+    }
   ],
   AlignmentForum: [
     {

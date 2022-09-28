@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -299,7 +299,10 @@ export const PostSharedWithUserNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/collaborateOnPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("PostSharedWithUserNotification documentId is missing")
+    }
+    return getPostCollaborateUrl(documentId, false)
   }
 });
 
@@ -379,6 +382,20 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
+export const NewSubforumMemberNotification = registerNotificationType({
+  name: "newSubforumMember",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'user') throw new Error("documentType must be user")
+    const newUser = await Users.findOne(documentId)
+    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
+    return `A new user has joined your subforum: ${newUser.displayName}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />

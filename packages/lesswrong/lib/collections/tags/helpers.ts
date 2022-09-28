@@ -32,6 +32,10 @@ export const tagGetDiscussionUrl = (tag: DbTag|TagBasicInfo) => {
   return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`
 }
 
+export const tagGetSubforumUrl = (tag: DbTag|TagBasicInfo) => {
+  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/subforum`
+}
+
 export const tagGetCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): string => {
   return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${commentId}`
 }

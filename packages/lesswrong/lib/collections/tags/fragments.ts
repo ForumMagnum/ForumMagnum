@@ -27,6 +27,11 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
+    isSubforum
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -55,7 +60,6 @@ registerFragment(`
       plaintextDescription
       version
     }
-    isSubforum
   }
 `);
 
@@ -113,7 +117,6 @@ registerFragment(`
   }
 `);
 
-// TODO-JM: add comment explaining subforumPostId add here to avoid two round trips
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
@@ -129,7 +132,17 @@ registerFragment(`
       _id
       htmlHighlight
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumFragment on Tag {
+    ...TagPreviewFragment
     isSubforum
+    subforumWelcomeText {
+      _id
+      html
+    }
   }
 `);
 
@@ -179,7 +192,6 @@ registerFragment(`
         voteCount
       }
     }
-    isSubforum
   }
 `);
 
@@ -199,7 +211,6 @@ registerFragment(`
         voteCount
       }
     }
-    isSubforum
   }
 `);
 
@@ -221,7 +232,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    ...TagBasicInfo
+    ...TagDetailsFragment
     parentTag {
       _id
       name
@@ -230,6 +241,9 @@ registerFragment(`
     tagFlagsIds
     postsDefaultSortOrder
     description {
+      ...RevisionEdit
+    }
+    subforumWelcomeText {
       ...RevisionEdit
     }
   }
@@ -246,11 +260,20 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRecentSubforumComments on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {
       ...UsersMinimumInfo
     }
-    isSubforum
   }
 `);

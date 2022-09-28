@@ -74,7 +74,7 @@ const NotifyMeButton = ({
   const { openDialog } = useDialog()
   const { flash } = useMessages();
   const { create: createSubscription } = useCreate({
-    collection: Subscriptions,
+    collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',
   });
   
@@ -132,7 +132,8 @@ const NotifyMeButton = ({
         documentId: document._id,
         collectionName,
         type: subscriptionType,
-      }
+      } as const;
+      
       await createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed

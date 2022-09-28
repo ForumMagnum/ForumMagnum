@@ -25,8 +25,8 @@ import { userCanDo } from '../lib/vulcan-users/permissions';
 import { getUserEmail } from "../lib/collections/users/helpers";
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
+export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -58,6 +58,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 8,
       paddingRight: 8,
     },
+  },
+  mainNoPadding: {
+    padding: 0,
   },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -253,7 +256,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       const afterTime = petrovAfterTime.get()
     
       return currentRoute?.name === "home"
-        && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
+        && ('LessWrong' === forumTypeSetting.get())
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
@@ -311,7 +314,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white"
+                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.mainNoPadding]: currentRoute?.noPadding,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

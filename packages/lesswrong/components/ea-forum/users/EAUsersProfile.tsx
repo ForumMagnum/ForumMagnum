@@ -14,7 +14,7 @@ import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
@@ -202,6 +202,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+
+export const socialMediaIcon = (user: UsersProfile, field: string, className: string) => {
+  if (!user[field]) return null
+  return <a key={field}
+    href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <svg viewBox="0 0 24 24" className={className}>{socialMediaIconPaths[field]}</svg>
+  </a>
+}
+
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
@@ -311,12 +323,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const userKarma = user.karma || 0
   
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
-  const socialMediaIcon = (field) => {
-    if (!user[field]) return null
-    return <a key={field} href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
-      <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
-    </a>
-  }
   
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
@@ -503,7 +509,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
             </span>
             {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
+              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
             </div>}
             {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
               <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>

@@ -11,21 +11,25 @@ const schema: SchemaType<DbPodcastEpisode> = {
     }),
     optional: true, // ???
     viewableBy: ['guests'],
+    insertableBy: ['podcasters', 'admins']
   },
   title: {
     type: String,
     optional: false,
-    viewableBy: ['guests']
+    viewableBy: ['guests'],
+    insertableBy: ['podcasters', 'admins']
   },
   episodeLink: {
     type: String,
     optional: false,
-    viewableBy: ['guests']
+    viewableBy: ['guests'],
+    insertableBy: ['podcasters', 'admins']
   },
   externalEpisodeId: {
     type: String,
     optional: false,
-    viewableBy: ['guests']
+    viewableBy: ['guests'],
+    insertableBy: ['podcasters', 'admins']
   }
 };
 

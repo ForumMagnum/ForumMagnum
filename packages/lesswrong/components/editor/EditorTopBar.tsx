@@ -26,17 +26,27 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: "0 !important",
       alignItems: "center !important",
     },
-
     '& .ck-user__name': {
       color: 'unset !important',
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
     },
-    
     '& .ck-presence-list__counter': {
       fontSize: '1rem !important',
       marginBottom: "0 !important",
+      display: "block !important", //doesn't hide when more than 1 user, helps in cases with many users present
+      wordBreak: "normal !important"
     },
-
+    '& .ck-presence-list__list': {
+      flexWrap: "wrap"
+    },
+    '& .ck-presence-list__list-item:nth-child(n+4)': {
+      display:"none"
+    },
+    [theme.breakpoints.down('xs')]: {
+      '& .ck-presence-list__list-item:nth-child(n+3)': {
+        display:"none"
+      }
+    },
     "& .ck-tooltip": {
       transform: "initial !important",
       bottom: "initial !important",
@@ -66,8 +76,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   saveStatus: {
     '&:hover': {
       background: "unset"
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
     }
   },
+  tooltipWrapped: {
+    marginRight: 16
+  }
 });
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
@@ -83,36 +99,39 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
 
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList} ref={presenceListRef}/>
-    
-    <Select
-      className={classes.collabModeSelect} disableUnderline
-      value={collaborationMode}
-      onChange={(e) => {
-        const newMode = e.target.value as CollaborationMode;
-        setCollaborationMode(newMode);
-      }}
-    >
-      <MenuItem value="Viewing" key="Viewing">
-        Viewing
-      </MenuItem>
-      <MenuItem value="Commenting" key="Commenting"
-        disabled={!accessLevelCan(accessLevel, "comment")}
+    <span>
+      <Select
+        className={classes.collabModeSelect} disableUnderline
+        value={collaborationMode}
+        onChange={(e) => {
+          const newMode = e.target.value as CollaborationMode;
+          setCollaborationMode(newMode);
+        }}
       >
-        Commenting
-      </MenuItem>
-      <MenuItem value="Editing" key="Editing"
-        disabled={!accessLevelCan(accessLevel, "edit")}
-      >
-        Editing
-      </MenuItem>
-    </Select>
-    
-    <LWTooltip title="Collaborative docs automatically save all changes">
-      <Button className={classes.saveStatus}>
-        Auto-Saved
-        {/*TODO: Make this track offline status etc*/}
-      </Button>
-    </LWTooltip>
+        <MenuItem value="Viewing" key="Viewing">
+          Viewing
+        </MenuItem>
+        <MenuItem value="Commenting" key="Commenting"
+          disabled={!accessLevelCan(accessLevel, "comment")}
+        >
+          {/* TODO: Figure out how to wrap tooltip properly around MenuItem without breaking select */}
+          <LWTooltip placement="right" title="To suggest changes, you must be in edit mode">
+            <div className={classes.tooltipWrapped}>Commenting</div>
+          </LWTooltip>
+        </MenuItem>
+        <MenuItem value="Editing" key="Editing"
+          disabled={!accessLevelCan(accessLevel, "edit")}
+        >
+          Editing
+        </MenuItem>
+      </Select>
+      <LWTooltip title="Collaborative docs automatically save all changes">
+        <Button className={classes.saveStatus}>
+          Auto-Saved
+          {/*TODO: Make this track offline status etc*/}
+        </Button>
+      </LWTooltip>
+    </span>
   </div>
 }
 

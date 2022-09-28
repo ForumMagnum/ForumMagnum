@@ -4,6 +4,7 @@ import { useQuery, gql } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const loadMoreDistance = 500;
 
@@ -185,9 +186,13 @@ const MixedTypeFeed = (args: {
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
+  
+  const results = (data && data[resolverName]?.results) || [];
+  const keyFunc = (result) => `${result.type}_${result[result.type]?._id}`;
+  const orderedResults = useOrderPreservingArray(results, keyFunc);
   return <div>
-    {data && data[resolverName]?.results && data[resolverName].results.map((result,i) =>
-      <div key={i}>
+    {orderedResults.map((result) =>
+      <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
     )}

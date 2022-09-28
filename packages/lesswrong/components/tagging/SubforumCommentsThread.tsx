@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { unflattenComments } from "../../lib/utils/unflatten";
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
-const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
+const SubforumCommentsThread = ({ tag, terms }: {
   tag: TagBasicInfo,
   terms: CommentsViewTerms,
-  newForm?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
     collectionName: "Comments",
-    fragmentName: 'CommentsList',
+    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
+  
+  const sortByRef = useRef(terms.sortBy);
+  const orderedResults = useOrderPreservingArray(
+    results || [],
+    (comment) => comment._id,
+    // If the selected sort order changes, clear the existing ordering
+    sortByRef.current === terms.sortBy ? "interleave-new" : "no-reorder"
+  );
+  sortByRef.current = terms.sortBy;
   
   if (loading && !results) {
     return <Components.Loading />;
@@ -22,17 +30,15 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
     return null;
   }
 
-  const nestedComments = unflattenComments(results);
   return (
     <Components.CommentsTimelineSection
       tag={tag}
-      comments={nestedComments}
+      comments={orderedResults}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
-      commentCount={(results && results.length) || 0}
+      commentCount={orderedResults?.length ?? 0}
       loadingMoreComments={loadingMore}
-      loadMoreCount={10}
-      newForm={newForm}
+      loadMoreCount={50}
       refetch={refetch}
     />
   );

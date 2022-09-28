@@ -7,6 +7,7 @@ import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
+import { createNotifications } from '../notificationCallbacksHelpers';
 
 function isValidTagName(name: string) {
   return true;

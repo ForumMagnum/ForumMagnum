@@ -1,10 +1,10 @@
 import React from 'react';
-import { gql } from '@apollo/client';
+import { ApolloError, gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
 import type { MutationResult } from '@apollo/client/react';
 import { withApollo } from '@apollo/client/react/hoc';
-import { extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { updateCacheAfterCreate } from './cacheUpdates';
 import { getExtraVariables } from './utils'
@@ -81,18 +81,23 @@ export const withCreate = options => {
 
 export default withCreate;
 
-export const useCreate = ({
-  collectionName, collection,
+export const useCreate = <CollectionName extends CollectionNameString>({
+  collectionName,
   fragmentName: fragmentNameArg, fragment: fragmentArg,
   ignoreResults=false,
 }: {
-  collectionName?: CollectionNameString,
-  collection?: CollectionBase<any>,
+  collectionName: CollectionName,
   fragmentName?: FragmentName,
   fragment?: any,
   ignoreResults?: boolean,
-}) => {
-  ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
+}): {
+  create: WithCreateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  loading: boolean,
+  error: ApolloError|undefined,
+  called: boolean,
+  data?: ObjectsByCollectionName[CollectionName],
+} => {
+  const collection = getCollection(collectionName);
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collection!.options.typeName;

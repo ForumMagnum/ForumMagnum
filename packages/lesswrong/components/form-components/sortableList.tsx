@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import type {SortEvent, SortEventWithTag} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
 export const makeSortableListComponent = ({renderItem}: {
@@ -18,11 +19,11 @@ export const makeSortableListComponent = ({renderItem}: {
     </span>
   });
   
-  const shouldCancelStart = (e) => {
+  const shouldCancelStart = (e: SortEvent | SortEventWithTag) => {
     // Cancel drag if the event target is a form field, so that if the draggable
     // things have form fields inside them, you can still click to focus them.
     const disabledElements = [ 'input', 'textarea', 'select', 'option', 'button', 'svg', 'path' ];
-    if (disabledElements.includes(e.target.tagName.toLowerCase())) {
+    if ('tagName' in e.target && disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
     } else {
       return false;
