@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import React, { useState } from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
@@ -246,6 +247,20 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
     setEdit(false);
     refetchAllSpotlights?.();
   };
+
+  const { results: chapters, loading: chaptersLoading } = useMulti({
+    terms: {
+      view: "SequenceChapters",
+      sequenceId: spotlight.documentId,
+      limit: 100
+    },
+    collectionName: "Chapters",
+    fragmentName: 'ChaptersFragment',
+    enableTotal: false,
+    skip: spotlight.documentType !== "Sequence"
+  });
+
+  const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
@@ -286,6 +301,9 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         </div>
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
+        </div>}
+        {posts.length > 1 && <div>
+          {posts.map(post => <div key={post._id}>0</div>)}
         </div>}
         {firstPostUrl && <div className={classes.firstPost}>
           First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
