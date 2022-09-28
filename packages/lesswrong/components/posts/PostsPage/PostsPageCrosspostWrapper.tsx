@@ -59,6 +59,11 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   };
 
   if (!contextValue.hostedHere) {
+    /**
+     * If this post was crossposted from elsewhere then we want to take most of the fields from
+     * our local copy (for correct links/ids/etc.) but we need to override a few specific fields
+     * to actually get the correct content and some metadata that isn't denormalized across sites
+     */
     const overrideFields = ["contents", "readTimeMinutes"];
     contextValue.combinedPost = {...document, ...post};
     for (const field of overrideFields) {
