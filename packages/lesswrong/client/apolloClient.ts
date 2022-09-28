@@ -19,7 +19,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 });
 
-export const createApolloClient = (baseUrl = '/', ssrMode: boolean = false): ApolloClient<NormalizedCacheObject> => {
+export const createApolloClient = (baseUrl = '/', ssrMode = false): ApolloClient<NormalizedCacheObject> => {
   const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()
