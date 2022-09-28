@@ -165,7 +165,9 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontSize: "1.25em",
           fontStyle: "unset",
           textTransform: "unset",
-          color: "unset"
+          color: palette.grey[800],
+          lineHeight: "1.75em",
+          fontFamily: serifStack
         },
         largeChapterTitle: {
           fontSize: "2.2rem"
