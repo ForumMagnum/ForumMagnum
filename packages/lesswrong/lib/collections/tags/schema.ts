@@ -464,6 +464,16 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  subforumUnreadMessages: resolverOnlyField({
+    type: String,
+    canRead: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      // get last visited date
+      // count comments newer than that date
+      
+      return ""
+    },
+  }),
   subforumModeratorIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "subforumModeratorIds",
