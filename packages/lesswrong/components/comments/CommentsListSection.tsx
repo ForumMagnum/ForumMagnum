@@ -160,7 +160,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
-          {post?.isEvent && post?.rsvps?.length && (
+          {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>
@@ -176,7 +176,6 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
-      <Components.PostsPageCrosspostComments />
       <Components.CommentsList
         treeOptions={{
           highlightDate: highlightDate,
@@ -189,6 +188,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
+      <Components.PostsPageCrosspostComments />
     </div>
   );
 }
