@@ -7,10 +7,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
     position: "relative",
-    
     "& a": {
       position: "relative",
-      zIndex: 1,
     },
   },
   background: {
@@ -19,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     left: 0,
     top: 0,
-    zIndex: 0,
+    zIndex: theme.zIndexes.linkCard,
     
     "& a": {
       position: "absolute",

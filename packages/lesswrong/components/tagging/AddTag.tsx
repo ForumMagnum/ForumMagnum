@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import Divider from '@material-ui/core/Divider';
-import { tagMinimumKarmaPermissions, Tags } from '../../lib/collections/tags/collection';
-import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -105,7 +104,7 @@ const AddTag = ({onTagSelected, classes}: {
     <Link target="_blank" to="/tags/all" className={classes.newTag}>
       All {taggingNamePluralCapitalSetting.get()}
     </Link>
-    {userCanCreateTags(currentUser) && ((currentUser?.karma ?? 0) >= tagMinimumKarmaPermissions.new) && <Link
+    {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
       target="_blank"
       to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
       className={classes.newTag}

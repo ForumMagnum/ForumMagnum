@@ -14,6 +14,19 @@ const schema: SchemaType<DbReport> = {
     hidden: true,
     optional: true,
   },
+  reportedUserId: {
+    ...foreignKeyField({
+      idFieldName: "reportedUserId",
+      resolverName: "reportedUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    hidden: true,
+    optional: true,
+  },
   commentId: {
     ...foreignKeyField({
       idFieldName: "commentId",
@@ -35,7 +48,7 @@ const schema: SchemaType<DbReport> = {
       type: "Post",
       nullable: true,
     }),
-    optional: false,
+    optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
@@ -70,13 +83,6 @@ const schema: SchemaType<DbReport> = {
     label: "Reason",
     placeholder: "What are you reporting this comment for?",
   },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   closedAt: {
     optional: true,
     type: Date,
@@ -94,6 +100,7 @@ const schema: SchemaType<DbReport> = {
   // (currently only used for Akismet integration)
   reportedAsSpam: {
     optional: true,
+    hidden: true,
     type: Boolean,
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],

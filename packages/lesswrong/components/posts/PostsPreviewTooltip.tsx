@@ -7,7 +7,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
-import { commentsNodeRootMarginBottom } from '../../themes/globalStyles/globalStyles';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -33,6 +32,9 @@ const highlightStyles = (theme: ThemeType) => ({
     fontSize: "1.2rem"
   },
   '& h3': {
+    fontSize: "1.1rem"
+  },
+  '& li': {
     fontSize: "1.1rem"
   },
   ...highlightSimplifiedStyles

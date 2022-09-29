@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
-import { forumTypeSetting } from '../../lib/instanceSettings'
 import CommentIcon from '@material-ui/icons/ModeComment';
 
 const styles = (theme: ThemeType): JssStyles => ({

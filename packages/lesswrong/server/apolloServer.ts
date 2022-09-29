@@ -1,8 +1,8 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptions } from './vulcan-lib/apollo-ssr/renderPage';
+import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
+import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
@@ -33,36 +33,50 @@ import fs from 'fs';
 import crypto from 'crypto';
 import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
-import { ckEditorTokenHandler } from './ckEditorToken';
+import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getMergedStylesheet } from './styleGeneration';
+import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
+import { addCrosspostRoutes } from './fmCrosspost';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
+  const bundleBrotliPath = `${bundlePath}.br`;
+
+  const lastModified = fs.statSync(bundlePath).mtimeMs;
+  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
+  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
+
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
+  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
+
   // Store the bundle in memory as UTF-8 (the format it will be sent in), to
   // save a conversion and a little memory
   const bundleBuffer = Buffer.from(bundleText, 'utf8');
-  const lastModified = fs.statSync(bundlePath).mtimeMs;
   return {
     bundlePath,
     bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
     lastModified,
     bundleBuffer,
+    bundleBrotliBuffer,
   };
 }
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer}|null = null;
+let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
 const getClientBundle = () => {
   if (!clientBundle) {
     clientBundle = loadClientBundle();
     return clientBundle;
   }
   
+  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
   const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  if (clientBundle.lastModified !== lastModified) {
+  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
+  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
+  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
     clientBundle = loadClientBundle();
     return clientBundle;
   }
@@ -109,6 +123,7 @@ export function startWebserver() {
   }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
@@ -153,23 +168,38 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer} = getClientBundle();
-    if (query.hash && query.hash !== bundleHash) {
+    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
+    let headers = {}
+    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
+
+    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
       // version upgrade in progress, and the SSR and the bundle were handled by servers
       // on different versions. Serve whatever bundle we have (there's really not much
       // else to do), but set the Cache-Control header differently so that it will be
       // fixed on the next refresh.
-      res.writeHead(200, {
+      //
+      // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
+      // that either means we are running locally (in which case chache control isn't important), or that
+      // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
+      // from serving the uncompressed bundle for too long).
+      headers = {
         "Cache-Control": "public, max-age=60",
         "Content-Type": "text/javascript; charset=utf-8"
-      });
-      res.end(bundleBuffer);
+      }
     } else {
-      res.writeHead(200, {
+      headers = {
         "Cache-Control": "public, max-age=604800, immutable",
         "Content-Type": "text/javascript; charset=utf-8"
-      });
+      }
+    }
+
+    if (bundleBrotliBuffer !== null && acceptBrotli) {
+      headers["Content-Encoding"] = "br";
+      res.writeHead(200, headers);
+      res.end(bundleBrotliBuffer);
+    } else {
+      res.writeHead(200, headers);
       res.end(bundleBuffer);
     }
   });
@@ -201,7 +231,7 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !currentUser.email) {
+    if (!currentUser || !getUserEmail(currentUser)){
       res.status(403).send("Not logged in or current user has no email address")
       return
     }
@@ -210,7 +240,11 @@ export function startWebserver() {
     res.send(eagApp)
   })
 
+  addCrosspostRoutes(app);
+
   app.get('*', async (request, response) => {
+    response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+
     const {bundleHash} = getClientBundle();
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
@@ -225,8 +259,11 @@ export function startWebserver() {
     const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
-    const themeOptions = getThemeOptions(request, user);
+    const themeOptions = getThemeOptionsFromReq(request, user);
     const stylesheet = getMergedStylesheet(themeOptions);
+    const externalStylesPreload = globalExternalStylesheets.map(url =>
+      `<link rel="stylesheet" type="text/css" href="${url}">`
+    ).join("");
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -238,11 +275,13 @@ export function startWebserver() {
       + '<html lang="en">\n'
       + '<head>\n'
         + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + externalStylesPreload
         + instanceSettingsHeader
         + clientScript
     );
     
     if (prefetchResources) {
+      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
       response.status(200);
       response.write(prefetchPrefix);
     }
@@ -283,7 +322,7 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = process.env.PORT || 3000
+  const port = getServerPort();
   const env = process.env.NODE_ENV || 'production'
   const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console

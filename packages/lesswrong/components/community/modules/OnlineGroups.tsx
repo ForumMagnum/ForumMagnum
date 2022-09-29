@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -30,8 +29,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   onlineGroups: {
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   onlineGroup: {

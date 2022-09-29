@@ -7,6 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
+import type { CommentFormDisplayMode } from './CommentsNewForm';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, loadChildrenSeparately, loadDirectReplies = false, classes }: {
+export interface CommentsNodeProps {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -41,7 +42,11 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   shortform?: any,
   nestingLevel?: number,
   expandAllThreads?:boolean,
-  expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
+  /**
+   * Determines whether this specific comment is expanded, without passing that
+   * expanded state to child comments
+   */
+  expandByDefault?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
@@ -53,8 +58,37 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   childComments?: Array<CommentTreeNode<CommentsList>>,
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
+  showPinnedOnProfile?: boolean,
+  enableGuidelines?: boolean,
+  displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
-}) => {
+}
+
+const CommentsNode = ({
+  treeOptions,
+  comment,
+  startThreadTruncated,
+  truncated,
+  shortform,
+  nestingLevel=1,
+  expandAllThreads,
+  expandByDefault,
+  isChild,
+  parentAnswerId,
+  parentCommentId,
+  showExtraChildrenButton,
+  noHash,
+  hoverPreview,
+  forceSingleLine,
+  forceNotSingleLine,
+  childComments,
+  loadChildrenSeparately,
+  loadDirectReplies=false,
+  showPinnedOnProfile=false,
+  enableGuidelines=true,
+  displayMode="default",
+  classes
+}: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
@@ -153,7 +187,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
@@ -170,6 +204,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       isReplyToAnswer={!!parentAnswerId}
       hoverPreview={hoverPreview}
       shortform={shortform}
+      showPinnedOnProfile={showPinnedOnProfile}
     >
       {comment._id && <div ref={scrollTargetRef}>
         {isSingleLine
@@ -214,6 +249,8 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
             truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
+            enableGuidelines={enableGuidelines}
+            displayMode={displayMode}
           />)}
       </div>}
 

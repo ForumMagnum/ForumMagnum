@@ -10,10 +10,11 @@ const styles = (theme: ThemeType): JssStyles =>  ({
   }
 })
 
-const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
+const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType,
   terms: CommentsViewTerms,
   truncated?: boolean,
+  showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
   const { loadingInitial, loadMoreProps, results } = useMulti({
@@ -43,6 +44,7 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
             comment={comment}
             startThreadTruncated={truncated}
             forceNotSingleLine
+            showPinnedOnProfile={showPinnedOnProfile}
           />
         </div>
       )}

@@ -127,10 +127,11 @@ USE THIS CONVENTION FOR TRACKING EVENT LOCATION
     - (only needs to defined once for each page)
 * pageSectionContext={sectionName}, e.g. recentDiscussion, gatherTownWidget, wikiSection, userDrafts
     - use for larger sections of a page
+* pageSubSectionContext is used when a section meaningfully has subsections (such as bookmarks list within the recommendations section on the frontpage)
 * pageElementContext={elementName}> e.g. hoverPreview, commentItem, answerItem
     -use when wanting to mark where within a section something occurs
 * listContext is historical. Now just use pageSection.
-* pageSubSectionContext has been used in a couple of places, but is largely superceded by elementContext
+
 
 Also, context labels and their values should be camelCase, e.g. `pageSectionContext="fromTheArchives"`, 
 and *not* `page_section_context="From the Archives" or the like.

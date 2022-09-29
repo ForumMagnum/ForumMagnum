@@ -2,13 +2,6 @@ import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../..
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbSequence> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: () => new Date(),
-  },
-
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -165,7 +158,6 @@ const schema: SchemaType<DbSequence> = {
     insertableBy: ['members'],
     ...schemaDefaultValue(false),
   },
-
   epubUrl: {
     type: String,
     optional: true,
@@ -173,7 +165,19 @@ const schema: SchemaType<DbSequence> = {
     editableBy: ['admins'],
     insertableBy: ['admins']
   },
-}
+};
 
+/* Alignment Forum fields */
+Object.assign(schema, {
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "Alignment Forum",
+    defaultValue: false,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentVoters'],
+    insertableBy: ['alignmentVoters'],
+  },
+});
 
 export default schema;

@@ -8,9 +8,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
+import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -81,7 +81,7 @@ const AllTagsPage = ({classes}: {
           <AnalyticsContext pageSectionContext="tagPortal">
             <SectionTitle title={sectionTitle}>
               <SectionButton>
-                {currentUser && currentUser.karma > tagMinimumKarmaPermissions.new && <Link
+                {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
                   to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
                 >
                   <AddBoxIcon className={classes.addTagButton}/>

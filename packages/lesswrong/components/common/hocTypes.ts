@@ -69,6 +69,11 @@ type WithUpdateFunction<T extends CollectionBase<U>, U extends DbObject = DbObje
   extraVariables?: any,
 }) => Promise<FetchResult>;
 
+type WithCreateFunction<T extends CollectionBase<U>, U extends DbObject = DbObjectForCollectionBase<T>> = (args: {
+  data: NullablePartial<U>,
+  extraVariables?: any,
+}) => Promise<FetchResult>;
+
 interface WithUpdateUserProps {
   updateUser: WithUpdateFunction<UsersCollection>
 }

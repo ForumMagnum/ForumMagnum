@@ -88,6 +88,11 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       positiveReviewVoteCount: {$gte: 1},
     }
   }
+  if (algorithm.lwRationalityOnly) {
+    return {
+      "tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0} // rationality tag
+    }
+  }
   if (algorithm.reviewNominations) {
     if (isEAForum) {
       return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}

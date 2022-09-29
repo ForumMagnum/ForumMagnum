@@ -21,7 +21,7 @@ import { useLocation, useNavigation } from '../routeUtil';
 //     __typename
 //   }
 // }
-const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
+const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }) =>
 `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
@@ -30,11 +30,10 @@ const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariab
     totalCount
     __typename
   }
-  ${extraQueries ? extraQueries : ''}
 }`;
 
 function getGraphQLQueryFromOptions({
-  collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
+  collectionName, collection, fragmentName, fragment, extraVariables,
 }) {
   const typeName = collection.options.typeName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
@@ -46,7 +45,7 @@ function getGraphQLQueryFromOptions({
   
   // build graphql query from options
   return gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
+    ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
     ${fragment}
   `;
 }
@@ -83,7 +82,6 @@ export function withMulti({
   pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
-  extraQueries,
   extraVariables,
   fetchPolicy,
   notifyOnNetworkStatusChange,
@@ -96,7 +94,6 @@ export function withMulti({
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraQueries?: any,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   notifyOnNetworkStatusChange?: boolean,
@@ -117,7 +114,7 @@ export function withMulti({
   const typeName = collection!.options.typeName;
   const resolverName = collection!.options.multiResolverName;
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
 
   return compose(
     // wrap component with HoC that manages the terms object via its state
@@ -239,7 +236,6 @@ export interface UseMultiOptions<
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraQueries?: any,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -271,7 +267,6 @@ export function useMulti<
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
-  extraQueries,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -306,7 +301,7 @@ export function useMulti<
   const collection = getCollection(collectionName);
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
   const graphQLVariables = {

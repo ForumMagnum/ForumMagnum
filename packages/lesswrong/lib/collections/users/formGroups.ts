@@ -62,5 +62,10 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     name: 'socialMedia',
     order: 110,
     label: 'My Social Media'
-  }
+  },
+  activity: {
+    name: 'activity',
+    order: 120,
+    label: 'My Activity'
+  },
 }

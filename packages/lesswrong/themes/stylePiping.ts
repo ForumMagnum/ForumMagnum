@@ -1,5 +1,3 @@
-import deepmerge from 'deepmerge';
-import isPlainObject from 'is-plain-object';
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -324,7 +322,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     {
       pointerEvents: 'none',
       '& *': {
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
       },
     }
 
@@ -362,7 +360,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     '& hr': {
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*1.5
-    }
+    },
   }
   return commentBodyStyles;
 }
@@ -461,6 +459,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           ...hrStyles(theme)
         },
       },
+      '& .ck-placeholder:before': {
+        whiteSpace: 'break-spaces'
+      },
       '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
           // By default ckEditor elements get the styles from postBodyStyles li elements
@@ -516,6 +517,11 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '--ck-color-comment-count': theme.palette.primary.main
       },
       
+      "--ck-color-base-background": theme.palette.editor.commentPanelBackground,
+      "--ck-color-annotation-wrapper-background": theme.palette.editor.commentPanelBackground,
+      "--ck-color-comment-background": theme.palette.editor.sideCommentEditorBackground,
+      "--ck-color-comment-marker": theme.palette.editor.commentMarker,
+      "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
       '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
     }
   }

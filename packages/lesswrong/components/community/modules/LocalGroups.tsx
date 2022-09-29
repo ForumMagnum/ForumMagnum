@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -33,8 +32,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   localGroupsList: {
@@ -255,7 +254,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
           mapOptions={userLocation.known ? {center: userLocation, zoom: 5} : {zoom: 1}}
           keywordSearch={keywordSearch}
           hideLegend
-          showUsers={false}
+          showUsersByDefault={false}
         />
       </div>
     </div>

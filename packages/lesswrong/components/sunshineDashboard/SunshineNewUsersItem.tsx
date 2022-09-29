@@ -1,7 +1,6 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { getUserEmail , userGetProfileUrl} from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 
 import { useHover } from '../common/withHover'
@@ -30,8 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 const SunshineNewUsersItem = ({ user, classes }: {
   user: SunshineUsersList,
-  classes: ClassesType,
-  updateUser?: any
+  classes: ClassesType
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 
@@ -58,7 +56,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
           {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
           {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
-            { user.email || "This user has no email" }
+            { getUserEmail(user) || "This user has no email" }
           </MetaInfo>}
         </div>
       </SunshineListItem>
