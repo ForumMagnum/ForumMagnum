@@ -26,7 +26,7 @@ export const SpotlightHistory = ({classes}: {
 
   const title = userCanDo(currentUser, 'spotlights.edit.all') ? <Link to={"/spotlights"}>Spotlight Items</Link> : <div>Spotlight Items</div>
 
-  return <SingleColumnSection className={classes.root}>
+  return <SingleColumnSection>
     <SectionTitle title={title}/>
     {spotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight}/>)}
     <LoadMore {...loadMoreProps}/>
