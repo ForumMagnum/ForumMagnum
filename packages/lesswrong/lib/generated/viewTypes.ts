@@ -27,6 +27,7 @@ type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminCl
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesAdminDashboard";
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
+type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
@@ -64,6 +65,7 @@ interface ViewTermsByCollectionName {
   ReviewVotes: ReviewVotesViewTerms
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
+  Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
@@ -73,4 +75,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
