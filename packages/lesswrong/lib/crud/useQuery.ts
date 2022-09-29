@@ -14,7 +14,11 @@ const parseQuery = (queryName: QueryName) => {
 
 const parsedQueries: Partial<Record<QueryName,GqlDocumentNode>> = {};
 
-export function useQuery<N extends keyof QueryResultTypes>(queryName: N, options: QueryHookOptions): ApolloQueryResult<QueryResultTypes[N],any> {
+interface QueryHookOptionsWithArgumentTypes<N extends QueryName> extends QueryHookOptions {
+  variables?: QueryArgumentTypes[N]
+}
+
+export function useQuery<N extends QueryName>(queryName: N, options: QueryHookOptionsWithArgumentTypes<N>): ApolloQueryResult<QueryResultTypes[N],any> {
   if (!parsedQueries[queryName]) {
     parsedQueries[queryName] = parseQuery(queryName);
   }
