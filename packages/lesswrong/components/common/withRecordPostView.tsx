@@ -73,7 +73,7 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
     }
   }, [postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent]);
   
-  return { recordPostView, isRead };
+  return { recordPostView, isRead: !!isRead };
 }
 
 export const withRecordPostView = hookToHoc(useRecordPostView);
@@ -115,7 +115,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
     }
   }, [tagsRead, setTagRead, currentUser, recordEvent]);
   
-  return { recordTagView, isRead };
+  return { recordTagView, isRead: !!isRead };
 }
 
 export default withRecordPostView;

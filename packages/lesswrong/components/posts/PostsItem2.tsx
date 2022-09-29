@@ -608,7 +608,7 @@ const PostsItem2 = ({
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                highlightDate: markedVisitedAt ?? post.lastVisitedAt ?? undefined,
                 condensed: condensedAndHiddenComments,
                 markAsRead: markAsRead,
               }}

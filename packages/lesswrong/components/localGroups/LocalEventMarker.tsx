@@ -32,10 +32,10 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
 }) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
-  const { htmlHighlight = "" } = event.contents || {}
+  const { htmlHighlight } = event.contents || {}
   const { GroupLinks, StyledMapPopup } = Components
   
-  const htmlBody = {__html: htmlHighlight};
+  const htmlBody = {__html: htmlHighlight??""};
 
   const EventIcon = () => forumTypeSetting.get() === 'EAForum' ? 
     <RoomIcon className={classes.eaIcon}/> : 

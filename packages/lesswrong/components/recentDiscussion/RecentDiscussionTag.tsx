@@ -76,7 +76,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const {recordTagView} = useRecordTagView(tag);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
-  const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
+  const lastVisitedAt = markedAsVisitedAt ?? tag.lastVisitedAt ?? undefined;
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
   

@@ -409,7 +409,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio ?? ""}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
               <div className={classes.notes}>
                 <Input 

@@ -80,7 +80,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,
-            highlightDate: markedVisitedAt || post.lastVisitedAt,
+            highlightDate: markedVisitedAt ?? post.lastVisitedAt ?? undefined,
             hideSingleLineMeta: true,
             hideReviewVoteButtons: hideReviewVoteButtons,
             singleLineCollapse: singleLineCollapse,

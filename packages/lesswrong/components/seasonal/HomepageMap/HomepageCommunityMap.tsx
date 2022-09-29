@@ -57,8 +57,8 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
   if (loading) return null
 
   if (!document) return null
-  const { htmlHighlight = "" } = document.contents || {}
-  const htmlBody = {__html: htmlHighlight};
+  const { htmlHighlight } = document.contents || {}
+  const htmlBody = {__html: htmlHighlight ?? ""};
 
   return <StyledMapPopup
     lat={localEvent.lat}

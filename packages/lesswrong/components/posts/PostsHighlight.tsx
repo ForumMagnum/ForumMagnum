@@ -17,7 +17,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
   forceSeeMore?: boolean,
   classes: ClassesType,
 }) => {
-  const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
+  const { htmlHighlight, wordCount = 0 } = post.contents || {}
   const [expanded, setExpanded] = useState(false);
   const {document: expandedDocument, loading} = useSingle({
     skip: !expanded && !!post.contents,
@@ -49,7 +49,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
             </Link>
         }
       </div>}
-      dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
+      dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html ?? htmlHighlight ?? ""}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />

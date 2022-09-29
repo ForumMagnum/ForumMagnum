@@ -152,7 +152,7 @@ const RecentDiscussionThread = ({
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
 
-  const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
+  const lastVisitedAt = markedAsVisitedAt ?? post.lastVisitedAt ?? undefined;
 
   if (comments && !comments.length && post.commentCount != null) {
     // New posts should render (to display their highlight).
