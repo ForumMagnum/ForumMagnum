@@ -4,32 +4,13 @@ import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
-import { useItemsRead } from '../common/withRecordPostView';
 import { useCurrentUser } from '../common/withUser';
-import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
-export interface SpotlightContent {
-  documentType: SpotlightDocumentType,
-  document: {
-    _id?: string,
-    title: string,
-    slug?: string
-  },
-  imageUrl: string,
-  description: string,
-  firstPost?: {
-    _id: string,
-    title: string,
-    url: string
-  }
-}
 
 export const descriptionStyles = theme => ({
   ...postBodyStyles(theme),
@@ -125,20 +106,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "100%",  
     }
   },
-  firstPost: {
-    ...theme.typography.body2,
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
-    fontSize: "1.1rem",
-    ...theme.typography.commentStyle,
-    position: "relative",
-    zIndex: theme.zIndexes.spotlightItemCloseButton,
-    color: theme.palette.grey[500],
-    '& a': {
-      color: theme.palette.primary.main
-    }
-  },
   editAllButton: {
     [theme.breakpoints.up('md')]: {
       position: "absolute",
@@ -203,28 +170,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 16,
     paddingTop: 8,
     paddingBottom: 8
-  },
-  sequenceCheckmarks: {
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
-  },
-  postProgressBox: {
-    ...postProgressBoxStyles(theme)
-  },
-  read: {
-    backgroundColor: theme.palette.primary.main,
-    border: theme.palette.primary.dark,
-    opacity: .4
   }
 });
 
-const getUrlFromDocument = (document: SpotlightContent['document'], documentType: SpotlightDocumentType) => {
+const getUrlFromDocument = (document: SpotlightDisplay_document, documentType: SpotlightDocumentType) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;
-    case "Collection":
-      return `/${document.slug}`
     case "Post":
       return `/posts/${document._id}/${document.slug}`
   }
@@ -239,7 +191,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles, PostsPreviewTooltip } = Components
+  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading } = Components
   
   const currentUser = useCurrentUser()
 
@@ -255,30 +207,6 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
     setEdit(false);
     refetchAllSpotlights?.();
   };
-
-  const { results: chapters } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: spotlight.documentId,
-      limit: 100
-    },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false,
-    skip: spotlight.documentType !== "Sequence"
-  });
-  
-  const { postsRead: clientPostsRead } = useItemsRead();
-  const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
-  const readPosts = posts.filter(post => post.isRead || clientPostsRead[post._id])
-  
-  // Note: the firstPostUrl won't reliably generate a good reading experience for all
-  // possible Collection type spotlights, although it happens to work for the existing 5 collections 
-  // on LessWrong. (if the first post of a collection has a canonical sequence that's not 
-  // in that collection it wouldn't provide the right 'next post')
-  // But, also, the real proper fix here is to integrate continue reading here.
-  const firstPost = readPosts.length === 0 && posts[0]
-  const firstPostSequence = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
@@ -320,23 +248,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>}
-        {firstPost ? 
-          <div className={classes.firstPost}>
-            First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost._id}/>} tooltip={false}>
-              <Link to={postGetPageUrl(firstPost, false, firstPostSequence)}>{firstPost.title}</Link>
-            </LWTooltip>
-          </div>
-          :
-          <div className={classes.sequenceCheckmarks}>
-            {posts.map(post => (
-              <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-                <Link to={postGetPageUrl(post)}>
-                  <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
-                </Link>
-              </LWTooltip>
-             ))}
-          </div>
-        }
+        <SpotlightStartOrContinueReading spotlight={spotlight} />
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this item for the next month" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
