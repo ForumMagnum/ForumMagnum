@@ -3,9 +3,6 @@ import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
 import { accessFilterSingle } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
-import { collectionGetAllPostIDs } from "../collections/helpers";
-import { Posts } from "../posts";
-import { sequenceGetAllPostIDs } from "../sequences/helpers";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
 
