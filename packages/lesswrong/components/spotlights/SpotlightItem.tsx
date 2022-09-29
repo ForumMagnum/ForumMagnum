@@ -87,8 +87,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     }
   },
+  postPadding: {
+    paddingBottom: 12
+  },
   description: {
-    marginTop: 14,
+    marginTop: 8,
     ...descriptionStyles(theme),
     position: "relative",
     lineHeight: '1.65rem',
@@ -103,6 +106,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: "1.2em",
     display: "flex",
     alignItems: "center"
+  },
+  subtitle: {
+    ...theme.typography.postStyle,
+    fontSize: 15,
+    color: theme.palette.grey[700],
+    marginTop: -1,
+    fontStyle: "italic"
   },
   image: {
     '& img': {
@@ -230,6 +240,8 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
 
+  const duration = spotlight.duration
+
   const onUpdate = () => {
     setEdit(false);
     refetchAllSpotlights?.();
@@ -238,10 +250,10 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
       <div className={classes.spotlightItem}>
-        <div className={classes.content}>
+        <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
-              {spotlight.document.title}
+              {spotlight.customTitle ?? spotlight.document.title}
             </Link>
             <span className={classes.editDescriptionButton}>
               {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
@@ -249,6 +261,9 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
               </LWTooltip>}
             </span>
           </div>
+          {spotlight.customSubtitle && <div className={classes.subtitle}>
+            {spotlight.customSubtitle}
+          </div>}
           <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
@@ -305,6 +320,9 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+            <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+              <MetaInfo>{duration} days</MetaInfo>
+            </LWTooltip>
           </div>
         }
       </div>}

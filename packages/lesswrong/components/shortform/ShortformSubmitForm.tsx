@@ -13,23 +13,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const forumHintText: ForumOptions<JSX.Element> = {
-  LessWrong: <div>
-    <div>Write your thoughts here! What have you been thinking about?</div>
-    <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
-  </div>,
-  AlignmentForum: <div>
-    <div>Write your thoughts here! What have you been thinking about?</div>
-    <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
-  </div>,
-  EAForum: <div>
-    <div>Write your brief or quickly written post here.</div>
-    <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
-  </div>,
-  default: <div>
-    <div>Write your brief or quickly written post here.</div>
-    <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
-  </div>
+const forumHintText: ForumOptions<string> = {
+  LessWrong: "Write your thoughts here! What have you been thinking about\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
+  AlignmentForum: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
+  EAForum: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.",
+  default: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform."
 }
 
 const ShortformSubmitForm = ({ successCallback, classes }: {

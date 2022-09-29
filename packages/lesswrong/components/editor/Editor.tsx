@@ -68,7 +68,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
     pointerEvents: 'auto',
     '& textarea': {
-      marginTop: 4,
+      marginTop: 0,
       maxHeight: commentMinimalistEditorHeight,
       '&:focus': {
         maxHeight: '128px',
@@ -102,11 +102,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentMinimalistEditorHeight: {
-    // // minHeight: commentMinimalistEditorHeight,
-    // '& .ck.ck-content': {
-    //   minHeight: commentMinimalistEditorHeight,
-    // },
-    // marginTop: 4,
     '& .ck-editor__editable': {
       maxHeight: "300px"
     },
@@ -131,6 +126,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     top: 0,
     color: theme.palette.grey[500],
+    whiteSpace: "pre-wrap",
     // Without this pointerEvent code, there's a weird thing where if you try to click the placeholder text, instead of focusing on the editor element, it... doesn't. This is overriding something habryka did to make spoiler tags work. We discussed this for awhile and this seemed like the best option.
     pointerEvents: "none",
     "& *": {
@@ -200,6 +196,12 @@ export interface SerializedEditorContents {
   value: any,
 }
 
+export interface FormProps {
+  commentMinimalistStyle?: boolean
+  editorHintText?: string
+  maxHeight?: boolean
+}
+
 interface EditorProps {
   ref?: MutableRefObject<Editor|null>,
   currentUser: UsersCurrent|null,
@@ -209,7 +211,7 @@ interface EditorProps {
   collectionName: CollectionNameString,
   fieldName: string,
   initialEditorType: EditorTypeString,
-  formProps?: { commentMinimalistStyle: boolean },
+  formProps?: FormProps,
   
   // Whether to use the CkEditor collaborative editor, ie, this is the
   // contents field of a shared post.
@@ -485,6 +487,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         collectionName, fieldName,
         formType: formType,
         userId: currentUser?._id,
+        placeholder: this.props.placeholder ?? undefined,
         onChange: (event, editor) => {
           // If transitioning from empty to nonempty or nonempty to empty,
           // bypass throttling. These cases don't have the performance
@@ -539,7 +542,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       { this.renderPlaceholder(!value, false) }
       <Components.ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
         <Input
-          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles}
+          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}
           value={value}
           onChange={(ev) => {

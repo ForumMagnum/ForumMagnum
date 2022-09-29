@@ -56,7 +56,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel }: {
+const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel, placeholder }: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
@@ -71,6 +71,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   // If this is the contents field of a collaboratively-edited post, the access level the
   // logged in user has. Otherwise undefined.
   accessLevel?: CollaborativeEditingAccessLevel,
+  placeholder?: string,
   classes: ClassesType,
 }) => {
   const { EditorTopBar } = Components;
@@ -179,7 +180,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           container: presenceListRef.current
         },
         initialData: initData,
-        placeholder: defaultEditorPlaceholder,
+        placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration
       }}
     />}

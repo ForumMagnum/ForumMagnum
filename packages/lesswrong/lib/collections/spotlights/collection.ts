@@ -29,7 +29,7 @@ makeEditable({
       editableBy: ['admins', 'sunshineRegiment'],
       insertableBy: ['admins', 'sunshineRegiment']
     },
-    order: 60
+    order: 100
   }
 });
 
