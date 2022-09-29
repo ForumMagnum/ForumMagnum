@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { useItemsRead } from '../common/withRecordPostView';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-export const postProgressBoxStyles = theme => ({
+export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
   borderRadius: 2,
   width: 12,

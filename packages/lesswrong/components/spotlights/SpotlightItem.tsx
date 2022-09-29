@@ -4,18 +4,16 @@ import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { post } from 'request';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { useMulti } from '../../lib/crud/withMulti';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useItemsRead } from '../common/withRecordPostView';
 import { useCurrentUser } from '../common/withUser';
-import { postProgressBoxStyles, postProgressRead } from '../sequences/BooksProgressBar';
+import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
 export interface SpotlightContent {
   documentType: SpotlightDocumentType,
