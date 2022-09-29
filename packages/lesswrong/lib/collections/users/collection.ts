@@ -1,5 +1,5 @@
 import schema from './schema';
-import { createCollection, addGraphQLQuery, addGraphQLResolvers } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
@@ -37,28 +37,6 @@ export const Users: ExtendedUsersCollection = createCollection({
   logChanges: true,
 });
 
-
-const specificResolvers = {
-  Query: {
-    async currentUser(root, args, context: ResolverContext) {
-      let user: any = null;
-      const userId: string|null = (context as any)?.userId;
-      if (userId) {
-        user = await context.loaders.Users.load(userId);
-
-        if (user.services) {
-          Object.keys(user.services).forEach(key => {
-            user.services[key] = {};
-          });
-        }
-      }
-      return user;
-    },
-  },
-};
-
-addGraphQLResolvers(specificResolvers);
-addGraphQLQuery('currentUser: User');
 
 addUniversalFields({collection: Users});
 

@@ -6,6 +6,7 @@ import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import { defineGqlQuery } from '../utils/serverGraphqlUtil';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -35,6 +36,25 @@ augmentFieldsDict(Users, {
         return bio?.html || "";
       }
     }
+  },
+});
+
+defineGqlQuery({
+  name: "currentUser",
+  resultType: "User",
+  fn: async function currentUser(root: void, args: void, context: ResolverContext) {
+    let user: any = null;
+    const userId: string|null = (context as any)?.userId;
+    if (userId) {
+      user = await context.loaders.Users.load(userId);
+
+      if (user.services) {
+        Object.keys(user.services).forEach(key => {
+          user.services[key] = {};
+        });
+      }
+    }
+    return user;
   },
 });
 
