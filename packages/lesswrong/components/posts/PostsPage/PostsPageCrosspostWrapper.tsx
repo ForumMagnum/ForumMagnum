@@ -64,7 +64,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
      * our local copy (for correct links/ids/etc.) but we need to override a few specific fields
      * to actually get the correct content and some metadata that isn't denormalized across sites
      */
-    const overrideFields = ["contents", "readTimeMinutes"];
+    const overrideFields = ["contents", "tableOfContents", "readTimeMinutes"];
     contextValue.combinedPost = {...document, ...post};
     for (const field of overrideFields) {
       contextValue.combinedPost[field] = document?.[field] ?? post[field];
