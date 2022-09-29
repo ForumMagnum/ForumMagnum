@@ -25,7 +25,8 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
   const { data, loading } = useQuery("TagUpdatesInTimeBlock", {
     variables: {
-      before, after,
+      before: new Date(before),
+      after: new Date(after),
     },
     ssr: true,
   });
