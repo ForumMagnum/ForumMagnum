@@ -711,7 +711,6 @@ declare global {
     ManifoldPreview: typeof ManifoldPreviewComponent,
     OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
-    FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
     SequencePreview: typeof SequencePreviewComponent
   }

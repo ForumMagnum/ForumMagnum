@@ -17,6 +17,7 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
     },
   },
 })
+
 const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   classes: ClassesType,
   href: string,
@@ -25,6 +26,15 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   id?: string,
   rel?: string
 }) => {
+  const { LWPopper } = Components
+  
+  const { eventHandlers, hover, anchorEl } = useHover({
+    pageElementContext: "linkPreview",
+    hoverPreviewType: "DefaultPreview",
+    href,
+    onsite
+  });
+  
   let footnoteContentsNonempty = false;
   let footnoteMinusBacklink = "";
   
@@ -45,32 +55,13 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   // eslint-disable-next-line no-empty
   } catch(e) { }
   
-  return <FootnotePreviewContent
-    footnoteContentsNonempty={footnoteContentsNonempty}
-    footnoteMinusBacklink={footnoteMinusBacklink}
-    href={href} innerHTML={innerHTML} onsite={onsite} id={id} rel={rel}
-    classes={classes}
-  />
-}
-
-const FootnotePreviewContent = ({footnoteContentsNonempty, footnoteMinusBacklink, href, innerHTML, onsite=false, id, rel, classes}: {
-  footnoteContentsNonempty: boolean,
-  footnoteMinusBacklink: string,
-  href: string,
-  innerHTML: string,
-  onsite?: boolean,
-  id?: string,
-  rel?: string
-  classes: ClassesType
-}) => {
-  const { LWPopper } = Components
-  
-  const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "linkPreview",
-    hoverPreviewType: "DefaultPreview",
-    href,
-    onsite
-  });
+  // TODO: Getting the footnote content from the DOM didn't necessarily work;
+  // for example if the page was only showing an excerpt (with the rest hidden
+  // behind a Read More), it won't be available, and might require a separate
+  // network request to get the rest of the post/comment. Unfortunately in this
+  // context, figuring out what that network request *is* is pretty complicated;
+  // it could be anything with a content-editable field in it, and that
+  // information isn't wired to pass through the hover-preview system.
   
   return (
     <span {...eventHandlers}>
