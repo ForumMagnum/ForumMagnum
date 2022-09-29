@@ -6,7 +6,7 @@ import { useHover } from '../common/withHover';
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
-    padding: `${theme.spacing.unit*3}px ${theme.spacing.unit*2}px ${theme.spacing.unit*2}px`,
+    padding: 16,
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
