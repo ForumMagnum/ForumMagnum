@@ -53,7 +53,6 @@ interface DbBook extends DbObject {
   hideProgressBar: boolean
   showChapters: boolean
   contents: EditableFieldContents
-  contents_latest: string
   createdAt: Date
 }
 
@@ -68,7 +67,6 @@ interface DbChapter extends DbObject {
   sequenceId: string
   postIds: Array<string>
   contents: EditableFieldContents
-  contents_latest: string
   createdAt: Date
 }
 
@@ -84,7 +82,6 @@ interface DbCollection extends DbObject {
   firstPageLink: string
   hideStartReadingButton: boolean
   contents: EditableFieldContents
-  contents_latest: string
   createdAt: Date
 }
 
@@ -142,10 +139,8 @@ interface DbComment extends DbObject {
   reviewForAlignmentUserId: string
   afDate: Date
   moveToAlignmentUserId: string
-  agentFoundationsId: string
   createdAt: Date
   contents: EditableFieldContents
-  contents_latest: string
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -238,7 +233,6 @@ interface DbGardenCode extends DbObject {
   afOnly: boolean
   createdAt: Date
   contents: EditableFieldContents
-  contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
@@ -291,7 +285,6 @@ interface DbLocalgroup extends DbObject {
   inactive: boolean
   deleted: boolean
   contents: EditableFieldContents
-  contents_latest: string
   createdAt: Date
 }
 
@@ -304,7 +297,6 @@ interface DbMessage extends DbObject {
   conversationId: string
   noEmail: boolean
   contents: EditableFieldContents
-  contents_latest: string
   createdAt: Date
 }
 
@@ -539,15 +531,11 @@ interface DbPost extends DbObject {
   afSticky: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
-  agentFoundationsId: string
   createdAt: Date
   contents: EditableFieldContents
-  contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines: EditableFieldContents
-  moderationGuidelines_latest: string
   customHighlight: EditableFieldContents
-  customHighlight_latest: string
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -666,7 +654,6 @@ interface DbSequence extends DbObject {
   hideFromAuthorPage: boolean
   af: boolean
   contents: EditableFieldContents
-  contents_latest: string
   createdAt: Date
 }
 
@@ -678,12 +665,14 @@ interface DbSpotlight extends DbObject {
   documentId: string
   documentType: SpotlightDocumentType
   position: number
+  duration: number
+  customTitle: string | null
+  customSubtitle: string | null
   lastPromotedAt: Date
   draft: boolean
   spotlightImageId: string | null
   createdAt: Date
   description: EditableFieldContents
-  description_latest: string
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
@@ -711,7 +700,6 @@ interface DbTagFlag extends DbObject {
   order: number
   createdAt: Date
   contents: EditableFieldContents
-  contents_latest: string
 }
 
 interface TagRelsCollection extends CollectionBase<DbTagRel, "TagRels"> {
@@ -773,9 +761,7 @@ interface DbTag extends DbObject {
   parentTagId: string
   createdAt: Date
   description: EditableFieldContents
-  description_latest: string
   subforumWelcomeText: EditableFieldContents
-  subforumWelcomeText_latest: string
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -1040,13 +1026,9 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean
   createdAt: Date
   moderationGuidelines: EditableFieldContents
-  moderationGuidelines_latest: string
   howOthersCanHelpMe: EditableFieldContents
-  howOthersCanHelpMe_latest: string
   howICanHelpOthers: EditableFieldContents
-  howICanHelpOthers_latest: string
   biography: EditableFieldContents
-  biography_latest: string
   recommendationSettings: {
     frontpage: {
       method: string,

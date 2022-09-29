@@ -576,7 +576,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly afSticky: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
-  readonly agentFoundationsId: string,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -644,7 +643,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly reviewForAlignmentUserId: string,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
-  readonly agentFoundationsId: string,
 }
 
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
@@ -2607,6 +2605,9 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly position: number,
+  readonly duration: number,
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
   readonly spotlightImageId: string | null,
@@ -2620,6 +2621,9 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
+  readonly duration: number,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights

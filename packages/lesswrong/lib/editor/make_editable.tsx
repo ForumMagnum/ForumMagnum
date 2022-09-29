@@ -35,11 +35,15 @@ export interface MakeEditableOptions {
   label?: string,
   order?: number,
   hideControls?: boolean,
-  hintText?: any,
+  hintText?: string,
   pingbacks?: boolean,
   revisionsHaveCommitMessages?: boolean,
   hidden?: boolean,
 }
+
+export const defaultEditorPlaceholder = `Write here. Select text for formatting options.
+We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
+You can switch between rich text and markdown in your user settings.`
 
 const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -63,20 +67,10 @@ const defaultOptions: MakeEditableOptions = {
   },
   fieldName: "",
   order: 0,
-  hintText: (
-    <div>
-      <div>Write here. Select text for formatting options.</div>
-      <div>We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).</div>
-      <div>You can switch between rich text and markdown in your user settings.</div>
-    </div>
-  ),
+  hintText: defaultEditorPlaceholder,
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }
-
-export const defaultEditorPlaceholder = `Write here. Select text for formatting options.
-We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
-You can switch between rich text and markdown in your user settings.`
 
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
