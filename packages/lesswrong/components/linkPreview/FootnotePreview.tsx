@@ -25,14 +25,6 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   id?: string,
   rel?: string
 }) => {
-  const { LWPopper } = Components
-  const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "linkPreview",
-    hoverPreviewType: "DefaultPreview",
-    href,
-    onsite
-  });
-  
   let footnoteContentsNonempty = false;
   let footnoteMinusBacklink = "";
   
@@ -47,11 +39,38 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
     // Remove the backlink anchor tag. Note that this regex is deliberately very narrow;
     // a more permissive regex would introduce risk of XSS, since we're not re-validating
     // after this transform.
-    footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">^<\/a>/g, '') || "";
+    footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">\^<\/a>/g, '') || "";
     // Check whether the footnotehas nonempty contents
     footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
   // eslint-disable-next-line no-empty
   } catch(e) { }
+  
+  return <FootnotePreviewContent
+    footnoteContentsNonempty={footnoteContentsNonempty}
+    footnoteMinusBacklink={footnoteMinusBacklink}
+    href={href} innerHTML={innerHTML} onsite={onsite} id={id} rel={rel}
+    classes={classes}
+  />
+}
+
+const FootnotePreviewContent = ({footnoteContentsNonempty, footnoteMinusBacklink, href, innerHTML, onsite=false, id, rel, classes}: {
+  footnoteContentsNonempty: boolean,
+  footnoteMinusBacklink: string,
+  href: string,
+  innerHTML: string,
+  onsite?: boolean,
+  id?: string,
+  rel?: string
+  classes: ClassesType
+}) => {
+  const { LWPopper } = Components
+  
+  const { eventHandlers, hover, anchorEl } = useHover({
+    pageElementContext: "linkPreview",
+    hoverPreviewType: "DefaultPreview",
+    href,
+    onsite
+  });
   
   return (
     <span {...eventHandlers}>
