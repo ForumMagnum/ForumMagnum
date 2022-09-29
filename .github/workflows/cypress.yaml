@@ -23,6 +23,7 @@ jobs:
       uses: cypress-io/github-action@v2
       env:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} 
+        PG_URL: ${{ secrets.PG_URL }}
       with:
           start: yarn ea-start-testing-db
           command: yarn ea-cypress-run
