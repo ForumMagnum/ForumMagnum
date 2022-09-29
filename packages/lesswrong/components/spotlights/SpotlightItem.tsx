@@ -278,6 +278,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // in that collection it wouldn't provide the right 'next post')
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPost = readPosts.length === 0 && posts[0]
+  const firstPostSequence = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
@@ -322,7 +323,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {firstPost ? 
           <div className={classes.firstPost}>
             First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost._id}/>} tooltip={false}>
-              <Link to={postGetPageUrl(firstPost, false)}>{firstPost.title}</Link>
+              <Link to={postGetPageUrl(firstPost, false, firstPostSequence)}>{firstPost.title}</Link>
             </LWTooltip>
           </div>
           :
