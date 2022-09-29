@@ -4,13 +4,18 @@ import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
+import { post } from 'request';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
+import { useMulti } from '../../lib/crud/withMulti';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
+import { useItemsRead } from '../common/withRecordPostView';
 import { useCurrentUser } from '../common/withUser';
+import { postProgressBoxStyles, postProgressRead } from '../sequences/BooksProgressBar';
 
 export interface SpotlightContent {
   documentType: SpotlightDocumentType,
@@ -200,6 +205,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 16,
     paddingTop: 8,
     paddingBottom: 8
+  },
+  sequenceCheckmarks: {
+    padding: 16,
+    paddingTop: 10,
+    paddingBottom: 12,
+  },
+  postProgressBox: {
+    ...postProgressBoxStyles(theme)
+  },
+  read: {
+    backgroundColor: theme.palette.primary.main,
+    border: theme.palette.primary.dark,
+    opacity: .4
   }
 });
 
@@ -223,7 +241,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles, PostsPreviewTooltip } = Components
   
   const currentUser = useCurrentUser()
 
@@ -232,13 +250,6 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
 
-  // Note: the firstPostUrl won't reliably generate a good reading experience for all
-  // possible Collection type spotlights, although it happens to work for the existing 5 collections 
-  // on LessWrong. (if the first post of a collection has a canonical sequence that's not 
-  // in that collection it wouldn't provide the right 'next post')
-
-  // But, also, the real proper fix here is to integrate continue reading here.
-  const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
 
   const duration = spotlight.duration
 
@@ -246,7 +257,30 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
     setEdit(false);
     refetchAllSpotlights?.();
   };
+
+  const { results: chapters } = useMulti({
+    terms: {
+      view: "SequenceChapters",
+      sequenceId: spotlight.documentId,
+      limit: 100
+    },
+    collectionName: "Chapters",
+    fragmentName: 'ChaptersFragment',
+    enableTotal: false,
+    skip: spotlight.documentType !== "Sequence"
+  });
   
+  const { postsRead: clientPostsRead } = useItemsRead();
+  const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
+  const readPosts = posts.filter(post => post.isRead || clientPostsRead[post._id])
+  
+  // Note: the firstPostUrl won't reliably generate a good reading experience for all
+  // possible Collection type spotlights, although it happens to work for the existing 5 collections 
+  // on LessWrong. (if the first post of a collection has a canonical sequence that's not 
+  // in that collection it wouldn't provide the right 'next post')
+  // But, also, the real proper fix here is to integrate continue reading here.
+  const firstPost = readPosts.length === 0 && posts[0]
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
       <div className={classes.spotlightItem}>
@@ -287,11 +321,23 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>}
-        {firstPostUrl && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-            <Link to={firstPostUrl}>{spotlight.firstPost.title}</Link>
-          </LWTooltip>
-        </div>}
+        {firstPost ? 
+          <div className={classes.firstPost}>
+            First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost._id}/>} tooltip={false}>
+              <Link to={postGetPageUrl(firstPost, false)}>{firstPost.title}</Link>
+            </LWTooltip>
+          </div>
+          :
+          <div className={classes.sequenceCheckmarks}>
+            {posts.map(post => (
+              <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+                <Link to={postGetPageUrl(post)}>
+                  <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
+                </Link>
+              </LWTooltip>
+             ))}
+          </div>
+        }
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this item for the next month" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
