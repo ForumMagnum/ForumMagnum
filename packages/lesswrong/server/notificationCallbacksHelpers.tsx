@@ -12,7 +12,7 @@ import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionUtils';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
+import { defaultNotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import keyBy from 'lodash/keyBy';
@@ -152,10 +152,15 @@ const getDocument = async (documentType: string|null, documentId: string|null) =
   }
 }
 
-const getLink = async (notificationType: string, documentType: string|null, documentId: string|null) => {
+const getLink = async (notificationTypeName: string, documentType: string|null, documentId: string|null, extraData: any) => {
   let document = await getDocument(documentType, documentId);
+  const notificationType = getNotificationTypeByName(notificationTypeName);
 
-  switch(notificationType) {
+  if (notificationType.getLink) {
+    return notificationType.getLink({ documentType, documentId, extraData });
+  };
+
+  switch(notificationTypeName) {
     case "emailVerificationRequired":
       return "/resendVerificationEmail";
     default:
@@ -183,13 +188,20 @@ const getLink = async (notificationType: string, documentType: string|null, docu
   }
 }
 
-export const createNotification = async ({userId, notificationType, documentType, documentId, noEmail}:{
+export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail}:{
   userId: string,
   notificationType: string,
   documentType: string|null,
   documentId: string|null,
+  
+  // extraData: something JSON-serializable that gets attached to the notification.
+  // May affect how it is displayed, but can't affect when it's delivered.
+  extraData?: any,
+
+  // noEmail: If set, this notification can never be sent by email (even if the user's
+  // config settings say that it would be).
   noEmail?: boolean|null
-}) => { 
+}) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -201,7 +213,8 @@ export const createNotification = async ({userId, notificationType, documentType
     documentType: documentType||undefined,
     message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
-    link: await getLink(notificationType, documentType, documentId),
+    link: await getLink(notificationType, documentType, documentId, extraData),
+    extraData,
   }
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
@@ -247,16 +260,17 @@ export const createNotification = async ({userId, notificationType, documentType
   }
 }
 
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, noEmail }:{
+export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail }:{
   userIds: Array<string>
   notificationType: string,
   documentType: string|null,
   documentId: string|null,
+  extraData?: any,
   noEmail?: boolean|null
 }) => { 
   return Promise.all(
     userIds.map(async userId => {
-      await createNotification({userId, notificationType, documentType, documentId, noEmail});
+      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail});
     })
   );
 }

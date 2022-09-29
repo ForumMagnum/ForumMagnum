@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, ApolloLink } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, InMemoryCache, ApolloLink } from '@apollo/client';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { apolloCacheVoteablePossibleTypes } from '../lib/make_voteable';
 import { onError } from '@apollo/client/link/error';
@@ -19,20 +19,20 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 });
 
-export const createApolloClient = () => {
+export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheObject> => {
   const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()
     }
   })
     .restore(window.__APOLLO_STATE__); //ssr
-  
+
   const httpLink = new BatchHttpLink({
-    uri: '/graphql',
-    credentials: 'same-origin',
+    uri: baseUrl + 'graphql',
+    credentials: baseUrl === '/' ? 'same-origin' : 'omit',
     batchMax: 50,
   });
-  
+
   return new ApolloClient({
     link: ApolloLink.from([errorLink, httpLink]),
     cache

@@ -6,6 +6,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { TagCommentType } from './schema';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -484,16 +485,37 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
-
-Comments.addView('commentsOnTag', (terms: CommentsViewTerms) => ({
-  selector: {
-    tagId: terms.tagId,
-  },
-}));
 ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
 );
+
+export const subforumSorting = {
+  new: { postedAt: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 },
+}
+export const subforumDefaultSorting = "recentDiscussion"
+
+Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    tagId: terms.tagId,
+    tagCommentType: TagCommentType.Discussion as string
+  },
+}));
+
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms) => {
+  const sorting = subforumSorting[sortBy] || subforumSorting.new
+  return {
+  selector: {
+    tagId: tagId,
+    tagCommentType: TagCommentType.Subforum as string,
+    topLevelCommentId: viewFieldNullOrMissing,
+  },
+  options: {
+    sort: sorting,
+  },
+}});
+
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

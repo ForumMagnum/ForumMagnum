@@ -4,6 +4,7 @@ import { updateMutator } from '../../vulcan-lib';
 import { commentsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { asyncForeachSequential } from '../../../lib/utils/asyncUtils';
+import { getCommentAncestorIds, getCommentSubtree } from '../../utils/commentTreeUtils';
 import * as _ from 'underscore';
 
 export async function recalculateAFCommentMetadata(postId: string|null) {
@@ -44,19 +45,18 @@ getCollectionHooks("Comments").newAsync.add(async function AlignmentCommentsNewO
 
 //TODO: Probably change these to take a boolean argument?
 const updateParentsSetAFtrue = async (comment: DbComment) => {
-  await Comments.rawUpdateOne({_id:comment.parentCommentId}, {$set: {af: true}});
-  const parent = await Comments.findOne({_id: comment.parentCommentId});
-  if (parent) {
-    await updateParentsSetAFtrue(parent)
+  const ancestorIds = await getCommentAncestorIds(comment);
+  if (ancestorIds.length > 0) {
+    await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$set: {af: true}});
   }
 }
 
 const updateChildrenSetAFfalse = async (comment: DbComment) => {
-  const children = await Comments.find({parentCommentId: comment._id}).fetch();
-  await asyncForeachSequential(children, async (child) => {
-    await Comments.rawUpdateOne({_id:child._id}, {$set: {af: false}});
-    await updateChildrenSetAFfalse(child)
-  })
+  const subtreeComments: DbComment[] = await getCommentSubtree(comment);
+  if (subtreeComments.length > 0) {
+    const subtreeCommentIds: string[] = subtreeComments.map(c=>c._id);
+    await Comments.rawUpdateMany({_id: {$in: subtreeCommentIds}}, {$set: {af: false}});
+  }
 }
 
 async function CommentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {

@@ -283,6 +283,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
     pageActiveAreaBackground: shades.grey[0],
+    translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
@@ -337,6 +338,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
+    restoreSavedContentNotice: "rgba(255,0,0,.1)",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -415,6 +417,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   datePicker: {
     selectedDate: "#428bca",
+  },
+  editor: {
+    commentPanelBackground: "#ffffff",
+    sideCommentEditorBackground: "#f3f7fb",
+    commentMarker: "#fef7a9",
+    commentMarkerActive: "#fdf05d",
   },
   
   commentParentScrollerHover: shades.greyAlpha(.075),

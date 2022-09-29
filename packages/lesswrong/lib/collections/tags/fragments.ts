@@ -27,6 +27,11 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
+    isSubforum
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -131,6 +136,17 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagSubforumFragment on Tag {
+    ...TagPreviewFragment
+    isSubforum
+    subforumWelcomeText {
+      _id
+      html
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagDetailedPreviewFragment on Tag {
     ...TagDetailsFragment
     description {
@@ -216,7 +232,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    ...TagBasicInfo
+    ...TagDetailsFragment
     parentTag {
       _id
       name
@@ -227,6 +243,9 @@ registerFragment(`
     description {
       ...RevisionEdit
     }
+    subforumWelcomeText {
+      ...RevisionEdit
+    }
   }
 `);
 
@@ -235,6 +254,16 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRecentSubforumComments on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }

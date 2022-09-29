@@ -1,12 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbLWEvent> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    onInsert: (document, currentUser) => new Date(),
-    viewableBy: ['members'],
-  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

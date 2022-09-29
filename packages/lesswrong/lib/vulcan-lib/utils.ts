@@ -87,6 +87,14 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
+export const makeAbsolute = function (url: string): string {
+  const baseUrl = getSiteUrl();
+  if (url.startsWith("/"))
+    return baseUrl+url.substr(1);
+  else
+    return baseUrl+url;
+}
+
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
@@ -220,7 +228,7 @@ export const decodeIntlError = (error, options = {stripped: false}) => {
   }
 };
 
-export const isPromise = (value: any): boolean => isFunction(get(value, 'then'));
+export const isPromise = (value: any): value is Promise<any> => isFunction(get(value, 'then'));
 
 export const removeProperty = (obj: any, propertyName: string): void => {
   for(const prop in obj) {

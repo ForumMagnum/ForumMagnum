@@ -98,17 +98,18 @@ const EditProfileForm = ({classes}: {
           'jobTitle',
           'organization',
           'careerStage',
+          'mapLocation',
+          'website',
           'biography',
           'howOthersCanHelpMe',
           'howICanHelpOthers',
-          'organizerOfGroupIds',
-          'programParticipation',
-          'mapLocation',
-          'website',
           'linkedinProfileURL',
           'facebookProfileURL',
           'twitterProfileURL',
-          'githubProfileURL'
+          'githubProfileURL',
+          'profileTagIds',
+          'organizerOfGroupIds',
+          'programParticipation',
         ]}
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}

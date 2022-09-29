@@ -76,6 +76,7 @@ const safeColorFallbacks = `
 `;
 
 const colorReplacements = {
+  "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
   "rgb(255, 247, 222)": "rgb(50,30,0)",
@@ -134,6 +135,12 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
+    },
+    editor: {
+      commentPanelBackground: shadePalette.grey[200],
+      sideCommentEditorBackground: shadePalette.grey[100],
+      commentMarker: "#80792e",
+      commentMarkerActive: "#cbc14f",
     },
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
