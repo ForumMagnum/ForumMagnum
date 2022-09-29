@@ -48,7 +48,7 @@ const HighlightBody = ({
   const clickExpand = useCallback((ev) => {
     setExpanded(true);
     ev.preventDefault();
-  }, []);
+  }, [setExpanded]);
 
   return <Components.ContentStyles contentType="postHighlight">
     <Components.LinkPostMessage post={post} />
