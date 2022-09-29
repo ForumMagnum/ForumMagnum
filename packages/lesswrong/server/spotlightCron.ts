@@ -25,6 +25,8 @@ addCronJob({
     const msSincePromotion = now.valueOf() - lastPromotionDate.valueOf();
     const daysSincePromotion = Math.floor(msSincePromotion / MS_IN_DAY);
 
+    console.log({ daysSincePromotion, currentSpotlight });
+
     if (daysSincePromotion < currentSpotlight.duration) {
       return;
     }
@@ -35,8 +37,10 @@ addCronJob({
     // If we have any further spotlight items after the current one, promote the next one
     // Otherwise, roll over to the start
     const promoteIndex = lastSpotlightPosition > currentSpotlightPosition
-      ? positionAscOrderedSpotlights.indexOf(lastSpotlightByPosition) + 1
+      ? positionAscOrderedSpotlights.indexOf(currentSpotlight) + 1
       : 0;
+
+    console.log({ promoteIndex, positionAscOrderedSpotlights })
 
     const { position: positionToPromote } = positionAscOrderedSpotlights[promoteIndex];
 
