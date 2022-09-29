@@ -152,7 +152,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType,
-  questionId: String
+  questionId: string
 }) => {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);

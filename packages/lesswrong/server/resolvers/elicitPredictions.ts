@@ -7,36 +7,36 @@ import { encode } from 'querystring'
 import { onStartup } from '../../lib/executionEnvironment';
 
 const ElicitUserType = `type ElicitUser {
-  isQuestionCreator: Boolean!
-  displayName: String!
-  _id: String!
-  sourceUserId: String!
-  lwUser: User!
+  isQuestionCreator: Boolean
+  displayName: String
+  _id: String
+  sourceUserId: String
+  lwUser: User
 }`
 
 addGraphQLSchema(ElicitUserType);
 
 const ElicitPredictionType = `type ElicitPrediction {
-  _id: String!
-  predictionId: String!
-  prediction: Float!
-  createdAt: Date!
-  notes: String!
-  creator: ElicitUser!
-  sourceUrl: String!
-  sourceId: String!
-  binaryQuestionId: String!
+  _id: String
+  predictionId: String
+  prediction: Float
+  createdAt: Date
+  notes: String
+  creator: ElicitUser
+  sourceUrl: String
+  sourceId: String
+  binaryQuestionId: String
 }`
 
 addGraphQLSchema(ElicitPredictionType);
 
 const ElicitBlockDataType = `type ElicitBlockData {
-  _id: String!
-  title: String!
-  notes: String!
-  resolvesBy: Date!
-  resolution: Boolean!
-  predictions: [ElicitPrediction]!
+  _id: String
+  title: String
+  notes: String
+  resolvesBy: Date
+  resolution: Boolean
+  predictions: [ElicitPrediction]
 }`
 
 addGraphQLSchema(ElicitBlockDataType);

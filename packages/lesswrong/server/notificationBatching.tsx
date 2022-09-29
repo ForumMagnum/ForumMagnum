@@ -120,10 +120,10 @@ addGraphQLResolvers({
 });
 addGraphQLSchema(`
   type EmailPreview {
-    to: String!
-    subject: String!
-    html: String!
-    text: String!
+    to: String
+    subject: String
+    html: String
+    text: String
   }
 `);
 addGraphQLQuery("EmailPreview(notificationIds: [String], postId: String): [EmailPreview]");

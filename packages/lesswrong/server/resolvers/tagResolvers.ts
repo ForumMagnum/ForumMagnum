@@ -22,13 +22,13 @@ import { TagCommentType } from '../../lib/collections/comments/schema';
 addGraphQLSchema(`
   type TagUpdates {
     tag: Tag!
-    revisionIds: [String!]!
-    commentCount: Int!
-    commentIds: [String!]!
-    lastRevisedAt: Date!
-    lastCommentedAt: Date!
-    added: Int!
-    removed: Int!
+    revisionIds: [String!]
+    commentCount: Int
+    commentIds: [String!]
+    lastRevisedAt: Date
+    lastCommentedAt: Date
+    added: Int
+    removed: Int
     users: [User!]
   }
 `);
@@ -159,7 +159,7 @@ augmentFieldsDict(Tags, {
   contributors: {
     resolveAs: {
       arguments: 'limit: Int, version: String',
-      type: "TagContributorsList!",
+      type: "TagContributorsList",
       resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
         contributors: ContributorWithStats[],
         totalCount: number,

@@ -243,8 +243,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly organization: string,
   readonly careerStage: Array<string>,
   readonly website: string,
-  readonly bio: string,
-  readonly htmlBio: string,
+  readonly bio: string|null,
+  readonly htmlBio: string|null,
   readonly fmCrosspostUserId: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
@@ -668,14 +668,14 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly draft: boolean,
   readonly originalContents: ContentType|null,
   readonly html: string,
-  readonly markdown: string,
+  readonly markdown: string|null,
   readonly draftJS: any,
-  readonly ckEditorMarkup: string,
+  readonly ckEditorMarkup: string|null,
   readonly wordCount: number,
-  readonly htmlHighlight: string,
-  readonly htmlHighlightStartingAtHash: string,
-  readonly plaintextDescription: string,
-  readonly plaintextMainText: string,
+  readonly htmlHighlight: string|null,
+  readonly htmlHighlightStartingAtHash: string|null,
+  readonly plaintextDescription: string|null,
+  readonly plaintextMainText: string|null,
   readonly changeMetrics: any,
 }
 
@@ -720,9 +720,9 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly extendedScore: any,
   readonly unlisted: boolean,
   readonly score: number,
-  readonly lastVisitedAt: Date,
+  readonly lastVisitedAt: Date|null,
   readonly isFuture: boolean,
-  readonly isRead: boolean,
+  readonly isRead: boolean|null,
   readonly lastCommentedAt: Date,
   readonly lastCommentPromotedAt: Date,
   readonly canonicalCollectionSlug: string,
@@ -827,7 +827,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
-  readonly readTimeMinutes: number,
+  readonly readTimeMinutes: number|null,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -856,7 +856,7 @@ interface PostsList extends PostsListBase { // fragment on Posts
 
 interface PostsList_contents { // fragment on Revisions
   readonly _id: string,
-  readonly htmlHighlight: string,
+  readonly htmlHighlight: string|null,
   readonly wordCount: number,
   readonly version: string,
 }
@@ -870,7 +870,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly viewCount: number,
-  readonly socialPreviewImageUrl: string,
+  readonly socialPreviewImageUrl: string|null,
   readonly tagRelevance: any,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
@@ -968,7 +968,7 @@ interface PostsPlaintextDescription { // fragment on Posts
 
 interface PostsPlaintextDescription_contents { // fragment on Revisions
   readonly _id: string,
-  readonly plaintextDescription: string,
+  readonly plaintextDescription: string|null,
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -1026,12 +1026,12 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string|null,
   readonly contents: RevisionDisplay|null,
-  readonly myEditorAccess: string,
+  readonly myEditorAccess: string|null,
   readonly linkSharingKey: string,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
-  readonly myEditorAccess: string,
+  readonly myEditorAccess: string|null,
   readonly linkSharingKey: string,
   readonly version: string|null,
   readonly coauthorStatuses: Array<{
@@ -1085,7 +1085,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
 interface SunshinePostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
-  readonly htmlHighlight: string,
+  readonly htmlHighlight: string|null,
   readonly wordCount: number,
   readonly version: string,
 }
@@ -1123,7 +1123,7 @@ interface HighlightWithHash { // fragment on Posts
 }
 
 interface HighlightWithHash_contents { // fragment on Revisions
-  readonly htmlHighlightStartingAtHash: string,
+  readonly htmlHighlightStartingAtHash: string|null,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1169,13 +1169,13 @@ interface CommentsList { // fragment on Comments
   readonly promoted: boolean,
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
-  readonly votingSystem: string,
+  readonly votingSystem: string|null,
   readonly isPinnedOnProfile: boolean,
 }
 
 interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
-  readonly plaintextMainText: string,
+  readonly plaintextMainText: string|null,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -1243,8 +1243,8 @@ interface RevisionDisplay { // fragment on Revisions
   readonly userId: string,
   readonly html: string,
   readonly wordCount: number,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
+  readonly htmlHighlight: string|null,
+  readonly plaintextDescription: string|null,
 }
 
 interface RevisionEdit { // fragment on Revisions
@@ -1255,12 +1255,12 @@ interface RevisionEdit { // fragment on Revisions
   readonly userId: string,
   readonly originalContents: any,
   readonly html: string,
-  readonly markdown: string,
+  readonly markdown: string|null,
   readonly draftJS: any,
-  readonly ckEditorMarkup: string,
+  readonly ckEditorMarkup: string|null,
   readonly wordCount: number,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
+  readonly htmlHighlight: string|null,
+  readonly plaintextDescription: string|null,
 }
 
 interface RevisionMetadata { // fragment on Revisions
@@ -1502,8 +1502,8 @@ interface TagFlagFragment { // fragment on TagFlags
 
 interface TagFlagFragment_contents { // fragment on Revisions
   readonly html: string,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
+  readonly htmlHighlight: string|null,
+  readonly plaintextDescription: string|null,
 }
 
 interface TagFlagEditFragment extends TagFlagFragment { // fragment on TagFlags
@@ -1849,7 +1849,7 @@ interface TagBasicInfo { // fragment on Tags
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly oldSlugs: Array<string>,
-  readonly isRead: boolean,
+  readonly isRead: boolean|null,
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
@@ -1881,8 +1881,8 @@ interface TagFragment_subTags { // fragment on Tags
 interface TagFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
+  readonly htmlHighlight: string|null,
+  readonly plaintextDescription: string|null,
   readonly version: string,
 }
 
@@ -1906,7 +1906,7 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
 interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagRevisionFragment_parentTag|null,
   readonly subTags: Array<TagRevisionFragment_subTags>,
-  readonly isRead: boolean,
+  readonly isRead: boolean|null,
   readonly description: TagRevisionFragment_description|null,
 }
 
@@ -1924,8 +1924,8 @@ interface TagRevisionFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
   readonly html: string,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
+  readonly htmlHighlight: string|null,
+  readonly plaintextDescription: string|null,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -1947,7 +1947,7 @@ interface TagPreviewFragment_subTags { // fragment on Tags
 
 interface TagPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
-  readonly htmlHighlight: string,
+  readonly htmlHighlight: string|null,
 }
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
@@ -1966,7 +1966,7 @@ interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on
 
 interface TagDetailedPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
-  readonly htmlHighlight: string,
+  readonly htmlHighlight: string|null,
 }
 
 interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
@@ -2010,12 +2010,12 @@ interface TagEditFragment_parentTag { // fragment on Tags
 }
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
-  readonly lastVisitedAt: Date,
+  readonly lastVisitedAt: Date|null,
   readonly recentComments: Array<CommentsList>,
 }
 
 interface TagRecentSubforumComments extends TagFragment { // fragment on Tags
-  readonly lastVisitedAt: Date,
+  readonly lastVisitedAt: Date|null,
   readonly recentComments: Array<CommentsList>,
 }
 
@@ -2105,7 +2105,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afKarma: number,
   readonly deleted: boolean,
   readonly isAdmin: boolean,
-  readonly htmlBio: string,
+  readonly htmlBio: string|null,
   readonly postCount: number,
   readonly commentCount: number,
   readonly sequenceCount: number,
@@ -2174,7 +2174,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly pageUrl: string|null,
   readonly voteBanned: boolean,
   readonly banned: Date,
-  readonly isReviewed: boolean,
+  readonly isReviewed: boolean|null,
   readonly nullifyVotes: boolean,
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean,
@@ -2304,7 +2304,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
-  readonly htmlBio: string,
+  readonly htmlBio: string|null,
   readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
@@ -2371,7 +2371,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
-  readonly hasAuth0Id: boolean,
+  readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean,
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
@@ -2511,7 +2511,7 @@ interface UsersAdmin { // fragment on Users
 }
 
 interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
-  readonly reviewVoteCount: number,
+  readonly reviewVoteCount: number|null,
   readonly email: string,
 }
 

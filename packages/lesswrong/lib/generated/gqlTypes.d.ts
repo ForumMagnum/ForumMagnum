@@ -26,34 +26,34 @@ interface Site {
   logoUrl: string|null
 }
 interface PostKarmaChange {
-  _id: string
-  scoreChange: number
-  title: string
-  slug: string
+  _id: string|null
+  scoreChange: number|null
+  title: string|null
+  slug: string|null
 }
 interface CommentKarmaChange {
-  _id: string
-  scoreChange: number
-  description: string
-  postId: string
-  tagSlug: string
+  _id: string|null
+  scoreChange: number|null
+  description: string|null
+  postId: string|null
+  tagSlug: string|null
 }
 interface RevisionsKarmaChange {
-  _id: string
-  scoreChange: number
-  tagId: string
-  tagSlug: string
-  tagName: string
+  _id: string|null
+  scoreChange: number|null
+  tagId: string|null
+  tagSlug: string|null
+  tagName: string|null
 }
 interface KarmaChanges {
-  totalChange: number
-  startDate: Date
-  endDate: Date
-  nextBatchDate: Date
-  updateFrequency: string
-  posts: Array<PostKarmaChange>
-  comments: Array<CommentKarmaChange>
-  tagRevisions: Array<RevisionsKarmaChange>
+  totalChange: number|null
+  startDate: Date|null
+  endDate: Date|null
+  nextBatchDate: Date|null
+  updateFrequency: string|null
+  posts: Array<PostKarmaChange|null>
+  comments: Array<CommentKarmaChange|null>
+  tagRevisions: Array<RevisionsKarmaChange|null>
 }
 interface EmailPreview {
   to: string
@@ -67,7 +67,7 @@ interface TagUpdates {
   commentCount: number
   commentIds: Array<string>
   lastRevisedAt: Date
-  lastCommentedAt: Date
+  lastCommentedAt: Date|null
   added: number
   removed: number
   users: Array<DbUser>

@@ -197,7 +197,7 @@ interface QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock {
   commentCount: number
   commentIds: Array<string>
   lastRevisedAt: Date
-  lastCommentedAt: Date
+  lastCommentedAt: Date|null
   added: number
   removed: number
   users: Array<QueryTagUpdatesInTimeBlockResult__usersusers>

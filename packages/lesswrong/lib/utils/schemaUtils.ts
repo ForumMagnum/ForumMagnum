@@ -170,7 +170,7 @@ interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpeci
  * our GraphQL API using the supplied resolver function.
  */
 export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
-  const resolverType = graphQLtype || simplSchemaToGraphQLtype(type, false);
+  const resolverType = graphQLtype || simplSchemaToGraphQLtype(type, true);
   if (!type || !resolverType)
     throw new Error("Could not determine resolver graphQL type");
   return {

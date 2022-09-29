@@ -3,17 +3,17 @@ import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
 
 const MozillaHubsData = `type MozillaHubsData {
-  description: String!
-  id: String!
-  previewImage: String!
-  lastActivatedAt: String!
-  lobbyCount: Int!
-  memberCount: Int!
-  name: String!
-  roomSize: Int!
-  sceneId: String!
-  type: String!
-  url: String!
+  description: String
+  id: String
+  previewImage: String
+  lastActivatedAt: String
+  lobbyCount: Int
+  memberCount: Int
+  name: String
+  roomSize: Int
+  sceneId: String
+  type: String
+  url: String
 }`
 
 addGraphQLSchema(MozillaHubsData);
