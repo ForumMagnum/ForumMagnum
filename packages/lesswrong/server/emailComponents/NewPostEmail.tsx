@@ -66,8 +66,8 @@ const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const externalDirectoryAvailability = !!spotifyLinkElement && !!appleLinkElement;
 
   return <p>
-    Listen to the podcast recording version of this post on {buzzsproutLinkElement}.
-    {externalDirectoryAvailability ? '  It is also available on ' + spotifyLinkElement + ' and ' + appleLinkElement + '.' : ''}
+    Listen to the podcast version of this post on {buzzsproutLinkElement}.
+    {externalDirectoryAvailability ? ' You can also find it on ' + spotifyLinkElement + ' and ' + appleLinkElement + '.' : ''}
   </p>;
 };
 
