@@ -277,13 +277,22 @@ export async function dataToCkEditor(data, type) {
 
 export async function dataToWordCount(data, type) {
   try {
-    const markdown = dataToMarkdown(data, type) || ""
+    const html = await dataToHTML(data, type);
+    const htmlWithoutFootnotes = trimFootnotesFromHTML(html);
+    const markdown = dataToMarkdown(htmlWithoutFootnotes, type) || ""
     return markdown.split(" ").length
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Error in dataToWordCount", data, type, err)
     return 0
   }
+}
+
+function trimFootnotesFromHTML(html: string): string {
+  // Find the <ol class="footnotes"> and delete it
+  const $ = cheerio.load(html);
+  $('.footnotes').remove();
+  return $.html();
 }
 
 function getInitialVersion(document: DbPost|DbObject) {
