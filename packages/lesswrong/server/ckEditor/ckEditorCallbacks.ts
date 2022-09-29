@@ -6,6 +6,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { isCollaborative } from '../../components/editor/EditorFormComponent';
 import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { restrictViewableFields } from '../../lib/vulcan-users/permissions';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { pushRevisionToCkEditor } from './ckEditorWebhook';
@@ -112,7 +113,7 @@ defineQuery({
       }
       
       // Return the post
-      const filteredPost = await accessFilterSingle(currentUser, Posts, post, context);
+      const filteredPost = restrictViewableFields(currentUser, Posts, post);
       return filteredPost;
     } else {
       throw new Error("Invalid postId or not shared with you");
