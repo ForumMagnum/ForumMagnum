@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import fetch from 'node-fetch';
 import { getLocalTime } from '../mapsUtils';
-import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import { userFindOneByEmail } from '../../lib/collections/users/commonQueries';
 
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
   const requestOptions: any = {
@@ -30,7 +30,7 @@ registerMigration({
       try {
         let eventOrganizer
         // Figure out whether user with emailAddress already exists
-        const existingUser = row.emailAddress ? await userFindByEmail(row.emailAddress) : undefined
+        const existingUser = row.emailAddress ? await userFindOneByEmail(row.emailAddress) : undefined
         // If not, create them (and send them an email, maybe?)
         if (existingUser) {
           eventOrganizer = existingUser
