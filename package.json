@@ -129,7 +129,7 @@
     "apollo-server": "2.25.3",
     "apollo-server-express": "2.15.0",
     "auth0": "^2.42.0",
-    "bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.18.3",
     "bowser": "^1.9.4",
     "cheerio": "1.0.0-rc.9",
