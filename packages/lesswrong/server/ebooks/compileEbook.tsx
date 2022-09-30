@@ -13,192 +13,8 @@ import { cloudinaryApiKey, cloudinaryApiSecret } from '../scripts/convertImagesT
 import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
 import fs from 'fs';
 import https from 'https'
-import convert from 'ebook-convert'
-import { renderToString } from 'react-dom/server';
-import React from 'react';
+import { namedToNumericEntities } from './entityConvert';
 
-var path = require('path')
-var xtend = require('xtend')
-// var convert = require('ebook-convert')
-
-// export async function _ChaptersEditEbookCallback (chapter: DbChapter) {
-  
-//   var version = process.argv.length > 2 ? process.argv[2] : 'default';
-  
-//   const config = JSON.parse(jetpack.read('meta/' + version + '.json'));
-  
-//   var scrapeError = false;
-  
-//   var epub = makepub.document(config.metadata, config.img);
-  
-//   epub.addCSS(jetpack.read('style/base.css'));
-  
-//   epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
-  
-//   var base_content = jetpack.read('template.xhtml');
-  
-//   function addChapterToBook(html, url, cache_path){
-//     let $ = cheerio.load(html);
-//     let title = $(config.titleSelector).first().text();
-//     let content = $(config.contentSelector).html();
-//     if(config.withoutSelector) $(config.withoutSelector).remove();
-//     let path = url;
-//     if(typeof url === 'object'){
-//       path = url.url;
-//       if(url.titleSelector) title = $(url.titleSelector).text();
-//       if(url.contentSelector) content = $(url.contentSelector).text();
-//     }
-//     if(title === ''){
-//       console.log('Couldn\'t correctly scrape', path);
-//       jetpack.remove(cache_path);
-//       scrapeError = true;
-//     }
-//     let safe_title = title.toLowerCase().replace(/ /g, '-');
-//     let newDoc = cheerio.load(base_content);
-//     newDoc('body').append('<div id="'+safe_title+'"></div>');
-//     newDoc('div').append('<h1>'+title+'</h1>').append(content);
-//     epub.addSection(title, newDoc('body').html());
-//   }
-  
-//   function buildEbookFromCollection(collection) {
-//     console.log("buildEbookFromCollection", collection);
-//     collection.books.forEach((book, bookCount) => {
-//       const bookDoc = createDocFromLWContents(book.title || bookCount, book)
-//       book.posts && book.posts.forEach((post, bookPostCount) => {
-//         createDocFromLWContents(post.title || `${bookCount}.posts.${bookPostCount}`, post)
-//       })
-//       book.sequences && book.sequences.forEach(sequence => {
-//         buildEbookFromSequence(sequence)
-//       })
-//     })
-//   }
-  
-//   function buildEbookFromSequence(sequence) {
-//     createDocFromLWContents(sequence.title, sequence)
-//     sequence.chapters && sequence.chapters.forEach((chapter) => {
-//       if (chapter.title) {
-//         createDocFromLWContents(chapter.title, chapter)
-//       }
-//       chapter.posts && chapter.posts.forEach((post, postCount) => {
-//         createDocFromLWContents(post.title, post)
-//       })
-//     })
-//   }
-  
-//   function createDocFromLWContents(title, content) {
-//     let newDoc = cheerio.load(base_content)
-//     if (content.title) {
-//       let safe_title = content.title.toLowerCase().replace(/ /g, '-');
-//       newDoc('body').append('<div id="'+safe_title+'"></div>');
-//       newDoc('div').append('<h1>'+content.title+'</h1>')
-//     }
-//     newDoc('div').append(content?.contents?.html || '')
-//     epub.addSection(title, sanitizeHtml(newDoc('body').html(), {parser: {xmlMode: true}}))
-//   }
-  
-//   if (config.urls) {
-//     config.urls.forEach(url => {
-//       let path, cache_path;
-//       if(typeof url === 'string'){
-//         path = url;
-//       } else {
-//         path = url.url;
-//       }
-//       let stem = path.trim().split('/').pop();
-//       cache_path = './cache/' + stem + (stem.split('.').pop() !== 'html' ? '.html' : '');
-//       if(!jetpack.exists(cache_path)){
-//         console.log('Scraping', config.metadata.source + path);
-//         execSync('wget ' + config.metadata.source + path + ' -nc -q -O ' + cache_path);
-//       }
-//       addChapterToBook(jetpack.read(cache_path), url, cache_path);
-//     });
-//     if(scrapeError){
-//       console.log('Scrape errors occurred: No book produced.');
-//     } else {
-//       epub.writeEPUB(console.error, 'output', config.shorttitle, ()=>{
-//         console.log('Book successfully written to output/' + config.shorttitle + '.epub');
-//       });
-//     }
-//   } else if (config.collectionId) {
-//     const query = `{
-//       collection(input: {selector: {_id: "${config.collectionId}"}}) {
-//         result {
-//           books {
-//             title
-//             contents { 
-//               html
-//             }
-//             sequences {
-//               title
-//               contents {
-//                 html
-//               }
-//               _id
-//               chapters {
-//                 title
-//                 contents {
-//                   html
-//                 }
-//                 posts {
-//                   title
-//                   contents {
-//                     html
-//                   }
-//                   _id
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }`
-//     request('https://www.lessestwrong.com/graphql?', query)
-//       .then(data => {
-//         buildEbookFromCollection(data.collection.result)
-//         epub.writeEPUB(console.error, 'output', config.shorttitle, ()=>{
-//           console.log('Book successfully written to output/' + config.shorttitle + '.epub');
-//         });
-//       })
-//       .catch(err => {
-//         console.log(err)
-//       })  
-//   } else if (config.sequenceId) {
-//     const query = `{
-//       sequence(input: {selector: {_id: "${config.sequenceId}"}}) {
-//         result {
-//           title
-//             contents {
-//               html
-//             }
-//             chapters {
-//               title
-//               contents {
-//                 html
-//               }
-//               posts {
-//                 title
-//                 contents {
-//                   html
-//                 }
-//                 _id
-//               }
-//             }
-//         }
-//       }
-//     }
-//     `
-//     request('https://www.lessestwrong.com/graphql?', query)
-//       .then(data => {
-//         buildEbookFromSequence(data.sequence.result)
-//         epub.writeEPUB(console.error, 'output', config.shorttitle, ()=>{
-//           console.log('Book successfully written to output/' + config.shorttitle + '.epub');
-//         });
-//       })
-//       .catch(err => {
-//         console.log(err)
-//       })  
-//   }
-// }
 
 const getConfigFromSequence = (sequence: DbSequence, author: DbUser, imagePath: string) => {
   return {
@@ -234,30 +50,8 @@ const htmlTemplate = `
 <body></body>
 </html>
 `
+
 async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
-  const context = await createAdminContext();
-  const posts = await sequenceGetAllPosts(sequence._id, context)
-  const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
-  const author = await Users.findOne({_id: sequence.userId})
-
-  if (!author) throw Error("No author found")
-
-  const config = getConfigFromSequence(sequence, author, coverPath)
-  
-  let epub = makepub.document(config);
-
-  epub.addSection('Title Page', renderToString(<h1>Blah de blah</h1>), true, true);
-  
-  const outFolder = "tmp/"
-  const outFilename = `${slugify(sequence.title)}`
-  const outFile = `${outFolder}${outFilename}.epub`
-  await epub.writeEPUB(outFolder, outFilename)
-
-  return outFile
-}
-
-
-async function OldbuildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
   const context = await createAdminContext();
   const posts = await sequenceGetAllPosts(sequence._id, context)
   const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
@@ -286,12 +80,27 @@ async function OldbuildLocalEbookFromSequence(sequence: DbSequence, coverPath: s
   
   function createDocFromLWContents(title, document) {
     let newDoc = cheerio.load(htmlTemplate)
+    let contents = document.contents?.html || ''
+    // console.log("start filtering", title)
+    Object.keys(namedToNumericEntities).forEach((key, i) => {
+      console.log(key)
+      var re = new RegExp(key,"g");
+      try {
+        contents = contents.replace(re, namedToNumericEntities[key])
+        console.log(i, "new contents", contents)
+      } catch (err) {
+        console.error("error", err)
+      }
+    })
+    // console.log("done filtering", title)
+    console.log(contents)
+
     if (document.title) {
       let safe_title = document.title.toLowerCase().replace(/ /g, '-');
       newDoc('body').append('<div id="'+safe_title+'"></div>');
       newDoc('div').append('<h1>'+document.title+'</h1>')
     }
-    newDoc('div').append(document.contents?.html || '')
+    newDoc('div').append(contents)
     epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
   }
 
@@ -320,20 +129,6 @@ function downloadImageFile(url, outFile): Promise<void> {
     })
   })
 }
-
-// const wrappedBodyComponent = (
-//   <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-//   <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
-//   <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
-//   <TimezoneContext.Provider value={timezone}>
-//     {bodyComponent}
-//   </TimezoneContext.Provider>
-//   </UserContext.Provider>
-//   </MuiThemeProvider>
-//   </JssProvider>
-// )
-
-
 
 export async function ChaptersEditEbookCallback (chapter: DbChapter) {
   console.log("BEGIN ChaptersEditEbookCallback")
