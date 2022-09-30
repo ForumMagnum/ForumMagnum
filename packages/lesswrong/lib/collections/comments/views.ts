@@ -5,6 +5,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { registerSubforumView } from '../userTagRels/helpers';
 import { Comments } from './collection';
 import { TagCommentType } from './schema';
 
@@ -23,6 +24,7 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     reviewYear?: ReviewYear
+    allowSideEffects?: boolean
   }
 }
 
@@ -503,7 +505,11 @@ Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   },
 }));
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms) => {
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting, allowSideEffects=true}: CommentsViewTerms, _, context?: ResolverContext) => {
+  if (allowSideEffects && context?.currentUser && tagId) {
+    void registerSubforumView(context.currentUser._id, tagId);
+  }
+
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {

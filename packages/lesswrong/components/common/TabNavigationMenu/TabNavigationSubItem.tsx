@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)),
     color: theme.palette.grey[700],
-    width: 
+    width:
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,
       (theme.spacing.unit*2), // leave some space on the right,
