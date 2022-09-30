@@ -140,6 +140,7 @@ addRoute(
     name:'users.account',
     path:'/account',
     componentName: 'UsersAccount',
+    title: "Account Settings",
     background: "white"
   },
   {
@@ -160,12 +161,14 @@ addRoute(
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount',
-    background: "white"
+    title: "Account Settings",
+    background: "white",
   },
   {
     name:'users.abTestGroups',
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
+    title: "A/B Test Groups",
   },
   {
     name: "users.banNotice",
@@ -192,6 +195,7 @@ addRoute(
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     componentName: 'ResendVerificationEmailPage',
+    title: "Email Verification",
     background: "white"
   },
   {
