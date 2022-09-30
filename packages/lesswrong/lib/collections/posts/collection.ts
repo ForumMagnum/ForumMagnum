@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsPodcaster } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
@@ -26,7 +26,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
     
-    return canUserEditPostMetadata(user, document) || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
     // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
   },
 
@@ -68,7 +68,7 @@ makeEditable({
     pingbacks: true,
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
       insertableBy: ['members']
     },
   }
@@ -86,7 +86,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
       insertableBy: [userHasModerationGuidelines]
     },
   }

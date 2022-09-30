@@ -12,7 +12,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsPodcaster } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -58,7 +58,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document && !canUserEditPostMetadata(currentUser, document)) {
+  if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
@@ -85,7 +85,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   // If we have access to the post but only readonly access and only because
   // it's published, don't show the edit form.
-  if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userCanDo(currentUser, 'posts.edit.all')) {
+  if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userCanDo(currentUser, 'posts.edit.all') && !userIsPodcaster(currentUser)) {
     return <Components.ErrorAccessDenied/>
   }
 
