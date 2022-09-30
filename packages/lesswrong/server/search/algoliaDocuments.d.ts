@@ -65,6 +65,7 @@ interface AlgoliaPost {
   slug: string,
   baseScore: number,
   status: number,
+  curated: boolean,
   legacy: boolean,
   commentCount: number,
   userIP: string,
