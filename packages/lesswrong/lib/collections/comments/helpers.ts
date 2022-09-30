@@ -4,7 +4,12 @@ import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
+import { tagGetSubforumUrl } from '../tags/helpers';
 
+export enum TagCommentType {
+  Subforum = "SUBFORUM",
+  Discussion = "DISCUSSION",
+}
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
@@ -22,7 +27,13 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
     const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
     const tag = await mongoFindOne("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
-    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
+
+    if (comment.tagCommentType === TagCommentType.Discussion) {
+      return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
+    } else {
+      return `${prefix}${tagGetSubforumUrl(tag)}#${comment._id}`;
+      
+    }
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
   }
