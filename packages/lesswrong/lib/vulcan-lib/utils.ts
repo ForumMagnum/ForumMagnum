@@ -98,9 +98,11 @@ export const makeAbsolute = function (url: string): string {
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
+ * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
-export const getOutgoingUrl = function (url: string): string {
-  return getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+export const getOutgoingUrl = function (url: string, foreignId?: string): string {
+  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+  return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
 };
 
 export const slugify = function (s: string): string {

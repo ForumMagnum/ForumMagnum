@@ -28,7 +28,7 @@ const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVaria
   ${extraQueries ? extraQueries : ''}
 }`;
 
-function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
+export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
   const collectionName = collection.collectionName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
   const typeName = collection.options.typeName;

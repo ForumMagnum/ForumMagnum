@@ -7,7 +7,7 @@ import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
-export const createClient = async (context: ResolverContext, foreign = false) => {
+export const createClient = async (context: ResolverContext | null, foreign = false) => {
   const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()
@@ -19,7 +19,7 @@ export const createClient = async (context: ResolverContext, foreign = false) =>
   if (foreign) {
     links.push(createErrorLink());
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
-  } else {
+  } else if (context) {
     const schema = getExecutableSchema();
     // schemaLink will fetch data directly based on the executable schema
     // context here is the resolver context
