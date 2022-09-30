@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
-import { useCrosspostApolloClient } from "../hooks/useCrosspostApolloClient";
+import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
@@ -89,7 +89,7 @@ const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classe
   post = combinedPost ?? post;
 
   const [expanded, setExpanded] = useState(false);
-  const apolloClient = useCrosspostApolloClient();
+  const apolloClient = useForeignApolloClient();
   const {document: expandedDocument, loading: expandedLoading} = useSingle({
     skip: !expanded && !!post.contents,
     documentId: post.fmCrosspost.foreignPostId,

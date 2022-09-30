@@ -1,5 +1,5 @@
 import type { ApolloError } from "@apollo/client";
-import { useCrosspostApolloClient } from "./useCrosspostApolloClient";
+import { useForeignApolloClient } from "./useForeignApolloClient";
 import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
 
 export type PostWithForeignId = {
@@ -31,7 +31,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     throw new Error("Crosspost has not been created yet");
   }
 
-  const apolloClient = useCrosspostApolloClient();
+  const apolloClient = useForeignApolloClient();
   const { document, loading, error } = useSingle<FragmentTypeName>({
     ...fetchProps,
     documentId: post.fmCrosspost.foreignPostId,
