@@ -3,11 +3,8 @@ import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
 import { accessFilterSingle } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
-import { collectionGetAllPostIDs } from "../collections/helpers";
-import { Posts } from "../posts";
-import { sequenceGetAllPostIDs } from "../sequences/helpers";
 
-const DOCUMENT_TYPES = ['Sequence', 'Collection', 'Post'];
+const DOCUMENT_TYPES = ['Sequence', 'Post'];
 
 const SpotlightDocumentType = new SimpleSchema({
   documentType: {
@@ -73,39 +70,6 @@ const schema: SchemaType<DbSpotlight> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     order: 20,
-  },
-  firstPost: {
-    type: 'Post',
-    canRead: ['guests'],
-    optional: true,
-    nullable: true,
-    resolveAs: {
-      type: 'Post',
-      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | null> => {
-        switch (spotlight.documentType) {
-          case 'Post':
-            return null;
-          case 'Sequence': {
-            const [firstPostId] = await sequenceGetAllPostIDs(spotlight.documentId, context);
-            if (!firstPostId) {
-              return null;
-            }
-
-            const firstPost = await context.loaders.Posts.load(firstPostId);
-            return accessFilterSingle(context.currentUser, Posts, firstPost, context);
-          }
-          case 'Collection': {
-            const [firstPostId] = await collectionGetAllPostIDs(spotlight.documentId, context);
-            if (!firstPostId) {
-              return null;
-            }
-
-            const firstPost = await context.loaders.Posts.load(firstPostId);
-            return accessFilterSingle(context.currentUser, Posts, firstPost, context);
-          }
-        }
-      }
-    }
   },
   position: {
     type: Number,

@@ -26,11 +26,6 @@ registerFragment(`
     description {
       html
     }
-    firstPost {
-      _id
-      title
-      slug
-    }
   }
 `);
 

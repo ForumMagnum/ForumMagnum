@@ -45,7 +45,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
      * our local copy (for correct links/ids/etc.) but we need to override a few specific fields
      * to actually get the correct content and some metadata that isn't denormalized across sites
      */
-    const overrideFields = ["contents", "tableOfContents", "readTimeMinutes"];
+    const overrideFields = ["contents", "tableOfContents", "url", "readTimeMinutes"];
     combinedPost = {...document, ...post} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
       combinedPost[field] = document?.[field] ?? post[field];
