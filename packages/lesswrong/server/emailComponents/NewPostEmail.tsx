@@ -67,7 +67,7 @@ const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
 
   return <p>
     Listen to the podcast version of this post on {buzzsproutLinkElement}.
-    {externalDirectoryAvailability ? ' You can also find it on ' + spotifyLinkElement + ' and ' + appleLinkElement + '.' : ''}
+    {externalDirectoryAvailability ? <>  You can also find it on {spotifyLinkElement} and {appleLinkElement}.</> : <></>}
   </p>;
 };
 
