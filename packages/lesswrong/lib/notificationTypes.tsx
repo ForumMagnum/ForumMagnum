@@ -289,7 +289,8 @@ export const PostSharedWithUserNotification = registerNotificationType({
   mustBeEnabled: true,
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost;
-    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+    const name = await postGetAuthorName(document);
+    return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
