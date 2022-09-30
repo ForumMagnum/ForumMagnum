@@ -1179,8 +1179,7 @@ const schema: SchemaType<DbPost> = {
     type: Date,
     control: 'datetime',
     viewableBy: ['guests'],
-    // TODO: Feels like this should be more restrictive
-    editableBy: ['members'],
+    editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     onInsert: frontpageDefault, //TODO-JM: FIXME
     optional: true,
