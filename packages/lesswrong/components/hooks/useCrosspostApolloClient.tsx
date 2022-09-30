@@ -1,8 +1,3 @@
-import { useState } from "react";
-import { createApolloClient } from "../../client/apolloClient";
-import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
+import { useForeignApolloClient } from "./useForeignApolloClient";
 
-export const useCrosspostApolloClient = () => {
-  const [client] = useState(createApolloClient.bind(null, fmCrosspostBaseUrlSetting.get(), true));
-  return client;
-}
+export const useCrosspostApolloClient = useForeignApolloClient;

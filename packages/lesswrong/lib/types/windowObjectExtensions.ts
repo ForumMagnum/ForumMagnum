@@ -12,6 +12,7 @@ declare global {
     publicSettings: any,
     publicInstanceSettings: any,
     __APOLLO_STATE__: any,
+    __APOLLO_FOREIGN_STATE__: any,
     missingMainStylesheet?: boolean,
     
     googleMapsFinishedLoading?: ()=>void,
