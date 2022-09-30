@@ -60,19 +60,22 @@ export const updateScore = async ({collection, item, forceUpdate}) => {
   return 0;
 };
 
-const collectionProjections: Partial<Record<CollectionNameString, any>> = {
-  Posts: {
-    frontpageDate: 1,
-    curatedDate: 1,
-    scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
-    baseScore: { // Add optional bonuses to baseScore of posts
-      $add: [
-        "$baseScore",
-        ...defaultScoreModifiers(),
-      ],
+const getCollectionProjections = (collectionName: CollectionNameString) => {
+  const collectionProjections: Partial<Record<CollectionNameString, any>> = {
+    Posts: {
+      frontpageDate: 1,
+      curatedDate: 1,
+      scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
+      baseScore: { // Add optional bonuses to baseScore of posts
+        $add: [
+          "$baseScore",
+          ...defaultScoreModifiers(),
+        ],
+      },
     },
-  },
-};
+  };
+  return collectionProjections[collectionName] ?? {};
+}
 
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}) => {
   // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
@@ -97,7 +100,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
         scoreDate: "$postedAt",
         score: 1,
         baseScore: 1,
-        ...(collectionProjections[collection.options.collectionName] ?? {}),
+        ...(getCollectionProjections(collection.options.collectionName)),
       }
     },
     {
