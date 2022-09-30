@@ -665,12 +665,12 @@ interface DbSpotlight extends DbObject {
   documentId: string
   documentType: SpotlightDocumentType
   position: number
-  lastPromotedAt: Date
-  draft: boolean
-  spotlightImageId: string | null
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  lastPromotedAt: Date
+  draft: boolean
+  spotlightImageId: string | null
   createdAt: Date
   description: EditableFieldContents
 }
