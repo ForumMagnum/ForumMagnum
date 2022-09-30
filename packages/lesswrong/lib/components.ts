@@ -666,9 +666,10 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
 importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
-
+importComponent("SpotlightStartOrContinueReading", () => require('../components/spotlights/SpotlightStartOrContinueReading'));
 importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
 importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));
 

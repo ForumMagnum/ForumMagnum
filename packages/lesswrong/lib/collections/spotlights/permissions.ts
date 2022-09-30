@@ -1,7 +1,9 @@
+import { sunshineRegimentGroup } from "../../permissions";
 import { adminsGroup } from "../../vulcan-users";
 
-const adminActions = [
+const actions = [
   'spotlights.edit.all',
 ];
 
-adminsGroup.can(adminActions);
+adminsGroup.can(actions);
+sunshineRegimentGroup.can(actions)
