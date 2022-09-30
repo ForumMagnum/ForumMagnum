@@ -5,6 +5,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 
+const isEAForum = forumTypeSetting.get() === "EAForum"
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 40,
@@ -112,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: forumTypeSetting.get() === "EAForum" ? "flex-start" : "center",
+    justifyContent: isEAForum ? "flex-start" : "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -147,7 +149,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, SectionTitle, LWTooltip } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -213,7 +215,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
       <div className={classes.right}>
         {sequence.chapters?.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
-            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
+            {title && <ChapterTitle title={title}/>}
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}

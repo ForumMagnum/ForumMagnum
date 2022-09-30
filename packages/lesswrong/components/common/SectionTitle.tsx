@@ -40,6 +40,7 @@ const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
   }
 }
 
+// This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
 const SectionTitle = ({children, classes, className, title, noTopMargin, anchor}: {
   children?: React.ReactNode,
   classes: ClassesType,
