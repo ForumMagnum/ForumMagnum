@@ -7,6 +7,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
+import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -137,14 +138,17 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false)
 
+  const foreignApolloClient = useForeignApolloClient();
+  const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
   const {document: postWithHighlight, loading} = useSingle({
     collectionName: "Posts",
     fragmentName: "HighlightWithHash",
-    documentId: post?._id,
+    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
     extraVariables: { hash: "String" },
-    extraVariablesValues: {hash}
+    extraVariablesValues: {hash},
+    apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
   if (!post) return null
