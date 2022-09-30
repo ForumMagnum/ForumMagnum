@@ -525,8 +525,8 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
         Hi {user.displayName},
       </p>
       <p>
-        Your subforum, <a href={tagGetSubforumUrl(subforum)}> {subforum?.name}</a> has a new
-        member: <a href={userGetProfileUrl(newUser)}>{newUser?.displayName}</a>.
+        Your subforum, <a href={tagGetSubforumUrl(subforum, true)}> {subforum?.name}</a> has a new
+        member: <a href={userGetProfileUrl(newUser, true)}>{newUser?.displayName}</a>.
       </p>
       <p>
         - The {forumTitleSetting.get()} Team
