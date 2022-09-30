@@ -19,6 +19,8 @@ registerFragment(`
       ...PostsList
     }
     collectionId
+    displaySequencesAsGrid
+    hideProgressBar
     showChapters
   }
 `);

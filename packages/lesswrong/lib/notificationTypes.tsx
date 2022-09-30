@@ -1,7 +1,8 @@
 import React from 'react';
+import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -28,6 +29,8 @@ interface NotificationType {
   mustBeEnabled?: boolean,
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
+  onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -286,11 +289,22 @@ export const PostSharedWithUserNotification = registerNotificationType({
   mustBeEnabled: true,
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost;
-    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+    const name = await postGetAuthorName(document);
+    return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    if (!documentId) {
+      throw new Error("PostSharedWithUserNotification documentId is missing")
+    }
+    return getPostCollaborateUrl(documentId, false)
+  }
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
@@ -349,6 +363,18 @@ export const NewRSVPNotification = registerNotificationType({
   }
 })
 
+export const CancelledRSVPNotification = registerNotificationType({
+  name: "cancelledRSVP",
+  userSettingField: "notificationRSVPs",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost
+    return `Someone cancelled their RSVP to your event ${document.title}`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})
+
 export const NewGroupOrganizerNotification = registerNotificationType({
   name: "newGroupOrganizer",
   userSettingField: "notificationGroupAdministration",
@@ -362,6 +388,45 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     return <SupervisedUserCircleIcon style={iconStyles} />
   }
 })
+
+export const NewSubforumMemberNotification = registerNotificationType({
+  name: "newSubforumMember",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'user') throw new Error("documentType must be user")
+    const newUser = await Users.findOne(documentId)
+    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
+    return `A new user has joined your subforum: ${newUser.displayName}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
+export const NewCommentOnDraftNotification = registerNotificationType({
+  name: "newCommentOnDraft",
+  userSettingField: "notificationCommentsOnDraft",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const post = await getDocument(documentType, documentId) as DbPost;
+    return `New comments on your draft ${post.title}`;
+  },
+  
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  
+  onsiteHoverView({notification}: {notification: NotificationsList}) {
+    return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
+  },
+  
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    return `/editPost?postId=${documentId}`;
+  },
+});
 
 export const CoauthorRequestNotification = registerNotificationType({
   name: 'coauthorRequestNotification',

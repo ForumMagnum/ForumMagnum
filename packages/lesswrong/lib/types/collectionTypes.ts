@@ -197,7 +197,7 @@ type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
 interface EditableFieldContents {
   html: string
   wordCount: number
-  originalContents: any
+  originalContents: DbRevision["originalContents"]
   editedAt: Date
   userId: string
   version: string
@@ -212,5 +212,13 @@ type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"co
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
 
 type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
+
+type SpotlightDocumentType = 'Post' | 'Sequence';
+
+interface SpotlightFirstPost {
+  _id: string;
+  title: string;
+  url: string;
+}
 
 }

@@ -13,10 +13,12 @@
     "moduleResolution": "node",
     "downlevelIteration": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strictBindCallApply": true
   },
   "include": [
     "packages/lesswrong",
+    "public/lesswrong-editor/src/editorConfigs.js",
     "cypress"
   ],
   "exclude": [

@@ -19,9 +19,6 @@ import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, tagging
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMessages } from '../common/withMessages';
-import { userCanPost } from '../../lib/collections/posts';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
@@ -85,19 +82,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
-  reportUserSection: {
-    marginTop: 60
-  },
-  reportUserBtn: {
-    ...theme.typography.commentStyle,
-    background: 'none',
-    color: theme.palette.primary.main,
-    fontSize: 13,
-    padding: 0,
-    '&:hover': {
-      color: theme.palette.primary.dark,
-    }
-  },
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -111,11 +95,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
-
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-  })
 
   const currentUser = useCurrentUser();
   
@@ -135,13 +114,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
     }
-  }
-
-  const { flash } = useMessages()
-  const reportUser = async () => {
-    if (!user) return
-    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
-    flash({messageString: "Your report has been sent to the moderators"})
   }
 
   const renderMeta = () => {
@@ -205,8 +177,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
-      SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles } = Components
+      SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      Typography, ContentStyles, ReportUserButton } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -238,7 +210,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
 
-    const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
@@ -252,6 +223,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
     terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -323,15 +295,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
-            <SectionTitle title="My Drafts">
-              {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
-                <SectionButton>
-                  <DescriptionIcon /> New Blog Post
-                </SectionButton>
-              </Link>}
-            </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
+              <Components.DraftsList limit={5}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList
@@ -397,15 +362,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Link to={`${userGetProfileUrl(user)}/replies`}>
                 <SectionTitle title={"Comments"} />
               </Link>
-              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
+              <Components.RecentComments
+                terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                showPinnedOnProfile
+              />
             </SingleColumnSection>
           </AnalyticsContext>
 
-          {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
-            <SingleColumnSection className={classes.reportUserSection}>
-              <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
-            </SingleColumnSection>
-          }
+          <ReportUserButton user={user}/>
         </AnalyticsContext>
       </div>
     )

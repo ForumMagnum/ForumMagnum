@@ -4,20 +4,13 @@ const schema: SchemaType<DbBook> = {
 
   // default properties
 
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: () => new Date(),
-  },
-
   postedAt: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
     onInsert: () => new Date(),
   },
-  
+
   // Custom Properties
 
   title: {
@@ -90,7 +83,20 @@ const schema: SchemaType<DbBook> = {
     foreignKey: "Sequences",
     optional: true,
   },
-
+  displaySequencesAsGrid: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
+  hideProgressBar: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
   showChapters: {
     type: Boolean,
     optional: true,

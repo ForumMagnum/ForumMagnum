@@ -1,6 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import type { PartialDeep } from 'type-fest'
-import { themeMetadata } from '../themeNames';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -68,6 +66,12 @@ export const eaForumTheme: SiteThemeSpecification = {
     icon: {
       navigationSidebarIcon: shadePalette.greyAlpha(0.5),
       newAuthorIcon: '#009816'
+    },
+    border: {
+      primaryHighlight: '#88c9d4',
+      primaryHighlight2: '#bae2e8',
+      secondaryHighlight: '#aedba3',
+      secondaryHighlight2: '#d8edd3',
     }
   }),
   make: (palette: ThemePalette) => {

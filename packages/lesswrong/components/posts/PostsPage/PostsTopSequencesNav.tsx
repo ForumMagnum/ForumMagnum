@@ -7,7 +7,6 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { useHover } from '../../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

@@ -29,13 +29,6 @@ const formGroups: Partial<Record<string,FormGroup>> = {
 };
 
 const schema: SchemaType<DbLocalgroup> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['guests'],
-    onInsert: (document) => new Date(),
-  },
-
   name: {
     type: String,
     viewableBy: ['guests'],
@@ -105,8 +98,9 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     control: 'FormComponentMultiSelect',
-    placeholder: "Group type / intended audience",
+    placeholder: 'Select all that apply',
     form: {
+      label: "Group type / intended audience",
       options: GROUP_CATEGORIES
     },
     hidden: isLW,

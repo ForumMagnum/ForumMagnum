@@ -1,6 +1,6 @@
+import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useTheme } from '../themes/useTheme';
-import React, { useState } from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import CheckIcon from '@material-ui/icons/Check';

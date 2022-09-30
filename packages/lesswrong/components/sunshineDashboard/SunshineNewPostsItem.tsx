@@ -115,10 +115,10 @@ const SunshineNewPostsItem = ({post, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
+          <FooterTagList post={post} />
           <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
             setSelectedTags(selectedTags);
           }}/>
-          <FooterTagList post={post} />
           <div className={classes.buttonRow}>
               <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import {useEffect, useRef} from 'react';
 import {registerComponent} from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 

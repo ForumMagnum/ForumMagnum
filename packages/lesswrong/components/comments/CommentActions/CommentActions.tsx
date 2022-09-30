@@ -12,7 +12,10 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: ()=>void,
 }) => {
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment } = Components
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, 
+          BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem,
+          BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment,
+          PinToProfileMenuItem } = Components
   
   const { document: postDetails } = useSingle({
     skip: !post,
@@ -34,7 +37,8 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   
   return <>
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
-    {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
+    {post && (currentUser._id === comment.userId || currentUser.isAdmin) && <PinToProfileMenuItem comment={comment}/>}
+    {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) && 
       <NotifyMeButton asMenuItem document={post} showIcon
         subscriptionType={subscriptionTypes.newShortform}
         subscribeMessage={`Subscribe to ${post.title}`}

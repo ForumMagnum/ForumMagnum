@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, mapOptions, terms, keywordSearch, showHideMap, hideLegend, showUsers, petrovButton}: {
+const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, mapOptions, terms, keywordSearch, showHideMap, hideLegend, showUsersByDefault, showGroupsByDefault=true, petrovButton}: {
   className?: string,
   groupQueryTerms?: LocalgroupsViewTerms,
   currentUserLocation?: any,
@@ -11,7 +11,8 @@ const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, m
   terms?: PostsViewTerms,
   keywordSearch?: string,
   showHideMap?: boolean,
-  showUsers?: boolean,
+  showUsersByDefault?: boolean,
+  showGroupsByDefault?: boolean,
   petrovButton?: any,
 }) => {
   const { CommunityMap } = Components;
@@ -25,7 +26,8 @@ const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, m
       showHideMap={showHideMap}
       petrovButton={petrovButton}
       hideLegend={hideLegend}
-      showUsers={showUsers}
+      showUsersByDefault={showUsersByDefault}
+      showGroupsByDefault={showGroupsByDefault}
       {...mapOptions}
     />
   )

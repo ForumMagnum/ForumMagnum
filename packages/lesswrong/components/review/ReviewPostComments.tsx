@@ -46,12 +46,12 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
     limit: 5
   });
   
-  const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore, ContentStyles } = Components
+  const { Loading, CommentsList, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
   
   // TODO: This doesn't quite work yet. Not sure why - Ray
   const markAsRead = () => {
     recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
+    setMarkedVisitedAt(new Date())
   }
   
   const lastCommentId = results && results[0]?._id
@@ -93,7 +93,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
           forceSingleLine
         />
         : <div>
-          {results && results.map((comment) => <CommentWithReplies key={comment._id} comment={comment} post={post}/>)}
+          {results && results.map((comment) => <CommentOnPostWithReplies key={comment._id} comment={comment} post={post}/>)}
           <LoadMore {...loadMoreProps} />
         </div>}
       </SubSection>

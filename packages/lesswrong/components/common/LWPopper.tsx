@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useState} from 'react';
-import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';

@@ -59,6 +59,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
+  },
+  curated: {
+    marginTop: 12
   }
 });
 
@@ -67,6 +70,13 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
     return {
       method: haveCurrentUser ? 'sample' : 'top',
       count: haveCurrentUser ? 3 : 5
+    }
+  }
+  if (forumTypeSetting.get() === "LessWrong") {
+    return {
+      lwRationalityOnly: true,
+      method: 'sample',
+      count: haveCurrentUser ? 3 : 2
     }
   }
   return {
@@ -94,7 +104,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -126,92 +136,96 @@ const RecommendationsAndCurated = ({
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
+    const renderRecommendations = !settings.hideFrontpage
+
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
     return <SingleColumnSection className={classes.section}>
-      <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
-        <Link to={"/recommendations"}>Recommendations</Link>
-      </LWTooltip>}>
-        {currentUser &&
-          <LWTooltip title="Customize your recommendations">
-            <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
-          </LWTooltip>
-        }
-      </SectionTitle>
-
-      {showSettings &&
-        <RecommendationsAlgorithmPicker
-          configName={configName}
-          settings={frontpageRecommendationSettings}
-          onChange={(newSettings) => setSettings(newSettings)}
-        /> }
-
-      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
-        <div className={classes.largeScreenLoggedOutSequences}>
-          <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
-            <CuratedSequences />
-          </AnalyticsContext>
-        </div>
-        <div className={classes.smallScreenLoggedOutSequences}>
-          <ContinueReadingList continueReading={continueReading} />
-        </div>
-      </div>}
-
-      <div className={classes.subsection}>
-        <div className={classes.posts}>
-          {!settings.hideFrontpage && 
-            <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-              <RecommendationsList algorithm={frontpageRecommendationSettings} />
-            </AnalyticsContext>
+      <AnalyticsContext pageSectionContext="recommendations">
+        <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
+          <Link to={"/recommendations"}>Recommendations</Link>
+        </LWTooltip>}>
+          {currentUser &&
+            <LWTooltip title="Customize your recommendations">
+              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
+            </LWTooltip>
           }
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2
-              terms={{view:"curated", limit: currentUser ? 3 : 2}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              curatedIconLeft={true}
-            />
-          </AnalyticsContext>
-        </div>
-      </div>
+        </SectionTitle>
 
-      {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
-          <LWTooltip placement="top-start" title={continueReadingTooltip}>
-            <Link to={"/library"}>
-              <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
-                 Continue Reading
-              </SectionSubtitle>
-            </Link>
-          </LWTooltip>
-          <ContinueReadingList continueReading={continueReading} />
+        {showSettings &&
+          <RecommendationsAlgorithmPicker
+            configName={configName}
+            settings={frontpageRecommendationSettings}
+            onChange={(newSettings) => setSettings(newSettings)}
+          /> }
+
+        {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+          <CurrentSpotlightItem />
+        </AnalyticsContext>}
+  
+        {/*Delete after the dust has settled on other Recommendations stuff*/}
+        {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
+        {/* <div className={classes.largeScreenLoggedOutSequences}>
+            <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+              <CuratedSequences />
+            </AnalyticsContext>
+          </div>
+          <div className={classes.smallScreenLoggedOutSequences}>
+            <ContinueReadingList continueReading={continueReading} />
+          </div> */}
         </div>}
 
-      {renderBookmarks && <div className={classes.subsection}>
-        <LWTooltip placement="top-start" title={bookmarksTooltip}>
-          <Link to={"/bookmarks"}>
-            <SectionSubtitle>
-              Bookmarks
-            </SectionSubtitle>
-          </Link>
-        </LWTooltip>
-        <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
-        </AnalyticsContext>
-      </div>}
-
-      {/* disabled except during review */}
-      {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
-        <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
-      </AnalyticsContext> */}
-
-      {/* disabled except during coronavirus times */}
-      {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
         <div className={classes.subsection}>
-          <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
+          <div className={classes.posts}>
+            {renderRecommendations && 
+              <AnalyticsContext listContext="frontpageFromTheArchives" pageSubSectionContext="frontpageFromTheArchives" capturePostItemOnMount>
+                <RecommendationsList algorithm={frontpageRecommendationSettings} />
+              </AnalyticsContext>
+            }
+            {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
+              <CuratedPostsList />
+            </div>}
+          </div>
         </div>
-      </AnalyticsContext> */}
+
+        {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
+          <AnalyticsContext pageSubSectionContext="continueReading">
+            <LWTooltip placement="top-start" title={continueReadingTooltip}>
+              <Link to={"/library"}>
+                <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
+                  Continue Reading
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            <ContinueReadingList continueReading={continueReading} />
+          </AnalyticsContext>
+        </div>}
+
+        {renderBookmarks && <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="frontpageBookmarksList" listContext={"frontpageBookmarksList"} capturePostItemOnMount>
+            <LWTooltip placement="top-start" title={bookmarksTooltip}>
+              <Link to={"/bookmarks"}>
+                <SectionSubtitle>
+                  Bookmarks
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
+          </AnalyticsContext>
+        </div>}
+
+        {/* disabled except during review */}
+        {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
+          <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
+        </AnalyticsContext> */}
+
+        {/* disabled except during coronavirus times */}
+        {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
+          <div className={classes.subsection}>
+            <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
+          </div>
+        </AnalyticsContext> */}
+      </AnalyticsContext>
     </SingleColumnSection>
   }
 

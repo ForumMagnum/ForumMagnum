@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -101,10 +102,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   promoted: {
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
-  }
+  },
+  isPinnedOnProfile: {
+    borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
+    borderImageSlice: '1',
+    '&.CommentFrame-isAnswer': {
+      borderImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
+      borderImageSlice: '1',
+    }
+  },
 });
 
-const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, children, classes}: {
+const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, showPinnedOnProfile, children, classes}: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any)=>void,
@@ -119,6 +128,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
   isReplyToAnswer?: boolean,
   hoverPreview?: boolean,
   shortform?: boolean,
+  showPinnedOnProfile?: boolean,
   
   children: React.ReactNode,
   classes: ClassesType,
@@ -135,6 +145,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
+      [classes.isPinnedOnProfile]: forumTypeSetting.get() === 'EAForum' && showPinnedOnProfile && comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,

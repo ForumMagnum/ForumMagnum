@@ -5,6 +5,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import { useItemsRead } from '../common/withRecordPostView';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -20,7 +21,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   read: {
     width: 12,
-    color: theme.palette.primary.light,
+    color: forumTypeSetting.get() === "EAForum"
+      ? theme.palette.primary.main
+      : theme.palette.primary.light,
     marginRight: 10,
     position: "relative",
     top: -1
