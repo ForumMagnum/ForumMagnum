@@ -4,13 +4,17 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "#aaa", //TODO
-    border: "1px solid black", //TODO
+    background: theme.palette.panelBackground.darken03,
+    borderRadius: 8,
+    color: theme.palette.icon.dim,
     position: "absolute",
-    zIndex: 10000, //TODO
+    zIndex: theme.zIndexes.lwPopper,
     padding: 8,
-    marginTop: -32,
-    marginLeft: -32,
+    cursor: "pointer",
+    
+    "&:hover": {
+      background: theme.palette.panelBackground.darken08,
+    },
   },
   commentIcon: {
   },
@@ -46,15 +50,12 @@ const CommentOnSelectionPageWrapper = ({children}: {
       }
       
       // Determine whether this selection is fully wrapped in a single CommentOnSelectionWrapper
-      let commonWrapper: Node|null = null;
+      let commonWrapper: HTMLElement|null = null;
       let hasCommonWrapper = true;
       for (let i=0; i<selection.rangeCount; i++) {
         const range = selection.getRangeAt(i);
         const container = range.commonAncestorContainer;
-        const wrapper = nearestAncestorElementWith(
-          container,
-          n=>!!((n as any).onClickComment)
-        );
+        const wrapper = findAncestorElementWithCommentOnSelectionWrapper(container);
         if (commonWrapper) {
           if (container !== commonWrapper) {
             hasCommonWrapper = false;
@@ -64,12 +65,21 @@ const CommentOnSelectionPageWrapper = ({children}: {
         }
       }
       
+      if (!commonWrapper || !hasCommonWrapper) {
+        setToolbarState({open: false});
+        return;
+      }
+      
       // Get the bounding box of the selection
-      const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
+      const selectionBoundingRect = selection.getRangeAt(0).getBoundingClientRect();
+      const wrapperBoundingRect = commonWrapper.getBoundingClientRect();
       
       // Place the toolbar
-      const x = boundingRect.x + (boundingRect.width/2) + window.scrollX;
-      const y = boundingRect.y + window.scrollY;
+      //const x = selectionBoundingRect.x + (selectionBoundingRect.width/2) + window.scrollX;
+      const x = window.scrollX + Math.max(
+        selectionBoundingRect.x + selectionBoundingRect.width,
+        wrapperBoundingRect.x + wrapperBoundingRect.width);
+      const y = selectionBoundingRect.y + window.scrollY;
       setToolbarState({open: true, x,y});
     };
     document.addEventListener('selectionchange', selectionChangedHandler);
@@ -84,10 +94,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
     if (!firstSelectedNode) {
       return;
     }
-    const contentWrapper = nearestAncestorElementWith(
-      firstSelectedNode,
-      n=>!!((n as any).onClickComment)
-    );
+    const contentWrapper = findAncestorElementWithCommentOnSelectionWrapper(firstSelectedNode);
     if (!contentWrapper) {
       return;
     }
@@ -138,12 +145,22 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   </span>
 }
 
-function nearestAncestorElementWith(start: Node, fn: (node: Node)=>boolean): Node|null {
-  let pos: Node|null = start;
+function nearestAncestorElementWith(start: Node|null, fn: (node: Node)=>boolean): HTMLElement|null {
+  if (!start)
+    return null;
+  
+  let pos: HTMLElement|null = start.parentElement;
   while(pos && !fn(pos)) {
     pos = pos.parentElement;
   }
   return pos;
+}
+
+function findAncestorElementWithCommentOnSelectionWrapper(start: Node): HTMLElement|null {
+  return nearestAncestorElementWith(
+    start,
+    n=>!!((n as any).onClickComment)
+  );
 }
 
 
