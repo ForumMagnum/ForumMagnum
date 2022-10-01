@@ -631,6 +631,7 @@ importComponent("PrefixedInput", () => require('../components/form-components/Pr
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 
 importComponent(["CommentOnSelectionPageWrapper","SelectedTextToolbar","CommentOnSelectionContentWrapper"], () => require('../components/comments/CommentOnSelection'));
+importComponent("PopupCommentEditor", () => require('../components/comments/PopupCommentEditor'));
 
 importComponent("HomepageCommunityMap", () => require('../components/seasonal/HomepageMap/HomepageCommunityMap'));
 importComponent("HomepageMapFilter", () => require('../components/seasonal/HomepageMap/HomepageMapFilter'));
