@@ -98,9 +98,9 @@ const CommentOnSelectionPageWrapper = ({children}: {
     if (!contentWrapper) {
       return;
     }
-    const selection = document.getSelection();
-    const selectionText = selection+"";
-    (contentWrapper as any).onClickComment(selectionText);
+    const selectionHtml = selectionToBlockquoteHTML(document.getSelection());
+    // This HTML is XSS-safe because it's copied from somewhere that was already in the page as HTML, and is copied in a way that is syntax-aware throughout.
+    (contentWrapper as any).onClickComment(selectionHtml);
   }
   
   return <CommentOnSelectionContext.Provider value={{}}>
@@ -163,6 +163,17 @@ function findAncestorElementWithCommentOnSelectionWrapper(start: Node): HTMLElem
   );
 }
 
+function selectionToBlockquoteHTML(selection: Selection|null): string {
+  if (!selection || !selection.rangeCount)
+    return "";
+  
+  var container = document.createElement("div");
+  for (let i=0; i<selection.rangeCount; i++) {
+    container.appendChild(selection.getRangeAt(i).cloneContents());
+  }
+  const selectedHTML = container.innerHTML;
+  return `<blockquote>${selectedHTML}</blockquote><p></p>`;
+}
 
 
 const CommentOnSelectionPageWrapperComponent = registerComponent('CommentOnSelectionPageWrapper', CommentOnSelectionPageWrapper);

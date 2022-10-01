@@ -228,11 +228,11 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
   
-  const onClickCommentOnSelection = useCallback((text: string) => {
+  const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
       componentName:"ReplyCommentDialog",
       componentProps: {
-        post, initialText: text
+        post, initialHtml: html
       },
       noClickawayCancel: true,
     })

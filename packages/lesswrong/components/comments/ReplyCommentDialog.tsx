@@ -4,9 +4,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const ReplyCommentDialog = ({post, initialText, onClose, classes}: {
+const ReplyCommentDialog = ({post, initialHtml, onClose, classes}: {
   post: PostsList,
-  initialText: string, //TODO
+  initialHtml: string,
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
@@ -17,6 +17,14 @@ const ReplyCommentDialog = ({post, initialText, onClose, classes}: {
     onClose={onClose}
     commentFormProps={{
       post: post,
+      prefilledProps: {
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: initialHtml,
+          }
+        },
+      },
     }}
   />
 }
