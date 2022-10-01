@@ -458,6 +458,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& hr': {
           ...hrStyles(theme)
         },
+        '& ol, & ul': {
+          listStyleType: "revert !important",
+        },
       },
       '& .ck-placeholder:before': {
         whiteSpace: 'break-spaces'
@@ -515,9 +518,6 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           display: "none"
         },
         '--ck-color-comment-count': theme.palette.primary.main,
-        '& ol, & ul': {
-          listStyleType: "revert !important",
-        }
       },
       
       "--ck-color-base-background": theme.palette.editor.commentPanelBackground,
