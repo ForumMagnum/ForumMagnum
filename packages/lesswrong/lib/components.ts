@@ -143,6 +143,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
+importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
@@ -567,6 +568,7 @@ importComponent("SequencesPost", () => require('../components/sequences/Sequence
 importComponent("SequencesGridItem", () => require('../components/sequences/SequencesGridItem'));
 importComponent("LargeSequencesItem", () => require('../components/sequences/LargeSequencesItem'));
 importComponent("SequencesHoverOver", () => require('../components/sequences/SequencesHoverOver'));
+importComponent("ChapterTitle", () => require('../components/sequences/ChapterTitle')); 
 importComponent("SequencesSmallPostLink", () => require('../components/sequences/SequencesSmallPostLink'));
 importComponent("ChaptersItem", () => require('../components/sequences/ChaptersItem'));
 importComponent("ChaptersList", () => require('../components/sequences/ChaptersList'));
@@ -668,7 +670,12 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
-importComponent("CuratedContentItem", () => require('../components/recommendations/CuratedContentItem'));
+importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
+importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
+importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
+importComponent("SpotlightStartOrContinueReading", () => require('../components/spotlights/SpotlightStartOrContinueReading'));
+importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
+importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

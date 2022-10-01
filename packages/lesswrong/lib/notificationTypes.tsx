@@ -289,7 +289,8 @@ export const PostSharedWithUserNotification = registerNotificationType({
   mustBeEnabled: true,
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost;
-    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+    const name = await postGetAuthorName(document);
+    return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -382,6 +383,20 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
+export const NewSubforumMemberNotification = registerNotificationType({
+  name: "newSubforumMember",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'user') throw new Error("documentType must be user")
+    const newUser = await Users.findOne(documentId)
+    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
+    return `A new user has joined your subforum: ${newUser.displayName}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />

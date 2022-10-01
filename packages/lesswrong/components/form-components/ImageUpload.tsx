@@ -17,6 +17,7 @@ const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('c
 const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
+const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -80,6 +81,12 @@ const cloudinaryArgsByImageType = {
     minImageWidth: 480,
     cropping: false,
     uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
+  },
+  spotlightImageId: {
+    minImageHeight: 232,
+    minImageWidth: 345,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
   }
 }
 
@@ -103,6 +110,10 @@ const formPreviewSizeByImageType = {
   eventImageId: {
     width: 320,
     height: 180
+  },
+  spotlightImageId: {
+    width: 345,
+    height: 234
   }
 }
 

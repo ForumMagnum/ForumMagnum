@@ -11,7 +11,7 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
-import { TagCommentType } from '../comments/schema';
+import { TagCommentType } from '../comments/helpers';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -463,6 +463,26 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  subforumModeratorIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "subforumModeratorIds",
+      resolverName: "subforumModerators",
+      collectionName: "Users",
+      type: "User",
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    control: "UsersListEditor",
+    label: "Subforum Moderators",
+  },
+  'subforumModeratorIds.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true,
   },
   parentTagId: {
     ...foreignKeyField({
