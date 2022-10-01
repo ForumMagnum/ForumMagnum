@@ -48,6 +48,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * PopupCommentEditor: A floating comment editor. Used when you click the
+ * comment button on a selected-text toolbar, and for writing reviews in the
+ * LW yearly review. Provides styling, and should be combined with a wrapper
+ * like `ReplyCommentDialog` and created with `openDialog`.
+ *
+ * title: Shown in a title-bar above the comment editor
+ * guidelines: (Optional) Shown above the comment editor, below the titlebar,
+ *   styled as part of the window content.
+ * commentFormProps: Passed through to CommentsNewForm. Used for things like
+ *   specifying what post the comment is on, and prefilling props.
+ * onClose: Called when the window is closed.
+ */
 const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,

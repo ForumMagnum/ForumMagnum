@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@material-ui/icons/ModeComment';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
-  root: {
+  toolbar: {
     background: theme.palette.panelBackground.darken03,
     borderRadius: 8,
     color: theme.palette.icon.dim,
@@ -16,22 +16,29 @@ const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.panelBackground.darken08,
     },
   },
-  commentIcon: {
-  },
 });
-
-// CommentOnSelectionPageWrapper is used in Layout, and wraps the whole page
-// CommentOnSelectionContentWrapper wraps elements in which the content is selectable
-
-interface CommentOnSelectionContextType {
-}
-
-export const CommentOnSelectionContext = React.createContext<CommentOnSelectionContextType|null>(null);
 
 type SelectedTextToolbarState =
     {open: false}
   | {open: true, x: number, y: number}
 
+/**
+ * CommentOnSelectionPageWrapper: Wrapper around the entire page (used in
+ * Layout) which adds event handlers to text-selection. If the selected range is
+ * entirely wrapped in a CommentOnSelectionWrapper (in practice: is a post-body
+ * on a post-page), places a floating comment button in the margin to the right.
+ * When clicked, takes the selected content (HTML), wraps it in <blockquote>,
+ * and calls the onClickComment function that was passed to the
+ * CommentOnSelectionWrapper. (That function, defined as part of PostsPage,
+ * opens a floating comment editor prepopulated with the blockquote.)
+ *
+ * The CommentOnSelectionWrapper is found by walking up the DOM until we find
+ * an HTML element with onClickComment monkeypatched onto it. Placement of the
+ * toolbar button is done with coordinate-math.
+ *
+ * If there's no space in the right margin (eg on mobile), adding the button
+ * might introduce horizontal scrolling.
+ */
 const CommentOnSelectionPageWrapper = ({children}: {
   children: React.ReactNode
 }) => {
@@ -75,7 +82,6 @@ const CommentOnSelectionPageWrapper = ({children}: {
       const wrapperBoundingRect = commonWrapper.getBoundingClientRect();
       
       // Place the toolbar
-      //const x = selectionBoundingRect.x + (selectionBoundingRect.width/2) + window.scrollX;
       const x = window.scrollX + Math.max(
         selectionBoundingRect.x + selectionBoundingRect.width,
         wrapperBoundingRect.x + wrapperBoundingRect.width);
@@ -103,28 +109,45 @@ const CommentOnSelectionPageWrapper = ({children}: {
     (contentWrapper as any).onClickComment(selectionHtml);
   }
   
-  return <CommentOnSelectionContext.Provider value={{}}>
+  return <>
     {children}
     {toolbarState.open && <SelectedTextToolbar
       onClickComment={onClickComment}
       x={toolbarState.x} y={toolbarState.y}
     />}
-  </CommentOnSelectionContext.Provider>
+  </>
 }
 
+/**
+ * SelectedTextToolbar: The toolbar that pops up when you select content inside
+ * a post. Consists of just a comment button, which opens a floating comment
+ * editor. Created as a dialog by CommentOnSelectionPageWrapper.
+ *
+ * onClickComment: Called when the comment button is clicked
+ * x, y: In the page coordinate system, ie, relative to the top-left corner when
+ *   the page is scrolled to the top.
+ */
 const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
   onClickComment: (ev)=>void,
   x: number, y: number,
   classes: ClassesType,
 }) => {
-  return <div className={classes.root} style={{left: x, top: y}}>
-    <CommentIcon className={classes.commentIcon} onClick={ev => onClickComment(ev)}/>
+  return <div className={classes.toolbar} style={{left: x, top: y}}>
+    <CommentIcon onClick={ev => onClickComment(ev)}/>
   </div>
 }
 
 
+/**
+ * CommentOnSelectionContentWrapper: Marks the contents inside it so that when
+ * you highlight text, a floating comment button appears in the right margin.
+ * When that button is clicked, calls onClickComment with the selected content,
+ * wrapped in <blockquote>.
+ *
+ * See CommentOnSelectionPageWrapper for notes on implementation details.
+ */
 const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
-  onClickComment: (text: string)=>void,
+  onClickComment: (html: string)=>void,
   children: React.ReactNode,
 }) => {
   const wrapperSpanRef = useRef<HTMLSpanElement|null>(null);
@@ -145,7 +168,14 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   </span>
 }
 
-function nearestAncestorElementWith(start: Node|null, fn: (node: Node)=>boolean): HTMLElement|null {
+/**
+ * Starting from an HTML node, climb the tree until one is found which matches
+ * the given function. Returns the deepest matching element, or null if no
+ * match.
+ *
+ * Client-side only.
+ */
+function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement)=>boolean): HTMLElement|null {
   if (!start)
     return null;
   
@@ -156,6 +186,13 @@ function nearestAncestorElementWith(start: Node|null, fn: (node: Node)=>boolean)
   return pos;
 }
 
+/**
+ * Starting from an HTML node, climb the tree until one is found which
+ * corresponds to a CommentOnSelectionContentWrapper component, ie, one with an
+ * onClickComment function attached.
+ *
+ * Client-side only.
+ */
 function findAncestorElementWithCommentOnSelectionWrapper(start: Node): HTMLElement|null {
   return nearestAncestorElementWith(
     start,
@@ -163,6 +200,14 @@ function findAncestorElementWithCommentOnSelectionWrapper(start: Node): HTMLElem
   );
 }
 
+/**
+ * selectionToBlockquoteHTML: Given a selection (this is a browser API, returned
+ * from document.getSelection()), return the selected content, wrapped in a
+ * blockquote. The resulting HTML is XSS-safe because it was already present in
+ * the document as HTML.
+ *
+ * Client-side only.
+ */
 function selectionToBlockquoteHTML(selection: Selection|null): string {
   if (!selection || !selection.rangeCount)
     return "";
