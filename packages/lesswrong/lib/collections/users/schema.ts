@@ -1009,10 +1009,11 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    label: 'Delete this user',
+    canUpdate: ['members', 'admins'],
+    label: 'Deactivate',
+    tooltip: "Your posts will be marked as '[Anonymous]'. (They will still be visible so other commenters' content and context will be preserved)",
     control: 'checkbox',
-    group: formGroups.adminOptions,
+    group: formGroups.deactivate,
   },
 
   // voteBanned: All future votes of this user have weight 0
