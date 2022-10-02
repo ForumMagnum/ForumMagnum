@@ -35,7 +35,7 @@ addCronJob({
     // If we have any further spotlight items after the current one, promote the next one
     // Otherwise, roll over to the start
     const promoteIndex = lastSpotlightPosition > currentSpotlightPosition
-      ? positionAscOrderedSpotlights.indexOf(lastSpotlightByPosition) + 1
+      ? positionAscOrderedSpotlights.indexOf(currentSpotlight) + 1
       : 0;
 
     const { position: positionToPromote } = positionAscOrderedSpotlights[promoteIndex];

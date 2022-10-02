@@ -2603,30 +2603,24 @@ interface UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly position: number,
-  readonly lastPromotedAt: Date,
-  readonly draft: boolean,
-  readonly spotlightImageId: string | null,
   readonly duration: number,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly lastPromotedAt: Date,
+  readonly draft: boolean,
+  readonly spotlightImageId: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly spotlightImageId: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
-  readonly customTitle: string | null,
-  readonly customSubtitle: string | null,
-  readonly duration: number,
-}
-
-interface SpotlightTest { // fragment on Spotlights
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
   readonly duration: number,
@@ -2635,7 +2629,6 @@ interface SpotlightTest { // fragment on Spotlights
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly document: SpotlightDisplay_document,
   readonly description: SpotlightDisplay_description|null,
-  readonly firstPost: SpotlightDisplay_firstPost|null,
 }
 
 interface SpotlightDisplay_document { // fragment on Posts
@@ -2646,12 +2639,6 @@ interface SpotlightDisplay_document { // fragment on Posts
 
 interface SpotlightDisplay_description { // fragment on Revisions
   readonly html: string,
-}
-
-interface SpotlightDisplay_firstPost { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
 }
 
 interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2827,7 +2814,6 @@ interface FragmentTypes {
   UserVotes: UserVotes
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
-  SpotlightTest: SpotlightTest
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -2991,7 +2977,6 @@ interface CollectionNamesByFragmentName {
   UserVotes: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
-  SpotlightTest: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SuggestAlignmentComment: "Comments"
