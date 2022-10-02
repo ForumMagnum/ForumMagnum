@@ -1011,7 +1011,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     canUpdate: ['members', 'admins'],
     label: 'Deactivate',
-    tooltip: "Your posts will be marked as '[Anonymous]'. (They will still be visible so other commenters' content and context will be preserved)",
+    tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
     group: formGroups.deactivate,
   },
