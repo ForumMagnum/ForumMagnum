@@ -39,8 +39,9 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   }
   
   const removeTag = (id: string) => {
-    if (value.includes(id))
+    if (value.includes(id)) {
       updateCurrentValues({ [path]: value.filter(tag => tag !== id) })
+    }
   }
 
   return (

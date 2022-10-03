@@ -33,6 +33,7 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
       'postedAt',
+      'searchable(tags)',
     ],
     attributesToHighlight: ['authorDisplayName'],
     attributesToSnippet: ['body:20'],
@@ -104,7 +105,9 @@ export const algoliaConfigureIndexes = async () => {
     ],
     attributesForFaceting: [
       'filterOnly(af)',
+      'searchable(tags)',
     ],
+    attributesToSnippet: ['bio:20','howICanHelpOthers:20','howOthersCanHelpMe:20'],
     advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(sequencesIndex, {
@@ -131,6 +134,9 @@ export const algoliaConfigureIndexes = async () => {
       'typo','geo','words','filters','proximity','attribute','exact',
       'desc(core)',
       'desc(postCount)',
+    ],
+    attributesForFaceting: [
+      'filterOnly(isSubforum)',
     ],
     distinct: false,
     attributesToSnippet: ['description:10'],

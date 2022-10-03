@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@material-ui/icons/Person';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
+import { Snippet } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -11,13 +12,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2,
     paddingBottom: 2,
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   icon: {
     width: 20,
     color: theme.palette.grey[500],
     marginRight: 12,
     marginLeft: 4
+  },
+  displayName: {
+    color: theme.palette.grey[800],
+    fontWeight: 600,
+  },
+  snippet: {
+    overflowWrap: "break-word",
+    fontFamily: theme.typography.fontFamily,
+    wordBreak: "break-word",
+    color: theme.palette.grey[600],
   }
 })
 
@@ -32,13 +43,14 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   showIcon?: boolean
 }) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
-  const user = hit as AlgoliaUser;
+  const user = hit as AlgoliaUser
+
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="User">
       <PersonIcon className={classes.icon} />
     </LWTooltip>}
     <Link to={userGetProfileUrl(user)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
-      <MetaInfo>
+      <MetaInfo className={classes.displayName}>
         {user.displayName}
       </MetaInfo>
       <MetaInfo>
@@ -47,6 +59,9 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
       <MetaInfo>
         {user.karma||0} karma
       </MetaInfo>
+      <div className={classes.snippet}>
+        <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark" />
+      </div>
     </Link>
   </div>
 }

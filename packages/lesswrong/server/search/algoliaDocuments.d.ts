@@ -19,6 +19,7 @@ interface AlgoliaComment {
   postId?: string,
   postTitle?: string,
   postSlug?: string,
+  tags: Array<string>,
   body: string,
 }
 
@@ -54,7 +55,8 @@ interface AlgoliaUser {
     lat: number,
     lng: number
   },
-  mapLocationAddress?: string
+  mapLocationAddress?: string,
+  tags: Array<string>,
 }
 
 interface AlgoliaPost {
@@ -95,5 +97,6 @@ interface AlgoliaTag {
   suggestedAsFilter: boolean,
   postCount: number,
   wikiOnly: boolean,
+  isSubforum: boolean,
   description: string,
 }

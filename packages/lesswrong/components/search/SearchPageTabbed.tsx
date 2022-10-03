@@ -1,40 +1,67 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements, Pagination, connectStateResults, RefinementList } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStateResults, connectRefinementList, ToggleRefinement } from 'react-instantsearch-dom';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
-import { useLocation } from '../../lib/routeUtil';
-import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import qs from 'qs';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     maxWidth: 1200,
+    display: 'flex',
+    columnGap: 40,
+    padding: '0 10px',
     margin: "auto",
     [theme.breakpoints.down('sm')]: {
+      display: 'block',
       paddingTop: 24,
     }
   },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: 8,
+  filtersColumn: {
+    flex: 'none',
+    width: 250,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[800],
+    paddingTop: 12,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
+    '& .ais-ToggleRefinement-label': {
+      display: 'flex',
+      columnGap: 6,
+      alignItems: 'center',
+      marginTop: 10
+    }
   },
-  // columns: {
-  //   display: "flex",
-  //   justifyContent: "space-around",
-  //   flexWrap: "wrap"
-  // },
+  filtersHeadline: {
+    marginBottom: 18
+  },
+  resultsColumn: {
+    flex: '1 1 0',
+  },
   
   tabs: {
-    // maxWidth: 634,
-    margin: '0 auto 40px',
+    margin: '0 auto 30px',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 20
+    },
+    '& .MuiTab-root': {
+      minWidth: 110,
+      [theme.breakpoints.down('xs')]: {
+        minWidth: 50
+      }
+    },
     '& .MuiTab-labelContainer': {
       fontSize: '1rem'
     }
   },
+  
   // searchList: {
   //   // width: 300,
   //   [theme.breakpoints.down('sm')]: {
@@ -68,18 +95,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   searchInputArea: {
     display: "flex",
     alignItems: "center",
-    margin: "auto",
-    width: 625,
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: 24,
+    maxWidth: 625,
     marginBottom: 30,
     height: 48,
     border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
     [theme.breakpoints.down('xs')]: {
-      width: "100%",
-      marginTop: 12,
       marginBottom: 12,
     },
     "& .ais-SearchBox": {
@@ -90,7 +111,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 46,
       whiteSpace: 'nowrap',
       boxSizing: 'border-box',
-      fontSize: 14,
     },
     "& .ais-SearchBox-form": {
       height: '100%'
@@ -111,6 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
+      ...theme.typography.body2,
     },
   },
   pagination: {
@@ -135,19 +156,39 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const RefinementList = ({
+  items,
+  searchForItems,
+  refine,
+  createURL,
+}) => {
+  return <Components.TagMultiselect
+    value={items.filter(i => i.isRefined).map(i => i.label)}
+    path="tags"
+    placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
+    updateCurrentValues={(val) => {
+      console.log('createURL', createURL(val.tags))
+      refine(val.tags)
+    }}
+  />
+}
+
+const CustomRefinementList = connectRefinementList(RefinementList)
+
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
-  const [tab, setTab] = useState('posts')
+  const { history } = useNavigation()
+  const { location, query } = useLocation()
+
+  const [tab, setTab] = useState<AlgoliaIndexCollectionName>(query.contentType ?? 'Posts')
+  const [tagsFilter, setTagsFilter] = useState([])
 
   const { ErrorBoundary, UsersSearchHit, PostsSearchHit, CommentsSearchHit, TagsSearchHit, SequencesSearchHit, Typography } = Components
-
-  const {query} = useLocation()
   
   const handleChangeTab = (e, value) => {
     setTab(value)
-    // setKeywordSearch('')
-    // history.replace({...location, hash: `#${value}`})
+    history.replace({...location, search: qs.stringify({contentType: value})})
   }
 
   if (!isAlgoliaEnabled()) {
@@ -155,6 +196,16 @@ const SearchPageTabbed = ({classes}:{
       Search is disabled (Algolia App ID not configured on server)
     </div>
   }
+  
+  const hitComponents = {
+    'Posts': PostsSearchHit,
+    'Comments': CommentsSearchHit,
+    'Tags': TagsSearchHit,
+    'Sequences': SequencesSearchHit,
+    'Users': UsersSearchHit
+  }
+  const HitComponent = hitComponents[tab]
+  
   
   const hitsPerPage = 15
   
@@ -174,9 +225,25 @@ const SearchPageTabbed = ({classes}:{
 
   return <div className={classes.root}>
     <InstantSearch
-      indexName={getAlgoliaIndexName("Posts")}
+      indexName={getAlgoliaIndexName(tab)}
       searchClient={getSearchClient()}
     >
+    <div className={classes.filtersColumn}>
+      <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
+      {['Posts', 'Comments', 'Users'].includes(tab) && <CustomRefinementList attribute="tags" />}
+      {tab === 'Posts' && <ToggleRefinement
+        attribute="curated"
+        label="Curated"
+        value={true}
+      />}
+      {tab === 'Tags' && <ToggleRefinement
+        attribute="isSubforum"
+        label="Has subforum"
+        value={true}
+      />}
+    </div>
+
+    <div className={classes.resultsColumn}>
       <div className={classes.searchInputArea}>
         <SearchIcon className={classes.searchIcon}/>
         {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
@@ -184,72 +251,32 @@ const SearchPageTabbed = ({classes}:{
          // @ts-ignore */}
         <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
       </div>
-      <CurrentRefinements />
-      <RefinementList attribute="tags" searchable />
       
-      <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} textColor="primary" centered aria-label="select content type to search">
-        <Tab label="Posts" value="posts" />
-        <Tab label="Comments" value="comments" />
-        <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="tags" />
-        <Tab label="Sequences" value="sequences" />
-        <Tab label="Users" value="users" />
+      <Tabs
+        value={tab}
+        onChange={handleChangeTab}
+        className={classes.tabs}
+        textColor="primary"
+        aria-label="select content type to search"
+        scrollable
+        scrollButtons="off"
+      >
+        <Tab label="Posts" value="Posts" />
+        <Tab label="Comments" value="Comments" />
+        <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
+        <Tab label="Sequences" value="Sequences" />
+        <Tab label="Users" value="Users" />
       </Tabs>
       
-      {tab === 'posts' && <ErrorBoundary>
+      <ErrorBoundary>
         <div className={classes.searchList}>
-          <Index indexName={getAlgoliaIndexName("Posts")}>
-            
             <Configure hitsPerPage={hitsPerPage} />
-            <Hits hitComponent={(props) => <PostsSearchHit {...props} />} />
+            <Hits hitComponent={(props) => <HitComponent {...props} />} />
             <Pagination showLast className={classes.pagination} />
             <CustomStateResults />
-          </Index>
         </div>
-      </ErrorBoundary>}
-      
-      {tab === 'comments' && <ErrorBoundary>
-        <div className={classes.searchList}>
-          <Index indexName={getAlgoliaIndexName("Comments")}>
-            <Configure hitsPerPage={hitsPerPage} />
-            <Hits hitComponent={(props) => <CommentsSearchHit {...props} />} />
-            <Pagination showLast className={classes.pagination} />
-            <CustomStateResults />
-          </Index>
-        </div>
-      </ErrorBoundary>}
-      
-      {tab === 'tags' && <ErrorBoundary>
-        <div className={classes.tagsList}>
-          <Index indexName={getAlgoliaIndexName("Tags")}>
-            <Configure hitsPerPage={hitsPerPage} />
-            <Hits hitComponent={(props) => <TagsSearchHit {...props} />} />
-            <Pagination showLast className={classes.pagination} />
-            <CustomStateResults />
-          </Index>
-        </div>
-      </ErrorBoundary>}
-      
-      {tab === 'sequences' && <ErrorBoundary>
-        <div className={classes.tagsList}>
-          <Index indexName={getAlgoliaIndexName("Sequences")}>
-            <Configure hitsPerPage={hitsPerPage} />
-            <Hits hitComponent={(props) => <SequencesSearchHit {...props} />} />
-            <Pagination showLast className={classes.pagination} />
-            <CustomStateResults />
-          </Index>
-        </div>
-      </ErrorBoundary>}
-        
-      {tab === 'users' && <ErrorBoundary>
-        <div className={classes.usersList}>
-          <Index indexName={getAlgoliaIndexName("Users")}>
-            <Configure hitsPerPage={hitsPerPage} />
-            <Hits hitComponent={(props) => <UsersSearchHit {...props} />} />
-            <Pagination showLast className={classes.pagination} />
-            <CustomStateResults />
-          </Index>
-        </div>
-      </ErrorBoundary>}
+      </ErrorBoundary>
+    </div>
     </InstantSearch>
   </div>
 }

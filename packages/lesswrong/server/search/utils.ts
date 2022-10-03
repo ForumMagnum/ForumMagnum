@@ -46,6 +46,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
     af: comment.af,
+    tags: comment.tagId ? [comment.tagId] : [],
     body: "",
   };
   const commentAuthor = await Users.findOne({_id: comment.userId});
@@ -59,6 +60,10 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     algoliaComment.postId = comment.postId;
     algoliaComment.postTitle = parentPost.title;
     algoliaComment.postSlug = parentPost.slug;
+    const tags = parentPost.tagRelevance ?
+      Object.entries(parentPost.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+      : []
+    algoliaComment.tags = tags
   }
   let body = ""
   if (comment.contents?.originalContents?.type) {
@@ -140,6 +145,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     website: user.website,
     groups: user.groups,
     af: user.groups && user.groups.includes('alignmentForum'),
+    tags: user.profileTagIds,
     ...(user.mapLocation?.geometry?.location?.lat && {_geoloc: {
       lat: user.mapLocation.geometry.location.lat,
       lng: user.mapLocation.geometry.location.lng,
@@ -243,9 +249,10 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
     wikiOnly: tag.wikiOnly,
+    isSubforum: tag.isSubforum,
     description,
   }];
-} 
+}
 
 
 // Do algoliaIndex.waitTask as an async function rather than a
