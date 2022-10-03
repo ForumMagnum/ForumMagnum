@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useNamedMutation } from '../../../lib/crud/withMutation';
-import { userCanDo, userIsMemberOf, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
