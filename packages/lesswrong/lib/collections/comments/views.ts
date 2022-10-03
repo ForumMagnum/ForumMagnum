@@ -23,7 +23,6 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     reviewYear?: ReviewYear
-    allowSideEffects?: boolean
   }
 }
 
@@ -504,7 +503,7 @@ Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   },
 }));
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting, allowSideEffects=true}: CommentsViewTerms, _, context?: ResolverContext) => {
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
