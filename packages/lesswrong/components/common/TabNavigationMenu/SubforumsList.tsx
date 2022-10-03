@@ -43,9 +43,7 @@ const SubforumsList = ({ onClick, classes }) => {
     fetchPolicy: 'cache-and-network',
   })
   
-  console.log("results before", results)
   if (!results || !results.length) return <></>
-  console.log("results after", results)
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
