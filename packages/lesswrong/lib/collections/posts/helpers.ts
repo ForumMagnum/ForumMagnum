@@ -184,34 +184,13 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
 }
 
 /**
- * Unlike {@link userIsPostGroupOrganizer}, this checks two things:
- * 
- * 1: Whether the `post.groupId` is in `user.organizerOfGroupIds`.  This works in an SSR context, since `groupId` is a foreign-key resolver field which resolves to `group`.
- * 
- * 2: Whether the `user._id` is in `post.group.organizerIds`.  This works in a client-side context (see above).
- * 
- * Those gets hydrated either by callbacks or direct edits, rather than requiring us to query the Localgroup, so this is synchronous
- */
-const userIsOrganizerOfPostGroup = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  if (!user) return false;
-  // if (!user.organizerOfGroupIds?.length) return false;
-  // if (!post.groupId) return false;
-
-  const organizerIds = 'group' in post ? post.group?.organizerIds : undefined;
-  console.log({ organizerIds, userId: user._id });
-  const isResolvedPostOrganizer = organizerIds ? organizerIds.some(id => id === user?._id) : false;
-
-  return isResolvedPostOrganizer || user.organizerOfGroupIds?.includes(post.groupId);
-};
-
-/**
  * Whether the user can make updates to the post document (including both the main post body and most other post fields)
  */
 export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (!currentUser) return false;
 
-  const isPostGroupOrganizer = userIsOrganizerOfPostGroup(currentUser, post)
-  console.log({ isPostGroupOrganizer, organizerOfGroupIds: currentUser.organizerOfGroupIds, postGroupId: post.groupId, postGroupOrganizerIds: (post as any).group.organizerIds, userId: currentUser._id });
+  const organizerIds = (post as PostsBase)?.group?.organizerIds;
+  const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
   if (isPostGroupOrganizer) return true
 
   if (userOwns(currentUser, post)) return true

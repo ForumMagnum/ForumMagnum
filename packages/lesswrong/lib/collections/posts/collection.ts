@@ -69,7 +69,7 @@ makeEditable({
     pingbacks: true,
     permissions: {
       viewableBy: ['guests'],
-      // TODO: do we also need to cover userIsPostGroupOrganizer somehow?
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
       editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
       insertableBy: ['members']
     },
