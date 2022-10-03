@@ -61,7 +61,7 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
       <p>
         Come visit! Reconnect with old friends, make new ones. And if you're keen to stretch your legs, take a virtual walk together through the waterfalls or explore the abandoned (for now) university campus.
       </p>
-      <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"><div className={classes.button}>Click to enter the Garden</div></a><br/>
+      <a href="https://app.gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"><div className={classes.button}>Click to enter the Garden</div></a><br/>
       <h2>A Culture of Truth-Seeking</h2><p>As a home for Rationalists, the Garden will have a culture of truth-seeking. Inhabitants should reflect on their thought-processes, embody these <a href="https://lesswrong.com/posts/7ZqGiPHTpiDMwqMN2/twelve-virtues-of-rationality">12 virtues of Rationality</a> (and others), and generally try to be right rather than Right.
       </p>
       <h2>Garden Etiquette</h2>

@@ -209,9 +209,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme, cookies} = this.props;
+    const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {

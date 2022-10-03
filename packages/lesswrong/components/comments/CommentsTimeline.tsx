@@ -52,8 +52,18 @@ const CommentsTimelineFn = ({
   // Scroll to the bottom when the page loads
   const currentHeight = bodyRef.current?.clientHeight;
   useEffect(() => {
-    if (!userHasScrolled && bodyRef.current)
+    if (!userHasScrolled && bodyRef.current) {
       bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
+
+      // For mobile: scroll the entire page to the bottom to stop the address bar from
+      // forcing the bottom off the end of the page. On desktop this just does nothing
+      // because the page fills the screen exactly
+      window.scrollTo({
+        top: 500,
+        // 'smooth' is to try and encourage it to scroll the address bar off the scree rather than overlaying it
+        behavior: 'smooth'
+      });
+    }
   }, [currentHeight, userHasScrolled])
 
   const { CommentWithReplies, Typography } = Components;

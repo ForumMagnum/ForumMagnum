@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     alignItems: "center",
-    fontSize: "1.3rem",
+    ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
       whiteSpace: "unset",
       lineHeight: "1.8rem",

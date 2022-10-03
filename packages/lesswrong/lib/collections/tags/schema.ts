@@ -11,7 +11,7 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
-import { TagCommentType } from '../comments/schema';
+import { TagCommentType } from '../comments/helpers';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
 
