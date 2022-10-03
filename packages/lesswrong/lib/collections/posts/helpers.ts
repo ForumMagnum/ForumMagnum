@@ -179,7 +179,6 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
     return false
     
   const group = await Localgroups.findOne({_id: groupId});
-  // console.log({ group, user });
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
