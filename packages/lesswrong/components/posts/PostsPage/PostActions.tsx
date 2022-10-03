@@ -193,8 +193,6 @@ const PostActions = ({post, closeMenu, classes}: {
     </Link>
   }
 
-  console.log({ isPodcaster, editLink });
-
   const defaultLabel = forumSelect({
     EAForum:'This post may appear on the Frontpage',
     default: 'Moderators may promote to Frontpage'
