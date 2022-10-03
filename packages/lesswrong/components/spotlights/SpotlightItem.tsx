@@ -15,6 +15,7 @@ import { useCurrentUser } from '../common/withUser';
 export const descriptionStyles = theme => ({
   ...postBodyStyles(theme),
   ...theme.typography.body2,
+  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
   '& p': {
     marginTop: ".5em",
     marginBottom: ".5em"
