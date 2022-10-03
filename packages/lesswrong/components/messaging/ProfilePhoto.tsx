@@ -64,7 +64,7 @@ const getUserInitials = (displayName: string) => {
 const ProfilePhoto = ({user, className, classes}: {
   user: {
     slug: string,
-    profileImageId: string,
+    profileImageId?: string,
     displayName?: string
   }|null,
   className?: string,

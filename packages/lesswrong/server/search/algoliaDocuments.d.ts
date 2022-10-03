@@ -48,6 +48,8 @@ interface AlgoliaUser {
   htmlBio: string,
   karma: number,
   slug: string,
+  jobTitle?: string,
+  organization?: string,
   website: string,
   groups: Array<string>,
   af: boolean,

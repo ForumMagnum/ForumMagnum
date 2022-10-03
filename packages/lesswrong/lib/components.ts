@@ -428,6 +428,7 @@ importComponent("SearchAutoComplete", () => require('../components/search/Search
 importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete'));
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
+importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
 importComponent("TagsSearchAutoComplete", () => require('../components/search/TagsSearchAutoComplete'));
 importComponent("TagsListEditorSearchHit", () => require('../components/search/TagsListEditorSearchHit'));
