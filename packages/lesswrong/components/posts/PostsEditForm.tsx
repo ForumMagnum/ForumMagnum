@@ -12,7 +12,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsPodcaster } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -58,7 +58,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document && !canUserEditPostMetadata(currentUser, document)) {
+  if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
