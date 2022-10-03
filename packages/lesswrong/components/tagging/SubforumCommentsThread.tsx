@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { useMutation } from '@apollo/client/react/hooks/useMutation';
-import { gql } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 
 const SubforumCommentsThread = ({ tag, terms }: {
