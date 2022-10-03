@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/helpers';
 import type { Option } from '../common/InlineSelect';
 import { isEmpty } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';

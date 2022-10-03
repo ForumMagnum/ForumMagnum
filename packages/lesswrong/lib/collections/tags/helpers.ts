@@ -1,5 +1,6 @@
 import { forumSelect } from "../../forumTypeUtils";
-import { taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+import { combineUrls } from "../../vulcan-lib";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -32,8 +33,10 @@ export const tagGetDiscussionUrl = (tag: DbTag|TagBasicInfo) => {
   return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`
 }
 
-export const tagGetSubforumUrl = (tag: DbTag|TagBasicInfo) => {
-  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/subforum`
+export const tagGetSubforumUrl = (tag: DbTag|TagBasicInfo, isAbsolute=false) => {
+  const suffix =  `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/subforum`
+  if (isAbsolute) return combineUrls(siteUrlSetting.get(), suffix)
+  return suffix
 }
 
 export const tagGetCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): string => {

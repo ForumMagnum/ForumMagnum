@@ -1,5 +1,4 @@
 import React from 'react';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -9,7 +8,7 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType, commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
