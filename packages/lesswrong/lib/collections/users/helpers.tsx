@@ -29,7 +29,7 @@ export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|
   return null;
 };
 
-export const userOwnsAndInGroup = (group: string) => {
+export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }

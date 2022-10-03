@@ -160,6 +160,17 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         uiSecondary: {
           sansSerifStack
+        },
+        chapterTitle: {
+          fontSize: "1.25em",
+          fontStyle: "unset",
+          textTransform: "unset",
+          color: palette.grey[800],
+          lineHeight: "1.75em",
+          fontFamily: serifStack
+        },
+        largeChapterTitle: {
+          fontSize: "2.2rem"
         }
       },
       overrides: {
