@@ -34,6 +34,7 @@ interface AlgoliaSequence {
   authorUserName?: string,
   authorSlug?: string,
   plaintextDescription: string,
+  bannerImageId?: string,
 }
 
 interface AlgoliaUser {
@@ -101,4 +102,5 @@ interface AlgoliaTag {
   wikiOnly: boolean,
   isSubforum: boolean,
   description: string,
+  bannerImageId?: string,
 }

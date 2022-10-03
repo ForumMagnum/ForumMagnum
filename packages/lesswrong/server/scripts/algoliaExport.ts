@@ -74,10 +74,10 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
       await algoliaExport(Users, {deleted: {$ne: true}})
       break
     case 'Sequences':
-      await algoliaExport(Sequences)
+      await algoliaExport(Sequences, {isDeleted: {$ne: true}, draft: {$ne: true}, hidden: {$ne: true}})
       break
     case 'Tags':
-      await algoliaExport(Tags, {deleted: {$ne: true}});
+      await algoliaExport(Tags, {deleted: {$ne: true}, adminOnly: {$ne: true}});
       break;
     default:
       throw new Error(`Did not recognize collectionName: ${collectionName}`)

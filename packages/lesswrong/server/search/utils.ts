@@ -88,6 +88,7 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
     createdAt: sequence.createdAt,
     af: sequence.af,
     plaintextDescription: "",
+    bannerImageId: sequence.bannerImageId,
   };
   const sequenceAuthor = await Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
@@ -251,6 +252,7 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     wikiOnly: tag.wikiOnly,
     isSubforum: tag.isSubforum,
     description,
+    bannerImageId: tag.bannerImageId
   }];
 }
 

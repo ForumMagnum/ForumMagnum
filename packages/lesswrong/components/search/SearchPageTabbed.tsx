@@ -184,7 +184,7 @@ const SearchPageTabbed = ({classes}:{
   const [tab, setTab] = useState<AlgoliaIndexCollectionName>(query.contentType ?? 'Posts')
   const [tagsFilter, setTagsFilter] = useState([])
 
-  const { ErrorBoundary, ExpandedUsersSearchHit, PostsSearchHit, CommentsSearchHit, TagsSearchHit, SequencesSearchHit, Typography } = Components
+  const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit, ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
   
   const handleChangeTab = (e, value) => {
     setTab(value)
@@ -198,10 +198,10 @@ const SearchPageTabbed = ({classes}:{
   }
   
   const hitComponents = {
-    'Posts': PostsSearchHit,
-    'Comments': CommentsSearchHit,
-    'Tags': TagsSearchHit,
-    'Sequences': SequencesSearchHit,
+    'Posts': ExpandedPostsSearchHit,
+    'Comments': ExpandedCommentsSearchHit,
+    'Tags': ExpandedTagsSearchHit,
+    'Sequences': ExpandedSequencesSearchHit,
     'Users': ExpandedUsersSearchHit
   }
   const HitComponent = hitComponents[tab]

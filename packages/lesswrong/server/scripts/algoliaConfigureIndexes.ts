@@ -36,7 +36,7 @@ export const algoliaConfigureIndexes = async () => {
       'searchable(tags)',
     ],
     attributesToHighlight: ['authorDisplayName'],
-    attributesToSnippet: ['body:20'],
+    attributesToSnippet: isEAForum ? ['body:30'] : ['body:20'],
     unretrievableAttributes: ['authorUserName'],
     advancedSyntax: true
   });
@@ -68,7 +68,7 @@ export const algoliaConfigureIndexes = async () => {
       'curated'
     ],
     attributesToHighlight: ['title'],
-    attributesToSnippet: ['body:10'],
+    attributesToSnippet: isEAForum ? ['body:20'] : ['body:10'],
     unretrievableAttributes: [
       'authorUserName',
       'userIP',
@@ -107,7 +107,7 @@ export const algoliaConfigureIndexes = async () => {
       'filterOnly(af)',
       'searchable(tags)',
     ],
-    attributesToSnippet: ['bio:20','howICanHelpOthers:20','howOthersCanHelpMe:20'],
+    attributesToSnippet: ['bio:20'],
     advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(sequencesIndex, {
@@ -121,7 +121,7 @@ export const algoliaConfigureIndexes = async () => {
       'filterOnly(af)',
     ],
     advancedSyntax: true,
-    attributesToSnippet: ['description:10'],
+    attributesToSnippet: ['plaintextDescription:20'],
 
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
@@ -139,7 +139,7 @@ export const algoliaConfigureIndexes = async () => {
       'filterOnly(isSubforum)',
     ],
     distinct: false,
-    attributesToSnippet: ['description:10'],
+    attributesToSnippet: isEAForum ? ['description:20'] : ['description:10'],
     advancedSyntax: true
   });
   
