@@ -277,7 +277,7 @@ export const createDummyLocalgroup = async (data?: any) => {
   return groupResponse.data
 }
 
-export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
+const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
   const defaultData = {
     _id: randomId(),
     userId: user._id,
@@ -285,7 +285,11 @@ export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
     cancelled: false,
     isUnvote: false,
   };
-  const voteData = {...defaultData, ...data};
+  return {...defaultData, ...data};
+}
+
+export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
+  const voteData = generateDummyVoteData(user, data);
   const newVoteResponse = await createMutator({
     collection: Votes,
     document: voteData,
@@ -293,6 +297,16 @@ export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
     validate: false,
   });
   return newVoteResponse.data;
+}
+
+export const createManyDummyVotes = async (count: number, user: DbUser, data?: Partial<DbVote>) => {
+  const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
+  const votes = Array.from(new Array(count).keys()).map((i: number) => generateDummyVoteData(
+    user,
+    {...data, votedAt: new Date(thirtyMinsAgo + i)},
+  ));
+  await Votes.rawInsert(votes);
+  return votes;
 }
 
 export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {

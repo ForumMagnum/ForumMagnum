@@ -339,7 +339,6 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      // TODO: Do we need an isAnyPostgresQueryPending here?
       if (callbacksArePending() || isAnyMongoQueryPending() || isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {

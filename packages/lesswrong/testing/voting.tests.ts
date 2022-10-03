@@ -3,7 +3,7 @@ import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, createDummyComment, createDummyVote } from './utils'
+import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes } from './utils'
 import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -55,6 +55,7 @@ describe('Voting', function() {
       const normalPost = await createDummyPost(user, {baseScore: 10});
       const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
       const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      await waitUntilCallbacksFinished();
       await batchUpdateScore({collection: Posts});
       const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
@@ -108,6 +109,7 @@ describe('Voting', function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
+      await waitUntilCallbacksFinished();
 
       (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
       (updatedPost[0].baseScore as any).should.be.equal(0);
@@ -162,6 +164,7 @@ describe('Voting', function() {
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
+      await waitUntilCallbacksFinished();
 
         (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
         (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
@@ -212,7 +215,7 @@ describe('Voting', function() {
       });
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
-      const result = await waitUntilCallbacksFinished();
+      await waitUntilCallbacksFinished();
 
       let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
       let updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
@@ -242,10 +245,7 @@ describe('Voting', function() {
       const author = await createDummyUser();
       const post = await createDummyPost(author);
       const maxVotesPerHour = 100;
-      const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
-      for (let i = 0; i < maxVotesPerHour; i++) {
-        await createDummyVote(voter, { votedAt: new Date(thirtyMinsAgo + i) });
-      }
+      await createManyDummyVotes(maxVotesPerHour, voter);
       await expect(async () => {
         await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
       }).rejects.toThrow("Voting rate limit exceeded: too many votes in one hour");
@@ -254,10 +254,7 @@ describe('Voting', function() {
       const voter = await createDummyUser();
       const post = await createDummyPost(voter);
       const maxVotesPerHour = 100;
-      const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
-      for (let i = 0; i < maxVotesPerHour; i++) {
-        await createDummyVote(voter, { votedAt: new Date(thirtyMinsAgo + i) });
-      }
+      await createManyDummyVotes(maxVotesPerHour, voter);
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
     });
   })

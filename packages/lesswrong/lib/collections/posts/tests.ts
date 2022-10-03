@@ -1,6 +1,7 @@
 import { testStartup } from '../../../testing/testMain';
 import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
+import { waitUntilCallbacksFinished } from '../../vulcan-lib';
 import * as _ from 'underscore';
 
 testStartup();
@@ -58,6 +59,7 @@ describe('Posts RSS Views', () => {
     const curatedPost1 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
     const curatedPost2 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
     const curatedPost3 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+    await waitUntilCallbacksFinished();
 
     const query = `
       query {

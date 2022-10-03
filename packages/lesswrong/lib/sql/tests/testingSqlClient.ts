@@ -1,6 +1,7 @@
 import { Collections } from "../../vulcan-lib/getCollection";
 import PgCollection from "../PgCollection";
 import CreateTableQuery from "../CreateTableQuery";
+import CreateIndexQuery from "../CreateIndexQuery";
 import { createSqlConnection } from "../../../server/sqlConnection";
 import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
@@ -15,14 +16,23 @@ const replaceDbNameInPgConnectionString = (connectionString: string, dbName: str
   return `${withoutDbName}/${dbName}`;
 }
 
-const buildTables = async (client: SqlClient) => {
+export const preparePgTables = () => {
   for (const collection of Collections) {
     if (collection instanceof PgCollection) {
       if (!collection.table) {
         collection.buildPostgresTable();
       }
+    }
+  }
+}
 
-      const createTableQuery = new CreateTableQuery(collection.table);
+const buildTables = async (client: SqlClient) => {
+  preparePgTables();
+
+  for (const collection of Collections) {
+    if (collection instanceof PgCollection) {
+      const {table} = collection;
+      const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
       try {
         await client.unsafe(sql, args);
@@ -31,45 +41,73 @@ const buildTables = async (client: SqlClient) => {
       }
 
       const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
-      for (const index of rawIndexes) {
-        const {key, ...options} = index;
-        await collection._ensureIndex(key, options);
+      for (const rawIndex of rawIndexes) {
+        const {key, ...options} = rawIndex;
+        const fields = typeof key === "string" ? [key] : Object.keys(key);
+        const index = table.getIndex(fields, options) ?? table.addIndex(fields, options);
+        const createIndexQuery = new CreateIndexQuery(table, index, true);
+        const {sql, args} = createIndexQuery.compile();
+        try {
+          await client.unsafe(sql, args);
+        } catch (e) {
+          throw new Error(`Create index query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
+        }
       }
     }
   }
 }
 
 const makeDbName = (id?: string) => {
-  const date = new Date().toISOString().replace(/[:.-]/g,"_");
-  id = id ?? `${date}_${process.pid}_${process.env.JEST_WORKER_ID}`;
+  id = id ?? `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}_${process.env.JEST_WORKER_ID}`;
   return `unittest_${id}`.toLowerCase();
 }
 
-export const createTestingSqlClient = async (id?: string, dropExisting?: boolean): Promise<SqlClient> => {
-  const dbName = makeDbName(id);
+const createTemporaryConnection = async () => {
+  let client = getSqlClient();
+  if (client) {
+    return client;
+  }
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't initialize test DB - PG_URL not set");
   }
-  let sql = await createSqlConnection(PG_URL);
+  client = await createSqlConnection(PG_URL);
+  setSqlClient(client);
+  return client;
+}
+
+export const createTestingSqlClient = async (
+  id: string | undefined = undefined,
+  dropExisting = false,
+  setAsGlobalClient = true,
+): Promise<SqlClient> => {
+  const dbName = makeDbName(id);
+  let sql = await createTemporaryConnection();
   if (dropExisting) {
     await sql`DROP DATABASE IF EXISTS ${sql(dbName)}`;
   }
   await sql`CREATE DATABASE ${sql(dbName)}`;
-  await closeSqlClient(sql);
-  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
+  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  sql = await createSqlConnection(testUrl);
+  await buildTables(sql);
+  if (setAsGlobalClient) {
+    setSqlClient(sql);
+  }
+  return sql;
+}
+
+export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
+  const dbName = makeDbName();
+  let sql = await createTemporaryConnection();
+  await sql`CREATE DATABASE ${sql(dbName)} TEMPLATE ${sql(template)}`;
+  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);
-  await buildTables(sql);
   return sql;
 }
 
 export const dropTestingDatabases = async (olderThan?: string | Date) => {
-  const {PG_URL} = process.env;
-  if (!PG_URL) {
-    throw new Error("Can't drop testing databases - PG_URL not set");
-  }
-  const sql = await createSqlConnection(PG_URL);
+  const sql = await createTemporaryConnection();
   const databases = await sql`
     SELECT datname
     FROM pg_database
@@ -93,11 +131,7 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
 }
 
 export const killAllConnections = async (id?: string) => {
-  const {PG_URL} = process.env;
-  if (!PG_URL) {
-    throw new Error("Can't kill connections - PG_URL not set");
-  }
-  const sql = await createSqlConnection(PG_URL);
+  const sql = await createTemporaryConnection();
   const dbName = makeDbName(id);
   await sql`
     SELECT pg_terminate_backend(pg_stat_activity.pid)
