@@ -4,6 +4,9 @@ import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import React from 'react';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
+import { TagCommentType } from '../../lib/collections/comments/helpers';
+import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,12 +42,24 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
 }) => {
   const comment = (hit as AlgoliaComment);
   const { LWTooltip } = Components
-  const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
+
+  let url = "";
+  if (comment.tagSlug && comment.tagCommentType) {
+    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType);
+  } else if (comment.postId && comment.postSlug) {
+    url = `${postGetPageUrl({
+      _id: comment.postId ?? "",
+      slug: comment.postSlug ?? "",
+      isEvent: comment.postIsEvent,
+      groupId: comment.postGroupId,
+    })}#${comment._id}`;
+  }
+
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="Comment">
       <ChatBubbleOutlineIcon className={classes.icon}/>
     </LWTooltip>}
-    <Link to={url} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={url} onClick={(event: React.MouseEvent) => url && isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
         <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>

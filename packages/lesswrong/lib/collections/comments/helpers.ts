@@ -32,7 +32,6 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
       return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
     } else {
       return `${prefix}${tagGetSubforumUrl(tag)}#${comment._id}`;
-      
     }
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
