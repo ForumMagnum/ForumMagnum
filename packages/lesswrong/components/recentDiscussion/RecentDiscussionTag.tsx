@@ -8,7 +8,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
-import { TagCommentType } from '../../lib/collections/comments/helpers';
+import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const styles = (theme: ThemeType): JssStyles => ({

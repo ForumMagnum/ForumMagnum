@@ -5,11 +5,7 @@ import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetSubforumUrl } from '../tags/helpers';
-
-export enum TagCommentType {
-  Subforum = "SUBFORUM",
-  Discussion = "DISCUSSION",
-}
+import { TagCommentType } from './types';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {

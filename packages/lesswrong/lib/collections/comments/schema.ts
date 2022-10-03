@@ -1,7 +1,7 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { commentGetPageUrlFromDB, TagCommentType } from './helpers';
+import { commentGetPageUrlFromDB, TagCommentType } from './types';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';

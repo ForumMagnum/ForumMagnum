@@ -1,7 +1,7 @@
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
 import { combineUrls } from "../../vulcan-lib";
-import { TagCommentType } from "../comments/helpers";
+import { TagCommentType } from "../comments/types";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense

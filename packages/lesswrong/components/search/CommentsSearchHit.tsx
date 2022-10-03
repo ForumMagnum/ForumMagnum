@@ -4,7 +4,7 @@ import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import React from 'react';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import { TagCommentType } from '../../lib/collections/comments/helpers';
+import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 

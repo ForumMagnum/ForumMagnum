@@ -13,7 +13,7 @@ import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import ArrowForward from '@material-ui/icons/ArrowForward';
-import { TagCommentType, commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { TagCommentType, commentDefaultToAlignment } from '../../lib/collections/comments/types';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
