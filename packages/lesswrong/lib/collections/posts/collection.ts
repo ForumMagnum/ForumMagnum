@@ -6,6 +6,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
+import { allOf } from '../../utils/functionUtils';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -68,7 +69,8 @@ makeEditable({
     pingbacks: true,
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
       insertableBy: ['members']
     },
   }
@@ -86,7 +88,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      editableBy: [allOf(canUserEditPostMetadata, userHasModerationGuidelines), 'sunshineRegiment', 'admins'],
       insertableBy: [userHasModerationGuidelines]
     },
   }

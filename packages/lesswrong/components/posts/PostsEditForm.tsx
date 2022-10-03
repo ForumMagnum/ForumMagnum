@@ -82,12 +82,6 @@ const PostsEditForm = ({ documentId, classes }: {
   if (!document) {
     return <Components.Error404/>
   }
-  
-  // If we have access to the post but only readonly access and only because
-  // it's published, don't show the edit form.
-  if (document.userId !== currentUser._id && !userIsSharedOn(currentUser, document) && !userCanDo(currentUser, 'posts.edit.all')) {
-    return <Components.ErrorAccessDenied/>
-  }
 
   if (isNotHostedHere(document)) {
     return <ForeignCrosspostEditForm post={document} />;
