@@ -49,10 +49,13 @@ export const SpotlightsPage = ({classes}: {
     </SingleColumnSection>;
   }
 
+  const totalUpcomingDuration = upcomingSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
+
+  const totalDraftDuration = draftSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
+
   return <SingleColumnSection>
-    <SectionTitle title={'Spotlights'} />
+    <SectionTitle title={'New Spotlight'} />
     <div className={classes.form}>
-      <Typography variant="body2">New Spotlight</Typography>
       <SpotlightEditorStyles>
         <WrappedSmartForm
           collection={Spotlights}
@@ -61,9 +64,13 @@ export const SpotlightsPage = ({classes}: {
       </SpotlightEditorStyles>
     </div>
     {loading && <Loading/>}
-    <SectionTitle title="Upcoming Spotlights"/>
+    <SectionTitle title="Upcoming Spotlights">
+      <div>Total: {totalUpcomingDuration} days</div>
+    </SectionTitle>
     {upcomingSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
-    <SectionTitle title="Draft Spotlights"/>
+    <SectionTitle title="Draft Spotlights">
+      <div>Total: {totalDraftDuration} days</div>
+    </SectionTitle>
     {draftSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
   </SingleColumnSection>
 }
