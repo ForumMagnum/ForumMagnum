@@ -54,13 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const newUserGuidelines = `
   <p><b>New User?  Read this before commenting.</b></p>
   <p>Welcome to LessWrong!</p>
-  <br />
   <p>We care a lot about making progress on art of human rationality and other important questions, and so have set very high standards for quality of writing on the site in comparison to many places on the web.</p>
-  <br />
   <p>To have well-received comments on LessWrong, we suggest spending some time learning from the example of content already on the site.</p>
-  <br />
   <p>We especially advise reading <a href="https://www.lesswrong.com/rationality">R:A-Z</a> and <a href="https://www.lesswrong.com/codex">The Codex</a>, since they help set the tone and standard for the site broadly.</p>
-  <br />
   <p>Otherwise look at highly upvoted posts and comments to see what to aim for when contributing here.</p>
 `;
 
