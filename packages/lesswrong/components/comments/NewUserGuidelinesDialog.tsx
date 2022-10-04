@@ -46,6 +46,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& li': {
       marginTop: '.4em',
       marginBottom: '.4em'
+    },
+    '& a': {
+      color: theme.palette.primary.main,
     }
   }
 })
@@ -81,12 +84,12 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   }
   
   return (
-    <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
+    // <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
       <LWDialog open={true}>
         <DialogTitle>
           New User?  Read this before commenting.
         </DialogTitle>
-        <DialogContent>
+        <DialogContent className={classes.moderationGuidelines}>
           <p>Welcome to LessWrong!</p>
           <p>We care a lot about making progress on art of human rationality and other important questions, and so have set very high standards for quality of writing on the site in comparison to many places on the web.</p>
           <p>To have well-received comments on LessWrong, we suggest spending some time learning from the example of content already on the site.</p>
@@ -99,7 +102,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           </Button>
         </DialogActions>
       </LWDialog>
-    </Components.ContentStyles>
+    // </Components.ContentStyles>
   )
 }
 
