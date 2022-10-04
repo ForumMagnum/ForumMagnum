@@ -37,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     fontSize: 18,
+    lineHeight: '24px',
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
-    lineHeight: '20px',
+    lineHeight: '21px',
     color: theme.palette.grey[700],
     marginTop: 5
   }

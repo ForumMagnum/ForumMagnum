@@ -9,7 +9,7 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 700,
+    maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
-    lineHeight: '20px',
+    lineHeight: '21px',
     color: theme.palette.grey[700],
     marginTop: 5
   }

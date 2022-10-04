@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStateResults, connectRefinementList, ToggleRefinement } from 'react-instantsearch-dom';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStateResults, connectRefinementList, ToggleRefinement, NumericMenu } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
-
+import moment from 'moment';
 
 const hitsPerPage = 10
 
@@ -34,15 +34,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+    '& .ais-NumericMenu': {
+      marginBottom: 26
+    },
+    '& .ais-NumericMenu-item': {
+      marginTop: 5
+    },
+    '& .ais-NumericMenu-label': {
+      display: 'flex',
+      columnGap: 3
+    },
     '& .ais-ToggleRefinement-label': {
       display: 'flex',
       columnGap: 6,
       alignItems: 'center',
-      marginTop: 10
+      marginTop: 12
     }
   },
   filtersHeadline: {
     marginBottom: 18
+  },
+  filterLabel: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    marginBottom: 6
   },
   resultsColumn: {
     flex: '1 1 0',
@@ -168,6 +183,12 @@ const SearchPageTabbed = ({classes}:{
 }) => {
   const { history } = useNavigation()
   const { location, query } = useLocation()
+  
+  // store these values for the search filter
+  const pastDay = useRef(moment().subtract(24, 'hours').valueOf())
+  const pastWeek = useRef(moment().subtract(7, 'days').valueOf())
+  const pastMonth = useRef(moment().subtract(1, 'months').valueOf())
+  const pastYear = useRef(moment().subtract(1, 'years').valueOf())
 
   // initialize the tab & search filters from the URL
   const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
@@ -182,18 +203,25 @@ const SearchPageTabbed = ({classes}:{
 
   const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
     ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
+    
+  const updateUrl = (data) => {
+    history.replace({
+      ...location,
+      search: qs.stringify({contentType: tab, terms: keywordSearch, tags: tagsFilter, ...data})
+    })
+  }
   
   const handleUpdateSearch = (e) => {
     setKeywordSearch(e.currentTarget.value)
-    history.replace({...location, search: qs.stringify({contentType: tab, terms: e.currentTarget.value, tags: tagsFilter})})
+    updateUrl({terms: e.currentTarget.value})
   }
   const handleUpdateTagsFilter = (tags) => {
     setTagsFilter(tags)
-    history.replace({...location, search: qs.stringify({contentType: tab, terms: keywordSearch, tags})})
+    updateUrl({tags})
   }
   const handleChangeTab = (e, value) => {
     setTab(value)
-    history.replace({...location, search: qs.stringify({contentType: value, terms: keywordSearch, tags: tagsFilter})})
+    updateUrl({contentType: value})
   }
 
   if (!isAlgoliaEnabled()) {
@@ -219,6 +247,21 @@ const SearchPageTabbed = ({classes}:{
     >
       <div className={classes.filtersColumn}>
         <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
+        {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
+          <div className={classes.filterLabel}>
+            Filter by {tab === 'Users' ? 'joined' : 'posted'} date
+          </div>
+          <NumericMenu
+            attribute="publicDateMs"
+            items={[
+              { label: 'All' },
+              { label: 'Past 24 hours', start: pastDay.current },
+              { label: 'Past week', start: pastWeek.current },
+              { label: 'Past month', start: pastMonth.current },
+              { label: 'Past year', start: pastYear.current },
+            ]}
+          />
+        </>}
         {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
             attribute="tags"
             defaultRefinement={tagsFilter}

@@ -18,6 +18,7 @@ import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 import { truncatise } from '../../lib/truncatise';
+import moment from 'moment';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
@@ -45,6 +46,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
+    publicDateMs: moment(comment.postedAt).valueOf(),
     af: comment.af,
     tags: comment.tagId ? [comment.tagId] : [],
     body: "",
@@ -100,6 +102,7 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
     title: sequence.title,
     userId: sequence.userId,
     createdAt: sequence.createdAt,
+    publicDateMs: moment(sequence.createdAt).valueOf(),
     af: sequence.af,
     plaintextDescription: "",
     bannerImageId: sequence.bannerImageId,
@@ -143,6 +146,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     username: user.username,
     displayName: user.displayName,
     createdAt: user.createdAt,
+    publicDateMs: moment(user.createdAt).valueOf(),
     isAdmin: user.isAdmin,
     profileImageId: user.profileImageId,
     bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
@@ -194,6 +198,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     userIP: post.userIP,
     createdAt: post.createdAt,
     postedAt: post.postedAt,
+    publicDateMs: moment(post.postedAt).valueOf(),
     isFuture: post.isFuture,
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,

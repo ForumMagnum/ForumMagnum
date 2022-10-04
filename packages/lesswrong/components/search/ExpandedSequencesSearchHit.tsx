@@ -4,6 +4,7 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     fontSize: 18,
+    lineHeight: '24px',
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
@@ -45,9 +47,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
-    lineHeight: '20px',
+    lineHeight: '21px',
     color: theme.palette.grey[700],
-    marginTop: 5
+    marginTop: 4
   }
 })
 
@@ -62,7 +64,7 @@ const ExpandedSequencesSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate } = Components
+  const { FormatDate, UserNameDeleted } = Components
   const sequence: AlgoliaSequence = hit
   
   const style = sequence.bannerImageId ? {
@@ -79,7 +81,7 @@ const ExpandedSequencesSearchHit = ({hit, clickAction, classes}: {
         <span className={classes.title}>
           {sequence.title}
         </span>
-        <span>{sequence.authorDisplayName}</span>
+        {sequence.authorSlug ? <Link to={userGetProfileUrlFromSlug(sequence.authorSlug)}>{sequence.authorDisplayName}</Link> : <UserNameDeleted />}
         <FormatDate date={sequence.createdAt} />
       </div>
       <div className={classes.snippet}>

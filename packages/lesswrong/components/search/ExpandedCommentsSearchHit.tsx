@@ -7,10 +7,11 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import TagIcon from '@material-ui/icons/LocalOffer';
+import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 700,
+    maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -27,13 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontSize: 12,
     fontFamily: theme.typography.fontFamily,
-    marginBottom: 3
-  },
-  author: {
-    fontSize: 16,
-    fontFamily: theme.typography.postStyle.fontFamily,
-    color: theme.palette.grey[800],
-    fontWeight: 600,
+    marginTop: 6
   },
   metaInfo: {
     display: "flex",
@@ -44,21 +39,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: 6,
-    color: theme.palette.grey[600],
-    fontSize: 12,
-    lineHeight: '16px',
-    fontFamily: theme.typography.fontFamily,
+    fontSize: 15,
+    lineHeight: '22px',
+    fontFamily: theme.typography.postStyle.fontFamily,
+    color: theme.palette.grey[800],
+    fontWeight: 600,
   },
   tagIcon: {
-    fontSize: 12,
-    color: theme.palette.grey[500],
+    fontSize: 14,
+    color: theme.palette.grey[600],
   },
   snippet: {
     overflowWrap: "break-word",
     fontFamily: theme.typography.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
-    lineHeight: '20px',
+    lineHeight: '21px',
     color: theme.palette.grey[700],
     marginTop: 5
   }
@@ -73,7 +69,7 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate } = Components
+  const { FormatDate, UserNameDeleted } = Components
   const comment: AlgoliaComment = hit
   
   let url = "";
@@ -94,11 +90,6 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
       onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       className={classes.link}
     >
-      <div className={classes.authorRow}>
-        <span className={classes.author}>{comment.authorDisplayName}</span>
-        <span>{comment.baseScore ?? 0} karma</span>
-        <FormatDate date={comment.createdAt} />
-      </div>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
       </div>}
@@ -108,6 +99,11 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
       </div>}
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
+      </div>
+      <div className={classes.authorRow}>
+        {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)}>{comment.authorDisplayName}</Link> : <UserNameDeleted />}
+        <span>{comment.baseScore ?? 0} karma</span>
+        <FormatDate date={comment.createdAt} />
       </div>
     </Link>
   </div>

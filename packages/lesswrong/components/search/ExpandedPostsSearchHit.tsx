@@ -4,10 +4,11 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { userGetProfileUrl, userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 700,
+    maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -17,10 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     fontSize: 18,
+    lineHeight: '24px',
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
-    marginBottom: 3
+    marginBottom: 2
   },
   metaInfoRow: {
     display: "flex",
@@ -39,10 +41,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   snippet: {
     overflowWrap: "break-word",
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
-    lineHeight: '20px',
+    lineHeight: '22px',
     color: theme.palette.grey[700],
     marginTop: 7
   }
@@ -57,7 +59,7 @@ const ExpandedPostsSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate } = Components
+  const { FormatDate, UserNameDeleted } = Components
   const post: AlgoliaPost = hit
 
   return <div className={classes.root}>
@@ -70,7 +72,7 @@ const ExpandedPostsSearchHit = ({hit, clickAction, classes}: {
         {post.title}
       </div>
       <div className={classes.metaInfoRow}>
-        <span>{post.authorDisplayName}</span>
+        {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)}>{post.authorDisplayName}</Link> : <UserNameDeleted />}
         <span>{post.baseScore ?? 0} karma</span>
         <FormatDate date={post.createdAt} />
       </div>

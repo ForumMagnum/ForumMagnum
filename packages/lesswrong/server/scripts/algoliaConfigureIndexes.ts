@@ -33,6 +33,7 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
       'postedAt',
+      'publicDateMs',
       'searchable(tags)',
     ],
     attributesToHighlight: ['authorDisplayName'],
