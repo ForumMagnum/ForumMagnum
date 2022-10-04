@@ -2279,8 +2279,6 @@ const schema: SchemaType<DbUser> = {
     order: 72,
   },
 
-  // GraphQL only field that resolves based on whether the current user has closed
-  // this posts author's moderation guidelines in the past
   acknowledgedNewUserGuidelines: {
     type: Boolean,
     optional: true,
