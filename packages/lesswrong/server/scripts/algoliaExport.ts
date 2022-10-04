@@ -71,7 +71,7 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
       await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
       break
     case 'Users':
-      await algoliaExport(Users, {deleted: {$ne: true}})
+      await algoliaExport(Users, {deleted: {$ne: true}, deleteContent: {$ne: true}})
       break
     case 'Sequences':
       await algoliaExport(Sequences, {isDeleted: {$ne: true}, draft: {$ne: true}, hidden: {$ne: true}})

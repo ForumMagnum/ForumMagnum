@@ -224,7 +224,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
       body: ""
     }));
   }
-  return postBatch;
+  return postBatch.reverse()
 }
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {

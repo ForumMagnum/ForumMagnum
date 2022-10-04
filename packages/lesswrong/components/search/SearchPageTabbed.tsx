@@ -154,7 +154,7 @@ const CustomTagsRefinementList = connectRefinementList(TagsRefinementList)
 
 // shows total # of results
 const ResultsCount = ({ searchResults, className }) => {
-  if (!searchResults || !searchResults.nbHits) return null
+  if (!searchResults) return null
   
   return <div className={className}>
     {searchResults.nbHits} result{searchResults.nbHits === 1 ? '' : 's'}
