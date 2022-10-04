@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React, { ComponentProps, useState } from 'react';
 import { Comments } from '../../lib/collections/comments/collection';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
@@ -15,6 +15,7 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -85,6 +86,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const shouldOpenNewUserGuidelinesDialog = (
+  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
+): maybeProps is Omit<ComponentProps<ComponentTypes['NewUserGuidelinesDialog']>, "onClose" | "classes"> => {
+  const { user, post } = maybeProps;
+  return !!user && requireNewUserGuidelinesAck(user) && !!post;
+};
+
 const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCommentType.Discussion, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
 {
   prefilledProps?: any,
@@ -113,7 +121,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
   const isMinimalist = displayMode === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, NewUserGuidelinesDialog, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -129,10 +137,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
   const onFocusCommentForm = () => setTimeout(() => {
     // TODO: user field for showing new user guidelines
     // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
-    if (currentUser && requireNewUserGuidelinesAck(currentUser) && post) {
+    const dialogProps = { user: currentUser, post };
+    const isLW = forumTypeSetting.get() === 'LessWrong';
+    if (isLW && shouldOpenNewUserGuidelinesDialog(dialogProps)) {
       openDialog({
         componentName: 'NewUserGuidelinesDialog',
-        componentProps: { post, user: currentUser },
+        componentProps: dialogProps,
         noClickawayCancel: true
       });
     }
