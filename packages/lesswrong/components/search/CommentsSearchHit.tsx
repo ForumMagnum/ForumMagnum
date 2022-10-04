@@ -59,7 +59,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
     {showIcon && <LWTooltip title="Comment">
       <ChatBubbleOutlineIcon className={classes.icon}/>
     </LWTooltip>}
-    <Link to={url} onClick={(event: React.MouseEvent) => url && isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={url} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
         <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>
