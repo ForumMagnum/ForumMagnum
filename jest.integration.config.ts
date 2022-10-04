@@ -7,4 +7,5 @@ export default {
     "<rootDir>/integrationTestSetup.ts",
   ],
   maxWorkers: "50%",
+  preset: "@shelf/jest-mongodb",
 };
