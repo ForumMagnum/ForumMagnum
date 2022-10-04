@@ -10,7 +10,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: 0,
+    margin: "0 32px",
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 3,
   },
   aside: {
-    width: "fit-content",
+    width: 380,
     [theme.breakpoints.down("md")]: {
       display: "none",
     },
@@ -41,7 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.secondary.main,
     borderWidth: 2,
     borderRadius: 3,
-    maxWidth: 380,
   },
   title: {
     textTransform: "capitalize",
@@ -50,7 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   wikiSidebar: {
     marginTop: 84,
-    maxWidth: 380,
     gridColumnStart: 3,
     padding: '2em',
     backgroundColor: theme.palette.panelBackground.default,
@@ -90,21 +88,19 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   }
 
   const welcomeBoxComponent = tag.subforumWelcomeText ? (
-    <div className={classes.aside}>
-      <div className={classes.welcomeBox}>
-        <ContentStyles contentType="comment">
-          <ContentItemBody
-            dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
-            description={`${tag.name} subforum`}
-          />
-        </ContentStyles>
-      </div>
+    <div className={classes.welcomeBox}>
+      <ContentStyles contentType="comment">
+        <ContentItemBody
+          dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
+          description={`${tag.name} subforum`}
+        />
+      </ContentStyles>
     </div>
   ) : <></>;
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.columnSection, classes.stickToBottom)}>
+      <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
@@ -116,14 +112,12 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           />
         </AnalyticsContext>
       </SingleColumnSection>
-      <div className={classes.columnSection}>
+      <div className={classNames(classes.columnSection, classes.aside)}>
         {tag?.tableOfContents?.html &&
-          <div className={classes.aside}>
           <ContentStyles contentType="tag">
-            <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}>
-            </div>
+            <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }} />
           </ContentStyles>
-        </div>}
+        }
       </div>
     </div>
   );
