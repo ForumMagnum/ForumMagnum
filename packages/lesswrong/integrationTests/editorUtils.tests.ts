@@ -1,11 +1,8 @@
-import { createDummyPost, createDummyUser } from "../../testing/utils";
-import { testStartup } from "../../testing/testMain";
-import Revisions from "../../lib/collections/revisions/collection";
-import { Posts } from "../../lib/collections/posts";
-import { runQuery } from "../vulcan-lib";
-import { syncDocumentWithLatestRevision } from "./utils";
-
-testStartup();
+import { createDummyPost, createDummyUser } from "./utils";
+import Revisions from "../lib/collections/revisions/collection";
+import { Posts } from "../lib/collections/posts";
+import { runQuery } from "../server/vulcan-lib";
+import { syncDocumentWithLatestRevision } from "../server/editor/utils";
 
 async function updatePost(user: DbUser, postId: string, newMarkup: string) {
   const query = `

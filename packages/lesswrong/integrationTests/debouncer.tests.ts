@@ -1,9 +1,6 @@
-import { testStartup } from './testMain';
 import lolex from 'lolex';
 import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-
-testStartup();
 
 describe('EventDebouncer', () => {
   it('groups events correctly', async () => {

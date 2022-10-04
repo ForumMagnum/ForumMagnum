@@ -14,6 +14,7 @@ import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 import { mjpage }  from 'mathjax-node-page'
 import { isAnyTest } from '../../lib/executionEnvironment';
+import cheerio from 'cheerio';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables

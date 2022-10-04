@@ -1,10 +1,12 @@
-import { testStartup } from '../../../testing/testMain';
-import { runQuery } from '../../../server/vulcan-lib';
-import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
-import { waitUntilCallbacksFinished } from '../../vulcan-lib';
+import { runQuery } from '../../server/vulcan-lib';
+import {
+  createDummyUser,
+  createDummyPost,
+  catchGraphQLErrors,
+  assertIsPermissionsFlavoredError,
+} from '../utils'
+import { waitUntilCallbacksFinished } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
-
-testStartup();
 
 describe('PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();

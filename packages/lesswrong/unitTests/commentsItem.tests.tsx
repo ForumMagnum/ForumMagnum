@@ -29,3 +29,7 @@ describe('CommentsItem', () => {
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
   });
 });*/
+
+import { stubbedTests } from "./stubbedTests";
+
+stubbedTests();

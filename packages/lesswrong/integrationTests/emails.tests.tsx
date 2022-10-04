@@ -1,12 +1,9 @@
-import { testStartup } from '../../testing/testMain';
 import React from 'react';
-import { withSingle, useSingle } from '../../lib/crud/withSingle';
-import { createDummyUser, createDummyPost } from '../../testing/utils'
-import { emailDoctype, generateEmail } from './renderEmail';
+import { withSingle, useSingle } from '../lib/crud/withSingle';
+import { createDummyUser, createDummyPost } from './utils'
+import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import { getUserEmail } from "../../lib/collections/users/helpers";
-
-testStartup();
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {
   const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";

@@ -40,7 +40,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
   class ErrorCatcher {
     errors: Array<any>
     errorsRetrieved: boolean
-    
+
     constructor() {
       this.errors = [];
       this.errorsRetrieved = false;
@@ -122,7 +122,7 @@ const isPermissionsFlavoredError = (error: any): boolean => {
     return false;
   if (isPermissionsFlavoredErrorString(error.message))
     return true;
-  
+
   let errorData: any = null;
   try {
     errorData = JSON.parse(error.message);
@@ -133,7 +133,7 @@ const isPermissionsFlavoredError = (error: any): boolean => {
   if (Array.isArray(errorData)) errorData = errorData[0];
   if (isPermissionsFlavoredErrorString(errorData)) return true;
   if (errorData.id && isPermissionsFlavoredErrorString(errorData.id)) return true;
-  
+
   return false;
 };
 
@@ -149,7 +149,6 @@ const isPermissionsFlavoredErrorString = (str: any): boolean => {
     return false;
   }
 }
-
 
 export const createDefaultUser = async() => {
   // Creates defaultUser if they don't already exist
@@ -400,7 +399,6 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
 }
 
 export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue, fragment}: any) => {
-
   let comparedValue = newValue
 
   if (newValue === undefined) {

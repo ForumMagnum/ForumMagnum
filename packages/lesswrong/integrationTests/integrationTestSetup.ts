@@ -21,18 +21,17 @@ import {
 require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
 
-
 let dbConnected = false;
 async function ensureDbConnection() {
   if (dbConnected)
     return;
-  
+
   try {
     const connectionString = process.env.MONGO_URL as string; //Provided by @shelf/jest-mongodb
     const client = new MongoClient(connectionString, {
       // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
       // for various options that could be tuned here
-      
+
       // A deprecation warning says to use this option 
       useUnifiedTopology: true,
     });
@@ -44,7 +43,7 @@ async function ensureDbConnection() {
     console.error("Failed to connect to mongodb:", err);
     return;
   }
-  
+
   dbConnected = true;
 }
 
@@ -85,27 +84,27 @@ async function oneTimeSetup() {
   setupRun = true;
 }
 
-export function testStartup() {
+jest.setTimeout(10000);
+
+beforeAll(async () => {
   chai.should();
   chai.use(chaiAsPromised);
 
-  jest.setTimeout(10000);
+  await oneTimeSetup();
+});
 
-  beforeAll(async () => {
-    await oneTimeSetup();
-  });
-  afterEach(async () => {
-    await waitUntilCallbacksFinished();
-  });
-  afterAll(async () => {
-    await Promise.all([
-      closeDatabaseConnection(),
-      closeSqlClient(getSqlClientOrThrow()),
-    ]);
-    if (process.env.JEST_WORKER_ID === "1") {
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - 1);
-      await dropTestingDatabases(cutoff);
-    }
-  });
-}
+afterEach(async () => {
+  await waitUntilCallbacksFinished();
+});
+
+afterAll(async () => {
+  await Promise.all([
+    closeDatabaseConnection(),
+    closeSqlClient(getSqlClientOrThrow()),
+  ]);
+  if (process.env.JEST_WORKER_ID === "1") {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 1);
+    await dropTestingDatabases(cutoff);
+  }
+});

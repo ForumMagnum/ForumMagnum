@@ -1,8 +1,5 @@
-import { testStartup } from '../../../testing/testMain';
-import { runQuery } from '../../../server/vulcan-lib';
-import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
-
-testStartup();
+import { runQuery } from '../../server/vulcan-lib';
+import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'
 
 describe('AlignmentForum PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();

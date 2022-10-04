@@ -1,9 +1,6 @@
-import { testStartup } from "../testing/testMain";
-import { createDummyPost, createDummyLocalgroup } from "../testing/utils";
-import { postsNewNotifications } from "./notificationCallbacks";
-import { createNotifications } from "./notificationCallbacksHelpers";
-
-testStartup()
+import { createDummyPost, createDummyLocalgroup } from "./utils";
+import { postsNewNotifications } from "../server/notificationCallbacks";
+import { createNotifications } from "../server/notificationCallbacksHelpers";
 
 jest.mock('./notificationCallbacksHelpers', () => {
   const originalModule = jest.requireActual('./notificationCallbacksHelpers');

@@ -1,13 +1,19 @@
-import { testStartup } from '../../../testing/testMain';
 import chai from 'chai';
-import { runQuery } from '../../../server/vulcan-lib';
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
+import { runQuery } from '../../server/vulcan-lib';
+import {
+  createDummyUser,
+  createDummyPost,
+  createDummyComment,
+  userUpdateFieldFails,
+  userUpdateFieldSucceeds,
+  catchGraphQLErrors,
+  assertIsPermissionsFlavoredError,
+} from '../utils';
 import moment from 'moment';
 
-testStartup();
-const { assert } = chai
+const { assert } = chai;
 
-function createCommentQuery (postId) {
+function createCommentQuery(postId: string) {
   return `
     mutation {
       createComment(

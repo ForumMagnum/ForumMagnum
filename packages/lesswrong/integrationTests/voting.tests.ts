@@ -1,4 +1,3 @@
-import { testStartup } from './testMain';
 import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
@@ -10,8 +9,6 @@ import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
-
-testStartup();
 
 describe('Voting', function() {
   describe('batchUpdating', function() {

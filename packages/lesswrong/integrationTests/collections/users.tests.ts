@@ -1,7 +1,10 @@
-import { testStartup } from '../../../testing/testMain';
-import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
-
-testStartup();
+import {
+  createDummyUser,
+  userUpdateFieldSucceeds,
+  userUpdateFieldFails,
+  catchGraphQLErrors,
+  assertIsPermissionsFlavoredError,
+} from '../utils';
 
 describe('updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);

@@ -1,13 +1,22 @@
-import { testStartup } from '../testMain';
-import {expect} from 'chai';
-import { runQuery } from '../../server/vulcan-lib';
-
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'
-
-testStartup();
-
-import Users from '../../lib/collections/users/collection';
-import { userIsBannedFromPost, userIsBannedFromAllPosts, userIsAllowedToComment, userCanModeratePost, userCanEditUsersBannedUserIds } from '../../lib/collections/users/helpers';
+import { expect } from 'chai';
+import { runQuery } from '../server/vulcan-lib';
+import {
+  createDummyUser,
+  createDummyPost,
+  createDummyComment,
+  userUpdateFieldSucceeds,
+  userUpdateFieldFails,
+  catchGraphQLErrors,
+  assertIsPermissionsFlavoredError,
+} from './utils';
+import Users from '../lib/collections/users/collection';
+import {
+  userIsBannedFromPost,
+  userIsBannedFromAllPosts,
+  userIsAllowedToComment,
+  userCanModeratePost,
+  userCanEditUsersBannedUserIds,
+} from '../lib/collections/users/helpers';
 
 describe('userIsBannedFromPost --', () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {

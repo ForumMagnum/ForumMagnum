@@ -1,11 +1,4 @@
-import { testStartup } from './testMain';
-
-import {
-  createDummyUser,
-  createDummyPost,
-} from './utils'
-
-testStartup();
+import { createDummyUser, createDummyPost } from './utils'
 
 describe('Utils', () => {
   describe('createDummyUser', () => {
