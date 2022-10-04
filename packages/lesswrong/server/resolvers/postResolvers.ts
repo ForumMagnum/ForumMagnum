@@ -1,7 +1,9 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
+import { Utils } from '../../lib/vulcan-lib/utils';
 import { getDefaultPostLocationFields } from '../posts/utils'
+import { addBlockIDsToHTML, getPostBlockCommentLists } from '../sideComments';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -30,5 +32,19 @@ augmentFieldsDict(Posts, {
         return await getLocalTime(post.endTime, googleLocation)
       }
     })
+  },
+  sideComments: {
+    type: "JSON",
+    resolveAs: {
+      type: "JSON",
+      resolver: async (post, args: void, context: ResolverContext) => {
+        const toc = await Utils.getToCforPost({document: post, version: null, context});
+        const html = toc?.html || post?.contents?.html
+        return {
+          html: addBlockIDsToHTML(html),
+          commentsByBlock: await getPostBlockCommentLists(context, post),
+        };
+      }
+    },
   },
 })

@@ -2133,6 +2133,11 @@ const schema: SchemaType<DbPost> = {
       }
     },
   }),
+  
+  sideComments: {
+    type: Object,
+    viewableBy: ['guests'],
+  },
 
   // GraphQL only field that resolves based on whether the current user has closed
   // this posts author's moderation guidelines in the past

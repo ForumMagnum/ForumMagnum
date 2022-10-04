@@ -564,6 +564,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly linkSharingKeyUsedBy: Array<string>,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
+  readonly sideComments: any,
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
@@ -1124,6 +1125,11 @@ interface HighlightWithHash { // fragment on Posts
 
 interface HighlightWithHash_contents { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
+}
+
+interface PostSideComments { // fragment on Posts
+  readonly _id: string,
+  readonly sideComments: any,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2702,6 +2708,7 @@ interface FragmentTypes {
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
   HighlightWithHash: HighlightWithHash
+  PostSideComments: PostSideComments
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -2865,6 +2872,7 @@ interface CollectionNamesByFragmentName {
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
   HighlightWithHash: "Posts"
+  PostSideComments: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"

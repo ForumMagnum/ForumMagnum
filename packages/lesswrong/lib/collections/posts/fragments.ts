@@ -553,3 +553,10 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment PostSideComments on Post {
+    _id
+    sideComments
+  }
+`);
