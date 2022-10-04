@@ -356,7 +356,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: 'SearchPageTabbed',
+    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
     title: 'Search',
     background: "white"
   },

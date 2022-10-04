@@ -74,6 +74,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     if (tag) {
       algoliaComment.tagId = comment.tagId;
       algoliaComment.tagCommentType = comment.tagCommentType;
+      algoliaComment.tagName = tag.name;
       algoliaComment.tagSlug = tag.slug;
     }
   }

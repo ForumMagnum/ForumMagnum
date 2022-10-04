@@ -25,6 +25,7 @@ interface AlgoliaComment {
   tags: Array<string>, // an array of tag _ids that are associated with the comment, whether via tagId or via tagRels
   body: string,
   tagId?: string,
+  tagName?: string,
   tagSlug?: string,
   tagCommentType?: string,
 }

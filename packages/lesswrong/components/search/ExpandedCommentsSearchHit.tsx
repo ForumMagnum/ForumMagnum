@@ -3,6 +3,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import TagIcon from '@material-ui/icons/LocalOffer';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,10 +41,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 3
   },
   title: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 6,
     color: theme.palette.grey[600],
     fontSize: 12,
     lineHeight: '16px',
     fontFamily: theme.typography.fontFamily,
+  },
+  tagIcon: {
+    fontSize: 12,
+    color: theme.palette.grey[500],
   },
   snippet: {
     overflowWrap: "break-word",
@@ -64,7 +75,18 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
 }) => {
   const { FormatDate } = Components
   const comment: AlgoliaComment = hit
-  const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
+  
+  let url = "";
+  if (comment.tagSlug && comment.tagCommentType) {
+    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType);
+  } else if (comment.postId && comment.postSlug) {
+    url = `${postGetPageUrl({
+      _id: comment.postId ?? "",
+      slug: comment.postSlug ?? "",
+      isEvent: comment.postIsEvent,
+      groupId: comment.postGroupId,
+    })}#${comment._id}`;
+  }
 
   return <div className={classes.root}>
     <Link
@@ -79,6 +101,10 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
       </div>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
+      </div>}
+      {comment.tagName && <div className={classes.title}>
+        <TagIcon className={classes.tagIcon} />
+        {comment.tagName}
       </div>}
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
