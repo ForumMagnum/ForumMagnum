@@ -88,7 +88,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: [allOf(canUserEditPostMetadata, userHasModerationGuidelines), 'sunshineRegiment', 'admins'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
       insertableBy: [userHasModerationGuidelines]
     },
   }
