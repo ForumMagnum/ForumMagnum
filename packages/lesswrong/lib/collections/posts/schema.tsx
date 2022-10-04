@@ -2340,7 +2340,7 @@ Object.assign(schema, {
     }),
     viewableBy: ['members'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins'],
+    editableBy: [canUserEditPostMetadata, 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",
