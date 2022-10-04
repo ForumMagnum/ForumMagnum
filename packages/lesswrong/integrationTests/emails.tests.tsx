@@ -1,3 +1,4 @@
+import "./integrationTestSetup";
 import React from 'react';
 import { withSingle, useSingle } from '../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from './utils'

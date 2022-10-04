@@ -1,3 +1,4 @@
+import "../integrationTestSetup";
 import { runQuery } from '../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'
 

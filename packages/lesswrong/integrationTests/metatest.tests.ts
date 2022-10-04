@@ -1,3 +1,4 @@
+import "./integrationTestSetup";
 import { createDummyUser, createDummyPost } from './utils'
 
 describe('Utils', () => {

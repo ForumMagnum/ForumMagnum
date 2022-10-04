@@ -1,3 +1,4 @@
+import "./integrationTestSetup";
 import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';

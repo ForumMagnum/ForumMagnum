@@ -1,3 +1,4 @@
+import "../integrationTestSetup";
 import chai from 'chai';
 import { runQuery } from '../../server/vulcan-lib';
 import {

@@ -1,3 +1,4 @@
+import "./integrationTestSetup";
 import lolex from 'lolex';
 import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';

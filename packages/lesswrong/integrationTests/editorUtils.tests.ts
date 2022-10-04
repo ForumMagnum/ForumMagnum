@@ -1,3 +1,4 @@
+import "./integrationTestSetup";
 import { createDummyPost, createDummyUser } from "./utils";
 import Revisions from "../lib/collections/revisions/collection";
 import { Posts } from "../lib/collections/posts";

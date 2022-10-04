@@ -1,9 +1,10 @@
+import "./integrationTestSetup";
 import { createDummyPost, createDummyLocalgroup } from "./utils";
 import { postsNewNotifications } from "../server/notificationCallbacks";
 import { createNotifications } from "../server/notificationCallbacksHelpers";
 
-jest.mock('./notificationCallbacksHelpers', () => {
-  const originalModule = jest.requireActual('./notificationCallbacksHelpers');
+jest.mock('../server/notificationCallbacksHelpers', () => {
+  const originalModule = jest.requireActual('../server/notificationCallbacksHelpers');
 
   // control which users are associated with which notifications (for testing postsNewNotifications)
   const mockGetSubscribedUsers = jest.fn().mockImplementation((document) => {
@@ -12,7 +13,7 @@ jest.mock('./notificationCallbacksHelpers', () => {
     // return users subscribed to the author
     if (document.collectionName === 'Users') return [{_id: '222'}, {_id: '333'}]
   })
-  
+
   return {
     __esModule: true,
     ...originalModule,
@@ -21,10 +22,6 @@ jest.mock('./notificationCallbacksHelpers', () => {
     createNotifications: jest.fn()
   };
 })
-
-beforeEach(() => {
-  jest.clearAllMocks();
-});
 
 describe("test postsNewNotifications", () => {
   it("only sends the newPost notifications when the new post is not in a group and not an event", async () => {

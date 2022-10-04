@@ -14,7 +14,7 @@ export default {
   // cacheDirectory: "/tmp/jest_rt",
 
   // Automatically clear mock calls and instances between every test
-  // clearMocks: false,
+  clearMocks: false,
 
   // Indicates whether the coverage information should be collected while executing the test
   // collectCoverage: false,
@@ -99,7 +99,7 @@ export default {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  preset: "ts-jest",
+  // preset: "",
 
   // Run tests from one or more projects
   // projects: undefined,

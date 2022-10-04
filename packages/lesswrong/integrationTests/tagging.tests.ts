@@ -1,3 +1,4 @@
+import "./integrationTestSetup";
 import { updateDenormalizedContributorsList } from '../server/resolvers/tagResolvers';
 import { createDummyUser, createDummyTag, createDummyRevision } from './utils';
 import { performVoteServer } from '../server/voteServer';
