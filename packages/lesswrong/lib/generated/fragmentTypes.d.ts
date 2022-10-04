@@ -257,6 +257,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly allCommentingDisabled: boolean,
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
+  readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -2283,6 +2284,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovLaunchCodeDate: Date,
   readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
+  readonly acknowledgedNewUserGuidelines: boolean | null,
 }
 
 interface UserBookmarkedPosts { // fragment on Users

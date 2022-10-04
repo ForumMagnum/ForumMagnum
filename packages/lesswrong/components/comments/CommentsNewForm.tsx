@@ -8,7 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
@@ -113,7 +113,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
   const isMinimalist = displayMode === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const { ModerationGuidelinesBox, NewUserGuidelinesDialog, WrappedSmartForm, RecaptchaWarning, Loading } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -121,6 +121,23 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
     fragmentName: 'SuggestAlignmentComment',
   })
   
+  // On focus (this bubbles out from the text editor), show moderation guidelines.
+  // Defer this through a setTimeout, because otherwise clicking the Cancel button
+  // doesn't work (the focus event fires before the click event, the state change
+  // causes DOM nodes to get replaced, and replacing the DOM nodes prevents the
+  // rest of the click event handlers from firing.)
+  const onFocusCommentForm = () => setTimeout(() => {
+    // TODO: user field for showing new user guidelines
+    // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
+    if (currentUser && requireNewUserGuidelinesAck(currentUser) && post) {
+      openDialog({
+        componentName: 'NewUserGuidelinesDialog',
+        componentProps: { post, user: currentUser },
+        noClickawayCancel: true
+      });
+    }
+    setShowGuidelines(true);
+  }, 0);
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
@@ -198,14 +215,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   return (
-    <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={()=>{
-      // On focus (this bubbles out from the text editor), show moderation guidelines.
-      // Defer this through a setTimeout, because otherwise clicking the Cancel button
-      // doesn't work (the focus event fires before the click event, the state change
-      // causes DOM nodes to get replaced, and replacing the DOM nodes prevents the
-      // rest of the click event handlers from firing.)
-      setTimeout(() => setShowGuidelines(true), 0);
-    }}>
+    <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
           {commentWillBeHidden && <div className={classes.modNote}><em>

@@ -467,3 +467,8 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+
+export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+  // TODO: gate for users created after a certain date?
+  return !user.acknowledgedNewUserGuidelines;
+};
