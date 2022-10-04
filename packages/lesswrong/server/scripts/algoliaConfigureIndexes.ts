@@ -65,6 +65,7 @@ export const algoliaConfigureIndexes = async () => {
       'searchable(authorDisplayName)',
       'authorSlug',
       'postedAt',
+      'publicDateMs',
       'searchable(tags)',
       'curated'
     ],
@@ -107,6 +108,7 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
       'searchable(tags)',
+      'publicDateMs',
     ],
     attributesToSnippet: ['bio:20'],
     advancedSyntax: true
@@ -120,6 +122,7 @@ export const algoliaConfigureIndexes = async () => {
     ],
     attributesForFaceting: [
       'filterOnly(af)',
+      'publicDateMs',
     ],
     advancedSyntax: true,
     attributesToSnippet: ['plaintextDescription:20'],

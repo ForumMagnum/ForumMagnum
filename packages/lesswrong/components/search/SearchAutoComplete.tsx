@@ -75,9 +75,6 @@ const AutocompleteTextbox = connectAutoComplete(
     // @ts-ignore
     onSuggestionSelected, placeholder, renderSuggestion, renderInputComponent
   }) => {
-    // if (hits.length && hits[0].hits) {
-    //   hits = hits.find(h => h.index.includes('tag'))?.hits
-    // }
     return (
       <Autosuggest
         suggestions={hits}
