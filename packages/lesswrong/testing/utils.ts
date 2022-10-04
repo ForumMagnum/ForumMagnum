@@ -426,11 +426,3 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return (response as any).should.eventually.deep.equal(expectedOutput);
 }
-
-
-export const stubbedTests = () => {
-  describe("Stubbed unit test file", () => {
-    it("Has a placeholder", () => {
-    });
-  });
-}

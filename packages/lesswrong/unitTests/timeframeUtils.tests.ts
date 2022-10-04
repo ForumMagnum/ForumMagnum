@@ -1,4 +1,4 @@
-import { getDateRange } from './timeframeUtils'
+import { getDateRange } from '../components/posts/timeframeUtils'
 import chai from 'chai';
 
 chai.should();

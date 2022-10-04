@@ -123,9 +123,9 @@ export default {
   // rootDir: undefined,
 
   // A list of paths to directories that Jest should use to search for files in
-  roots: [
-    "./packages/lesswrong"
-  ],
+  // roots: [
+    // "./packages/lesswrong"
+  // ],
 
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
@@ -155,7 +155,6 @@ export default {
 
   // The glob patterns Jest uses to detect test files
   testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
     "**/?(*.)+(spec|test|tests).[tj]s?(x)"
   ],
 

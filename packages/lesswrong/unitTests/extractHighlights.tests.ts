@@ -1,8 +1,5 @@
-import { testStartup } from './testMain';
 import chai from 'chai';
 import { htmlStartingAtHash } from '../server/extractHighlights';
-
-testStartup();
 
 describe('extractHighlights', () => {
   it('finds the indicated section', () => {

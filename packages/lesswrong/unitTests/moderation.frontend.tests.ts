@@ -1,7 +1,5 @@
-import { testStartup } from '../testMain';
-import { stubbedTests } from '../utils';
+import { stubbedTests } from './stubbedTests';
 
-testStartup();
 stubbedTests();
 
 // Commented out because these unit tests were based on a very brittle hack:

@@ -1,8 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { useFilterSettings } from './filterSettings'
-import { testStartup } from "../testing/testMain"
-
-testStartup()
+import { useFilterSettings } from '../lib/filterSettings'
 
 jest.mock('../components/common/withUser', () => ({
   useCurrentUser: () => ({}),
@@ -12,7 +9,7 @@ jest.mock('../components/hooks/useUpdateCurrentUser', () => ({
   useUpdateCurrentUser: jest.fn().mockReturnValue(jest.fn()),
 }))
 
-jest.mock('./crud/withMulti', () => ({
+jest.mock('../lib/crud/withMulti', () => ({
   useMulti: jest.fn()
     .mockReturnValueOnce({
       results: undefined,
@@ -30,8 +27,8 @@ jest.mock('./crud/withMulti', () => ({
     })
 }))
 
-jest.mock('./publicSettings', () => {
-  const originalModule = jest.requireActual('./publicSettings');
+jest.mock('../lib/publicSettings', () => {
+  const originalModule = jest.requireActual('../lib/publicSettings');
   return {
     __esModule: true,
     ...originalModule,
@@ -56,7 +53,7 @@ describe('useFilterSettings', () => {
       },
       loadingSuggestedTags: true,
     })
-    
+
     // set personalBlog filter
     rerender() // To trigger useMulti's non-loading state
     act(() => {
@@ -73,7 +70,7 @@ describe('useFilterSettings', () => {
         ],
       },
     })
-    
+
     //  add tag filter
     act(() => {
       filterSettingsResults.current.setTagFilter!({tagId: '2', tagName: 'Dank Memes', filterMode: 'Subscribed'})
@@ -89,7 +86,7 @@ describe('useFilterSettings', () => {
         ],
       },
     })
-    
+
     // try to add tag filter with no tagName
     act(() => {
       let error: any
@@ -100,7 +97,7 @@ describe('useFilterSettings', () => {
       }
       expect(error).toBeTruthy()
     })
-    
+
     // update tag filter
     act(() => {
       filterSettingsResults.current.setTagFilter!({tagId: '2', tagName: 'Dank Memes', filterMode: 'Hidden'})
@@ -116,7 +113,7 @@ describe('useFilterSettings', () => {
         ],
       },
     })
-    
+
     // remove tag filter
     act(() => {
       filterSettingsResults.current.removeTagFilter!('2')
@@ -131,7 +128,7 @@ describe('useFilterSettings', () => {
         ],
       },
     })
-    
+
     // try to remove suggested tag filter
     act(() => {
       let error: any

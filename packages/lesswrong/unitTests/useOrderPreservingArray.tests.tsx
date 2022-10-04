@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { useOrderPreservingArray } from "./useOrderPreservingArray";
+import { useOrderPreservingArray } from "../components/hooks/useOrderPreservingArray";
 
 describe("useOrderPreservingArray", () => {
   it("Prepends new elements when using prepend-new", () => {

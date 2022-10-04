@@ -1,5 +1,5 @@
 import { testStartup } from '../../../testing/testMain';
-import { stubbedTests } from '../../../testing/utils';
+import { stubbedTests } from '../../../unitTests/stubbedTests';
 
 testStartup();
 stubbedTests();

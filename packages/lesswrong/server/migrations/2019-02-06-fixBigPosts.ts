@@ -1,6 +1,5 @@
-
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/make_editable_callbacks'
+import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/conversionUtils'
 import { Posts } from '../../lib/collections/posts'
 import { updateMutator } from '../vulcan-lib';
 

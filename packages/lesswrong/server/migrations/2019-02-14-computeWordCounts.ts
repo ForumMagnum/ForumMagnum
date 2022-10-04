@@ -1,7 +1,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { getCollection } from '../../lib/vulcan-lib';
-import { dataToWordCount } from '../editor/make_editable_callbacks';
+import { dataToWordCount } from '../editor/conversionUtils';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
 registerMigration({

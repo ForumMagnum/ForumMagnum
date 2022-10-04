@@ -1,7 +1,4 @@
-import { testStartup } from '../../testing/testMain';
-import { subBatchArray } from './utils'
-
-testStartup();
+import { subBatchArray } from '../server/search/subBatchArray'
 
 describe('subBatchArray', () => {
   it('divides a large array', () => {

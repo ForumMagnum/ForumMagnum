@@ -1,14 +1,11 @@
-import { testStartup } from "../../../testing/testMain";
-import { DbTestObject, testTable, runTestCases } from "./testHelpers";
-import InsertQuery from "../InsertQuery";
-import SelectQuery from "../SelectQuery";
-import UpdateQuery from "../UpdateQuery";
-import DeleteQuery from "../DeleteQuery";
-import CreateTableQuery from "../CreateTableQuery";
-import CreateIndexQuery from "../CreateIndexQuery";
-import DropIndexQuery from "../DropIndexQuery";
-
-testStartup();
+import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
+import InsertQuery from "../../lib/sql/InsertQuery";
+import SelectQuery from "../../lib/sql/SelectQuery";
+import UpdateQuery from "../../lib/sql/UpdateQuery";
+import DeleteQuery from "../../lib/sql/DeleteQuery";
+import CreateTableQuery from "../../lib/sql/CreateTableQuery";
+import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
+import DropIndexQuery from "../../lib/sql/DropIndexQuery";
 
 describe("Query", () => {
   runTestCases([

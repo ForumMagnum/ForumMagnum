@@ -1,8 +1,5 @@
-import { testStartup } from './testMain';
 import chai from 'chai';
-import { diffHtml, trimHtmlDiff } from '../server/resolvers/diffResolvers';
-
-testStartup();
+import { diffHtml, trimHtmlDiff } from '../server/resolvers/htmlDiff';
 
 describe('diffHtml', () => {
   it('passes unchanged HTML through', () => {
@@ -12,12 +9,12 @@ describe('diffHtml', () => {
       // Regular paragraphs, wrapped in <body>
       '<body><p>Paragraph </p><p>Paragraph</p></body>',
     ];
-    
+
     for (const testHtml of tests) {
       chai.assert.equal(normalizeHtml(diffHtml(testHtml, testHtml, false)), normalizeHtml(testHtml));
     }
   });
-  
+
   it('represents changes with ins and del tags', () => {
     const tests = [
       // One word change, no wrapper
@@ -43,7 +40,7 @@ describe('diffHtml', () => {
       chai.assert.equal(normalizeHtml(diffHtml(testCase.before, testCase.after, false)), normalizeHtml(testCase.differences));
     }
   });
-  
+
   it('sanitizes results', () => {
     const scriptTag = '<script>alert("xss")</script>'
     const before = scriptTag+'<p>First paragraph</p><p>Last paragraph</p>'
@@ -51,7 +48,7 @@ describe('diffHtml', () => {
     const differences = '<p>First paragraph</p><p><ins>Inserted paragraph</ins></p><p>Last paragraph</p>'
     chai.assert.equal(normalizeHtml(diffHtml(before, after, false)), normalizeHtml(differences));
   });
-  
+
   it('trims unchanged sections correctly', () => {
     const tests = [
       {

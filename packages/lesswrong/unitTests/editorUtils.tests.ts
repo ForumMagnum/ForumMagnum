@@ -1,14 +1,11 @@
-import { testStartup } from '../../testing/testMain';
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../server/draftConvert'
-import { htmlToDraftServer } from '../../server/resolvers/revisionResolvers'
-
-testStartup();
+import { draftToHTML } from '../server/draftConvert'
+import { htmlToDraftServer } from '../server/resolvers/toDraft'
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {
     const rawDraftJS: any = {
-      "blocks" : [ 
+      "blocks" : [
           {
               "data" : {},
               "depth" : 0,
@@ -23,7 +20,7 @@ describe("draftToHtml", () => {
               "key" : "6g37h",
               "text" : "Italic",
               "type" : "unstyled"
-          }, 
+          },
           {
               "data" : {},
               "depth" : 0,
@@ -38,7 +35,7 @@ describe("draftToHtml", () => {
               "key" : "fs9sl",
               "text" : "Bold",
               "type" : "unstyled"
-          }, 
+          },
           {
               "data" : {},
               "depth" : 0,

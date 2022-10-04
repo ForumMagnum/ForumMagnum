@@ -1,7 +1,4 @@
-import { mergeSingleUser, classifyDuplicateUser, MergeType } from './fixDuplicateEmail'
-import { testStartup } from "../../testing/testMain";
-
-testStartup();
+import { mergeSingleUser, classifyDuplicateUser, MergeType } from '../server/scripts/fixDuplicateEmail'
 
 describe("classifyDuplicateUser", () => {
   it("should classify a user as empty", () => {

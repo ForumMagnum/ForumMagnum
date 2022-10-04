@@ -1,7 +1,4 @@
-import { testStartup } from './testMain';
 import { Routes } from '../lib/vulcan-lib/routes';
-
-testStartup();
 
 describe("routes table", () => {
   it("doesn't have enableResourcePrefetch on routes with URL parameters or redirect", () => {

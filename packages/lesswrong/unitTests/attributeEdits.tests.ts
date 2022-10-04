@@ -1,10 +1,7 @@
-import { testStartup } from './testMain';
 import { attributeEdits, attributionsToSpans, spansToAttributions, applyAttributionsToText } from '../server/attributeEdits';
 import cheerio from 'cheerio';
 import chai from 'chai';
 import * as _ from 'underscore';
-
-testStartup();
 
 describe('Diff attribution tracking', () => {
   it('applyAttributionsToText', () => {

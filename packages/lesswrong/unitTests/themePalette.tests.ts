@@ -1,10 +1,7 @@
-import { testStartup } from '../testing/testMain';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
-
-testStartup();
 
 describe('JSS', () => {
   it('uses only colors from the theme palette', () => {
