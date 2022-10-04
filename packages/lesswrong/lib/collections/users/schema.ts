@@ -2288,24 +2288,6 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    // resolveAs: {
-    //   type: 'Boolean',
-    //   resolver: async (_, args: void, context: ResolverContext): Promise<boolean> => {
-    //     const { LWEvents, currentUser } = context;
-    //     // TODO: only for users created after a certain date?
-    //     if (currentUser) {
-    //       const query = {
-    //         name: 'acknowledged-new-user-guidelines',
-    //         userId: currentUser._id
-    //       }
-    //       const event = await LWEvents.findOne(query);
-    //       return !!event;
-    //     } else {
-    //       return false
-    //     }
-    //   },
-    //   addOriginalField: false
-    // }
   },
 };
 
