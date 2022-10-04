@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useNamedMutation } from '../../../lib/crud/withMutation';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
@@ -179,9 +179,10 @@ const PostActions = ({post, closeMenu, classes}: {
   
   let editLink: React.ReactNode|null = null;
   const isEditor = canUserEditPostMetadata(currentUser,post);
+  const isPodcaster = userIsPodcaster(currentUser);
   const isShared = userIsSharedOn(currentUser, post);
-  if (isEditor || isShared) {
-    const link = isEditor ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
+  if (isEditor || isPodcaster || isShared) {
+    const link = (isEditor || isPodcaster) ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
     editLink = <Link to={link}>
       <MenuItem>
         <ListItemIcon>
