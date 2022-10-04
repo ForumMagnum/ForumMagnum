@@ -4,7 +4,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -51,15 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const newUserGuidelines = `
-  <p><b>New User?  Read this before commenting.</b></p>
-  <p>Welcome to LessWrong!</p>
-  <p>We care a lot about making progress on art of human rationality and other important questions, and so have set very high standards for quality of writing on the site in comparison to many places on the web.</p>
-  <p>To have well-received comments on LessWrong, we suggest spending some time learning from the example of content already on the site.</p>
-  <p>We especially advise reading <a href="https://www.lesswrong.com/rationality">R:A-Z</a> and <a href="https://www.lesswrong.com/codex">The Codex</a>, since they help set the tone and standard for the site broadly.</p>
-  <p>Otherwise look at highly upvoted posts and comments to see what to aim for when contributing here.</p>
-`;
-
 const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   classes: ClassesType,
   onClose: () => void,
@@ -68,34 +58,25 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
 }) => {
   const { LWDialog } = Components;
   const updateCurrentUser = useUpdateCurrentUser();
-  const {recordEvent} = useNewEvents();
-
-  const { document: postWithDetails, loading } = useSingle({
-    skip: !post,
-    documentId: post?._id,
-    collectionName: "Posts",
-    fetchPolicy: "cache-first",
-    fragmentName: "PostsList",
-  });
-  
-  if (!post || !postWithDetails)
-    return null
-  if (loading)
-    return <Components.Loading/>
+  const { recordEvent } = useNewEvents();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    void updateCurrentUser({
+      acknowledgedNewUserGuidelines: true
+    });
+
     const eventProperties = {
       userId: user._id,
       important: false,
       intercom: true,
-      documentId: postWithDetails?.userId,
+      documentId: post._id,
     };
-    void updateCurrentUser({
-      acknowledgedNewUserGuidelines: true
-    });
+
     recordEvent('acknowledged-new-user-guidelines', false, eventProperties);
+
     onClose();
   }
   
@@ -106,14 +87,10 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           New User?  Read this before commenting.
         </DialogTitle>
         <DialogContent>
-        <p>Welcome to LessWrong!</p>
-          <br />
+          <p>Welcome to LessWrong!</p>
           <p>We care a lot about making progress on art of human rationality and other important questions, and so have set very high standards for quality of writing on the site in comparison to many places on the web.</p>
-          <br />
           <p>To have well-received comments on LessWrong, we suggest spending some time learning from the example of content already on the site.</p>
-          <br />
           <p>We especially advise reading <Link to="/rationality">R:A-Z</Link> and <Link to="/codex">The Codex</Link>, since they help set the tone and standard for the site broadly.</p>
-          <br />
           <p>Otherwise look at highly upvoted posts and comments to see what to aim for when contributing here.</p>
         </DialogContent>
         <DialogActions>
@@ -122,7 +99,6 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           </Button>
         </DialogActions>
       </LWDialog>
-      <div dangerouslySetInnerHTML={{__html: newUserGuidelines}}/>
     </Components.ContentStyles>
   )
 }
