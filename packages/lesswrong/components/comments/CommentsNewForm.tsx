@@ -1,7 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { Comments } from '../../lib/collections/comments/collection';
-import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -14,7 +13,8 @@ import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import ArrowForward from '@material-ui/icons/ArrowForward';
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 

@@ -67,13 +67,18 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
 };
 
 // Check if a user is a member of a group
-export const userIsMemberOf = (user: UsersCurrent|UsersProfile|DbUser|null, group: string): boolean => {
+export const userIsMemberOf = (user: UsersCurrent|UsersProfile|DbUser|null, group: PermissionGroups): boolean => {
   const userGroups = userGetGroups(user);
   for (let userGroup of userGroups) {
     if (userGroup === group)
       return true;
   }
   return false;
+};
+
+
+export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): boolean => {
+  return userIsMemberOf(user, 'podcasters');
 };
 
 // Check if a user can perform at least one of the specified actions
