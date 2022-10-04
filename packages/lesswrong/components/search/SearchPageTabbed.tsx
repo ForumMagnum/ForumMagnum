@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import qs from 'qs';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStateResults, connectRefinementList, ToggleRefinement } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import qs from 'qs';
+
+
+const hitsPerPage = 10
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -134,25 +137,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const RefinementList = ({
-  items,
-  searchForItems,
-  refine,
-  createURL,
-}) => {
+// filters by tags
+const TagsRefinementList = ({ refine, tagsFilter, setTagsFilter }) => {
   return <Components.TagMultiselect
-    value={items.filter(i => i.isRefined).map(i => i.label)}
+    value={tagsFilter}
     path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
-    updateCurrentValues={(val) => {
-      console.log('createURL', createURL(val.tags))
-      refine(val.tags)
+    updateCurrentValues={(values: {tags?: Array<string>}) => {
+      setTagsFilter(values.tags)
+      refine(values.tags)
     }}
   />
 }
+const CustomTagsRefinementList = connectRefinementList(TagsRefinementList)
 
-const CustomRefinementList = connectRefinementList(RefinementList)
+// shows total # of results
+const ResultsCount = ({ searchResults, className }) => {
+  if (!searchResults || !searchResults.nbHits) return null
+  
+  return <div className={className}>
+    {searchResults.nbHits} result{searchResults.nbHits === 1 ? '' : 's'}
+  </div>
+}
+const CustomTotalStateResults = connectStateResults(ResultsCount)
+
 
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
@@ -160,14 +169,31 @@ const SearchPageTabbed = ({classes}:{
   const { history } = useNavigation()
   const { location, query } = useLocation()
 
-  const [tab, setTab] = useState<AlgoliaIndexCollectionName>(query.contentType ?? 'Posts')
-  const [tagsFilter, setTagsFilter] = useState([])
+  // initialize the tab & search filters from the URL
+  const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
+    const contentType = query.contentType as AlgoliaIndexCollectionName
+    return collectionIsAlgoliaIndexed(contentType) ? contentType : 'Posts'
+  })
+  const [keywordSearch, setKeywordSearch] = useState(query.terms ?? '')
+  const [tagsFilter, setTagsFilter] = useState<Array<string>>(
+    // query.tags can be a string array, but it's typed incorrectly
+    (query.tags && typeof query.tags === typeof []) ? query.tags as any : []
+  )
 
-  const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit, ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
+  const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
   
+  const handleUpdateSearch = (e) => {
+    setKeywordSearch(e.currentTarget.value)
+    history.replace({...location, search: qs.stringify({contentType: tab, terms: e.currentTarget.value, tags: tagsFilter})})
+  }
+  const handleUpdateTagsFilter = (tags) => {
+    setTagsFilter(tags)
+    history.replace({...location, search: qs.stringify({contentType: tab, terms: keywordSearch, tags})})
+  }
   const handleChangeTab = (e, value) => {
     setTab(value)
-    history.replace({...location, search: qs.stringify({contentType: value})})
+    history.replace({...location, search: qs.stringify({contentType: value, terms: keywordSearch, tags: tagsFilter})})
   }
 
   if (!isAlgoliaEnabled()) {
@@ -176,6 +202,7 @@ const SearchPageTabbed = ({classes}:{
     </div>
   }
   
+  // component for search results depends on which content type tab we're on
   const hitComponents = {
     'Posts': ExpandedPostsSearchHit,
     'Comments': ExpandedCommentsSearchHit,
@@ -184,80 +211,65 @@ const SearchPageTabbed = ({classes}:{
     'Users': ExpandedUsersSearchHit
   }
   const HitComponent = hitComponents[tab]
-  
-  
-  const hitsPerPage = 10
-  
-  const ResultsCount = ({ searchResults }) => {
-    if (!searchResults || !searchResults.nbHits) return null
-    
-    return <div className={classes.resultCount}>
-      {searchResults.nbHits} result{searchResults.nbHits === 1 ? '' : 's'}
-    </div>
-    
-    // const start = hitsPerPage * searchResults.page + 1
-    // const end = Math.min(hitsPerPage * (searchResults.page + 1) + 1, searchResults.nbHits)
-    
-    // return <div className={classes.noResults}>
-    //   <div className={classes.noResultsText}>Showing {start}-{end} of total {searchResults.nbHits} results</div>
-    // </div>
-  }
-  const CustomStateResults = connectStateResults(ResultsCount)
 
   return <div className={classes.root}>
     <InstantSearch
       indexName={getAlgoliaIndexName(tab)}
       searchClient={getSearchClient()}
     >
-    <div className={classes.filtersColumn}>
-      <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
-      {['Posts', 'Comments', 'Users'].includes(tab) && <CustomRefinementList attribute="tags" />}
-      {tab === 'Posts' && <ToggleRefinement
-        attribute="curated"
-        label="Curated"
-        value={true}
-      />}
-      {tab === 'Tags' && <ToggleRefinement
-        attribute="isSubforum"
-        label="Has subforum"
-        value={true}
-      />}
-    </div>
-
-    <div className={classes.resultsColumn}>
-      <div className={classes.searchInputArea}>
-        <SearchIcon className={classes.searchIcon}/>
-        {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-          * null is the only option that actually suppresses the extra X button.
-         // @ts-ignore */}
-        <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
+      <div className={classes.filtersColumn}>
+        <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
+        {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
+            attribute="tags"
+            defaultRefinement={tagsFilter}
+            tagsFilter={tagsFilter}
+            setTagsFilter={handleUpdateTagsFilter}
+          />
+        }
+        {tab === 'Posts' && <ToggleRefinement
+          attribute="curated"
+          label="Curated"
+          value={true}
+        />}
+        {tab === 'Tags' && <ToggleRefinement
+          attribute="isSubforum"
+          label="Has subforum"
+          value={true}
+        />}
       </div>
-      
-      <Tabs
-        value={tab}
-        onChange={handleChangeTab}
-        className={classes.tabs}
-        textColor="primary"
-        aria-label="select content type to search"
-        scrollable
-        scrollButtons="off"
-      >
-        <Tab label="Posts" value="Posts" />
-        <Tab label="Comments" value="Comments" />
-        <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
-        <Tab label="Sequences" value="Sequences" />
-        <Tab label="Users" value="Users" />
-      </Tabs>
-      
-      <ErrorBoundary>
-        <div className={classes.searchList}>
-            <Configure hitsPerPage={hitsPerPage} />
-            <CustomStateResults />
-            <Hits hitComponent={(props) => <HitComponent {...props} />} />
-            <Pagination showLast className={classes.pagination} />
+
+      <div className={classes.resultsColumn}>
+        <div className={classes.searchInputArea}>
+          <SearchIcon className={classes.searchIcon}/>
+          {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+            * null is the only option that actually suppresses the extra X button.
+          // @ts-ignore */}
+          <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} onChange={handleUpdateSearch} />
         </div>
-      </ErrorBoundary>
-    </div>
+        
+        <Tabs
+          value={tab}
+          onChange={handleChangeTab}
+          className={classes.tabs}
+          textColor="primary"
+          aria-label="select content type to search"
+          scrollable
+          scrollButtons="off"
+        >
+          <Tab label="Posts" value="Posts" />
+          <Tab label="Comments" value="Comments" />
+          <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
+          <Tab label="Sequences" value="Sequences" />
+          <Tab label="Users" value="Users" />
+        </Tabs>
+        
+        <ErrorBoundary>
+          <Configure hitsPerPage={hitsPerPage} />
+          <CustomTotalStateResults className={classes.resultCount} />
+          <Hits hitComponent={(props) => <HitComponent {...props} />} />
+          <Pagination showLast className={classes.pagination} />
+        </ErrorBoundary>
+      </div>
     </InstantSearch>
   </div>
 }
