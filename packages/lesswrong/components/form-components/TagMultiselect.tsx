@@ -22,12 +22,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, updateCurrentValues }: {
   value: Array<string>,
   path: string,
   classes: ClassesType,
   label?: string,
   placeholder?: string,
+  hidePostCount?: boolean,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
   
@@ -61,6 +62,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
           <Components.TagsSearchAutoComplete
             clickAction={(id: string) => addTag(id)}
             placeholder={placeholder}
+            hidePostCount={hidePostCount}
           />
         </div>
       </Components.ErrorBoundary>

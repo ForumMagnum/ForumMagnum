@@ -57,16 +57,17 @@ const getUserInitials = (displayName: string) => {
 
 /**
  * In almost all places where we use profile photos, if we don't have one to show,
- * we can just show nothing. So far the only exception is in private messaging,
+ * we can just show nothing. So far the only exceptions are in private messaging and search results,
  * where we didn't like how the layout looked with that empty space.
  * So this component includes a couple fallbacks in case the user has no photo.
  */
-const ProfilePhoto = ({user, className, classes}: {
+const ProfilePhoto = ({user, noLink=false, className, classes}: {
   user: {
     slug: string,
     profileImageId?: string,
     displayName?: string
   }|null,
+  noLink?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -98,7 +99,9 @@ const ProfilePhoto = ({user, className, classes}: {
     </div>
   }
   
-  return <Link to={`/users/${user.slug}`} className={className}>
+  return noLink ? <div className={className}>
+    {imgNode}
+  </div> : <Link to={`/users/${user.slug}`} className={className}>
     {imgNode}
   </Link>
 }

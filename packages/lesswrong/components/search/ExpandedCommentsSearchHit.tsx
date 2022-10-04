@@ -7,7 +7,6 @@ import { Snippet } from 'react-instantsearch-dom';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 700,
-    padding: 10,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18

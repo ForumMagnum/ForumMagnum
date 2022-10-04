@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -9,7 +9,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 700,
-    padding: 10,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -80,7 +79,7 @@ const ExpandedTagsSearchHit = ({hit, clickAction, classes}: {
         <span className={classes.title}>
           {tag.name}
         </span>
-        <span>{tag.postCount} posts</span>
+        <span>{tag.postCount ?? 0} post{tag.postCount === 1 ? '' : 's'}</span>
       </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="description" hit={tag} tagName="mark" />

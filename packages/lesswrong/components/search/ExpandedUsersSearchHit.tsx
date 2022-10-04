@@ -6,12 +6,10 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import StarIcon from '@material-ui/icons/Star';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 700,
-    padding: 10,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -84,7 +82,7 @@ const ExpandedUsersSearchHit = ({hit, clickAction, classes}: {
       className={classes.link}
     >
       <div className={classes.profilePhotoCol}>
-        <ProfilePhoto user={user} />
+        <ProfilePhoto user={user} noLink />
       </div>
       <div>
         <div className={classes.displayNameRow}>
@@ -93,7 +91,7 @@ const ExpandedUsersSearchHit = ({hit, clickAction, classes}: {
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>
-            <StarIcon className={classes.metaInfoIcon} /> {user.karma || 0}
+            <StarIcon className={classes.metaInfoIcon} /> {user.karma ?? 0}
           </span>
           {user.mapLocationAddress && <span className={classes.metaInfo}>
             <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}

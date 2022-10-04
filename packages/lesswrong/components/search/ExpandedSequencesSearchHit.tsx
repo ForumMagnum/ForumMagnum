@@ -8,7 +8,6 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 700,
-    padding: 10,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18

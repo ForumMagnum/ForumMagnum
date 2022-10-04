@@ -8,7 +8,6 @@ import SearchIcon from '@material-ui/icons/Search';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
-import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,50 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   resultsColumn: {
     flex: '1 1 0',
   },
-  
-  tabs: {
-    margin: '0 auto 30px',
-    [theme.breakpoints.down('sm')]: {
-      marginBottom: 20
-    },
-    '& .MuiTab-root': {
-      minWidth: 110,
-      [theme.breakpoints.down('xs')]: {
-        minWidth: 50
-      }
-    },
-    '& .MuiTab-labelContainer': {
-      fontSize: '1rem'
-    }
-  },
-  
-  // searchList: {
-  //   // width: 300,
-  //   [theme.breakpoints.down('sm')]: {
-  //     width: "100%",
-  //     borderBottom: theme.palette.border.faint,
-  //     order: 1,
-  //     maxWidth: 625,
-  //   },
-  // },
-  // usersList: {
-  //   // width: 220,
-  //   [theme.breakpoints.down('sm')]: {
-  //     width: "100%",
-  //     maxWidth: 625,
-  //     borderBottom: theme.palette.border.faint,
-  //     paddingBottom: 8
-  //   }
-  // },
-  // tagsList: {
-  //   // width: 220,
-  //   [theme.breakpoints.down('sm')]: {
-  //     width: "100%",
-  //     maxWidth: 625,
-  //     borderBottom: theme.palette.border.faint,
-  //     paddingBottom: 8
-  //   }
-  // },
+
   searchIcon: {
     marginLeft: 12
   },
@@ -96,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     maxWidth: 625,
-    marginBottom: 30,
+    marginBottom: 15,
     height: 48,
     border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
@@ -134,15 +90,37 @@ const styles = (theme: ThemeType): JssStyles => ({
       ...theme.typography.body2,
     },
   },
+  tabs: {
+    margin: '0 auto 20px',
+    '& .MuiTab-root': {
+      minWidth: 110,
+      [theme.breakpoints.down('xs')]: {
+        minWidth: 50
+      }
+    },
+    '& .MuiTab-labelContainer': {
+      fontSize: '1rem'
+    }
+  },
+  resultCount: {
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    fontSize: 14,
+    color: theme.palette.grey[700],
+    marginBottom: 20
+  },
+  
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
-    marginTop: 6,
     '& li': {
       padding: 8
     },
     '& .ais-Pagination-item': {
       color: theme.palette.primary.main,
+    },
+    '& .ais-Pagination-item--firstPage': {
+      paddingLeft: 0
     },
     '& .ais-Pagination-item--page': {
       fontWeight: 600
@@ -166,6 +144,7 @@ const RefinementList = ({
     value={items.filter(i => i.isRefined).map(i => i.label)}
     path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
+    hidePostCount
     updateCurrentValues={(val) => {
       console.log('createURL', createURL(val.tags))
       refine(val.tags)
@@ -207,19 +186,21 @@ const SearchPageTabbed = ({classes}:{
   const HitComponent = hitComponents[tab]
   
   
-  const hitsPerPage = 15
+  const hitsPerPage = 10
   
   const ResultsCount = ({ searchResults }) => {
     if (!searchResults || !searchResults.nbHits) return null
     
-    // return <div>({searchResults.nbHits})</div>
-    
-    const start = hitsPerPage * searchResults.page + 1
-    const end = Math.min(hitsPerPage * (searchResults.page + 1) + 1, searchResults.nbHits)
-    
-    return <div className={classes.noResults}>
-      <div className={classes.noResultsText}>Showing {start}-{end} of total {searchResults.nbHits} results</div>
+    return <div className={classes.resultCount}>
+      {searchResults.nbHits} result{searchResults.nbHits === 1 ? '' : 's'}
     </div>
+    
+    // const start = hitsPerPage * searchResults.page + 1
+    // const end = Math.min(hitsPerPage * (searchResults.page + 1) + 1, searchResults.nbHits)
+    
+    // return <div className={classes.noResults}>
+    //   <div className={classes.noResultsText}>Showing {start}-{end} of total {searchResults.nbHits} results</div>
+    // </div>
   }
   const CustomStateResults = connectStateResults(ResultsCount)
 
@@ -271,9 +252,9 @@ const SearchPageTabbed = ({classes}:{
       <ErrorBoundary>
         <div className={classes.searchList}>
             <Configure hitsPerPage={hitsPerPage} />
+            <CustomStateResults />
             <Hits hitComponent={(props) => <HitComponent {...props} />} />
             <Pagination showLast className={classes.pagination} />
-            <CustomStateResults />
         </div>
       </ErrorBoundary>
     </div>
