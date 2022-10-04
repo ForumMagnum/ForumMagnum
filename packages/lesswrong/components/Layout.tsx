@@ -23,6 +23,7 @@ import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import NoSSR from 'react-no-ssr';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -329,7 +330,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   {!currentRoute?.hideFooter && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <Components.SunshineSidebar/>
+                  <NoSSR>
+                    <Components.SunshineSidebar/>
+                  </NoSSR>
                 </div>}
               </div>
             </CommentBoxManager>
