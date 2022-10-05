@@ -2,7 +2,7 @@ import Table from "./Table";
 import { Type } from "./Type";
 
 class Arg {
-  public typehint: string = "";
+  public typehint = "";
 
   constructor(public value: any) {
     // JSON arrays make node-postgres fallover, but we can work around it

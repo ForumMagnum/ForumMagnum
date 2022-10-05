@@ -59,7 +59,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     throw e;
   }
 
-  sql.none(`ALTER TABLE "${table.getName()}" SET UNLOGGED`);
+  await sql.none(`ALTER TABLE "${table.getName()}" SET UNLOGGED`);
 
   console.log("...Creating indexes");
   const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
@@ -97,7 +97,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     },
   });
 
-  sql.none(`ALTER TABLE "${table.getName()}" SET LOGGED`);
+  await sql.none(`ALTER TABLE "${table.getName()}" SET LOGGED`);
 
   if (errorIds.length) {
     console.log(`...${errorIds.length} import errors:`, errorIds);
