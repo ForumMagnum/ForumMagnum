@@ -503,7 +503,7 @@ Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   },
 }));
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms) => {
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {

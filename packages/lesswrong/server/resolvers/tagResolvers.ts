@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
@@ -18,6 +18,7 @@ import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
 import { TagCommentType } from '../../lib/collections/comments/types';
+import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -34,6 +35,12 @@ addGraphQLSchema(`
 `);
 
 addGraphQLResolvers({
+  Mutation: {
+    async recordSubforumView(root: void, {userId, tagId}: {userId: string, tagId: string}, context: ResolverContext) {
+      await recordSubforumView(userId, tagId);
+      return "success";
+    }
+  },
   Query: {
     async TagUpdatesInTimeBlock(root: void, {before,after}: {before: Date, after: Date}, context: ResolverContext) {
       if (!before) throw new Error("Missing graphql parameter: before");
@@ -138,6 +145,7 @@ addGraphQLResolvers({
   }
 });
 
+addGraphQLMutation('recordSubforumView(userId: String!, tagId: String!): String');
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
 addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
 addGraphQLQuery('RandomTag: Tag!');

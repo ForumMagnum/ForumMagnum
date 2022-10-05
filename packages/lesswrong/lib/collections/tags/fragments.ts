@@ -148,6 +148,13 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
+    subforumUnreadMessagesCount
+  }
+`);
+
+registerFragment(`
   fragment TagDetailedPreviewFragment on Tag {
     ...TagDetailsFragment
     description {
