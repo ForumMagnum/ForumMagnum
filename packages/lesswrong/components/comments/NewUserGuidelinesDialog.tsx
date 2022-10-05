@@ -35,10 +35,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
+  const handleClick = () => {
     void updateCurrentUser({
       acknowledgedNewUserGuidelines: true
     });
