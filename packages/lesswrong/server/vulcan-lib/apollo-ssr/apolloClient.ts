@@ -1,5 +1,4 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
-import { SchemaLink } from '@apollo/client/link/schema';
 import { apolloCacheVoteablePossibleTypes } from '../../../lib/make_voteable';
 import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
