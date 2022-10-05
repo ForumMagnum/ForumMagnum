@@ -10,15 +10,8 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moderationGuidelines: {
-    fontSize: "1.1rem",
-    '& p, & ul': {
-      marginTop: '.6em',
-      marginBottom: '.6em'
-    },
-    '& li': {
-      marginTop: '.4em',
-      marginBottom: '.4em'
-    },
+    ...theme.typography.body2,
+    fontFamily: theme.typography.postStyle.fontFamily,
     '& a': {
       color: theme.palette.primary.main,
     }
@@ -55,7 +48,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   return (
     <LWDialog open={true}>
       <DialogTitle>
-        New User?  Read this before commenting.
+        Read this before commenting
       </DialogTitle>
       <DialogContent className={classes.moderationGuidelines}>
         <p>Welcome to LessWrong!</p>
