@@ -11,7 +11,6 @@ import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
-import type { RowList, TransformRow } from "postgres";
 
 let executingQueries = 0;
 
@@ -43,15 +42,15 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
    * The `debugData` parameter is completely optional and is only used to improve
    * the error message if something goes wrong
    */
-  async executeQuery<R extends {} = T>(query: Query<T>, debugData?: any): Promise<RowList<TransformRow<R>[]>> {
+  async executeQuery(query: Query<T>, debugData?: any): Promise<any[]> {
     executingQueries++;
-    let result: RowList<TransformRow<R>[]>;
+    let result: any[];
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow();
-      const start = Date.now();
-      result = await client.unsafe<R[]>(sql, args);
-      console.log("query", Date.now() - start, new Date(start), new Date(Date.now()), sql, args);
+      // const start = Date.now();
+      result = await client.any(sql, args);
+      // console.log("query", Date.now() - start, new Date(start), new Date(Date.now()), sql, args);
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
       const {collectionName} = this as unknown as CollectionBase<T>;
@@ -83,7 +82,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       },
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
-        const result = await this.executeQuery<{count: number}>(select, {selector, options});
+        const result = await this.executeQuery(select, {selector, options});
         return result?.[0].count ?? 0;
       },
     };
@@ -122,7 +121,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
         upsertSelector: selector,
     });
     const result = await this.executeQuery(upsert, {selector, modifier, options});
-    return result.count;
+    return result.length;
   }
 
   rawUpdateOne = async (
@@ -135,7 +134,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     }
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
     const result = await this.executeQuery(update, {selector, modifier, options});
-    return result.count;
+    return result.length;
   }
 
   rawUpdateMany = async (
@@ -145,13 +144,13 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   ) => {
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options);
     const result = await this.executeQuery(update, {selector, modifier, options});
-    return result.count;
+    return result.length;
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
     const query = new DeleteQuery<T>(this.getTable(), selector, options);
     const result = await this.executeQuery(query, {selector, options});
-    return {deletedCount: result.count};
+    return {deletedCount: result.length};
   }
 
   _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
@@ -166,7 +165,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       toArray: async () => {
         try {
           const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
-          const result = await this.executeQuery<T>(query, {pipeline, options});
+          const result = await this.executeQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
           // If you see this, you probably built a bad aggregation pipeline, or

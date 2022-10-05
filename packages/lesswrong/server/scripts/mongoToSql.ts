@@ -52,14 +52,14 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   try {
     const createQuery = new CreateTableQuery(table);
     const compiled = createQuery.compile();
-    await sql.unsafe(compiled.sql, compiled.args);
+    await sql.none(compiled.sql, compiled.args);
   } catch (e) {
     console.error("Failed to create table");
     console.log(table);
     throw e;
   }
 
-  sql`ALTER TABLE ${sql(table.getName())} SET UNLOGGED`;
+  sql.none(`ALTER TABLE "${table.getName()}" SET UNLOGGED`);
 
   console.log("...Creating indexes");
   const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
@@ -68,7 +68,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
   }
   for (const indexQuery of indexQueries) {
     const compiled = indexQuery.compile();
-    await sql.unsafe(compiled.sql, compiled.args);
+    await sql.none(compiled.sql, compiled.args);
   }
 
   console.log("...Copying data");
@@ -88,7 +88,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
       const query = new InsertQuery(table, documents.map(formatData), {}, {conflictStrategy: "ignore"});
       const compiled = query.compile();
       try {
-        await sql.unsafe(compiled.sql, compiled.args);
+        await sql.none(compiled.sql, compiled.args);
       } catch (e) {
         console.error(`ERROR IMPORTING DOCUMENT BATCH`);
         console.error(e);
@@ -97,7 +97,7 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     },
   });
 
-  sql`ALTER TABLE ${sql(table.getName())} SET LOGGED`;
+  sql.none(`ALTER TABLE "${table.getName()}" SET LOGGED`);
 
   if (errorIds.length) {
     console.log(`...${errorIds.length} import errors:`, errorIds);

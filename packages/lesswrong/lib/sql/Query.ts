@@ -2,7 +2,15 @@ import Table from "./Table";
 import { Type } from "./Type";
 
 class Arg {
-  constructor(public value: any) {}
+  public typehint: string = "";
+
+  constructor(public value: any) {
+    // JSON arrays make node-postgres fallover, but we can work around it
+    // with a special-case typehint
+    if (Array.isArray(value) && value[0] && typeof value[0] === "object") {
+      this.typehint = "::JSONB[]";
+    }
+  }
 }
 
 export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
@@ -46,7 +54,7 @@ abstract class Query<T extends DbObject> {
 
   toSQL(sql: SqlClient) {
     const {sql: sqlString, args} = this.compile();
-    return sql.unsafe(sqlString, args);
+    return sql.any(sqlString, args);
   }
 
   compile(argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
@@ -54,7 +62,7 @@ abstract class Query<T extends DbObject> {
     let args: any[] = [];
     for (const atom of this.atoms) {
       if (atom instanceof Arg) {
-        strings.push(`$${++argOffset}`);
+        strings.push(`$${++argOffset}${atom.typehint}`);
         args.push(atom.value);
       } else if (atom instanceof Query) {
         strings.push("(");
@@ -142,7 +150,8 @@ abstract class Query<T extends DbObject> {
         return [new Arg(value), `${op} ANY(${resolvedField})`];
       }
     } else {
-      return [`${resolvedField} ${op} `, new Arg(value)];
+      const hint = unresolvedField.indexOf(".") > 0 && resolvedField.indexOf("::") < 0 ? this.getTypeHint(value) : "";
+      return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
   }
 

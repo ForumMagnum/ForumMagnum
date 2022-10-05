@@ -12604,11 +12604,6 @@ postgres-interval@^1.1.0:
   dependencies:
     xtend "^4.0.0"
 
-postgres@^3.2.4:
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/postgres/-/postgres-3.2.4.tgz#3b0a0d69b572bb1736662f68e3bbad4d69fb553c"
-  integrity sha512-iscysD+ZlM4A9zj0RS2zo3f4Us4yuov94Yx+p3dE1rEARaBHC8R3/gRq40KEnWp1lxjuFq9EjuAenIUsPaTaDA==
-
 potpack@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/potpack/-/potpack-1.0.1.tgz"

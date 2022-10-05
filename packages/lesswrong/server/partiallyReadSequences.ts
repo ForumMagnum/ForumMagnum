@@ -134,14 +134,14 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
 const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
   if (Posts.isPostgres()) {
     const sql = getSqlClientOrThrow();
-    const result = await sql`
+    const result = await sql.any(`
       SELECT "Posts"."_id" FROM "Posts"
       JOIN "ReadStatuses" ON
         "Posts"."_id" = "ReadStatuses"."postId" AND
         "ReadStatuses"."isRead" = TRUE AND
-        "ReadStatuses"."userId" = ${user._id}
-      WHERE "Posts"."_id" IN ${sql(postIDs)}
-    `;
+        "ReadStatuses"."userId" = $1
+      WHERE "Posts"."_id" IN $2
+    `, [user._id, postIDs]);
     return result.map(({_id}) => _id);
   } else {
     return Posts.aggregate([

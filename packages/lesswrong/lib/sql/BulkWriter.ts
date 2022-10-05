@@ -78,7 +78,7 @@ class BulkWriter<T extends DbObject> {
   async execute(client: SqlClient): Promise<BulkWriterResult> {
     await Promise.all(this.queries.map((query) => {
       const {sql, args} = query.compile();
-      return client.unsafe(sql, args);
+      return client.any(sql, args);
     }));
     return {
       ok: 1,

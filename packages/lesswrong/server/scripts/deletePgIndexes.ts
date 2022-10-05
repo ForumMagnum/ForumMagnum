@@ -9,7 +9,7 @@ import { createSqlConnection } from "../sqlConnection";
  */
 export const deletePgIndexes = async () => {
   const sql = await createSqlConnection();
-  const indexes = await sql`
+  const indexes = await sql.any(`
     SELECT
       indexname
     FROM
@@ -17,10 +17,10 @@ export const deletePgIndexes = async () => {
     WHERE
       tablename NOT LIKE 'pg_%'
       AND indexname NOT LIKE '%_pkey'
-  `;
+  `);
   for (const index of indexes) {
     const {indexname} = index;
-    await sql`DROP INDEX ${sql(indexname)}`;
+    await sql.none(`DROP INDEX ${indexname}`);
   }
 }
 

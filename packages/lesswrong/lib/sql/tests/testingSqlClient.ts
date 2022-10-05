@@ -35,7 +35,7 @@ const buildTables = async (client: SqlClient) => {
       const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
       try {
-        await client.unsafe(sql, args);
+        await client.any(sql, args);
       } catch (e) {
         throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
       }
@@ -48,7 +48,7 @@ const buildTables = async (client: SqlClient) => {
         const createIndexQuery = new CreateIndexQuery(table, index, true);
         const {sql, args} = createIndexQuery.compile();
         try {
-          await client.unsafe(sql, args);
+          await client.any(sql, args);
         } catch (e) {
           throw new Error(`Create index query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
         }
@@ -84,9 +84,9 @@ export const createTestingSqlClient = async (
   const dbName = makeDbName(id);
   let sql = await createTemporaryConnection();
   if (dropExisting) {
-    await sql`DROP DATABASE IF EXISTS ${sql(dbName)}`;
+    await sql.none("DROP DATABASE IF EXISTS $1", [dbName]);
   }
-  await sql`CREATE DATABASE ${sql(dbName)}`;
+  await sql.none("CREATE DATABASE $1", [dbName]);
   const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
   sql = await createSqlConnection(testUrl);
   await buildTables(sql);
@@ -97,9 +97,12 @@ export const createTestingSqlClient = async (
 }
 
 export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
+  if (!template) {
+    throw new Error("No template database provided");
+  }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
-  await sql`CREATE DATABASE ${sql(dbName)} TEMPLATE ${sql(template)}`;
+  await sql.any(`CREATE DATABASE ${dbName} TEMPLATE ${template}`);
   const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);
@@ -108,13 +111,13 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
 
 export const dropTestingDatabases = async (olderThan?: string | Date) => {
   const sql = await createTemporaryConnection();
-  const databases = await sql`
+  const databases = await sql.any(`
     SELECT datname
     FROM pg_database
     WHERE datistemplate = FALSE AND
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
-  `;
+  `);
   olderThan = new Date(olderThan ?? Date.now());
   for (const database of databases) {
     const {datname} = database;
@@ -125,7 +128,7 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
     const dateString = (day.join("-") + "-" + time.join(":") + "." + millis).toUpperCase();
     const dateCreated = new Date(dateString);
     if (dateCreated < olderThan) {
-      await sql`DROP DATABASE ${sql(datname)}`;
+      await sql.none("DROP DATABASE $1", [datname]);
     }
   }
 }
@@ -133,11 +136,11 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
 export const killAllConnections = async (id?: string) => {
   const sql = await createTemporaryConnection();
   const dbName = makeDbName(id);
-  await sql`
+  await sql.any(`
     SELECT pg_terminate_backend(pg_stat_activity.pid)
     FROM pg_stat_activity
-    WHERE pg_stat_activity.datname = '${sql(dbName)}' AND pid <> pg_backend_pid()
-  `;
+    WHERE pg_stat_activity.datname = $1 AND pid <> pg_backend_pid()
+  `, [dbName]);
   const client = getSqlClient();
   if (client) {
     await closeSqlClient(client);

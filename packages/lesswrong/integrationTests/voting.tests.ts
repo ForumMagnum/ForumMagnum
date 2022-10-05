@@ -16,7 +16,7 @@ describe('Voting', function() {
     it('does not update if post is inactive', async () => {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: yesterday})
+      const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await batchUpdateScore({collection: Posts});
@@ -29,7 +29,7 @@ describe('Voting', function() {
     it('sets post to inactive if it is older than sixty days', async () => {
       const user = await createDummyUser();
       const sixty_days_ago = new Date().getTime()-(60*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: sixty_days_ago, inactive: false})
+      const post = await createDummyPost(user, {postedAt: new Date(sixty_days_ago), inactive: false})
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
@@ -50,25 +50,29 @@ describe('Voting', function() {
     });
     it('produces the same result as `recalculateScore`', async () => {
       const user = await createDummyUser();
-      const normalPost = await createDummyPost(user, {baseScore: 10});
-      const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
-      const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      const [normalPost, frontpagePost, curatedPost] = await Promise.all([
+        createDummyPost(user, {baseScore: 10}),
+        createDummyPost(user, {frontpageDate: new Date(), baseScore: 10}),
+        createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10}),
+      ]);
       await waitUntilCallbacksFinished();
       await batchUpdateScore({collection: Posts});
-      const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
-      const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
-      const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
+      const [updatedNormalPost, updatedFrontpagePost, updatedCuratedPost] = await Promise.all([
+        Posts.findOne({_id: normalPost._id}),
+        Posts.findOne({_id: frontpagePost._id}),
+        Posts.findOne({_id: curatedPost._id}),
+      ]);
 
-      (updatedNormalPost[0].score as any).should.be.closeTo(recalculateScore(normalPost), 0.001);
-      (updatedFrontpagePost[0].score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.001);
-      (updatedCuratedPost[0].score as any).should.be.closeTo(recalculateScore(curatedPost), 0.001);
+      (updatedNormalPost?.score as any).should.be.closeTo(recalculateScore(normalPost), 0.001);
+      (updatedFrontpagePost?.score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.001);
+      (updatedCuratedPost?.score as any).should.be.closeTo(recalculateScore(curatedPost), 0.001);
     });
   });
   describe('performVoteServer', () => {
     it('sets post to active after voting', async () => {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: yesterday})
+      const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
@@ -80,7 +84,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const otherUser = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: yesterday})
+      const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
@@ -91,7 +95,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const otherUser = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: yesterday})
+      const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
@@ -102,7 +106,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const otherUser = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: yesterday})
+      const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
@@ -116,7 +120,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const otherUser = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
-      const post = await createDummyPost(user, {postedAt: yesterday})
+      const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
@@ -130,7 +134,7 @@ describe('Voting', function() {
         const user = await createDummyUser();
         const otherUser = await createDummyUser();
         const yesterday = new Date().getTime()-(1*24*60*60*1000)
-        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
@@ -144,7 +148,7 @@ describe('Voting', function() {
         const user = await createDummyUser();
         const otherUser = await createDummyUser();
         const yesterday = new Date().getTime()-(1*24*60*60*1000)
-        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
@@ -157,7 +161,7 @@ describe('Voting', function() {
         const user = await createDummyUser();
         const otherUser = await createDummyUser();
         const yesterday = new Date().getTime()-(1*24*60*60*1000)
-        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
@@ -172,7 +176,7 @@ describe('Voting', function() {
         const user = await createDummyUser();
         const otherUser = await createDummyUser();
         const yesterday = new Date().getTime()-(1*24*60*60*1000)
-        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
@@ -189,7 +193,7 @@ describe('Voting', function() {
       const voter = await createDummyUser();
       const yesterday = new Date().getTime() - (1 * 24 * 60 * 60 * 1000);
       const post = await createDummyPost(author, {
-        postedAt: yesterday,
+        postedAt: new Date(yesterday),
         coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
       });
 
@@ -210,7 +214,7 @@ describe('Voting', function() {
       const voter = await createDummyUser();
       const yesterday = new Date().getTime() - (1 * 24 * 60 * 60 * 1000);
       const post = await createDummyPost(author, {
-        postedAt: yesterday,
+        postedAt: new Date(yesterday),
       });
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });

@@ -543,13 +543,13 @@ const schema: SchemaType<DbPost> = {
       let postRelations: DbPostRelation[] = [];
       if (Posts.isPostgres()) {
         const sql = getSqlClientOrThrow();
-        postRelations = await sql`
+        postRelations = await sql.any(`
           WITH RECURSIVE search_tree(
             "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
           ) AS (
             SELECT "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", 1 AS depth
             FROM "PostRelations"
-            WHERE "sourcePostId" = ${post._id}
+            WHERE "sourcePostId" = $1
             UNION
             SELECT source."_id", source."createdAt", source."type", source."sourcePostId", source."targetPostId",
               source."order", source."schemaVersion", target.depth + 1 AS depth
@@ -557,7 +557,7 @@ const schema: SchemaType<DbPost> = {
             JOIN search_tree target ON source."sourcePostId" = target."targetPostId" AND target.depth < 3
           )
           SELECT * FROM search_tree;
-        `;
+        `, [post._id]);
       } else {
         postRelations = await Posts.aggregate([
           { $match: { _id: post._id }},
