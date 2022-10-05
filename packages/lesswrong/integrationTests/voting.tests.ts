@@ -134,6 +134,7 @@ describe('Voting', function() {
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
+        await waitUntilCallbacksFinished();
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
   
         (updatedComment[0].extendedScore.agreement as any).should.be.above(preUpdateComment[0].extendedScore.agreement);

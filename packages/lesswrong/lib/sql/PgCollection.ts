@@ -49,7 +49,9 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow();
+      const start = Date.now();
       result = await client.unsafe<R[]>(sql, args);
+      console.log("query", Date.now() - start, new Date(start), new Date(Date.now()), sql, args);
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
       const {collectionName} = this as unknown as CollectionBase<T>;

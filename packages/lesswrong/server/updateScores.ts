@@ -84,13 +84,22 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
   const x = 1 / Math.pow((INACTIVITY_THRESHOLD_DAYS*24) + 2, TIME_DECAY_FACTOR.get());
 
+  const inactiveFilter = inactive
+    ? {inactive: true}
+    : {
+      $or: [
+        {inactive: false},
+        {inactive: {$exists: false}},
+      ],
+    };
+
   const itemsPromise = collection.aggregate([
     {
       $match: {
         $and: [
           {postedAt: {$exists: true}},
           {postedAt: {$lte: new Date()}},
-          {inactive: inactive ? true : {$in: [false,null]}}
+          inactiveFilter,
         ]
       }
     },
@@ -106,7 +115,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     {
       $project: {
         postedAt: 1,
-        scoreDate: 1, 
+        scoreDate: 1,
         baseScore: 1,
         score: 1,
         newScore: {

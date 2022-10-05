@@ -84,7 +84,7 @@ async function oneTimeSetup() {
   setupRun = true;
 }
 
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 beforeAll(async () => {
   chai.should();
@@ -98,13 +98,15 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
+  await waitUntilCallbacksFinished();
   await Promise.all([
     closeDatabaseConnection(),
     closeSqlClient(getSqlClientOrThrow()),
   ]);
-  if (process.env.JEST_WORKER_ID === "1") {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 1);
-    await dropTestingDatabases(cutoff);
-  }
+  // This will fail for all but the first Jest worker - we don't care which this is
+  // try {
+    // const cutoff = new Date();
+    // cutoff.setDate(cutoff.getDate() - 1);
+    // await dropTestingDatabases(cutoff);
+  // } catch {}
 });
