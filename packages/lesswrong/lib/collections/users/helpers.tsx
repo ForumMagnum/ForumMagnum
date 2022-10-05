@@ -468,7 +468,13 @@ export const getAuth0Id = (user: DbUser) => {
   throw new Error("User does not have an Auth0 user ID");
 }
 
+const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
 export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
   if (forumTypeSetting.get() !== 'LessWrong') return false;
-  return !user.acknowledgedNewUserGuidelines;
+
+  const userCreatedAfterCutoff = user.createdAt
+    ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
+    : false;
+
+  return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
 };
