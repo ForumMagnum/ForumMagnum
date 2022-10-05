@@ -89,7 +89,6 @@ describe('renderEmail', () => {
   it("Can use Apollo hooks", async () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
-    let count = 0;
     
     const PostTitleComponent = ({documentId}: {documentId: string}) => {
       const { document } = useSingle({
