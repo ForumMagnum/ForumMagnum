@@ -139,10 +139,18 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    tableOfContents
     subforumWelcomeText {
       _id
       html
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
+    subforumUnreadMessagesCount
   }
 `);
 
