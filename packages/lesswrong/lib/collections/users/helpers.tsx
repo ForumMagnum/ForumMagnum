@@ -469,6 +469,6 @@ export const getAuth0Id = (user: DbUser) => {
 }
 
 export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
-  // TODO: gate for users created after a certain date?
+  if (forumTypeSetting.get() !== 'LessWrong') return false;
   return !user.acknowledgedNewUserGuidelines;
 };

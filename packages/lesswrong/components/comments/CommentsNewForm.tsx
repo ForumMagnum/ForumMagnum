@@ -15,7 +15,6 @@ import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../.
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -138,8 +137,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
     // TODO: user field for showing new user guidelines
     // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
     const dialogProps = { user: currentUser, post };
-    const isLW = forumTypeSetting.get() === 'LessWrong';
-    if (isLW && shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+    if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
       openDialog({
         componentName: 'NewUserGuidelinesDialog',
         componentProps: dialogProps,
