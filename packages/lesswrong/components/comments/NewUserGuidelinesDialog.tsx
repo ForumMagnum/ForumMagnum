@@ -55,11 +55,12 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
         <p>We care a lot about making progress on art of human rationality and other important questions, and so have set very high standards for quality of writing on the site in comparison to many places on the web.</p>
         <p>To have well-received comments on LessWrong, we suggest spending some time learning from the example of content already on the site.</p>
         <p>We especially advise reading <Link to="/rationality">R:A-Z</Link> and <Link to="/codex">The Codex</Link>, since they help set the tone and standard for the site broadly.</p>
+        <p>For more detail on LessWrong's purpose and values, see our <Link to="/about">About</Link> page.</p>
         <p>Otherwise look at highly upvoted posts and comments to see what to aim for when contributing here.</p>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClick}>
-          Acknowledged
+          Acknowledge
         </Button>
       </DialogActions>
     </LWDialog>
