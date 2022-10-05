@@ -23,4 +23,4 @@ jobs:
       run: yarn run lint
 
     - name: yarn run test-ci
-      run: yarn run test-ci
+      run: yarn run unit-ci
