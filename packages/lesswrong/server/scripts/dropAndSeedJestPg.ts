@@ -11,4 +11,7 @@ Vulcan.dropAndSeedJestPg = async () => {
   console.log("Creating database");
   const client = await createTestingSqlClient(id, true, false);
   await closeSqlClient(client);
+  // eslint-disable-next-line no-console
+  console.log("Finished seeding Jest PG database - exiting...");
+  setTimeout(() => process.exit(0), 1000);
 }
