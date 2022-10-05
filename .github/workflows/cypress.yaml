@@ -22,18 +22,18 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v2
       env:
-        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} 
+        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
         PG_URL: ${{ secrets.PG_URL }}
       with:
           start: yarn ea-start-testing-db
           command: yarn ci-cypress-run
-      
+
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
         name: Upload screenshots
         path: cypress/screenshots
-        
+
     - uses: actions/upload-artifact@v1
       if: failure()
       with:

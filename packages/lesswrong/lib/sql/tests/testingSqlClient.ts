@@ -84,9 +84,9 @@ export const createTestingSqlClient = async (
   const dbName = makeDbName(id);
   let sql = await createTemporaryConnection();
   if (dropExisting) {
-    await sql.none("DROP DATABASE IF EXISTS $1", [dbName]);
+    await sql.none(`DROP DATABASE IF EXISTS ${dbName}`);
   }
-  await sql.none("CREATE DATABASE $1", [dbName]);
+  await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
   sql = await createSqlConnection(testUrl);
   await buildTables(sql);
@@ -128,7 +128,7 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
     const dateString = (day.join("-") + "-" + time.join(":") + "." + millis).toUpperCase();
     const dateCreated = new Date(dateString);
     if (dateCreated < olderThan) {
-      await sql.none("DROP DATABASE $1", [datname]);
+      await sql.none(`DROP DATABASE ${datname}`);
     }
   }
 }
