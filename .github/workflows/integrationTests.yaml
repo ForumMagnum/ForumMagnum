@@ -21,6 +21,7 @@ jobs:
       run: yarn install
 
     - name: Seed integration database
+      if: failure()
       env:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
         PG_URL: ${{ secrets.PG_URL }}
