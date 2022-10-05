@@ -1,11 +1,12 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsPodcaster } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
+import { allOf } from '../../utils/functionUtils';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -26,7 +27,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
     
-    return canUserEditPostMetadata(user, document) || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
     // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
   },
 
@@ -68,7 +69,8 @@ makeEditable({
     pingbacks: true,
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
       insertableBy: ['members']
     },
   }

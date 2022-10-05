@@ -15,7 +15,7 @@ import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { min } from "lodash/fp";
+import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -267,37 +267,13 @@ const TagPage = ({classes}: {
   const readMoreHtml = "<span>...<p><a>(Read More)</a></p></span>"
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
-
-  // The default is to truncate after tag.descriptionTruncationCount or 4 paragraphs.
-  // The EA Forum prefers to truncate less so only truncate here if descriptionTruncationCount
-  // is set, otherwise truncate on specific breakpoints (e.g. "Further reading")
-  if (truncated && !tag.wikiOnly && (!isEAForum || tag.descriptionTruncationCount)) {
-    description = truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", readMoreHtml)
-  }
-
-  if(isEAForum && truncated) {
-    const breakpointIndices = [
-      'id="Further_reading"',
-      'id="Bibliography"',
-      'id="Related_entries"',
-      'class="footnotes"',
-    ].map(matchString => htmlWithAnchors.indexOf(matchString)).filter(index => index > -1)
-
-    const truncationLength = breakpointIndices.length > 0 ? min(breakpointIndices) : null;
-
-    /**
-     * The `truncate` method used above uses a complicated criterion for what
-     * counts as a character. Here, we want to truncate at a known index in
-     * the string. So rather than using `truncate`, we can slice the string
-     * at the desired index, use `parseFromString` to clean up the HTML,
-     * and then append our footer 'read more' element.
-     */
-    const semanticallyTruncatedDesc = truncationLength ?
-        new DOMParser().parseFromString(htmlWithAnchors.slice(0, truncationLength), "text/html").body.innerHTML +
-        readMoreHtml : htmlWithAnchors;
-
-    // description may already have been truncated (if descriptionTruncationCount is set), so only use semanticallyTruncatedDesc if it's actually shorter
-    description = description.length > semanticallyTruncatedDesc.length ? semanticallyTruncatedDesc : description;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+  } else {
+    description = (truncated && !tag.wikiOnly)
+    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+    : htmlWithAnchors
   }
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
