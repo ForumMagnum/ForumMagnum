@@ -34,7 +34,7 @@ const EAHome = () => {
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
       
-      <StickiedPosts />
+      {/* <StickiedPosts /> */}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget />

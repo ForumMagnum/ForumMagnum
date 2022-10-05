@@ -13,6 +13,9 @@ import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    marginTop: theme.spacing.unit*3,
+  },
   titleWrapper: {
     display: "flex",
     marginBottom: 8,
@@ -22,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
-    marginRight: "auto"
+    marginRight: "auto",
   },
   toggleFilters: {
     [theme.breakpoints.up('sm')]: {
@@ -36,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Posts' : 'Latest'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
@@ -47,7 +50,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList, StickiedPosts } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -64,7 +67,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
-      <SingleColumnSection>
+      <SingleColumnSection className={classes.root}>
         <div className={classes.titleWrapper}>
           <Typography variant='display1' className={classes.title}>
             <LWTooltip title="Recent posts, sorted by a combination of 'new' and 'highly upvoted'" placement="left">
@@ -96,6 +99,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </AnalyticsContext>
         </div>
         <HideRepeatedPostsProvider>
+          {forumTypeSetting.get() === "EAForum" && <PostsList2
+              terms={{view:"stickied", forum: true, limit:100}}
+              showNoResults={false}
+              showLoadMore={false}
+              hideLastUnread={true}
+              boxShadow={false}
+              showFinalBottomBorder
+            />}
           {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}

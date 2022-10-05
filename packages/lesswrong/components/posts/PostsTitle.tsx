@@ -33,7 +33,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingRight: theme.spacing.unit,
+    // paddingRight: theme.spacing.unit,
+    paddingRight: 12,
+    paddingLeft: 3,
     position: "relative",
     top: 2,
     color: theme.palette.icon.maxIntensity,
@@ -141,8 +143,8 @@ const PostsTitle = ({
   const Icon = postIcon(post);
 
   const title = <span>
-    {Icon && <Icon className={classes.primaryIcon}/>}
     {sticky && <span className={classes.sticky}><StickyIcon /></span>}
+    {Icon && <Icon className={classes.primaryIcon}/>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}

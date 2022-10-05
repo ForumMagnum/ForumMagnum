@@ -3,6 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { sectionTitleStyle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    [theme.breakpoints.down("md")]: {
+      marginTop: 12,
+      marginBottom: 10,
+    }
+  },
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -20,12 +26,12 @@ const StickiedPosts = ({
 }) => {
   const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip } = Components;
 
-  return <SingleColumnSection>
+  return <SingleColumnSection className={classes.root}>
     <LWTooltip title="The Forum Team thinks these posts and threads should stay at the top of the Frontpage for a while" placement="left">
       <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
     </LWTooltip>
     <PostsList2
-      terms={{view:"stickied", limit:100}}
+      terms={{view:"stickied", limit:100, forum: true}}
       showNoResults={false}
       showLoadMore={false}
       hideLastUnread={false}
