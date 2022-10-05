@@ -186,6 +186,8 @@ registerFragment(`
     petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
   }
 `);
 
