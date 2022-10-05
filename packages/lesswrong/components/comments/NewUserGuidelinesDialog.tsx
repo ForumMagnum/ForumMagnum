@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moderationGuidelines: {
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.primary.main,
     }
   }
-})
+});
 
 const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   classes: ClassesType,
@@ -44,9 +45,9 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
 
     onClose();
   }
-  
-  return (
-    <LWDialog open={true}>
+
+  const dialogContent = forumSelect({
+    LessWrong: <>
       <DialogTitle>
         Read this before commenting
       </DialogTitle>
@@ -58,6 +59,13 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
         <p>For more detail on LessWrong's purpose and values, see our <Link to="/about">About</Link> page.</p>
         <p>Otherwise look at highly upvoted posts and comments to see what to aim for when contributing here.</p>
       </DialogContent>
+    </>,
+    default: <></>
+  });
+  
+  return (
+    <LWDialog open={true}>
+      {dialogContent}
       <DialogActions>
         <Button onClick={handleClick}>
           Acknowledge
@@ -65,7 +73,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
       </DialogActions>
     </LWDialog>
   )
-}
+};
 
 const NewUserGuidelinesDialogComponent = registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
 
