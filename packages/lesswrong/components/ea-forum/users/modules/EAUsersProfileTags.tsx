@@ -38,7 +38,7 @@ const EAUsersProfileTags = ({tags, classes}: {
     <div className={classes.root}>
       {visibleTags.map(tag => <FooterTag key={tag._id} tag={{...tag, core: false}} />)}
       {meritsCollapse && <button onClick={() => setCollapsed(!collapsed)} className={classes.btn}>
-        Show {collapsed ? `${tags.length - MAX_TAGS} more` : 'less'}
+        {collapsed ? `${tags.length - MAX_TAGS} more` : 'Show less'}
       </button>}
     </div>
   )
