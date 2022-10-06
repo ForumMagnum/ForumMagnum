@@ -36,6 +36,10 @@ type SelectedTextToolbarState =
  * an HTML element with onClickComment monkeypatched onto it. Placement of the
  * toolbar button is done with coordinate-math.
  *
+ * Positioning might be brittle if the element that supports selection is nested
+ * with multiple scrollbars or certain complex positioning. Test each context
+ * separately when adding `CommentOnSelectionContentWrapper`s.
+ *
  * If there's no space in the right margin (eg on mobile), adding the button
  * might introduce horizontal scrolling.
  */
