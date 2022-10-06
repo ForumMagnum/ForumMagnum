@@ -1,6 +1,6 @@
 import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
-import type { KarmaChangeSettingsType } from '../lib/collections/users/custom_fields';
+import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';

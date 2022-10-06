@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   commentBody: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
   },
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)

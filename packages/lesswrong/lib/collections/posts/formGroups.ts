@@ -3,7 +3,14 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   default: {
     name: "default",
     order: 0,
-    paddingStyle: true
+    paddingStyle: true,
+  },
+  title: {
+    name: "title",
+    order: -10,
+    paddingStyle: true,
+    defaultStyle: true,
+    flexStyle: true,
   },
   adminOptions: {
     name: "adminOptions",
@@ -53,5 +60,11 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     name: "highlight",
     label: "Highlight",
     startCollapsed: true,
-  }
+  },
+  audio: {
+    order: 50,
+    name: "audio",
+    label: "Audio",
+    startCollapsed: true
+  },
 };

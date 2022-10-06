@@ -15,8 +15,8 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
 
-const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
-const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
+export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
+export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
@@ -298,7 +298,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                     </AnalyticsContext>
                   </div>}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
+                {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
                   toggle={handleNotificationToggle}
                   open={notificationOpen}

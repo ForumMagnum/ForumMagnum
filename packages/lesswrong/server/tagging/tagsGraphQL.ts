@@ -29,6 +29,12 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
       validate: false,
       currentUser,
     });
+    
+    // If the tag has a parent which has not been applied to this post, apply it
+    if (tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
+      // RECURSIVE CALL, should only ever go one level deep because we disallow chaining of parent tags (see packages/lesswrong/lib/collections/tags/schema.ts)
+      await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context});
+    }
     return tagRel.data;
   } else {
     // Upvote the tag

@@ -1,5 +1,7 @@
 import { forumSelect } from "../../forumTypeUtils";
-import { taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+import { combineUrls } from "../../vulcan-lib";
+import { TagCommentType } from "../comments/types";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -19,7 +21,7 @@ type GetUrlOptions = {
   flagId?: string
 }
 
-export const tagGetUrl = (tag: DbTag|TagBasicInfo|AlgoliaTag, urlOptions?: GetUrlOptions) => {
+export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
   const { flagId, edit } = urlOptions || {};
   const url = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`
   if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
@@ -28,12 +30,19 @@ export const tagGetUrl = (tag: DbTag|TagBasicInfo|AlgoliaTag, urlOptions?: GetUr
   return url
 }
 
-export const tagGetDiscussionUrl = (tag: DbTag|TagBasicInfo) => {
-  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`
+export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
+  const suffix = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`
+  return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
-export const tagGetCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): string => {
-  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${commentId}`
+export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
+  const suffix = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/subforum`
+  return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
+}
+
+export const tagGetCommentLink = (tagSlug: string, commentId: string, tagCommentType: TagCommentType = TagCommentType.Discussion, isAbsolute=false): string => {
+  const base = tagCommentType === TagCommentType.Discussion ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
+  return `${base}#${commentId}`
 }
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {

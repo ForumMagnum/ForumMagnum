@@ -63,10 +63,11 @@ export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
 const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
 
 
-const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
+const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   classes: ClassesType,
-  hideCuratedIcon?: boolean
+  hideCuratedIcon?: boolean,
+  hidePersonalIcon?: boolean
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon } = Components;
 
@@ -86,7 +87,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
       </LWTooltip>
     </span>}
 
-    {!post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
+    {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
       </LWTooltip>

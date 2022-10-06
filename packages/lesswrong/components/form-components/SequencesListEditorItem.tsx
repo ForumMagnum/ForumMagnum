@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SequencesListEditorItem = ({documentId, classes, ...props}) => {
+const SequencesListEditorItem = ({documentId, removeItem, classes}) => {
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",
@@ -67,7 +67,7 @@ const SequencesListEditorItem = ({documentId, classes, ...props}) => {
             {(document.user && document.user.displayName) || "Undefined Author"}
           </div>
           <div className={classes.remove}>
-            <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(documentId)} />
+            <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(documentId)} />
           </div>
         </div>
       </div>

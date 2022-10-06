@@ -5,6 +5,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 
+const isEAForum = forumTypeSetting.get() === "EAForum"
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 40,
@@ -112,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: forumTypeSetting.get() === "EAForum" ? "flex-start" : "center",
+    justifyContent: isEAForum ? "flex-start" : "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -147,7 +149,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, SectionTitle, LWTooltip } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -155,7 +157,13 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
 
 
   const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
-  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
+  const [
+    totalWordCount,
+    totalReadTime,
+  ] = posts.reduce(([wordCount, readTime], curr) => ([
+    wordCount + (curr?.contents?.wordCount ?? 0),
+    readTime + (curr?.readTimeMinutes ?? 0),
+  ]), [0, 0]);
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
@@ -199,15 +207,15 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
-            <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+          <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
+            <div className={classes.wordcount}>{totalReadTime} min read</div>
           </LWTooltip>
         </div>
       </div>
       <div className={classes.right}>
         {sequence.chapters?.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
-            {showChapters && title && <SectionTitle title={title} className={classes.chapterTitle} noTopMargin />}
+            {title && <ChapterTitle title={title}/>}
             {posts.map((post) => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}

@@ -7,7 +7,7 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
-import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
+import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import Input from '@material-ui/core/Input';
 import { getSchema } from '../../../lib/utils/getSchema';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
@@ -277,9 +277,9 @@ const EAGApplicationImportForm = ({classes}: {
     'jobTitle',
     'organization',
     'careerStage',
-    'biography',
-    'howOthersCanHelpMe',
-    'howICanHelpOthers',
+    // 'biography',
+    // 'howOthersCanHelpMe',
+    // 'howICanHelpOthers',
     // 'organizerOfGroupIds', // TODO: implement later - for the first release I decided this wasn't worth the effort to include
     'mapLocation',
     'linkedinProfileURL',
@@ -419,9 +419,9 @@ const EAGApplicationImportForm = ({classes}: {
         linkedinProfileURL: importLinkedinProfileURL()
       }
       // update CKEditor fields
-      biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
-      howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
-      howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
+      // biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
+      // howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
+      // howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
     }
     
     for (let field in updatedFormData) {
@@ -571,7 +571,7 @@ const EAGApplicationImportForm = ({classes}: {
         </div>
       </div>
       
-      <div className={classes.formRow}>
+      {/* <div className={classes.formRow}>
         <label className={classes.label}>Bio</label>
         <EditorFormComponent
           ref={biographyRef}
@@ -638,7 +638,7 @@ const EAGApplicationImportForm = ({classes}: {
         <ContentStyles contentType="comment">
           <div dangerouslySetInnerHTML={{__html: importedData.howICanHelpOthers.ckEditorValue}}></div>
         </ContentStyles>
-      </div>
+      </div> */}
       
       {/* <div className={classes.formRow}>
         <label className={classes.label}>Organizer of</label>

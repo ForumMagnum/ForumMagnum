@@ -6,17 +6,21 @@ import classNames from 'classnames';
 import { useItemsRead } from '../common/withRecordPostView';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
+export const postProgressBoxStyles = (theme: ThemeType) => ({
+  border: theme.palette.border.normal,
+  borderRadius: 2,
+  width: 12,
+  height: 12,
+  marginRight: 1,
+  marginTop: 2,
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 16
   },
   postProgressBox: {
-    border: theme.palette.border.normal,
-    borderRadius: 2,
-    width: 12,
-    height: 12,
-    marginRight: 1,
-    marginTop: 2,
+    ...postProgressBoxStyles(theme)
   },
   read: {
     ...(
@@ -53,7 +57,7 @@ const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, LoginPopupButton } = Components;
+  const { LWTooltip, PostsPreviewTooltip, LoginToTrack } = Components;
 
   const { postsRead: clientPostsRead } = useItemsRead();
 
@@ -79,10 +83,10 @@ const BooksProgressBar = ({ book, classes }: {
       }
     </div>
     <div className={classNames(classes.sequence, classes.progressText)}>
-      {postsReadText} 
-      <LoginPopupButton title="LessWrong keeps track of what posts logged in users have read, so you can keep reading wherever you've left off" className={classes.loginText}>
+      {postsReadText}
+      <LoginToTrack className={classes.loginText}>
         login to track progress
-      </LoginPopupButton>
+      </LoginToTrack>
     </div>
   </div>;
 };

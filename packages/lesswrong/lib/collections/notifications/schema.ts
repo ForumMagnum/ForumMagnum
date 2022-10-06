@@ -8,12 +8,6 @@ const schema: SchemaType<DbNotification> = {
     optional: true,
     viewableBy: userOwns,
   },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: userOwns,
-    onInsert: (document, currentUser) => new Date(),
-  },
   documentId: {
     type: String,
     // No explicit foreign-key relation because which collection this is depends on notification type
@@ -22,6 +16,12 @@ const schema: SchemaType<DbNotification> = {
   },
   documentType: {
     type: String,
+    optional: true,
+    viewableBy: userOwns,
+  },
+  extraData: {
+    type: Object,
+    blackbox: true,
     optional: true,
     viewableBy: userOwns,
   },

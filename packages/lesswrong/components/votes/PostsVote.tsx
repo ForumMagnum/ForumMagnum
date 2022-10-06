@@ -22,6 +22,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
   },
+  voteScoreGoodHeart: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    fontSize: '45%',
+    textAlign: "center",
+  },
   secondaryVoteScore: {
     fontSize: '35%',
     marginBottom: 2,

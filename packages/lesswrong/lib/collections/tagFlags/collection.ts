@@ -8,12 +8,6 @@ import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
 
 const schema: SchemaType<DbTagFlag> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: () => new Date(),
-  },
   name: {
     type: String,
     canRead: ['guests'],

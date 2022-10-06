@@ -328,10 +328,6 @@ if (forumTypeSetting.get() === "AlignmentForum") {
     return makeRedirect(res, `/feed.xml`);
   })
   
-  addStaticRoute('/drafts', (params, req, res, next) => {
-    return makeRedirect(res, `/account`);
-  })
-  
   addStaticRoute('/saved', (params, req, res, next) => {
     return makeRedirect(res, `/account`);
   })

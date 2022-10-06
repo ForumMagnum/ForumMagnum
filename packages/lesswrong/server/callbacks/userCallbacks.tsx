@@ -12,12 +12,11 @@ import { randomId } from '../../lib/random';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
-import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import { userGetLocation } from "../../lib/collections/users/helpers";
+import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -28,6 +27,10 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
+import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
+import Tags from '../../lib/collections/tags/collection';
+import keyBy from 'lodash/keyBy';
+import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -78,6 +81,46 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
     void sendVerificationEmail(user);
   }
 });
+
+getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
+  // check if the user added any tags to their profile
+  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !oldDocument.profileTagIds?.includes(tagId)) || []
+  
+  // if so, then we want to subscribe them to the newly added tags
+  if (tagIdsAdded.length > 0) {
+    const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()
+    const tagsById = keyBy(tagsAdded, tag => tag._id)
+    
+    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings ?? getDefaultFilterSettings()
+    for (let addedTag of tagIdsAdded) {
+      const newTagFilter: FilterTag = {tagId: addedTag, tagName: tagsById[addedTag].name, filterMode: 'Subscribed'}
+      const existingFilter = newFrontpageFilterSettings.tags.find(tag => tag.tagId === addedTag)
+      // if the user already had a filter for this tag, see if we should update it or leave it alone
+      if (existingFilter) {
+        if ([0, 'Default', 'TagDefault'].includes(existingFilter.filterMode)) {
+          newFrontpageFilterSettings = {
+            ...newFrontpageFilterSettings,
+            tags: [
+              ...newFrontpageFilterSettings.tags.filter(tag => tag.tagId !== addedTag),
+              newTagFilter
+            ]
+          }
+        }
+      } else {
+        // otherwise, subscribe them to this tag
+        newFrontpageFilterSettings = {
+          ...newFrontpageFilterSettings,
+          tags: [
+            ...newFrontpageFilterSettings.tags,
+            newTagFilter
+          ]
+        }
+      }
+    }
+    return {...data, frontpageFilterSettings: newFrontpageFilterSettings}
+  }
+  return data
+})
 
 getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {
@@ -144,10 +187,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // emails doesn't make sense.)
   if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     void sendVerificationEmail(user);
-    
-    if (user.emailSubscribedToCurated) {
-      await bellNotifyEmailVerificationRequired(user);
-    }
+    await bellNotifyEmailVerificationRequired(user);
   }
 });
 
@@ -205,6 +245,13 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
   return user;
 });
 
+const sendVerificationEmailConditional = async  (user: DbUser) => {
+  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+    void sendVerificationEmail(user);
+    await bellNotifyEmailVerificationRequired(user);
+  }
+}
+
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email) {
@@ -212,7 +259,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     const newEmail = modifier.$set.email;
 
     // check for existing emails and throw error if necessary
-    const userWithSameEmail = await userFindByEmail(newEmail);
+    const userWithSameEmail = await userFindOneByEmail(newEmail);
     if (userWithSameEmail && userWithSameEmail._id !== user._id) {
       throw new Error(encodeIntlError({id:'users.email_already_taken', value: newEmail}));
     }
@@ -223,9 +270,11 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
         user.emails[0].address = newEmail;
         user.emails[0].verified = false;
         modifier.$set.emails = user.emails;
+        await sendVerificationEmailConditional(user)
       }
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
+      await sendVerificationEmailConditional(user)
     }
   }
   return modifier;
@@ -252,7 +301,8 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
   
-  const emailHash = md5(newUser.email.toLowerCase());
+  const email = getUserEmail(newUser)
+  const emailHash = md5(email!.toLowerCase());
 
   void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
     method: 'PUT',

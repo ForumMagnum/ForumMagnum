@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix: 
         node-version: [15.x]
-        environment: [Lesswrongexpress-env, LessWrongProd, AlignmentForumProd]
+        environment: [Lesswrongexpress-env, AlignmentForumProd]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2

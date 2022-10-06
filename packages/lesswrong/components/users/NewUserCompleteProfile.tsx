@@ -8,6 +8,7 @@ import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instance
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,6 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 type NewUserCompleteProfileProps = {
+  currentUser: UsersCurrent
   classes: ClassesType
 }
 
@@ -41,9 +43,8 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
   return maybeUsername
 }
 
-const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes }) => {
-  const currentUser = useCurrentUser()
-  const [username, setUsername] = useState(prefillUsername(currentUser?.displayName))
+const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ currentUser, classes }) => {
+  const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
@@ -87,7 +88,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
         // We do this fancy spread so we avoid setting the email to an empty
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
-        ...(!currentUser?.email && {email: emailInput.current?.value})
+        ...(!getUserEmail(currentUser) && {email: emailInput.current?.value})
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {

@@ -38,7 +38,7 @@ Forum Magnum is built on top of a number major open-source libraries.
 Clone our repo:
 
 ```
-git clone git@github.com:ForumMagnum/ForumMagnum.git
+git clone https://github.com/ForumMagnum/ForumMagnum.git
 ```
 
 Install dependencies:
@@ -181,3 +181,4 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
+

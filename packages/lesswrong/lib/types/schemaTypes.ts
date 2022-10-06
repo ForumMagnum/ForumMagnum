@@ -12,13 +12,27 @@ type PermissionGroups = 'guests' |
   'sunshineRegiment' |
   'alignmentForumAdmins' |
   'alignmentForum' |
-  'alignmentVoters'
+  'alignmentVoters' |
+  'podcasters' |
+  'canBypassPostRateLimit' |
+  'trustLevel1' |
+  'canModeratePersonal';
+
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
-interface CollectionFieldSpecification<T extends DbObject> {
+interface CollectionFieldPermissions {
+  viewableBy?: FieldPermissions,
+  insertableBy?: FieldCreatePermissions,
+  editableBy?: FieldPermissions,
+  canRead?: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
+}
+
+interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
   optional?: boolean,
@@ -53,7 +67,6 @@ interface CollectionFieldSpecification<T extends DbObject> {
   maxCount?: number,
   options?: any,
   allowedValues?: any,
-  query?: any,
   
   form?: any,
   input?: any,
@@ -118,14 +131,6 @@ interface CollectionFieldSpecification<T extends DbObject> {
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
-  
-  
-  viewableBy?: FieldPermissions,
-  insertableBy?: FieldCreatePermissions,
-  editableBy?: FieldPermissions,
-  canRead?: FieldPermissions,
-  canUpdate?: FieldPermissions,
-  canCreate?: FieldCreatePermissions,
 }
 
 type FormGroup = {

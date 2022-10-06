@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
+import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -10,17 +11,19 @@ import { Conversations } from '../lib/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../lib/collections/users/collection';
-import { userGetDisplayName } from '../lib/collections/users/helpers';
+import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
+import './emailComponents/EmailUsernameByID';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { getSiteUrl } from '../lib/vulcan-lib/utils';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting } from '../lib/instanceSettings';
+import Tags from '../lib/collections/tags/collection';
+import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 
 interface ServerNotificationType {
   name: string,
@@ -288,14 +291,16 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `You have been shared on the ${post.draft ? "draft" : "post"} ${post.title}`;
+    const name = await postGetAuthorName(post);
+    return `${name} shared their ${post.draft ? "draft" : "post"} "${post.title}" with you`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetPageUrl(post, true);
+    const name = await postGetAuthorName(post);
     return <p>
-      You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
+      {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
     </p>
   },
 });
@@ -417,6 +422,40 @@ export const NewGroupOrganizerNotification = serverRegisterNotificationType({
   },
 });
 
+export const NewCommentOnDraftNotification = serverRegisterNotificationType({
+  name: "newCommentOnDraft",
+  canCombineEmails: true,
+  
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const firstNotification = notifications[0];
+    const post = await Posts.findOne({_id: firstNotification.documentId});
+    if (notifications.length===1) {
+      const { senderUserID, commentHtml } = firstNotification.extraData;
+      const senderUser = await Users.findOne({_id: senderUserID});
+      
+      return `${senderUser?.displayName} commented on ${post?.title}`;
+    } else {
+      return `${notifications.length} comments on ${post?.title}`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const firstNotification = notifications[0];
+    const post = await Posts.findOne({_id: firstNotification.documentId});
+    const postTitle = post?.title;
+    const postLink = makeAbsolute(`/editPost?postId=${firstNotification.documentId}`);
+    const { EmailUsernameByID } = Components;
+    
+    return <div>
+      {notifications.map((notification,i) => <div key={i}>
+        <div><EmailUsernameByID userID={notification.extraData?.senderUserID}/> commented on <a href={postLink}>{postTitle}</a>:</div>
+        <div>
+          <blockquote dangerouslySetInnerHTML={{__html: notification.extraData?.commentHtml}}/>
+        </div>
+      </div>)}
+    </div>
+  }
+});
+
 export const PostCoauthorRequestNotification = serverRegisterNotificationType({
   name: "coauthorRequestNotification",
   canCombineEmails: false,
@@ -464,5 +503,34 @@ export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
         Your co-author request for <a href={link}>{post.title}</a> was accepted.
       </p>
     );
+  },
+});
+
+export const NewSubforumMemberNotification = serverRegisterNotificationType({
+  name: "newSubforumMember",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const newUser = await Users.findOne(notifications[0].documentId)
+    if (!newUser) throw new Error("Cannot find user for which this notification is being sent")
+    return `New member ${newUser.displayName} has joined your subforum`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const newUser = await Users.findOne(notifications[0].documentId)
+    const subforum = await Tags.findOne(notifications[0].extraData?.subforumId)
+    if (!newUser) throw new Error(`Cannot find user for which this notification is being sent, user id: ${notifications[0].documentId}`)
+    if (!subforum) throw new Error(`Cannot find subforum for which this notification is being sent, subforum id: ${notifications[0].extraData?.subforumId}`)
+
+    return <div>
+      <p>
+        Hi {user.displayName},
+      </p>
+      <p>
+        Your subforum, <a href={tagGetSubforumUrl(subforum, true)}> {subforum?.name}</a> has a new
+        member: <a href={userGetProfileUrl(newUser, true)}>{newUser?.displayName}</a>.
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
+      </p>
+    </div>
   },
 });

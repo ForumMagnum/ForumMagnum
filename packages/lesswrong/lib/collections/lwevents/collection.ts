@@ -30,6 +30,9 @@ export const LWEvents: LWEventsCollection = createCollection({
   mutations: getDefaultMutations('LWEvents', options),
 });
 
-addUniversalFields({collection: LWEvents})
+addUniversalFields({
+  collection: LWEvents,
+  createdAtOptions: {viewableBy: ['members']},
+});
 
 export default LWEvents;

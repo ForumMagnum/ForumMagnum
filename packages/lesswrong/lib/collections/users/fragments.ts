@@ -41,6 +41,10 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
+    profileTags {
+      ...TagBasicInfo
+    }
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -74,8 +78,8 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
-    sortDrafts
-    reenableDraftJs
+    petrovOptOut
+    sortDraftsBy
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
@@ -111,6 +115,9 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsIncludeEvents
     allPostsOpenSettings
+    draftsListSorting
+    draftsListShowArchived
+    draftsListShowShared
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
@@ -153,6 +160,7 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
+    theme
 
     bookmarkedPostsMetadata
 
@@ -171,13 +179,15 @@ registerFragment(`
     abTestKey
     abTestOverrides
 
-    sortDrafts
+    sortDraftsBy
 
-    reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
   }
 `);
 
@@ -240,6 +250,7 @@ registerFragment(`
     website
     createdAt
     email
+    emails
     commentCount
     maxCommentCount
     postCount
@@ -257,6 +268,10 @@ registerFragment(`
     needsReview
     sunshineNotes
     sunshineFlagged
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
     snoozedUntilContentCount
   }
 `);
@@ -370,6 +385,7 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
 
@@ -422,6 +438,7 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -433,5 +450,14 @@ registerFragment(`
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    username
+    slug
+    fmCrosspostUserId
   }
 `)

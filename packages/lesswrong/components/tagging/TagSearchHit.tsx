@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagSearchHit = ({hit, onClick, classes}: {
   hit: any,
-  onClick: (ev: any) => void,
+  onClick?: (ev: any) => void,
   classes: ClassesType,
 }) => {
   const { PopperCard, TagPreview, Loading } = Components;
@@ -51,7 +51,7 @@ const TagSearchHit = ({hit, onClick, classes}: {
           {tag && <TagPreview tag={tag} postCount={3}/>}
         </div>
       </PopperCard>
-      <span className={classes.root} onClick={onClick} >
+      <span className={classes.root} onClick={(e) => onClick?.(e)} >
         {hit.name} <span className={classes.postCount}>({hit.postCount || 0})</span>
       </span>
     </span>

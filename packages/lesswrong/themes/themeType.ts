@@ -114,6 +114,7 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       
+      eventMaybe: ColorString,
       aprilFools: {
         orange: ColorString,
         yellow: ColorString,
@@ -187,6 +188,10 @@ declare global {
       commentBorder: string,
       answerBorder: string,
       tooltipHR: string,
+      primaryHighlight: string,
+      primaryHighlight2: string,
+      secondaryHighlight: string,
+      secondaryHighlight2: string,
     },
     panelBackground: {
       default: ColorString,
@@ -237,6 +242,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
+      restoreSavedContentNotice: ColorString,
     },
     boxShadow: {
       default: string,
@@ -311,9 +317,11 @@ declare global {
       default: ColorString
       paper: ColorString,
       pageActiveAreaBackground: ColorString,
+      translucentBackground: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
+      primaryDim: ColorString,
     },
     header: {
       text: ColorString,
@@ -321,6 +329,12 @@ declare global {
     },
     datePicker: {
       selectedDate: ColorString,
+    },
+    editor: {
+      commentPanelBackground: ColorString,
+      sideCommentEditorBackground: ColorString,
+      commentMarker: ColorString,
+      commentMarkerActive: ColorString,
     },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,
@@ -368,6 +382,9 @@ declare global {
       display2: JssStyles,
       display3: JssStyles,
       display4: JssStyles,
+      postsItemTitle: JssStyles,
+      chapterTitle: JssStyles,
+      largeChapterTitle: JssStyles,
       body1: JssStyles,
       body2: JssStyles,
       headline: JssStyles,

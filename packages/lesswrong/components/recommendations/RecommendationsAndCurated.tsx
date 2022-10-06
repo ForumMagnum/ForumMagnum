@@ -8,27 +8,6 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { CoreReadingCollection } from '../sequences/LWCoreReading';
-
-const sequenceHighlights: CoreReadingCollection = {
-  title: "The Sequences Highlights",
-  id: "NBDFAKt3GbFwnwzQF",
-  userId: "nmk3nLpQE89dMRzzN",
-  summary: `<div>How can we think better on purpose? Why should we think better on purpose?<br/>
-    Read up on the core concepts that underly the LessWrong community.
-    </div>`,
-  hideSummaryOnMobile: true,
-  imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1660339717/coverimage-05_qvc8ca.png",
-  imageWidth: 200,
-  color: "#757AA7",
-  big: false,
-  url: "/highlights",
-  firstPost: {
-    postId: "46qnWRSR7L2eyNbMA",
-    postUrl: "/s/NBDFAKt3GbFwnwzQF/p/46qnWRSR7L2eyNbMA",
-    postTitle: "The Lens That Sees Its Flaws"
-  }
-}
 
 export const curatedUrl = "/recommendations"
 
@@ -80,6 +59,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
+  },
+  curated: {
+    marginTop: 12
   }
 });
 
@@ -122,7 +104,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CollectionsItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -154,6 +136,8 @@ const RecommendationsAndCurated = ({
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
+    const renderRecommendations = !settings.hideFrontpage
+
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
     return <SingleColumnSection className={classes.section}>
@@ -176,11 +160,12 @@ const RecommendationsAndCurated = ({
           /> }
 
         {isLW && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CollectionsItem collection={sequenceHighlights} showCloseIcon/>
+          <CurrentSpotlightItem />
         </AnalyticsContext>}
-
+  
+        {/*Delete after the dust has settled on other Recommendations stuff*/}
         {!currentUser && forumTypeSetting.get() === 'LessWrong' && <div>
-          {/* <div className={classes.largeScreenLoggedOutSequences}>
+        {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
               <CuratedSequences />
             </AnalyticsContext>
@@ -192,21 +177,14 @@ const RecommendationsAndCurated = ({
 
         <div className={classes.subsection}>
           <div className={classes.posts}>
-            {!settings.hideFrontpage && 
+            {renderRecommendations && 
               <AnalyticsContext listContext="frontpageFromTheArchives" pageSubSectionContext="frontpageFromTheArchives" capturePostItemOnMount>
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             }
-            <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
-              <PostsList2
-                terms={{view:"curated", limit: currentUser ? 3 : 2}}
-                showNoResults={false}
-                showLoadMore={false}
-                hideLastUnread={true}
-                boxShadow={false}
-                curatedIconLeft={true}
-              />
-            </AnalyticsContext>
+            {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
+              <CuratedPostsList />
+            </div>}
           </div>
         </div>
 

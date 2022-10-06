@@ -11,6 +11,7 @@ export const createClient = async (context: ResolverContext) => {
       ...apolloCacheVoteablePossibleTypes()
     }
   });
+  
   const schema = getExecutableSchema();
   
   // schemaLink will fetch data directly based on the executable schema
@@ -22,5 +23,6 @@ export const createClient = async (context: ResolverContext) => {
     cache,
     assumeImmutableResults: true,
   });
+  await client.clearStore();
   return client;
 };

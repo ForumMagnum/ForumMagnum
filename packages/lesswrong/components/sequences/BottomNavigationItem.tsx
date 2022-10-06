@@ -67,7 +67,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   classes: ClassesType,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
-  const { LoginPopupButton } = Components
+  const { LoginToTrack } = Components
   const commentCount = post.commentCount || "No"
   const url = postGetPageUrl(post, false, sequence?._id);
   
@@ -87,9 +87,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
         </div>
       </Link>
       {direction==="Next" && <span className={classes.login}>
-        <LoginPopupButton title="LessWrong keeps track of what posts logged in users have read, so you can keep reading wherever you've left off">
-            Log in to save where you left off
-        </LoginPopupButton>
+        <LoginToTrack />
       </span>}
     </span>
   )

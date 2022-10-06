@@ -15,13 +15,13 @@ import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
-import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpers';
+import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
-import { userFindByEmail } from '../../../lib/vulcan-users/helpers';
+import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -41,8 +41,8 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
-  if (!user) return done(null, false, { message: 'Incorrect username.' });
+  const user = await Users.findOne({$or: [{"emails.address": username}, {email: username}, {username: username}]});
+  if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
   // passwords hashed differently.
@@ -212,7 +212,7 @@ const authenticationResolvers = {
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
       
-      if (await userFindByEmail(email)) {
+      if (await userFindOneByEmail(email)) {
         throw Error("Email address is already taken");
       }
       if (await mongoFindOne("Users", { username })) {
@@ -261,7 +261,7 @@ const authenticationResolvers = {
     },
     async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
-      const user = await Users.findOne({'emails.address': email})
+      const user = await userFindOneByEmail(email)
       if (!user) throw Error("Can't find user with given email address")
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({

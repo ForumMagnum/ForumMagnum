@@ -7,7 +7,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 export interface OpenDialogContextType {
   openDialog: <T extends keyof ComponentTypes>({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
-    componentProps?: React.ComponentProps<typeof Components[T]>,
+    componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
     noClickawayCancel?: boolean,
   }) => void,
   closeDialog: ()=>void,
@@ -25,11 +25,10 @@ export const DialogManager = ({children}: {
   const isOpen = !!componentName;
   
   const closeDialog = useCallback(() => {
-    (typeof componentProps.onClose === 'function') && componentProps.onClose()
     captureEvent("dialogBox", {open: false, dialogName: componentName})
     setComponentName(null);
     setComponentProps(null);
-  }, [captureEvent, componentName, componentProps]);
+  }, [captureEvent, componentName]);
 
   const ModalComponent = isOpen ? (Components[componentName as string]) : null;
   

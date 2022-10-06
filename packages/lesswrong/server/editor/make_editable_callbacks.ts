@@ -212,31 +212,15 @@ export async function markdownToHtml(markdown: string): Promise<string> {
   return await mjPagePromise(html, trimLatexAndAddCSS)
 }
 
-export function removeCKEditorSuggestions(markup: string): string {
-  // First we remove all suggested deletion and modify formatting tags
-  const markupWithoutDeletionsAndModifications = markup.replace(
-    /<suggestion\s*id="[a-zA-Z0-9:]+"\s*suggestion-type="(deletion|formatInline:[a-zA-Z0-9]+|formatBlock:[a-zA-Z0-9]+)" type="(start|end)"><\/suggestion>/g,
-    ''
-  )
-  // Then we remove everything between suggested insertions
-  const markupWithoutInsertions = markupWithoutDeletionsAndModifications.replace(
-    /<suggestion\s*id="([a-zA-Z0-9:]+)"\s*suggestion-type="insertion" type="start"><\/suggestion>.*<suggestion\s*id="\1"\s*suggestion-type="insertion"\s*type="end"><\/suggestion>/g,
-    ''
-  )
-  return markupWithoutInsertions
-}
-
 export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
-  // First we remove any unaccepted suggestions from the markup
-  const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
-  const html = sanitize(markupWithoutSuggestions)
+  const html = sanitize(markup)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
-async function dataToHTML(data, type, sanitizeData = false) {
+export async function dataToHTML(data, type, sanitizeData = false) {
   switch (type) {
     case "html":
       return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
@@ -273,6 +257,20 @@ export function dataToMarkdown(data, type) {
       }
       return ""
     }
+    default: throw new Error(`Unrecognized format: ${type}`);
+  }
+}
+
+export async function dataToCkEditor(data, type) {
+  switch (type) {
+    case "html":
+      return sanitize(data);
+    case "ckEditorMarkup":
+      return data;
+    case "draftJS":
+      return await draftJSToHtmlWithLatex(data);
+    case "markdown":
+      return await markdownToHtml(data)
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
@@ -335,10 +333,15 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-async function buildRevision({ originalContents, currentUser }) {
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }:{
+  originalContents: DbRevision["originalContents"],
+  currentUser: DbUser,
+  dataWithDiscardedSuggestions?: string
+}) {
   const { data, type } = originalContents;
-  const html = await dataToHTML(data, type, !currentUser.isAdmin)
-  const wordCount = await dataToWordCount(data, type)
+  const readerVisibleData = dataWithDiscardedSuggestions ?? data
+  const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+  const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
     html, wordCount, originalContents,
@@ -349,7 +352,7 @@ async function buildRevision({ originalContents, currentUser }) {
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -391,7 +394,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" > = {
+      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart"> = {
         ...(await buildRevision({
           originalContents: doc[fieldName].originalContents,
           currentUser,
@@ -403,6 +406,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         updateType: 'initial',
         commitMessage,
         changeMetrics,
+        createdAt: editedAt,
       };
       const firstRevision = await createMutator({
         collection: Revisions,
@@ -434,8 +438,12 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
       const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(data, type)
+      const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
+      delete docData[fieldName].dataWithDiscardedSuggestions
+
+      const readerVisibleData = dataWithDiscardedSuggestions ?? data
+      const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+      const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
@@ -450,10 +458,11 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" > = {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart"> = {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
+            dataWithDiscardedSuggestions,
             currentUser,
           }),
           fieldName,
@@ -463,6 +472,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           updateType,
           commitMessage,
           changeMetrics,
+          createdAt: editedAt,
         }
         const newRevisionDoc = await createMutator({
           collection: Revisions,
@@ -474,7 +484,9 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
 
-      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      if (newRevisionId) {
+        await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      }
 
       return {
         ...docData,
@@ -500,11 +512,13 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
-    await Revisions.rawUpdateOne(
-      { _id: revisionID },
-      { $set: { documentId: newDoc._id } }
-    );
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    if (revisionID) {
+      await Revisions.rawUpdateOne(
+        { _id: revisionID },
+        { $set: { documentId: newDoc._id } }
+      );
+      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    }
     return newDoc;
   });
 }

@@ -14,6 +14,7 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
+import VoiceChatIcon from '@material-ui/icons/VoiceChat';
 import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
@@ -259,6 +260,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
+    },{
+      id: 'subforumsList',
+      customComponentName: "SubforumsList",
     }, {
       id: 'library',
       title: 'Library',
@@ -325,6 +329,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'community-members',
       title: 'Community Members',
       link: '/community#individuals',
+      subItem: true,
+    }, {
+      id: 'advice',
+      title: 'Book a 1:1 [BETA]',
+      link: `/advice`,
+      tooltip: "Chat with community members in career paths you're interested in exploring",
       subItem: true,
     }, {
       id: 'divider',

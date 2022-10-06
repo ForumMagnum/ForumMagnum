@@ -6,6 +6,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { TagCommentType } from './types';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -187,6 +188,14 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
     options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
   };
 })
+
+Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+  return {
+    selector: {deletedPublic: false},
+    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+  };
+})
+ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
@@ -476,16 +485,37 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
-
-Comments.addView('commentsOnTag', (terms: CommentsViewTerms) => ({
-  selector: {
-    tagId: terms.tagId,
-  },
-}));
 ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
 );
+
+export const subforumSorting = {
+  new: { postedAt: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 },
+}
+export const subforumDefaultSorting = "recentDiscussion"
+
+Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    tagId: terms.tagId,
+    tagCommentType: TagCommentType.Discussion as string
+  },
+}));
+
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
+  const sorting = subforumSorting[sortBy] || subforumSorting.new
+  return {
+  selector: {
+    tagId: tagId,
+    tagCommentType: TagCommentType.Subforum as string,
+    topLevelCommentId: viewFieldNullOrMissing,
+  },
+  options: {
+    sort: sorting,
+  },
+}});
+
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

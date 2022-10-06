@@ -4,20 +4,13 @@ const schema: SchemaType<DbBook> = {
 
   // default properties
 
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: () => new Date(),
-  },
-
   postedAt: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
     onInsert: () => new Date(),
   },
-  
+
   // Custom Properties
 
   title: {

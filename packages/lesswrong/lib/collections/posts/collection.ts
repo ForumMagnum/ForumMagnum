@@ -1,9 +1,12 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsPodcaster } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { userIsPostGroupOrganizer } from './helpers';
+import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
+import { makeEditable } from '../../editor/make_editable';
+import { formGroups } from './formGroups';
+import { allOf } from '../../utils/functionUtils';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -24,7 +27,8 @@ const options: MutationOptions<DbPost> = {
       return true
     }
     
-    return userOwns(user, document) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
+    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
@@ -48,6 +52,60 @@ export const Posts: ExtendedPostsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: Posts})
+const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
+}
+
+addUniversalFields({
+  collection: Posts,
+  createdAtOptions: {viewableBy: ['admins']},
+});
+
+makeEditable({
+  collection: Posts,
+  options: {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+    permissions: {
+      viewableBy: ['guests'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+      insertableBy: ['members']
+    },
+  }
+})
+
+makeEditable({
+  collection: Posts,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines]
+    },
+  }
+})
+
+makeEditable({
+  collection: Posts,
+  options: {
+    formGroup: formGroups.highlight,
+    fieldName: "customHighlight",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
+})
+
 
 export default Posts;

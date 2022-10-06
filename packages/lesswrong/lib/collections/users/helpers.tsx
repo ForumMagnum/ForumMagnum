@@ -1,11 +1,11 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { userHasCkCollaboration } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
-import { getBrowserLocalStorage } from '../../../components/async/localStorageHandlers';
+import * as _ from 'underscore';
+import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -29,20 +29,38 @@ export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|
   return null;
 };
 
-export const userOwnsAndInGroup = (group: string) => {
+export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
 }
 
-export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
-  if (!currentUser) return false;
-  return document.shareWithUsers?.includes(currentUser._id) ||
-    document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0;
+export interface SharableDocument {
+  coauthorStatuses?: DbPost["coauthorStatuses"]
+  shareWithUsers?: DbPost["shareWithUsers"]
+  sharingSettings?: DbPost["sharingSettings"]
 }
 
-export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
-  return userHasCkCollaboration(currentUser) && userIsSharedOn(currentUser, document)
+export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: SharableDocument): boolean => {
+  if (!currentUser) return false;
+  
+  // Shared as a coauthor? Always give access
+  const coauthorStatuses = document.coauthorStatuses ?? []
+  if (coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  
+  // Explicitly shared?
+  if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {
+    return !document.sharingSettings || document.sharingSettings.explicitlySharedUsersCan !== "none";
+  } else {
+    // If not individually shared with this user, still counts if shared if
+    // (1) link sharing is enabled and (2) the user's ID is in
+    // linkSharingKeyUsedBy.
+    return (
+      document.sharingSettings?.anyoneWithLinkCan
+      && document.sharingSettings.anyoneWithLinkCan !== "none"
+      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+    )
+  }
 }
 
 export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {
@@ -229,11 +247,16 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
-  return !!(user?.emails && user.emails.length > 0);
+  return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-export function getUserEmail (user: UsersCurrent | DbUser): string | undefined {
-  return user.email || user.emails?.[0]?.address
+type UserWithEmail = {
+  email: string
+  emails: UsersCurrent["emails"] 
+}
+
+export function getUserEmail (user: UserWithEmail|null): string | undefined {
+  return user?.emails?.[0]?.address ?? user?.email
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
@@ -280,8 +303,6 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
 export const userCanEdit = (currentUser, user) => {
   return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
 }
-
-
 
 interface UserLocation {
   lat: number,
@@ -446,3 +467,14 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+
+const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
+export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+  if (forumTypeSetting.get() !== 'LessWrong') return false;
+
+  const userCreatedAfterCutoff = user.createdAt
+    ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
+    : false;
+
+  return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
+};

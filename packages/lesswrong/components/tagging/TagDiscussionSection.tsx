@@ -15,7 +15,7 @@ const TagDiscussionSection = ({classes, tag}: {
   const { results, loadMore, loadingMore, totalCount } = useMulti({
     skip: !tag?._id,
     terms: {
-      view: "commentsOnTag",
+      view: "tagDiscussionComments",
       tagId: tag?._id,
       limit: 500,
     },

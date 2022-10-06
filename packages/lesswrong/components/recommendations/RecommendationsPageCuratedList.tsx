@@ -22,7 +22,7 @@ const RecommendationsPageCuratedList = ({classes}: {
   const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
 
   const currentUser = useCurrentUser()
-  const showCurated = forumTypeSetting.get() === 'LessWrong'
+  const showCurated = ['LessWrong', 'EAForum'].includes(forumTypeSetting.get());
 
   return (
     <div>

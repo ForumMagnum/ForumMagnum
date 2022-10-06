@@ -16,12 +16,6 @@ const schema: SchemaType<DbRSSFeed> = {
     editableBy: ['admins'],
     optional: true,
   },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   ownedByUser: {
     type: Boolean,
     viewableBy: ['guests'],

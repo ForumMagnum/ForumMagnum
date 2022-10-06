@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
+import { useCheckMeritsCollapse } from '../../../common/useCheckMeritsCollapse';
 
 
 const COLLAPSED_SECTION_HEIGHT = 200
@@ -102,22 +103,14 @@ const EAUsersProfileTabbedSection = ({tabs, classes}: {
   
   // handle the case when we want a collapsable tab body
   const bodyRef = useRef<HTMLDivElement>(null)
-  const resizeObserver = useRef<ResizeObserver|null>(null)
-  // this tracks whether the contents of the tab actually overflow
-  const [meritsCollapse, setMeritsCollapse] = useState(false)
   // this tracks whether the tab body is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
   
-  useEffect(() => {
-    if (bodyRef.current) {
-      // show/hide the collapse-related buttons depending on whether or not the content all fits
-      resizeObserver.current = new ResizeObserver(elements => {
-        setMeritsCollapse(Math.round(elements[0].contentRect.height) >= COLLAPSED_SECTION_HEIGHT)
-      })
-      resizeObserver.current.observe(bodyRef.current)
-    }
-    return () => resizeObserver.current?.disconnect()
-  }, [bodyRef, activeTab])
+  const meritsCollapse = useCheckMeritsCollapse({
+    ref: bodyRef,
+    height: COLLAPSED_SECTION_HEIGHT,
+    deps: [activeTab]
+  })
 
   const { Typography } = Components
   

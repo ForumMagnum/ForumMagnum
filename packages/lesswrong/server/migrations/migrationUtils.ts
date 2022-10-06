@@ -18,7 +18,14 @@ export const migrationRunners: Record<string,any> = {};
 // things non-relatively there.
 Vulcan.migrations = migrationRunners;
 
-export function registerMigration({ name, dateWritten, idempotent, action })
+interface RegisterMigrationProps {
+  name: string;
+  dateWritten: string;
+  idempotent: boolean;
+  action: () => Promise<void>;
+}
+
+export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps)
 {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)

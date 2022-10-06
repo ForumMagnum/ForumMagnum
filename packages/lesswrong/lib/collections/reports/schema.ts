@@ -83,13 +83,6 @@ const schema: SchemaType<DbReport> = {
     label: "Reason",
     placeholder: "What are you reporting this comment for?",
   },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   closedAt: {
     optional: true,
     type: Date,

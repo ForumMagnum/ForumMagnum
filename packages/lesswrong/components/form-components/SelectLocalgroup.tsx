@@ -29,7 +29,7 @@ const SelectLocalgroup = (props: any) => {
     const options = groups?.map(group => {
       return {value: group._id, label: group.name}
     })
-    return <Components.FormComponentMultiSelect {...props} options={options || []} placeholder={props.label} />
+    return <Components.FormComponentMultiSelect {...props} options={options || []} />
   }
 
   const selectOptions = groups?.map(group => {

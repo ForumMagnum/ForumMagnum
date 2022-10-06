@@ -22,7 +22,14 @@ export const getEAGApplicationData = async (email: string) => {
     throw new Error('Failed to retrieve data from Zoho')
   }
   
-  // if no application data found in 2022, check 2021
+  // if no application data found in EAG 2022, check 2022 EAGx events
+  for (let event of ['EAGxRotterdam', 'EAGxBerlin', 'EAGxSingapore']) {
+    if (eagAppResponse.status === 204) {
+      eagAppResponse = await getZohoDataEAGx(event, email)
+    }
+  }
+
+  // finally, check EAG 2021
   if (eagAppResponse.status === 204) {
     eagAppResponse = await getZohoData2021(email)
   }
@@ -49,6 +56,20 @@ const getZohoData2022 = async (email: string) => {
     },
     "body": `{
         "select_query":"select Email, Which_event_s_are_you_registering_for_EA_Globa, Which_event_s_are_you_applying_to_registering_for, Which_event_s_are_you_registering_for, LinkedIn_profile_summary, LinkedIn_URL, Where_do_you_work, What_stage_of_your_career_are_you_in, What_is_your_job_title_or_current_role, Your_nearest_city, Which_group_s_do_you_currently_organize_and_what, What_are_you_hoping_to_get_out_of_the_event_and_h, How_can_you_help_the_other_attendees_at_the_event, Brief_bio_150_words_maximum, Path_to_impact from EAG_London_22 where Email = '${email}' and Test_application = false limit 1"
+    }`,
+    "method": "POST",
+  })
+}
+
+const getZohoDataEAGx = async (event: string, email: string) => {
+  return await fetch("https://www.zohoapis.com/crm/v3/coql", {
+    "headers": {
+      "Authorization": `Bearer ${accessToken}`,
+      "accept": "*/*",
+      "content-type": "application/json",
+    },
+    "body": `{
+        "select_query":"select Email, Which_event_s_are_you_applying_to_registering_for, Which_event_s_are_you_registering_for, LinkedIn_profile_summary, Where_do_you_work, What_stage_of_your_career_are_you_in, What_is_your_job_title_or_current_role, Your_nearest_city, Which_group_s_do_you_currently_organize_and_what, What_are_you_hoping_to_get_out_of_the_event_and_h, How_can_you_help_the_other_attendees_at_the_event, Brief_bio_150_words_maximum, Path_to_impact from ${event} where Email = '${email}' and Test_application = false limit 1"
     }`,
     "method": "POST",
   })

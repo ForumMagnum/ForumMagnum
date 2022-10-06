@@ -12,9 +12,7 @@ const InboxWrapper = () => {
   }
   const showArchive = query.showArchive === "true"
   const terms: ConversationsViewTerms = {view: 'userConversations', userId: currentUser._id, showArchive};
-  return <div>
-    <Components.InboxNavigation terms={terms} currentUser={currentUser}/>
-  </div>
+  return <Components.InboxNavigation terms={terms} currentUser={currentUser}/>
 }
 
 const InboxWrapperComponent = registerComponent('InboxWrapper', InboxWrapper);

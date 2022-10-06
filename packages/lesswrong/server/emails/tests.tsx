@@ -1,10 +1,10 @@
 import { testStartup } from '../../testing/testMain';
 import React from 'react';
 import { withSingle, useSingle } from '../../lib/crud/withSingle';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 testStartup();
 
@@ -21,9 +21,11 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   boilerplateGenerator?: typeof unitTestBoilerplateGenerator
 }) {
   const destinationUser = user || await createDummyUser();
+  const email = getUserEmail(destinationUser)
+  if (!email) throw new Error("test email has no email address")
   return await generateEmail({
     user: destinationUser,
-    to: userGetEmail(user)!,
+    to: email,
     subject: "Unit test email",
     bodyComponent,
     boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator

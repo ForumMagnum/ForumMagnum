@@ -192,7 +192,6 @@ export const schemaProperties = [
   'afterComponent',
   'placeholder',
   'options',
-  'query',
   'tooltip'
 ] as const;
 
@@ -217,6 +216,5 @@ export const formProperties = [
   'afterComponent',
   'placeholder',
   'options',
-  'query',
   'tooltip'
 ] as const;

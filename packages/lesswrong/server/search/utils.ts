@@ -54,12 +54,26 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
   }
-  const parentPost = await Posts.findOne({_id: comment.postId});
-  if (parentPost) {
-    algoliaComment.postId = comment.postId;
-    algoliaComment.postTitle = parentPost.title;
-    algoliaComment.postSlug = parentPost.slug;
+
+  if (comment.postId) {
+    const parentPost = await Posts.findOne({_id: comment.postId});
+    if (parentPost) {
+      algoliaComment.postId = comment.postId;
+      algoliaComment.postTitle = parentPost.title;
+      algoliaComment.postSlug = parentPost.slug;
+      algoliaComment.postIsEvent = parentPost.isEvent;
+      algoliaComment.postGroupId = parentPost.groupId;
+    }
   }
+  if (comment.tagId) {
+    const tag = await Tags.findOne({_id: comment.tagId});
+    if (tag) {
+      algoliaComment.tagId = comment.tagId;
+      algoliaComment.tagCommentType = comment.tagCommentType;
+      algoliaComment.tagSlug = tag.slug;
+    }
+  }
+
   let body = ""
   if (comment.contents?.originalContents?.type) {
     const { data, type } = comment.contents.originalContents
@@ -413,22 +427,6 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   }
 }
 
-// Given an objectID from an Algolia record, figure out whether this record is
-// part of a group of records merged by `distinct`, and if so, return the set
-// of objectIDs of records in that group. Otherwise return the given ID.
-async function algoliaObjectIDtoIDgroup(algoliaIndex: algoliasearch.Index, id: string): Promise<Array<string>> {
-  // Does the ID have an underscore in it? If so, it's (_id)_(group index)
-  if (id.indexOf('_') >= 0) {
-    const [mongoId, groupIndexStr] = id.split('_');
-    const groupIndex = parseInt(groupIndexStr);
-    const largestIndex = await getHighestGroupIndexInGroup(algoliaIndex, mongoId, groupIndex);
-    
-    return _.map(_.range(largestIndex+1), index=>`${mongoId}_${index}`);
-  } else {
-    return [id];
-  }
-}
-
 // Find the largest ID in this group. Unfortunately the only way to do this is
 // to try retrieving different IDs, and see what does and doesn't come back.
 async function getHighestGroupIndexInGroup(algoliaIndex: algoliasearch.Index, mongoId: string, lowerBound: number): Promise<number> {
@@ -439,10 +437,16 @@ async function getHighestGroupIndexInGroup(algoliaIndex: algoliasearch.Index, mo
   return largestIndex;
 }
 
-// Given a set of objectIDs, some of which are of the form (mongoId)_(groupIndex)
-// and some of which aren't, some of which share mongoIds but not groupIndexes,
-// return all objectIDs in the algolia index which share a mongoId with one of
-// the provided objectIDs, but have a higher groupIndex than any in the input.
+ /**
+  * TODO-FIXME: Seems to be broken, based on bugged behavior. Fix with distinct
+  * search instead.
+  *
+  * Given a set of objectIDs, some of which are of the form
+  * (mongoId)_(groupIndex) and some of which aren't, some of which share
+  * mongoIds but not groupIndexes, return all objectIDs in the algolia index
+  * which share a mongoId with one of the provided objectIDs, but have a higher
+  * groupIndex than any in the input.
+  */
 async function algoliaObjectIDsToHigherIDSet(algoliaIndex: algoliasearch.Index, ids: Array<string>): Promise<Array<string>> {
   const highestGroupIndexes: Record<string,number> = {};
   for (let id of ids) {
@@ -484,11 +488,10 @@ async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids: Array<str
       query: mongoId,
       restrictSearchableAttributes: ["_id"],
       attributesToRetrieve: ['objectID','_id'],
+      distinct: false,
     });
     for (const hit of results) {
-      const idGroup = await algoliaObjectIDtoIDgroup(algoliaIndex, hit.objectID)
-      for (const id of idGroup)
-        algoliaIdsToDelete.push(id);
+      algoliaIdsToDelete.push(hit.objectID);
     }
   }
   
@@ -527,9 +530,6 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
     return;
   }
-  // if (isDevelopment) {  // Only run document export in production environment
-  //   return null
-  // }
   let client = getAlgoliaAdminClient();
   if (!client) {
     return;

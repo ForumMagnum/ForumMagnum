@@ -8,15 +8,15 @@ import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
-import createDividerPlugin from './editor-plugins/divider';
-import createMathjaxPlugin from './editor-plugins/draft-js-mathjax-plugin/src'
-import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
+import createDividerPlugin from './draftjs-plugins/divider';
+import createMathjaxPlugin from './draftjs-plugins/draft-js-mathjax-plugin/src'
+import createMarkdownShortcutsPlugin from './draftjs-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
-import LinkButton from './editor-plugins/LinkButton'
-import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
-import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
-import ImageButton from './editor-plugins/image/ImageButton';
+import LinkButton from './draftjs-plugins/LinkButton'
+import { myKeyBindingFn } from './draftjs-plugins/keyBindings.js'
+import createLinkifyPlugin from './draftjs-plugins/linkifyPlugin'
+import ImageButton from './draftjs-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
 import NoSsr from '@material-ui/core/NoSsr';

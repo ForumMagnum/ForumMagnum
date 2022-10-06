@@ -1,6 +1,13 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
+import { addGraphQLSchema } from '../../vulcan-lib';
+import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
+import { SharableDocument, userIsSharedOn } from '../users/helpers';
 
+/**
+ * This covers the type of originalContents for all editor types. 
+ * (DraftJS uses object type. DraftJs is deprecated but there are still many documents that use it)
+ */
 export const ContentType = new SimpleSchema({
   type: String,
   data: SimpleSchema.oneOf(
@@ -13,6 +20,40 @@ export const ContentType = new SimpleSchema({
 })
 
 SimpleSchema.extendOptions([ 'inputType' ]);
+
+// Graphql doesn't allow union types that include scalars, which is necessary
+// to accurately represent the data field the ContentType simple schema.
+
+// defining a custom scalar seems to allow it to pass through any data type,
+// but this doesn't seem much more permissive than ContentType was originally
+addGraphQLSchema(`
+  scalar ContentTypeData
+`)
+
+addGraphQLSchema(`
+  type ContentType {
+    type: String
+    data: ContentTypeData
+  }
+`)
+
+const isSharable = (document: any) : document is SharableDocument => {
+  return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
+}
+
+export const getOriginalContents = (currentUser: DbUser|null, document: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
+  const canViewOriginalContents = (user: DbUser|null, doc: DbObject) => isSharable(doc) ? userIsSharedOn(user, doc) : true
+
+  const returnOriginalContents = userCanReadField(
+    currentUser,
+    // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
+    // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
+    { viewableBy: [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'] },
+    document
+  )
+
+  return returnOriginalContents ? originalContents : null
+}
 
 const schema: SchemaType<DbRevision> = {
   documentId: {
@@ -33,6 +74,23 @@ const schema: SchemaType<DbRevision> = {
     optional: true,
     viewableBy: ['guests'],
   },
+  
+  // autosaveTimeoutStart: If this revision was created by rate-limited
+  // autosaving, this is the timestamp that the rate limit is computed relative
+  // to. This is separate from editedAt, which is when this revision was last
+  // rewritten. This is so that if the revision is repeatedly updated in place,
+  // chaining together edits can't produce an interval longer than the
+  // intended one.
+  //
+  // Optional, only present on revisions that have been autosaved in-place at
+  // least once.
+  //
+  // See also: saveOrUpdateDocumentRevision in ckEditorWebhook.ts
+  autosaveTimeoutStart: {
+    type: Date,
+    optional: true,
+  },
+  
   updateType: {
     viewableBy: ['guests'],
     editableBy: ['members'],
@@ -86,7 +144,21 @@ const schema: SchemaType<DbRevision> = {
   originalContents: {
     type: ContentType,
     viewableBy: ['guests'],
-    editableBy: ['members']
+    resolveAs: {
+      type: 'ContentType',
+      resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
+        // Original contents sometimes contains private data (ckEditor suggestions 
+        // via Track Changes plugin). In those cases the html field strips out the 
+        // suggestion. Original contents is only visible to people who are invited 
+        // to collaborative editing. (This is only relevant for posts, but supporting
+        // it means we need originalContents to default to unviewable)
+        if (document.collectionName === "Posts") {
+          const post = await context.loaders["Posts"].load(document.documentId)
+          return getOriginalContents(context.currentUser, post, document.originalContents)
+        }
+        return document.originalContents
+      }
+    }
   },
   html: {
     type: String,

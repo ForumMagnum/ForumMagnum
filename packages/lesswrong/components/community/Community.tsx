@@ -1,17 +1,17 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { useState, useEffect, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import Geosuggest from 'react-geosuggest';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
+import Geosuggest from 'react-geosuggest';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';

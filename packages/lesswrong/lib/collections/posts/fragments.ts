@@ -32,6 +32,7 @@ registerFragment(`
     status
     frontpageDate
     meta
+    deletedDraft
 
     shareWithUsers
     sharingSettings
@@ -186,6 +187,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    readTimeMinutes
     moderationGuidelines {
       _id
       html
@@ -211,6 +213,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    deletedDraft
     contents {
       _id
       htmlHighlight
@@ -264,6 +267,18 @@ registerFragment(`
       title
     }
 
+    # Podcast
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+
     # Moderation stuff
     showModerationGuidelines
     bannedUserIds
@@ -295,6 +310,10 @@ registerFragment(`
     }
     rsvps
     activateRSVPs
+
+    # Crossposting
+    fmCrosspost
+    podcastEpisodeId
   }
 `);
 
@@ -405,23 +424,44 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
+    myEditorAccess
+    linkSharingKey
   }
 `)
 
 registerFragment(`
   fragment PostsEdit on Post {
-    ...PostsPage
+    ...PostsDetails
+    myEditorAccess
+    linkSharingKey
+    version
     coauthorStatuses
+    readTimeMinutesOverride
+    fmCrosspost
     moderationGuidelines {
-      ...RevisionEdit
-    }
-    contents {
       ...RevisionEdit
     }
     customHighlight {
       ...RevisionEdit
     }
     tableOfContents
+  }
+`);
+
+registerFragment(`
+  fragment PostsEditQueryFragment on Post {
+    ...PostsEdit
+    contents(version: $version) {
+      ...RevisionEdit
+    }
+  }
+`);
+registerFragment(`
+  fragment PostsEditMutationFragment on Post {
+    ...PostsEdit
+    contents {
+      ...RevisionEdit
+    }
   }
 `);
 

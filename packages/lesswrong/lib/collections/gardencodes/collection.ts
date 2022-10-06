@@ -30,12 +30,6 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<DbGardenCode> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: () => new Date(),
-  },
   code: {
     type: String,
     optional: true,

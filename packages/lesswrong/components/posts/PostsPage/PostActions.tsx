@@ -2,11 +2,11 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useNamedMutation } from '../../../lib/crud/withMutation';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
+import { userCanDo, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
+import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
-import { postCanEdit } from '../../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { useItemsRead } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -176,6 +176,22 @@ const PostActions = ({post, closeMenu, classes}: {
   const postAuthor = post.user;
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
+  
+  let editLink: React.ReactNode|null = null;
+  const isEditor = canUserEditPostMetadata(currentUser,post);
+  const isPodcaster = userIsPodcaster(currentUser);
+  const isShared = userIsSharedOn(currentUser, post);
+  if (isEditor || isPodcaster || isShared) {
+    const link = (isEditor || isPodcaster) ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
+    editLink = <Link to={link}>
+      <MenuItem>
+        <ListItemIcon>
+          <EditIcon />
+        </ListItemIcon>
+        Edit
+      </MenuItem>
+    </Link>
+  }
 
   const defaultLabel = forumSelect({
     EAForum:'This post may appear on the Frontpage',
@@ -194,7 +210,7 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
-        { postCanEdit(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
+        { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
             <ListItemIcon>
               <EditIcon />
@@ -202,15 +218,8 @@ const PostActions = ({post, closeMenu, classes}: {
             Duplicate Event
           </MenuItem>
         </Link>}
-        { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
-          <MenuItem>
-            <ListItemIcon>
-              <EditIcon />
-            </ListItemIcon>
-            Edit
-          </MenuItem>
-        </Link>}
-        { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
+        {editLink}
+        { forumTypeSetting.get() === 'EAForum' && canUserEditPostMetadata(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
           <MenuItem>
@@ -220,16 +229,6 @@ const PostActions = ({post, closeMenu, classes}: {
             Analytics
           </MenuItem>
         </Link>}
-        { userCanCollaborate(currentUser, post) &&
-          <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
-            <MenuItem>
-              <ListItemIcon>
-                <EditIcon />
-              </ListItemIcon>
-              Collaborative Editing
-            </MenuItem>
-          </Link>
-        }
         {currentUser && post.group &&
           <NotifyMeButton asMenuItem
             document={post.group} showIcon

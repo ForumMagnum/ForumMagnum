@@ -12,7 +12,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
+import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 

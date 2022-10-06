@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
+import { useIsFirstRender } from "../hooks/useIsFirstRender";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,6 +65,13 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
   afterPostsListMarginTop?: boolean,
 }) => {
   const { captureEvent } = useTracking()
+
+  /**
+   * To avoid hydration errors, set loading to false if this is the initial render and we have
+   * a non-zero count that graphql cached during SSR.
+   */
+  const isFirstRender = useIsFirstRender();
+  loading = loading && !(isFirstRender && (count ?? 0) > 0);
 
   const { Loading } = Components
   const handleClickLoadMore = event => {

@@ -15,12 +15,6 @@ const schema: SchemaType<DbMessage> = {
     optional: true,
     hidden: true,
   },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['members'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   conversationId: {
     ...foreignKeyField({
       idFieldName: "conversationId",

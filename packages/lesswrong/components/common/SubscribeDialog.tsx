@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
-import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
+import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
@@ -183,7 +183,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   }
 
   emailSubscriptionEnabled() {
-    return this.props.currentUser && this.props.currentUser.email
+    return this.props.currentUser && getUserEmail(this.props.currentUser) 
   }
 
   emailFeedExists(view) {
@@ -238,7 +238,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         inputProps={{ id: "subscribe-dialog-view" }}
       >
         {/* TODO: Forum digest */}
-        {!isEAForum && <MenuItem value="curated">Curated</MenuItem>}
+        <MenuItem value="curated">Curated</MenuItem>
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
       </Select>
@@ -307,7 +307,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
                 subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
-                  We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
+                  We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
                 </DialogContentText>
               ]
             ) : (

@@ -14,7 +14,9 @@ import './server/karmaInflation/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
-import './server/ckEditorToken';
+import './server/ckEditor/ckEditorToken';
+import './server/ckEditor/ckEditorWebhook';
+import './server/ckEditor/ckEditorCallbacks';
 
 // Scripts
 import './server/scripts/sscImport';
@@ -130,6 +132,10 @@ import './server/resolvers/analyticsResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
+
+import './server/fmCrosspost';
+
+import './server/spotlightCron';
 
 import './server/codegen/generateTypes';
 

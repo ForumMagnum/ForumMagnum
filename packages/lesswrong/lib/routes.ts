@@ -140,6 +140,14 @@ addRoute(
     name:'users.account',
     path:'/account',
     componentName: 'UsersAccount',
+    title: "Account Settings",
+    background: "white"
+  },
+  {
+    name:'users.drafts',
+    path:'/drafts',
+    componentName: 'DraftsPage',
+    title: "Drafts & Unpublished",
     background: "white"
   },
   {
@@ -153,12 +161,14 @@ addRoute(
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount',
-    background: "white"
+    title: "Account Settings",
+    background: "white",
   },
   {
     name:'users.abTestGroups',
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
+    title: "A/B Test Groups",
   },
   {
     name: "users.banNotice",
@@ -175,9 +185,17 @@ addRoute(
     background: "white"
   },
   {
+    name: 'crosspostLogin',
+    path: '/crosspostLogin',
+    componentName: 'CrosspostLoginPage',
+    title: 'Crosspost Login',
+    standalone: true,
+  },
+  {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     componentName: 'ResendVerificationEmailPage',
+    title: "Email Verification",
     background: "white"
   },
   {
@@ -185,6 +203,12 @@ addRoute(
     path: '/inbox',
     componentName: 'InboxWrapper',
     title: "Inbox"
+  },
+  {
+    name: 'moderatorInbox',
+    path: '/moderatorInbox',
+    componentName: 'ModeratorInboxWrapper',
+    title: "Moderator Inbox"
   },
   {
     name: 'conversation',
@@ -219,6 +243,7 @@ addRoute(
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
+    background: "white",
   },
   // disabled except during review voting phase
   {
@@ -473,6 +498,13 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
+    {
+      name: 'taggingSubforumCustomName',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      hideFooter: true,
+      noPadding: true,
+    }
   )
 } else {
   addRoute(
@@ -677,6 +709,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
+    {
+      name: 'advice',
+      path: '/advice',
+      componentName: 'AdvisorsPage',
+      title: 'Book a 1:1'
+    },
+    // {
+    //   name: 'advisorRequest',
+    //   path: '/advisor-request',
+    //   componentName: 'AdvisorsRequestPage',
+    //   title: 'My 1:1 Request'
+    // },
     {
       name: 'wikiTopisRedirect',
       path: '/wiki',
@@ -901,6 +945,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'SpotlightsPage',
+      path: '/spotlights',
+      componentName: 'SpotlightsPage',
+      title: 'Spotlights Page'
+    }
   ],
   AlignmentForum: [
     {
@@ -986,9 +1036,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'LibraryPage',
+      componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
       title: "The Library"
     },

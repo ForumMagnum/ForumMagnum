@@ -7,12 +7,6 @@ import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
 import GraphQLJSON from 'graphql-type-json';
 
 const schema: SchemaType<DbTagRel> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",

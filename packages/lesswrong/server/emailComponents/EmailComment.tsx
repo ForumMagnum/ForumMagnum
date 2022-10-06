@@ -1,5 +1,4 @@
 import React from 'react';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -9,6 +8,8 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
@@ -19,7 +20,7 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   const { EmailComment, EmailCommentsOnPostHeader } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
-  const commentsOnTags = filter(comments, comment => !!comment.tagId)
+  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === TagCommentType.Discussion)
   const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
   
   return <div>

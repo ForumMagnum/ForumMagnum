@@ -198,9 +198,14 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
   }
 }
 
-export function addUniversalFields<T extends DbObject>({ collection, schemaVersion=1 }: {
+export function addUniversalFields<T extends DbObject>({
+  collection,
+  schemaVersion = 1,
+  createdAtOptions = {},
+}: {
   collection: CollectionBase<T>,
   schemaVersion?: number
+  createdAtOptions?: Partial<CollectionFieldPermissions>,
 }): void {
   addFieldsDict(collection, {
     _id: {
@@ -214,7 +219,15 @@ export function addUniversalFields<T extends DbObject>({ collection, schemaVersi
       optional: true,
       ...schemaDefaultValue(schemaVersion),
       onUpdate: () => schemaVersion
-    }
+    },
+    createdAt: {
+      type: Date,
+      optional: true,
+      hidden: true,
+      viewableBy: ['guests'],
+      onInsert: () => new Date(),
+      ...createdAtOptions,
+    },
   })
   ensureIndex(collection, {schemaVersion: 1});
 }

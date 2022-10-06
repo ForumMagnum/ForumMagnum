@@ -7,7 +7,7 @@ import StarIcon from '@material-ui/icons/Star';
 import { forumTypeSetting } from '../../instanceSettings';
 
 export const postStatuses = {
-  STATUS_PENDING: 1,
+  STATUS_PENDING: 1, // Unused
   STATUS_APPROVED: 2,
   STATUS_REJECTED: 3,
   STATUS_SPAM: 4,
