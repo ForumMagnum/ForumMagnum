@@ -171,7 +171,11 @@ const TagPage = ({classes}: {
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { revision } = query;
+  
+  // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
+  const { version: queryVersion, revision: queryRevision } = query;
+  const revision = queryVersion ?? queryRevision ?? null;
+  
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
