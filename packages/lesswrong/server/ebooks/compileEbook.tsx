@@ -15,7 +15,6 @@ import fs from 'fs';
 import https from 'https'
 import { namedToNumericEntities } from './entityConvert';
 
-
 const getConfigFromSequence = (sequence: DbSequence, author: DbUser, imagePath: string) => {
   return {
       id: slugify(sequence.title),
@@ -81,20 +80,16 @@ async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: stri
   function createDocFromLWContents(title, document) {
     let newDoc = cheerio.load(htmlTemplate)
     let contents = document.contents?.html || ''
-    // console.log("start filtering", title)
+
     Object.keys(namedToNumericEntities).forEach((key, i) => {
-      console.log(key)
       var re = new RegExp(key,"g");
       try {
         contents = contents.replace(re, namedToNumericEntities[key])
-        console.log(i, "new contents", contents)
       } catch (err) {
-        console.error("error", err)
+        // eslint-disable-next-line no-console
+        console.log(err)
       }
     })
-    // console.log("done filtering", title)
-    console.log(contents)
-
     if (document.title) {
       let safe_title = document.title.toLowerCase().replace(/ /g, '-');
       newDoc('body').append('<div id="'+safe_title+'"></div>');

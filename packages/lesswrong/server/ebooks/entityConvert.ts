@@ -1,21 +1,20 @@
-
-
+// I found this list of entities on stack overflow, but it turned out I needed to be replacing the html code with the actual unicode character, not the name of the character. I'm manually replacing the most common ones for now and will add more as I find them.
 export const namedToNumericEntities = {
-  '&nbsp;'     : '&#160;',   // no-break space = non-breaking space, U+00A0 ISOnum
+  '&nbsp;'     : ' ', //'&#160;',   // no-break space = non-breaking space, U+00A0 ISOnum
   // '&iexcl;'    : '&#161;',  // inverted exclamation mark, U+00A1 ISOnum
-  // '&cent;'     : '&#162;',  // cent sign, U+00A2 ISOnum
-  // '&pound;'    : '&#163;',  // pound sign, U+00A3 ISOnum
-  // '&curren;'   : '&#164;',  // currency sign, U+00A4 ISOnum
-  // '&yen;'      : '&#165;',  // yen sign = yuan sign, U+00A5 ISOnum
-  // '&brvbar;'   : '&#166;',  // broken bar = broken vertical bar, U+00A6 ISOnum
+  '&cent;'     : '¢',  // cent sign, U+00A2 ISOnum
+  '&pound;'    : '£',  // pound sign, U+00A3 ISOnum
+  '&curren;'   : '¤',  // currency sign, U+00A4 ISOnum
+  '&yen;'      : '¥',  // yen sign = yuan sign, U+00A5 ISOnum
+  '&brvbar;'   : '¦',  // broken bar = broken vertical bar, U+00A6 ISOnum
   // '&sect;'     : '&#167;',  // section sign, U+00A7 ISOnum
   // '&uml;'      : '&#168;',  // diaeresis = spacing diaeresis, U+00A8 ISOdia
-  // '&copy;'     : '&#169;',  // copyright sign, U+00A9 ISOnum
+  '&copy;'     : '©',  // copyright sign, U+00A9 ISOnum
   // '&ordf;'     : '&#170;',  // feminine ordinal indicator, U+00AA ISOnum
   // '&laquo;'    : '&#171;',  // left-pointing double angle quotation mark = left pointing guillemet, U+00AB ISOnum
   // '&not;'      : '&#172;',  // not sign, U+00AC ISOnum
   // '&shy;'      : '&#173;',  // soft hyphen = discretionary hyphen, U+00AD ISOnum
-  // '&reg;'      : '&#174;',  // registered sign = registered trade mark sign, U+00AE ISOnum
+  '&reg;'      : '®',  // registered sign = registered trade mark sign, U+00AE ISOnum
   // '&macr;'     : '&#175;',  // macron = spacing macron = overline = APL overbar, U+00AF ISOdia
   // '&deg;'      : '&#176;',  // degree sign, U+00B0 ISOnum
   // '&plusmn;'   : '&#177;',  // plus-minus sign = plus-or-minus sign, U+00B1 ISOnum
@@ -23,12 +22,12 @@ export const namedToNumericEntities = {
   // '&sup3;'     : '&#179;',  // superscript three = superscript digit three = cubed, U+00B3 ISOnum
   // '&acute;'    : '&#180;',  // acute accent = spacing acute, U+00B4 ISOdia
   // '&micro;'    : '&#181;',  // micro sign, U+00B5 ISOnum
-  // '&para;'     : '&#182;',  // pilcrow sign = paragraph sign, U+00B6 ISOnum
+  '&para;'     : '¶',  // pilcrow sign = paragraph sign, U+00B6 ISOnum
   // '&middot;'   : '&#183;',  // middle dot = Georgian comma = Greek middle dot, U+00B7 ISOnum
   // '&cedil;'    : '&#184;',  // cedilla = spacing cedilla, U+00B8 ISOdia
   // '&sup1;'     : '&#185;',  // superscript one = superscript digit one, U+00B9 ISOnum
   // '&ordm;'     : '&#186;',  // masculine ordinal indicator, U+00BA ISOnum
-  // '&raquo;'    : '&#187;',  // right-pointing double angle quotation mark = right pointing guillemet, U+00BB ISOnum
+  '&raquo;'    : '»',  // right-pointing double angle quotation mark = right pointing guillemet, U+00BB ISOnum
   // '&frac14;'   : '&#188;',  // vulgar fraction one quarter = fraction one quarter, U+00BC ISOnum
   // '&frac12;'   : '&#189;',  // vulgar fraction one half = fraction one half, U+00BD ISOnum
   // '&frac34;'   : '&#190;',  // vulgar fraction three quarters = fraction three quarters, U+00BE ISOnum
@@ -56,7 +55,7 @@ export const namedToNumericEntities = {
   // '&Ocirc;'    : '&#212;',  // latin capital letter O with circumflex, U+00D4 ISOlat1
   // '&Otilde;'   : '&#213;',  // latin capital letter O with tilde, U+00D5 ISOlat1
   // '&Ouml;'     : '&#214;',  // latin capital letter O with diaeresis, U+00D6 ISOlat1
-  // '&times;'    : '&#215;',  // multiplication sign, U+00D7 ISOnum
+  '&times;'    : '×',  // multiplication sign, U+00D7 ISOnum
   // '&Oslash;'   : '&#216;',  // latin capital letter O with stroke = latin capital letter O slash, U+00D8 ISOlat1
   // '&Ugrave;'   : '&#217;',  // latin capital letter U with grave, U+00D9 ISOlat1
   // '&Uacute;'   : '&#218;',  // latin capital letter U with acute, U+00DA ISOlat1
@@ -88,7 +87,7 @@ export const namedToNumericEntities = {
   // '&ocirc;'    : '&#244;',  // latin small letter o with circumflex, U+00F4 ISOlat1
   // '&otilde;'   : '&#245;',  // latin small letter o with tilde, U+00F5 ISOlat1
   // '&ouml;'     : '&#246;',  // latin small letter o with diaeresis, U+00F6 ISOlat1
-  // '&divide;'   : '&#247;',  // division sign, U+00F7 ISOnum
+  '&divide;'   : '÷',  // division sign, U+00F7 ISOnum
   // '&oslash;'   : '&#248;',  // latin small letter o with stroke, = latin small letter o slash, U+00F8 ISOlat1
   // '&ugrave;'   : '&#249;',  // latin small letter u with grave, U+00F9 ISOlat1
   // '&uacute;'   : '&#250;',  // latin small letter u with acute, U+00FA ISOlat1
@@ -221,10 +220,10 @@ export const namedToNumericEntities = {
   // '&clubs;'    : '&#9827;', // black club suit = shamrock, U+2663 ISOpub
   // '&hearts;'   : '&#9829;', // black heart suit = valentine, U+2665 ISOpub
   // '&diams;'    : '&#9830;', // black diamond suit, U+2666 ISOpub
-  // '&quot;'     : '&#34;',   // quotation mark = APL quote, U+0022 ISOnum
-  // '&amp;'      : '&#38;',   // ampersand, U+0026 ISOnum
-  // '&lt;'       : '&#60;',   // less-than sign, U+003C ISOnum
-  // '&gt;'       : '&#62;',   // greater-than sign, U+003E ISOnum
+  '&quot;'     : '"',   // quotation mark = APL quote, U+0022 ISOnum
+  '&amp;'      : '&',   // ampersand, U+0026 ISOnum
+  '&lt;'       : '<',   // less-than sign, U+003C ISOnum
+  '&gt;'       : '>',   // greater-than sign, U+003E ISOnum
   // '&OElig;'    : '&#338;',  // latin capital ligature OE, U+0152 ISOlat2
   // '&oelig;'    : '&#339;',  // latin small ligature oe, U+0153 ISOlat2
   // '&Scaron;'   : '&#352;',  // latin capital letter S with caron, U+0160 ISOlat2
@@ -254,4 +253,3 @@ export const namedToNumericEntities = {
   // '&rsaquo;'   : '&#8250;', // single right-pointing angle quotation mark, U+203A ISO proposed
   // '&euro;'     : '&#8364;', // euro sign, U+20AC NEW
 }
- 
