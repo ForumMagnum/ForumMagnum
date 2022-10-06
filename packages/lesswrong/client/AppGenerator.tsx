@@ -4,7 +4,7 @@ import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
 import { wrapWithMuiTheme } from './themeProvider';
-import { ForeignApolloClientContext } from '../components/hooks/useForeignApolloClient';
+import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { CookiesProvider } from 'react-cookie';
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
@@ -24,7 +24,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientContext.Provider value={foreignApolloClient}>
+      <ForeignApolloClientProvider value={foreignApolloClient}>
         <CookiesProvider>
           <BrowserRouter>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
@@ -32,7 +32,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
             </ABTestGroupsUsedContext.Provider>
           </BrowserRouter>
         </CookiesProvider>
-      </ForeignApolloClientContext.Provider>
+      </ForeignApolloClientProvider>
     </ApolloProvider>
   );
   return wrapWithMuiTheme(App, themeOptions);

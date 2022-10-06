@@ -5,7 +5,7 @@ import type { Request } from 'express';
 // eslint-disable-next-line no-restricted-imports
 import { StaticRouter } from 'react-router';
 import { Components } from '../../../../lib/vulcan-lib/components';
-import { ForeignApolloClientContext } from '../../../../components/hooks/useForeignApolloClient';
+import { ForeignApolloClientProvider } from '../../../../components/hooks/useForeignApolloClient';
 import { CookiesProvider } from 'react-cookie';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
@@ -25,7 +25,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientContext.Provider value={foreignApolloClient}>
+      <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
         <StaticRouter location={req.url} context={{}}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
@@ -38,7 +38,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
             </ABTestGroupsUsedContext.Provider>
           </CookiesProvider>
         </StaticRouter>
-      </ForeignApolloClientContext.Provider>
+      </ForeignApolloClientProvider>
     </ApolloProvider>
   );
   return App;

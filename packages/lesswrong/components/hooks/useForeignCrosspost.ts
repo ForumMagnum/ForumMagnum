@@ -17,8 +17,11 @@ export const isPostWithForeignId =
     typeof post.fmCrosspost.hostedHere === "boolean" &&
     !!post.fmCrosspost.foreignPostId;
 
+/**
+ * Load foreign crosspost data from the foreign site
+ */
 export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends keyof FragmentTypes>(
-  post: Post,
+  localPost: Post,
   fetchProps: Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">,
 ): {
   loading: boolean,
@@ -27,34 +30,37 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   foreignPost?: FragmentTypes[FragmentTypeName],
   combinedPost?: Post & FragmentTypes[FragmentTypeName],
 } => {
-  if (!post.fmCrosspost.foreignPostId) {
+  // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
+  // will also fail to create a local post), so this should never create a race condition - if we hit
+  // this then something's actually gone seriously wrong
+  if (!localPost.fmCrosspost.foreignPostId) {
     throw new Error("Crosspost has not been created yet");
   }
 
   const apolloClient = useForeignApolloClient();
-  const { document, loading, error } = useSingle<FragmentTypeName>({
+  const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
     ...fetchProps,
-    documentId: post.fmCrosspost.foreignPostId,
+    documentId: localPost.fmCrosspost.foreignPostId,
     apolloClient,
   });
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
-  if (!post.fmCrosspost.hostedHere) {
+  if (!localPost.fmCrosspost.hostedHere) {
     // If this post was crossposted from elsewhere then we want to take most of the fields from
     // our local copy (for correct links/ids/etc.) but we need to override a few specific fields
-    //  to actually get the correct content and some metadata that isn't denormalized across sites
+    // to actually get the correct content and some metadata that isn't denormalized across sites
     const overrideFields = ["contents", "tableOfContents", "url", "readTimeMinutes"];
-    combinedPost = {...document, ...post} as Post & FragmentTypes[FragmentTypeName];
+    combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
-      combinedPost[field] = document?.[field] ?? post[field];
+      combinedPost[field] = foreignPost?.[field] ?? localPost[field];
     }
   }
 
   return {
     loading,
     error,
-    localPost: post,
-    foreignPost: document,
+    localPost,
+    foreignPost,
     combinedPost,
   };
 }

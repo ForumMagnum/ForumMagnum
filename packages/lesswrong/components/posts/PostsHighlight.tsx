@@ -6,6 +6,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
+import { captureException }from "@sentry/core";
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
@@ -75,19 +76,13 @@ const HighlightBody = ({
   </Components.ContentStyles>
 }
 
-const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
+const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, loading, classes}: {
   post: PostsList & PostWithForeignId,
   maxLengthWords: number,
   forceSeeMore?: boolean,
+  loading: boolean,
   classes: ClassesType,
 }) => {
-  const {loading, error, combinedPost} = useForeignCrosspost(post, foreignFetchProps);
-  if (error) {
-    throw error;
-  }
-
-  post = combinedPost ?? post;
-
   const [expanded, setExpanded] = useState(false);
   const apolloClient = useForeignApolloClient();
   const {document: expandedDocument, loading: expandedLoading} = useSingle({
@@ -109,7 +104,23 @@ const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classe
       expandedDocument,
       classes,
     }} />
-};
+}
+
+const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
+  post: PostsList & PostWithForeignId,
+  maxLengthWords: number,
+  forceSeeMore?: boolean,
+  classes: ClassesType,
+}) => {
+  const {loading, error, combinedPost} = useForeignCrosspost(post, foreignFetchProps);
+  post = combinedPost ?? post;
+  if (error) {
+    captureException(error);
+  }
+  return error
+    ? <LocalPostsHighlight {...{post, maxLengthWords, forceSeeMore, classes}} />
+    : <ForeignPostsHighlightBody {...{post, maxLengthWords, forceSeeMore, loading, classes}} />;
+}
 
 const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
   post: PostsList,
