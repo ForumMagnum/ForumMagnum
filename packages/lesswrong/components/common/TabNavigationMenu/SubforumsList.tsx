@@ -14,11 +14,23 @@ const styles = ((theme: ThemeType): JssStyles => ({
     paddingRight: 0,
     '&:hover': {
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
-    }
+    },
+    whiteSpace: 'break-spaces',
+    height: 'unset',
+    minHeight: 24,
+  },
+  title: {
+    paddingLeft: 62,
+    paddingBottom: 5,
+    ...theme.typography.body2,
+    color: theme.palette.grey[800],
   },
   subItem: {
     textTransform: 'capitalize',
-    textOverflow: "ellipsis",
+    whiteSpace: 'break-spaces !important',
+  },
+  unreadCount: {
+    color: theme.palette.primary.main,
   },
 }))
 
@@ -26,12 +38,12 @@ const SubforumsList = ({ onClick, classes }) => {
   const { results } = useMulti({
     terms: {view: 'currentUserSubforums'},
     collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
+    fragmentName: 'TagSubforumSidebarFragment',
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
   })
   
-  if (!results) return null
+  if (!results || !results.length) return <></>
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
@@ -40,10 +52,12 @@ const SubforumsList = ({ onClick, classes }) => {
   
   const { TabNavigationSubItem } = Components
 
+  
   return (
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
+          <div className={classes.title}>Subforums</div>
           {results.map((subforum) => (
             <MenuItemUntyped
               key={subforum._id}
@@ -53,14 +67,17 @@ const SubforumsList = ({ onClick, classes }) => {
               classes={{ root: classes.menuItem }}
             >
               <TabNavigationSubItem className={classes.subItem}>
-                {subforum.name} Subforum
+                {subforum.name}{" "}
+                {subforum.subforumUnreadMessagesCount ? (
+                  <span className={classes.unreadCount}>({subforum.subforumUnreadMessagesCount}) </span>
+                ) : null}
               </TabNavigationSubItem>
             </MenuItemUntyped>
           ))}
         </div>
       </AnalyticsContext>
     </span>
-  )
+  );
 }
 
 const SubforumsListComponent = registerComponent("SubforumsList", SubforumsList, {styles})

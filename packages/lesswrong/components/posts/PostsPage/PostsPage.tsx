@@ -266,7 +266,7 @@ const PostsPage = ({post, refetch, classes}: {
       <div className={classes.centralColumn}>
         {/* Body */}
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} />
+          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         <ContentStyles contentType="post" className={classes.postContent}>

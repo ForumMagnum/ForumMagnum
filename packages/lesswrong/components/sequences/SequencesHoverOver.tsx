@@ -37,7 +37,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
-  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
+  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip, ChapterTitle } = Components
 
   const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
@@ -74,13 +74,16 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     </ContentStyles>
     {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
     {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
-    {sequence && posts.map(post => 
-      <SequencesSmallPostLink 
-        key={sequence._id + post._id} 
-        post={post}
-        sequenceId={sequence._id}
-      />
-    )}
+    {sequence && chapters?.flatMap(chapter => {
+      return <div>
+        {chapter.title && <ChapterTitle title={chapter.title}/>}
+        {chapter.posts.map(post => <SequencesSmallPostLink 
+          key={sequence._id + post._id} 
+          post={post}
+          sequenceId={sequence._id}
+        />)}
+      </div>
+    })}
     <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
       <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
     </LWTooltip>

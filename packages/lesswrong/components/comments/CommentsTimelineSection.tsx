@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/types';
 import type { Option } from '../common/InlineSelect';
 import { isEmpty } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -107,10 +107,14 @@ const CommentsTimelineSection = ({
   }, [])
 
   const recalculateTopAbsolutePosition = () => {
-    if (bodyRef.current && bodyRef.current.getBoundingClientRect().top !== topAbsolutePosition)
-      setTopAbsolutePosition(bodyRef.current.getBoundingClientRect().top)
+    if (!bodyRef.current) return
+
+    // We want the position relative to the top of the page, not the top of the viewport, so add window.scrollY
+    const newPos = bodyRef.current.getBoundingClientRect().top + window.scrollY
+    if (newPos !== topAbsolutePosition)
+      setTopAbsolutePosition(newPos)
   }
-  
+
   const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
 
   return (

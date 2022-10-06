@@ -4,7 +4,6 @@ import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -12,26 +11,15 @@ import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
-export interface SpotlightContent {
-  documentType: SpotlightDocumentType,
-  document: {
-    _id?: string,
-    title: string,
-    slug?: string
-  },
-  imageUrl: string,
-  description: string,
-  firstPost?: {
-    _id: string,
-    title: string,
-    url: string
-  }
-}
 
 export const descriptionStyles = theme => ({
   ...postBodyStyles(theme),
   ...theme.typography.body2,
-  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, `
+  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
+  '& p': {
+    marginTop: ".5em",
+    marginBottom: ".5em"
+  },
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -122,20 +110,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "100%",  
     }
   },
-  firstPost: {
-    ...theme.typography.body2,
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
-    fontSize: "1.1rem",
-    ...theme.typography.commentStyle,
-    position: "relative",
-    zIndex: theme.zIndexes.spotlightItemCloseButton,
-    color: theme.palette.grey[500],
-    '& a': {
-      color: theme.palette.primary.main
-    }
-  },
   editAllButton: {
     [theme.breakpoints.up('md')]: {
       position: "absolute",
@@ -203,12 +177,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getUrlFromDocument = (document: SpotlightContent['document'], documentType: SpotlightDocumentType) => {
+const getUrlFromDocument = (document: SpotlightDisplay_document, documentType: SpotlightDocumentType) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;
-    case "Collection":
-      return `/${document.slug}`
     case "Post":
       return `/posts/${document._id}/${document.slug}`
   }
@@ -223,7 +195,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading } = Components
   
   const currentUser = useCurrentUser()
 
@@ -232,13 +204,6 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
 
-  // Note: the firstPostUrl won't reliably generate a good reading experience for all
-  // possible Collection type spotlights, although it happens to work for the existing 5 collections 
-  // on LessWrong. (if the first post of a collection has a canonical sequence that's not 
-  // in that collection it wouldn't provide the right 'next post')
-
-  // But, also, the real proper fix here is to integrate continue reading here.
-  const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
 
   const duration = spotlight.duration
 
@@ -246,7 +211,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
     setEdit(false);
     refetchAllSpotlights?.();
   };
-  
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
       <div className={classes.spotlightItem}>
@@ -287,11 +252,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>}
-        {firstPostUrl && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-            <Link to={firstPostUrl}>{spotlight.firstPost.title}</Link>
-          </LWTooltip>
-        </div>}
+        <SpotlightStartOrContinueReading spotlight={spotlight} />
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this item for the next month" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>

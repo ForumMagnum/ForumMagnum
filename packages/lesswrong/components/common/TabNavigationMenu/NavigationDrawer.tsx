@@ -83,7 +83,6 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
           sectionData={toc}
           title={null}
           onClickSection={() => handleClose()}
-          drawerStyle={true}
         />
       </div>
     </React.Fragment>}
