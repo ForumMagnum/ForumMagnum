@@ -97,6 +97,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 60,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
+  },
+  tagPreview: {
+    paddingBottom: 4
   }
 });
 
@@ -263,7 +266,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </ContentStyles>}
         </div>
-        {tag && <TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/>}
+        {tag && <div className={classes.tagPreview}><TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/></div>}
       </PopperCard>
     </AnalyticsContext>
   </span>
