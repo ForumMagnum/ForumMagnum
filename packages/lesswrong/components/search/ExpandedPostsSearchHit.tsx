@@ -4,17 +4,24 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { userGetProfileUrl, userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { useHistory } from 'react-router-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 18,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
   },
   link: {
-    display: 'block',
+    '&:hover': {
+      opacity: 1
+    }
   },
   title: {
     fontSize: 18,
@@ -50,36 +57,35 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const isLeftClick = (event: React.MouseEvent): boolean => {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey;
-}
-
-const ExpandedPostsSearchHit = ({hit, clickAction, classes}: {
+const ExpandedPostsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  clickAction?: any,
   classes: ClassesType,
 }) => {
+  const history = useHistory()
+  
   const { FormatDate, UserNameDeleted } = Components
   const post: AlgoliaPost = hit
+  
+  const handleClick = () => {
+    history.push(postGetPageUrl(post))
+  }
 
-  return <div className={classes.root}>
-    <Link
-      to={postGetPageUrl(post)}
-      onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
-      className={classes.link}
-    >
-      <div className={classes.title}>
+  return <div className={classes.root} onClick={handleClick}>
+    <div className={classes.title}>
+      <Link to={postGetPageUrl(post)} className={classes.link}>
         {post.title}
-      </div>
-      <div className={classes.metaInfoRow}>
-        {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)}>{post.authorDisplayName}</Link> : <UserNameDeleted />}
-        <span>{post.baseScore ?? 0} karma</span>
-        <FormatDate date={post.createdAt} />
-      </div>
-      <div className={classes.snippet}>
-        <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />
-      </div>
-    </Link>
+      </Link>
+    </div>
+    <div className={classes.metaInfoRow}>
+      {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)} onClick={(e) => e.stopPropagation()}>
+        {post.authorDisplayName}
+      </Link> : <UserNameDeleted />}
+      <span>{post.baseScore ?? 0} karma</span>
+      <FormatDate date={post.createdAt} />
+    </div>
+    <div className={classes.snippet}>
+      <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />
+    </div>
   </div>
 }
 

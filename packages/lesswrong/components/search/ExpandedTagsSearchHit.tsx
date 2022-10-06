@@ -55,13 +55,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isLeftClick = (event: React.MouseEvent): boolean => {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey;
-}
-
-const ExpandedTagsSearchHit = ({hit, clickAction, classes}: {
+const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  clickAction?: any,
   classes: ClassesType,
 }) => {
   const tag = hit as AlgoliaTag
@@ -73,7 +68,6 @@ const ExpandedTagsSearchHit = ({hit, clickAction, classes}: {
   return <div className={classes.root} style={style}>
     <Link
       to={tagGetUrl(tag)}
-      onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       className={classes.link}
     >
       <div className={classes.titleRow}>

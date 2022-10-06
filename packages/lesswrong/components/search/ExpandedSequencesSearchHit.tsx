@@ -5,6 +5,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { useHistory } from 'react-router-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,11 +14,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 2,
     marginBottom: 18
   },
-  link: {
+  body: {
     display: 'block',
     maxWidth: 600,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    },
     [theme.breakpoints.down('sm')]: {
       maxWidth: '80%',
+    }
+  },
+  link: {
+    '&:hover': {
+      opacity: 1
     }
   },
   titleRow: {
@@ -55,39 +65,40 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isLeftClick = (event: React.MouseEvent): boolean => {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey;
-}
-
-const ExpandedSequencesSearchHit = ({hit, clickAction, classes}: {
+const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  clickAction?: any,
   classes: ClassesType,
 }) => {
+  const history = useHistory()
+
   const { FormatDate, UserNameDeleted } = Components
   const sequence: AlgoliaSequence = hit
+  
+  const handleClick = () => {
+    history.push(`/sequences/${sequence._id}`)
+  }
   
   const style = sequence.bannerImageId ? {
     background: `linear-gradient(to left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6) 70px, rgba(255, 255, 255, 1) 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId})`
   } : {}
 
   return <div className={classes.root} style={style}>
-    <Link
-      to={"/sequences/" + sequence._id}
-      onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
-      className={classes.link}
-    >
+    <div className={classes.body} onClick={handleClick}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
-          {sequence.title}
+          <Link to={`/sequences/${sequence._id}`} className={classes.link}>
+            {sequence.title}
+          </Link>
         </span>
-        {sequence.authorSlug ? <Link to={userGetProfileUrlFromSlug(sequence.authorSlug)}>{sequence.authorDisplayName}</Link> : <UserNameDeleted />}
+        {sequence.authorSlug ? <Link to={userGetProfileUrlFromSlug(sequence.authorSlug)} onClick={(e) => e.stopPropagation()}>
+          {sequence.authorDisplayName}
+        </Link> : <UserNameDeleted />}
         <FormatDate date={sequence.createdAt} />
       </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="plaintextDescription" hit={sequence} tagName="mark" />
       </div>
-    </Link>
+    </div>
   </div>
 }
 

@@ -63,24 +63,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const isLeftClick = (event: React.MouseEvent): boolean => {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey;
-}
-
-const ExpandedUsersSearchHit = ({hit, clickAction, classes}: {
+const ExpandedUsersSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  clickAction?: any,
   classes: ClassesType,
 }) => {
   const { FormatDate, ProfilePhoto } = Components
   const user = hit as AlgoliaUser
 
   return <div className={classes.root}>
-    <Link
-      to={userGetProfileUrl(user)}
-      onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
-      className={classes.link}
-    >
+    <Link to={userGetProfileUrl(user)} className={classes.link}>
       <div className={classes.profilePhotoCol}>
         <ProfilePhoto user={user} noLink />
       </div>

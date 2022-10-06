@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStateResults, connectRefinementList, ToggleRefinement, NumericMenu } from 'react-instantsearch-dom';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -168,14 +168,12 @@ const TagsRefinementList = ({ refine, tagsFilter, setTagsFilter }) => {
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList)
 
 // shows total # of results
-const ResultsCount = ({ searchResults, className }) => {
-  if (!searchResults) return null
-  
+const Stats = ({ nbHits, className }) => {
   return <div className={className}>
-    {searchResults.nbHits} result{searchResults.nbHits === 1 ? '' : 's'}
+    {nbHits} result{nbHits === 1 ? '' : 's'}
   </div>
 }
-const CustomTotalStateResults = connectStateResults(ResultsCount)
+const CustomStats = connectStats(Stats)
 
 
 const SearchPageTabbed = ({classes}:{
@@ -197,8 +195,7 @@ const SearchPageTabbed = ({classes}:{
   })
   const [keywordSearch, setKeywordSearch] = useState(query.terms ?? '')
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
-    // query.tags can be a string array, but it's typed incorrectly
-    (query.tags && typeof query.tags === typeof []) ? query.tags as any : []
+    [query.tags ?? []].flatMap(tags => tags)
   )
 
   const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
@@ -308,7 +305,7 @@ const SearchPageTabbed = ({classes}:{
         
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
-          <CustomTotalStateResults className={classes.resultCount} />
+          <CustomStats className={classes.resultCount} />
           <Hits hitComponent={(props) => <HitComponent {...props} />} />
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>

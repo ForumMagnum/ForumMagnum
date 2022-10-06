@@ -8,16 +8,23 @@ import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { useHistory } from 'react-router-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 18,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
   },
   link: {
-    display: 'block',
+    '&:hover': {
+      opacity: 1
+    }
   },
   authorRow: {
     display: "flex",
@@ -60,15 +67,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const isLeftClick = (event: React.MouseEvent): boolean => {
-  return event.button === 0 && !event.ctrlKey && !event.metaKey;
-}
-
-const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
+const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  clickAction?: any,
   classes: ClassesType,
 }) => {
+  const history = useHistory()
+
   const { FormatDate, UserNameDeleted } = Components
   const comment: AlgoliaComment = hit
   
@@ -83,13 +87,13 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
       groupId: comment.postGroupId,
     })}#${comment._id}`;
   }
+  
+  const handleClick = () => {
+    history.push(url)
+  }
 
-  return <div className={classes.root}>
-    <Link
-      to={url}
-      onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
-      className={classes.link}
-    >
+  return <div className={classes.root} onClick={handleClick}>
+    <Link to={url} className={classes.link}>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
       </div>}
@@ -100,12 +104,14 @@ const ExpandedCommentsSearchHit = ({hit, clickAction, classes}: {
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
       </div>
-      <div className={classes.authorRow}>
-        {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)}>{comment.authorDisplayName}</Link> : <UserNameDeleted />}
-        <span>{comment.baseScore ?? 0} karma</span>
-        <FormatDate date={comment.createdAt} />
-      </div>
     </Link>
+    <div className={classes.authorRow}>
+      {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
+        {comment.authorDisplayName}
+      </Link> : <UserNameDeleted />}
+      <span>{comment.baseScore ?? 0} karma</span>
+      <FormatDate date={comment.createdAt} />
+    </div>
   </div>
 }
 
