@@ -158,7 +158,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
     setLoading(false)
   };
 
-  const wrappedCancelCallback = (...args) => {
+  const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
     }
@@ -239,7 +239,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCo
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data) => { 
+              submitCallback={(data: unknown) => { 
                 setLoading(true);
                 return data
               }}

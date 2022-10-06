@@ -16,7 +16,7 @@ export type CloudinaryPropsType = {
   f?: string    // format
 }
 
-function cloudinaryPropsToStr(props) {
+function cloudinaryPropsToStr(props: Record<string, string>) {
   let sb: string[] = [];
   for(let k in props)
     sb.push(`${k}_${props[k]}`);

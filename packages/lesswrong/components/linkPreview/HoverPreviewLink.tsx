@@ -24,7 +24,7 @@ export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription
   });
 }
 
-export const linkIsExcludedFromPreview = (url: string): boolean => {
+export const linkIsExcludedFromPreview = (url: string | null): boolean => {
   // Don't try to preview special JS links
   if (!url || url==="#" || url==="")
     return true;

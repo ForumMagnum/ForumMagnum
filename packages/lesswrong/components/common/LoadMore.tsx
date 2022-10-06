@@ -74,7 +74,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
   loading = loading && !(isFirstRender && (count ?? 0) > 0);
 
   const { Loading } = Components
-  const handleClickLoadMore = event => {
+  const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     void loadMore();
     captureEvent("loadMoreClicked")

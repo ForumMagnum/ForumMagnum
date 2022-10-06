@@ -66,7 +66,7 @@ function buildOrderIndexMap<T>(
  */
 export function useOrderPreservingArray<T>(
   array: T[],
-  keyFunc: (elem) => IndexType,
+  keyFunc: (elem: T) => IndexType,
   policy: OrderPreservingArrayPolicy = "interleave-new"
 ): T[] {
   const orderIndexMapRef = useRef<Record<IndexType, number>>({});

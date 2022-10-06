@@ -5,7 +5,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 
 const FlashMessages = () => {
-  const getProperties = (message) => {
+  const getProperties = (message: WithMessagesMessage) => {
     if (typeof message === 'string') {
       // if error is a string, use it as message
       return {
@@ -23,7 +23,7 @@ const FlashMessages = () => {
   }
 
   const { messages, clear } = useMessages();
-  let messageObject = messages.length > 0 && getProperties(messages[0]);
+  let messageObject = messages.length > 0 ? getProperties(messages[0]) : undefined;
   return (
     <div className="flash-messages">
       <Snackbar

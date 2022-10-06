@@ -68,8 +68,8 @@ const CommentsTimelineFn = ({
 
   const { CommentWithReplies, Typography } = Components;
 
-  const handleScroll = (e) => {
-    const isAtBottom = Math.abs((e.target.scrollHeight - e.target.scrollTop) - e.target.clientHeight) < 10;
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const isAtBottom = Math.abs((e.currentTarget.scrollHeight - e.currentTarget.scrollTop) - e.currentTarget.clientHeight) < 10;
 
     // If we are not at the bottom that means the user has scrolled up,
     // in which case never autoscroll to the bottom again
@@ -77,7 +77,7 @@ const CommentsTimelineFn = ({
       setUserHasScrolled(true);
 
     // Start loading more when we are less than 1 page from the top
-    if (!loadingMoreComments && commentCount < totalComments && e.target.scrollTop < e.target.clientHeight)
+    if (!loadingMoreComments && commentCount < totalComments && e.currentTarget.scrollTop < e.currentTarget.clientHeight)
       loadMoreComments(commentCount + loadMoreCount);
   }
 

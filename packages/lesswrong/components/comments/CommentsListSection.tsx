@@ -93,7 +93,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     setAnchorEl(null);
   }
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date: Date) => {
     setHighlightDate(date)
     setAnchorEl(null);
   }
@@ -140,7 +140,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             clickCallback={handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date)}>
+            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}
             </MenuItem>
           })}

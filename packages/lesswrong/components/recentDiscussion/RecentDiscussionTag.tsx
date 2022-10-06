@@ -78,7 +78,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
   
   const onClickEventType = isSubforum ? "recentDiscussionSubforumClick" : "recentDiscussionTagClick"
   const markAsRead = useCallback(
