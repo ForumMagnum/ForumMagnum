@@ -1027,6 +1027,7 @@ interface DbUser extends DbObject {
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
+  acknowledgedNewUserGuidelines: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number

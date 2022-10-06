@@ -16,10 +16,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "center",
     columnGap: 32,
     [theme.breakpoints.down("md")]: {
+      margin: 0,
       flexDirection: "column",
     },
   },
   columnSection: {
+    maxWidth: '100%',
     [theme.breakpoints.up("lg")]: {
       margin: 0,
     }
