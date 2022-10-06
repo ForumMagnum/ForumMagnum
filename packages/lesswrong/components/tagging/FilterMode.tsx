@@ -24,7 +24,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   paddingTop: 12,
   paddingRight: 16,
   width: 500,
-  marginBottom: 20,
+  marginBottom: 0,
   ...theme.typography.commentStyle,
   [theme.breakpoints.down('xs')]: {
     width: "calc(100% - 32px)",
