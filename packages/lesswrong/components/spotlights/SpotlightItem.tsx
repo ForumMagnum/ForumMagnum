@@ -173,14 +173,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .form-submit button': {
       position: "absolute",
-      bottom: 0,
-      right: -38,
-      background: theme.palette.background.translucentBackground,
-      marginLeft: 12,
-      opacity: .75,
-      '&:hover': {
-        opacity: 1
-      }
+      bottom: -38,
+      right: 0,
+      marginLeft: 12
     }
   },
   form: {
