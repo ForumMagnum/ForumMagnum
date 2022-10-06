@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
+import { useSingle } from '../../lib/crud/withSingle';
 import CommentIcon from '@material-ui/icons/ModeComment';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -15,9 +16,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   popper: {
-    maxWidth: 550,
+    width: 550,
   },
   sideCommentHover: {
+    border: theme.palette.border.normal,
   },
 });
 
@@ -28,7 +30,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 }) => {
   const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
-  const wrapperRef = useRef<HTMLSpanElement|null>(null);
+  const wrapperRef = useRef<HTMLDivElement|null>(null);
   
   return <div {...eventHandlers} ref={wrapperRef} className={classes.sideCommentIcon}>
     <CommentIcon/>
@@ -36,7 +38,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       open={hover} anchorEl={anchorEl}
       className={classes.popper}
       clickable={true}
-      placement="bottom-start"
+      placement={"bottom-start"}
     >
       <SideCommentHover post={post} commentIds={commentIds}/>
     </LWPopper>}
@@ -48,25 +50,51 @@ const SideCommentHover = ({commentIds, post, classes}: {
   post: PostsDetails
   classes: ClassesType,
 }) => {
-  const { CommentPermalink } = Components;
+  const { SideCommentSingle } = Components;
   
   return <div className={classes.sideCommentHover}>
     {commentIds.map(commentId =>
-      <CommentPermalink
+      <SideCommentSingle
         key={commentId}
-        documentId={commentId}
+        commentId={commentId}
         post={post}
       />
     )}
   </div>
 }
 
+const SideCommentSingle = ({commentId, post}: {
+  commentId: string,
+  post: PostsDetails,
+}) => {
+  const { CommentWithReplies, Loading } = Components;
+  const { document: comment, data, loading, error } = useSingle({
+    documentId: commentId,
+    collectionName: "Comments",
+    fragmentName: 'CommentWithRepliesFragment',
+  });
+  
+  if (loading) return <Loading/>
+  if (!comment) return null;
+  
+  return <CommentWithReplies
+    comment={comment} post={post}
+    commentNodeProps={{
+      treeOptions: {
+        showPostTitle: false,
+      },
+    }}
+  />
+}
+
 const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon, {styles});
 const SideCommentHoverComponent = registerComponent('SideCommentHover', SideCommentHover, {styles});
+const SideCommentSingleComponent = registerComponent('SideCommentSingle', SideCommentSingle, {styles});
 
 declare global {
   interface ComponentTypes {
     SideCommentIcon: typeof SideCommentIconComponent
     SideCommentHover: typeof SideCommentHoverComponent
+    SideCommentSingle: typeof SideCommentSingleComponent
   }
 }

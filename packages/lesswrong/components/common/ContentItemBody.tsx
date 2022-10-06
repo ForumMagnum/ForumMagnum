@@ -319,7 +319,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       replacementElement: insertedElement,
       container: insertionContainer,
     });
-    container.append(insertionContainer);
+    container.prepend(insertionContainer);
   }
 }
 
