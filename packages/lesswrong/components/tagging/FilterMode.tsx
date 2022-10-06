@@ -266,7 +266,10 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </ContentStyles>}
         </div>
-        {tag && <div className={classes.tagPreview}><TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/></div>}
+        {tag &&
+          <div className={classes.tagPreview}>
+            <TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/>
+          </div>}
       </PopperCard>
     </AnalyticsContext>
   </span>
