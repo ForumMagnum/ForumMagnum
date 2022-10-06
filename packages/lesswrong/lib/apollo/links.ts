@@ -4,6 +4,8 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 
+export const crosspostUserAgent = "ForumMagnum/2.1";
+
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to
  * be set up differently depending on whether we're rendering on the server or on the client,
@@ -22,14 +24,30 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl = '/') =>
-  new BatchHttpLink({
+export const createHttpLink = (baseUrl = '/') => {
+  // Type of window.fetch may differ slightly from type of the fetch used on server
+  let fetch: typeof window.fetch;
+  if (isServer) {
+    // We won't need to import fetch in node 18
+    const nodeFetch = require('node-fetch');
+    fetch = (url, options) => nodeFetch(url, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        // user agent because LW bans bot agents
+        'User-Agent': crosspostUserAgent,
+      }
+    });
+  } else {
+    fetch = window.fetch;
+  }
+  return new BatchHttpLink({
     uri: baseUrl + 'graphql',
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',
     batchMax: 50,
-    // TODO: This line can be removed once we upgrade to node v18
-    fetch: isServer ? require("cross-fetch") : window.fetch,
+    fetch,
   });
+}
 
 const locationsToStr = (locations: readonly SourceLocation[] = []) =>
   locations.map(({column, line}) => `line ${line}, col ${column}`).join(';');
