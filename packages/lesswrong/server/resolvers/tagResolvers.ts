@@ -7,7 +7,6 @@ import { Users } from '../../lib/collections/users/collection';
 import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
-import { extractTableOfContents } from "../tableOfContents";
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -198,14 +197,6 @@ augmentFieldsDict(Tags, {
         }
       }
     }
-  },
-  descriptionHtmlWithToc: {
-    resolveAs: {
-      type: "String",
-      resolver: async (tag: DbTag, args: {}, context: ResolverContext): Promise<string> => {
-        return extractTableOfContents(tag?.description?.html)?.html ?? "";
-      },
-    },
   },
 });
 
