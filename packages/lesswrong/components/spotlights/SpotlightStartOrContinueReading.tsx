@@ -10,9 +10,6 @@ import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 const styles = (theme: ThemeType): JssStyles => ({
   firstPost: {
     ...theme.typography.body2,
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
@@ -21,11 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& a': {
       color: theme.palette.primary.main
     }
-  },
-  sequenceCheckmarks: {
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
   },
   postProgressBox: {
     ...postProgressBoxStyles(theme)
@@ -73,7 +65,7 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
       </LWTooltip>
     </div>
   } else {
-    return <div className={classes.sequenceCheckmarks}>
+    return <div>
     {posts.map(post => (
       <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
         <Link to={postGetPageUrl(post)}>

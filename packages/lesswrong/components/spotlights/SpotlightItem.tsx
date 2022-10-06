@@ -16,9 +16,19 @@ export const descriptionStyles = theme => ({
   ...postBodyStyles(theme),
   ...theme.typography.body2,
   textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
+  lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
-    marginBottom: ".5em"
+    marginBottom: ".5em",
+    '&:first-child': {
+      marginTop: 0,
+    },
+    'style~&': {
+      marginTop: 0,
+    },
+    '&:last-child': {
+      marginBottom: 0,
+    }
   },
 })
 
@@ -55,7 +65,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: 16,
     paddingRight: 35,
-    paddingBottom: 0,
     display: "flex",
     // overflow: "hidden",
     flexDirection: "column",
@@ -79,10 +88,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12
   },
   description: {
-    marginTop: 8,
+    marginTop: 7,
+    marginBottom: 13,
     ...descriptionStyles(theme),
     position: "relative",
-    lineHeight: '1.65rem',
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
@@ -153,15 +162,22 @@ const styles = (theme: ThemeType): JssStyles => ({
       minHeight: "unset"
     },
     '& .ck.ck-content.ck-editor__editable': {
-      ...theme.typography.body2,
+      ...descriptionStyles(theme) 
+    },
+    '& .EditorFormComponent-ckEditorStyles .ck.ck-content': {
+      marginLeft: 0,
+    },
+    '& .ck.ck-editor__editable_inline': {
+      padding: 0,
+      border: "none !important",
     },
     '& .form-submit button': {
       position: "absolute",
       bottom: 0,
-      right: 0,
+      right: -38,
       background: theme.palette.background.translucentBackground,
       marginLeft: 12,
-      opacity: .5,
+      opacity: .75,
       '&:hover': {
         opacity: 1
       }
@@ -174,6 +190,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 16,
     paddingTop: 8,
     paddingBottom: 8
+  },
+  metaData: {
+    textAlign: "right",
+    paddingTop: 6,
+    paddingBottom: 12
   }
 });
 
@@ -221,7 +242,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
               {spotlight.customTitle ?? spotlight.document.title}
             </Link>
             <span className={classes.editDescriptionButton}>
-              {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+              {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
                 <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
               </LWTooltip>}
             </span>
@@ -248,11 +269,11 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
               />
             }
           </div>
+          <SpotlightStartOrContinueReading spotlight={spotlight} />
         </div>
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
         </div>}
-        <SpotlightStartOrContinueReading spotlight={spotlight} />
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this item for the next month" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
@@ -261,23 +282,25 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           </LWTooltip>
         </div>}
         <div className={classes.editAllButton}>
-          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
       </div>
-      {showAdminInfo && <div className={classes.form}>
-        {edit ? <SpotlightEditorStyles>
-           <WrappedSmartForm
-              collection={Spotlights}
-              documentId={spotlight._id}
-              mutationFragment={getFragment('SpotlightEditQueryFragment')}
-              queryFragment={getFragment('SpotlightEditQueryFragment')}
-              successCallback={onUpdate}
-            /> 
-          </SpotlightEditorStyles>
+      {showAdminInfo && <>
+        {edit ? <div className={classes.form}>
+            <SpotlightEditorStyles>
+            <WrappedSmartForm
+                collection={Spotlights}
+                documentId={spotlight._id}
+                mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                queryFragment={getFragment('SpotlightEditQueryFragment')}
+                successCallback={onUpdate}
+              /> 
+            </SpotlightEditorStyles>
+          </div>
            :
-          <div>
+          <div className={classes.metaData}>
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
@@ -286,7 +309,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
             </LWTooltip>
           </div>
         }
-      </div>}
+      </>}
     </div>
   </AnalyticsTracker>
 }
