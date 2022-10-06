@@ -295,12 +295,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           },
         },
         AllTagsPage: {
-          root: {
-            maxWidth: 900,
-          },
-          topSection: {
-            maxWidth: 900,
-          },
           portal: {
             background: palette.grey[0],
             marginTop: 'unset',

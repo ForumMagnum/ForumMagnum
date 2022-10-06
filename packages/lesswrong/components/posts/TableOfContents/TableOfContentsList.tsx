@@ -1,11 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import qs from 'qs'
-import isEmpty from 'lodash/isEmpty';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import type { ToCData, ToCSection } from '../../../server/tableOfContents';
+import qs from 'qs'
+import isEmpty from 'lodash/isEmpty';
+import filter from 'lodash/filter';
+
+export interface ToCDisplayOptions {
+  /**
+   * Convert section titles from all-caps to title-case. Used for the Concepts page
+   * where the LW version has all-caps section headings as a form of bolding.
+   */
+  downcaseAllCapsHeadings?: boolean
+  
+  /**
+   * Don't show sections nested below a certain depth. Used on the LW version of the
+   * Concepts page, where there would otherwise be section headings for subcategories
+   * of the core tags, resulting in a ToC that's overwhelmingly big.
+   */
+  maxHeadingDepth?: number
+  
+  /**
+   * Extra rows to add to the bottom of the ToC. You'll want to use this instead of
+   * adding extra React components after the ToC if those rows have corresponding
+   * anchors and should be highlighted based on scroll position.
+   */
+  addedRows?: ToCSection[],
+}
 
 const topSection = "top";
 
@@ -14,11 +37,11 @@ const isRegularClick = (ev: React.MouseEvent) => {
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
 }
 
-const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: {
+const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions}: {
   sectionData: ToCData,
   title: string|null,
   onClickSection?: ()=>void,
-  drawerStyle: boolean,
+  displayOptions?: ToCDisplayOptions,
 }) => {
   const [currentSection,setCurrentSection] = useState<string|null>(topSection);
   const { history } = useNavigation();
@@ -90,12 +113,23 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
     }
   }
 
-  const getCurrentSection = (): string|null => {
-    const sections = sectionData?.sections
+  const { TableOfContentsRow, AnswerTocRow } = Components;
 
+  if (!sectionData)
+    return <div/>
+
+  let filteredSections = (displayOptions?.maxHeadingDepth)
+    ? filter(sectionData?.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
+    : sectionData?.sections;
+
+  if (displayOptions?.addedRows) {
+    filteredSections = [...filteredSections, ...displayOptions.addedRows];
+  }
+
+  const getCurrentSection = (): string|null => {
     if (isServer)
       return null;
-    if (!sections)
+    if (!filteredSections)
       return null;
 
     // The current section is whichever section a spot 1/3 of the way down the
@@ -104,12 +138,12 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
     let currentSectionMark = getCurrentSectionMark();
 
     let currentSection: string|null = null;
-    for(let i=0; i<sections.length; i++)
+    for(let i=0; i<filteredSections.length; i++)
     {
-      let sectionY = getAnchorY(sections[i].anchor);
+      let sectionY = getAnchorY(filteredSections[i].anchor);
 
       if(sectionY && sectionY < currentSectionMark)
-        currentSection = sections[i].anchor;
+        currentSection = filteredSections[i].anchor;
     }
 
     if (currentSection === null) {
@@ -119,11 +153,6 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
 
     return currentSection;
   }
-  
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
-  if (!sectionData)
-    return <div/>
 
   const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
     ev.preventDefault();
@@ -136,8 +165,6 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
     }
     jumpToSection();
   }
-  
-  let sections = sectionData.sections;
 
   // Since the Table of Contents data is sent as part of the post data and
   // partially generated from the post html, changing the answers ordering
@@ -146,7 +173,16 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
   // but for now we can just sort the answers client side.
   const answersSorting = query?.answersSorting;
   if (answersSorting === "newest" || answersSorting === "oldest") {
-    sections = sectionsWithAnswersSorted(sectionData.sections, answersSorting);
+    filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
+  }
+  
+  function adjustHeadingText(text: string|undefined) {
+    if (!text) return "";
+    if (displayOptions?.downcaseAllCapsHeadings) {
+      return downcaseIfAllCaps(text.trim());
+    } else {
+      return text.trim();
+    }
   }
 
   return <div>
@@ -166,7 +202,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
       {title?.trim()}
     </TableOfContentsRow>
     
-    {sections.map((section, index) => {
+    {filteredSections.map((section, index) => {
       return (
         <TableOfContentsRow
           key={section.anchor}
@@ -185,7 +221,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
         >
           {section.answer
             ? <AnswerTocRow answer={section.answer} />
-            : <span>{section.title?.trim()}</span>
+            : <span>{adjustHeadingText(section.title)}</span>
           }
         </TableOfContentsRow>
       )
@@ -229,6 +265,23 @@ const sectionsWithAnswersSorted = (
   }
   return sortedSections;
 };
+
+function downcaseIfAllCaps(text: string) {
+  // If already mixed-case, don't do anything
+  if (text !== text.toUpperCase())
+    return text;
+  
+  // Split on spaces, downcase everything except the first character of each token
+  const tokens = text.split(' ');
+  const downcaseToken = (tok: string) => {
+    if (tok.length > 1) {
+      return tok.substr(0,1) + tok.substr(1).toLowerCase();
+    } else {
+      return tok;
+    }
+  }
+  return tokens.map(tok => downcaseToken(tok)).join(' ');
+}
 
 declare global {
   interface ComponentTypes {

@@ -60,10 +60,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
   },
-  tableOfContentsWrapper: {
-    position: "relative",
-    top: 12,
-  },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
       display: 'flex',
@@ -141,14 +137,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  randomTagLink: {
-    ...theme.typography.commentStyle,
-    fontSize: "1.16rem",
-    color: theme.palette.grey[600],
-    display: "inline-block",
-    marginTop: 8,
-    marginBottom: 8,
-  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -167,9 +155,9 @@ const TagPage = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
-   } = Components;
+    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    SectionTitle, TagTableOfContents, ContentStyles
+  } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   
@@ -312,20 +300,10 @@ const TagPage = ({classes}: {
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       <ToCColumn
         tableOfContents={
-          tag.tableOfContents
-            ? <span className={classes.tableOfContentsWrapper}>
-                <TableOfContents
-                  sectionData={tag.tableOfContents}
-                  title={tag.name}
-                  onClickSection={expandAll}
-                />
-                <Link to="/tags/random" className={classes.randomTagLink}>
-                  Random {taggingNameCapitalSetting.get()}
-                </Link>
-                <TableOfContentsRow href="#" divider={true}/>
-                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-              </span>
-            : null
+          <TagTableOfContents
+            tag={tag} expandAll={expandAll} showContributors={true}
+            onHoverContributor={onHoverContributor}
+          />
         }
         header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>
