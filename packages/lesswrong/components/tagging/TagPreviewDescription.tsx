@@ -24,7 +24,7 @@ const TagPreviewDescription = ({tag, classes}: {
   if (!tag) return null
   
   const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs",
-    '... <a class="read-more" href="#">(read more)</a>')
+    '.. <a class="read-more" href="#">(read more)</a>')
 
   if (tag.description?.htmlHighlight) {
     return <div

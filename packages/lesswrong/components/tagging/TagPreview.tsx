@@ -58,8 +58,8 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
   postCount?: number,
 }) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
-  const { results } = useMulti({
-    skip: !(tag?._id),
+  const { results, loading: tagPostsLoading } = useMulti({
+    skip: !(tag?._id) || postCount === 0,
     terms: tagPostTerms(tag, {}),
     collectionName: "Posts",
     fragmentName: "PostsList",
@@ -85,9 +85,10 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
         </div> : <></>
       }
       {!tag.wikiOnly && <>
-        {results ? <div className={classes.posts}>
+        {results && <div className={classes.posts}>
           {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-        </div> : <Loading /> }
+        </div>}
+        {tagPostsLoading && <Loading />}
         {showCount && <div className={classes.footerCount}>
           <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
         </div>}

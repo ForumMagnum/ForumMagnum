@@ -14,6 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -174,6 +175,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const { name: personalBlogpostName } = usePersonalBlogpostInfo();
   const defaultLabel = label === personalBlogpostName ? "personal blogposts" : `the ${label} ${taggingNameSetting.get()}`;
 
+  const tagPreviewPostCount = forumSelect({
+    LessWrong: 0,
+    default: 3
+  });
+
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
@@ -257,7 +263,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </ContentStyles>}
         </div>
-        {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
+        {tag && <TagPreview tag={tag} showCount={false} postCount={tagPreviewPostCount}/>}
       </PopperCard>
     </AnalyticsContext>
   </span>
