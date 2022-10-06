@@ -142,6 +142,7 @@
     "compression": "^1.7.3",
     "connect-mongo": "^4.4.1",
     "cookie-parser": "^1.4.3",
+    "cross-fetch": "^3.1.5",
     "crypto-js": "^3.1.9-1",
     "dataloader": "^1.4.0",
     "deepmerge": "^1.2.0",

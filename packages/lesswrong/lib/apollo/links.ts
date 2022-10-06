@@ -2,6 +2,7 @@ import type { GraphQLSchema, SourceLocation } from "graphql";
 import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
+import { isServer } from '../executionEnvironment';
 
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to
@@ -26,6 +27,8 @@ export const createHttpLink = (baseUrl = '/') =>
     uri: baseUrl + 'graphql',
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',
     batchMax: 50,
+    // TODO: This line can be removed once we upgrade to node v18
+    fetch: isServer ? require("cross-fetch") : window.fetch,
   });
 
 const locationsToStr = (locations: readonly SourceLocation[] = []) =>
