@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -16,6 +16,7 @@ import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
+import { useDialog } from '../../common/withDialog';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -146,6 +147,7 @@ const PostsPage = ({post, refetch, classes}: {
 }) => {
   const location = useLocation();
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -188,7 +190,8 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles, PostBody
+    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
+    PostBody, CommentOnSelectionContentWrapper
   } = Components
 
   useEffect(() => {
@@ -224,6 +227,16 @@ const PostsPage = ({post, refetch, classes}: {
   if (post.isEvent && post.eventImageId) {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
+  
+  const onClickCommentOnSelection = useCallback((html: string) => {
+    openDialog({
+      componentName:"ReplyCommentDialog",
+      componentProps: {
+        post, initialHtml: html
+      },
+      noClickawayCancel: true,
+    })
+  }, [openDialog, post]);
 
   const tableOfContents = sectionData
     ? <TableOfContents sectionData={sectionData} title={post.title} />
@@ -272,7 +285,9 @@ const PostsPage = ({post, refetch, classes}: {
         <ContentStyles contentType="post" className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
-            {htmlWithAnchors && <PostBody post={post} html={htmlWithAnchors}/>}
+            <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+              {htmlWithAnchors && <PostBody post={post} html={htmlWithAnchors}/>}
+            </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>
 
