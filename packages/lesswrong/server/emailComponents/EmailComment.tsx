@@ -8,7 +8,8 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { TagCommentType, commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {

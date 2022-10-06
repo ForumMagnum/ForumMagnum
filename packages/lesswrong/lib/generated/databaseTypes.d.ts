@@ -764,6 +764,16 @@ interface DbTag extends DbObject {
   subforumWelcomeText: EditableFieldContents
 }
 
+interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
+}
+
+interface DbUserTagRel extends DbObject {
+  __collectionName?: "UserTagRels"
+  tagId: string
+  userId: string
+  subforumLastVisitedAt: Date | null
+}
+
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
 }
 
@@ -1017,6 +1027,7 @@ interface DbUser extends DbObject {
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
+  acknowledgedNewUserGuidelines: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number
@@ -1118,6 +1129,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
 }
@@ -1157,6 +1169,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
 }

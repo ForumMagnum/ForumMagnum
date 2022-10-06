@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     backgroundPosition: 'center',
     background: theme.palette.primary.main,
     textAlign: 'center',
-    color: theme.palette.text.invertedBackgroundText,
+    color: theme.palette.text.alwaysWhite,
     overflow: 'visible',
     borderRadius: 0,
     boxShadow: theme.palette.boxShadow.moreFocused,
@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   addToCalIcon: {
-    fill: theme.palette.icon.inverted,
+    fill: theme.palette.text.alwaysWhite,
   },
   content: {
     position: 'relative',
@@ -70,11 +70,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'center',
     height: '100%'
   },
-  spinner: { //UNUSED
-    "& div": {
-      backgroundColor: theme.palette.panelBackground.default,
-    }
-  },
   row: {
     marginTop: 8
   },
@@ -85,7 +80,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     ...theme.typography.headline,
     fontSize: 36,
-    color: theme.palette.text.invertedBackgroundText,
+    color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     marginBottom: 10,
     [theme.breakpoints.down('sm')]: {

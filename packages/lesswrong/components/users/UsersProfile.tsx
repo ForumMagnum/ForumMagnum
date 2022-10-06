@@ -70,9 +70,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
-  primaryColor: {
-    color: theme.palette.primary.light
-  },
   title: {
     cursor: "pointer"
   },
