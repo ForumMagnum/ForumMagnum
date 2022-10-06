@@ -16,7 +16,7 @@ import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbac
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/types';
 
 
 const MINIMUM_APPROVAL_KARMA = 5

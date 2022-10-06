@@ -28,6 +28,7 @@ import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotif
 import moment from 'moment';
 import difference from 'lodash/difference';
 import Messages from '../lib/collections/messages/collection';
+import Tags from '../lib/collections/tags/collection';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -527,3 +528,21 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
+async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
+  const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)
+  for (const subforumId of newSubforumIds) {
+    const subforum = await Tags.findOne(subforumId)
+    if (subforum?.isSubforum) {
+      const modIds = subforum.subforumModeratorIds
+      await createNotifications({
+        userIds: modIds,
+        notificationType: 'newSubforumMember',
+        documentType: 'user',
+        documentId: user._id,
+        extraData: {subforumId}
+      })
+    }
+  }
+}
+
+getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)

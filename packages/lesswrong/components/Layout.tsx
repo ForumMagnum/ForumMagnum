@@ -25,8 +25,8 @@ import { userCanDo } from '../lib/vulcan-users/permissions';
 import { getUserEmail } from "../lib/collections/users/helpers";
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
+export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -209,9 +209,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme, cookies} = this.props;
+    const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, HomepageCommunityMap } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -256,7 +256,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       const afterTime = petrovAfterTime.get()
     
       return currentRoute?.name === "home"
-        && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
+        && ('LessWrong' === forumTypeSetting.get())
         && beforeTime < currentTime 
         && currentTime < afterTime
     }

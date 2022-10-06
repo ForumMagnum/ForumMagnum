@@ -657,6 +657,24 @@ interface DbSequence extends DbObject {
   createdAt: Date
 }
 
+interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
+}
+
+interface DbSpotlight extends DbObject {
+  __collectionName?: "Spotlights"
+  documentId: string
+  documentType: SpotlightDocumentType
+  position: number
+  duration: number
+  customTitle: string | null
+  customSubtitle: string | null
+  lastPromotedAt: Date
+  draft: boolean
+  spotlightImageId: string | null
+  createdAt: Date
+  description: EditableFieldContents
+}
+
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
 }
 
@@ -739,10 +757,21 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   isSubforum: boolean
+  subforumModeratorIds: Array<string>
   parentTagId: string
   createdAt: Date
   description: EditableFieldContents
   subforumWelcomeText: EditableFieldContents
+}
+
+interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
+}
+
+interface DbUserTagRel extends DbObject {
+  __collectionName?: "UserTagRels"
+  tagId: string
+  userId: string
+  subforumLastVisitedAt: Date | null
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -777,6 +806,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  petrovOptOut: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -997,6 +1027,7 @@ interface DbUser extends DbObject {
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
+  acknowledgedNewUserGuidelines: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number
@@ -1093,10 +1124,12 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
 }
@@ -1131,10 +1164,12 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
 }

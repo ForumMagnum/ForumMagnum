@@ -213,4 +213,12 @@ type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldCo
 
 type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 
+type SpotlightDocumentType = 'Post' | 'Sequence';
+
+interface SpotlightFirstPost {
+  _id: string;
+  title: string;
+  url: string;
+}
+
 }
