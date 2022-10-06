@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
+import { RefinementListExposed } from 'react-instantsearch/connectors';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -152,23 +153,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+type SearchCriteria = {
+  contentType?: AlgoliaIndexCollectionName,
+  terms?: string,
+  tags?: Array<string>,
+}
+
+type TagsRefinementProps = {
+  tagsFilter?: Array<string>,
+  setTagsFilter?: Function
+}
+
 // filters by tags
-const TagsRefinementList = ({ refine, tagsFilter, setTagsFilter }) => {
+const TagsRefinementList = ({ refine, tagsFilter, setTagsFilter }: {refine: Function} & TagsRefinementProps) => {
   return <Components.TagMultiselect
-    value={tagsFilter}
+    value={tagsFilter ?? []}
     path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
     updateCurrentValues={(values: {tags?: Array<string>}) => {
-      setTagsFilter(values.tags)
+      setTagsFilter && setTagsFilter(values.tags)
       refine(values.tags)
     }}
   />
 }
-const CustomTagsRefinementList = connectRefinementList(TagsRefinementList)
+const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
 // shows total # of results
-const Stats = ({ nbHits, className }) => {
+const Stats = ({ nbHits, className }: {
+  nbHits: number,
+  className: string
+}) => {
   return <div className={className}>
     {nbHits} result{nbHits === 1 ? '' : 's'}
   </div>
@@ -201,22 +216,22 @@ const SearchPageTabbed = ({classes}:{
   const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
     ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
     
-  const updateUrl = (data) => {
+  const updateUrl = (data: SearchCriteria) => {
     history.replace({
       ...location,
       search: qs.stringify({contentType: tab, terms: keywordSearch, tags: tagsFilter, ...data})
     })
   }
   
-  const handleUpdateSearch = (e) => {
+  const handleUpdateSearch = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
     setKeywordSearch(e.currentTarget.value)
     updateUrl({terms: e.currentTarget.value})
   }
-  const handleUpdateTagsFilter = (tags) => {
+  const handleUpdateTagsFilter = (tags: Array<string>) => {
     setTagsFilter(tags)
     updateUrl({tags})
   }
-  const handleChangeTab = (e, value) => {
+  const handleChangeTab = (_, value: AlgoliaIndexCollectionName) => {
     setTab(value)
     updateUrl({contentType: value})
   }

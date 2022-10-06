@@ -8,6 +8,8 @@ import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+// We're not using Link, just useHistory
+// eslint-disable-next-line no-restricted-imports
 import { useHistory } from 'react-router-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({

@@ -5,6 +5,8 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+// We're not using Link, just useHistory
+// eslint-disable-next-line no-restricted-imports
 import { useHistory } from 'react-router-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
