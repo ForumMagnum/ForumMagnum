@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { Crosspost, UpdateCrosspostPayload, CrosspostPayload } from "./types";

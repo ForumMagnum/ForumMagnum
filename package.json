@@ -206,7 +206,6 @@
     "moment": "^2.29.4",
     "mongodb": "^3.6.3",
     "mz": "^2.7.0",
-    "node-fetch": "^2.6",
     "nodemailer": "^6.6.1",
     "papaparse": "^4.6.2",
     "passport": "^0.5.2",
