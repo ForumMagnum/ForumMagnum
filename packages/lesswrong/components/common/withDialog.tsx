@@ -4,8 +4,14 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 
+type FromPartial<T> = T extends Partial<infer U> ? U : never;
+
+type CloseableComponents = {
+  [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['propTypes']> extends { onClose: any } | undefined ? T : never
+}[keyof ComponentTypes];
+
 export interface OpenDialogContextType {
-  openDialog: <T extends keyof ComponentTypes>({componentName, componentProps, noClickawayCancel}: {
+  openDialog: <T extends CloseableComponents>({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
     componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
     noClickawayCancel?: boolean,
@@ -18,7 +24,7 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 export const DialogManager = ({children}: {
   children: React.ReactNode,
 }) => {
-  const [componentName,setComponentName] = useState<keyof ComponentTypes|null>(null);
+  const [componentName,setComponentName] = useState<CloseableComponents|null>(null);
   const [componentProps,setComponentProps] = useState<any>(null);
   const [noClickawayCancel,setNoClickawayCancel] = useState<any>(false);
   const {captureEvent} = useTracking();
@@ -30,7 +36,7 @@ export const DialogManager = ({children}: {
     setComponentProps(null);
   }, [captureEvent, componentName]);
 
-  const ModalComponent = isOpen ? (Components[componentName as string]) : null;
+  const ModalComponent = isOpen ? (Components[componentName]) : null;
   
   const providedContext = useMemo((): OpenDialogContextType => ({
     openDialog: ({componentName, componentProps, noClickawayCancel}) => {
@@ -42,7 +48,7 @@ export const DialogManager = ({children}: {
     closeDialog: closeDialog
   }), [captureEvent, closeDialog]);
 
-  const modal = isOpen && <ModalComponent {...componentProps} onClose={closeDialog} />
+  const modal = (ModalComponent && isOpen) && <ModalComponent {...componentProps} onClose={closeDialog} />
   const withClickaway = isOpen && (noClickawayCancel ? modal : <ClickAwayListener onClickAway={closeDialog}>{modal}</ClickAwayListener>);
   return (
     <OpenDialogContext.Provider value={providedContext}>

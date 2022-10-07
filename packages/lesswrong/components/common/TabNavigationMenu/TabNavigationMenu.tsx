@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => {
 }
 
 const TabNavigationMenu = ({onClickSection, classes}: {
-  onClickSection?: any,
+  onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -37,7 +37,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   const { TabNavigationItem, FeaturedResourceBanner } = Components
   const customComponentProps = {currentUser}
   
-  const handleClick = (e, tabId) => {
+  const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)
   }
@@ -52,10 +52,11 @@ const TabNavigationMenu = ({onClickSection, classes}: {
               return <div key={tab.id} className={classes.divider} />
             }
             if ('customComponentName' in tab) {
-              const CustomComponent = Components[tab.customComponentName];
+              // FIXME: not clear how to type this without the intersection of all the component types causing all the props to evaluate to `never`
+              const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
               return <CustomComponent
                 key={tab.id}
-                onClick={(e) => handleClick(e, tab.id)}
+                onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />
             }

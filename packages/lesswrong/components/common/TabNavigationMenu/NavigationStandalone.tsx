@@ -35,7 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NavigationStandalone = ({sidebarHidden, classes}) => {
+const NavigationStandalone = ({sidebarHidden, classes}: {
+  sidebarHidden: boolean,
+  classes: ClassesType
+}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   const { location } = useLocation();
 

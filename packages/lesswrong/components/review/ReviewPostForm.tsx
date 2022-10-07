@@ -79,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ReviewPostForm = ({classes, post, onClose}: {
   classes: ClassesType,
-  post: PostsList,
+  post: PostsBase,
   onClose: ()=>void,
 }) => {
   const { CommentsNewForm } = Components 
