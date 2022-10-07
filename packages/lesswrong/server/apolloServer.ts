@@ -41,6 +41,7 @@ import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCrosspostRoutes } from './fmCrosspost';
+import { addCypressRoutes } from './cypress';
 import { getUserEmail } from "../lib/collections/users/helpers";
 
 const loadClientBundle = () => {
@@ -241,6 +242,7 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
+  addCypressRoutes(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
