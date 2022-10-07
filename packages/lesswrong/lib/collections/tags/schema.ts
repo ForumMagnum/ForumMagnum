@@ -12,6 +12,8 @@ import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import { TagCommentType } from '../comments/types';
+import Comments from '../comments/collection';
+import UserTagRels from '../userTagRels/collection';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -117,12 +119,6 @@ const schema: SchemaType<DbTag> = {
     ...schemaDefaultValue(0),
     // schemaDefaultValue throws an error if this is set to null, but we want to allow that
     onUpdate: () => {},
-  },
-  descriptionHtmlWithToc: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    // See resolveAs in server/resolvers/tagResolvers.ts
   },
   postCount: {
     ...denormalizedCountOfReferences({
@@ -464,6 +460,22 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  subforumUnreadMessagesCount: resolverOnlyField({
+    type: Number,
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      if (!tag.isSubforum) return null;
+      if (!context.currentUser) return null;
+
+      // This is when this field was added, so assume all messages before then have been read
+      const earliestDate = new Date('2022-09-30T15:07:34.026Z');
+      const lastVisitedAt = (await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}))?.subforumLastVisitedAt ?? earliestDate;
+      const count = await Comments.find({tagId: tag._id, tagCommentType: TagCommentType.Subforum, deleted: {$ne: true}, postedAt: {$gt: lastVisitedAt}}).count()
+
+      return count
+    },
+  }),
   subforumModeratorIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "subforumModeratorIds",

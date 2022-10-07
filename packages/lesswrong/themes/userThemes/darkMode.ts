@@ -44,6 +44,7 @@ export const invertedGreyscale = {
 };
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
+const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
@@ -104,12 +105,14 @@ export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
     grey: invertedGreyscale,
     greyAlpha,
+    inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     text: {
+      alwaysWhite: '#fff',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",
@@ -122,16 +125,23 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent3: "rgba(0,0,0,.75)",
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
-      commentModeratorHat: "#202719",
+      commentMoaderatorHat: "#202719",
+      spoilerBlock: "#1b1b1b",
     },
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
+      primaryDim: "#303435",
+      primaryDim2: "#303435",
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
+      primaryHighlight: '#314a4e',
+      primaryHighlight2: '#314a4e',
+      secondaryHighlight: '#3e503a',
+      secondaryHighlight2: '#3e503a',
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
