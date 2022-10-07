@@ -565,6 +565,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
   readonly sideComments: any,
+  readonly sideCommentsCache: any /*{"definitions":[{}]}*/,
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,

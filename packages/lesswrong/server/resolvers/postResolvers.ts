@@ -3,7 +3,15 @@ import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtil
 import { getLocalTime } from '../mapsUtils'
 import { Utils } from '../../lib/vulcan-lib/utils';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import { addBlockIDsToHTML, getPostBlockCommentLists } from '../sideComments';
+import { getPostBlockCommentLists } from '../sideComments';
+import { addIDsToHTML } from '../tableOfContents';
+import cheerio from 'cheerio';
+
+type SideCommentsCache = {
+  generatedAt: Date,
+  commentsByBlock: Record<string, string[]>,
+  generationStartedAt: Date | null, // acts as a lock
+}
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -37,12 +45,40 @@ augmentFieldsDict(Posts, {
     type: "JSON",
     resolveAs: {
       type: "JSON",
-      resolver: async (post, args: void, context: ResolverContext) => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const toc = await Utils.getToCforPost({document: post, version: null, context});
         const html = toc?.html || post?.contents?.html
+        // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
+        const postBody = cheerio.load(html, null, false);
+        addIDsToHTML(postBody);
+
+        let commentsByBlock: Record<string, string[]> = {};
+        const cache = post.sideCommentsCache as SideCommentsCache;
+        const cacheIsValid = cache && cache.generatedAt > post.lastCommentedAt && cache.generatedAt > post.contents?.editedAt
+        if (cacheIsValid) {
+          commentsByBlock = cache.commentsByBlock;
+        } else {
+          const minLockDate = new Date(Date.now() - 5 * 60 * 1000);
+          const shouldRegenerateCache = !cache || !cache.generationStartedAt || cache.generationStartedAt < minLockDate;
+          if (shouldRegenerateCache) {
+            const generatedAt = new Date();
+            await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache.generationStartedAt": generatedAt}});
+            commentsByBlock = await getPostBlockCommentLists(context, post);
+            await Posts.rawUpdateOne({_id: post._id}, {$set: {
+              sideCommentsCache: {
+                generatedAt,
+                commentsByBlock,
+                generationStartedAt: null,
+              },
+            }});
+          } else {
+            // TODO: What do we return here
+          }
+        }
+
         return {
-          html: addBlockIDsToHTML(html),
-          commentsByBlock: await getPostBlockCommentLists(context, post),
+          html: postBody.html(),
+          commentsByBlock,
         };
       }
     },

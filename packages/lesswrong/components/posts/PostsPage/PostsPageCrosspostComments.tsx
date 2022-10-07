@@ -29,7 +29,7 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
   const commentsText = comments === 0
     ? "Click to view."
     : `Click to view ${comments} comment${comments === 1 ? "" : "s"}.`;
-  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `posts/${foreignPost._id}`);
+  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `posts/${foreignPost._id}#comments`);
 
   const {Typography} = Components;
   return (

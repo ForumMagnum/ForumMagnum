@@ -2137,6 +2137,17 @@ const schema: SchemaType<DbPost> = {
   sideComments: {
     type: Object,
     viewableBy: ['guests'],
+    optional: true,
+    nullable: true,
+    hidden: true,
+  },
+
+  sideCommentsCache: {
+    type: Object,
+    viewableBy: ['admins'],
+    optional: true,
+    nullable: true,
+    hidden: true,
   },
 
   // GraphQL only field that resolves based on whether the current user has closed

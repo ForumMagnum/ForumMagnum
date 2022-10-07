@@ -56,6 +56,60 @@ const headingIfWholeParagraph = {
 
 const headingSelector = _.keys(headingTags).join(",");
 
+const cheerioElementIsHeading = (element: cheerio.Element): element is cheerio.TagElement => {
+  if (element.type !== "tag") {
+    return false;
+  }
+  if (tagIsHeadingIfWholeParagraph(element.tagName) && !tagIsWholeParagraph(element)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Given HTML (probably for a post), make it so every top-level block element
+ * (ie, paragraphs, list items, tables, images) and heading has an ID. Heading
+ * IDs are derived from the text, while regular paragraph IDs are numeric IDs
+ * of the form "block123".
+ *
+ * This is deterministic for a given HTML input, but is not guaranteed to be
+ * stable if the post is edited (ie, inserting a paragraph will increment the IDs
+ * of subsequent paragraphs). Paragraph IDs shouldn't be used for permalinks but
+ * heading IDs can be.
+ *
+ * Paragraph IDs are used for side-comment alignment; that is, if a comment contains
+ * a blockquote that matches something in the post, this ID is used for tracking
+ * that match and potentially displaying a comment marker in
+ * the right margin.
+ */
+export const addIDsToHTML = (postBody: cheerio.Root) => {
+  let usedAnchors: Record<string,boolean> = {};
+
+  let headingTags = postBody(headingSelector);
+  for (let i=0; i<headingTags.length; i++) {
+    let tag = headingTags[i];
+    if (!cheerioElementIsHeading(tag)) {
+      continue;
+    }
+
+    let title = elementToToCText(tag);
+
+    if (title && title.trim()!=="") {
+      let anchor = titleToAnchor(title, usedAnchors);
+      usedAnchors[anchor] = true;
+      cheerio(tag).attr("id", anchor);
+    }
+  }
+
+  let markedElements = postBody('p,li,blockquote');
+  for (let i=0; i<markedElements.length; i++) {
+    let markedElement = markedElements[i];
+    if (!cheerio(markedElement).attr("id")) {
+      cheerio(markedElement).attr("id", `block${i}`)
+    }
+  }
+}
+
 // Given an HTML document, extract a list of sections for a table of contents
 // from it, and add anchors. The result is modified HTML with added anchors,
 // plus a JSON array of sections, where each section has a
@@ -75,28 +129,26 @@ export function extractTableOfContents(postHTML: string)
   if (!postHTML) return null;
   // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
   const postBody = cheerio.load(postHTML, null, false);
+  addIDsToHTML(postBody);
+
   let headings: Array<ToCSection> = [];
-  let usedAnchors: Record<string,boolean> = {};
 
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
   let headingTags = postBody(headingSelector);
   for (let i=0; i<headingTags.length; i++) {
     let tag = headingTags[i];
-
-    if (tag.type !== "tag") {
-      continue;
-    }
-    if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
+    if (!cheerioElementIsHeading(tag)) {
       continue;
     }
 
     let title = elementToToCText(tag);
-    
+
     if (title && title.trim()!=="") {
-      let anchor = titleToAnchor(title, usedAnchors);
-      usedAnchors[anchor] = true;
-      cheerio(tag).attr("id", anchor);
+      const anchor = cheerio(tag).attr("id");
+      if (!anchor) {
+        throw new Error("Missing heading ID");
+      }
       headings.push({
         title: title,
         anchor: anchor,

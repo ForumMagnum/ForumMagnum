@@ -8,36 +8,6 @@ const defaultQuoteShardSettings: QuoteShardSettings = {
   minLength: 20,
 };
 
-
-/**
- * Given HTML (probably for a post), make it so every top-level block element
- * (ie, paragraphs, list items, tables, images) has an ID, adding new numeric
- * IDs of the form "block123" if necessary.
- *
- * This is deterministic for a given HTML input, but is not guaranteed to be
- * stable if the post is edited (ie, inserting a paragraph will increment the IDs
- * of subsequent paragraphs). These IDs shouldn't be used for permalinks; for
- * that, instead use the IDs attached to section-heading blocks by the table of
- * contents generation code.
- *
- * These are used for side-comment alignment; that is, if a comment contains a
- * blockquote that matches something in the post, this ID is used for tracking
- * that match and potentially displaying a comment marker in
- * the right margin.
- */
-export function addBlockIDsToHTML(html: string): string {
-  //@ts-ignore
-  const parsedPost = cheerio.load(html, null, false);
-  let markedElements = parsedPost('p,li,blockquote');
-  for (let i=0; i<markedElements.length; i++) {
-    let markedElement = markedElements[i];
-    if (!cheerio(markedElement).attr("id")) {
-      cheerio(markedElement).attr("id", `block${i}`)
-    }
-  }
-  return parsedPost.html();
-}
-
 /**
  * Given the HTML of a post body which has IDs on every block (from
  * addBlockIDsToHTML), and the HTML of a comment which might contain
