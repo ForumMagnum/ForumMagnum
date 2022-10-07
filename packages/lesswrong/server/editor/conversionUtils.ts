@@ -254,10 +254,30 @@ export async function dataToCkEditor(data, type) {
   }
 }
 
+/**
+ * When we calculate the word count we want to ignore footnotes. There's two syntaxes
+ * for footnotes in markdown:
+ *
+ * 1.  ^**[^](#fnreflexzxp4wr9h)**^
+ *
+ *     The contents of my footnote
+ *
+ * and
+ *
+ * [^1]: The contents of my footnote.
+ *
+ * In both cases, the footnote must start at character 0 on the line. The strategy here
+ * is just to find the first place where this occurs and then to ignore to the end of
+ * the document.
+ */
 export async function dataToWordCount(data, type) {
   try {
-    const markdown = dataToMarkdown(data, type) || ""
-    return markdown.split(" ").length
+    const markdown = dataToMarkdown(data, type) ?? "";
+    const withoutFootnotes = markdown
+      .split(/^1\. {2}\^\*\*\[\^\]\(#(.|\n)*/m)[0]
+      .split(/^\[\^1\]:.*/m)[0];
+    const words = withoutFootnotes.match(/[^\s]+/g) ?? [];
+    return words.length;
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Error in dataToWordCount", data, type, err)

@@ -13,7 +13,11 @@ type PermissionGroups = 'guests' |
   'alignmentForumAdmins' |
   'alignmentForum' |
   'alignmentVoters' |
-  'podcasters'
+  'podcasters' |
+  'canBypassPostRateLimit' |
+  'trustLevel1' |
+  'canModeratePersonal';
+
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)

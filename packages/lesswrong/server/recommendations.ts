@@ -91,7 +91,11 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
   }
   if (algorithm.lwRationalityOnly) {
     return {
-      "tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0} // rationality tag
+      $or: [
+        {"tagRelevance.Ng8Gice9KNkncxqcj": {$gt:0}}, // rationality tag
+        {"tagRelevance.3uE2pXvbcnS9nnZRE": {$gt:0}}, // world modeling tag
+      ]
+      
     }
   }
   if (algorithm.reviewNominations) {

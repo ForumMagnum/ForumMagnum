@@ -1,7 +1,7 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 import { addGraphQLSchema } from '../../vulcan-lib';
-import { userCanReadField, userOwns } from '../../vulcan-users/permissions';
+import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
 
 /**
@@ -44,7 +44,14 @@ const isSharable = (document: any) : document is SharableDocument => {
 export const getOriginalContents = (currentUser: DbUser|null, document: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
   const canViewOriginalContents = (user: DbUser|null, doc: DbObject) => isSharable(doc) ? userIsSharedOn(user, doc) : true
 
-  const returnOriginalContents = userCanReadField(currentUser, {viewableBy: [userOwns, canViewOriginalContents, 'admins', 'sunshineRegiment']}, document)
+  const returnOriginalContents = userCanReadField(
+    currentUser,
+    // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
+    // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
+    { viewableBy: [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'] },
+    document
+  )
+
   return returnOriginalContents ? originalContents : null
 }
 

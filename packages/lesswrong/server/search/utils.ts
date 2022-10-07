@@ -55,12 +55,26 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
   }
-  const parentPost = await Posts.findOne({_id: comment.postId});
-  if (parentPost) {
-    algoliaComment.postId = comment.postId;
-    algoliaComment.postTitle = parentPost.title;
-    algoliaComment.postSlug = parentPost.slug;
+
+  if (comment.postId) {
+    const parentPost = await Posts.findOne({_id: comment.postId});
+    if (parentPost) {
+      algoliaComment.postId = comment.postId;
+      algoliaComment.postTitle = parentPost.title;
+      algoliaComment.postSlug = parentPost.slug;
+      algoliaComment.postIsEvent = parentPost.isEvent;
+      algoliaComment.postGroupId = parentPost.groupId;
+    }
   }
+  if (comment.tagId) {
+    const tag = await Tags.findOne({_id: comment.tagId});
+    if (tag) {
+      algoliaComment.tagId = comment.tagId;
+      algoliaComment.tagCommentType = comment.tagCommentType;
+      algoliaComment.tagSlug = tag.slug;
+    }
+  }
+
   let body = ""
   if (comment.contents?.originalContents?.type) {
     const { data, type } = comment.contents.originalContents

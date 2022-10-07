@@ -54,6 +54,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   if (collapsed) { return null }
 
   const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
+  console.log("FOUND", comment);
 
   return (
     <ContentStyles contentType={comment.answer ? "answer" : "comment"} className={classes.root}>

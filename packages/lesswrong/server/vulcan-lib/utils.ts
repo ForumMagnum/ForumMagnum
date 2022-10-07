@@ -61,7 +61,6 @@ export const sanitize = function(s: string): string {
       li: [ 'footnote-item' ],
     },
     allowedStyles: {
-      ...(sanitizeHtml.defaults as any).allowedStyles,
       figure: {
         'width': [/^(?:\d|\.)+(?:px|em|%)$/],
         'height': [/^(?:\d|\.)+(?:px|em|%)$/],

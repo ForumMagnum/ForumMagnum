@@ -64,13 +64,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment TagWithTocFragment on Tag {
-    ...TagFragment
-    descriptionHtmlWithToc
-  }
-`);
-
-registerFragment(`
   fragment TagHistoryFragment on Tag {
     ...TagBasicInfo
     user {
@@ -139,10 +132,18 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    tableOfContents
     subforumWelcomeText {
       _id
       html
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
+    subforumUnreadMessagesCount
   }
 `);
 
@@ -192,6 +193,13 @@ registerFragment(`
         voteCount
       }
     }
+  }
+`);
+
+registerFragment(`
+  fragment AllTagsPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
   }
 `);
 

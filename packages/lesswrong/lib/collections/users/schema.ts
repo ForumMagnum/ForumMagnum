@@ -1009,10 +1009,11 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    label: 'Delete this user',
+    canUpdate: ['members', 'admins'],
+    label: 'Deactivate',
+    tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
-    group: formGroups.adminOptions,
+    group: formGroups.deactivate,
   },
 
   // voteBanned: All future votes of this user have weight 0
@@ -2276,6 +2277,15 @@ const schema: SchemaType<DbUser> = {
     control: 'checkbox',
     group: formGroups.disabledPrivileges,
     order: 72,
+  },
+
+  acknowledgedNewUserGuidelines: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   },
 };
 

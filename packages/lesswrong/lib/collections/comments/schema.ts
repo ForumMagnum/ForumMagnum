@@ -1,18 +1,14 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { commentGetPageUrlFromDB } from './helpers';
+import { TagCommentType } from './types';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 import { forumTypeSetting } from "../../instanceSettings";
 import GraphQLJSON from 'graphql-type-json';
+import { commentGetPageUrlFromDB } from './helpers';
 
-
-export enum TagCommentType {
-  Subforum = "SUBFORUM",
-  Discussion = "DISCUSSION",
-}
 
 export const moderationOptionsGroup: FormGroup = {
   order: 50,
