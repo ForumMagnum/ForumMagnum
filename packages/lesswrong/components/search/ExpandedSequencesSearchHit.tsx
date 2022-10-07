@@ -88,7 +88,7 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
     <div className={classes.body} onClick={handleClick}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
-          <Link to={`/sequences/${sequence._id}`} className={classes.link}>
+          <Link to={`/sequences/${sequence._id}`} className={classes.link} onClick={(e) => e.stopPropagation()}>
             {sequence.title}
           </Link>
         </span>

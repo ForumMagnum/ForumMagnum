@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { RefinementListExposed } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats } from 'react-instantsearch-dom';
+import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -50,7 +50,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       columnGap: 6,
       alignItems: 'center',
       marginTop: 12
-    }
+    },
+    '& .ais-ClearRefinements': {
+      color: theme.palette.primary.main,
+      marginTop: 20
+    },
+    '& .ais-ClearRefinements-button--disabled': {
+      display: 'none'
+    },
   },
   filtersHeadline: {
     marginBottom: 18
@@ -153,10 +160,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-type SearchCriteria = {
+type ExpandedSearchState = SearchState & {
   contentType?: AlgoliaIndexCollectionName,
-  terms?: string,
-  tags?: Array<string>,
+  refinementList?: {
+    tags: Array<string>|''
+  }
 }
 
 type TagsRefinementProps = {
@@ -165,7 +173,9 @@ type TagsRefinementProps = {
 }
 
 // filters by tags
-const TagsRefinementList = ({ refine, tagsFilter, setTagsFilter }: {refine: Function} & TagsRefinementProps) => {
+const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
+  RefinementListProvided & TagsRefinementProps
+) => {
   return <Components.TagMultiselect
     value={tagsFilter ?? []}
     path="tags"
@@ -173,7 +183,6 @@ const TagsRefinementList = ({ refine, tagsFilter, setTagsFilter }: {refine: Func
     hidePostCount
     updateCurrentValues={(values: {tags?: Array<string>}) => {
       setTagsFilter && setTagsFilter(values.tags)
-      refine(values.tags)
     }}
   />
 }
@@ -203,37 +212,52 @@ const SearchPageTabbed = ({classes}:{
   const pastMonth = useRef(moment().subtract(1, 'months').valueOf())
   const pastYear = useRef(moment().subtract(1, 'years').valueOf())
 
-  // initialize the tab & search filters from the URL
+  // initialize the tab & search state from the URL
   const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
     const contentType = query.contentType as AlgoliaIndexCollectionName
     return collectionIsAlgoliaIndexed(contentType) ? contentType : 'Posts'
   })
-  const [keywordSearch, setKeywordSearch] = useState(query.terms ?? '')
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
     [query.tags ?? []].flatMap(tags => tags)
   )
+  const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
 
   const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
     ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
     
-  const updateUrl = (data: SearchCriteria) => {
+  // we try to keep the URL synced with the search state
+  const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     history.replace({
       ...location,
-      search: qs.stringify({contentType: tab, terms: keywordSearch, tags: tagsFilter, ...data})
+      search: qs.stringify({
+        contentType: search.contentType,
+        query: search.query,
+        tags,
+        toggle: search.toggle,
+        page: search.page
+      })
     })
   }
-  
-  const handleUpdateSearch = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
-    setKeywordSearch(e.currentTarget.value)
-    updateUrl({terms: e.currentTarget.value})
-  }
-  const handleUpdateTagsFilter = (tags: Array<string>) => {
-    setTagsFilter(tags)
-    updateUrl({tags})
-  }
+    
   const handleChangeTab = (_, value: AlgoliaIndexCollectionName) => {
     setTab(value)
-    updateUrl({contentType: value})
+    setSearchState({...searchState, contentType: value, page: 1})
+  }
+  // filters that we want to persist when changing content type tabs need to be handled separately
+  // (currently that's just the tags filter)
+  const handleUpdateTagsFilter = (tags: Array<string>) => {
+    setTagsFilter(tags)
+    updateUrl(searchState, tags)
+  }
+  
+  const onSearchStateChange = (updatedSearchState: ExpandedSearchState) => {
+    // clear tags filter if the tag refinements list is empty
+    const clearTagFilters = updatedSearchState.refinementList?.tags === ''
+    if (clearTagFilters)
+      setTagsFilter([])
+      
+    updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
+    setSearchState(updatedSearchState)
   }
 
   if (!isAlgoliaEnabled()) {
@@ -256,10 +280,12 @@ const SearchPageTabbed = ({classes}:{
     <InstantSearch
       indexName={getAlgoliaIndexName(tab)}
       searchClient={getSearchClient()}
+      searchState={searchState}
+      onSearchStateChange={onSearchStateChange}
     >
       <div className={classes.filtersColumn}>
         <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
-        {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
+        {/* {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
           <div className={classes.filterLabel}>
             Filter by {tab === 'Users' ? 'joined' : 'posted'} date
           </div>
@@ -273,7 +299,7 @@ const SearchPageTabbed = ({classes}:{
               { label: 'Past year', start: pastYear.current },
             ]}
           />
-        </>}
+        </>} */}
         {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
             attribute="tags"
             defaultRefinement={tagsFilter}
@@ -291,6 +317,7 @@ const SearchPageTabbed = ({classes}:{
           label="Has subforum"
           value={true}
         />}
+        <ClearRefinements />
       </div>
 
       <div className={classes.resultsColumn}>
@@ -299,7 +326,7 @@ const SearchPageTabbed = ({classes}:{
           {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
             * null is the only option that actually suppresses the extra X button.
           // @ts-ignore */}
-          <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} onChange={handleUpdateSearch} />
+          <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
         </div>
         
         <Tabs

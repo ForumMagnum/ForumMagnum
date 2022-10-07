@@ -95,7 +95,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   }
 
   return <div className={classes.root} onClick={handleClick}>
-    <Link to={url} className={classes.link}>
+    <Link to={url} className={classes.link} onClick={(e) => e.stopPropagation()}>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
       </div>}

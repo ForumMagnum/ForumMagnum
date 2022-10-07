@@ -74,7 +74,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
 
   return <div className={classes.root} onClick={handleClick}>
     <div className={classes.title}>
-      <Link to={postGetPageUrl(post)} className={classes.link}>
+      <Link to={postGetPageUrl(post)} className={classes.link} onClick={(e) => e.stopPropagation()}>
         {post.title}
       </Link>
     </div>
