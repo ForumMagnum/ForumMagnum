@@ -1,4 +1,3 @@
-import React from 'react';
 import { userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'

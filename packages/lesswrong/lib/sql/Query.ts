@@ -5,7 +5,7 @@ class Arg {
   public typehint = "";
 
   constructor(public value: any) {
-    // JSON arrays make node-postgres fallover, but we can work around it
+    // JSON arrays make node-postgres fall over, but we can work around it
     // with a special-case typehint
     if (Array.isArray(value) && value[0] && typeof value[0] === "object") {
       this.typehint = "::JSONB[]";
