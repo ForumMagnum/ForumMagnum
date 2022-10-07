@@ -22,7 +22,7 @@ const importData = async <T extends {}>(collection: CollectionBase<any>, data: T
 }
 
 Vulcan.dropAndSeedCypressPg = async () => {
-  const id = "cypress_tests";
+  const id = "cypress_template";
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());
   await oldClient?.$pool.end();

@@ -1,9 +1,8 @@
 /// <reference types="cypress" />
 
 const { MongoClient } = require('mongodb');
+const pgp = require('pg-promise');
 const { createHash } = require('crypto');
-const childProcess = require('child_process');
-const path = require('path');
 
 const seedPosts = require('../fixtures/posts');
 const seedComments = require('../fixtures/comments');
@@ -65,20 +64,20 @@ const dropAndSeedMongo = async (url) => {
   ]);
 }
 
-const dropAndSeedPostgres = () => {
-  return new Promise((resolve, reject) => {
-    childProcess.exec(
-      `${path.resolve(process.cwd(), "./scripts/serverShellCommand.sh")} --wait 'Vulcan.dropAndSeedCypressPg()'`,
-      {},
-      (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(undefined);
-        }
-      },
-    );
+const dropAndSeedPostgres = async () => {
+  const { PG_URL } = process.env;
+  if (!PG_URL) {
+    throw new Error("PG_URL environment variable is not defined");
+  }
+  const pgPromiseLib = pgp({});
+  const db = pgPromiseLib({
+    connectionString: PG_URL,
+    max: 25,
   });
+  const dbName = "unittest_cypress_tests";
+  const templateName = "unittest_cypress_template";
+  await db.none(`DROP DATABASE IF EXISTS ${dbName}`);
+  await db.none(`CREATE DATABASE ${dbName} TEMPLATE ${templateName}`);
 }
 
 // eslint-disable-next-line no-unused-vars

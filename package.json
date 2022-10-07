@@ -35,7 +35,7 @@
     "ea-start-staging-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --settings ../ForumCredentials/settings-local-dev-staging-db.json",
     "ea-start-prod-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --settings ../ForumCredentials/settings-local-dev-prod-db.json",
     "ea-start-testing-db": "./build.js -run --mongoUrl ${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)} --settings ./settings-test.json",
-    "ea-cypress-run": "yarn cypress run --env TESTING_DB_URL=${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)}",
+    "ea-cypress-run": "./scripts/serverShellCommand.sh --wait 'Vulcan.dropAndSeedCypressPg()' && yarn cypress run --env TESTING_DB_URL=${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)}",
     "ea-cypress-open": "yarn cypress open --env TESTING_DB_URL=${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)}",
     "ea-mongod": "mongod --dbpath .meteor/local/db --port 3001",
     "ea-mongo": "mongo $(< ../ForumCredentials/dev-db-conn.txt)",
