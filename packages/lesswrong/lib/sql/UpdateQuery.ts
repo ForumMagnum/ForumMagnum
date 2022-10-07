@@ -89,7 +89,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       console.warn(`Field "${field}" is not recognized - is it missing from the schema?`);
       return [];
     }
-    return [...result, "=", ...this.compileExpression(value)];
+    const setValue = typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
+      ? this.compileExpression(value)
+      : [this.createArg(value)];
+    return [...result, "=", ...setValue];
   }
 }
 
