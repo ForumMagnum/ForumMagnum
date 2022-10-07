@@ -34,7 +34,7 @@ const getConfigFromSequence = (sequence: DbSequence, author: DbUser, imagePath: 
       description: "",
       contents: "Chapters",
       source: getSiteUrl(),
-      images: []
+      images: ['']
   }
 }
 
@@ -50,65 +50,6 @@ const htmlTemplate = `
 </html>
 `
 
-async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
-  const context = await createAdminContext();
-  const posts = await sequenceGetAllPosts(sequence._id, context)
-  const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
-  const author = await Users.findOne({_id: sequence.userId})
-
-  if (!author) throw Error("No author found")
-
-  const config = getConfigFromSequence(sequence, author, coverPath)
-  
-  let epub = makepub.document(config);
-
-  epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
-  
-  function buildEbookFromSequence(sequence, chapters, posts) {
-    // 
-    createDocFromLWContents(sequence.title, sequence)
-    for (let chapter of chapters) {
-      if (chapter.title) {
-        createDocFromLWContents(chapter.title, chapter)
-      }
-      for (let post of posts) {
-        createDocFromLWContents(post.title, post)
-      }
-    }
-  }
-  
-  function createDocFromLWContents(title, document) {
-    let newDoc = cheerio.load(htmlTemplate)
-    let contents = document.contents?.html || ''
-
-    Object.keys(namedToNumericEntities).forEach((key, i) => {
-      var re = new RegExp(key,"g");
-      try {
-        contents = contents.replace(re, namedToNumericEntities[key])
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err)
-      }
-    })
-    if (document.title) {
-      let safe_title = document.title.toLowerCase().replace(/ /g, '-');
-      newDoc('body').append('<div id="'+safe_title+'"></div>');
-      newDoc('div').append('<h1>'+document.title+'</h1>')
-    }
-    newDoc('div').append(contents)
-    epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
-  }
-
-  buildEbookFromSequence(sequence, chapters, posts)
-
-  const outFolder = "tmp/"
-  const outFilename = `${slugify(sequence.title)}`
-  const outFile = `${outFolder}${outFilename}.epub`
-  await epub.writeEPUB(outFolder, outFilename)
-
-  return outFile
-}
-
 // TODO make more generic
 function downloadImageFile(url, outFile): Promise<void> {
   const file = fs.createWriteStream(outFile)
@@ -123,6 +64,86 @@ function downloadImageFile(url, outFile): Promise<void> {
       });
     })
   })
+}
+
+async function buildLocalEbookFromSequence(sequence: DbSequence, coverPath: string): Promise<string> {
+  const context = await createAdminContext();
+  const posts = await sequenceGetAllPosts(sequence._id, context)
+  const chapters = await Chapters.find({sequenceId: sequence._id}).fetch()
+  const author = await Users.findOne({_id: sequence.userId})
+
+  if (!author) throw Error("No author found")
+
+  const config = getConfigFromSequence(sequence, author, coverPath)
+  let epub = makepub.document(config);
+
+  epub.addSection('Title Page', "<h1>[[TITLE]]</h1><h3>by [[AUTHOR]]</h3>", true, true);
+  
+  function buildEbookFromSequence(sequence, chapters, posts) {
+    createDocFromLWContents(sequence.title, sequence)
+    for (let chapter of chapters) {
+      if (chapter.title) {
+        createDocFromLWContents(chapter.title, chapter)
+      }
+      for (let post of posts) {
+        createDocFromLWContents(post.title, post)
+      }
+    }
+  }
+
+  function getImagesFromDocument(document) {
+    const contents = document.contents?.html || ''
+    const images = getImagesFromString(contents)
+    images.forEach(async image => {
+      await downloadImageFile(image, `tmp/${image}`)
+    })
+    return images
+  }
+  
+  function getImagesFromString(string) {
+    const imgRex = /<img.*?src="(.*?)"[^>]+>/g;
+    const images = [];
+      let img;
+      while ((img = imgRex.exec(string))) {
+         images.push(img[1]);
+      }
+    return images;
+  }
+
+  async function createDocFromLWContents(title, document) {
+    let newDoc = cheerio.load(htmlTemplate)
+    let contents = document.contents?.html || ''
+
+    Object.keys(namedToNumericEntities).forEach((key, i) => {
+      var re = new RegExp(key,"g");
+      contents = contents.replace(re, namedToNumericEntities[key])
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err)
+      }
+    })
+    if (document.title) {
+      let safe_title = document.title.toLowerCase().replace(/ /g, '-');
+      newDoc('body').append('<div id="'+safe_title+'"></div>');
+      newDoc('div').append('<h1>'+document.title+'</h1>')
+    }
+    const images = getImagesFromString(contents)
+    images.forEach(async image => {
+      await downloadImageFile(image, `tmp/${image}`)
+    })
+    console.log(images)
+    newDoc('div').append(contents)
+    epub.addSection(title, sanitizeHtml(newDoc('body').html() || '', {parser: {xmlMode: true}}))
+  }
+
+  buildEbookFromSequence(sequence, chapters, posts)
+
+  const outFolder = "tmp/"
+  const outFilename = `${slugify(sequence.title)}`
+  const outFile = `${outFolder}${outFilename}.epub`
+  await epub.writeEPUB(outFolder, outFilename)
+
+  return outFile
 }
 
 export async function ChaptersEditEbookCallback (chapter: DbChapter) {
