@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, Index, Stats } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -126,14 +126,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .MuiTab-labelContainer': {
       fontSize: '1rem'
+    },
+    '& .MuiTab-textColorPrimary': {
+      color: theme.palette.grey[800],
+    },
+    '& .MuiTab-selected': {
+      color: theme.palette.primary.main,
+      fontWeight: 'bold'
     }
   },
   resultCount: {
-    fontFamily: theme.typography.fontFamily,
-    fontWeight: 400,
-    fontSize: 14,
-    color: theme.palette.grey[700],
-    marginBottom: 20
+    // fontFamily: theme.typography.fontFamily,
+    // fontWeight: 400,
+    // fontSize: 14,
+    // color: theme.palette.grey[700],
+    // marginBottom: 20
+    display: 'inline-block',
+    fontSize: 11,
+    fontWeight: 'normal',
+    color: theme.palette.grey[600],
+    marginLeft: 8
   },
   
   pagination: {
@@ -189,15 +201,18 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
 // shows total # of results
-const Stats = ({ nbHits, className }: {
+const ResultsCount = ({ nbHits, className }: {
   nbHits: number,
   className: string
 }) => {
+  // return <div className={className}>
+  //   {nbHits} result{nbHits === 1 ? '' : 's'}
+  // </div>
   return <div className={className}>
-    {nbHits} result{nbHits === 1 ? '' : 's'}
+    {nbHits}
   </div>
 }
-const CustomStats = connectStats(Stats)
+const CustomStats = connectStats(ResultsCount)
 
 
 const SearchPageTabbed = ({classes}:{
@@ -221,6 +236,10 @@ const SearchPageTabbed = ({classes}:{
     [query.tags ?? []].flatMap(tags => tags)
   )
   const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
+  
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("resize"))
+  }, [])
 
   const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
     ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
@@ -242,6 +261,7 @@ const SearchPageTabbed = ({classes}:{
   const handleChangeTab = (_, value: AlgoliaIndexCollectionName) => {
     setTab(value)
     setSearchState({...searchState, contentType: value, page: 1})
+    window.dispatchEvent(new CustomEvent("resize"))
   }
   // filters that we want to persist when changing content type tabs need to be handled separately
   // (currently that's just the tags filter)
@@ -338,16 +358,45 @@ const SearchPageTabbed = ({classes}:{
           scrollable
           scrollButtons="off"
         >
-          <Tab label="Posts" value="Posts" />
-          <Tab label="Comments" value="Comments" />
-          <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
-          <Tab label="Sequences" value="Sequences" />
-          <Tab label="Users" value="Users" />
+          <Tab label={
+              <Index indexName={getAlgoliaIndexName("Posts")}>
+                Posts
+                <CustomStats className={classes.resultCount} />
+              </Index>
+            }
+            value="Posts" />
+          <Tab label={
+              <Index indexName={getAlgoliaIndexName("Comments")}>
+                Comments
+                <CustomStats className={classes.resultCount} />
+              </Index>
+            }
+            value="Comments" />
+          <Tab label={
+              <Index indexName={getAlgoliaIndexName("Tags")}>
+                {taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'}
+                <CustomStats className={classes.resultCount} />
+              </Index>
+            }
+            value="Tags" />
+          <Tab label={
+              <Index indexName={getAlgoliaIndexName("Sequences")}>
+                Sequences
+                <CustomStats className={classes.resultCount} />
+              </Index>
+            } value="Sequences" />
+          <Tab label={
+              <Index indexName={getAlgoliaIndexName("Users")}>
+                Users
+                <CustomStats className={classes.resultCount} />
+              </Index>
+            }
+            value="Users" />
         </Tabs>
         
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
-          <CustomStats className={classes.resultCount} />
+          {/* <CustomStats className={classes.resultCount} /> */}
           <Hits hitComponent={(props) => <HitComponent {...props} />} />
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
