@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const CoreTagCustomDescriptions: Record<string, string> = {
-  'AI': '',
+  'AI': `I'm afraid I can't do that, Dave.`,
   'World Modeling': '',
   'Site Meta': '',
   'Community': '',
