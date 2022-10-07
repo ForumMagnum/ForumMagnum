@@ -15,8 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "flex-start",
-    paddingBottom: 4
+    alignItems: "center",
+    paddingTop: 4
   },
   showPersonalBlogposts: {
     ...tagStyle(theme),
@@ -27,18 +27,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
-    backgroundColor: theme.palette.tag.addTagButtonBackground,
-    paddingLeft: 9,
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingRight: 9,
+    backgroundColor: theme.palette.panelBackground.default,
+    paddingLeft: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingRight: 10,
     borderRadius: 3,
     fontWeight: 700,
     marginBottom: 4,
-    cursor: "pointer"
+    cursor: "pointer",
+    border: theme.palette.tag.border
   },
   personalTooltip: {
     ...filteringStyles(theme),
+  },
+  personalAndPlus: {
+
   }
 });
 
@@ -78,7 +82,7 @@ const TagFilterSettings = ({
 
   const showPersonalBlogpostsButton = (currentUser && (filterSettings.personalBlog === "Hidden"))
 
-  return <span>
+  return <span className={classes.root}>
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
         label={tagSettings.tagName}
@@ -98,15 +102,8 @@ const TagFilterSettings = ({
       />
     )}
 
-
-
-    {showPersonalBlogpostsButton ?
-      <LWTooltip title={personalBlogpostCard} tooltip={false}>
-        <div className={classes.showPersonalBlogposts} onClick={() => setPersonalBlogFilter(0)}>
-          Show Personal Blogposts
-        </div>
-      </LWTooltip>
-      : 
+    {/** Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
+    <div className={classes.personalAndPlus}>
       <FilterMode
         label={personalBlogpostName}
         description={personalBlogpostTooltip}
@@ -116,18 +113,18 @@ const TagFilterSettings = ({
           setPersonalBlogFilter(mode)
         }}
       />
-    }
 
-    {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
-        <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
-          if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
-            const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
-            setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
-          }
-        }}>
-          <span className={classes.addButton}>+</span>
-        </AddTagButton>
-    </LWTooltip>}
+      {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
+          <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+            if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
+              const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
+              setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
+            }
+          }}>
+            <span className={classes.addButton}>+</span>
+          </AddTagButton>
+      </LWTooltip>}
+    </div>
   </span>
 }
 

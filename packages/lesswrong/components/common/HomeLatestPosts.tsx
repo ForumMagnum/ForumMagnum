@@ -12,13 +12,17 @@ import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 
+const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
+  marginBottom: 8
+} : {
+  display: "flex",
+  marginBottom: 8,
+  flexWrap: "wrap",
+  alignItems: "center"
+};
+
 const styles = (theme: ThemeType): JssStyles => ({
-  titleWrapper: {
-    display: "flex",
-    marginBottom: 8,
-    flexWrap: "wrap",
-    alignItems: "center"
-  },
+  titleWrapper,
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -88,11 +92,11 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                     })
                   }} />
               </div>
-              <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
+              <div className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
                   filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
                 />
-              </span>
+              </div>
           </AnalyticsContext>
         </div>
         <HideRepeatedPostsProvider>

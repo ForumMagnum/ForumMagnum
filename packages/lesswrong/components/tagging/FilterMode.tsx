@@ -33,10 +33,20 @@ export const filteringStyles = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   tag: {
-    ...tagStyle(theme),
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.tag.border,
+    borderRadius: 3,
+    ...theme.typography.commentStyle,
+    cursor: "pointer",  
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
+    flexGrow: 1,
+    textAlign: "center",
+    color: theme.palette.primary.main
   },
   description: {
     marginTop: 20
@@ -132,12 +142,13 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   }
   const reducedName = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : "0.5x"
   const reducedVal = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : 0.5
+  const filterMode = filterModeToStr(mode, currentUser)
 
   const tagLabel = <span>
     {label}
-    <span className={classes.filterScore}>
+    {filterMode !== '' && <span className={classes.filterScore}>
       {filterModeToStr(mode, currentUser)}
-    </span>
+    </span>}
   </span>
 
   // When entering a standard value such as 0.5 for "reduced" or 25 for "subscribed" we
