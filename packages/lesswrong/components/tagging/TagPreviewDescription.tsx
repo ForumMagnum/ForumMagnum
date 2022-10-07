@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,6 +14,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const isLW = forumTypeSetting.get() === 'LessWrong';
+
+const CoreTagCustomDescriptions: Record<string, string> = {
+  'AI': '',
+  'World Modeling': '',
+  'Site Meta': '',
+  'Community': '',
+  'World Optimization': '',
+  'Rationality': '',
+  'Practical': ''
+};
+
 
 const TagPreviewDescription = ({tag, classes}: {
   tag: TagPreviewFragment,
@@ -22,9 +35,20 @@ const TagPreviewDescription = ({tag, classes}: {
   const { history } = useNavigation();
 
   if (!tag) return null
-  
-  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs",
-    '.. <a class="read-more" href="#">(read more)</a>')
+
+  const showCustomDescriptionHighlight = isLW && tag.core;
+
+  let highlight: string | undefined;
+  // If we're on LW and previewing a core tag, show the custom description
+  if (showCustomDescriptionHighlight) {
+    highlight = CoreTagCustomDescriptions[tag.name];
+  }
+
+  // Otherwise (or if the custom description is missing), use the tag's description
+  if (!highlight) {
+    highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs",
+    '.. <a class="read-more" href="#">(read more)</a>');
+  }
 
   if (tag.description?.htmlHighlight) {
     return <div

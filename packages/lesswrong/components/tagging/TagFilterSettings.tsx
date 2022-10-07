@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
-import Card from '@material-ui/core/Card';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
@@ -65,22 +64,13 @@ const TagFilterSettings = ({
   removeTagFilter: (tagId: string) => void,
   classes: ClassesType,
 }) => {
-  const { AddTagButton, FilterMode, Loading, LWTooltip, ContentStyles } = Components
+  const { AddTagButton, FilterMode, LWTooltip } = Components
   const currentUser = useCurrentUser()
 
   const {
     name: personalBlogpostName,
     tooltip: personalBlogpostTooltip,
   } = usePersonalBlogpostInfo();
-
-  const personalBlogpostCard = <Card>
-    <ContentStyles contentType="comment" className={classes.personalTooltip}>
-      <p><em>Click to show personal blogposts</em></p>
-      <div>{personalBlogpostTooltip}</div>
-    </ContentStyles>
-  </Card>
-
-  const showPersonalBlogpostsButton = (currentUser && (filterSettings.personalBlog === "Hidden"))
 
   return <span className={classes.root}>
     {filterSettings.tags.map(tagSettings =>
