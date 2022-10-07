@@ -45,8 +45,8 @@ const SuggestCurated = ({post}: {
       !post.curatedDate &&
       !post.reviewForCuratedUserId &&
       forumTypeSetting.get() !== 'AlignmentForum' &&
-      (userCanDo(currentUser, "posts.moderate.all")
-        || userIsMemberOf(currentUser, 'canSuggestCuration')))
+      (userCanDo(currentUser, "posts.moderate.all") || 
+      userIsMemberOf(currentUser, 'canSuggestCuration')))
   {
     return <div className="posts-page-suggest-curated">
       { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
