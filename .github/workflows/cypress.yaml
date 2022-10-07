@@ -18,7 +18,7 @@ jobs:
         cache: yarn
 
     - name: yarn install
-      run: yarn install
+      run: yarn install --frozen-lockfile
 
     - name: Cypress run
       uses: cypress-io/github-action@v2
@@ -27,7 +27,9 @@ jobs:
         PG_URL: ${{ secrets.PG_URL }}
         CHOKIDAR_USEPOLLING: 1
       with:
-          start: yarn ea-start-testing-db
+          start: |
+            yarn ea-start-testing-db
+            yarn ci-cypress-seed
           command: yarn ci-cypress-run
 
     - uses: actions/upload-artifact@v1
