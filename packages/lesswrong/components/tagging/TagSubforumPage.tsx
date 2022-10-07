@@ -89,7 +89,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
-  const welcomeBoxComponent = tag.subforumWelcomeText ? (
+  const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
     <div className={classes.welcomeBox}>
       <ContentStyles contentType="comment">
         <ContentItemBody
