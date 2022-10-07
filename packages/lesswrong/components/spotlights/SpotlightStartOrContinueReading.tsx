@@ -56,19 +56,19 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
   // in that collection it wouldn't provide the right 'next post')
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPost = readPosts.length === 0 && posts[0]
-  const firstPostSequence = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
+  const firstPostSequenceId = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
 
   if (firstPost) {
     return <div className={classes.firstPost}>
       First Post: <LWTooltip title={<PostsPreviewTooltip post={firstPost}/>} tooltip={false}>
-        <Link to={postGetPageUrl(firstPost, false, firstPostSequence)}>{firstPost.title}</Link>
+        <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
       </LWTooltip>
     </div>
   } else {
     return <div>
     {posts.map(post => (
       <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-        <Link to={postGetPageUrl(post)}>
+        <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
           <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
         </Link>
       </LWTooltip>
