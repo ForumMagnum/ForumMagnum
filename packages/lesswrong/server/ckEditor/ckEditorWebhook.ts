@@ -163,6 +163,9 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
     type: "ckEditorMarkup",
   }
   
+  if (!user) {
+    throw Error("no user found for userId in saveDocumentRevision")
+  }
   if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
     const newRevision: Partial<DbRevision> = {
       ...await buildRevision({

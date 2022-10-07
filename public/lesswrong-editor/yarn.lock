@@ -358,7 +358,7 @@
   dependencies:
     "@ckeditor/ckeditor5-ui" "^31.1.0"
 
-"@ckeditor/ckeditor5-track-changes@^31.1.0":
+"@ckeditor/ckeditor5-track-changes@^31.0.0", "@ckeditor/ckeditor5-track-changes@^31.1.0":
   version "31.1.0"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-track-changes/-/ckeditor5-track-changes-31.1.0.tgz#2c9eb9bada5fecc3d0c862d838e78c95fd5bb314"
   integrity sha512-lk56TTbmIChn9uMLCk8A6wrZz79NYuPkqLRZi+8zpZzv6EFOsP3344bvi3yI5rSM4SzRz90ltrEaFpBFsmXwKQ==

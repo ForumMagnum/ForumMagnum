@@ -139,9 +139,11 @@ export const grey = {
 
 export const defaultShadePalette = (): ThemeShadePalette => {
   const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
+  const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
   return {
     grey,
     greyAlpha,
+    inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     
@@ -186,15 +188,16 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     moderationGuidelinesReignOfTerror: 'rgba(179,90,49,.8)',
     charsAdded: "#008800",
     charsRemoved: "#880000",
-    invertedBackgroundText: "#fff",
-    invertedBackgroundText2: "rgba(255,255,255,0.7)",
-    invertedBackgroundText3: "rgba(255,255,255,0.5)",
-    invertedBackgroundText4: "rgba(255,255,255,0.8)",
+    invertedBackgroundText: shades.inverseGreyAlpha(1),
+    invertedBackgroundText2: shades.inverseGreyAlpha(0.7),
+    invertedBackgroundText3: shades.inverseGreyAlpha(0.5),
+    invertedBackgroundText4: shades.inverseGreyAlpha(0.8),
     error: "#9b5e5e",
     error2: "#E04E4B",
     red: "#ff0000",
+    alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
-    sequenceTitlePlaceholder: "rgba(255,255,255,.5)",
+    sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
 
     eventMaybe: "#d59c00",
     
@@ -283,10 +286,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
     pageActiveAreaBackground: shades.grey[0],
+    translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2'
+    primaryDim: '#d3edf2',
+    primaryDim2: '#e2f1f4',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -427,7 +432,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  eaForumGroupsMobileImg: '#e2f1f4',
   
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',

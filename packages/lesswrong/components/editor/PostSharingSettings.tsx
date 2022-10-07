@@ -50,6 +50,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   warning: {
     color: theme.palette.error.main
+  },
+  tooltipWrapped: {
+    marginRight: 16
   }
 });
 
@@ -164,8 +167,10 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
     setIsChanged(true);
   };
   
-  const collabEditorLink = getPostCollaborateUrl(postId, false, linkSharingKey)
+  const collabEditorLink = getPostCollaborateUrl(postId, true, linkSharingKey)
   
+  const commentingTooltip = "(suggest changes requires edit permission)"
+
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
       <h2>Sharing Settings</h2>
@@ -191,7 +196,12 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         >
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="read">Read</MenuItem>
-          <MenuItem value="comment">Comment</MenuItem>
+          {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
+          <MenuItem value="comment">
+            <LWTooltip placement="right" title={commentingTooltip}>
+              <div className={classes.tooltipWrapped}>Comment</div> 
+            </LWTooltip>
+          </MenuItem>
           <MenuItem value="edit">Edit</MenuItem>
         </Select>
       </div>
@@ -206,8 +216,12 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
           }}
         >
           <MenuItem value="none">None</MenuItem>
-          <MenuItem value="read">Read</MenuItem>
-          <MenuItem value="comment">Comment</MenuItem>
+          <MenuItem  value="read">Read</MenuItem>
+          <MenuItem value="comment">
+            <LWTooltip placement="right" title={commentingTooltip}>
+              <div className={classes.tooltipWrapped}>Comment</div>
+            </LWTooltip>
+          </MenuItem>
           <MenuItem value="edit">Edit</MenuItem>
         </Select>
       </div>

@@ -10,6 +10,16 @@ export async function getLocalTime(time, googleLocation) {
     console.log("No Server-side Google Maps API key provided, can't resolve local time")
     return null
   }
+  if (!googleLocation) {
+    // eslint-disable-next-line no-console
+    console.log("No googleLocation provided")
+    return null
+  }
+  if (!time) {
+    // eslint-disable-next-line no-console
+    console.log("No time provided")
+    return null
+  }
   const googleMapsClient = new Client({});
 
   try {

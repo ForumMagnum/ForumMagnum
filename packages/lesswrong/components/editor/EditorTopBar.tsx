@@ -81,6 +81,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  tooltipWrapped: {
+    marginRight: 16
+  }
 });
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
@@ -111,7 +114,10 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
         <MenuItem value="Commenting" key="Commenting"
           disabled={!accessLevelCan(accessLevel, "comment")}
         >
-          Commenting
+          {/* TODO: Figure out how to wrap tooltip properly around MenuItem without breaking select */}
+          <LWTooltip placement="right" title="To suggest changes, you must be in edit mode">
+            <div className={classes.tooltipWrapped}>Commenting</div>
+          </LWTooltip>
         </MenuItem>
         <MenuItem value="Editing" key="Editing"
           disabled={!accessLevelCan(accessLevel, "edit")}
@@ -119,7 +125,6 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
           Editing
         </MenuItem>
       </Select>
-      
       <LWTooltip title="Collaborative docs automatically save all changes">
         <Button className={classes.saveStatus}>
           Auto-Saved

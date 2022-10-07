@@ -2,7 +2,7 @@ import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { userGetDisplayName } from '../users/helpers';
+import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
@@ -15,7 +15,10 @@ import moment from '../../moment-timezone';
 
 // Return a post's link if it has one, else return its post page URL
 export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
-  const url = isRedirected ? getOutgoingUrl(post.url) : post.url;
+  const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
+    ? post.fmCrosspost.foreignPostId
+    : undefined;
+  const url = isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
   return !!post.url ? url : postGetPageUrl(post, isAbsolute);
 };
 
@@ -182,10 +185,26 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
-export const postCanEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+/**
+ * Whether the user can make updates to the post document (including both the main post body and most other post fields)
+ */
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+  if (!currentUser) return false;
+
   const organizerIds = (post as PostsBase)?.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
-  return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all') || isPostGroupOrganizer;
+  if (isPostGroupOrganizer) return true
+
+  if (userOwns(currentUser, post)) return true
+  if (userCanDo(currentUser, 'posts.edit.all')) return true
+  // Shared as a coauthor? Always give access
+  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+
+  if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
+
+  if (post.shareWithUsers?.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
+
+  return false
 }
 
 export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
@@ -293,4 +312,8 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
     coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
   }
   return coauthorStatuses.map(({ userId }) => userId);
+}
+
+export const isNotHostedHere = (post: PostsPage) => {
+  return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
 }

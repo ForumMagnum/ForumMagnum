@@ -135,6 +135,8 @@ import './server/callbacks/intercomCallbacks';
 
 import './server/fmCrosspost';
 
+import './server/spotlightCron';
+
 import './server/codegen/generateTypes';
 
 import './server/styleGeneration';

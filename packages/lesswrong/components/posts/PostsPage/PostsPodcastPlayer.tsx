@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import NoSSR from '@material-ui/core/NoSsr';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
@@ -8,6 +8,8 @@ import { useCurrentUser } from '../../common/withUser';
 import { getThemeOptions } from '../../../themes/themeNames';
 import { useCookies } from 'react-cookie';
 import classNames from 'classnames';
+import { useEventListener } from '../../hooks/useEventListener';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = (): JssStyles => ({
   embeddedPlayer: {
@@ -26,11 +28,16 @@ const styles = (): JssStyles => ({
   }
 });
 
-const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
+const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   podcastEpisode: PostsDetails_podcastEpisode,
+  postId: string,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
+  const mouseOverDiv = useRef(false);
+  const divRef = useRef<HTMLDivElement | null>(null);
+  const { captureEvent } = useTracking();
+
   const [cookies] = useCookies();
   const themeCookie = cookies['theme'];
 
@@ -55,10 +62,26 @@ const PostsPodcastPlayer = ({ podcastEpisode, classes }: {
     })(clientDocument)
   }</>;
 
+  const setMouseOverDiv = (isMouseOver: boolean) => {
+    mouseOverDiv.current = isMouseOver;
+  };
+
+  // Dumb hack to let us figure out when the iframe inside the div was clicked on, as a (fuzzy) proxy for people clicking the play button
+  // Inspiration: https://gist.github.com/jaydson/1780598
+  // This won't trigger more than once per page load, unless the user clicks outside the div element, which will reset it
+  useEventListener('blur', (e) => {
+    if (mouseOverDiv.current) {
+      captureEvent('clickInsidePodcastPlayer', { postId, externalEpisodeId: podcastEpisode.externalEpisodeId });
+    }
+  });
+
   return <>
     <div
       id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
       className={classNames(classes.embeddedPlayer, { [classes.playerDarkMode]: isDarkMode })}
+      ref={divRef}
+      onMouseOver={() => setMouseOverDiv(true)}
+      onMouseOut={() => setMouseOverDiv(false)}
     />
     {isClient && <NoSSR>
       {embedScriptFunction(podcastEpisode.episodeLink, document)}

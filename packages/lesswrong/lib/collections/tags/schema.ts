@@ -11,7 +11,9 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
-import { TagCommentType } from '../comments/schema';
+import { TagCommentType } from '../comments/types';
+import Comments from '../comments/collection';
+import UserTagRels from '../userTagRels/collection';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -118,12 +120,6 @@ const schema: SchemaType<DbTag> = {
     // schemaDefaultValue throws an error if this is set to null, but we want to allow that
     onUpdate: () => {},
   },
-  descriptionHtmlWithToc: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    // See resolveAs in server/resolvers/tagResolvers.ts
-  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",
@@ -197,6 +193,12 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     viewableBy: ['guests'],
   },
+  lastSubforumCommentAt: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+  },
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -238,17 +240,19 @@ const schema: SchemaType<DbTag> = {
     type: Array,
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
-    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
+    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false, tagCommentType = TagCommentType.Discussion }, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const lastCommentTime = tagCommentType === TagCommentType.Subforum ? tag.lastSubforumCommentAt : tag.lastCommentedAt
+      const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
+
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         tagId: tag._id,
         score: {$gt:0},
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
-        tagCommentType: TagCommentType.Discussion,
+        tagCommentType: tagCommentType,
         ...(af ? {af:true} : {}),
       }, {
         limit: tagCommentsLimit,
@@ -455,6 +459,42 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  subforumUnreadMessagesCount: resolverOnlyField({
+    type: Number,
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      if (!tag.isSubforum) return null;
+      if (!context.currentUser) return null;
+
+      // This is when this field was added, so assume all messages before then have been read
+      const earliestDate = new Date('2022-09-30T15:07:34.026Z');
+      const lastVisitedAt = (await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}))?.subforumLastVisitedAt ?? earliestDate;
+      const count = await Comments.find({tagId: tag._id, tagCommentType: TagCommentType.Subforum, deleted: {$ne: true}, postedAt: {$gt: lastVisitedAt}}).count()
+
+      return count
+    },
+  }),
+  subforumModeratorIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "subforumModeratorIds",
+      resolverName: "subforumModerators",
+      collectionName: "Users",
+      type: "User",
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    control: "UsersListEditor",
+    label: "Subforum Moderators",
+  },
+  'subforumModeratorIds.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true,
   },
   parentTagId: {
     ...foreignKeyField({

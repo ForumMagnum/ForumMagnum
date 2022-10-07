@@ -115,7 +115,6 @@ interface DbComment extends DbObject {
   promotedByUserId: string
   promotedAt: Date
   hideKarma: boolean
-  createdAt: Date
   legacy: boolean
   legacyId: string
   legacyPoll: boolean
@@ -133,12 +132,6 @@ interface DbComment extends DbObject {
   hideAuthor: boolean
   moderatorHat: boolean
   isPinnedOnProfile: boolean
-  contents: EditableFieldContents
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   af: boolean
   afBaseScore: number
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -146,6 +139,13 @@ interface DbComment extends DbObject {
   reviewForAlignmentUserId: string
   afDate: Date
   moveToAlignmentUserId: string
+  createdAt: Date
+  contents: EditableFieldContents
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
 }
 
 interface ConversationsCollection extends CollectionBase<DbConversation, "Conversations"> {
@@ -445,12 +445,6 @@ interface DbPost extends DbObject {
   onlyVisibleToEstablishedAccounts: boolean
   votingSystem: string
   podcastEpisodeId: string | null
-  createdAt: Date
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -528,10 +522,6 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
-  contents: EditableFieldContents
-  pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines: EditableFieldContents
-  customHighlight: EditableFieldContents
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -541,6 +531,16 @@ interface DbPost extends DbObject {
   afSticky: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
+  createdAt: Date
+  contents: EditableFieldContents
+  pingbacks: any /*{"definitions":[{}]}*/
+  moderationGuidelines: EditableFieldContents
+  customHighlight: EditableFieldContents
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
 }
 
 interface RSSFeedsCollection extends CollectionBase<DbRSSFeed, "RSSFeeds"> {
@@ -652,9 +652,27 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  af: boolean
   contents: EditableFieldContents
   createdAt: Date
-  af: boolean
+}
+
+interface SpotlightsCollection extends CollectionBase<DbSpotlight, "Spotlights"> {
+}
+
+interface DbSpotlight extends DbObject {
+  __collectionName?: "Spotlights"
+  documentId: string
+  documentType: SpotlightDocumentType
+  position: number
+  duration: number
+  customTitle: string | null
+  customSubtitle: string | null
+  lastPromotedAt: Date
+  draft: boolean
+  spotlightImageId: string | null
+  createdAt: Date
+  description: EditableFieldContents
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
@@ -723,6 +741,7 @@ interface DbTag extends DbObject {
   charsRemoved: number
   deleted: boolean
   lastCommentedAt: Date
+  lastSubforumCommentAt: Date
   needsReview: boolean
   reviewedByUserId: string
   wikiGrade: number
@@ -738,10 +757,21 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string
   canVoteOnRels: Array<string>
   isSubforum: boolean
+  subforumModeratorIds: Array<string>
+  parentTagId: string
   createdAt: Date
   description: EditableFieldContents
   subforumWelcomeText: EditableFieldContents
-  parentTagId: string
+}
+
+interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
+}
+
+interface DbUserTagRel extends DbObject {
+  __collectionName?: "UserTagRels"
+  tagId: string
+  userId: string
+  subforumLastVisitedAt: Date | null
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -776,6 +806,7 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
+  petrovOptOut: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -996,11 +1027,19 @@ interface DbUser extends DbObject {
   allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
+  acknowledgedNewUserGuidelines: boolean | null
+  afPostCount: number
+  afCommentCount: number
+  afSequenceCount: number
+  afSequenceDraftCount: number
+  reviewForAlignmentForumUserId: string
+  afApplicationText: string
+  afSubmittedApplication: boolean
+  createdAt: Date
   moderationGuidelines: EditableFieldContents
   howOthersCanHelpMe: EditableFieldContents
   howICanHelpOthers: EditableFieldContents
   biography: EditableFieldContents
-  createdAt: Date
   recommendationSettings: {
     frontpage: {
       method: string,
@@ -1033,13 +1072,6 @@ interface DbUser extends DbObject {
       onlyUnread: boolean,
     },
   }
-  afPostCount: number
-  afCommentCount: number
-  afSequenceCount: number
-  afSequenceDraftCount: number
-  reviewForAlignmentForumUserId: string
-  afApplicationText: string
-  afSubmittedApplication: boolean
 }
 
 interface VotesCollection extends CollectionBase<DbVote, "Votes"> {
@@ -1092,10 +1124,12 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
+  Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
 }
@@ -1130,10 +1164,12 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
   Sequences: DbSequence
+  Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
 }

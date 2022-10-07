@@ -1,8 +1,8 @@
 import React, { createContext, useContext } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useSingle, UseSingleProps } from "../../../lib/crud/withSingle";
+import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
-import { useCrosspostApolloClient } from "../../hooks/useCrosspostApolloClient";
+import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -36,35 +36,29 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
-  const apolloClient = useCrosspostApolloClient();
-  const { document, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">({
-    ...fetchProps,
-    documentId: post.fmCrosspost.foreignPostId,
-    apolloClient,
-  });
+  const {
+    loading,
+    error,
+    localPost,
+    foreignPost,
+    combinedPost,
+  } = useForeignCrosspost(post, fetchProps);
 
   const { Error404, Loading, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
-  } else if (!document && !post.draft) {
+  } else if (!foreignPost && !post.draft) {
     return <Error404/>
   }
 
   const contextValue: CrosspostContext = {
     hostedHere: !!post.fmCrosspost.hostedHere,
-    localPost: post,
-    foreignPost: document,
+    localPost,
+    foreignPost,
+    combinedPost,
   };
-
-  if (!contextValue.hostedHere) {
-    contextValue.combinedPost = {
-      ...document,
-      ...post,
-      contents: document?.contents ?? post.contents,
-    };
-  }
 
   return (
     <crosspostContext.Provider value={contextValue}>

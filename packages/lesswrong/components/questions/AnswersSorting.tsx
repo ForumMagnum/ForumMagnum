@@ -1,10 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import qs from 'qs'
 import * as _ from 'underscore';
+import type { Option } from '../common/InlineSelect';
 
 export const sortingNames = {
   'top': 'top scoring',
@@ -12,62 +11,36 @@ export const sortingNames = {
   'oldest': 'oldest',
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    display: 'inline'
-  },
-  link: {
-    color: theme.palette.lwTertiary.main,
-  }
-})
-
 const AnswersSorting = ({ post, classes }: {
   post?: PostsList,
   classes: ClassesType,
 }) => {
-  const [anchorEl, setAnchorEl] = useState<any>(null);
   const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
+  
+  const {InlineSelect} = Components;
 
-  const handleClick = (event: React.MouseEvent) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleSortingClick = (sorting: string) => {
+  const handleSortingClick = (opt: Option) => {
+    const sorting = opt.value;
     const { query } = location;
     const currentQuery = _.isEmpty(query) ? { answersSorting: "top" } : query;
-    setAnchorEl(null);
     const newQuery = { ...currentQuery, answersSorting: sorting, postId: post ? post._id : undefined };
     history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  }
-
-  let sortings = [...Object.keys(sortingNames)];
+  const sortings = [...Object.keys(sortingNames)];
   const currentSorting = query?.answersSorting || "top";
+  
+  const viewOptions: Array<Option> = sortings.map((view) => {
+    return {value: view, label: sortingNames[view] || view}
+  })
+  const selectedOption = viewOptions.find((option) => option.value === currentSorting) || viewOptions[0]
 
-  return <div className={classes.root}>
-    <a className={classes.link} onClick={handleClick}>
-      {sortingNames[currentSorting]}
-    </a>
-    <Menu
-      anchorEl={anchorEl}
-      open={Boolean(anchorEl)}
-      onClose={handleClose}
-    >
-      {sortings.map((sorting) => {
-        return <MenuItem key={sorting} onClick={() => handleSortingClick(sorting)} >
-          {sortingNames[sorting]}
-        </MenuItem>
-      })}
-    </Menu>
-  </div>
+  return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
 };
 
-const AnswersSortingComponent = registerComponent('AnswersSorting', AnswersSorting, { styles });
+const AnswersSortingComponent = registerComponent('AnswersSorting', AnswersSorting);
 
 declare global {
   interface ComponentTypes {

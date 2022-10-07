@@ -78,7 +78,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         anchorEl={anchorEl}
       >
         <MenuItem value={0}>
-          <NewConversationButton user={user} currentUser={currentUser}>
+          <NewConversationButton user={user} currentUser={currentUser} includeModerators>
             Start a message
           </NewConversationButton>
         </MenuItem>
@@ -90,7 +90,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id}>
+                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id} includeModerators>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>

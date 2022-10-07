@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { unflattenComments } from "../../lib/utils/unflatten";
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { useMutation, gql } from '@apollo/client';
+import { useCurrentUser } from '../common/withUser';
 
-const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
+const SubforumCommentsThread = ({ tag, terms }: {
   tag: TagBasicInfo,
   terms: CommentsViewTerms,
-  newForm?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
@@ -15,6 +16,28 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
+
+  const currentUser = useCurrentUser();
+  const [recordSubforumViewMutation] = useMutation(gql`
+    mutation recordSubforumView($userId: String!, $tagId: String!) {
+      recordSubforumView(userId: $userId, tagId: $tagId)
+    }
+  `);
+  const recordSubforumView = useCallback(async () => recordSubforumViewMutation({variables: {userId: currentUser?._id, tagId: tag._id}}), [currentUser?._id, tag, recordSubforumViewMutation]);
+
+  useEffect(() => {
+    if (results && results.length)
+      void recordSubforumView();
+  }, [results, recordSubforumView]);
+  
+  const sortByRef = useRef(terms.sortBy);
+  const orderedResults = useOrderPreservingArray(
+    results || [],
+    (comment) => comment._id,
+    // If the selected sort order changes, clear the existing ordering
+    sortByRef.current === terms.sortBy ? "interleave-new" : "no-reorder"
+  );
+  sortByRef.current = terms.sortBy;
   
   if (loading && !results) {
     return <Components.Loading />;
@@ -25,13 +48,12 @@ const SubforumCommentsThread = ({ tag, terms, newForm=true }: {
   return (
     <Components.CommentsTimelineSection
       tag={tag}
-      comments={results}
+      comments={orderedResults}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
-      commentCount={(results && results.length) || 0}
+      commentCount={orderedResults?.length ?? 0}
       loadingMoreComments={loadingMore}
       loadMoreCount={50}
-      newForm={newForm}
       refetch={refetch}
     />
   );

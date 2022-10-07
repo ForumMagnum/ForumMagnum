@@ -16,7 +16,7 @@ import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbac
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { TagCommentType } from '../../lib/collections/comments/schema';
+import { TagCommentType } from '../../lib/collections/comments/types';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -90,9 +90,10 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
     await Posts.rawUpdateOne(comment.postId, {
       $set: {lastCommentedAt: new Date()},
     });
-  } else if (comment.tagId && comment.tagCommentType === TagCommentType.Discussion) {
+  } else if (comment.tagId) {
+    const fieldToSet = comment.tagCommentType === TagCommentType.Subforum ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {
-      $set: {lastCommentedAt: new Date()},
+      $set: {[fieldToSet]: new Date()},
     });
   }
 

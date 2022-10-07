@@ -265,6 +265,22 @@ const advisors: Array<Advisor> = [
       'Career steps after graduation',
       'Thinking through the merits of different biosecurity interventions',
     ]
+  }, {
+    profileImageId: 'v1663346534/advisors/harshu_musunuri_-_Harshu_Musunuri.jpg',
+    name: 'Harshu Musunuri',
+    slug: 'harshu-musunuri-1',
+    jobTitle: 'MD-PhD Student',
+    organization: 'UCSF',
+    location: 'San Francisco, CA, USA',
+    linkedinProfileSlug: 'hmusu',
+    twitterProfileSlug: 'HarshuMusunuri',
+    askMeAbout: [
+      'Technical biosecurity',
+      'Medical countermeasures (especially vaccines and therapeutics)',
+      'New ideas in pathogen detection/surveillance',
+      'Dual-use research and regulation',
+      'Biosecurity policy as it relates to implementation and practicality',
+    ]
   },
 ]
 
@@ -295,7 +311,7 @@ const AdvisorsPage = ({classes}: {
   })
   
   const { results: communityMembers, loading: communityMembersLoading } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: TOPIC_ID},
+    terms: {view: 'tagCommunityMembers', profileTagId: TOPIC_ID, hasBio: true, limit: 50},
     collectionName: 'Users',
     fragmentName: 'UsersProfile'
   })

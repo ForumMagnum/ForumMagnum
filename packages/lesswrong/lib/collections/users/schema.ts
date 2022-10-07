@@ -706,6 +706,24 @@ const schema: SchemaType<DbUser> = {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
+  
+  petrovOptOut: {
+    order: 95,
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Opt out of Petrov Day - you will not be able to launch",
+    hidden: (new Date()).valueOf() > 1664161200000 
+    // note this date is hard coded as a hack
+    // we originally were using petrovBeforeTime but it didn't work in this file because the database
+    // public settings aren't been loaded yet.
+  },
 
   hideNavigationSidebar: {
     type: Boolean,
@@ -991,10 +1009,11 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    label: 'Delete this user',
+    canUpdate: ['members', 'admins'],
+    label: 'Deactivate',
+    tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
-    group: formGroups.adminOptions,
+    group: formGroups.deactivate,
   },
 
   // voteBanned: All future votes of this user have weight 0
@@ -2258,6 +2277,15 @@ const schema: SchemaType<DbUser> = {
     control: 'checkbox',
     group: formGroups.disabledPrivileges,
     order: 72,
+  },
+
+  acknowledgedNewUserGuidelines: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   },
 };
 

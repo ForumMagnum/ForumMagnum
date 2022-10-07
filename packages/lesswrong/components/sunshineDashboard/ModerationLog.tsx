@@ -70,7 +70,7 @@ const DeletedByUserDisplay = ({column, document}) => {
 
 
 const BannedUsersDisplay = ({column, document}) => {
-  const bannedUsers = document[column.name]
+  const bannedUsers = document[column.name] ?? []
   return <div>
     { bannedUsers.map((userId) => <div key={userId}>
       <Components.UsersNameWrapper documentId={userId} nofollow />

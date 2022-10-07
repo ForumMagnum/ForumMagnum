@@ -62,7 +62,10 @@ describe('updateComment – ', () => {
         newValue: {originalContents: {type: "markdown", data: "stuff"}},
         fragment: `
           contents {
-            originalContents
+            originalContents {
+              type
+              data
+            }
           }
         `
       }
@@ -82,7 +85,10 @@ describe('updateComment – ', () => {
         newValue: {originalContents: {type: "markdown", data: "stuff"}},
         fragment: `
           contents {
-            originalContents
+            originalContents {
+              type
+              data
+            }
           }
         `
       }

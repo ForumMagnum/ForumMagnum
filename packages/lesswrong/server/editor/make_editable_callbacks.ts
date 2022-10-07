@@ -212,25 +212,9 @@ export async function markdownToHtml(markdown: string): Promise<string> {
   return await mjPagePromise(html, trimLatexAndAddCSS)
 }
 
-export function removeCKEditorSuggestions(markup: string): string {
-  // First we remove all suggested deletion and modify formatting tags
-  const markupWithoutDeletionsAndModifications = markup.replace(
-    /<suggestion\s*id="[a-zA-Z0-9:]+"\s*suggestion-type="(deletion|formatInline:[a-zA-Z0-9]+|formatBlock:[a-zA-Z0-9]+)" type="(start|end)"><\/suggestion>/g,
-    ''
-  )
-  // Then we remove everything between suggested insertions
-  const markupWithoutInsertions = markupWithoutDeletionsAndModifications.replace(
-    /<suggestion\s*id="([a-zA-Z0-9:]+)"\s*suggestion-type="insertion" type="start"><\/suggestion>.*<suggestion\s*id="\1"\s*suggestion-type="insertion"\s*type="end"><\/suggestion>/g,
-    ''
-  )
-  return markupWithoutInsertions
-}
-
 export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
-  // First we remove any unaccepted suggestions from the markup
-  const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
-  const html = sanitize(markupWithoutSuggestions)
+  const html = sanitize(markup)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
@@ -291,10 +275,30 @@ export async function dataToCkEditor(data, type) {
   }
 }
 
+/**
+ * When we calculate the word count we want to ignore footnotes. There's two syntaxes
+ * for footnotes in markdown:
+ *
+ * 1.  ^**[^](#fnreflexzxp4wr9h)**^
+ *
+ *     The contents of my footnote
+ *
+ * and
+ *
+ * [^1]: The contents of my footnote.
+ *
+ * In both cases, the footnote must start at character 0 on the line. The strategy here
+ * is just to find the first place where this occurs and then to ignore to the end of
+ * the document.
+ */
 export async function dataToWordCount(data, type) {
   try {
-    const markdown = dataToMarkdown(data, type) || ""
-    return markdown.split(" ").length
+    const markdown = dataToMarkdown(data, type) ?? "";
+    const withoutFootnotes = markdown
+      .split(/^1\. {2}\^\*\*\[\^\]\(#(.|\n)*/m)[0]
+      .split(/^\[\^1\]:.*/m)[0];
+    const words = withoutFootnotes.match(/[^\s]+/g) ?? [];
+    return words.length;
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Error in dataToWordCount", data, type, err)
@@ -349,10 +353,15 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser }) {
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }:{
+  originalContents: DbRevision["originalContents"],
+  currentUser: DbUser,
+  dataWithDiscardedSuggestions?: string
+}) {
   const { data, type } = originalContents;
-  const html = await dataToHTML(data, type, !currentUser.isAdmin)
-  const wordCount = await dataToWordCount(data, type)
+  const readerVisibleData = dataWithDiscardedSuggestions ?? data
+  const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+  const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
     html, wordCount, originalContents,
@@ -449,8 +458,12 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
       const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(data, type)
+      const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
+      delete docData[fieldName].dataWithDiscardedSuggestions
+
+      const readerVisibleData = dataWithDiscardedSuggestions ?? data
+      const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+      const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
@@ -469,6 +482,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
+            dataWithDiscardedSuggestions,
             currentUser,
           }),
           fieldName,

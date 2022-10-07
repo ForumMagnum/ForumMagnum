@@ -105,6 +105,8 @@ import './collections/tagRels/views';
 import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
+import './collections/userTagRels/collection';
+
 import './collections/tags/collection';
 import './collections/tags/views';
 import './collections/tags/fragments';
@@ -127,8 +129,11 @@ import './collections/subscriptions';
 
 // Podcasts
 import './collections/podcasts/collection';
+import './collections/podcasts/fragments';
 // Podcast episodes
 import './collections/podcastEpisodes/collection';
+import './collections/podcastEpisodes/fragments';
+import './collections/podcastEpisodes/views';
 
 // Posts
 import './collections/posts/schema';
@@ -160,6 +165,12 @@ import './collections/featuredResources/fragments'
 
 // Votes
 import './collections/votes';
+
+// Spotlights
+import './collections/spotlights/collection';
+import './collections/spotlights/fragments';
+import './collections/spotlights/permissions';
+import './collections/spotlights/views';
 
 // Internationalization
 import './i18n-en-us/en_US';

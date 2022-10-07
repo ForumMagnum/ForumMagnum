@@ -11,13 +11,14 @@ import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, onInit }: {
+const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, onInit, placeholder }: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
   onSave?: any,
   onChange?: any,
   onInit?: any,
+  placeholder?: string,
 }) => {
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
@@ -51,7 +52,7 @@ const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, on
           }
         },
         initialData: data || "",
-        placeholder: defaultEditorPlaceholder,
+        placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration
       }}
       data={data}

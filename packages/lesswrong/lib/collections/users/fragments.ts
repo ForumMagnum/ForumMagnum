@@ -78,6 +78,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
+    petrovOptOut
     sortDraftsBy
     ...SunshineUsersList
     ...SharedUserBooleans
@@ -182,8 +183,11 @@ registerFragment(`
 
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
   }
 `);
 
