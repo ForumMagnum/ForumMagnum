@@ -140,14 +140,19 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
     mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
   }
-  const reducedName = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : "0.5x"
-  const reducedVal = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : 0.5
+  
+  const reducedName = 'Reduced'
+  const reducedVal = 'Reduced'
   const filterMode = filterModeToStr(mode, currentUser)
+  const isLW = forumTypeSetting.get() === 'LessWrong'
+  const filterModeLabel = isLW
+    ? filterModeStrToLWStr(filterMode)
+    : filterMode
 
   const tagLabel = <span>
     {label}
     {filterMode !== '' && <span className={classes.filterScore}>
-      {filterModeToStr(mode, currentUser)}
+      {filterModeLabel}
     </span>}
   </span>
 
@@ -218,33 +223,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 {reducedName}
               </span>
             </LWTooltip>
-            {!userHasNewTagSubscriptions(currentUser) && <>
-              <LWTooltip title={filterModeToTooltip(-25)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: -25 === mode})} onClick={ev => setMode(-25)}>
-                  -25
-                </span>
-              </LWTooltip>
-              <LWTooltip title={filterModeToTooltip(-10)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => setMode(-10)}>
-                  -10
-                </span>
-              </LWTooltip>
-              <LWTooltip
-                title={filterModeToTooltip("Default")}
-              >
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => setMode(0)}>
-                +0
-              </span>
-              </LWTooltip>
-              <LWTooltip title={filterModeToTooltip(10)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => setMode(10)}>
-                  +10
-                </span>
-              </LWTooltip>
-            </>}
             <LWTooltip title={filterModeToTooltip(25)}>
               <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => setMode(25)}>
-              {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
+              {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "Promoted"}
               </span>
             </LWTooltip>
             <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
@@ -259,7 +240,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               />
             </LWTooltip>
             <div className={classes.rightContainer}>
-              {userHasNewTagSubscriptions(currentUser) && mode === 0 &&
+              {mode === 0 &&
                 <div className={classes.defaultLabel}>
                   <LWTooltip title={`This filter is set to default. Use the controls on the left to customize how much you see ${defaultLabel} in ${LATEST_POSTS_NAME}.`}>
                     Default
@@ -315,7 +296,17 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
   }
 }
 
-function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): string {
+type FilterModeString = 
+  | `${number}`
+  | `+${number}`
+  | `-${number}%`
+  | "Hidden"
+  | "Required"
+  | "Subscribed"
+  | "Reduced"
+  | "";
+
+function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): FilterModeString {
   if (typeof mode === "number") {
     if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
     if (
@@ -334,6 +325,22 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
     case "Required": return "Required";
     case "Subscribed": return "Subscribed";
     case "Reduced": return "Reduced";
+  }
+}
+
+function filterModeStrToLWStr(filterModeStr: FilterModeString) {
+  switch (filterModeStr) {
+    case 'Reduced':     return '-';
+    case 'Subscribed':  return '+';
+    case '':            return '';
+    case 'Hidden':      return 'Hidden';
+    case 'Required':    return 'Required';
+    default: {
+      if (filterModeStr.startsWith('-')) return '-';
+      if (filterModeStr.startsWith('+')) return '+';
+      // filterModeStr is a negative number
+      return '-';
+    }
   }
 }
 
