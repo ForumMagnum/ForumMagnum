@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
-    color: theme.palette.primary.main
+    color: theme.palette.primary.dark
   },
   description: {
     marginTop: 20
