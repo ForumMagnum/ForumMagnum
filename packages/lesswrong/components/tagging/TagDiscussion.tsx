@@ -55,6 +55,7 @@ const TagDiscussion = ({classes, tag}: {
       treeOptions={{
         tag: tag,
         postPage: true,
+        showCollapseButtons: true
       }}
       totalComments={totalCount}
       // Will be defined if results is defined, and we know results is truthy

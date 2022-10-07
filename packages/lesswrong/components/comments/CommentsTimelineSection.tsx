@@ -127,6 +127,7 @@ const CommentsTimelineSection = ({
         treeOptions={{
           refetch,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
         }}
         comments={comments}

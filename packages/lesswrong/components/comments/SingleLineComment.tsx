@@ -195,7 +195,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         clickable={false}
       >
           <div className={classes.preview}>
-            <CommentsNode truncated nestingLevel={1} comment={comment} treeOptions={{...treeOptions, hideReply: true}} forceNotSingleLine hoverPreview/>
+            <CommentsNode
+              truncated
+              nestingLevel={1}
+              comment={comment}
+              treeOptions={{...treeOptions, hideReply: true, forceNotSingleLine: true}}
+              hoverPreview
+            />
           </div>
       </LWPopper>
     </div>

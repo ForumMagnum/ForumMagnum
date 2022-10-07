@@ -87,10 +87,10 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
             enableHoverPreview: false,
             markAsRead: markAsRead,
             post: post,
+            forceSingleLine: true
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          forceSingleLine
         />
         : <div>
           {results && results.map((comment) => <CommentOnPostWithReplies key={comment._id} comment={comment} post={post}/>)}

@@ -1,19 +1,29 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
 import { useSingle } from '../../lib/crud/withSingle';
 import CommentIcon from '@material-ui/icons/ModeComment';
+import { ClickAwayListener } from '@material-ui/core';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  sideCommentIcon: {
+  sideCommentIconWrapper: {
     float: "right",
+    position: 'relative',
     width: 0,
-
-
     background: theme.palette.panelBackground.darken03,
     borderRadius: 8,
-    color: theme.palette.icon.dim,
+    color: theme.palette.icon.dim6,
+  },
+  sideCommentIcon: {
+    position: 'absolute',
     cursor: "pointer",
+    '&:hover': {
+      color: theme.palette.icon.dim5,
+    }
+  },
+  pinned: {
+    color: theme.palette.icon.dim,
   },
   popper: {
     width: 550,
@@ -32,16 +42,26 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const wrapperRef = useRef<HTMLDivElement|null>(null);
   
-  return <div {...eventHandlers} ref={wrapperRef} className={classes.sideCommentIcon}>
-    <CommentIcon/>
-    {hover && <LWPopper
-      open={hover} anchorEl={anchorEl}
-      className={classes.popper}
-      clickable={true}
-      placement={"bottom-start"}
-    >
-      <SideCommentHover post={post} commentIds={commentIds}/>
-    </LWPopper>}
+  const [pinned, setPinned] = useState(false)
+  
+  const pinOpen = () => {
+    setPinned(!pinned)
+  }
+  
+  return <div ref={wrapperRef} className={classes.sideCommentIconWrapper}>
+    <span {...eventHandlers} onClick={pinOpen} className={classes.sideCommentIcon}>
+      <CommentIcon className={classNames({[classes.pinned]: pinned})} />
+    </span>
+    {(hover || pinned) && <ClickAwayListener onClickAway={() => setPinned(false)}>
+      <LWPopper
+        open={hover || pinned} anchorEl={anchorEl}
+        className={classes.popper}
+        clickable={true}
+        placement={"bottom-start"}
+      >
+        <SideCommentHover post={post} commentIds={commentIds}/>
+      </LWPopper>
+    </ClickAwayListener>}
   </div>
 }
 
@@ -52,6 +72,7 @@ const SideCommentHover = ({commentIds, post, classes}: {
 }) => {
   const { SideCommentSingle } = Components;
   
+  // FIXME: z-index issues with comment menus
   return <div className={classes.sideCommentHover}>
     {commentIds.map(commentId =>
       <SideCommentSingle
@@ -82,6 +103,7 @@ const SideCommentSingle = ({commentId, post}: {
     commentNodeProps={{
       treeOptions: {
         showPostTitle: false,
+        showCollapseButtons: true,
       },
     }}
   />

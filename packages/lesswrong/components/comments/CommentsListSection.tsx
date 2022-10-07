@@ -181,6 +181,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           highlightDate: highlightDate,
           post: post,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
         }}
         totalComments={totalComments}

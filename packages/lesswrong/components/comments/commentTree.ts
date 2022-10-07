@@ -1,6 +1,7 @@
 
 export interface CommentTreeOptions {
   postPage?: boolean,
+  showCollapseButtons?: boolean,
   lastCommentId?: string,
   markAsRead?: any,
   highlightDate?: Date,
@@ -15,5 +16,7 @@ export interface CommentTreeOptions {
   singleLinePostTitle?: boolean,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
-  hideReviewVoteButtons?: boolean
+  hideReviewVoteButtons?: boolean,
+  forceSingleLine?: boolean,
+  forceNotSingleLine?: boolean
 }

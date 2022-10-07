@@ -204,11 +204,11 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                 treeOptions={{
                   post,
                   hideReply: true,
+                  forceNotSingleLine: true,
                 }}
                 truncated
                 comment={renderedComment}
                 hoverPreview
-                forceNotSingleLine
               />
             </div>
           : loading

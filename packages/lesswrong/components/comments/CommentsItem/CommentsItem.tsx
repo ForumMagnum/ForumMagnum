@@ -136,6 +136,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+/**
+ * CommentsItem: A single comment, not including any recursion for child comments
+ *
+ * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
+ */
 export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -162,7 +167,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
+  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -343,7 +348,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
                   onClick={toggleShowParent}
               />
             }
-            { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
+            { (showCollapseButtons || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }

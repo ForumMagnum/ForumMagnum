@@ -27,8 +27,6 @@ const CommentsTimelineFn = ({
   parentAnswerId,
   defaultNestingLevel = 1,
   parentCommentId,
-  forceSingleLine,
-  forceNotSingleLine,
   classes,
 }: {
   treeOptions: CommentTreeOptions;
@@ -42,8 +40,6 @@ const CommentsTimelineFn = ({
   parentAnswerId?: string;
   defaultNestingLevel?: number;
   parentCommentId?: string;
-  forceSingleLine?: boolean;
-  forceNotSingleLine?: boolean;
   classes: ClassesType;
 }) => {
   const bodyRef = useRef<HTMLDivElement|null>(null);
@@ -96,8 +92,6 @@ const CommentsTimelineFn = ({
     startThreadTruncated: startThreadTruncated,
     parentCommentId: parentCommentId,
     parentAnswerId: parentAnswerId,
-    forceSingleLine: forceSingleLine,
-    forceNotSingleLine: forceNotSingleLine,
     isChild: defaultNestingLevel > 1,
     enableGuidelines: false,
     displayMode: "minimalist" as CommentFormDisplayMode,

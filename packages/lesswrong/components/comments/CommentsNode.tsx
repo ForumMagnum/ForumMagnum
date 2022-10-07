@@ -53,8 +53,6 @@ export interface CommentsNodeProps {
   showExtraChildrenButton?: any,
   noHash?: boolean,
   hoverPreview?: boolean,
-  forceSingleLine?: boolean,
-  forceNotSingleLine?: boolean,
   childComments?: Array<CommentTreeNode<CommentsList>>,
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
@@ -63,7 +61,12 @@ export interface CommentsNodeProps {
   displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
 }
-
+/**
+ * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
+ * recurses to handle reply comments in the tree
+ *
+ * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
+ */
 const CommentsNode = ({
   treeOptions,
   comment,
@@ -79,8 +82,6 @@ const CommentsNode = ({
   showExtraChildrenButton,
   noHash,
   hoverPreview,
-  forceSingleLine,
-  forceNotSingleLine,
   childComments,
   loadChildrenSeparately,
   loadDirectReplies=false,
@@ -93,7 +94,7 @@ const CommentsNode = ({
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand, forceSingleLine, forceNotSingleLine } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
