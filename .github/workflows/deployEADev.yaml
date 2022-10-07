@@ -2,14 +2,14 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ ea-deploy, master, widerMobileMargins ]
+    branches: [ wh-deploy-debug ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [15.x]
-        environment: [EAForum-Staging-2]
+        environment: [EAForum-Staging-deployment-debug]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2

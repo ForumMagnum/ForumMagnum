@@ -22,7 +22,7 @@ const StickiedPosts = ({
 
   return <SingleColumnSection>
     <LWTooltip title="The Forum Team thinks these posts and threads should stay at the top of the Frontpage for a while" placement="left">
-      <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
+      <SectionTitle title="Debug Posts" noTopMargin className={classes.title} />
     </LWTooltip>
     <PostsList2
       terms={{view:"stickied", limit:100}}
