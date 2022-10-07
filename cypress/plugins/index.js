@@ -72,7 +72,7 @@ const dropAndSeedPostgres = async () => {
   const pgPromiseLib = pgp({});
   const db = pgPromiseLib({
     connectionString: PG_URL,
-    max: 25,
+    max: 1,
   });
   const dbName = "unittest_cypress_tests";
   const templateName = "unittest_cypress_template";

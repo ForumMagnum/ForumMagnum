@@ -25,6 +25,7 @@ jobs:
       env:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
         PG_URL: ${{ secrets.PG_URL }}
+        CHOKIDAR_USEPOLLING: 1
       with:
           start: yarn ea-start-testing-db
           command: yarn ci-cypress-run
