@@ -40,6 +40,7 @@
     "ea-mongod": "mongod --dbpath .meteor/local/db --port 3001",
     "ea-mongo": "mongo $(< ../ForumCredentials/dev-db-conn.txt)",
     "ea-mongo-staging": "mongo $(< ../ForumCredentials/staging-db-conn.txt)",
+    "ea-mongo-testing": "mongo $(< ../ForumCredentials/testing-db-conn.txt)",
     "ea-mongo-prod": "mongo $(< ../ForumCredentials/prod-db-conn.txt)",
     "ea-load-dev-db": "mongo $(< ../ForumCredentials/dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
     "ea-load-lw-dev-db": "mongo mongodb://localhost:27017/eaforum ../ForumCredentials/loadDevDbSettings.js",
