@@ -79,15 +79,15 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   const comment: AlgoliaComment = hit
   
   let url = "";
-  if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType);
-  } else if (comment.postId && comment.postSlug) {
+  if (comment.postId && comment.postSlug) {
     url = `${postGetPageUrl({
       _id: comment.postId ?? "",
       slug: comment.postSlug ?? "",
       isEvent: comment.postIsEvent,
       groupId: comment.postGroupId,
-    })}#${comment._id}`;
+    })}#${comment._id}`
+  } else if (comment.tagSlug && comment.tagCommentType) {
+    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType)
   }
   
   const handleClick = () => {
@@ -99,7 +99,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
       </div>}
-      {comment.tagName && <div className={classes.title}>
+      {!comment.postTitle && comment.tagName && <div className={classes.title}>
         <TagIcon className={classes.tagIcon} />
         {comment.tagName}
       </div>}

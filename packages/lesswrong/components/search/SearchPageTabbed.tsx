@@ -285,7 +285,7 @@ const SearchPageTabbed = ({classes}:{
     >
       <div className={classes.filtersColumn}>
         <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
-        {/* {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
+        {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
           <div className={classes.filterLabel}>
             Filter by {tab === 'Users' ? 'joined' : 'posted'} date
           </div>
@@ -299,7 +299,7 @@ const SearchPageTabbed = ({classes}:{
               { label: 'Past year', start: pastYear.current },
             ]}
           />
-        </>} */}
+        </>}
         {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
             attribute="tags"
             defaultRefinement={tagsFilter}
