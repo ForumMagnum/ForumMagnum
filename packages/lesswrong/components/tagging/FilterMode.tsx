@@ -4,7 +4,6 @@ import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../li
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
@@ -15,6 +14,7 @@ import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNa
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
 const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -51,10 +51,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: 20
   },
+  tagLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   filterScore: {
     color: theme.palette.primary.dark,
-    fontSize: 11,
-    marginLeft: 4,
+    lineHeight: '8px',
+    marginLeft: 7,
+    '& svg': {
+      height: '0.5em',
+      width: '0.5em'
+    }
   },
   filtering: {
     ...filteringStyles(theme)
@@ -149,12 +158,14 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     ? filterModeStrToLWStr(filterMode)
     : filterMode
 
-  const tagLabel = <span>
-    {label}
-    {filterMode !== '' && <span className={classes.filterScore}>
-      {filterModeLabel}
-    </span>}
-  </span>
+  const tagLabel =
+    <span className={classes.tagLabel}>
+      {label}
+      {filterMode !== '' &&
+        <span className={classes.filterScore}>
+          {filterModeLabel}
+        </span>}
+    </span>
 
   // When entering a standard value such as 0.5 for "reduced" or 25 for "subscribed" we
   // want to select the button rather than show the input text. This makes it impossible
@@ -333,7 +344,7 @@ function filterModeStrToLWStr(filterModeStr: FilterModeString) {
     case 'Reduced':     return '-';
     case 'Subscribed':  return '+';
     case '':            return '';
-    case 'Hidden':      return 'Hidden';
+    case 'Hidden':      return <VisibilityOff />; //'Hidden';
     case 'Required':    return 'Required';
     default: {
       if (filterModeStr.startsWith('-')) return '-';
