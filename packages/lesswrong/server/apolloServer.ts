@@ -282,7 +282,7 @@ export function startWebserver() {
     
     if (prefetchResources) {
       response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      response.status(200);
+      response.status(500);
       response.write(prefetchPrefix);
     }
     

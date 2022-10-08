@@ -5,7 +5,7 @@ name: Deploy EA Prod
 concurrency: deploy-ea-prod
 on:
   push:
-    branches: [ ea-deploy ]
+    branches: [ wh-prod-deploy-debug ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
