@@ -1085,6 +1085,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     revertLabel: this.props.revertLabel,
     cancelCallback: this.props.cancelCallback,
     revertCallback: this.props.revertCallback,
+    submitForm: this.submitForm,
     updateCurrentValues: this.updateCurrentValues,
     formType: this.getFormType(),
     document: this.getDocument(),

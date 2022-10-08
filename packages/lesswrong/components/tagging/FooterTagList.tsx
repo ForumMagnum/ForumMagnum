@@ -11,6 +11,7 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { filter } from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,18 +40,19 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
-  smallText?: boolean
+  smallText?: boolean,
+  showCoreTags?: boolean
 
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWTooltip, AddTagButton } = Components
+  const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // [Epistemic status - two years later guessing] This loads the tagrels via a
   // database query instead of using the denormalized field on posts. This
@@ -68,8 +70,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
   });
-
-  const tagIds = (results||[]).map((tag) => tag._id)
+  const tagIds = (results||[]).map((tagRel) => tagRel.tag?._id)
   useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
@@ -138,7 +139,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
           </MaybeLink>
         : null
       )
-    )
+    ) 
 
   if (loading || !results) {
     return <span className={classes.root}>
@@ -147,9 +148,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
     </span>;
   }
 
-
-
+  
+ 
   return <span className={classes.root}>
+    {showCoreTags && <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/>}
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       tagRel.tag && <FooterTag 
         key={tagRel._id} 

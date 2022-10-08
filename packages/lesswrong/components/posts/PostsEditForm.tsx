@@ -31,7 +31,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, FooterTagList, CoreTagsChecklist } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -88,13 +88,19 @@ const PostsEditForm = ({ documentId, classes }: {
   }
   
   const EditPostsSubmit = (props) => {
-    return <div className={classes.formSubmit}>
-      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit
-        saveDraftLabel={saveDraftLabel} 
-        feedbackLabel={"Get Feedback"}
-        {...props}
-      />
+    return <div>
+      <div className={classes.tags}>
+        <h3>Post Tags</h3>
+        <FooterTagList post={document} showCoreTags/>
+      </div>
+      <div className={classes.formSubmit}>
+        {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
+        <PostSubmit
+          saveDraftLabel={saveDraftLabel} 
+          feedbackLabel={"Get Feedback"}
+          {...props}
+        />
+      </div>
     </div>
   }
   

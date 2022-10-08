@@ -12,6 +12,7 @@ import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
+import { groupLayoutStyles } from '../vulcan-forms/FormGroup';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -96,6 +97,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
+  },
+  tags: {
+    ...groupLayoutStyles(theme).formSection,
+    padding: 16,
+    paddingBottom: 12
   }
 })
 
@@ -132,7 +138,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
 
 const PostsNewForm = ({classes}: {
     classes: ClassesType,
-  }) => {
+  }, context) => {
   const { query } = useLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
@@ -159,7 +165,7 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, CoreTagsChecklist } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
@@ -193,9 +199,24 @@ const PostsNewForm = ({classes}: {
   }
 
   const NewPostsSubmit = (props) => {
-    return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit {...props} />
+    const {document, updateCurrentValues, submitForm } = props;
+
+    return <div>
+      <div className={classes.tags} onClick={async () => {
+        if (!document.title || !document.title.length) {
+          flash("Please give this post a title before sharing.");
+          return;
+        }
+        await updateCurrentValues({ draft: true });
+        await submitForm(null, {redirectToEditor: true});
+      }}>
+        <h3>Post Tags</h3>
+        <CoreTagsChecklist />
+      </div>
+      <div className={classes.formSubmit}>
+        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+        <PostSubmit {...props} />
+      </div>
     </div>
   }
 

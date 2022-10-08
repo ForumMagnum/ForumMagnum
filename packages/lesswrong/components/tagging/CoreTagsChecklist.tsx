@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Checkbox from '@material-ui/core/Checkbox';
+import { tagStyle } from './FooterTag';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,19 +18,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   tag: {
-    minWidth: "25%",
-    display: "inline-block",
-    ...theme.typography.commentStyle,
-    marginRight: 16,
-    color: theme.palette.grey[600],
-    marginTop: 4
+    ...tagStyle(theme),
+    backgroundColor: "unset",
+    color: theme.palette.grey[400],
+    border: theme.palette.border.extraFaint,
+    '&:hover': {
+      border: theme.palette.border.grey300,
+      color: theme.palette.grey[800]
+    }
   }
-});
+}); 
 
-const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
-  onSetTagsSelected: (selectedTags: Record<string,boolean>)=>void,
+const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
+  onTagSelected?: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
-  post: PostsList|SunshinePostsList
+  existingTagIds?: Array<string|undefined>
 }) => {
   const { results, loading } = useMulti({
     terms: {
@@ -40,25 +43,20 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
     limit: 100,
   });
   
-  const { Loading } = Components;
-  const [selections, setSelections] = useState<Record<string,boolean>>({});
-  if (loading)
-    return <Loading/>
-  
-  return <div className={classes.root}>
-    {results?.map(tag => <span key={tag._id} className={classes.tag}>
-      <Checkbox
-        className={classes.checkbox}
-        checked={selections[tag._id]}
-        onChange={(event, checked) => {
-          const newSelections = {...selections, [tag._id]: checked};
-          setSelections(newSelections);
-          onSetTagsSelected(newSelections);
-        }}
-      />
-      {tag.name}
-    </span>)}
-  </div>
+  const { Loading, LWTooltip } = Components;
+  if (loading) return <Loading/>
+
+  const unusedCoreTags = results?.filter(tag => !existingTagIds.includes(tag._id))
+
+  const handleOnTagSelected = (tag) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name}) : undefined
+
+  return <>
+    {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> tag</div>}>
+      <div className={classes.tag} onClick={() => handleOnTagSelected(tag)}>
+        {tag.name}
+      </div>
+    </LWTooltip>)}
+  </>
 }
 
 
