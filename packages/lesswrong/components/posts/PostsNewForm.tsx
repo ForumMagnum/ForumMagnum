@@ -138,7 +138,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
 
 const PostsNewForm = ({classes}: {
     classes: ClassesType,
-  }, context) => {
+  }) => {
   const { query } = useLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
