@@ -4,18 +4,11 @@ import { sectionTitleStyle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    marginBottom: theme.spacing.unit * 3,
     [theme.breakpoints.down("md")]: {
-      marginTop: 12,
-      marginBottom: 10,
+      marginTop: theme.spacing.unit * 1.5,
+      marginBottom: theme.spacing.unit,
     }
-  },
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto",
-    [theme.breakpoints.down("sm")]: {
-      marginTop: theme.spacing.unit*3,
-    },
   },
 });
 

@@ -33,9 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "normal",
   },
   sticky: {
-    // paddingRight: theme.spacing.unit,
-    paddingRight: 12,
-    paddingLeft: 3,
+    paddingRight: theme.spacing.unit * 1.5,
+    paddingLeft: theme.spacing.unit * 0.25,
     position: "relative",
     top: 2,
     color: theme.palette.icon.maxIntensity,
