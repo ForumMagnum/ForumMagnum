@@ -37,17 +37,20 @@ export const validateUpdateCrosspostPayload = (payload: unknown): payload is Upd
   return true;
 }
 
-export type CrosspostPayload = {
+export type CrosspostPayload = DenormalizedCrosspostData & {
   localUserId: string,
   foreignUserId: string,
+  postId: string,
 }
 
 export const validateCrosspostPayload = (payload: unknown): payload is CrosspostPayload => {
   if (
     !hasStringParam(payload, "localUserId") ||
-    !hasStringParam(payload, "foreignUserId")
+    !hasStringParam(payload, "foreignUserId") ||
+    !hasStringParam(payload, "postId") ||
+    !isValidDenormalizedData(payload)
   ) {
-    throw new MissingParametersError(["localUserId", "foreignUserId"], payload);
+    throw new MissingParametersError(["localUserId", "foreignUserId", "postId", ...denormalizedFieldKeys], payload);
   }
   return true;
 }

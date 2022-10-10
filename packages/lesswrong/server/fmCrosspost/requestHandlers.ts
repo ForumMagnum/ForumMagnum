@@ -72,9 +72,10 @@ export const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Reque
 });
 
 export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
-  const [token, postId, postTitle] = getPostParams(req, ["token", "postId", "postTitle"]);
+  const [token] = getPostParams(req, ["token"]);
   const payload = await verifyToken(token, validateCrosspostPayload);
-  const {localUserId, foreignUserId} = payload;
+  const {localUserId, foreignUserId, postId, ...rest} = payload;
+  const denormalizedData = extractDenormalizedData(rest);
 
   const user = await Users.findOne({_id: foreignUserId});
   if (!user || user.fmCrosspostUserId !== localUserId) {
@@ -82,13 +83,13 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
   }
 
   const document: Partial<DbPost> = {
-    title: postTitle,
     userId: user._id,
     fmCrosspost: {
       isCrosspost: true,
       hostedHere: false,
       foreignPostId: postId,
     },
+    ...denormalizedData,
   };
 
   const {data: post} = await Utils.createMutator({
@@ -110,8 +111,8 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
 
 export const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const {postId, ...denormalizedData} = await verifyToken(token, validateUpdateCrosspostPayload);
-  const setData: Partial<DbPost> = extractDenormalizedData(denormalizedData);
-  await Posts.rawUpdateOne({_id: postId}, {$set: setData});
+  const {postId, ...rest} = await verifyToken(token, validateUpdateCrosspostPayload);
+  const denormalizedData: Partial<DbPost> = extractDenormalizedData(rest);
+  await Posts.rawUpdateOne({_id: postId}, {$set: denormalizedData});
   res.send({status: "updated"});
 });

@@ -23,15 +23,17 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     throw new Error("You have not connected a crossposting account yet");
   }
 
-  const token = await signToken<CrosspostPayload>({
-    localUserId: post.userId,
-    foreignUserId: user.fmCrosspostUserId,
-  });
-
   // If we're creating a new post without making a draft first then we won't have an ID yet
   if (!post._id) {
     post._id = randomId();
   }
+
+  const token = await signToken<CrosspostPayload>({
+    localUserId: post.userId,
+    foreignUserId: user.fmCrosspostUserId,
+    postId: post._id,
+    ...extractDenormalizedData(post),
+  });
 
   const apiUrl = makeApiUrl(apiRoutes.crosspost);
   const result = await fetch(apiUrl, {
@@ -40,11 +42,7 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
       "Content-Type": "application/json",
       "User-Agent": crosspostUserAgent,
     },
-    body: JSON.stringify({
-      token,
-      postId: post._id,
-      postTitle: post.title,
-    }),
+    body: JSON.stringify({token}),
   });
   const json = await result.json();
   if (json.status !== "posted" || !json.postId) {
@@ -70,11 +68,11 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
   if (
-    !denormalizedFieldKeys.some((key) => data[key] === undefined) &&
+    denormalizedFieldKeys.some((key) => data[key] !== undefined) &&
     document.fmCrosspost?.foreignPostId
   ) {
     const denormalizedData = denormalizedFieldKeys.reduce(
-      (prev, cur) => ({...prev, [cur]: data[cur] ?? document[cur]}),
+      (result, key) => ({...result, [key]: data[key] ?? document[key]}),
       {},
     ) as DenormalizedCrosspostData;
     await updateCrosspost(document.fmCrosspost.foreignPostId, denormalizedData);
