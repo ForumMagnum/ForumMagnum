@@ -1,4 +1,4 @@
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { forumTypeSetting, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';

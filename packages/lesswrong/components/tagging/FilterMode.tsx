@@ -11,7 +11,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';

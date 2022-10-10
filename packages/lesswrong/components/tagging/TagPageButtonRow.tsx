@@ -10,7 +10,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, } from '../../lib/instanceSettings';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"

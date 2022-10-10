@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
 import StarIcon from '@material-ui/icons/Star';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, siteNameWithArticleSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { tagGradingSchemeUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
