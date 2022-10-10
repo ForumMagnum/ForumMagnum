@@ -36,7 +36,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*0.25,
     paddingRight: theme.spacing.unit*1.25,
     position: "relative",
-    width: 'auto',
     top: 2,
     color: theme.palette.icon.maxIntensity,
   },
