@@ -20,7 +20,7 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   const { EmailComment, EmailCommentsOnPostHeader } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
-  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === TagCommentType.Discussion)
+  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
   const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
   
   return <div>

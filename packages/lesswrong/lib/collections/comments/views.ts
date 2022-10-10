@@ -499,7 +499,7 @@ export const subforumDefaultSorting = "recentDiscussion"
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
-    tagCommentType: TagCommentType.Discussion as string
+    tagCommentType: "DISCUSSION"
   },
 }));
 
@@ -508,7 +508,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}:
   return {
   selector: {
     tagId: tagId,
-    tagCommentType: TagCommentType.Subforum as string,
+    tagCommentType: "SUBFORUM",
     topLevelCommentId: viewFieldNullOrMissing,
   },
   options: {

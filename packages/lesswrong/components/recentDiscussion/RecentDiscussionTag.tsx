@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = TagCommentType.Discussion, classes }: {
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion | TagRecentSubforumComments,
   refetch?: any,
   comments: Array<CommentsList>,
@@ -68,7 +68,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-  const isSubforum = tagCommentType === TagCommentType.Subforum
+  const isSubforum = tagCommentType === "SUBFORUM"
 
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);

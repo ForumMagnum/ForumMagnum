@@ -150,7 +150,7 @@ const CommentsTimelineSection = ({
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <CommentsNewForm
               tag={tag}
-              tagCommentType={TagCommentType.Subforum}
+              tagCommentType={"SUBFORUM"}
               prefilledProps={{
                 parentAnswerId: parentAnswerId,
               }}

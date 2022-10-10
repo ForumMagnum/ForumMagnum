@@ -45,7 +45,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
 
   let url = "";
   if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType);
+    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType});
   } else if (comment.postId && comment.postSlug) {
     url = `${postGetPageUrl({
       _id: comment.postId ?? "",

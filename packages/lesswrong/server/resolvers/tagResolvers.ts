@@ -64,7 +64,7 @@ addGraphQLResolvers({
         postedAt: {$lt: before, $gt: after},
         topLevelCommentId: null,
         tagId: {$exists: true, $ne: null},
-        tagCommentType: TagCommentType.Discussion,
+        tagCommentType: "DISCUSSION",
       }).fetch();
       
       const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])

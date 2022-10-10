@@ -1,4 +1,3 @@
-
 interface AlgoliaComment {
   objectID: string,
   _id: string,
@@ -24,7 +23,7 @@ interface AlgoliaComment {
   body: string,
   tagId?: string,
   tagSlug?: string,
-  tagCommentType?: string,
+  tagCommentType?: import("../../lib/collections/comments/types").TagCommentType,
 }
 
 interface AlgoliaSequence {

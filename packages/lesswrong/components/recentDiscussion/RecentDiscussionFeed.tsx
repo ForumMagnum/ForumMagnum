@@ -119,7 +119,7 @@ const RecentDiscussionFeed = ({
                     refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
-                    tagCommentType={TagCommentType.Subforum}
+                    tagCommentType={"SUBFORUM"}
                   />
                 )
               },

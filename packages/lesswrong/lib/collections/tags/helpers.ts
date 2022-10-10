@@ -40,9 +40,14 @@ export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
-export const tagGetCommentLink = (tagSlug: string, commentId: string, tagCommentType: TagCommentType = TagCommentType.Discussion, isAbsolute=false): string => {
-  const base = tagCommentType === TagCommentType.Discussion ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
-  return `${base}#${commentId}`
+export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
+  tagSlug: string,
+  commentId?: string,
+  tagCommentType: TagCommentType,
+  isAbsolute?: boolean,
+}): string => {
+  const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
+  return commentId ? `${base}#${commentId}` : base
 }
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {

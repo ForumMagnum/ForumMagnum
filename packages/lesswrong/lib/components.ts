@@ -368,7 +368,6 @@ importComponent("CommentsItem", () => require('../components/comments/CommentsIt
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("RetractCommentMenuItem", () => require('../components/comments/CommentActions/RetractCommentMenuItem'));
 importComponent("MoveToAnswersMenuItem", () => require('../components/comments/CommentActions/MoveToAnswersMenuItem'));
-importComponent("CommentsPermalinkMenuItem", () => require('../components/comments/CommentActions/CommentsPermalinkMenuItem'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("BanUserFromPostMenuItem", () => require('../components/comments/CommentActions/BanUserFromPostMenuItem'));
 importComponent("BanUserFromAllPostsMenuItem", () => require('../components/comments/CommentActions/BanUserFromAllPostsMenuItem'));

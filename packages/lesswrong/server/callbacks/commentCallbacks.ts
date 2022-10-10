@@ -91,7 +91,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
       $set: {lastCommentedAt: new Date()},
     });
   } else if (comment.tagId) {
-    const fieldToSet = comment.tagCommentType === TagCommentType.Subforum ? "lastSubforumCommentAt" : "lastCommentedAt"
+    const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {
       $set: {[fieldToSet]: new Date()},
     });
