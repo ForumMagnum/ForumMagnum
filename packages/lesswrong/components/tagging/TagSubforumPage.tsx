@@ -7,11 +7,10 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { subforumDefaultSorting } from "../../lib/collections/comments/views";
 import startCase from "lodash/startCase";
-import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
-import { taggingNameSetting } from "../../lib/instanceSettings";
+import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
