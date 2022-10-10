@@ -6,19 +6,24 @@ import { pick } from "underscore";
  * crossposted on the original server and let the foreign server make graphql
  * requests when it needs access to this.
  *
- * Some fields have to be denormalized across sites though for various reasons -
- * these are defined here.
+ * Some fields have to be denormalized across sites and these are defined here. In
+ * general, a field needs to be denormalized if it's used by PostsList2 or
+ * in database selectors (but these rules aren't strict).
+ *
+ * When adding a new field here, make sure to also update isValidDenormalizedData
  */
 export const denormalizedFieldKeys = [
   "draft",
   "deletedDraft",
   "title",
+  "isEvent",
 ] as const;
 
 export const isValidDenormalizedData = (payload: unknown): payload is DenormalizedCrosspostData =>
   hasBooleanParam(payload, "draft") &&
   hasBooleanParam(payload, "deletedDraft") &&
-  hasStringParam(payload, "title");
+  hasStringParam(payload, "title") &&
+  hasBooleanParam(payload, "isEvent");
 
 export type DenormalizedCrosspostData = Pick<DbPost, typeof denormalizedFieldKeys[number]>;
 
