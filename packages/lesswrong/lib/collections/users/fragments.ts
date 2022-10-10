@@ -186,6 +186,8 @@ registerFragment(`
     petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
   }
 `);
 
@@ -219,6 +221,7 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
       }
       tagRevisions {
         _id

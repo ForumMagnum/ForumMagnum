@@ -64,13 +64,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment TagWithTocFragment on Tag {
-    ...TagFragment
-    descriptionHtmlWithToc
-  }
-`);
-
-registerFragment(`
   fragment TagHistoryFragment on Tag {
     ...TagBasicInfo
     user {
@@ -189,6 +182,7 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -204,10 +198,18 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment AllTagsPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
+  }
+`);
+
+registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {

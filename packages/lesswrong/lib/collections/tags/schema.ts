@@ -120,12 +120,6 @@ const schema: SchemaType<DbTag> = {
     // schemaDefaultValue throws an error if this is set to null, but we want to allow that
     onUpdate: () => {},
   },
-  descriptionHtmlWithToc: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    // See resolveAs in server/resolvers/tagResolvers.ts
-  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",

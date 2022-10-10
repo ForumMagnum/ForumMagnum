@@ -288,7 +288,17 @@ export function startWebserver() {
     
     const renderResult = await renderWithCache(request, response, user);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
+    const {
+      ssrBody,
+      headers,
+      serializedApolloState,
+      serializedForeignApolloState,
+      jssSheets,
+      status,
+      redirectUrl,
+      renderedAt,
+      allAbTestGroups,
+    } = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
@@ -316,6 +326,7 @@ export function startWebserver() {
         + '</body>\n'
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
         + serializedApolloState + '\n'
+        + serializedForeignApolloState + '\n'
         + '</html>\n')
       response.end();
     }
