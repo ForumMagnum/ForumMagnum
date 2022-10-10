@@ -16,6 +16,7 @@ import {
   validateCrosspostPayload,
 } from "./types";
 import { signToken, verifyToken } from "./tokens";
+import { extractDenormalizedData } from "./denormalizedFields";
 
 const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
   async (req: Request, res: Response) => {
@@ -109,8 +110,8 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
 
 export const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
   const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken(token, validateUpdateCrosspostPayload);
-  const {postId, draft, deletedDraft, title} = payload;
-  await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft, title}});
+  const {postId, ...denormalizedData} = await verifyToken(token, validateUpdateCrosspostPayload);
+  const setData: Partial<DbPost> = extractDenormalizedData(denormalizedData);
+  await Posts.rawUpdateOne({_id: postId}, {$set: setData});
   res.send({status: "updated"});
 });

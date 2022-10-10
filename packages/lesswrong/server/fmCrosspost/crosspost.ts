@@ -6,6 +6,7 @@ import { signToken } from "./tokens";
 import { apiRoutes, makeApiUrl } from "./routes";
 import { makeCrossSiteRequest } from "./resolvers";
 import { crosspostUserAgent } from "../../lib/apollo/links";
+import { denormalizedFieldKeys, DenormalizedCrosspostData, extractDenormalizedData } from "./denormalizedFields";
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
   if (!post.fmCrosspost || !post.userId || post.draft) {
@@ -54,12 +55,10 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
   return post;
 }
 
-const updateCrosspost = async (postId: string, draft: boolean, deletedDraft: boolean, title: string) => {
+const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
   const token = await signToken<UpdateCrosspostPayload>({
+    ...denormalizedData,
     postId,
-    draft,
-    deletedDraft,
-    title,
   });
   await makeCrossSiteRequest(
     apiRoutes.updateCrosspost,
@@ -71,23 +70,22 @@ const updateCrosspost = async (postId: string, draft: boolean, deletedDraft: boo
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
   if (
-    (data.draft !== undefined || data.deletedDraft !== undefined || data.title !== undefined) &&
+    !denormalizedFieldKeys.some((key) => data[key] === undefined) &&
     document.fmCrosspost?.foreignPostId
   ) {
-    await updateCrosspost(
-      document.fmCrosspost.foreignPostId,
-      data.draft ?? document.draft,
-      data.deletedDraft ?? document.deletedDraft,
-      data.title ?? document.title,
-    );
+    const denormalizedData = denormalizedFieldKeys.reduce(
+      (prev, cur) => ({...prev, [cur]: data[cur] ?? document[cur]}),
+      {},
+    ) as DenormalizedCrosspostData;
+    await updateCrosspost(document.fmCrosspost.foreignPostId, denormalizedData);
   }
 
+  const {_id, userId, fmCrosspost} = document;
   return performCrosspost({
-    _id: document._id,
-    title: document.title,
-    userId: document.userId,
-    draft: document.draft,
-    fmCrosspost: document.fmCrosspost,
+    _id,
+    userId,
+    fmCrosspost,
+    ...extractDenormalizedData(document),
     ...data,
   });
 }
