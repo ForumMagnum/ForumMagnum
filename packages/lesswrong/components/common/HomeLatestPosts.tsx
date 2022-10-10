@@ -99,14 +99,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </AnalyticsContext>
         </div>
         <HideRepeatedPostsProvider>
-          {forumTypeSetting.get() === "EAForum" && <PostsList2
-              terms={{view:"stickied", forum: true, limit:100}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              showFinalBottomBorder
-            />}
           {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
