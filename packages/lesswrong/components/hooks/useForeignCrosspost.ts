@@ -17,6 +17,33 @@ export const isPostWithForeignId =
     typeof post.fmCrosspost.hostedHere === "boolean" &&
     !!post.fmCrosspost.foreignPostId;
 
+// If this post was crossposted from elsewhere then we want to take most of the fields from
+// our local copy (for correct links/ids/etc.) but we need to override a few specific fields
+// to actually get the correct content and some metadata that isn't denormalized across sites
+const overrideFields = [
+  "contents",
+  "tableOfContents",
+  "url",
+  "readTimeMinutes",
+  "activateRSVPs",
+  "eventType",
+  "startTime",
+  "endTime",
+  "localStartTime",
+  "localEndTime",
+  "mongoLocation",
+  "googleLocation",
+  "location",
+  "contactInfo",
+  "eventRegistrationLink",
+  "joinEventLink",
+  "onlineEvent",
+  "globalEvent",
+  "facebookLink",
+  "meetupLink",
+  "website",
+] as const;
+
 /**
  * Load foreign crosspost data from the foreign site
  */
@@ -46,10 +73,6 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
-    // If this post was crossposted from elsewhere then we want to take most of the fields from
-    // our local copy (for correct links/ids/etc.) but we need to override a few specific fields
-    // to actually get the correct content and some metadata that isn't denormalized across sites
-    const overrideFields = ["contents", "tableOfContents", "url", "readTimeMinutes"];
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
       combinedPost[field] = foreignPost?.[field] ?? localPost[field];
