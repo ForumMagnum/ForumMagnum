@@ -20,7 +20,6 @@ interface AlgoliaComment {
   postId?: string,
   postTitle?: string,
   postSlug?: string,
-  postSequenceId?: string,
   postIsEvent?: boolean,
   postGroupId?: string,
   tags: Array<string>, // an array of tag _ids that are associated with the comment, whether via tagId or via tagRels
