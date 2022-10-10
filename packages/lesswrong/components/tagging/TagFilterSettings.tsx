@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    paddingTop: 4
+    marginBottom: 4
   },
   showPersonalBlogposts: {
     ...tagStyle(theme),

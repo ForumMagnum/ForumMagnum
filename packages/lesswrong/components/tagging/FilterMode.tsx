@@ -42,11 +42,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     cursor: "pointer",  
     display: "inline-block",
-    marginBottom: 4,
+    marginBottom: 2,
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
-    color: theme.palette.primary.dark
+    color: theme.palette.primary.dark,
+    boxShadow: theme.palette.boxShadow.default,
   },
   description: {
     marginTop: 20

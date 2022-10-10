@@ -7,7 +7,7 @@ import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
-import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -33,10 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
   },
-  hideOnMobile: {
-    [theme.breakpoints.down('xs')]: {
+  hide: {
       display: "none"
-    }
   }
 })
 
@@ -51,7 +49,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, SectionTitle, CuratedPostsList } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -69,36 +67,31 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <div className={classes.titleWrapper}>
-          <Typography variant='display1' className={classes.title}>
-            <LWTooltip title="Recent posts, sorted by a combination of 'new' and 'highly upvoted'" placement="left">
-              {latestPostsName}
-            </LWTooltip>
-          </Typography>
-         
-          <AnalyticsContext pageSectionContext="tagFilterSettings">
-              <div className={classes.toggleFilters}>
-                <SettingsButton 
-                  label={filterSettingsVisible ?
-                    "Hide Filters" :
-                    `Show ${taggingNameCapitalSetting.get()} Filters`}
-                  showIcon={false}
-                  onClick={() => {
-                    setFilterSettingsVisible(!filterSettingsVisible)
-                    captureEvent("filterSettingsClicked", {
-                      settingsVisible: !filterSettingsVisible,
-                      settings: filterSettings,
-                      pageSectionContext: "latestPosts"
-                    })
-                  }} />
-              </div>
+        <SectionTitle title={latestPostsName} noBottomPadding>
+          <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
+            <SettingsButton
+              label={filterSettingsVisible ?
+                "Customize Feed (Hide)" :
+                "Customize Feed (Show)"}
+              showIcon={false}
+              onClick={() => {
+                setFilterSettingsVisible(!filterSettingsVisible)
+                captureEvent("filterSettingsClicked", {
+                  settingsVisible: !filterSettingsVisible,
+                  settings: filterSettings,
+                  pageSectionContext: "latestPosts"
+                })
+              }} />
+          </LWTooltip>
+        </SectionTitle>
+  
+        <AnalyticsContext pageSectionContext="tagFilterSettings">
               <div className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
                   filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
                 />
               </div>
           </AnalyticsContext>
-        </div>
         <HideRepeatedPostsProvider>
           {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>

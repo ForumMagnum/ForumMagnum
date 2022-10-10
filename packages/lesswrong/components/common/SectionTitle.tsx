@@ -19,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   noTopMargin: {
     marginTop: 0
   },
+  noBottomPadding: {
+    paddingBottom: 0
+  },
   title: {
     ...sectionTitleStyle(theme)
   },
@@ -41,16 +44,17 @@ const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({children, classes, className, title, noTopMargin, anchor}: {
+const SectionTitle = ({children, classes, className, title, noTopMargin, noBottomPadding, anchor}: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
   title: React.ReactNode,
   noTopMargin?: boolean,
+  noBottomPadding?: boolean,
   anchor?: string,
 }) => {
   return (
-    <div className={noTopMargin ? classNames(classes.root, classes.noTopMargin) : classes.root}>
+    <div className={classNames(classes.root, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Components.Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
