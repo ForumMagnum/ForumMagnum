@@ -14,6 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -177,7 +178,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
-        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag?.slug}`}>
+        <Link to={tagGetUrl(tag)}>
           {tagLabel}
         </Link> :
         tagLabel

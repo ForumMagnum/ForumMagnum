@@ -17,6 +17,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
+import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -183,7 +184,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.tagRevisions.map(tagChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} key={tagChange._id}
-                to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
+                to={`${tagGetHistoryUrl({slug: tagChange.tagSlug})}?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>

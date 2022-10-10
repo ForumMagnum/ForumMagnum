@@ -1,3 +1,4 @@
+
 interface AlgoliaComment {
   objectID: string,
   _id: string,

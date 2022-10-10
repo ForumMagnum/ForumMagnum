@@ -5,6 +5,7 @@ import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { taggingNameIsSet, taggingNamePluralSetting } from "../../lib/instanceSettings";
+import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
@@ -58,7 +59,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   
   return <Link
     className={classes.discussionButton}
-    to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`}
+    to={tagGetDiscussionUrl(tag)}
     {...eventHandlers}
   >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />

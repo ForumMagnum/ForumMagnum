@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import TagHistory from '@material-ui/icons/History';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
-import { tagGetUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
@@ -141,7 +141,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
     {expanded && <div className={classes.expandedBody}>
       {revisionIds.length>0 && 
         <Link
-          to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+          to={tagGetHistoryUrl(tag)}
           className={classes.history}
         >
           <TagHistory className={classes.icon}  />

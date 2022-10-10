@@ -4,6 +4,7 @@ import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
 import StarIcon from '@material-ui/icons/Star';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { tagGradingSchemeUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,7 +28,7 @@ const WikiGradeDisplay = ({wikiGrade, classes}: {wikiGrade:number, classes: any}
   return <LWTooltip title={wikiGradeDescriptions[wikiGrade]}>
     <Link
       className={classes.root}
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/tag-grading-scheme`}
+      to={tagGradingSchemeUrl}
     >
       <StarIcon/>{wikiGradeDefinitions[wikiGrade]}
     </Link>

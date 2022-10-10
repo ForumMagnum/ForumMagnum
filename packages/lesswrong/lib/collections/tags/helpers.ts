@@ -21,22 +21,28 @@ type GetUrlOptions = {
   flagId?: string
 }
 
+export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
+export const tagCreateUrl = `/${tagUrlBase}/create`
+export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
+
 export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
   const { flagId, edit } = urlOptions || {};
-  const url = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`
+  const url = `/${tagUrlBase}/${tag.slug}`
   if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
   if (flagId) return `${url}?flagId=${flagId}`
   if (edit) return `${url}?edit=${edit}`
   return url
 }
 
+export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl(tag)}/history`
+
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`
+  const suffix = `/${tagUrlBase}/${tag.slug}/discussion`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
 export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/subforum`
+  const suffix = `/${tagUrlBase}/${tag.slug}/subforum`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
@@ -51,7 +57,7 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
 }
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
-  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}?version=${versionNumber}`;
+  return `/${tagUrlBase}/${tag.slug}?version=${versionNumber}`;
 }
 
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {

@@ -11,7 +11,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -153,7 +153,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     </LWTooltip>}
     {<Link
       className={classes.button}
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+      to={tagGetHistoryUrl(tag)}
     >
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
