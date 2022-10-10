@@ -15,7 +15,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 

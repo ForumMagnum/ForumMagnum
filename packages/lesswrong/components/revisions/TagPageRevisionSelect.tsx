@@ -5,7 +5,6 @@ import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });

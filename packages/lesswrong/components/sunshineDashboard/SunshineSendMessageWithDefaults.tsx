@@ -7,7 +7,6 @@ import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 

@@ -6,7 +6,6 @@ import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/coll
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 

@@ -4,7 +4,6 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({

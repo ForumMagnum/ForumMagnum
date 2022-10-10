@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({

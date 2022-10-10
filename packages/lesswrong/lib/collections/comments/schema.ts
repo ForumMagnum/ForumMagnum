@@ -7,7 +7,7 @@ import { Utils } from '../../vulcan-lib';
 import { forumTypeSetting } from "../../instanceSettings";
 import GraphQLJSON from 'graphql-type-json';
 import { commentGetPageUrlFromDB } from './helpers';
-import { tagCommentTypes, } from './types';
+import { tagCommentTypes } from './types';
 
 
 export const moderationOptionsGroup: FormGroup = {

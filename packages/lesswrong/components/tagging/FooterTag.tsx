@@ -5,7 +5,6 @@ import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
