@@ -88,7 +88,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, TagSubforumButton, ContentItemBody } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -169,7 +169,8 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       />
     </LWTooltip>}
     <div className={classes.button}>
-      <TagDiscussionButton tag={tag} hideLabelOnMobile />
+      {tag.isSubforum ?
+        <TagSubforumButton tag={tag} /> : <TagDiscussionButton tag={tag} hideLabelOnMobile />}
     </div>
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}
