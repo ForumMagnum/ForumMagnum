@@ -5,7 +5,7 @@ import Table from "../../lib/sql/Table";
 import InsertQuery from "../../lib/sql/InsertQuery";
 import CreateTableQuery from "../../lib/sql/CreateTableQuery";
 import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
-import { forEachDocumentBatchInCollection } from "../migrations/migrationUtils";
+import { forEachDocumentBatchInCollection } from "../mongoMigrations/migrationUtils";
 import util from "util";
 
 // A place for nasty hacks to live...

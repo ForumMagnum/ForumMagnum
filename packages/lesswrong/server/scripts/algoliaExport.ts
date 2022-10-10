@@ -8,7 +8,7 @@ import { getCollection } from '../vulcan-lib';
 import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
-import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
+import { forEachDocumentBatchInCollection } from '../mongoMigrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
 import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';

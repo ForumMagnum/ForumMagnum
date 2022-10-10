@@ -1,6 +1,6 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
-import { migrateDocuments } from '../migrations/migrationUtils'
+import { migrateDocuments } from '../mongoMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
