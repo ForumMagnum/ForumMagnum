@@ -221,6 +221,7 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
       }
       tagRevisions {
         _id
