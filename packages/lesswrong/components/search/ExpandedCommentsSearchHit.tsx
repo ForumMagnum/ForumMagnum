@@ -8,9 +8,7 @@ import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-// We're not using Link, just useHistory
-// eslint-disable-next-line no-restricted-imports
-import { useHistory } from 'react-router-dom';
+import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -73,7 +71,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const history = useHistory()
+  const { history } = useNavigation()
 
   const { FormatDate, UserNameDeleted } = Components
   const comment: AlgoliaComment = hit
