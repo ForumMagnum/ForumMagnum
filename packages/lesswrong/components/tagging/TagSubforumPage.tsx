@@ -6,6 +6,8 @@ import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import startCase from "lodash/startCase";
+import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
@@ -71,7 +73,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
-  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody, LWTooltip } = Components;
+  const {
+    Error404,
+    Loading,
+    SubforumCommentsThread,
+    SectionTitle,
+    SingleColumnSection,
+    Typography,
+    ContentStyles,
+    ContentItemBody,
+    LWTooltip,
+    HeadTags,
+  } = Components;
 
   const { params, query } = useLocation();
   const { slug } = params;
@@ -109,7 +122,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   const titleComponent = <>
     <LWTooltip title={`To ${taggingNameSetting.get()} page`} placement="top-start" className={classes.tooltip}>
       <Link to={tagGetUrl(tag)}>
-        {tag.name}
+        {startCase(tag.name)}
       </Link>
     </LWTooltip>
     {" "}Subforum
@@ -117,6 +130,10 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
 
   return (
     <div className={classes.root}>
+      <HeadTags
+        description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
+        title={`${startCase(tag.name)} Subforum`}
+      />
       <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
         {welcomeBoxComponent}
       </div>
