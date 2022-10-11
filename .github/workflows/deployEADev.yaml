@@ -2,7 +2,7 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ wh-dd-setup-2022-10 ]
+    branches: [ wh-dd-2-2022-10 ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
