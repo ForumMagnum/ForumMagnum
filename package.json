@@ -145,6 +145,7 @@
     "cookie-parser": "^1.4.3",
     "crypto-js": "^3.1.9-1",
     "dataloader": "^1.4.0",
+    "dd-trace": "^3.4.0",
     "deepmerge": "^1.2.0",
     "draft-convert": "^2.1.2",
     "draft-js": "^0.10.4",
