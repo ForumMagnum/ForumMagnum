@@ -1,5 +1,5 @@
 import { hasStringParam, hasBooleanParam } from "./validationHelpers";
-import { pick } from "underscore";
+import pick from "lodash/pick";
 
 /**
  * In general, we try to keep a single source of truth for all post data that's
