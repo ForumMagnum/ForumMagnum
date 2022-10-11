@@ -28,6 +28,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+  importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
   importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
   importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/advice/AdvisorsRequestPage'))
   importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
@@ -155,7 +156,8 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "ArbitalPreview", "FootnotePreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "ArbitalPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("ThemePickerMenu", () => require('../components/themes/ThemePickerMenu'));
@@ -421,6 +423,7 @@ importComponent("LastVisitList", () => require('../components/comments/LastVisit
 importComponent("CommentsNewForm", () => require('../components/comments/CommentsNewForm'));
 importComponent("SingleLineComment", () => require('../components/comments/SingleLineComment'));
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
+importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));
@@ -489,6 +492,7 @@ importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTa
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageButtonRow", () => require('../components/tagging/TagPageButtonRow'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
+importComponent("TagTableOfContents", () => require('../components/tagging/TagTableOfContents'));
 importComponent("TagIntroSequence", () => require('../components/tagging/TagIntroSequence'));
 importComponent("TagHistoryPageTitle", () => require('../components/tagging/TagHistoryPageTitle'));
 importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
@@ -510,6 +514,7 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
+importComponent("TagSubforumButton", () => require('../components/tagging/TagSubforumButton'));
 importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
@@ -567,6 +572,7 @@ importComponent("SequencesPost", () => require('../components/sequences/Sequence
 importComponent("SequencesGridItem", () => require('../components/sequences/SequencesGridItem'));
 importComponent("LargeSequencesItem", () => require('../components/sequences/LargeSequencesItem'));
 importComponent("SequencesHoverOver", () => require('../components/sequences/SequencesHoverOver'));
+importComponent("ChapterTitle", () => require('../components/sequences/ChapterTitle')); 
 importComponent("SequencesSmallPostLink", () => require('../components/sequences/SequencesSmallPostLink'));
 importComponent("ChaptersItem", () => require('../components/sequences/ChaptersItem'));
 importComponent("ChaptersList", () => require('../components/sequences/ChaptersList'));
@@ -665,9 +671,10 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
 importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
-
+importComponent("SpotlightStartOrContinueReading", () => require('../components/spotlights/SpotlightStartOrContinueReading'));
 importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
 importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));
 

@@ -9,6 +9,9 @@ registerFragment(`
     draft
     position
     lastPromotedAt
+    customTitle
+    customSubtitle
+    duration
   }
 `)
 
@@ -22,11 +25,6 @@ registerFragment(`
     }
     description {
       html
-    }
-    firstPost {
-      _id
-      title
-      slug
     }
   }
 `);

@@ -19,7 +19,12 @@ interface AlgoliaComment {
   postId?: string,
   postTitle?: string,
   postSlug?: string,
+  postIsEvent?: boolean,
+  postGroupId?: string,
   body: string,
+  tagId?: string,
+  tagSlug?: string,
+  tagCommentType?: string,
 }
 
 interface AlgoliaSequence {

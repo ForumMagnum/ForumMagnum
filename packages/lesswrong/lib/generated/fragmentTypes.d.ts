@@ -257,6 +257,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly allCommentingDisabled: boolean,
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
+  readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -343,6 +344,63 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly deleted: boolean,
 }
 
+interface CommentsDefaultFragment { // fragment on Comments
+  readonly parentCommentId: string,
+  readonly topLevelCommentId: string,
+  readonly postedAt: Date,
+  readonly author: string,
+  readonly postId: string,
+  readonly tagId: string,
+  readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
+  readonly userId: string,
+  readonly userIP: string,
+  readonly userAgent: string,
+  readonly referrer: string,
+  readonly authorIsUnreviewed: boolean,
+  readonly answer: boolean,
+  readonly parentAnswerId: string,
+  readonly directChildrenCount: number,
+  readonly descendentCount: number,
+  readonly shortform: boolean,
+  readonly nominatedForReview: string,
+  readonly reviewingForReview: string,
+  readonly lastSubthreadActivity: Date,
+  readonly postVersion: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
+  readonly promotedAt: Date,
+  readonly hideKarma: boolean,
+  readonly legacy: boolean,
+  readonly legacyId: string,
+  readonly legacyPoll: boolean,
+  readonly legacyParentId: string,
+  readonly retracted: boolean,
+  readonly deleted: boolean,
+  readonly deletedPublic: boolean,
+  readonly deletedReason: string,
+  readonly deletedDate: Date,
+  readonly deletedByUserId: string,
+  readonly spam: boolean,
+  readonly repliesBlockedUntil: Date,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
+  readonly hideAuthor: boolean,
+  readonly moderatorHat: boolean,
+  readonly isPinnedOnProfile: boolean,
+  readonly af: boolean,
+  readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly suggestForAlignmentUserIds: Array<string>,
+  readonly reviewForAlignmentUserId: string,
+  readonly afDate: Date,
+  readonly moveToAlignmentUserId: string,
+}
+
+interface UserTagRelsDefaultFragment { // fragment on UserTagRels
+  readonly tagId: string,
+  readonly userId: string,
+}
+
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
@@ -351,7 +409,6 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
-  readonly descriptionHtmlWithToc: string,
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
@@ -594,58 +651,6 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly documentIsAf: boolean,
 }
 
-interface CommentsDefaultFragment { // fragment on Comments
-  readonly parentCommentId: string,
-  readonly topLevelCommentId: string,
-  readonly postedAt: Date,
-  readonly author: string,
-  readonly postId: string,
-  readonly tagId: string,
-  readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
-  readonly userId: string,
-  readonly userIP: string,
-  readonly userAgent: string,
-  readonly referrer: string,
-  readonly authorIsUnreviewed: boolean,
-  readonly answer: boolean,
-  readonly parentAnswerId: string,
-  readonly directChildrenCount: number,
-  readonly descendentCount: number,
-  readonly shortform: boolean,
-  readonly nominatedForReview: string,
-  readonly reviewingForReview: string,
-  readonly lastSubthreadActivity: Date,
-  readonly postVersion: string,
-  readonly promoted: boolean,
-  readonly promotedByUserId: string,
-  readonly promotedAt: Date,
-  readonly hideKarma: boolean,
-  readonly legacy: boolean,
-  readonly legacyId: string,
-  readonly legacyPoll: boolean,
-  readonly legacyParentId: string,
-  readonly retracted: boolean,
-  readonly deleted: boolean,
-  readonly deletedPublic: boolean,
-  readonly deletedReason: string,
-  readonly deletedDate: Date,
-  readonly deletedByUserId: string,
-  readonly spam: boolean,
-  readonly repliesBlockedUntil: Date,
-  readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
-  readonly hideAuthor: boolean,
-  readonly moderatorHat: boolean,
-  readonly isPinnedOnProfile: boolean,
-  readonly af: boolean,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly suggestForAlignmentUserIds: Array<string>,
-  readonly reviewForAlignmentUserId: string,
-  readonly afDate: Date,
-  readonly moveToAlignmentUserId: string,
-}
-
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
   readonly ownedByUser: boolean,
@@ -853,6 +858,11 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -1079,6 +1089,11 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -1887,10 +1902,6 @@ interface TagFragment_description { // fragment on Revisions
   readonly version: string,
 }
 
-interface TagWithTocFragment extends TagFragment { // fragment on Tags
-  readonly descriptionHtmlWithToc: string,
-}
-
 interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
 }
@@ -1953,12 +1964,17 @@ interface TagPreviewFragment_description { // fragment on Revisions
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
   readonly isSubforum: boolean,
+  readonly tableOfContents: any,
   readonly subforumWelcomeText: TagSubforumFragment_subforumWelcomeText|null,
 }
 
 interface TagSubforumFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
+  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -1983,12 +1999,18 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
+  readonly subforumUnreadMessagesCount: number,
   readonly contributors: any,
+}
+
+interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
+  readonly tableOfContents: any,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
+  readonly subforumUnreadMessagesCount: number,
   readonly contributors: any,
 }
 
@@ -2284,6 +2306,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovLaunchCodeDate: Date,
   readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
+  readonly acknowledgedNewUserGuidelines: boolean | null,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2604,8 +2627,11 @@ interface UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly position: number,
+  readonly duration: number,
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
   readonly spotlightImageId: string | null,
@@ -2614,17 +2640,19 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Collection","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
   readonly spotlightImageId: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
+  readonly customTitle: string | null,
+  readonly customSubtitle: string | null,
+  readonly duration: number,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly document: SpotlightDisplay_document,
   readonly description: SpotlightDisplay_description|null,
-  readonly firstPost: SpotlightDisplay_firstPost|null,
 }
 
 interface SpotlightDisplay_document { // fragment on Posts
@@ -2635,12 +2663,6 @@ interface SpotlightDisplay_document { // fragment on Posts
 
 interface SpotlightDisplay_description { // fragment on Revisions
   readonly html: string,
-}
-
-interface SpotlightDisplay_firstPost { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
 }
 
 interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2667,6 +2689,8 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
+  CommentsDefaultFragment: CommentsDefaultFragment
+  UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
   TagsDefaultFragment: TagsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -2674,7 +2698,6 @@ interface FragmentTypes {
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
-  CommentsDefaultFragment: CommentsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
@@ -2769,16 +2792,17 @@ interface FragmentTypes {
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
-  TagWithTocFragment: TagWithTocFragment
   TagHistoryFragment: TagHistoryFragment
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagSubforumFragment: TagSubforumFragment
+  TagSubforumSidebarFragment: TagSubforumSidebarFragment
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
   TagPageFragment: TagPageFragment
+  AllTagsPageFragment: AllTagsPageFragment
   TagPageWithRevisionFragment: TagPageWithRevisionFragment
   TagFullContributorsList: TagFullContributorsList
   TagEditFragment: TagEditFragment
@@ -2830,6 +2854,8 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   PostRelationsDefaultFragment: "PostRelations"
   LocalgroupsDefaultFragment: "Localgroups"
+  CommentsDefaultFragment: "Comments"
+  UserTagRelsDefaultFragment: "UserTagRels"
   TagsDefaultFragment: "Tags"
   TagRelsDefaultFragment: "TagRels"
   BooksDefaultFragment: "Books"
@@ -2837,7 +2863,6 @@ interface CollectionNamesByFragmentName {
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
   VotesDefaultFragment: "Votes"
-  CommentsDefaultFragment: "Comments"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
   PostsMinimumInfo: "Posts"
@@ -2932,16 +2957,17 @@ interface CollectionNamesByFragmentName {
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"
-  TagWithTocFragment: "Tags"
   TagHistoryFragment: "Tags"
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
   TagSubforumFragment: "Tags"
+  TagSubforumSidebarFragment: "Tags"
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"
   TagPageFragment: "Tags"
+  AllTagsPageFragment: "Tags"
   TagPageWithRevisionFragment: "Tags"
   TagFullContributorsList: "Tags"
   TagEditFragment: "Tags"
@@ -2984,5 +3010,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
 

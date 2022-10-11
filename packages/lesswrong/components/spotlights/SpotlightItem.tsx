@@ -4,7 +4,6 @@ import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -12,26 +11,25 @@ import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
-export interface SpotlightContent {
-  documentType: SpotlightDocumentType,
-  document: {
-    _id?: string,
-    title: string,
-    slug?: string
-  },
-  imageUrl: string,
-  description: string,
-  firstPost?: {
-    _id: string,
-    title: string,
-    url: string
-  }
-}
 
 export const descriptionStyles = theme => ({
   ...postBodyStyles(theme),
   ...theme.typography.body2,
-  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, `
+  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
+  lineHeight: '1.65rem',
+  '& p': {
+    marginTop: ".5em",
+    marginBottom: ".5em",
+    '&:first-child': {
+      marginTop: 0,
+    },
+    'style~&': {
+      marginTop: 0,
+    },
+    '&:last-child': {
+      marginBottom: 0,
+    }
+  },
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -67,7 +65,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: 16,
     paddingRight: 35,
-    paddingBottom: 0,
     display: "flex",
     // overflow: "hidden",
     flexDirection: "column",
@@ -87,11 +84,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     }
   },
+  postPadding: {
+    paddingBottom: 12
+  },
   description: {
-    marginTop: 14,
+    marginTop: 7,
+    marginBottom: 13,
     ...descriptionStyles(theme),
     position: "relative",
-    lineHeight: '1.65rem',
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
@@ -104,26 +104,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center"
   },
+  subtitle: {
+    ...theme.typography.postStyle,
+    fontSize: 15,
+    color: theme.palette.grey[700],
+    marginTop: -1,
+    fontStyle: "italic"
+  },
   image: {
     '& img': {
       position: "absolute",
       top: 0,
       right: 0,
       height: "100%",  
-    }
-  },
-  firstPost: {
-    ...theme.typography.body2,
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
-    fontSize: "1.1rem",
-    ...theme.typography.commentStyle,
-    position: "relative",
-    zIndex: theme.zIndexes.spotlightItemCloseButton,
-    color: theme.palette.grey[500],
-    '& a': {
-      color: theme.palette.primary.main
     }
   },
   editAllButton: {
@@ -169,18 +162,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       minHeight: "unset"
     },
     '& .ck.ck-content.ck-editor__editable': {
-      ...theme.typography.body2,
+      ...descriptionStyles(theme) 
+    },
+    '& .EditorFormComponent-ckEditorStyles .ck.ck-content': {
+      marginLeft: 0,
+    },
+    '& .ck.ck-editor__editable_inline': {
+      padding: 0,
+      border: "none !important",
     },
     '& .form-submit button': {
       position: "absolute",
-      bottom: 0,
+      bottom: -38,
       right: 0,
-      background: theme.palette.background.translucentBackground,
-      marginLeft: 12,
-      opacity: .5,
-      '&:hover': {
-        opacity: 1
-      }
+      marginLeft: 12
     }
   },
   form: {
@@ -190,15 +185,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 16,
     paddingTop: 8,
     paddingBottom: 8
+  },
+  metaData: {
+    textAlign: "right",
+    paddingTop: 6,
+    paddingBottom: 12
   }
 });
 
-const getUrlFromDocument = (document: SpotlightContent['document'], documentType: SpotlightDocumentType) => {
+const getUrlFromDocument = (document: SpotlightDisplay_document, documentType: SpotlightDocumentType) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;
-    case "Collection":
-      return `/${document.slug}`
     case "Post":
       return `/posts/${document._id}/${document.slug}`
   }
@@ -213,7 +211,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
 }) => {
-  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, PostsPreviewTooltipSingle, WrappedSmartForm, SpotlightEditorStyles } = Components
+  const { MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage, LWTooltip, WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading } = Components
   
   const currentUser = useCurrentUser()
 
@@ -222,33 +220,31 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
 
-  // Note: the firstPostUrl won't reliably generate a good reading experience for all
-  // possible Collection type spotlights, although it happens to work for the existing 5 collections 
-  // on LessWrong. (if the first post of a collection has a canonical sequence that's not 
-  // in that collection it wouldn't provide the right 'next post')
 
-  // But, also, the real proper fix here is to integrate continue reading here.
-  const firstPostUrl = spotlight.firstPost && postGetPageUrl(spotlight.firstPost, false, spotlight.documentType === "Sequence" ? spotlight.documentId : undefined)
+  const duration = spotlight.duration
 
   const onUpdate = () => {
     setEdit(false);
     refetchAllSpotlights?.();
   };
-  
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root}>
       <div className={classes.spotlightItem}>
-        <div className={classes.content}>
+        <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
-              {spotlight.document.title}
+              {spotlight.customTitle ?? spotlight.document.title}
             </Link>
             <span className={classes.editDescriptionButton}>
-              {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+              {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
                 <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
               </LWTooltip>}
             </span>
           </div>
+          {spotlight.customSubtitle && <div className={classes.subtitle}>
+            {spotlight.customSubtitle}
+          </div>}
           <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
@@ -268,14 +264,10 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
               />
             }
           </div>
+          <SpotlightStartOrContinueReading spotlight={spotlight} />
         </div>
         {spotlight.spotlightImageId && <div className={classes.image}>
           <CloudinaryImage publicId={spotlight.spotlightImageId} />
-        </div>}
-        {firstPostUrl && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={spotlight.firstPost._id}/>} tooltip={false}>
-            <Link to={firstPostUrl}>{spotlight.firstPost.title}</Link>
-          </LWTooltip>
         </div>}
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this item for the next month" placement="right">
@@ -285,29 +277,34 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           </LWTooltip>
         </div>}
         <div className={classes.editAllButton}>
-          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
       </div>
-      {showAdminInfo && <div className={classes.form}>
-        {edit ? <SpotlightEditorStyles>
-           <WrappedSmartForm
-              collection={Spotlights}
-              documentId={spotlight._id}
-              mutationFragment={getFragment('SpotlightEditQueryFragment')}
-              queryFragment={getFragment('SpotlightEditQueryFragment')}
-              successCallback={onUpdate}
-            /> 
-          </SpotlightEditorStyles>
+      {showAdminInfo && <>
+        {edit ? <div className={classes.form}>
+            <SpotlightEditorStyles>
+            <WrappedSmartForm
+                collection={Spotlights}
+                documentId={spotlight._id}
+                mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                queryFragment={getFragment('SpotlightEditQueryFragment')}
+                successCallback={onUpdate}
+              /> 
+            </SpotlightEditorStyles>
+          </div>
            :
-          <div>
+          <div className={classes.metaData}>
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+            <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+              <MetaInfo>{duration} days</MetaInfo>
+            </LWTooltip>
           </div>
         }
-      </div>}
+      </>}
     </div>
   </AnalyticsTracker>
 }

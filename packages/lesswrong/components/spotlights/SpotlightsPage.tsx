@@ -44,24 +44,33 @@ export const SpotlightsPage = ({classes}: {
   const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
-    return <div>You must be logged in as an admin to use this page.</div>;
+    return <SingleColumnSection>
+      <Typography variant="body2">You must be logged in as an admin to use this page.</Typography>
+    </SingleColumnSection>;
   }
 
+  const totalUpcomingDuration = upcomingSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
+
+  const totalDraftDuration = draftSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
+
   return <SingleColumnSection>
-    <SectionTitle title={'Spotlights'} />
+    <SectionTitle title={'New Spotlight'} />
     <div className={classes.form}>
-      <Typography variant="body2">New Spotlight</Typography>
       <SpotlightEditorStyles>
         <WrappedSmartForm
           collection={Spotlights}
-          mutationFragment={getFragment('SpotlightsDefaultFragment')}
+          mutationFragment={getFragment('SpotlightEditQueryFragment')}
         />
       </SpotlightEditorStyles>
     </div>
     {loading && <Loading/>}
-    <SectionTitle title="Upcoming Spotlights"/>
+    <SectionTitle title="Upcoming Spotlights">
+      <div>Total: {totalUpcomingDuration} days</div>
+    </SectionTitle>
     {upcomingSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
-    <SectionTitle title="Draft Spotlights"/>
+    <SectionTitle title="Draft Spotlights">
+      <div>Total: {totalDraftDuration} days</div>
+    </SectionTitle>
     {draftSpotlights.map(spotlight => <SpotlightItem key={spotlight._id} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
   </SingleColumnSection>
 }

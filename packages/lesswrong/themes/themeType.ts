@@ -35,6 +35,7 @@ declare global {
   type ThemeShadePalette = {
     grey: MuiColorShades,
     greyAlpha: (alpha: number) => ColorString,
+    inverseGreyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -108,6 +109,7 @@ declare global {
       error: ColorString,
       error2: ColorString,
       red: ColorString,
+      alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
     
@@ -322,6 +324,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primaryDim2: ColorString,
     },
     header: {
       text: ColorString,
@@ -347,7 +350,6 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
-    eaForumGroupsMobileImg: ColorString,
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
@@ -382,6 +384,9 @@ declare global {
       display2: JssStyles,
       display3: JssStyles,
       display4: JssStyles,
+      postsItemTitle: JssStyles,
+      chapterTitle: JssStyles,
+      largeChapterTitle: JssStyles,
       body1: JssStyles,
       body2: JssStyles,
       headline: JssStyles,

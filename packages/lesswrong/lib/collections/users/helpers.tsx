@@ -29,7 +29,7 @@ export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|
   return null;
 };
 
-export const userOwnsAndInGroup = (group: string) => {
+export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
@@ -467,3 +467,14 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+
+const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
+export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+  if (forumTypeSetting.get() !== 'LessWrong') return false;
+
+  const userCreatedAfterCutoff = user.createdAt
+    ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
+    : false;
+
+  return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
+};

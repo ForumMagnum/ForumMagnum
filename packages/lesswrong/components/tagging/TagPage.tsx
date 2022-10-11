@@ -9,13 +9,14 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { min } from "lodash/fp";
+import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -58,10 +59,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
-  },
-  tableOfContentsWrapper: {
-    position: "relative",
-    top: 12,
   },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
@@ -140,14 +137,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  randomTagLink: {
-    ...theme.typography.commentStyle,
-    fontSize: "1.16rem",
-    color: theme.palette.grey[600],
-    display: "inline-block",
-    marginTop: 8,
-    marginBottom: 8,
-  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -166,12 +155,16 @@ const TagPage = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
-   } = Components;
+    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    SectionTitle, TagTableOfContents, ContentStyles
+  } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { revision } = query;
+  
+  // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
+  const { version: queryVersion, revision: queryRevision } = query;
+  const revision = queryVersion ?? queryRevision ?? null;
+  
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
@@ -208,6 +201,7 @@ const TagPage = ({classes}: {
     skip: !query.flagId
   })
   
+  useOnSearchHotkey(() => setTruncated(false));
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -267,37 +261,13 @@ const TagPage = ({classes}: {
   const readMoreHtml = "<span>...<p><a>(Read More)</a></p></span>"
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
-
-  // The default is to truncate after tag.descriptionTruncationCount or 4 paragraphs.
-  // The EA Forum prefers to truncate less so only truncate here if descriptionTruncationCount
-  // is set, otherwise truncate on specific breakpoints (e.g. "Further reading")
-  if (truncated && !tag.wikiOnly && (!isEAForum || tag.descriptionTruncationCount)) {
-    description = truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", readMoreHtml)
-  }
-
-  if(isEAForum && truncated) {
-    const breakpointIndices = [
-      'id="Further_reading"',
-      'id="Bibliography"',
-      'id="Related_entries"',
-      'class="footnotes"',
-    ].map(matchString => htmlWithAnchors.indexOf(matchString)).filter(index => index > -1)
-
-    const truncationLength = breakpointIndices.length > 0 ? min(breakpointIndices) : null;
-
-    /**
-     * The `truncate` method used above uses a complicated criterion for what
-     * counts as a character. Here, we want to truncate at a known index in
-     * the string. So rather than using `truncate`, we can slice the string
-     * at the desired index, use `parseFromString` to clean up the HTML,
-     * and then append our footer 'read more' element.
-     */
-    const semanticallyTruncatedDesc = truncationLength ?
-        new DOMParser().parseFromString(htmlWithAnchors.slice(0, truncationLength), "text/html").body.innerHTML +
-        readMoreHtml : htmlWithAnchors;
-
-    // description may already have been truncated (if descriptionTruncationCount is set), so only use semanticallyTruncatedDesc if it's actually shorter
-    description = description.length > semanticallyTruncatedDesc.length ? semanticallyTruncatedDesc : description;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+  } else {
+    description = (truncated && !tag.wikiOnly)
+    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+    : htmlWithAnchors
   }
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
@@ -330,20 +300,10 @@ const TagPage = ({classes}: {
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       <ToCColumn
         tableOfContents={
-          tag.tableOfContents
-            ? <span className={classes.tableOfContentsWrapper}>
-                <TableOfContents
-                  sectionData={tag.tableOfContents}
-                  title={tag.name}
-                  onClickSection={expandAll}
-                />
-                <Link to="/tags/random" className={classes.randomTagLink}>
-                  Random {taggingNameCapitalSetting.get()}
-                </Link>
-                <TableOfContentsRow href="#" divider={true}/>
-                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-              </span>
-            : null
+          <TagTableOfContents
+            tag={tag} expandAll={expandAll} showContributors={true}
+            onHoverContributor={onHoverContributor}
+          />
         }
         header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>

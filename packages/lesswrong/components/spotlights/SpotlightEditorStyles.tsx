@@ -16,9 +16,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       '& .input-spotlightImageId': {
         width: "66%"
       },
-      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft': {
+      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft': {
         width: "calc(33% - 12px)",
         overflow: "hidden",
+        marginRight: 12
+      },
+      '& .input-lastPromotedAt': {
+        width: "calc(33% - 12px)",
         marginRight: 12
       },
       '& .form-submit': {

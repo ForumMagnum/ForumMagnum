@@ -6,8 +6,7 @@ import { ApiRoute, apiRoutes, makeApiUrl } from "./routes";
 import { signToken } from "./tokens";
 import type { Request } from "express";
 import fetch from "node-fetch";
-
-export const crosspostUserAgent = "ForumMagnum/2.1";
+import { crosspostUserAgent } from "../../lib/apollo/links";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;

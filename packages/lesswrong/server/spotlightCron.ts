@@ -2,7 +2,6 @@ import Spotlights from '../lib/collections/spotlights/collection';
 import { addCronJob } from './cronUtil';
 
 const MS_IN_DAY = 1000 * 60 * 60 * 24;
-const ACTIVE_DAYS = 3;
 
 addCronJob({
   name: 'updatePromotedSpotlightItem',
@@ -26,7 +25,7 @@ addCronJob({
     const msSincePromotion = now.valueOf() - lastPromotionDate.valueOf();
     const daysSincePromotion = Math.floor(msSincePromotion / MS_IN_DAY);
 
-    if (daysSincePromotion < ACTIVE_DAYS) {
+    if (daysSincePromotion < currentSpotlight.duration) {
       return;
     }
 
@@ -36,7 +35,7 @@ addCronJob({
     // If we have any further spotlight items after the current one, promote the next one
     // Otherwise, roll over to the start
     const promoteIndex = lastSpotlightPosition > currentSpotlightPosition
-      ? positionAscOrderedSpotlights.indexOf(lastSpotlightByPosition) + 1
+      ? positionAscOrderedSpotlights.indexOf(currentSpotlight) + 1
       : 0;
 
     const { position: positionToPromote } = positionAscOrderedSpotlights[promoteIndex];
@@ -45,7 +44,7 @@ addCronJob({
     // But doing it this way prevents a slow "walk" due to the cron job interval...
     // ...ensuring the promotion happens at around the same time, and each period length is still roughly constant
     const newPromotionDate = new Date(lastPromotionDate);
-    newPromotionDate.setDate(lastPromotionDate.getDate() + ACTIVE_DAYS);
+    newPromotionDate.setDate(lastPromotionDate.getDate() + currentSpotlight.duration);
 
     await Spotlights.rawUpdateOne({ position: positionToPromote, draft: false }, { $set: { lastPromotedAt: newPromotionDate } });
   }

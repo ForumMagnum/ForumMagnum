@@ -291,14 +291,16 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `You have been shared on the ${post.draft ? "draft" : "post"} ${post.title}`;
+    const name = await postGetAuthorName(post);
+    return `${name} shared their ${post.draft ? "draft" : "post"} "${post.title}" with you`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetPageUrl(post, true);
+    const name = await postGetAuthorName(post);
     return <p>
-      You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
+      {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
     </p>
   },
 });
@@ -523,8 +525,8 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
         Hi {user.displayName},
       </p>
       <p>
-        Your subforum, <a href={tagGetSubforumUrl(subforum)}> {subforum?.name}</a> has a new
-        member: <a href={userGetProfileUrl(newUser)}>{newUser?.displayName}</a>.
+        Your subforum, <a href={tagGetSubforumUrl(subforum, true)}> {subforum?.name}</a> has a new
+        member: <a href={userGetProfileUrl(newUser, true)}>{newUser?.displayName}</a>.
       </p>
       <p>
         - The {forumTitleSetting.get()} Team
