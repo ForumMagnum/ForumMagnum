@@ -1,10 +1,19 @@
-import { Umzug, memoryStorage } from "umzug";
+import { Umzug } from "umzug";
 import { readFileSync } from "fs";
+import { createHash } from "crypto";
 import { createSqlConnection } from "../../sqlConnection";
+import PgStorage from "./PgStorage";
 
 declare global {
+  interface MigrationTimer {
+    start: Date;
+    end: Date,
+  }
+
   interface MigrationContext {
     db: SqlClient;
+    timers: Record<string, Partial<MigrationTimer>>;
+    hashes: Record<string, string>;
   }
 }
 
@@ -13,14 +22,26 @@ const root = "./packages/lesswrong/server/migrations";
 export const createMigrator = async () => {
   const db = await createSqlConnection();
 
+  const storage = new PgStorage();
+  await storage.setupEnvironment(db);
+
   return new Umzug({
     migrations: {
       glob: `${root}/*.ts`,
       resolve: ({name, path, context}) => {
-        const migration = require(path!);
+        if (!path) {
+          throw new Error("Missing migration path");
+        }
+        const code = readFileSync(path).toString();
+        context.hashes[name] = createHash("md5").update(code).digest("hex");
         return {
           name,
-          up: () => migration.up(context),
+          up: async () => {
+            context.timers[name] = {start: new Date()};
+            const result = await require(path).up(context);
+            context.timers[name].end = new Date();
+            return result;
+          },
           down: () => {
             throw new Error("Down migrations are not supported");
           },
@@ -29,8 +50,10 @@ export const createMigrator = async () => {
     },
     context: {
       db,
+      timers: {},
+      hashes: {},
     },
-    storage: memoryStorage(),
+    storage,
     logger: console,
     create: {
       template: (filepath: string) => [
