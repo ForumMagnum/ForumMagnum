@@ -1059,6 +1059,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
+  readonly subforumTagId: string,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts

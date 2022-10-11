@@ -11,6 +11,8 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import Button from "@material-ui/core/Button";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -86,6 +88,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   } = Components;
 
   const { params, query } = useLocation();
+  const currentUser = useCurrentUser()
   const { slug } = params;
   const sortBy = query.sortBy || subforumDefaultSorting;
 
@@ -118,6 +121,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     </div>
   ) : <></>;
 
+  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
   const titleComponent = <>
     <LWTooltip title={`To ${taggingNameSetting.get()} page`} placement="top-start" className={classes.tooltip}>
       <Link to={tagGetUrl(tag)}>
@@ -125,6 +129,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
       </Link>
     </LWTooltip>
     {" "}Subforum
+    {isSubscribed && <Button href={`/newPost?subforumTagId=${tag._id}`}>Add Post</Button>}
   </>
 
   return (
