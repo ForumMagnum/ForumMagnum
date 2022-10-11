@@ -31,7 +31,7 @@ export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => mo
 export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
 export const userHasDefaultProfilePhotos = disabled
 
-export const userHasThemePicker = shippedFeature;
+export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
