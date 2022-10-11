@@ -28,6 +28,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+  importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
   importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
   importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/advice/AdvisorsRequestPage'))
   importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
@@ -513,6 +514,7 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
+importComponent("TagSubforumButton", () => require('../components/tagging/TagSubforumButton'));
 importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 

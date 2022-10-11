@@ -857,6 +857,11 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -1083,6 +1088,11 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  } | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -1988,6 +1998,7 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
+  readonly subforumUnreadMessagesCount: number,
   readonly contributors: any,
 }
 
@@ -1998,6 +2009,7 @@ interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
+  readonly subforumUnreadMessagesCount: number,
   readonly contributors: any,
 }
 

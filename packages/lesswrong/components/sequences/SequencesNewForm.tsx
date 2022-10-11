@@ -84,6 +84,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
         position: "absolute !important",
         left: 0,
         maxWidth: "100%",
+        '& img': {
+          width: "100% !important",
+          height: "380px !important",
+        },
+        '& .ImageUpload-root': {
+          marginLeft: '0 !important',
+          paddingTop: '0 !important'
+        },
   
         [theme.breakpoints.down('sm')]: {
           marginTop: 40,

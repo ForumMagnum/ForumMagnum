@@ -5,13 +5,16 @@ import { onStartup } from '../lib/executionEnvironment';
 import type { TimeOverride } from '../lib/utils/timeUtil';
 
 import { createApolloClient } from './apolloClient';
+import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 
 onStartup(() => {
   populateComponentsAppDebug();
   const apolloClient = createApolloClient();
   apolloClient.disableNetworkFetches = true;
-  
+  const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
+  foreignApolloClient.disableNetworkFetches = true;
+
   const ssrRenderedAt: Date = window.ssrRenderedAt;
   const timeOverride: TimeOverride = {currentTime: ssrRenderedAt};
 
@@ -23,14 +26,21 @@ onStartup(() => {
   }
 
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={window.themeOptions} timeOverride={timeOverride} />
+    <AppGenerator
+      apolloClient={apolloClient}
+      foreignApolloClient={foreignApolloClient}
+      abTestGroupsUsed={{}}
+      themeOptions={window.themeOptions}
+      timeOverride={timeOverride}
+    />
   );
-  
+
   ReactDOM.hydrate(
     <Main />,
     document.getElementById('react-app'),
     () => {
       apolloClient.disableNetworkFetches = false;
+      foreignApolloClient.disableNetworkFetches = false;
       timeOverride.currentTime = null;
     }
   );
