@@ -68,7 +68,7 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
   if (
-    denormalizedFieldKeys.some((key) => data[key] !== undefined) &&
+    denormalizedFieldKeys.some((key) => data[key] !== undefined && data[key] !== document[key]) &&
     document.fmCrosspost?.foreignPostId
   ) {
     const denormalizedData = denormalizedFieldKeys.reduce(
