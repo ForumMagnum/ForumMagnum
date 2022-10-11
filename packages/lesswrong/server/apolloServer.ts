@@ -298,7 +298,6 @@ export function startWebserver() {
       redirectUrl,
       renderedAt,
       allAbTestGroups,
-      
     } = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
