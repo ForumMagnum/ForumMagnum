@@ -19,7 +19,7 @@ export const crosspostUserAgent = "ForumMagnum/2.1";
  * Schema link is used for SSR
  */
 export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
-  new SchemaLink({ schema, context: () => context });
+  new SchemaLink({ schema, context: () => ({...context}) });
 
 /**
  * Http link is used for client side rendering
