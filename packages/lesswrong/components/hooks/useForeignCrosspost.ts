@@ -28,23 +28,6 @@ const overrideFields = [
   "tableOfContents",
   "url",
   "readTimeMinutes",
-  "activateRSVPs",
-  "eventType",
-  "startTime",
-  "endTime",
-  "localStartTime",
-  "localEndTime",
-  "mongoLocation",
-  "googleLocation",
-  "location",
-  "contactInfo",
-  "eventRegistrationLink",
-  "joinEventLink",
-  "onlineEvent",
-  "globalEvent",
-  "facebookLink",
-  "meetupLink",
-  "website",
 ] as const;
 
 /**
