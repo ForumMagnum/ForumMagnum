@@ -33,8 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: theme.spacing.unit*0.25,
-    paddingRight: theme.spacing.unit*1.25,
+    paddingLeft: 2,
+    paddingRight: 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon.maxIntensity,
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   leftCurated: {
     position: "relative",
     top: -1,
-    marginRight: theme.spacing.unit*0.5,
+    marginRight: 4,
   },
   strikethroughTitle: {
     textDecoration: "line-through"

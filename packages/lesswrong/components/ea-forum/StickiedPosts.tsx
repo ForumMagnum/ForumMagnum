@@ -1,13 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { sectionTitleStyle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: 24,
     [theme.breakpoints.down("md")]: {
-      marginTop: theme.spacing.unit * 1.5,
-      marginBottom: theme.spacing.unit,
+      marginTop: 12,
+      marginBottom: 8,
     }
   },
 });
