@@ -312,6 +312,12 @@ const SearchPageTabbed = ({classes}:{
           label="Curated"
           value={true}
         />}
+        {tab === 'Posts' && <ToggleRefinement
+          attribute="isEvent"
+          label="Exclude events"
+          value={false}
+          defaultRefinement={true}
+        />}
         {tab === 'Tags' && <ToggleRefinement
           attribute="isSubforum"
           label="Has subforum"

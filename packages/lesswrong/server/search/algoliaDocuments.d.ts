@@ -87,6 +87,7 @@ interface AlgoliaPost {
   postedAt: Date,
   publicDateMs: number,
   isFuture: boolean,
+  isEvent: boolean,
   viewCount: number,
   lastCommentedAt: Date,
   draft: boolean,
@@ -97,7 +98,8 @@ interface AlgoliaPost {
   authorFullName?: string,
   feedName?: string,
   feedLink?: string,
-  body: string
+  body: string,
+  order: number // we split posts into multiple records (based on body paragraph) - this tells us the order to reconstruct them
 }
 
 interface AlgoliaTag {
