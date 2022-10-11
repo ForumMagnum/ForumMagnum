@@ -17,9 +17,12 @@ export const isPostWithForeignId =
     typeof post.fmCrosspost.hostedHere === "boolean" &&
     !!post.fmCrosspost.foreignPostId;
 
-// If this post was crossposted from elsewhere then we want to take most of the fields from
-// our local copy (for correct links/ids/etc.) but we need to override a few specific fields
-// to actually get the correct content and some metadata that isn't denormalized across sites
+/**
+ * If this post was crossposted from elsewhere then we want to take some of the fields from
+ * our local copy (for correct links/ids/etc.), but we want to override many of the fields with foreign
+ * data, to keep the origin post as the source of truth, and get some metadata that isn't 
+ * denormalized across sites.
+ */
 const overrideFields = [
   "contents",
   "tableOfContents",
