@@ -1,5 +1,4 @@
 import { MigrationParams, UmzugStorage } from "umzug";
-import { pluck } from "underscore";
 
 /**
  * We use umzug for orchestrating migrations which is agnostic to any particular
@@ -52,7 +51,7 @@ class PgStorage implements UmzugStorage<MigrationContext> {
         WHERE name = $1 AND unlog_time IS NULL
         ORDER BY end_time DESC LIMIT 1
         FOR UPDATE
-      ) A
+      )
     `, [name]);
   }
 
@@ -61,8 +60,8 @@ class PgStorage implements UmzugStorage<MigrationContext> {
    */
   async executed({context}: Pick<MigrationParams<MigrationContext>, "context">): Promise<string[]> {
     const {db} = context;
-    const result = await db.any("SELECT name FROM migration_log ORDER BY end_time DESC");
-    return pluck(result, "name");
+    const result: {name: string}[] = await db.any("SELECT name FROM migration_log ORDER BY end_time DESC");
+    return result.map(({name}) => name);
   }
 }
 

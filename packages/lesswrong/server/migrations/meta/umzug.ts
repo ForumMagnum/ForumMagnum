@@ -7,7 +7,7 @@ import PgStorage from "./PgStorage";
 declare global {
   interface MigrationTimer {
     start: Date;
-    end: Date,
+    end: Date;
   }
 
   interface MigrationContext {
@@ -38,6 +38,7 @@ export const createMigrator = async () => {
           name,
           up: async () => {
             context.timers[name] = {start: new Date()};
+            // eslint-disable-next-line import/no-dynamic-require
             const result = await require(path).up(context);
             context.timers[name].end = new Date();
             return result;
