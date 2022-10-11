@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Posts' : 'Latest'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
