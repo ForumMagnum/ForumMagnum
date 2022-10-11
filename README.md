@@ -152,6 +152,17 @@ used.
 * (Note: currently aspirational): If you fix a bug, **write a test for it**.
 * If you're trying to debug an email problem, you might want to know about `forcePendingEvents`.
 
+### Database Migrations
+
+All migrations should be designed to be idempotent and should represent a
+one-off operation (such as updating a table schema). Operations that need to be
+run multiple times should instead be implemented as a server script.
+
+* Run pending migrations with `yarn migrate up`
+* Create a new migration with `yarn migrate create --name=my-new-migration`
+* View pending migrations with `yarn migrate pending`
+* View executed migrations with `yarn migrate executed`
+
 ## Testing
 
 We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
