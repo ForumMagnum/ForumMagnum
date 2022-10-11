@@ -1,12 +1,16 @@
 class TableIndex {
+  private name: string;
+
   constructor(
     private tableName: string,
     private fields: string[],
     private options?: MongoEnsureIndexOptions,
   ) {
-    if (options?.partialFilterExpression) {
-      // eslint-disable-next-line no-console
-      console.warn("partialFilterExpression not supported", tableName, fields, options);
+    this.name = options?.name
+      ? "idx_" + options.name.replace(/\./g, "_")
+      : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
+    if (options?.partialFilterExpression && !options.name) {
+      this.name += "_filtered";
     }
   }
 
@@ -23,9 +27,7 @@ class TableIndex {
   }
 
   getName() {
-    return this.options?.name
-      ? "idx_" + this.options.name.replace(/\./g, "_")
-      : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
+    return this.name;
   }
 
   getDetails() {
@@ -34,6 +36,10 @@ class TableIndex {
       key: this.fields,
       ...this.options,
     };
+  }
+
+  getPartialFilterExpression() {
+    return this.options?.partialFilterExpression;
   }
 
   isUnique() {

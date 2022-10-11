@@ -22,9 +22,16 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
       table,
       "USING",
     ]);
+
     this.isUnique = index.isUnique();
     const {useGin, fields} = this.getFieldList(index);
     this.atoms = this.atoms.concat([useGin ? "gin (" : "btree (", ...fields, ")"]);
+
+    const filter = index.getPartialFilterExpression();
+    if (filter) {
+      this.atoms.push("WHERE");
+      this.atoms = this.atoms.concat(this.compileSelector(filter));
+    }
   }
 
   private getFieldList(index: TableIndex): {useGin: boolean, fields: Atom<T>[]} {

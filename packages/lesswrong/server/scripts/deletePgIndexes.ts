@@ -1,4 +1,4 @@
-import { Vulcan, getCollection } from "../vulcan-lib";
+import { Vulcan } from "../vulcan-lib";
 import { createSqlConnection } from "../sqlConnection";
 
 /**
@@ -20,7 +20,14 @@ export const deletePgIndexes = async () => {
   `);
   for (const index of indexes) {
     const {indexname} = index;
-    await sql.none(`DROP INDEX ${indexname}`);
+    try {
+      // eslint-disable-next-line no-console
+      console.log(`Deleting index '${indexname}'`);
+      await sql.none(`DROP INDEX "${indexname}"`);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to delete index '${indexname}':`, e.message);
+    }
   }
 }
 
