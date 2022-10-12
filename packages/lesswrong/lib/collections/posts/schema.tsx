@@ -1136,10 +1136,13 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.adminOptions,
   },
   suggestForCuratedUserIds: {
+    // FIXME: client-side mutations of this are rewriting the whole thing,
+    // when they should be doing add or delete. The current set up can cause
+    // overwriting of other people's changes in a race.
     type: Array,
     viewableBy: ['members'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
+    editableBy: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
     optional: true,
     label: "Suggested for Curated by",
     control: "UsersListEditor",
@@ -2345,7 +2348,7 @@ Object.assign(schema, {
     }),
     viewableBy: ['members'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins'],
+    editableBy: [canUserEditPostMetadata, 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",

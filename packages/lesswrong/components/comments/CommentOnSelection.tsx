@@ -1,6 +1,8 @@
-import React, { useEffect, useContext, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@material-ui/icons/ModeComment';
+import { userHasCommentOnSelection } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -60,7 +62,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
         return;
       }
       
-      // Determine whether this selection is fully wrapped in a single CommentOnSelectionWrapper
+      // Determine whether this selection is fully wrapped in a single CommentOnSelectionContentWrapper
       let commonWrapper: HTMLElement|null = null;
       let hasCommonWrapper = true;
       for (let i=0; i<selection.rangeCount; i++) {
@@ -155,6 +157,7 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   children: React.ReactNode,
 }) => {
   const wrapperSpanRef = useRef<HTMLSpanElement|null>(null);
+  const currentUser = useCurrentUser();
   
   useEffect(() => {
     if (wrapperSpanRef.current) {
@@ -166,6 +169,10 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
       }
     }
   }, [onClickComment]);
+  
+  if (!userHasCommentOnSelection(currentUser)) {
+    return <>{children}</>;
+  }
   
   return <span className="commentOnSelection" ref={wrapperSpanRef}>
     {children}

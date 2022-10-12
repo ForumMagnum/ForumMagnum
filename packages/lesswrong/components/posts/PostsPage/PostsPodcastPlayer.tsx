@@ -70,7 +70,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   // Inspiration: https://gist.github.com/jaydson/1780598
   // This won't trigger more than once per page load, unless the user clicks outside the div element, which will reset it
   useEventListener('blur', (e) => {
-    if (mouseOverDiv) {
+    if (mouseOverDiv.current) {
       captureEvent('clickInsidePodcastPlayer', { postId, externalEpisodeId: podcastEpisode.externalEpisodeId });
     }
   });

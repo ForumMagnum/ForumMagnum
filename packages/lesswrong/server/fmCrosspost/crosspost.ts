@@ -4,7 +4,8 @@ import { randomId } from "../../lib/random";
 import { Crosspost, UpdateCrosspostPayload, CrosspostPayload } from "./types";
 import { signToken } from "./tokens";
 import { apiRoutes, makeApiUrl } from "./routes";
-import { makeCrossSiteRequest, crosspostUserAgent } from "./resolvers";
+import { makeCrossSiteRequest } from "./resolvers";
+import { crosspostUserAgent } from "../../lib/apollo/links";
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
   if (!post.fmCrosspost || !post.userId || post.draft) {

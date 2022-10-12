@@ -2278,6 +2278,16 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.disabledPrivileges,
     order: 72,
   },
+
+  acknowledgedNewUserGuidelines: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
 };
 
 /* Alignment Forum fields */
