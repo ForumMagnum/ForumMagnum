@@ -34,6 +34,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const getDraftMessageHtml = ({html, displayName, firstName}) => {
+  if (!html) return
+  let newHtml = html.replace(/.*\\\\/, "")
+  if (displayName) {
+    newHtml = newHtml.replace(/{{displayName}}/g, displayName)
+  }
+  if (firstName) {
+    newHtml = newHtml.replace(/{{firstName}}/g, firstName)
+  }
+  return newHtml
+}
+
 // The Navigation for the Inbox components
 const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   documentId: string,
@@ -111,6 +123,8 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
 
   const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
 
+  const templateHtml = getDraftMessageHtml({html: template?.contents?.html, displayName: query.displayName, firstName: query.firstName })
+
   return (
     <SingleColumnSection>
       <div className={classes.conversationSection}>
@@ -133,7 +147,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
               contents: {
                 originalContents: {
                   type: "ckEditorMarkup",
-                  data: template?.contents?.html,
+                  data: templateHtml
                 }
               }
             }}
