@@ -31,7 +31,7 @@ import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
 import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
-import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../mongoMigrations/2020-05-13-noIndexLowKarma';
+import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
 function getPosts (selector: any) {
   const defaultSelector = {

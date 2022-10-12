@@ -52,8 +52,8 @@ import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
-import './server/mongoMigrations';
-import './server/mongoMigrations/migrationsDashboardGraphql';
+import './server/manualMigrations';
+import './server/manualMigrations/migrationsDashboardGraphql';
 
 import './server/legacy-redirects/routes';
 import './server/material-ui/themeProvider';
