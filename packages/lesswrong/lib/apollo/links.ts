@@ -19,6 +19,7 @@ export const crosspostUserAgent = "ForumMagnum/2.1";
  * Schema link is used for SSR
  */
 export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
+  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
   new SchemaLink({ schema, context: () => ({...context}) });
 
 /**
