@@ -2,8 +2,6 @@
 name: Run Unit Tests
 on:
   push:
-    branches-ignore:
-      - wh-ci-debug-2022-10
   pull_request:
 jobs:
   buildAndTest:
