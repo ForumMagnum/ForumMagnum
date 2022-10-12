@@ -4,12 +4,8 @@ import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
-import { tagGetSubforumUrl } from '../tags/helpers';
-
-export enum TagCommentType {
-  Subforum = "SUBFORUM",
-  Discussion = "DISCUSSION",
-}
+import { tagGetCommentLink, tagGetSubforumUrl } from '../tags/helpers';
+import { TagCommentType } from './types';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
@@ -32,7 +28,6 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
       return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
     } else {
       return `${prefix}${tagGetSubforumUrl(tag)}#${comment._id}`;
-      
     }
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
@@ -50,10 +45,11 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
   }
 }
 
-export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, permalink=true, isAbsolute=false}: {
+export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string,
   postSlug?: string,
   tagSlug?: string,
+  tagCommentType?: TagCommentType,
   commentId: string,
   permalink?: boolean, isAbsolute?: boolean,
 }): string {
@@ -66,7 +62,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, 
       return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
     }
   } else if (tagSlug) {
-    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion#${commentId}`;
+    return tagGetCommentLink(tagSlug, commentId, tagCommentType, isAbsolute);
   } else {
     //throw new Error("commentGetPageUrlFromIds needs a post or tag");
     return "/"

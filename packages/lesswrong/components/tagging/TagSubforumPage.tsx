@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
@@ -6,30 +6,39 @@ import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import startCase from "lodash/startCase";
+import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { Link } from "../../lib/reactRouterWrapper";
+import { tagGetUrl } from "../../lib/collections/tags/helpers";
+import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: 0,
+    margin: "0 32px",
     display: "flex",
     flexDirection: "row",
+    justifyContent: "center",
+    columnGap: 32,
     [theme.breakpoints.down("md")]: {
+      margin: 0,
       flexDirection: "column",
     },
   },
   columnSection: {
-    marginBottom: 0,
-    width: "100%",
-  },
-  fullWidth: {
-    flex: 'none',
+    maxWidth: '100%',
+    [theme.breakpoints.up("lg")]: {
+      margin: 0,
+    },
+    [theme.breakpoints.down("md")]: {
+      marginBottom: 0,
+    },
   },
   stickToBottom: {
     marginTop: "auto",
+    marginBottom: 3,
   },
-  welcomeBoxPadding: {
-    padding: "32px 32px 3px 32px",
-    marginLeft: "auto",
-    width: "fit-content",
+  aside: {
+    width: 380,
     [theme.breakpoints.down("md")]: {
       display: "none",
     },
@@ -41,17 +50,40 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.secondary.main,
     borderWidth: 2,
     borderRadius: 3,
-    maxWidth: 380,
   },
   title: {
     textTransform: "capitalize",
     marginLeft: 24,
     marginBottom: 10,
   },
+  wikiSidebar: {
+    marginTop: 84,
+    gridColumnStart: 3,
+    padding: '2em',
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
+    '& a': {
+      color: theme.palette.primary,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    },
+  }
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
-  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody } = Components;
+  const {
+    Error404,
+    Loading,
+    SubforumCommentsThread,
+    SectionTitle,
+    SingleColumnSection,
+    Typography,
+    ContentStyles,
+    ContentItemBody,
+    LWTooltip,
+    HeadTags,
+  } = Components;
 
   const { params, query } = useLocation();
   const { slug } = params;
@@ -75,26 +107,37 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
-  const welcomeBoxComponent = tag.subforumWelcomeText ? (
-    <div className={classes.welcomeBoxPadding}>
-      <div className={classes.welcomeBox}>
-        <ContentStyles contentType="comment">
-          <ContentItemBody
-            dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
-            description={`${tag.name} subforum`}
-          />
-        </ContentStyles>
-      </div>
+  const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
+    <div className={classes.welcomeBox}>
+      <ContentStyles contentType="comment">
+        <ContentItemBody
+          dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
+          description={`${tag.name} subforum`}
+        />
+      </ContentStyles>
     </div>
   ) : <></>;
 
+  const titleComponent = <>
+    <LWTooltip title={`To ${taggingNameSetting.get()} page`} placement="top-start" className={classes.tooltip}>
+      <Link to={tagGetUrl(tag)}>
+        {startCase(tag.name)}
+      </Link>
+    </LWTooltip>
+    {" "}Subforum
+  </>
+
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.columnSection, classes.stickToBottom)}>
+      <HeadTags
+        description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
+        title={`${startCase(tag.name)} Subforum`}
+      />
+      <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
+        <SectionTitle title={titleComponent} className={classes.title} />
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}
@@ -102,7 +145,13 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           />
         </AnalyticsContext>
       </SingleColumnSection>
-      <div className={classes.columnSection}></div>
+      <div className={classNames(classes.columnSection, classes.aside)}>
+        {tag?.tableOfContents?.html &&
+          <ContentStyles contentType="tag">
+            <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }} />
+          </ContentStyles>
+        }
+      </div>
     </div>
   );
 };
