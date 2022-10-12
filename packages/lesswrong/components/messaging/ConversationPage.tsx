@@ -35,6 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getTemplateHtml = ({html, displayName, greetingName}) => {
+  if (!html) return
   let newHtml = html.replace(/.*\\\\/, "")
   if (displayName) {
     newHtml = newHtml.replace(/{{displayName}}/g, displayName)
