@@ -109,12 +109,14 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
   if (!conversation) return <Error404 />
 
+  const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
+
   return (
     <SingleColumnSection>
       <div className={classes.conversationSection}>
         <div className={classes.row}>
           <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
-          {userCanDo(currentUser, 'conversations.view.all') && conversation.moderator && <Typography variant="body2" className={classes.backButton}>
+          {showModInboxLink && <Typography variant="body2" className={classes.backButton}>
             <Link to="/moderatorInbox"> Moderator Inbox </Link>
           </Typography>}
         </div>

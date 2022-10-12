@@ -470,6 +470,7 @@ importComponent("PostKarmaWithPreview", () => require('../components/sunshineDas
 importComponent("SunshineNewCommentsList", () => require('../components/sunshineDashboard/SunshineNewCommentsList'));
 importComponent("SunshineReportedContentList", () => require('../components/sunshineDashboard/SunshineReportedContentList'));
 importComponent("SunshineReportedItem", () => require('../components/sunshineDashboard/SunshineReportedItem'));
+importComponent("ModeratorMessageCount", () => require('../components/sunshineDashboard/ModeratorMessageCount'));
 importComponent("SunshineCuratedSuggestionsItem", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsItem'));
 importComponent("SunshineCuratedSuggestionsList", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsList'));
 importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));

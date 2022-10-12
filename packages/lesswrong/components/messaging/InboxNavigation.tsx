@@ -7,11 +7,11 @@ import qs from 'qs'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations"}: {
+const InboxNavigation = ({classes, terms, currentUser, title=<>Your Conversations</>}: {
   classes: ClassesType,
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
-  title?: String
+  title?: JSX.Element
 }) => {
   const location = useLocation();
   const { query } = location;
