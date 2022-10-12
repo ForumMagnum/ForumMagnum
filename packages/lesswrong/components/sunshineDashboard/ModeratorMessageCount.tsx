@@ -34,7 +34,7 @@ export const ModeratorMessageCount = ({classes, userId}: {
 
   return <LWTooltip title={`Moderator Conversation Count${loading && " (loading)"}`}>
     <Link className={classes.root} to={`/moderatorInbox?userId=${userId}`}>
-      {loading && "-"} {totalCount} <EmailIcon className={classes.icon}/>
+      {loading && "?"} {totalCount} <EmailIcon className={classes.icon}/>
     </Link>
   </LWTooltip>
 }
