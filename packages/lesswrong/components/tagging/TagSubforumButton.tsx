@@ -48,7 +48,7 @@ const TagSubforumButton = ({
       <Link className={classes.discussionButton} to={tagGetSubforumUrl(tag)}>
         <CommentOutlinedIcon className={classes.discussionButtonIcon} />
         <span className={classes.hideOnMobile}>Subforum</span>
-        <span className={classes.discussionCount}>&nbsp;{`(${tag.subforumUnreadMessagesCount})`}</span>
+        <span className={classes.discussionCount}>&nbsp;{`(${tag.subforumUnreadMessagesCount || 0})`}</span>
       </Link>
     </AnalyticsContext>
   );
