@@ -9,12 +9,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, templateCommentId, from, includeModerators }: {
+const NewConversationButton = ({ user, currentUser, children, from, includeModerators, templateQueries }: {
   user: {
     _id: string
   },
   currentUser: UsersCurrent|null,
-  templateCommentId?: string,
+  templateQueries?: object,
   from?: string,
   children: any,
   includeModerators?: boolean
@@ -59,13 +59,13 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
 
   const existingConversationCheck = (initiatingUser: UsersCurrent) => () => {
     let searchParams: Array<string> = []
-    if (templateCommentId) {
-      searchParams.push(qs.stringify({templateCommentId: templateCommentId}))
+    if (templateQueries) {
+      searchParams.push(qs.stringify(templateQueries))
     }
     if (from) {
       searchParams.push(`from=${from}`)
     }
-    const search = searchParams ? {search:`?${searchParams.join('&')}`} : {}
+    const search = searchParams.length > 0 ? {search:`?${searchParams.join('&')}`} : {}
     
     for (let conversation of (results ?? [])) {
       history.push({pathname: `/inbox/${conversation._id}`, ...search})
