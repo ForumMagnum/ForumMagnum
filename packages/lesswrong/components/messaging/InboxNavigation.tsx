@@ -5,6 +5,8 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
+import { userCanDo } from '../../lib/vulcan-users';
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations"}: {
@@ -14,7 +16,7 @@ const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations
   title?: String
 }) => {
   const location = useLocation();
-  const { query } = location;
+  const { currentRoute, query } = location;
   const { history } = useNavigation();
   
   const { results, loading, loadMoreProps } = useMulti({
@@ -43,14 +45,19 @@ const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations
     history.push({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute.name !== "moderatorInbox"
+
   return (
     <SingleColumnSection>
         <SectionTitle title={title}>
-          <SectionFooterCheckbox
-            onClick={expandCheckboxClick}
-            value={expanded}
-            label={"Expand"}
-          />
+          <SectionFooter>
+            <SectionFooterCheckbox
+              onClick={expandCheckboxClick}
+              value={expanded}
+              label={"Expand"}
+            />
+            {showModeratorLink && <Link to={"/moderatorInbox"}>Mod Inbox</Link>}
+          </SectionFooter>
         </SectionTitle>
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} currentUser={currentUser} expanded={expanded}/>
