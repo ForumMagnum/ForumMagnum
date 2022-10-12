@@ -1,7 +1,7 @@
 import { randomSecret } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { Posts } from '../../lib/collections/posts/collection';
-import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
+import { canUserEditDbPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isCollaborative } from '../../components/editor/EditorFormComponent';
 import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
@@ -152,7 +152,7 @@ defineMutation({
     }
     
     // Must have write access to the post
-    if (!canUserEditPostMetadata(currentUser, post)) {
+    if (!canUserEditDbPostMetadata(currentUser, post)) {
       throw new Error("You don't have write access to this post");
     }
     

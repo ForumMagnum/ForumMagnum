@@ -3,7 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
+import { canUserEditPostMetadata, canUserEditDbPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { allOf } from '../../utils/functionUtils';
@@ -28,9 +28,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
 
-    
-    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
-    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
+    return canUserEditDbPostMetadata(user, document) || userIsPodcaster(user)
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {

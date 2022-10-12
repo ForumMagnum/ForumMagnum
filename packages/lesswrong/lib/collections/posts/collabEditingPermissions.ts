@@ -1,5 +1,6 @@
 import { getCollection } from '../../vulcan-lib/getCollection';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { canUserEditDbPostMetadata } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
@@ -35,8 +36,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, useAdm
   // powers.
   useAdminPowers: boolean,
 }): Promise<CollaborativeEditingAccessLevel> {
-  const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
-  const canEdit = post && (userOwns(user, post) || canEditAsAdmin)
+  const canEdit = post && await canUserEditDbPostMetadata(user, post);
   const canView = post && await getCollection("Posts").checkAccess(user, post, null);
   let accessLevel: CollaborativeEditingAccessLevel = "none";
   

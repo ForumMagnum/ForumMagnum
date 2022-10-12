@@ -185,13 +185,19 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
+export const canUserEditDbPostMetadata = async (currentUser: UsersCurrent|DbUser|null, post: DbPost): Promise<boolean> => {
+  const group = await Localgroups.findOne({_id: post.groupId});
+  return canUserEditPostMetadata(currentUser, {...post, group} as unknown as PostsBase);
+}
+
 /**
  * Whether the user can make updates to the post document (including both the main post body and most other post fields)
  */
-export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase): boolean => {
   if (!currentUser) return false;
 
-  const organizerIds = (post as PostsBase)?.group?.organizerIds;
+  console.log("GROUP", post.group);
+  const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
   if (isPostGroupOrganizer) return true
 
