@@ -6322,10 +6322,10 @@ dayjs@^1.10.4:
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.6.tgz#288b2aa82f2d8418a6c9d4df5898c0737ad02a63"
   integrity sha512-AztC/IOW4L1Q41A86phW5Thhcrco3xuAA+YX/BLpLWWjRcTj5TOt/QImBLmCKlrF7u7k47arTnOyL6GnbG8Hvw==
 
-dd-trace@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.4.0.tgz#a2434fa1314e2606f50b03f70e6fd7cb07038328"
-  integrity sha512-78z1fSno/tWnAMuBTpGxEfOJ9ZR4jmRLCTt/RDtkm5jgKyR4F8oHK7r6IGBiY5en/dqM9FI/vJnCSPExaReBSQ==
+dd-trace@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.5.0.tgz#775b8570fb68c1211afabc3481e55f1282e5b7bf"
+  integrity sha512-lPGIejDSjoNFLr/ZFrqb5uCKa2gwQLQxRqOE+lzSjp89nSAwnC3l3YcDnKG53pTjLjA1AO+zUxfOwGLZvzkO4g==
   dependencies:
     "@datadog/native-appsec" "^1.2.1"
     "@datadog/native-metrics" "^1.4.3"
