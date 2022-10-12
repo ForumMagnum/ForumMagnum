@@ -154,7 +154,14 @@ used.
 
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+
+### Jest
+
+* Run the unit test suite with `yarn unit`
+* Run the integration test suite with `yarn integration`
+
+Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
 ### Cypress
 
