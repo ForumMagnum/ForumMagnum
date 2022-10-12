@@ -1,3 +1,4 @@
+import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
