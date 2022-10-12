@@ -317,7 +317,7 @@ interface emailHistoryFragment { // fragment on LWEvents
 
 interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly clientId: string,
-  readonly firstSeenReferrer: string,
+  readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string>,
 }
@@ -2337,6 +2337,13 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly snoozedUntilContentCount: number,
+  readonly associatedClientId: SunshineUsersList_associatedClientId|null,
+}
+
+interface SunshineUsersList_associatedClientId { // fragment on ClientIds
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly userIds: Array<string>,
 }
 
 interface SharedUserBooleans { // fragment on Users

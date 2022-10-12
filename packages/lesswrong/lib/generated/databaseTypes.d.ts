@@ -76,7 +76,7 @@ interface ClientIdsCollection extends CollectionBase<DbClientId, "ClientIds"> {
 interface DbClientId extends DbObject {
   __collectionName?: "ClientIds"
   clientId: string
-  firstSeenReferrer: string
+  firstSeenReferrer: string | null
   firstSeenLandingPage: string
   userIds: Array<string>
   createdAt: Date
