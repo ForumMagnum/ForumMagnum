@@ -63,6 +63,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
   
   
   if (!(user && currentUser)) return null
+  const greetingName = user.displayName.split(" ")[0]
   
   return (
     <div className={classes.root}>
@@ -90,7 +91,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id} includeModerators>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, greetingName, displayName: user.displayName}} includeModerators>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>

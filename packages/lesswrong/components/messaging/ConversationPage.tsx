@@ -34,6 +34,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const getTemplateHtml = ({html, displayName, greetingName}) => {
+  let newHtml = html.replace(/.*\\\\/, "")
+  if (displayName) {
+    newHtml = newHtml.replace(/{{displayName}}/g, displayName)
+  }
+  if (greetingName) {
+    newHtml = newHtml.replace(/{{greetingName}}/g, greetingName)
+  }
+  return newHtml
+}
+
 // The Navigation for the Inbox components
 const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   documentId: string,
@@ -109,6 +120,8 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
   if (!conversation) return <Error404 />
 
+  const templateHtml = getTemplateHtml({html: template?.contents?.html, displayName: query.displayName, greetingName: query.greetingName })
+
   return (
     <SingleColumnSection>
       <div className={classes.conversationSection}>
@@ -131,7 +144,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
               contents: {
                 originalContents: {
                   type: "ckEditorMarkup",
-                  data: template?.contents?.html,
+                  data: templateHtml
                 }
               }
             }}
