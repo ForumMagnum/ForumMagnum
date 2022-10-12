@@ -34,14 +34,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const getTemplateHtml = ({html, displayName, greetingName}) => {
+const getDraftMessageHtml = ({html, displayName, firstName}) => {
   if (!html) return
   let newHtml = html.replace(/.*\\\\/, "")
   if (displayName) {
     newHtml = newHtml.replace(/{{displayName}}/g, displayName)
   }
-  if (greetingName) {
-    newHtml = newHtml.replace(/{{greetingName}}/g, greetingName)
+  if (firstName) {
+    newHtml = newHtml.replace(/{{firstName}}/g, firstName)
   }
   return newHtml
 }
@@ -121,7 +121,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
   if (!conversation) return <Error404 />
 
-  const templateHtml = getTemplateHtml({html: template?.contents?.html, displayName: query.displayName, greetingName: query.greetingName })
+  const templateHtml = getDraftMessageHtml({html: template?.contents?.html, displayName: query.displayName, firstName: query.firstName })
 
   return (
     <SingleColumnSection>
