@@ -33,7 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingRight: theme.spacing.unit,
+    paddingLeft: 2,
+    paddingRight: 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon.maxIntensity,
@@ -66,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   leftCurated: {
     position: "relative",
     top: -1,
-    marginRight: 6
+    marginRight: 4,
   },
   strikethroughTitle: {
     textDecoration: "line-through"
@@ -141,8 +142,8 @@ const PostsTitle = ({
   const Icon = postIcon(post);
 
   const title = <span>
-    {Icon && <Icon className={classes.primaryIcon}/>}
     {sticky && <span className={classes.sticky}><StickyIcon /></span>}
+    {Icon && <Icon className={classes.primaryIcon}/>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
