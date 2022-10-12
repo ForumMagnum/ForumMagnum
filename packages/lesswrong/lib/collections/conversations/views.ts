@@ -32,7 +32,7 @@ Conversations.addView("moderatorConversations", function (terms: ConversationsVi
     options: {sort: {latestActivity: -1}}
   };
 });
-ensureIndex(Conversations, { moderator: 1, messageCount: 1, latestActivity: -1 })
+ensureIndex(Conversations, { moderator: 1, messageCount: 1, latestActivity: -1, participantIds: 1 })
 
 // notifications for a specific user (what you see in the notifications menu)
 Conversations.addView("userConversations", function (terms: ConversationsViewTerms) {
