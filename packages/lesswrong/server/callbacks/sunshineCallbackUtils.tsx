@@ -1,5 +1,7 @@
 import Users from "../../lib/collections/users/collection";
 import { getCurrentContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
+import { Comments } from "../../lib/collections/comments";
+import { ModeratorActions } from "../../lib/collections/moderatorActions";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * 
@@ -26,4 +28,23 @@ export async function triggerReviewIfNeeded(userId: string) {
   }
 
   void Users.rawUpdateOne({ _id: user._id }, { $set: { needsReview: needsReview } });
+}
+
+function isNetDownvoted(comment: DbComment) {
+  return comment.baseScore <= 0 && comment.voteCount > 0;
+}
+
+function recentDownvotedComments(comments: DbComment[]) {
+  const threshold = 1;
+  const downvotedCommentCount = comments.filter(isNetDownvoted).length;
+
+  return downvotedCommentCount >= threshold;
+}
+
+export async function triggerAutomodIfNeeded(userId: string) {
+  const latestComments = await Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 5 }).fetch();
+  if (recentDownvotedComments(latestComments)) {
+    const lastModeratorAction = await ModeratorActions.findOne({ userId, type: 'commentQualityWarning' }, { sort: { createdAt: -1 } });
+    
+  }
 }
