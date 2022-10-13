@@ -55,15 +55,16 @@ const ModeratorActionsDashboard = ({ classes }: {
   const { ModeratorActionItem, SingleColumnSection, WrappedSmartForm } = Components;
 
   const currentUser = useCurrentUser();
-  if (!userIsAdmin(currentUser)) {
-    return null;
-  }
 
   const { results } = useMulti({
     collectionName: 'ModeratorActions',
     fragmentName: 'ModeratorActionDisplay',
     terms: {}
   });
+
+  if (!userIsAdmin(currentUser)) {
+    return null;
+  }
 
   return (
     <SingleColumnSection>
