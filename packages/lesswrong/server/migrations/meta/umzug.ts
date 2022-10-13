@@ -65,14 +65,10 @@ export const createMigrator = async () => {
     storage,
     logger: console,
     create: {
-      template: (filepath: string) => {
-        const date = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-        const tokens = basename(filepath).split(".");
-        const path = join(dirname(filepath), `${date}.${tokens[tokens.length - 1]}.ts`);
-        return [
-          [path, readFileSync(`${root}/meta/template.ts`).toString()],
-        ];
-      },
+      prefix: () => new Date().toISOString().replace(/[-:]/g, "").split(".")[0],
+      template: (filepath: string) => [
+        [`${filepath}.ts`, readFileSync(`${root}/meta/template.ts`).toString()],
+      ],
       folder: root,
     },
   });
