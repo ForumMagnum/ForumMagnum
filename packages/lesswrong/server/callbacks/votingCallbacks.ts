@@ -48,6 +48,7 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
   return triggerReviewIfNeeded(document.vote.userId)
 });
 
+// TODO: follow-up PR
 // voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
 //   if (newDocument.__collectionName === 'Comments') {
 //     void triggerAutomodIfNeeded(newDocument.userId)
