@@ -144,6 +144,14 @@ const PostsEditForm = ({ documentId, classes }: {
           version="draft"
           noSubmitOnCmdEnter
           repeatErrors
+          
+          /*
+           * addFields includes tagRelevance because the field permissions on
+           * the schema say the user can't edit this field, but the widget
+           * "edits" the tag list via indirect operations (upvoting/downvoting
+           * relevance scores).
+           */
+          addFields={document.isEvent ? [] : ['tagRelevance']}
         />
       </NoSsr>
     </div>

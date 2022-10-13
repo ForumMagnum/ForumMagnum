@@ -40,14 +40,14 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
-  smallText?: boolean,
   showCoreTags?: boolean
-
+  hidePostTypeTag?: boolean,
+  smallText?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -61,7 +61,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   // reorder the tags, by updating the result of this query. But you could
   // imagine that this could start with the ordering of the tags on the post
   // object, and then use the result from the database once we have it.
-  const { results, loading, refetch } = useMulti({
+  const { results, loading, loadingInitial, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
       postId: post._id,
@@ -141,10 +141,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
       )
     ) 
 
-  if (loading || !results) {
+  if (loadingInitial || !results) {
     return <span className={classes.root}>
      {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText}/>)}
-     {postType}
+     {!hidePostTypeTag && postType}
     </span>;
   }
 
@@ -161,7 +161,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
         smallText={smallText}
       />
     )}
-    { postType }
+    { !hidePostTypeTag && postType }
     {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
   </span>

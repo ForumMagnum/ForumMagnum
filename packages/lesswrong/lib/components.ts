@@ -604,6 +604,7 @@ importComponent("PostsListEditor", () => require('../components/form-components/
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
 importComponent("FMCrosspostControl", () => require('../components/form-components/FMCrosspostControl'));
 importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
+importComponent("FormComponentPostEditorTagging", () => require('../components/form-components/FormComponentPostEditorTagging'));
 importComponent("SequencesListEditor", () => require('../components/form-components/SequencesListEditor'));
 importComponent("SequencesListEditorItem", () => require('../components/form-components/SequencesListEditorItem'));
 importComponent("SubmitButton", () => require('../components/form-components/SubmitButton'));

@@ -30,7 +30,6 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   placeholder?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-  
   const addTag = (id: string) => {
     if (!value.includes(id)) {
       value.push(id)
