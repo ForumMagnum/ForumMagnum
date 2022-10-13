@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FormLabel from '@material-ui/core/FormLabel';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   label: {
@@ -14,10 +15,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 350,
     border: "none",
     marginBottom: 8,
+    '& .SearchAutoComplete-autoComplete input': {
+      fontSize: 13
+    },
     '& input': {
       width: '100%'
     }
   },
+  focused: {
+    border: theme.palette.border.extraFaint,
+    borderRadius: 3,
+    padding: 5
+  }
 });
 
 const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurrentValues }: {
@@ -29,6 +38,9 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
   const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
+
+  const [focused, setFocused] = useState(false)
+
   const addTag = (id: string) => {
     if (!value.includes(id)) {
       value.push(id)
@@ -54,7 +66,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
         })}
       </div>
       <ErrorBoundary>
-        <div className={classes.inputContainer}>
+        <div className={classNames(classes.inputContainer, {[classes.focused]:focused})} onClick={() => setFocused(true)}>
           <TagsSearchAutoComplete
             clickAction={(id: string) => addTag(id)}
             placeholder={placeholder}
