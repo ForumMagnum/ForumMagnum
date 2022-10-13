@@ -4,7 +4,7 @@ registerFragment(`
   fragment ModeratorActionDisplay on ModeratorAction {
     _id
     user {
-      displayName
+      ...UsersMinimumInfo
     }
     userId
     type

@@ -2677,16 +2677,12 @@ interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
 
 interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
-  readonly user: ModeratorActionDisplay_user|null,
+  readonly user: UsersMinimumInfo|null,
   readonly userId: string,
   readonly type: "rateLimit" | "commentQualityWarning",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
-}
-
-interface ModeratorActionDisplay_user { // fragment on Users
-  readonly displayName: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments

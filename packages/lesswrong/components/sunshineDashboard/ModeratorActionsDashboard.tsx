@@ -35,9 +35,10 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
   moderatorAction: ModeratorActionDisplay,
   classes: ClassesType
 }) => {
+  const { UsersName } = Components;
   return (
     <tr>
-      <td className={classes.cell}>{`${moderatorAction.user?.displayName} (${moderatorAction.userId})`}</td>
+      <td className={classes.cell}><UsersName user={moderatorAction.user} />{` (${moderatorAction.userId})`}</td>
       <td className={classes.cell}>{moderatorAction.type}</td>
       <td className={classes.cell}>{`${moderatorAction.active}`}</td>
       <td className={classes.cell}>{moderatorAction.createdAt}</td>

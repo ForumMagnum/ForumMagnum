@@ -2,6 +2,7 @@ import Users from "../../lib/collections/users/collection";
 import { getCurrentContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
 import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
+import { createMutator } from "../vulcan-lib";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * 
@@ -43,8 +44,26 @@ function recentDownvotedComments(comments: DbComment[]) {
 
 export async function triggerAutomodIfNeeded(userId: string) {
   const latestComments = await Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 5 }).fetch();
+  // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
   if (recentDownvotedComments(latestComments)) {
     const lastModeratorAction = await ModeratorActions.findOne({ userId, type: 'commentQualityWarning' }, { sort: { createdAt: -1 } });
-    
+    // No previous commentQualityWarning on record for this user
+    if (!lastModeratorAction) {
+
+      // User already has an active commentQualityWarning, escalate?
+    } else if (lastModeratorAction.active) {
+
+      // User has an inactive commentQualityWarning, re-apply?
+    } else {
+      createMutator({
+        collection: ModeratorActions,
+        document: {
+          type: 'commentQualityWarning',
+          active: true,
+          userId  
+        },
+        
+      })
+    }
   }
 }
