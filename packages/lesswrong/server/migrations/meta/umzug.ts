@@ -45,7 +45,14 @@ export const createMigrator = async () => {
             return result;
           },
           down: () => {
-            throw new Error("Down migrations are not supported");
+            // eslint-disable-next-line import/no-dynamic-require
+            const migration = require(path);
+            if (migration.down) {
+              return migration.down(context);
+            } else {
+            // eslint-disable-next-line no-console
+              console.warn(`Migration '${name}' has no down step`);
+            }
           },
         };
       },
