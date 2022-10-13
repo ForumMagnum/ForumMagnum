@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     cursor: "pointer",  
     display: "inline-block",
-    marginBottom: 2,
+    marginBottom: 4,
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
@@ -235,6 +235,13 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 {reducedName}
               </span>
             </LWTooltip>
+            <div className={classes.defaultLabel}>
+              <LWTooltip title={filterModeToTooltip("Default")}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===0 || mode==="Default"})} onClick={ev => setMode("Default")}>
+                  Default
+                </span>
+              </LWTooltip>
+            </div>
             <LWTooltip title={filterModeToTooltip(25)}>
               <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => setMode(25)}>
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "Promoted"}
@@ -252,12 +259,6 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               />
             </LWTooltip>
             <div className={classes.rightContainer}>
-              {mode === 0 &&
-                <div className={classes.defaultLabel}>
-                  <LWTooltip title={`This filter is set to default. Use the controls on the left to customize how much you see ${defaultLabel} in ${LATEST_POSTS_NAME}.`}>
-                    Default
-                  </LWTooltip>
-                </div>}
               {canRemove && !tag?.suggestedAsFilter &&
                 <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                   <LWTooltip title={<div><div>This filter will no longer appear in {LATEST_POSTS_NAME}.</div><div>You can add it back later if you want</div></div>}>
@@ -299,7 +300,7 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
       return <div><em>0.5x</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
     case 0:
     case "Default":
-      return <div><em>+0.</em> This {taggingNameSetting.get()} will be ignored for filtering and sorting.</div>
+      return <div>This {taggingNameSetting.get()} will have default filtering and sorting.</div>
     default:
       if (mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
