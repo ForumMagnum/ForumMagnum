@@ -44,15 +44,15 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   const { LWTooltip } = Components
 
   let url = "";
-  if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType);
-  } else if (comment.postId && comment.postSlug) {
+  if (comment.postId && comment.postSlug) {
     url = `${postGetPageUrl({
       _id: comment.postId ?? "",
       slug: comment.postSlug ?? "",
       isEvent: comment.postIsEvent,
       groupId: comment.postGroupId,
     })}#${comment._id}`;
+  } else if (comment.tagSlug && comment.tagCommentType) {
+    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType)
   }
 
   return <div className={classes.root}>
