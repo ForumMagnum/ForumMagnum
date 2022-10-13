@@ -842,9 +842,8 @@ const schema: SchemaType<DbPost> = {
     
     blackbox: true,
     label: "Tags",
-    group: formGroups.advancedOptions,
+    group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    order: 2,
     hidden: (props) => props.eventForm,
   },
   

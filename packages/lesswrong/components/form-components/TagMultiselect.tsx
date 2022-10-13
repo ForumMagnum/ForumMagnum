@@ -12,8 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     width: '100%',
     maxWidth: 350,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
+    border: "none",
     padding: 10,
     marginBottom: 8,
     '& input': {

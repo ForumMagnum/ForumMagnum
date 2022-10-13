@@ -67,4 +67,10 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Audio",
     startCollapsed: true
   },
+  tags: {
+    order: 60,
+    name: "tags",
+    label: "Tags",
+    startCollapsed: false
+  }
 };

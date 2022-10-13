@@ -199,24 +199,9 @@ const PostsNewForm = ({classes}: {
   }
 
   const NewPostsSubmit = (props) => {
-    const {document, updateCurrentValues, submitForm } = props;
-
-    return <div>
-      <div className={classes.tags} onClick={async () => {
-        if (!document.title || !document.title.length) {
-          flash("Please give this post a title before sharing.");
-          return;
-        }
-        await updateCurrentValues({ draft: true });
-        await submitForm(null, {redirectToEditor: true});
-      }}>
-        <h3>Post Tags</h3>
-        <CoreTagsChecklist />
-      </div>
-      <div className={classes.formSubmit}>
-        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
-        <PostSubmit {...props} />
-      </div>
+    return <div className={classes.formSubmit}>
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit {...props} />
     </div>
   }
 

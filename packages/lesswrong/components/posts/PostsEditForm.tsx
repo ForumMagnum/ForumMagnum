@@ -88,19 +88,13 @@ const PostsEditForm = ({ documentId, classes }: {
   }
   
   const EditPostsSubmit = (props) => {
-    return <div>
-      <div className={classes.tags}>
-        <h3>Post Tags</h3>
-        <FooterTagList post={document} showCoreTags/>
-      </div>
-      <div className={classes.formSubmit}>
-        {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
-        <PostSubmit
-          saveDraftLabel={saveDraftLabel} 
-          feedbackLabel={"Get Feedback"}
-          {...props}
-        />
-      </div>
+    return <div className={classes.formSubmit}>
+      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit
+        saveDraftLabel={saveDraftLabel} 
+        feedbackLabel={"Get Feedback"}
+        {...props}
+      />
     </div>
   }
   

@@ -21,9 +21,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...tagStyle(theme),
     backgroundColor: "unset",
     color: theme.palette.grey[400],
-    border: theme.palette.border.extraFaint,
+    border: "none",
     '&:hover': {
-      border: theme.palette.border.grey300,
+      border: "none",
       color: theme.palette.grey[800]
     }
   }

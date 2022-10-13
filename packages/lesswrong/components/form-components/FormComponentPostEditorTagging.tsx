@@ -22,29 +22,43 @@ const FormComponentPostEditorTagging = ({value, path, document, label, placehold
   formType: "edit"|"new",
   updateCurrentValues: any,
 }) => {
+  const { CoreTagsChecklist } = Components
   if (formType === "edit") {
     return <Components.FooterTagList
       post={document}
       hideScore
       hidePostTypeTag
+      showCoreTags
     />
   } else {
-    return <Components.TagMultiselect
-      path={path} label={label}
-      placeholder={`Add ${taggingNamePluralSetting.get()}`}
-      
-      value={Object.keys(value||{})}
-      updateCurrentValues={(changes) => {
+    return <div>
+      <CoreTagsChecklist existingTagIds={Object.keys(value||{})} onTagSelected={(tag)=> {
         updateCurrentValues(
           mapValues(
-            changes,
+            {tagRelevance:[tag.tagId]},
             (arrayOfTagIds: string[]) => toDictionary(
               arrayOfTagIds, tagId=>tagId, tagId=>1
             )
           )
         )
-      }}
-    />
+      }}/>
+      <Components.TagMultiselect
+        path={path} label={label}
+        placeholder={`+ Add ${taggingNamePluralSetting.get()}`}
+        
+        value={Object.keys(value||{})}
+        updateCurrentValues={(changes) => {
+          updateCurrentValues(
+            mapValues(
+              changes,
+              (arrayOfTagIds: string[]) => toDictionary(
+                arrayOfTagIds, tagId=>tagId, tagId=>1
+              )
+            )
+          )
+        }}
+      />
+    </div>
   }
 }
 
