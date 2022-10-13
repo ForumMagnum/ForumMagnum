@@ -11,6 +11,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { useDialog } from "../common/withDialog";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -54,7 +55,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     textTransform: "capitalize",
     marginLeft: 24,
-    marginBottom: 10,
+    marginBottom: 0,
+    paddingBottom: 0,
+  },
+  membersListLink: {
+    marginLeft: 24,
+    paddingBottom: 10,
   },
   wikiSidebar: {
     marginTop: 84,
@@ -90,6 +96,17 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   const sortBy = query.sortBy || subforumDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
+  
+  const { openDialog } = useDialog();
+  
+  const onClickMembersList = () => {
+    openDialog({
+      componentName: 'SubforumMembersList',
+      // componentProps: dialogProps,
+      noClickawayCancel: false
+    });
+  }
+  
 
   if (loading) {
     return <Loading />;
@@ -137,7 +154,10 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={titleComponent} className={classes.title} />
+        <div>
+          <SectionTitle title={titleComponent} className={classes.title} />
+          <div className={classes.membersListLink} onClick={onClickMembersList}>27 members</div>
+        </div>
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}
