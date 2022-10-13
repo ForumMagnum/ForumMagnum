@@ -428,14 +428,19 @@ importComponent("NewUserGuidelinesDialog", () => require('../components/comments
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));
+importComponent("ExpandedPostsSearchHit", () => require('../components/search/ExpandedPostsSearchHit'));
 importComponent("SearchAutoComplete", () => require('../components/search/SearchAutoComplete'));
 importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete'));
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
+importComponent("ExpandedCommentsSearchHit", () => require('../components/search/ExpandedCommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
+importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
+importComponent("ExpandedTagsSearchHit", () => require('../components/search/ExpandedTagsSearchHit'));
 importComponent("TagsSearchAutoComplete", () => require('../components/search/TagsSearchAutoComplete'));
 importComponent("TagsListEditorSearchHit", () => require('../components/search/TagsListEditorSearchHit'));
 importComponent("SequencesSearchHit", () => require('../components/search/SequencesSearchHit'));
+importComponent("ExpandedSequencesSearchHit", () => require('../components/search/ExpandedSequencesSearchHit'));
 importComponent("SequencesSearchAutoComplete", () => require('../components/search/SequencesSearchAutoComplete'));
 importComponent("UsersSearchAutoComplete", () => require('../components/search/UsersSearchAutoComplete'));
 importComponent("UsersAutoCompleteHit", () => require('../components/search/UsersAutoCompleteHit'));
@@ -443,6 +448,7 @@ importComponent("UsersSearchInput", () => require('../components/search/UsersSea
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
 importComponent("SearchPage", () => require('../components/search/SearchPage'));
+importComponent("SearchPageTabbed", () => require('../components/search/SearchPageTabbed'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
