@@ -42,9 +42,9 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   }
 
   return (
-    <span className={classes.root}>
+    <div className={classes.root}>
       {label && <FormLabel className={classes.label}>{label}</FormLabel>}
-      <span className={classes.tags}>
+      <div className={classes.tags}>
         {value.map(tagId => {
           return <SingleTagItem
             key={tagId}
@@ -52,7 +52,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
             onDelete={(_: string) => removeTag(tagId)}
           />
         })}
-      </span>
+      </div>
       <ErrorBoundary>
         <div className={classes.inputContainer}>
           <TagsSearchAutoComplete
@@ -61,7 +61,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
           />
         </div>
       </ErrorBoundary>
-    </span>
+    </div>
   )
 }
 
