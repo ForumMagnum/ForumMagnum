@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 
 // const MODERATOR_ACTION_TYPES = ['rateLimit', 'commentQualityWarning'];
@@ -7,6 +7,13 @@ const MODERATOR_ACTION_TYPES = {
   rateLimitOnePerDay: 'Rate Limit (one per day)',
   commentQualityWarning: 'Comment Quality Warning'
 };
+
+/**
+ * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
+ */
+export const isActionActive = (moderatorAction: DbModeratorAction) => {
+  return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
+}
 
 const schema: SchemaType<DbModeratorAction> = {
   userId: {
@@ -41,13 +48,11 @@ const schema: SchemaType<DbModeratorAction> = {
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'datetime',
   },
-  active: {
+  active: resolverOnlyField({
     type: Boolean,
-    defaultValue: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
-  },
+    resolver: (doc) => isActionActive(doc)
+  })
   // TODO: createdBy(?)
 };
 

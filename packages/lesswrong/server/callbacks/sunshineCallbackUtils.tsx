@@ -3,6 +3,7 @@ import { getCurrentContentCount } from '../../components/sunshineDashboard/Sunsh
 import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
 import { createMutator } from "../vulcan-lib";
+import { isActionActive } from "../../lib/collections/moderatorActions/schema";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * 
@@ -52,7 +53,7 @@ export async function triggerAutomodIfNeeded(userId: string) {
       // TODO
 
       // User already has an active commentQualityWarning, escalate?
-    } else if (lastModeratorAction.active) {
+    } else if (isActionActive(lastModeratorAction)) {
       // TODO
 
       // User has an inactive commentQualityWarning, re-apply?
@@ -61,7 +62,6 @@ export async function triggerAutomodIfNeeded(userId: string) {
         collection: ModeratorActions,
         document: {
           type: 'commentQualityWarning',
-          active: true,
           userId  
         },
       })

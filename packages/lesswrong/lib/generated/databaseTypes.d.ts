@@ -318,9 +318,8 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimit" | "commentQualityWarning"
+  type: "rateLimitOnePerDay" | "commentQualityWarning"
   endedAt: Date | null
-  active: boolean
   createdAt: Date
 }
 
