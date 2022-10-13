@@ -1,5 +1,6 @@
 import { Umzug } from "umzug";
 import { readFileSync } from "fs";
+import { dirname, basename, join } from "path";
 import { createHash } from "crypto";
 import { createSqlConnection } from "../../sqlConnection";
 import PgStorage from "./PgStorage";
@@ -57,9 +58,14 @@ export const createMigrator = async () => {
     storage,
     logger: console,
     create: {
-      template: (filepath: string) => [
-        [filepath, readFileSync(`${root}/meta/template.ts`).toString()],
-      ],
+      template: (filepath: string) => {
+        const date = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
+        const tokens = basename(filepath).split(".");
+        const path = join(dirname(filepath), `${date}.${tokens[tokens.length - 1]}.ts`);
+        return [
+          [path, readFileSync(`${root}/meta/template.ts`).toString()],
+        ];
+      },
       folder: root,
     },
   });
