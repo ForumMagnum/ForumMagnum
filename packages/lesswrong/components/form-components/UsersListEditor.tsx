@@ -32,8 +32,6 @@ const UsersListEditor = ({value, path, label, classes}: {
   classes: ClassesType,
 }, context) => {
   const { updateCurrentValues } = context;
-
-  console.log({ context });
   
   const setValue = useCallback((newValue: string[]) => {
     updateCurrentValues({[path]: newValue});
