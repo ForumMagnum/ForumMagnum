@@ -9,7 +9,7 @@ import { isActionActive } from "../../lib/collections/moderatorActions/schema";
  * 
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string) {
+export async function triggerReviewIfNeeded(userId: string, newModeAction?: true) {
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
@@ -27,6 +27,8 @@ export async function triggerReviewIfNeeded(userId: string) {
   } else if (snoozed) {
     const contentCount = getCurrentContentCount(user);
     needsReview = contentCount >= user.snoozedUntilContentCount;
+  } else if (newModeAction) {
+    needsReview = true;
   }
 
   void Users.rawUpdateOne({ _id: user._id }, { $set: { needsReview: needsReview } });
@@ -37,14 +39,14 @@ function isNetDownvoted(comment: DbComment) {
 }
 
 function recentDownvotedComments(comments: DbComment[]) {
-  const threshold = 1;
+  const threshold = 2;
   const downvotedCommentCount = comments.filter(isNetDownvoted).length;
 
   return downvotedCommentCount >= threshold;
 }
 
 export async function triggerAutomodIfNeeded(userId: string) {
-  const latestComments = await Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 5 }).fetch();
+  const latestComments = await Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch();
   // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
   if (recentDownvotedComments(latestComments)) {
     const lastModeratorAction = await ModeratorActions.findOne({ userId, type: 'commentQualityWarning' }, { sort: { createdAt: -1 } });
