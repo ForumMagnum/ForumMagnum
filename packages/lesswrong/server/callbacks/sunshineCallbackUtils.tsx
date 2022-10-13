@@ -49,9 +49,11 @@ export async function triggerAutomodIfNeeded(userId: string) {
     const lastModeratorAction = await ModeratorActions.findOne({ userId, type: 'commentQualityWarning' }, { sort: { createdAt: -1 } });
     // No previous commentQualityWarning on record for this user
     if (!lastModeratorAction) {
+      // TODO
 
       // User already has an active commentQualityWarning, escalate?
     } else if (lastModeratorAction.active) {
+      // TODO
 
       // User has an inactive commentQualityWarning, re-apply?
     } else {
@@ -62,7 +64,6 @@ export async function triggerAutomodIfNeeded(userId: string) {
           active: true,
           userId  
         },
-        
       })
     }
   }
