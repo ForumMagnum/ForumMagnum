@@ -4,6 +4,7 @@ import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
 import { createMutator } from "../vulcan-lib";
 import { isActionActive } from "../../lib/collections/moderatorActions/schema";
+import { forumTypeSetting } from "../../lib/instanceSettings";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * 
@@ -27,7 +28,7 @@ export async function triggerReviewIfNeeded(userId: string, newModeAction?: true
   } else if (snoozed) {
     const contentCount = getCurrentContentCount(user);
     needsReview = contentCount >= user.snoozedUntilContentCount;
-  } else if (newModeAction) {
+  } else if (newModeAction && forumTypeSetting.get() === 'LessWrong') {
     needsReview = true;
   }
 
