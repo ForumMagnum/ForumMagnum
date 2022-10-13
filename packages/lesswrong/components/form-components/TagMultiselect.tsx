@@ -28,6 +28,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   placeholder?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
+  const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
   const addTag = (id: string) => {
     if (!value.includes(id)) {
       value.push(id)
@@ -45,21 +46,21 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
       {label && <FormLabel className={classes.label}>{label}</FormLabel>}
       <span className={classes.tags}>
         {value.map(tagId => {
-          return <Components.SingleTagItem
+          return <SingleTagItem
             key={tagId}
             documentId={tagId}
             onDelete={(_: string) => removeTag(tagId)}
           />
         })}
       </span>
-      <Components.ErrorBoundary>
+      <ErrorBoundary>
         <div className={classes.inputContainer}>
-          <Components.TagsSearchAutoComplete
+          <TagsSearchAutoComplete
             clickAction={(id: string) => addTag(id)}
             placeholder={placeholder}
           />
         </div>
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
     </span>
   )
 }
