@@ -62,7 +62,12 @@ async function enforcePostRateLimit (user: DbUser) {
     throw new Error(`Please wait ${postIntervalSetting.get()-timeSinceLastPost} seconds before posting again.`);
   }
 
-  const moderatorRateLimit = await ModeratorActions.findOne({ userId: user._id, type: 'rateLimitOnePerDay', active: true });
+  const moderatorRateLimit = await ModeratorActions.findOne({
+    userId: user._id,
+    type: 'rateLimitOnePerDay',
+    endedAt: null
+  });
+
   if (numberOfPostsInPast24Hours > 0 && moderatorRateLimit) {
     throw new Error(`You have been rate limited to 1 post per day.`);
   }
@@ -82,7 +87,11 @@ async function enforceCommentRateLimit(user: DbUser) {
 
   const [numberOfCommentsInPast24Hours, moderatorRateLimit] = await Promise.all([
     userNumberOfItemsInPast24Hours(user, Comments),
-    ModeratorActions.findOne({ userId: user._id, type: 'rateLimitOnePerDay', active: true })
+    ModeratorActions.findOne({
+      userId: user._id,
+      type: 'rateLimitOnePerDay',
+      endedAt: null
+    })
   ]);
 
   if (numberOfCommentsInPast24Hours > 0 && moderatorRateLimit) {
