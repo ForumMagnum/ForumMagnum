@@ -77,7 +77,7 @@ const ModeratorActionsDashboard = ({ classes }: {
               <th>Active</th>
               <th>Ended At</th>
             </tr> */}
-            {results && results.map(moderatorAction => <ModeratorActionItem moderatorAction={moderatorAction} />)}
+            {results && results.map(moderatorAction => <ModeratorActionItem key={moderatorAction._id} moderatorAction={moderatorAction} />)}
           </tbody>
         </table>
       </div>

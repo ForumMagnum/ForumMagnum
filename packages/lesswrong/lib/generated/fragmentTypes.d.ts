@@ -2676,6 +2676,7 @@ interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
 }
 
 interface ModeratorActionDisplay { // fragment on ModeratorActions
+  readonly _id: string,
   readonly user: ModeratorActionDisplay_user|null,
   readonly userId: string,
   readonly type: "rateLimit" | "commentQualityWarning",
