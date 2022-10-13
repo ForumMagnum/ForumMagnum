@@ -2283,6 +2283,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     nullable: true,
+    hidden: true,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
