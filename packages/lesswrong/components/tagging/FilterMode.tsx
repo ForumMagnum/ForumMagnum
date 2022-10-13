@@ -203,9 +203,6 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
       ? mode
       : "";
 
-  const { name: personalBlogpostName } = usePersonalBlogpostInfo();
-  const defaultLabel = label === personalBlogpostName ? "personal blogposts" : `the ${label} ${taggingNameSetting.get()}`;
-
   const tagPreviewPostCount = forumSelect({
     LessWrong: 0,
     default: 3

@@ -11,6 +11,7 @@ import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '..
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
+import classNames from 'classnames';
 
 const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
   marginBottom: 8
@@ -35,19 +36,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hide: {
       display: "none"
-  }
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
+  },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    },
+  },
 })
 
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
-  const currentUser = useCurrentUser();
   const location = useLocation();
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
-  const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(true);
+  const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop}, captureOnMount: true})
   const { query } = location;
   const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, SectionTitle, CuratedPostsList } = Components
   const limit = parseInt(query.limit) || 13
@@ -70,14 +81,30 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
         <SectionTitle title={latestPostsName} noBottomPadding>
           <LWTooltip title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}>
             <SettingsButton
-              label={filterSettingsVisible ?
-                "Customize Feed (Hide)" :
-                "Customize Feed (Show)"}
+              className={classes.hideOnMobile}
+              label={filterSettingsVisibleDesktop ?
+                "Customize Feed [[DESKTOP]] (Hide)" :
+                "Customize Feed [[DESKTOP]] (Show)"}
               showIcon={false}
               onClick={() => {
-                setFilterSettingsVisible(!filterSettingsVisible)
+                setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
                 captureEvent("filterSettingsClicked", {
-                  settingsVisible: !filterSettingsVisible,
+                  settingsVisible: !filterSettingsVisibleDesktop,
+                  settings: filterSettings,
+                  pageSectionContext: "latestPosts"
+                })
+              }}
+            />
+            <SettingsButton
+              className={classes.hideOnDesktop}
+              label={filterSettingsVisibleMobile ?
+                "Customize Feed [[MOBILE]] (Hide)" :
+                "Customize Feed [[MOBILE]] (Show)"}
+              showIcon={false}
+              onClick={() => {
+                setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+                captureEvent("filterSettingsClicked", {
+                  settingsVisible: !filterSettingsVisibleMobile,
                   settings: filterSettings,
                   pageSectionContext: "latestPosts"
                 })
@@ -86,12 +113,15 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
         </SectionTitle>
   
         <AnalyticsContext pageSectionContext="tagFilterSettings">
-              <div className={!filterSettingsVisible ? classes.hideOnMobile : null}>
-                <TagFilterSettings
-                  filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
-                />
-              </div>
-          </AnalyticsContext>
+          <div className={classNames({
+            [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+            [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+          })}>
+            <TagFilterSettings
+              filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+            />
+          </div>
+        </AnalyticsContext>
         <HideRepeatedPostsProvider>
           {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
