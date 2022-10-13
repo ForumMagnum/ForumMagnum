@@ -1,3 +1,4 @@
+import { taggingNameCapitalSetting } from "../../instanceSettings";
 
 export const formGroups: Partial<Record<string,FormGroup>> = {
   default: {
@@ -70,7 +71,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   tags: {
     order: 60,
     name: "tags",
-    label: "Tags",
+    label: `Post ${taggingNameCapitalSetting.get()}`,
     startCollapsed: false
   }
 };

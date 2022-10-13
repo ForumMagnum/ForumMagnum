@@ -1,10 +1,8 @@
 import React from 'react';
-import { useHover } from '../common/withHover';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useSingle } from '../../lib/crud/withSingle';
 import toDictionary from '../../lib/utils/toDictionary';
 import mapValues from 'lodash/mapValues';
-import { taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 /**
  * Edit tags on the new or edit post form. If it's the new form, use
@@ -22,9 +20,9 @@ const FormComponentPostEditorTagging = ({value, path, document, label, placehold
   formType: "edit"|"new",
   updateCurrentValues: any,
 }) => {
-  const { CoreTagsChecklist } = Components
+  const { CoreTagsChecklist, TagMultiselect, FooterTagList } = Components
   if (formType === "edit") {
-    return <Components.FooterTagList
+    return <FooterTagList
       post={document}
       hideScore
       hidePostTypeTag
@@ -42,9 +40,9 @@ const FormComponentPostEditorTagging = ({value, path, document, label, placehold
           )
         )
       }}/>
-      <Components.TagMultiselect
-        path={path} label={label}
-        placeholder={`+ Add ${taggingNamePluralSetting.get()}`}
+      <TagMultiselect
+        path={path}
+        placeholder={`+ Add ${taggingNamePluralCapitalSetting.get()}`}
         
         value={Object.keys(value||{})}
         updateCurrentValues={(changes) => {

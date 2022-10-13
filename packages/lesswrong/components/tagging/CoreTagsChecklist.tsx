@@ -20,10 +20,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     ...tagStyle(theme),
     backgroundColor: "unset",
-    color: theme.palette.grey[400],
-    border: "none",
+    color: theme.palette.grey[500],
+    border: theme.palette.border.extraFaint,
     '&:hover': {
-      border: "none",
+      border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     }
   }

@@ -13,7 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '100%',
     maxWidth: 350,
     border: "none",
-    padding: 10,
     marginBottom: 8,
     '& input': {
       width: '100%'
@@ -42,9 +41,9 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   }
 
   return (
-    <div className={classes.root}>
+    <span className={classes.root}>
       {label && <FormLabel className={classes.label}>{label}</FormLabel>}
-      <div className={classes.tags}>
+      <span className={classes.tags}>
         {value.map(tagId => {
           return <Components.SingleTagItem
             key={tagId}
@@ -52,7 +51,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
             onDelete={(_: string) => removeTag(tagId)}
           />
         })}
-      </div>
+      </span>
       <Components.ErrorBoundary>
         <div className={classes.inputContainer}>
           <Components.TagsSearchAutoComplete
@@ -61,7 +60,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
           />
         </div>
       </Components.ErrorBoundary>
-    </div>
+    </span>
   )
 }
 

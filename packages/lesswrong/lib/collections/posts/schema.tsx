@@ -841,7 +841,6 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     
     blackbox: true,
-    label: "Tags",
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
     hidden: (props) => props.eventForm,
