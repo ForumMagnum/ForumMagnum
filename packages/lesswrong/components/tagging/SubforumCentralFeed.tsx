@@ -3,16 +3,15 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { useMutation, gql } from '@apollo/client';
-import type { Option } from '../common/InlineSelect';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { subforumDefaultSorting } from '../../lib/collections/comments/views';
-import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection';
 import classNames from 'classnames';
+import { useOnWindowResize } from '../hooks/useOnWindowResize';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
-import { TagCommentType } from '../../lib/collections/comments/types';
+import type { Option } from '../common/InlineSelect';
 
 const sortOptions: Option[] = [
   {value: "new", label: "new"},
@@ -31,43 +30,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   maxWidthRoot: {
     maxWidth: 720,
   },
-  newComment: {
-    border: theme.palette.border.commentBorder,
-    borderWidth: 2,
-    position: 'relative',
-    borderRadius: 3,
-    marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
-    marginLeft: 5,
-    marginRight: 5,
-    "@media print": {
-      display: "none"
-    },
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
-  },
-  joinButton: {
-    marginTop: 37,
-  },
-  sortBy: {
-    marginLeft: 8,
-    marginTop: 14,
-    marginBottom: 2,
-    display: 'inline',
-    color: theme.palette.text.secondary,
-  },
 })
 const SubforumCentralFeed = ({ tag, sortBy, classes }: {
   tag: TagBasicInfo,
   sortBy: string,
   classes: ClassesType,
 }) => {
-  const terms: CommentsViewTerms = { 
-    tagId: tag._id,
-    view: "tagSubforumComments",
-    limit: 50,
-    sortBy
-  }
-  const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
-    terms,
+  const { loading, results, loadMore, loadingMore, refetch } = useMulti({
+    terms: { 
+      tagId: tag._id,
+      view: "tagSubforumComments",
+      limit: 50,
+      sortBy
+    },
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
@@ -83,59 +58,65 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
       recordSubforumView(userId: $userId, tagId: $tagId)
     }
   `);
-  const recordSubforumView = useCallback(async () => recordSubforumViewMutation({variables: {userId: currentUser?._id, tagId: tag._id}}), [currentUser?._id, tag, recordSubforumViewMutation]);
+  const recordSubforumView = useCallback(
+    async () => recordSubforumViewMutation({
+      variables: {userId: currentUser?._id, tagId: tag._id}
+    }),
+    [currentUser?._id, tag, recordSubforumViewMutation],
+  );
 
   useEffect(() => {
     if (results && results.length)
       void recordSubforumView();
   }, [results, recordSubforumView]);
   
-  const sortByRef = useRef(terms.sortBy);
-  const bodyRef = useRef<HTMLDivElement>(null)
-  // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
-  const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
+  const sortByRef = useRef(sortBy);
   const orderedResults = useOrderPreservingArray(
     results || [],
     (comment) => comment._id,
     // If the selected sort order changes, clear the existing ordering
-    sortByRef.current === terms.sortBy ? "interleave-new" : "no-reorder"
+    sortByRef.current === sortBy ? "interleave-new" : "no-reorder"
   );
-  sortByRef.current = terms.sortBy;
+  sortByRef.current = sortBy;
   
-
-  const sorting = query.sortBy || subforumDefaultSorting
-  const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
-
   const handleSortingSelect = (option: Option) => {
     const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
     const newQuery = {...currentQuery, sortBy: option.value}
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
     captureEvent("subforumSortingChanged", {oldSorting: currentQuery.sortBy, newSorting: option.value})
   };
-  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
 
-  useEffect(() => {
-    recalculateTopAbsolutePosition()
-    window.addEventListener('resize', recalculateTopAbsolutePosition)
-    return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const sorting = query.sortBy || subforumDefaultSorting
 
-  const recalculateTopAbsolutePosition = () => {
+  const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
+
+  const bodyRef = useRef<HTMLDivElement>(null)
+  // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
+  const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
+
+  const recalculateTopAbsolutePosition = useCallback(() => {
     if (!bodyRef.current) return
 
     // We want the position relative to the top of the page, not the top of the viewport, so add window.scrollY
     const newPos = bodyRef.current.getBoundingClientRect().top + window.scrollY
     if (newPos !== topAbsolutePosition)
       setTopAbsolutePosition(newPos)
-  }
+  }, [topAbsolutePosition])
+  
+  useOnWindowResize(recalculateTopAbsolutePosition, true)
 
-  const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
+  const {CommentsTimeline, SubforumSubscribeOrCommentSection} = Components
 
   if (loading && !results) {
     return <Components.Loading />;
   } else if (!results) {
     return null;
+  }
+
+  const treeOptions = {
+    refetch,
+    postPage: true,
+    tag: tag,
   }
 
   return (
@@ -145,44 +126,19 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
       style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
     >
       <CommentsTimeline
-        treeOptions={{
-          refetch,
-          postPage: true,
-          tag: tag,
-        }}
+        treeOptions={treeOptions}
         comments={orderedResults}
         loadMoreComments={loadMore}
         loadingMoreComments={loadingMore}
       />
       {/* TODO add permissions check here */}
-      {isSubscribed ? (
-        <>
-          <Typography
-            variant="body2"
-            component='span'
-            className={classes.sortBy}
-          >
-            <span>Sorted by <InlineSelect options={sortOptions} selected={selectedSorting} handleSelect={handleSortingSelect} /></span>
-          </Typography>
-          <div id="posts-thread-new-comment" className={classes.newComment}>
-            <CommentsNewForm
-              tag={tag}
-              tagCommentType={TagCommentType.Subforum}
-              formProps={{
-                editorHintText: `Message...`,
-              }}
-              successCallback={refetch}
-              type="comment"
-              enableGuidelines={false}
-              displayMode="minimalist" />
-          </div>
-        </>
-      ) : (
-        <SubforumSubscribeSection
-          tag={tag}
-          className={classNames(classes.newComment, classes.joinButton)}
-        />
-      )}
+      <SubforumSubscribeOrCommentSection
+        tag={tag}
+        sortOptions={sortOptions}
+        selectedSorting={selectedSorting}
+        handleSortingSelect={handleSortingSelect}
+        refetch={refetch}
+      />
     </div>
   );
 }
