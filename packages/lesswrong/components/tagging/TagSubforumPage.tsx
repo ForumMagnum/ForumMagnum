@@ -83,6 +83,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     ContentItemBody,
     LWTooltip,
     HeadTags,
+    SubforumNotificationSettings
   } = Components;
 
   const { params, query } = useLocation();
@@ -119,12 +120,15 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   ) : <></>;
 
   const titleComponent = <>
+    <span>
     <LWTooltip title={`To ${taggingNameSetting.get()} page`} placement="top-start" className={classes.tooltip}>
       <Link to={tagGetUrl(tag)}>
         {startCase(tag.name)}
       </Link>
     </LWTooltip>
     {" "}Subforum
+    </span>
+    <SubforumNotificationSettings />
   </>
 
   return (

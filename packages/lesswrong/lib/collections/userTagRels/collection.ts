@@ -29,6 +29,16 @@ const schema: SchemaType<DbUserTagRel> = {
     nullable: true,
     hidden: true
   },
+  subforumShowUnreadInSidebar: {
+    type: Boolean,
+    nullable: false,
+    ...schemaDefaultValue(false),
+  },
+  subforumEmailNotifications: {
+    type: Boolean,
+    nullable: false,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export const UserTagRels: UserTagRelsCollection = createCollection({
