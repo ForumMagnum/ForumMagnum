@@ -77,7 +77,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   const {
     Error404,
     Loading,
-    SubforumCommentsThread,
+    SubforumCentralFeed,
     SectionTitle,
     SingleColumnSection,
     Typography,
@@ -144,9 +144,9 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
         <SectionTitle title={titleComponent} className={classes.title} />
         <AnalyticsContext pageSectionContext="commentsSection">
-          <SubforumCommentsThread
+          <SubforumCentralFeed
             tag={tag}
-            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
+            sortBy={sortBy}
           />
         </AnalyticsContext>
       </SingleColumnSection>

@@ -1,16 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import classNames from 'classnames';
-import * as _ from 'underscore';
-import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
-import { TagCommentType } from '../../lib/collections/comments/types';
+import { useMulti } from '../../lib/crud/withMulti';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { useMutation, gql } from '@apollo/client';
 import type { Option } from '../common/InlineSelect';
-import { isEmpty } from 'underscore';
+import { useCurrentUser } from '../common/withUser';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import qs from 'qs';
-import { subforumDefaultSorting } from '../../lib/collections/comments/views';
 import { useTracking } from '../../lib/analyticsEvents';
+import { subforumDefaultSorting } from '../../lib/collections/comments/views';
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection';
+import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import qs from 'qs';
+import { TagCommentType } from '../../lib/collections/comments/types';
 
 const sortOptions: Option[] = [
   {value: "new", label: "new"},
@@ -53,40 +55,53 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.secondary,
   },
 })
-
-const CommentsTimelineSection = ({
-  tag,
-  commentCount,
-  loadMoreCount = 10,
-  totalComments,
-  loadMoreComments,
-  loadingMoreComments,
-  comments,
-  parentAnswerId,
-  startThreadTruncated,
-  refetch = () => {},
-  classes,
-}: {
+const SubforumCentralFeed = ({ tag, sortBy, classes }: {
   tag: TagBasicInfo,
-  commentCount: number,
-  loadMoreCount: number,
-  totalComments: number,
-  loadMoreComments: any,
-  loadingMoreComments: boolean,
-  comments: CommentWithRepliesFragment[],
-  parentAnswerId?: string,
-  startThreadTruncated?: boolean,
-  refetch?: any,
+  sortBy: string,
   classes: ClassesType,
 }) => {
+  const terms: CommentsViewTerms = { 
+    tagId: tag._id,
+    view: "tagSubforumComments",
+    limit: 50,
+    sortBy
+  }
+  const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
+    terms,
+    collectionName: "Comments",
+    fragmentName: 'CommentWithRepliesFragment',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+  });
+
+  const currentUser = useCurrentUser();
   const { history } = useNavigation();
   const { location, query } = useLocation();
   const { captureEvent } = useTracking()
-  const currentUser = useCurrentUser();
+  const [recordSubforumViewMutation] = useMutation(gql`
+    mutation recordSubforumView($userId: String!, $tagId: String!) {
+      recordSubforumView(userId: $userId, tagId: $tagId)
+    }
+  `);
+  const recordSubforumView = useCallback(async () => recordSubforumViewMutation({variables: {userId: currentUser?._id, tagId: tag._id}}), [currentUser?._id, tag, recordSubforumViewMutation]);
 
+  useEffect(() => {
+    if (results && results.length)
+      void recordSubforumView();
+  }, [results, recordSubforumView]);
+  
+  const sortByRef = useRef(terms.sortBy);
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
   const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
+  const orderedResults = useOrderPreservingArray(
+    results || [],
+    (comment) => comment._id,
+    // If the selected sort order changes, clear the existing ordering
+    sortByRef.current === terms.sortBy ? "interleave-new" : "no-reorder"
+  );
+  sortByRef.current = terms.sortBy;
+  
 
   const sorting = query.sortBy || subforumDefaultSorting
   const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
@@ -117,6 +132,12 @@ const CommentsTimelineSection = ({
 
   const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
 
+  if (loading && !results) {
+    return <Components.Loading />;
+  } else if (!results) {
+    return null;
+  }
+
   return (
     <div
       ref={bodyRef}
@@ -129,31 +150,24 @@ const CommentsTimelineSection = ({
           postPage: true,
           tag: tag,
         }}
-        comments={comments}
-        startThreadTruncated={startThreadTruncated}
-        parentAnswerId={parentAnswerId}
-        commentCount={commentCount}
-        loadMoreCount={loadMoreCount}
-        totalComments={totalComments}
-        loadMoreComments={loadMoreComments}
-        loadingMoreComments={loadingMoreComments}
+        comments={orderedResults}
+        loadMoreComments={loadMore}
+        loadingMoreComments={loadingMore}
       />
       {/* TODO add permissions check here */}
       {isSubscribed ? (
         <>
           <Typography
-          variant="body2"
-          component='span'
-          className={classes.sortBy}>
+            variant="body2"
+            component='span'
+            className={classes.sortBy}
+          >
             <span>Sorted by <InlineSelect options={sortOptions} selected={selectedSorting} handleSelect={handleSortingSelect} /></span>
           </Typography>
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <CommentsNewForm
               tag={tag}
               tagCommentType={TagCommentType.Subforum}
-              prefilledProps={{
-                parentAnswerId: parentAnswerId,
-              }}
               formProps={{
                 editorHintText: `Message...`,
               }}
@@ -173,10 +187,15 @@ const CommentsTimelineSection = ({
   );
 }
 
-const CommentsTimelineSectionComponent = registerComponent("CommentsTimelineSection", CommentsTimelineSection, {styles});
+const SubforumCentralFeedComponent = registerComponent('SubforumCentralFeed', SubforumCentralFeed, {
+  areEqual: {
+    terms: "deep",
+  },
+  styles,
+});
 
 declare global {
   interface ComponentTypes {
-    CommentsTimelineSection: typeof CommentsTimelineSectionComponent,
+    SubforumCentralFeed: typeof SubforumCentralFeedComponent
   }
 }

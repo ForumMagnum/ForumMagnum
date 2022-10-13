@@ -18,9 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CommentsTimelineFn = ({
   treeOptions,
   comments,
-  commentCount,
-  loadMoreCount = 10,
-  totalComments = 0,
   loadMoreComments,
   loadingMoreComments,
   startThreadTruncated=true,
@@ -33,9 +30,6 @@ const CommentsTimelineFn = ({
 }: {
   treeOptions: CommentTreeOptions;
   comments: CommentWithRepliesFragment[];
-  commentCount: number;
-  loadMoreCount: number,
-  totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
   startThreadTruncated?: boolean;
@@ -77,8 +71,8 @@ const CommentsTimelineFn = ({
       setUserHasScrolled(true);
 
     // Start loading more when we are less than 1 page from the top
-    if (!loadingMoreComments && commentCount < totalComments && e.target.scrollTop < e.target.clientHeight)
-      loadMoreComments(commentCount + loadMoreCount);
+    // if (!loadingMoreComments && commentCount < totalComments && e.target.scrollTop < e.target.clientHeight)
+    //   loadMoreComments(commentCount + loadMoreCount);
   }
 
   const commentsToRender = useMemo(() => comments.slice().reverse(), [comments]);
