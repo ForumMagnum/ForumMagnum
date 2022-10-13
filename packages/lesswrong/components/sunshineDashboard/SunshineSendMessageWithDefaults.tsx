@@ -71,7 +71,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}
       >
-        Start Message
+        New Message
       </span>
       <Menu
         onClick={() => setAnchorEl(null)}
@@ -80,7 +80,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
       >
         <MenuItem value={0}>
           <NewConversationButton user={user} currentUser={currentUser} includeModerators>
-            Start a message
+            New Message
           </NewConversationButton>
         </MenuItem>
         {defaultResponses && defaultResponses.map((comment, i) =>

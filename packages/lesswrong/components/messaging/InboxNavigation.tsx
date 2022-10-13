@@ -9,11 +9,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({classes, terms, currentUser, title="Your Conversations"}: {
-  classes: ClassesType,
+const InboxNavigation = ({terms, currentUser, title="Your Conversations"}: {
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
-  title?: String
+  title?: JSX.Element | String
 }) => {
   const location = useLocation();
   const { currentRoute, query } = location;
