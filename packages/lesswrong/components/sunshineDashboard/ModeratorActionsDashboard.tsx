@@ -3,6 +3,8 @@ import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   form: {
@@ -51,6 +53,11 @@ const ModeratorActionsDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
   const { ModeratorActionItem, SingleColumnSection, WrappedSmartForm } = Components;
+
+  const currentUser = useCurrentUser();
+  if (!userIsAdmin(currentUser)) {
+    return null;
+  }
 
   const { results } = useMulti({
     collectionName: 'ModeratorActions',
