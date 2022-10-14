@@ -1,3 +1,7 @@
+/**
+ * TableIndex represents a named Postgres index on a particular group
+ * of fields in a table. It may or may not be unique and/or partial.
+ */
 class TableIndex {
   private name: string;
 
@@ -32,7 +36,7 @@ class TableIndex {
 
   getDetails() {
     return {
-      v: 2,
+      v: 2, // To match Mongo's output
       key: this.fields,
       ...this.options,
     };

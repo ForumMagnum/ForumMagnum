@@ -8,6 +8,16 @@ export type BulkWriterResult = {
   ok: number,
 }
 
+/**
+ * This class acts as a helper to facilitate the Mongo `bulkWrite` operation.
+ *
+ * It takes an arbitrary number of write operations and performs them in
+ * sequence. No guarantees are made about ordering, and performance characteristics
+ * will almost certainly be different to Mongo.
+ *
+ * We don't implement the `replaceOne` operation here as it's not used in our codebase
+ * and it's non-trivial to implement the correct semantics in Postgres.
+ */
 class BulkWriter<T extends DbObject> {
   private queries: Query<T>[] = [];
 

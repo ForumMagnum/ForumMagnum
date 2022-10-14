@@ -2,6 +2,20 @@ import { Type, IdType, isResolverOnly } from "./Type";
 import TableIndex from "./TableIndex";
 import { expectedIndexes } from "../collectionIndexUtils";
 
+/**
+ * Table represents the collection schema as it exists in Postgres,
+ * rather than how it exists in Vulcan or GraphQL. That is, each field
+ * knows it's Postgres datatype and some extra info like nullability and
+ * default values (see Type.ts), but not extended metadata that is
+ * superflous to Postgres such as access permissions or form configuration.
+ *
+ * Resolver-only fields are excluded - Table only contains fields that
+ * actually exist in the database.
+ *
+ * Note that the data here is still generated using the collection schema
+ * files, so it's possible for this to become out-of-date with what's
+ * actually in the database if migrations are not done correctly.
+ */
 class Table {
   private fields: Record<string, Type> = {};
   private indexes: TableIndex[] = [];

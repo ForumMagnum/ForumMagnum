@@ -8,9 +8,19 @@ export const isResolverOnly =
   <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
     schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 
+/**
+ * The Type classes models data types as they exist in Postgres.
+ */
 export abstract class Type {
+  /**
+   * Convert the Type to a Postgres type name
+   */
   abstract toString(): string;
 
+  /**
+   * Convert this Type to a "concrete" Type - that is, remove any metadata
+   * like nullability or default values to leave a raw column type.
+   */
   toConcrete(): Type {
     return this;
   }
@@ -19,6 +29,10 @@ export abstract class Type {
     return false;
   }
 
+  /**
+   * In order to emulate Mongo's upsert semantics, we sometimes have to
+   * use coalesce inside indexes. See `CreateIndexQuery.fieldNameToIndexField`.
+   */
   getIndexCoalesceValue(): string | null {
     return null;
   }
@@ -132,6 +146,10 @@ export class ArrayType extends Type {
   }
 }
 
+/**
+ * IdType is a convinience type to automatically make sure Vulcan
+ * ID fields are stored correctly and efficiently
+ */
 export class IdType extends StringType {
   constructor(private collection: CollectionBase<any>) {
     super(27);
@@ -142,6 +160,9 @@ export class IdType extends StringType {
   }
 }
 
+/**
+ * Annotate a type as being non-nullable. Subtype may or may not be concrete.
+ */
 export class NotNullType extends Type {
   constructor(private subtype: Type) {
     super();
@@ -171,6 +192,9 @@ const valueToString = (value: any, subtype?: Type): string => {
   return `${value}`;
 }
 
+/**
+ * Annotate a type as having a default value. Subtype may or may not be concrete.
+ */
 export class DefaultValueType extends Type {
   constructor(private subtype: Type, private value: any) {
     super();
@@ -193,6 +217,11 @@ export class DefaultValueType extends Type {
   }
 }
 
+/**
+ * An unknown type. This is used as an implementation detail inside the query builder
+ * and should not be used externally. If you see UnknownType appear in an error message
+ * then you've probably hit a serious query builder bug.
+ */
 export class UnknownType extends Type {
   constructor() {
     super();

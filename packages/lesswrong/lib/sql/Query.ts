@@ -1,6 +1,11 @@
 import Table from "./Table";
 import { Type } from "./Type";
 
+/**
+ * Arg is a wrapper to mark a particular value as being an argument for the
+ * query. When compiled, the value will be placed into the `args` array, and
+ * a `$n` reference will be placed in the appropriate place in the SQL string.
+ */
 class Arg {
   public typehint = "";
 
@@ -13,6 +18,11 @@ class Arg {
   }
 }
 
+/**
+ * The Atom represents one 'part' of a Postgres query. This could be a literal
+ * string of SQL, an argument, a sub-query, or a table (which will be compiled
+ * to its name).
+ */
 export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
 const isMagnitudeOp = (op: string) => ["$lt", "$lte", "$gt", "$gte"].indexOf(op) > -1;
@@ -35,6 +45,27 @@ const arithmeticOps = {
   ...comparisonOps,
 };
 
+/**
+ * Query is the base class of the query builder which defines a number of common
+ * functionalities (such as compiling artitrary expressions or selectors), as well
+ * as the generic compilation algorithm. This class is extended by several concrete
+ * classes, each of which implements a particular type of Postgres query, such as
+ * SelectQuery or CreateIndexQuery (these provide the interface that you want to
+ * use as an end user).
+ *
+ * Once a query has been created, calling `query.compile()` will return a SQL
+ * string and an array of arguments which can be passed into the Postgres client
+ * for execution.
+ *
+ * The logic here is quite complex, so please add more unit tests with any new
+ * features.
+ *
+ * The general approach is to construct an internal array of `Atoms` (see above)
+ * each representing a small part of the query and which are concatonated when we
+ * call `compile`. Due to the fact that `Query` is itself a type of `Atom`, this
+ * process can be recursive. Arguments are also automatically converted to `$n`
+ * references at compile time.
+ */
 abstract class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
   protected nameSubqueries = true;
@@ -44,19 +75,20 @@ abstract class Query<T extends DbObject> {
     protected atoms: Atom<T>[] = [],
   ) {}
 
-  getField(name: string) {
-    return this.getFields()[name] ?? this.table?.getField(name);
-  }
-
-  getFields() {
-    return this.table instanceof Query ? this.table.syntheticFields : this.table.getFields();
-  }
-
-  toSQL(sql: SqlClient) {
-    const {sql: sqlString, args} = this.compile();
-    return sql.any(sqlString, args);
-  }
-
+  /**
+   * `compile` is the main external interface provided by Query - it turns the
+   * query into an executable SQL string and an array of arguments that together
+   * can be passed into a SQL client for execution.
+   *
+   * `argOffset` specifies the numerical index to begin creating `$n` references at.
+   *
+   * `subqueryOffset` specifices the ASCII character code of the character to begin
+   * labelling subqueries at.
+   *
+   * In general, external users should never need to provide values for these arguments
+   * (you're _very_ likely to break something if you do), but they're provided in the
+   * public API for flexability.
+   */
   compile(argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
@@ -84,10 +116,38 @@ abstract class Query<T extends DbObject> {
     };
   }
 
+  /**
+   * Lookup a field in the current scope.
+   */
+  getField(name: string): Type | undefined {
+    return this.getFields()[name] ?? this.table?.getField(name);
+  }
+
+  /**
+   * Get all the fields defined in the current scope (does not return fields defined
+   * in parent scopes).
+   */
+  getFields(): Record<string, Type> {
+    return this.table instanceof Query ? this.table.syntheticFields : this.table.getFields();
+  }
+
+  /**
+   * Internal helper to create a new Arg - allows us to encapsulate Arg
+   * locally in this file.
+   */
   protected createArg(value: any) {
     return new Arg(value);
   }
 
+  /**
+   * In complex queries, we (very) often need to provide typehints to make Postgres
+   * happy (especially when using aggregations which result in subqueries with
+   * synthetic fields). `getTypeHint` attempts to provide such a hint, returning the
+   * empty string if one cannot be determined.
+   *
+   * If `typeHint` is an instance of `Type` then that type will be used, otherwise
+   * `typeHint` is assumed to be the value we are getting the type for.
+   */
   private getTypeHint(typeHint?: any): string {
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
@@ -106,6 +166,11 @@ abstract class Query<T extends DbObject> {
     return "";
   }
 
+  /**
+   * Sometimes, we require two values to have the same type hint (for instance, when
+   * using binary comparison operators), even if those values could be given more
+   * precise type hints separately in isolation.
+   */
   private getUnifiedTypeHint(a: Atom<T>[], b: Atom<T>[]): string | undefined {
     const aArg = a.find((atom) => atom instanceof Arg) as Arg;
     const bArg = b.find((atom) => atom instanceof Arg) as Arg;
@@ -115,10 +180,20 @@ abstract class Query<T extends DbObject> {
     return this.getTypeHint(aArg.value);
   }
 
+  /**
+   * Table names must be correctly quoted to allow for capitalization.
+   */
   protected resolveTableName(): string {
     return this.table instanceof Table ? `"${this.table.getName()}".` : "";
   }
 
+  /**
+   * Convert a Mongo selector field into a string that Postgres can understand. The
+   * `field` may be a simple field name, or it may dereference a JSON object or
+   * index an array.
+   *
+   * For valid values of the optional `typeHint`, see `getTypeHint`.
+   */
   protected resolveFieldName(field: string, typeHint?: any): string {
     const arrayIndex = field.indexOf(".$");
     if (arrayIndex > -1) {
@@ -141,6 +216,13 @@ abstract class Query<T extends DbObject> {
     throw new Error(`Cannot resolve field name: ${field}`);
   }
 
+  /**
+   * Mongo is happy to treat arrays and scalar values as being effectively
+   * interchangable, but Postgres is more picky. This helper allows us to
+   * localize the special handling needed when we operate on a value that
+   * is an array, despite not necessarily be marked as one explicitely in
+   * the selector.
+   */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
     const ty = this.getField(unresolvedField);
     if (ty && ty.isArray() && !Array.isArray(value)) {
@@ -155,6 +237,10 @@ abstract class Query<T extends DbObject> {
     }
   }
 
+  /**
+   * Compile an arbitrary Mongo selector into an array of atoms.
+   * `this.atoms` is not modified.
+   */
   private compileComparison(fieldName: string, value: any): Atom<T>[] {
     const field = this.resolveFieldName(fieldName, value);
     if (value === null || value === undefined) {
@@ -189,6 +275,10 @@ abstract class Query<T extends DbObject> {
     return this.arrayify(fieldName, field, "=", value);
   }
 
+  /**
+   * Recursively merge logically combined selectors (such as $and or $or) into a flat
+   * Atom array.
+   */
   private compileMultiSelector(multiSelector: MongoSelector<T>, separator: string): Atom<T>[] {
     const result = Array.isArray(multiSelector)
       ? multiSelector.map((selector) => this.compileSelector(selector))
@@ -202,10 +292,11 @@ abstract class Query<T extends DbObject> {
     ];
   }
 
+  /**
+   * Compile an arbitrary Mongo selector into an array of atoms.
+   * `this.atoms` is not modified.
+   */
   protected compileSelector(selector: MongoSelector<T>): Atom<T>[] {
-    /*
-     * TODO: Internal documentation, examples
-     */
     const keys = Object.keys(selector);
     if (keys.length === 0) {
       return [];
@@ -229,10 +320,17 @@ abstract class Query<T extends DbObject> {
     return this.compileComparison(key, value);
   }
 
+  /**
+   * Compile the given selector and append it to `this.atoms`.
+   */
   protected appendSelector(selector: MongoSelector<T>): void {
     this.atoms = this.atoms.concat(this.compileSelector(selector));
   }
 
+  /**
+   * Compile a conditional expression (used internally by `compileExpression` to handle
+   * $cond statements).
+   */
   private compileCondition(expr: any): Atom<T>[] {
     if (typeof expr === "string" && expr[0] === "$") {
       const name = expr.slice(1);
@@ -241,6 +339,10 @@ abstract class Query<T extends DbObject> {
     return this.compileExpression(expr);
   }
 
+  /**
+   * Compile an arbitrary Mongo expression into an array of atoms.
+   * `this.atoms` is not modified.
+   */
   protected compileExpression(expr: any, typeHint?: any): Atom<T>[] {
     if (typeof expr === "string") {
       return [expr[0] === "$" ? this.resolveFieldName(expr.slice(1), typeHint) : new Arg(expr)];

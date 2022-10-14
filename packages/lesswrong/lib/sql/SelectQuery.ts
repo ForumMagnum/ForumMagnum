@@ -17,15 +17,48 @@ export type PipelineLookup = {
   as: string,
 }
 
+/**
+ * The Mongo $lookup aggregation stage supports two different argument signatures,
+ * which we've called the `SimpleLookup` and the `PipelineLookup` (see above).
+ * `SimpleLookups` are fairly trivial to convert into SQL, so we compile them
+ * automatically, but `PipelineLookups` are much more complex. If the caller tries
+ * to use a `PipelineLookup`, we just throw an error - they should manually rewrite
+ * the aggregation in SQL instead.
+ */
 export type Lookup = SimpleLookup | PipelineLookup;
 
 export type SelectSqlOptions = Partial<{
+  /**
+   * Set the maximum number of records that can be returned.
+   */
   count: boolean,
+  /**
+   * Defined extra syntheticFields using Mongo syntax - these can be arbitrarily
+   * complex expressions and have full access to the current scope.
+   */
   addFields: any // TODO typing
+  /**
+   * Perform a Mongo aggregation $lookup. This is similar to a join, but actually
+   * has quite a different output format which is actually implemented using
+   * Postgres' `LATERAL` statement in combination with `jsonb_agg()`.
+   */
   lookup: Lookup,
+  /**
+   * Perform a Mongo aggregation $unwind which works like Postgres' `unnest`.
+   */
   unwind: any, // TODO typing
+  /**
+   * This provides a hook for the called to insert a raw SQL string into the query,
+   * in a suitable position for a join (for example usage, see server/recommendations.ts).
+   */
   joinHook: string,
+  /**
+   * Select for an atomic update.
+   */
   forUpdate: boolean,
+  /**
+   * Perform a Mongo aggregation $group, which is translated to a Postgres `GROUP BY`.
+   */
   group: any, // TODO typing
 }>
 
@@ -43,6 +76,13 @@ const isAggregate = (value: any) => {
   }
 }
 
+/**
+ * Builds a Postgres query to select some specific data from the given table.
+ *
+ * More complex queries can also be constructed here my making use of the
+ * `sqlOptions` argument which mainly exists to facilitate aggregation pipelines,
+ * but can also be used explicitely. See SelectSqlOptions for details.
+ */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
 

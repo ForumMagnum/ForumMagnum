@@ -7,6 +7,10 @@ export type UpdateOptions = Partial<{
   returnUpdated: boolean,
 }>
 
+/**
+ * Builds a Postgres query to update some specific data in the given table.
+ * Note that upserting is handled by `InsertQuery` instead.
+ */
 class UpdateQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table,
