@@ -5,6 +5,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { ClickAwayListener } from '@material-ui/core';
 import classNames from 'classnames';
+import Badge from '@material-ui/core/Badge';
 
 const styles = (theme: ThemeType): JssStyles => ({
   sideCommentIconWrapper: {
@@ -18,6 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   sideCommentIcon: {
     position: 'absolute',
     cursor: "pointer",
+    marginLeft: 25,
+    "& svg": {
+      height: 17,
+    },
     '&:hover': {
       color: theme.palette.icon.dim5,
     }
@@ -48,9 +53,16 @@ const SideCommentIcon = ({commentIds, post, classes}: {
     setPinned(!pinned)
   }
   
+  const commentCount = commentIds.length;
+  const BadgeWrapper = (commentCount>1)
+    ? ({children}) => <Badge badgeContent={commentCount}>{children}</Badge>
+    : ({children}) => <>{children}</>
+  
   return <div ref={wrapperRef} className={classes.sideCommentIconWrapper}>
     <span {...eventHandlers} onClick={pinOpen} className={classes.sideCommentIcon}>
-      <CommentIcon className={classNames({[classes.pinned]: pinned})} />
+      <BadgeWrapper>
+        <CommentIcon className={classNames({[classes.pinned]: pinned})} />
+      </BadgeWrapper>
     </span>
     {(hover || pinned) && <ClickAwayListener onClickAway={() => setPinned(false)}>
       <LWPopper
