@@ -72,7 +72,7 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
   if (document.isEvent || data.isEvent) {
-    throw new Error("Events cannot be crossposted");
+    return document;
   }
 
   if (
