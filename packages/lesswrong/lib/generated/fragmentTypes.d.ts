@@ -2670,7 +2670,7 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "commentQualityWarning",
+  readonly type: "rateLimitOnePerDay" | "commentLowQualityWarning" | "commentMediocreQualityWarning",
   readonly endedAt: Date | null,
 }
 
@@ -2678,7 +2678,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "commentQualityWarning",
+  readonly type: "rateLimitOnePerDay" | "commentLowQualityWarning" | "commentMediocreQualityWarning",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,

@@ -2,11 +2,13 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
-export const COMMENT_QUALITY_WARNING = 'commentQualityWarning';
+export const COMMENT_LOW_QUALITY_WARNING = 'commentLowQualityWarning';
+export const COMMENT_MEDIOCRE_QUALITY_WARNING = 'commentMediocreQualityWarning';
 
 const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (one per day)',
-  [COMMENT_QUALITY_WARNING]: 'Comment Quality Warning'
+  [COMMENT_LOW_QUALITY_WARNING]: 'Low Comment Quality Warning',
+  [COMMENT_MEDIOCRE_QUALITY_WARNING]: 'Mediocre Comment Quality Warning',
 };
 
 /**

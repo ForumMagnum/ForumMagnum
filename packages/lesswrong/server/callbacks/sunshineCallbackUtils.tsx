@@ -3,7 +3,7 @@ import { getCurrentContentCount } from '../../components/sunshineDashboard/Sunsh
 import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
 import { createMutator } from "../vulcan-lib";
-import { COMMENT_QUALITY_WARNING, isActionActive } from "../../lib/collections/moderatorActions/schema";
+import { COMMENT_LOW_QUALITY_WARNING, COMMENT_MEDIOCRE_QUALITY_WARNING, isActionActive } from "../../lib/collections/moderatorActions/schema";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
@@ -56,14 +56,14 @@ function areMediocreQualityComments(comments: DbComment[]) {
   return averageCommentKarma < threshold;
 }
 
-async function triggerCommentQualityWarning(userId: string) {
-  const lastModeratorAction = await ModeratorActions.findOne({ userId, type: COMMENT_QUALITY_WARNING }, { sort: { createdAt: -1 } });
+async function triggerCommentQualityWarning(userId: string, warningType: DbModeratorAction['type']) {
+  const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   // No previous commentQualityWarning on record for this user
   if (!lastModeratorAction) {
     void createMutator({
       collection: ModeratorActions,
       document: {
-        type: COMMENT_QUALITY_WARNING,
+        type: warningType,
         userId
       },
     });
@@ -77,7 +77,7 @@ async function triggerCommentQualityWarning(userId: string) {
     void createMutator({
       collection: ModeratorActions,
       document: {
-        type: COMMENT_QUALITY_WARNING,
+        type: warningType,
         userId  
       },
     });
@@ -88,11 +88,11 @@ export async function triggerAutomodIfNeeded(userId: string) {
   const latestComments = await Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch();
   // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
   if (areLowQualityComments(latestComments)) {
-    void triggerCommentQualityWarning(userId);
+    void triggerCommentQualityWarning(userId, COMMENT_LOW_QUALITY_WARNING);
   }
 
   if (areMediocreQualityComments(latestComments)) {
     // TODO: different warning, for mediocre quality comments
-    void triggerCommentQualityWarning(userId);
+    void triggerCommentQualityWarning(userId, COMMENT_MEDIOCRE_QUALITY_WARNING);
   }
 }
