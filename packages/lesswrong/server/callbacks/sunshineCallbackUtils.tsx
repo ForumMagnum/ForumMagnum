@@ -40,20 +40,23 @@ function isNetDownvoted(comment: DbComment) {
 }
 
 function areLowQualityComments(comments: DbComment[]) {
-  const threshold = 2;
-  const downvotedCommentCount = comments.filter(isNetDownvoted).length;
+  if (comments.length < 5) return false;
 
-  return downvotedCommentCount >= threshold;
+  const lastFiveComments = comments.slice(0, 5);
+  const badCommentCountThreshold = 2;
+  const downvotedCommentCount = lastFiveComments.filter(isNetDownvoted).length;
+
+  return downvotedCommentCount >= badCommentCountThreshold;
 }
 
 function areMediocreQualityComments(comments: DbComment[]) {
   if (comments.length < 20) return false;
 
-  const threshold = 1.5;
+  const mediocreAverageKarmaThreshold = 1.5;
   const runningCommentKarma = comments.reduce((prev, curr) => prev + curr.baseScore, 0);
   const averageCommentKarma = runningCommentKarma / comments.length;
 
-  return averageCommentKarma < threshold;
+  return averageCommentKarma < mediocreAverageKarmaThreshold;
 }
 
 async function triggerCommentQualityWarning(userId: string, warningType: DbModeratorAction['type']) {
