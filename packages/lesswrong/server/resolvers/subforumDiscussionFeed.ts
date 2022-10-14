@@ -5,12 +5,13 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 
 defineFeedResolver<Date>({
   name: "SubforumDiscussionFeed",
-  args: "tagId: String!",
+  args: `tagId: String!`,
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
     subforumDiscussionThread: Comment
+    postCommented: Post
   `,
-  resolver: async ({limit=20, cutoff, offset, args, context}: {
+  resolver: async ({limit=4, cutoff, offset, args, context}: {
     limit?: number, cutoff?: Date, offset?: number,
     args: {tagId: string},
     context: ResolverContext,
@@ -22,35 +23,28 @@ defineFeedResolver<Date>({
       limit, cutoff, offset,
       subqueries: [
         // Subforum thread commented
-        viewBasedSubquery({
-          type: "subforumDiscussionThread",
-          collection: Comments,
-          sortField: "lastSubthreadActivity",
-          context,
-          selector: {
-            tagId: tagId,
-            tagCommentType: TagCommentType.Subforum as string,
-            parentCommentId: null,
-          },
-        }),
+        // viewBasedSubquery({
+        //   type: "subforumDiscussionThread",
+        //   collection: Comments,
+        //   sortField: "lastSubthreadActivity",
+        //   context,
+        //   selector: {
+        //     tagId: tagId,
+        //     tagCommentType: TagCommentType.Subforum as string,
+        //     parentCommentId: null,
+        //   },
+        // }),
         viewBasedSubquery({
           type: "postCommented",
           collection: Posts,
           sortField: "lastCommentedAt",
           context,
           selector: {
-            baseScore: {$gt:0},
-            hideFrontpageComments: false,
-            $or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$nin:[0,null]}}],
-            hiddenRelatedQuestion: undefined,
-            shortform: undefined,
+            isEvent: false,
+            groupId: undefined,
+            [`tagRelevance.${tagId}`]: {$gt: 0},
           },
         }),
-        fixedIndexSubquery({
-          type: "helloWorld",
-          index: 5,
-          result: {},
-        })
       ],
     });
   }

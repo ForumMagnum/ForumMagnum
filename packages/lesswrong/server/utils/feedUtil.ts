@@ -17,6 +17,7 @@ export function feedSubquery<ResultType, SortKeyType>(params: {
 }
 
 export function viewBasedSubquery<ResultType extends DbObject, SortKeyType, SortFieldName extends keyof ResultType>({type, sortField, collection, context, selector}: {
+  /** Should match a key in MixedTypeFeed renderers */
   type: string,
   sortField: keyof ResultType,
   collection: CollectionBase<ResultType>,
@@ -27,6 +28,7 @@ export function viewBasedSubquery<ResultType extends DbObject, SortKeyType, Sort
     type,
     getSortKey: (item: ResultType): SortKeyType => (item[sortField] as unknown as SortKeyType),
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
+      console.log('🚀 ~ file: feedUtil.ts ~ line 31 ~ doQuery: ~ limit', limit)
       return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff});
     }
   });
@@ -114,10 +116,14 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, subq
   offset?: number,
   subqueries: Array<any>
 }) {
+  console.log('🚀 ~ file: feedUtil.ts ~ mergeFeedQueries ~ limit', limit)
   // Perform the subqueries
   const unsortedSubqueryResults = await Promise.all(
     subqueries.map(async (subquery) => {
       const subqueryResults = await subquery.doQuery(limit, cutoff)
+      const idArr = subqueryResults.map(r=>r._id);
+      console.log('🚀 ~ file: feedUtil.ts ~ line 123 ~ subqueries.map ~ idArr', idArr)
+      console.log('🚀 ~ file: feedUtil.ts ~ line 122 ~ subqueries.map ~ subqueryResults.len', subqueryResults.length)
       return subqueryResults.map(result => ({
         type: subquery.type,
         sortKey: subquery.getSortKey(result),
@@ -201,17 +207,17 @@ export async function queryWithCutoff<ResultType extends DbObject>({context, col
   const defaultViewSelector = collection.defaultView ? collection.defaultView({} as any).selector : {};
   const {currentUser} = context;
   
-  const resultsRaw = await collection.find({
+  const endSelector = {
     ...defaultViewSelector,
     ...selector,
     ...(cutoff && {[cutoffField]: {$lt: cutoff}}),
-  }, {
+  }
+  console.log('🚀 ~ file: feedUtil.ts ~ line 207 ~ endSelector', endSelector)
+  console.log('🚀 ~ file: feedUtil.ts ~ line 216 ~ limit', limit)
+  const resultsRaw = await collection.find(endSelector, {
     sort: {[cutoffField]: -1, _id: 1},
     limit,
   }).fetch();
   
   return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
 }
-
-
-

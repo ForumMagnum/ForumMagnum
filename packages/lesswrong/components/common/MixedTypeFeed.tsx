@@ -148,6 +148,7 @@ const MixedTypeFeed = (args: {
   // the bottom that we should start loading the next page, and if so, start
   // loading it.
   const maybeStartLoadingMore = () => {
+    return
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (!isClient) return;
     const loadMoreMarker = upsideDown ? (topRef?.current) : (bottomRef?.current);
@@ -252,4 +253,3 @@ declare global {
     MixedTypeFeed: typeof MixedTypeInfiniteComponent,
   }
 }
-

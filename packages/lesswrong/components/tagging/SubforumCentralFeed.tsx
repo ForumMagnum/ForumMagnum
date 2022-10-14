@@ -46,18 +46,18 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
   sortBy: string,
   classes: ClassesType,
 }) => {
-  const { loading, results, loadMore, loadingMore, refetch } = useMulti({
-    terms: { 
-      tagId: tag._id,
-      view: "tagSubforumComments",
-      limit: 50,
-      sortBy
-    },
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
-  });
+  // const { loading, results, loadMore, loadingMore, refetch } = useMulti({
+  //   terms: {
+  //     tagId: tag._id,
+  //     view: "tagSubforumComments",
+  //     // limit: 50,
+  //     sortBy
+  //   },
+  //   collectionName: "Comments",
+  //   fragmentName: 'CommentWithRepliesFragment',
+  //   fetchPolicy: 'cache-and-network',
+  //   enableTotal: true,
+  // });
 
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -75,18 +75,18 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
     [currentUser?._id, tag, recordSubforumViewMutation],
   );
 
-  useEffect(() => {
-    if (results && results.length)
-      void recordSubforumView();
-  }, [results, recordSubforumView]);
+  // useEffect(() => {
+  //   if (results && results.length)
+  //     void recordSubforumView();
+  // }, [results, recordSubforumView]);
   
   const sortByRef = useRef(sortBy);
-  const orderedComments = useOrderPreservingArray(
-    results || [],
-    (comment) => comment._id,
-    // If the selected sort order changes, clear the existing ordering
-    sortByRef.current === sortBy ? "interleave-new" : "no-reorder"
-  );
+  // const orderedComments = useOrderPreservingArray(
+  //   results || [],
+  //   (comment) => comment._id,
+  //   // If the selected sort order changes, clear the existing ordering
+  //   sortByRef.current === sortBy ? "interleave-new" : "no-reorder"
+  // );
   sortByRef.current = sortBy;
   
   const handleSortingSelect = (option: Option) => {
@@ -157,33 +157,33 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
     //   loadMoreComments(commentCount + loadMoreCount);
   }
 
-  const commentsToRender = useMemo(() => orderedComments.slice().reverse(), [orderedComments]);
+  // const commentsToRender = useMemo(() => orderedComments.slice().reverse(), [orderedComments]);
 
-  if (!orderedComments) {
-    return (
-      <Typography variant="body1">
-        <p>No comments to display.</p>
-      </Typography>
-    );
-  }
+  // if (!orderedComments) {
+  //   return (
+  //     <Typography variant="body1">
+  //       <p>No comments to display.</p>
+  //     </Typography>
+  //   );
+  // }
   
-  const commentNodeProps: Partial<CommentsNodeProps> = {
-    treeOptions: {
-      refetch,
-      postPage: true,
-      tag: tag,
-    },
-    startThreadTruncated: true,
-    isChild: false,
-    enableGuidelines: false,
-    displayMode: "minimalist" as CommentFormDisplayMode,
-  }
+  // const commentNodeProps: Partial<CommentsNodeProps> = {
+  //   treeOptions: {
+  //     refetch,
+  //     postPage: true,
+  //     tag: tag,
+  //   },
+  //   startThreadTruncated: true,
+  //   isChild: false,
+  //   enableGuidelines: false,
+  //   displayMode: "minimalist" as CommentFormDisplayMode,
+  // }
 
-  if (loading && !results) {
-    return <Loading />;
-  } else if (!results) {
-    return null;
-  }
+  // if (loading && !results) {
+  //   return <Loading />;
+  // } else if (!results) {
+  //   return null;
+  // }
 
   const expandAll = false // FIXME: actually set this
 
@@ -194,7 +194,7 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
       style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
     >
       <div className={classes.nestedScroll} ref={scrollContentsRef} onScroll={handleScroll}>
-        {loadingMore ? <Loading /> : <></>}
+        {/* {loadingMore ? <Loading /> : <></>} */}
         {/*{commentsToRender.map((comment) => (
           <CommentWithReplies
             comment={comment}
@@ -207,46 +207,43 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
           resolverName="SubforumDiscussionFeed"
           resolverArgs={{ tagId: 'String!' }}
           resolverArgsValues={{ tagId: tag._id }}
+          fragmentArgs={{
+            commentsLimit: 'Int',
+            maxAgeHours: 'Int',
+            af: 'Boolean',
+          }}
+          // fragmentArgsValues={{
+          //   commentsLimit: ,
+          //   maxAgeHours,
+          // }}
           sortKeyType="Date"
           upsideDown={true}
+          firstPageSize={7}
+          pageSize={9}
           renderers={{
-            subforumDiscussionThread: {
-              fragmentName: "CommentWithRepliesFragment",
-              render: (comment: CommentWithRepliesFragment) => {
-                return <CommentWithReplies
-                  comment={comment}
-                  key={comment._id}
-                  commentNodeProps={commentNodeProps}
-                  initialMaxChildren={5}
-                />
-              }
-            },
+            // subforumDiscussionThread: {
+            //   fragmentName: "CommentWithRepliesFragment",
+            //   render: (comment: CommentWithRepliesFragment) => {
+            //     return <CommentWithReplies
+            //       comment={comment}
+            //       key={comment._id}
+            //       commentNodeProps={commentNodeProps}
+            //       initialMaxChildren={5}
+            //     />
+            //   }
+            // },
             postCommented: {
               fragmentName: "PostsRecentDiscussion",
-              render: (post: PostsRecentDiscussion) => (
-                <RecentDiscussionThread
+              render: (post: PostsRecentDiscussion) => {
+                return <RecentDiscussionThread
                   post={post}
-                  refetch={refetch}
+                  // refetch={refetch}
+                  refetch={() => {}}
                   comments={post.recentComments}
                   expandAllThreads={expandAll}
                 />
-              )
-            },
-            subforumPosts: {
-              fragmentName: "CommentWithRepliesFragment",
-              render: (comment: CommentWithRepliesFragment) => {
-                return <CommentWithReplies
-                  comment={comment}
-                  key={comment._id}
-                  commentNodeProps={commentNodeProps}
-                  initialMaxChildren={5}
-                />
               }
             },
-            helloWorld: {
-              fragmentName: null,
-              render: () => <h1>Hello, world!</h1>
-            }
           }}
         />
       </div>
@@ -256,7 +253,8 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
         sortOptions={sortOptions}
         selectedSorting={selectedSorting}
         handleSortingSelect={handleSortingSelect}
-        refetch={refetch}
+        // refetch={refetch}
+        refetch={() => {}}
       />
     </div>
   );
