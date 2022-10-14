@@ -135,7 +135,14 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
     }
   }, [currentHeight, userHasScrolled])
 
-  const { CommentWithReplies, Typography, SubforumSubscribeOrCommentSection, Loading } = Components;
+  const {
+    MixedTypeFeed,
+    CommentWithReplies,
+    Typography,
+    SubforumSubscribeOrCommentSection,
+    Loading,
+    RecentDiscussionThread,
+  } = Components;
 
   const handleScroll = (e) => {
     const isAtBottom = Math.abs((e.target.scrollHeight - e.target.scrollTop) - e.target.clientHeight) < 10;
@@ -178,6 +185,8 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
     return null;
   }
 
+  const expandAll = false // FIXME: actually set this
+
   return (
     <div
       ref={scrollContainerRef}
@@ -186,14 +195,60 @@ const SubforumCentralFeed = ({ tag, sortBy, classes }: {
     >
       <div className={classes.nestedScroll} ref={scrollContentsRef} onScroll={handleScroll}>
         {loadingMore ? <Loading /> : <></>}
-        {commentsToRender.map((comment) => (
+        {/*{commentsToRender.map((comment) => (
           <CommentWithReplies
             comment={comment}
             key={comment._id}
             commentNodeProps={commentNodeProps}
             initialMaxChildren={5}
           />
-        ))}
+        ))}*/}
+        <MixedTypeFeed
+          resolverName="SubforumDiscussionFeed"
+          resolverArgs={{ tagId: 'String!' }}
+          resolverArgsValues={{ tagId: tag._id }}
+          sortKeyType="Date"
+          upsideDown={true}
+          renderers={{
+            subforumDiscussionThread: {
+              fragmentName: "CommentWithRepliesFragment",
+              render: (comment: CommentWithRepliesFragment) => {
+                return <CommentWithReplies
+                  comment={comment}
+                  key={comment._id}
+                  commentNodeProps={commentNodeProps}
+                  initialMaxChildren={5}
+                />
+              }
+            },
+            postCommented: {
+              fragmentName: "PostsRecentDiscussion",
+              render: (post: PostsRecentDiscussion) => (
+                <RecentDiscussionThread
+                  post={post}
+                  refetch={refetch}
+                  comments={post.recentComments}
+                  expandAllThreads={expandAll}
+                />
+              )
+            },
+            subforumPosts: {
+              fragmentName: "CommentWithRepliesFragment",
+              render: (comment: CommentWithRepliesFragment) => {
+                return <CommentWithReplies
+                  comment={comment}
+                  key={comment._id}
+                  commentNodeProps={commentNodeProps}
+                  initialMaxChildren={5}
+                />
+              }
+            },
+            helloWorld: {
+              fragmentName: null,
+              render: () => <h1>Hello, world!</h1>
+            }
+          }}
+        />
       </div>
       {/* TODO add permissions check here */}
       <SubforumSubscribeOrCommentSection

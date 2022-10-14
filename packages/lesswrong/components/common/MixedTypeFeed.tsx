@@ -5,6 +5,7 @@ import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import reverse from 'lodash/fp/reverse';
 
 const loadMoreDistance = 500;
 
@@ -105,11 +106,15 @@ const MixedTypeFeed = (args: {
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
   refetchRef?: {current: null|(()=>void)},
+
+  // If set, results are shown in reverse order, and the infinite-scroll load trigger is at the top instead of the bottom.
+  upsideDown?: boolean
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef } = args;
+  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, upsideDown=false } = args;
   
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
+  const topRef = useRef<HTMLDivElement|null>(null);
   
   // Whether there is a pending query. This is indirect (inside an object)
   // because it's accessed from inside callbacks, where the timing of state
@@ -144,9 +149,10 @@ const MixedTypeFeed = (args: {
   // loading it.
   const maybeStartLoadingMore = () => {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
-    if (isClient
-      && bottomRef?.current
-      && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
+    if (!isClient) return;
+    const loadMoreMarker = upsideDown ? (topRef?.current) : (bottomRef?.current);
+    if (loadMoreMarker
+      && elementIsNearVisible(loadMoreMarker, loadMoreDistance, upsideDown)
       && !reachedEnd
       && data)
     {
@@ -190,8 +196,12 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const keyFunc = (result) => `${result.type}_${result[result.type]?._id}`;
   const orderedResults = useOrderPreservingArray(results, keyFunc);
+
+  const maybeInvertedResults = upsideDown ? reverse(orderedResults) : orderedResults;
+
   return <div>
-    {orderedResults.map((result) =>
+    <div ref={topRef}/>
+    {maybeInvertedResults.map((result) =>
       <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
@@ -218,12 +228,22 @@ const RenderFeedItem = React.memo(({renderers, item}: {
 // the screen, is within `distance` of being visible. This is used for infinite
 // scroll; the next segment starts loading when the scroll position reaches
 // `distance` of the bottom.
-function elementIsNearVisible(element: HTMLElement|null, distance: number) {
+function elementIsNearVisible(element: HTMLElement|null, distance: number, upsideDown: boolean) {
+  // TODO: Handle upsideDown
   if (!element) return false;
   const top = element.getBoundingClientRect().y;
   const windowHeight = window.innerHeight;
   return (top-distance) <= windowHeight;
 }
+
+// TODO: on load more, counteract jump from newly added content
+/*
+  Jim suggestion:
+  - ScrollContainer{overfloy-y: scroll;}
+    - ScrollWrapper{position: 'relative', height: 1000} // height maybe just needs to be large enough to accommodate 
+      - ScrollContents{height: 'auto', position: 'absolute', bottom: 0}
+  however! when ScrollContents changes size, ScrollWrapper needs to resize to match.
+*/
 
 const MixedTypeInfiniteComponent = registerComponent('MixedTypeFeed', MixedTypeFeed);
 
