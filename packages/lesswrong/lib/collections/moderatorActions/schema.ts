@@ -1,9 +1,12 @@
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 
+export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
+export const COMMENT_QUALITY_WARNING = 'commentQualityWarning';
+
 const MODERATOR_ACTION_TYPES = {
-  rateLimitOnePerDay: 'Rate Limit (one per day)',
-  commentQualityWarning: 'Comment Quality Warning'
+  [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (one per day)',
+  [COMMENT_QUALITY_WARNING]: 'Comment Quality Warning'
 };
 
 /**
