@@ -4,6 +4,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
 import { triggerAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 /**
  * @summary Update the karma of the item's owner
@@ -49,7 +50,7 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
 });
 
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
-  if (newDocument.__collectionName === 'Comments') {
+  if (newDocument.__collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
     void triggerAutomodIfNeeded(newDocument.userId)
   }
 });
