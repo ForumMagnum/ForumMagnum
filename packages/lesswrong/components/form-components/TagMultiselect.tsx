@@ -19,13 +19,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: 13
     },
     '& input': {
-      width: '100%'
+      width: '100%',
+      cursor: "pointer",
     }
   },
   focused: {
     border: theme.palette.border.extraFaint,
     borderRadius: 3,
-    padding: 5
+    padding: 5,
+    '& input': {
+      cursor: "text"
+    }
   }
 });
 
