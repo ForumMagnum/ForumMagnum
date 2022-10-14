@@ -66,7 +66,7 @@ mongod --dbpath ./myLocalDatabase
 yarn [start|ea-start]
 ```
 
-You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
+You should now have a local version running at [http://localhost:3000](http://localhost:3000/). Only use ea-start if you have access to the ForumCredentials repository.
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
 
@@ -188,4 +188,3 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
-

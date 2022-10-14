@@ -63,6 +63,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
   
   
   if (!(user && currentUser)) return null
+  const firstName = user.displayName.split(" ")[0]
   
   return (
     <div className={classes.root}>
@@ -70,7 +71,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}
       >
-        Start Message
+        New Message
       </span>
       <Menu
         onClick={() => setAnchorEl(null)}
@@ -79,7 +80,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
       >
         <MenuItem value={0}>
           <NewConversationButton user={user} currentUser={currentUser} includeModerators>
-            Start a message
+            New Message
           </NewConversationButton>
         </MenuItem>
         {defaultResponses && defaultResponses.map((comment, i) =>
@@ -90,7 +91,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id} includeModerators>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, firstName, displayName: user.displayName}} includeModerators>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>

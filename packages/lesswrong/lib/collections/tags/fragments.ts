@@ -182,6 +182,7 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -208,6 +209,7 @@ registerFragment(`
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {

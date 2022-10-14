@@ -466,12 +466,12 @@ const schema: SchemaType<DbTag> = {
     canRead: ['guests'],
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       if (!tag.isSubforum) return null;
-      if (!context.currentUser) return null;
 
       // This is when this field was added, so assume all messages before then have been read
       const earliestDate = new Date('2022-09-30T15:07:34.026Z');
-      const lastVisitedAt = (await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}))?.subforumLastVisitedAt ?? earliestDate;
-      const count = await Comments.find({tagId: tag._id, tagCommentType: TagCommentType.Subforum, deleted: {$ne: true}, postedAt: {$gt: lastVisitedAt}}).count()
+      const userLastVisitedAt = context.currentUser ? (await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}))?.subforumLastVisitedAt : null;
+      const effectiveLastVisitedAt = userLastVisitedAt || earliestDate;
+      const count = await Comments.find({tagId: tag._id, tagCommentType: TagCommentType.Subforum, deleted: {$ne: true}, postedAt: {$gt: effectiveLastVisitedAt}}).count()
 
       return count
     },
