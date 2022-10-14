@@ -9,6 +9,7 @@ registerFragment(`
     topLevelCommentId
     descendentCount
     contents {
+      _id
       html
       plaintextMainText
     }

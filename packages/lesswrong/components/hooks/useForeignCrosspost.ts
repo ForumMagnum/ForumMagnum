@@ -26,6 +26,19 @@ const hasTableOfContents =
     "tableOfContents" in post && Array.isArray((post as WithContents).tableOfContents?.sections);
 
 /**
+ * If this post was crossposted from elsewhere then we want to take some of the fields from
+ * our local copy (for correct links/ids/etc.), but we want to override many of the fields
+ * with foreign data, to keep the origin post as the source of truth, and get some metadata
+ * that isn't denormalized across sites.
+ */
+const overrideFields = [
+  "contents",
+  "tableOfContents",
+  "url",
+  "readTimeMinutes",
+] as const;
+
+/**
  * Load foreign crosspost data from the foreign site
  */
 export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends keyof FragmentTypes>(
@@ -54,10 +67,6 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
-    // If this post was crossposted from elsewhere then we want to take most of the fields from
-    // our local copy (for correct links/ids/etc.) but we need to override a few specific fields
-    // to actually get the correct content and some metadata that isn't denormalized across sites
-    const overrideFields = ["contents", "tableOfContents", "url", "readTimeMinutes"] as const;
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
       combinedPost[field] = foreignPost?.[field] ?? localPost[field];
@@ -66,7 +75,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     if (hasTableOfContents(combinedPost)) {
       combinedPost.tableOfContents = {
         ...combinedPost.tableOfContents,
-        sections: combinedPost.tableOfContents.sections.map((section) =>
+        sections: combinedPost.tableOfContents.sections.map((section: {anchor?: string}) =>
           section.anchor === "comments"
             ? {...section, title: postGetCommentCountStr(localPost as unknown as PostsBase)}
             : section
