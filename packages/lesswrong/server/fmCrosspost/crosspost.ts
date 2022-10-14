@@ -10,7 +10,7 @@ import { denormalizedFieldKeys, DenormalizedCrosspostData, extractDenormalizedDa
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
   if (post.isEvent) {
-    throw new Error("Events cannot be crossposted");
+    return post;
   }
 
   if (!post.fmCrosspost || !post.userId || post.draft) {
