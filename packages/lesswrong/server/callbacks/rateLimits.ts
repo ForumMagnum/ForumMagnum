@@ -5,6 +5,7 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { userTimeSinceLast, userNumberOfItemsInPast24Hours } from '../../lib/vulcan-users/helpers';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
+import { RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -64,7 +65,7 @@ async function enforcePostRateLimit (user: DbUser) {
 
   const moderatorRateLimit = await ModeratorActions.findOne({
     userId: user._id,
-    type: 'rateLimitOnePerDay',
+    type: RATE_LIMIT_ONE_PER_DAY,
     endedAt: null
   });
 
@@ -89,7 +90,7 @@ async function enforceCommentRateLimit(user: DbUser) {
     userNumberOfItemsInPast24Hours(user, Comments),
     ModeratorActions.findOne({
       userId: user._id,
-      type: 'rateLimitOnePerDay',
+      type: RATE_LIMIT_ONE_PER_DAY,
       endedAt: null
     })
   ]);
