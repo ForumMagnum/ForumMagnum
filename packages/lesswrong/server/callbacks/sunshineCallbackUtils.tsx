@@ -95,7 +95,6 @@ export async function triggerAutomodIfNeeded(userId: string) {
   }
 
   if (areMediocreQualityComments(latestComments)) {
-    // TODO: different warning, for mediocre quality comments
     void triggerCommentQualityWarning(userId, COMMENT_MEDIOCRE_QUALITY_WARNING);
   }
 }
