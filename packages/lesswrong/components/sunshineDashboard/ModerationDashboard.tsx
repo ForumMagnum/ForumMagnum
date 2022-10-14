@@ -3,7 +3,7 @@ import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import {userCanDo, userIsAdmin} from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -49,13 +49,23 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
   );
 };
 
-const ModeratorActionsDashboard = ({ classes }: {
+const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { ModeratorActionItem, SingleColumnSection, WrappedSmartForm } = Components;
-
+  const { ModeratorActionItem, SingleColumnSection, WrappedSmartForm, SunshineNewUsersItem, SunshineNewUsersInfo, UsersReviewInfoCard, LoadMore } = Components;
+  
+  // const { SunshineListCount, SunshineListTitle,  } = Components
+  
   const currentUser = useCurrentUser();
-
+  
+  const { results: usersToReview, totalCount, loadMoreProps } = useMulti({
+    terms: {view:"sunshineNewUsers", limit: 25},
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+    enableTotal: true,
+    itemsPerPage: 60
+  });
+  
   const { results } = useMulti({
     collectionName: 'ModeratorActions',
     fragmentName: 'ModeratorActionDisplay',
@@ -68,6 +78,16 @@ const ModeratorActionsDashboard = ({ classes }: {
 
   return (
     <SingleColumnSection>
+      <div>
+      {usersToReview && usersToReview.map(user =>
+        <div key={user._id} >
+          <UsersReviewInfoCard user={user}/>
+        </div>
+        )}
+        <div className={classes.loadMore}>
+          <LoadMore {...loadMoreProps}/>
+        </div>
+      </div>
       <div className={classes.tableWrapper}>
         <table className={classes.table}>
           <thead>
@@ -94,11 +114,11 @@ const ModeratorActionsDashboard = ({ classes }: {
 };
 
 const ModeratorActionItemComponent = registerComponent('ModeratorActionItem', ModeratorActionItem, { styles: actionItemStyles });
-const ModeratorActionsDashboardComponent = registerComponent('ModeratorActionsDashboard', ModeratorActionsDashboard, { styles });
+const ModerationDashboardComponent = registerComponent('ModerationDashboard', ModerationDashboard, { styles });
 
 declare global {
   interface ComponentTypes {
     ModeratorActionItem: typeof ModeratorActionItemComponent
-    ModeratorActionsDashboard: typeof ModeratorActionsDashboardComponent
+    ModerationDashboard: typeof ModerationDashboardComponent
   }
 }

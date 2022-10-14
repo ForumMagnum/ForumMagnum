@@ -20,8 +20,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-
-export const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
+import {defaultModeratorPMsTagSlug} from "./SunshineNewUsersInfo";
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -180,22 +179,22 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
-const SunshineNewUsersInfo = ({ user, classes }: {
+const UsersReviewInfoCard = ({ user, classes }: {
   user: SunshineUsersList,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-
+  
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
   })
-
+  
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
-
+  
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
-
+  
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
       void updateUser({
@@ -206,13 +205,13 @@ const SunshineNewUsersInfo = ({ user, classes }: {
       })
     }
   }
-
+  
   useEffect(() => {
     return () => {
       handleNotes();
     }
   });
-
+  
   const handleReview = () => {
     if (canReview) {
       void updateUser({
@@ -228,7 +227,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
       })
     }
   }
-
+  
   const handleSnooze = (contentCount: number) => {
     const newNotes = signatureWithNote(`Snooze ${contentCount}`)+notes;
     void updateUser({
@@ -243,9 +242,9 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     })
     setNotes( newNotes )
   }
-
+  
   const banMonths = 3
-
+  
   const handleBan = () => {
     const newNotes = signatureWithNote("Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
@@ -264,7 +263,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
       setNotes( newNotes )
     }
   }
-
+  
   const handlePurge = () => {
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
       void updateUser({
@@ -284,7 +283,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
       setNotes( signatureWithNote("Purge")+notes )
     }
   }
-
+  
   const handleFlag = () => {
     void updateUser({
       selector: {_id: user._id},
@@ -293,11 +292,11 @@ const SunshineNewUsersInfo = ({ user, classes }: {
         sunshineNotes: notes
       }
     })
-
+    
     const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
     setNotes( signatureWithNote(flagStatus)+notes )
   }
-
+  
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
     const newNotes = signatureWithNote(`posting ${abled}`) + notes;
@@ -310,7 +309,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     })
     setNotes( newNotes )
   }
-
+  
   const handleDisableAllCommenting = () => {
     const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
     const newNotes = signatureWithNote(`all commenting ${abled}`) + notes;
@@ -323,7 +322,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     })
     setNotes( newNotes )
   }
-
+  
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
     const newNotes = signatureWithNote(`commenting on other's ${abled}`) + notes;
@@ -336,7 +335,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     })
     setNotes( newNotes )
   }
-
+  
   const handleDisableConversations = () => {
     const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
     const newNotes = signatureWithNote(`conversations ${abled}`) + notes;
@@ -349,7 +348,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     })
     setNotes( newNotes )
   }
-
+  
   const { results: posts, loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
     collectionName: "Posts",
@@ -357,7 +356,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     fetchPolicy: 'cache-and-network',
     limit: 50
   });
-
+  
   const { results: comments, loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
     collectionName: "Comments",
@@ -365,177 +364,179 @@ const SunshineNewUsersInfo = ({ user, classes }: {
     fetchPolicy: 'cache-and-network',
     limit: 50
   });
-
+  
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
-
+  
   const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper, ModeratorMessageCount } = Components
-
+  
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
-
+  
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
+  
   const getTodayString = () => {
     const today = new Date();
     return today.toLocaleString('default', { month: 'short', day: 'numeric'});
   }
-
+  
   const signature = `${currentUser?.displayName}, ${getTodayString()}`
   const signatureWithNote = (note:string) => {
     return `${signature}: ${note}\n`
   }
-
+  
   const signAndDate = (sunshineNotes:string) => {
     if (!sunshineNotes.match(signature)) {
       const padding = !sunshineNotes ? ": " : ": \n\n"
       return signature + padding + sunshineNotes
-    } 
+    }
     return sunshineNotes
   }
-
+  
   const handleClick = () => {
     const signedNotes = signAndDate(notes)
     if (signedNotes != notes) {
       setNotes(signedNotes)
     }
   }
-
+  
+  const permissionsRow = <div className={classes.permissionsRow}>
+      <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
+        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.postingDisabled})} onClick={handleDisablePosting}>
+          Posts
+        </div>
+      </LWTooltip>
+      <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
+        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
+          All Comments
+        </div>
+      </LWTooltip>
+      <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
+        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.commentingOnOtherUsersDisabled})} onClick={handleDisableCommentingOnOtherUsers}>
+          Other Comments
+        </div>
+      </LWTooltip>
+      <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
+        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.conversationsDisabled})}onClick={handleDisableConversations}>
+          Conversations
+        </div>
+      </LWTooltip>
+    </div>
+  
   return (
-      <div className={classes.root}>
-        <Typography variant="body2">
-          <MetaInfo>
-            <div className={classes.info}>
-              {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
-              {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
-              {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
-              <div className={classes.notes}>
-                <Input 
-                  value={notes} 
-                  fullWidth
-                  onChange={e => setNotes(e.target.value)}
-                  onClick={e => handleClick()}
-                  disableUnderline 
-                  placeholder="Notes for other moderators"
-                  multiline
-                />
-              </div>
+    <div className={classes.root}>
+      <Typography variant="body2">
+        <MetaInfo>
+          <div className={classes.info}>
+            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
+            {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
+            <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+            <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+            {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+            <div className={classes.notes}>
+              <Input
+                value={notes}
+                fullWidth
+                onChange={e => setNotes(e.target.value)}
+                onClick={e => handleClick()}
+                disableUnderline
+                placeholder="Notes for other moderators"
+                multiline
+              />
+            </div>
+          </div>
+          <div className={classes.row}>
+            <div className={classes.row}>
+              <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
+                <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
+              </LWTooltip>
+              <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
+                <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
+              </LWTooltip>
+              <LWTooltip title="Approve" placement="top">
+                <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
+              </LWTooltip>
+              <LWTooltip title="Ban for 3 months" placement="top">
+                <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
+              </LWTooltip>
+              <LWTooltip title="Purge (delete and ban)" placement="top">
+                <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
+              </LWTooltip>
+              <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
+                <div>Flag this user for more review</div>
+                <div><em>(This will not remove them from sidebar)</em></div>
+              </div>} placement="top">
+                <div onClick={handleFlag} className={classes.modButton} >
+                  {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
+                </div>
+              </LWTooltip>
             </div>
             <div className={classes.row}>
-              <div className={classes.row}>
-                <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
-                  <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
-                </LWTooltip>
-                <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
-                  <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
-                </LWTooltip>
-                <LWTooltip title="Approve" placement="top">
-                  <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
-                </LWTooltip>
-                <LWTooltip title="Ban for 3 months" placement="top">
-                  <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
-                </LWTooltip>
-                <LWTooltip title="Purge (delete and ban)" placement="top">
-                  <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
-                </LWTooltip>
-                <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
-                    <div>Flag this user for more review</div>
-                    <div><em>(This will not remove them from sidebar)</em></div>
-                  </div>} placement="top">
-                  <div onClick={handleFlag} className={classes.modButton} >
-                    {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
-                  </div>
-                </LWTooltip>
-              </div>
-              <div className={classes.row}>
-                <ModeratorMessageCount userId={user._id} />
-                <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
-              </div>
+              <ModeratorMessageCount userId={user._id} />
+              <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
             </div>
-            <div className={classes.permissionsRow}>
-              <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
-                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.postingDisabled})} onClick={handleDisablePosting}>
-                  Posts
-                </div>
-              </LWTooltip>
-              <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
-                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
-                  All Comments
-                </div>
-              </LWTooltip>
-              <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
-                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.commentingOnOtherUsersDisabled})} onClick={handleDisableCommentingOnOtherUsers}>
-                  Other Comments
-                </div>
-              </LWTooltip>
-              <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
-                <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.conversationsDisabled})}onClick={handleDisableConversations}>
-                  Conversations
-                </div>
-              </LWTooltip>
-            </div>
-            <hr className={classes.hr}/>
-            <div className={classes.votesRow}>
-              <span>Votes: </span>
-              <LWTooltip title="Big Upvotes">
+          </div>
+          {permissionsRow}
+          <hr className={classes.hr}/>
+          <div className={classes.votesRow}>
+            <span>Votes: </span>
+            <LWTooltip title="Big Upvotes">
                 <span className={classes.bigUpvotes}>
                   { user.bigUpvoteCount || 0 }
                 </span>
-              </LWTooltip>
-              <LWTooltip title="Upvotes">
+            </LWTooltip>
+            <LWTooltip title="Upvotes">
                 <span className={classes.upvotes}>
                   { user.smallUpvoteCount || 0 }
                 </span>
-              </LWTooltip>
-              <LWTooltip title="Downvotes">
+            </LWTooltip>
+            <LWTooltip title="Downvotes">
                 <span className={classes.downvotes}>
                   { user.smallDownvoteCount || 0 }
                 </span>
-              </LWTooltip>
-              <LWTooltip title="Big Downvotes">
+            </LWTooltip>
+            <LWTooltip title="Big Downvotes">
                 <span className={classes.bigDownvotes}>
                   { user.bigDownvoteCount || 0 }
                 </span>
-              </LWTooltip>
-            </div>
-            <div>
-              Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
+            </LWTooltip>
+          </div>
+          <div>
+            Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
                 karma
               </span>
-              <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
+            <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
                 postedAt
               </span>
-            </div>
-            <div>
-              <LWTooltip title="Post count">
+          </div>
+          <div>
+            <LWTooltip title="Post count">
                 <span>
                   { user.postCount || 0 }
                   <DescriptionIcon className={classes.hoverPostIcon}/>
-                </span> 
-              </LWTooltip>
-              {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-              { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null} 
-            </div>
-            {(commentsLoading || postsLoading) && <Loading/>}
-            <div>
-              <LWTooltip title="Comment count">
-                { user.commentCount || 0 }
-              </LWTooltip>
-              <MessageIcon className={classes.icon}/> 
-              {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
-              { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
-            </div>
-            <SunshineNewUserPostsList posts={posts} user={user}/>
-            <SunshineNewUserCommentsList comments={comments} user={user}/>
-          </MetaInfo>
-        </Typography>
-      </div>
+                </span>
+            </LWTooltip>
+            {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
+            { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+          </div>
+          {(commentsLoading || postsLoading) && <Loading/>}
+          <div>
+            <LWTooltip title="Comment count">
+              { user.commentCount || 0 }
+            </LWTooltip>
+            <MessageIcon className={classes.icon}/>
+            {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
+            { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+          </div>
+          <SunshineNewUserPostsList posts={posts} user={user}/>
+          <SunshineNewUserCommentsList comments={comments} user={user}/>
+        </MetaInfo>
+      </Typography>
+    </div>
   )
 }
 
-const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
+const UsersReviewInfoCardComponent = registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
   styles,
   hocs: [
     withErrorBoundary,
@@ -544,7 +545,7 @@ const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', 
 
 declare global {
   interface ComponentTypes {
-    SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
+    UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
   }
 }
 

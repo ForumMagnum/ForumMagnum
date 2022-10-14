@@ -454,7 +454,7 @@ importComponent("MigrationsDashboard", () => require('../components/admin/migrat
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
 importComponent("AdminHome", () => require('../components/admin/AdminHome'));
 importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
-importComponent(["ModeratorActionItem", "ModeratorActionsDashboard"], () => require('../components/sunshineDashboard/ModeratorActionsDashboard'));
+importComponent(["ModeratorActionItem", "ModerationDashboard"], () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
@@ -492,6 +492,7 @@ importComponent("SidebarInfo", () => require('../components/sunshineDashboard/Si
 importComponent("SidebarActionMenu", () => require('../components/sunshineDashboard/SidebarActionMenu'));
 importComponent("SidebarAction", () => require('../components/sunshineDashboard/SidebarAction'));
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount'));
+importComponent("UsersReviewInfoCard", () => require('../components/sunshineDashboard/UsersReviewInfoCard'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
