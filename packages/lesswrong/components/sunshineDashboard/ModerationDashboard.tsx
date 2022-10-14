@@ -7,8 +7,13 @@ import {userCanDo, userIsAdmin} from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  page: {
+    width: '90%',
+    margin: 'auto'
+  },
   form: {
-    padding: 16,
+    padding: 8,
+    paddingLeft: 16,
     background: theme.palette.background.pageActiveAreaBackground,
     boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     marginBottom: 16
@@ -65,21 +70,33 @@ const ModerationDashboard = ({ classes }: {
     enableTotal: true,
     itemsPerPage: 60
   });
+
+  const userIds = usersToReview?.map(({ _id }) => _id) ?? [];
   
-  const { results } = useMulti({
+  const { results: moderatorActions } = useMulti({
     collectionName: 'ModeratorActions',
     fragmentName: 'ModeratorActionDisplay',
-    terms: {}
+    terms: {
+      view: 'userModeratorActions',
+      userIds
+    },
+    skip: userIds.length === 0
   });
 
   if (!userIsAdmin(currentUser)) {
     return null;
   }
 
+  const usersReviewInfo = usersToReview?.map(user => ({
+    ...user,
+    moderatorActions: moderatorActions?.filter(modAction => modAction.userId === user._id) ?? []
+  }));
+
   return (
-    <SingleColumnSection>
+    // <SingleColumnSection>
+    <div className={classes.page}>
       <div>
-      {usersToReview && usersToReview.map(user =>
+      {usersReviewInfo && usersReviewInfo.map(user =>
         <div key={user._id} >
           <UsersReviewInfoCard user={user}/>
         </div>
@@ -100,7 +117,7 @@ const ModerationDashboard = ({ classes }: {
             </tr>
           </thead>
           <tbody>
-            {results && results.map(moderatorAction => <ModeratorActionItem key={moderatorAction._id} moderatorAction={moderatorAction} />)}
+            {moderatorActions && moderatorActions.map(moderatorAction => <ModeratorActionItem key={moderatorAction._id} moderatorAction={moderatorAction} />)}
           </tbody>
         </table>
       </div>
@@ -109,7 +126,8 @@ const ModerationDashboard = ({ classes }: {
           collection={ModeratorActions}
         />
       </div>
-    </SingleColumnSection>
+    </div>
+    // </SingleColumnSection>
   );
 };
 

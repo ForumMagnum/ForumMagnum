@@ -16,11 +16,13 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import {defaultModeratorPMsTagSlug} from "./SunshineNewUsersInfo";
+import { Link } from '../../lib/reactRouterWrapper';
+import { getUserEmail , userGetProfileUrl} from '../../lib/collections/users/helpers';
+
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -127,14 +129,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& a': {
       color: theme.palette.primary.main,
     },
+    display: 'flex'
   },
   website: {
     color: theme.palette.primary.main,
   },
   info: {
-    '& > * + *': {
-      marginTop: 8,
-    },
+    // '& > * + *': {
+    //   marginTop: 8,
+    // },
+    display: 'flex',
+    flexWrap: 'wrap'
   },
   modButton:{
     marginTop: 6,
@@ -161,6 +166,27 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   permissionDisabled: {
     border: "none"
+  },
+  columns: {
+    display: 'flex'
+  },
+  infoColumn: {
+    width: '30%',
+    padding: '16px',
+    border: 'black',
+    borderStyle: 'solid',
+  },
+  notesColumn: {
+    width: '35%',
+    padding: '16px',
+    border: 'black',
+    borderStyle: 'solid',
+  },
+  actionsColumn: {
+    width: '35%',
+    padding: '16px',
+    border: 'black',
+    borderStyle: 'solid',
   }
 })
 
@@ -179,8 +205,12 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
+interface UserReviewInfo extends SunshineUsersList {
+  moderatorActions: ModeratorActionDisplay[]
+}
+
 const UsersReviewInfoCard = ({ user, classes }: {
-  user: SunshineUsersList,
+  user: UserReviewInfo,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -399,6 +429,79 @@ const UsersReviewInfoCard = ({ user, classes }: {
       setNotes(signedNotes)
     }
   }
+
+  const basicInfoRow = <div className={classes.info}>
+    <MetaInfo className={classes.info}>
+      { user.karma || 0 }
+    </MetaInfo>
+    <MetaInfo className={classes.info}>
+      <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={userGetProfileUrl(user)}>
+          {user.displayName}
+      </Link>
+    </MetaInfo>
+    <MetaInfo className={classes.info}>
+      <FormatDate date={user.createdAt}/>
+    </MetaInfo>
+    {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+    {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+    {/* {!user.reviewedByUserId && <MetaInfo className={classes.info}>
+      { getUserEmail(user) || "This user has no email" }
+    </MetaInfo>} */}
+    {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
+    {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
+    {/* <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div> */}
+    <ModeratorMessageCount userId={user._id} />
+    <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
+    <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+    {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+  </div>
+
+  const moderatorActionLogRow = <div>
+    {user.moderatorActions.map(moderatorAction => moderatorAction.type)}
+  </div>
+
+  const moderatorNotesColumn = <div className={classes.notes}>
+    <Input
+      value={notes}
+      fullWidth
+      onChange={e => setNotes(e.target.value)}
+      onClick={e => handleClick()}
+      disableUnderline
+      placeholder="Notes for other moderators"
+      multiline
+    />
+  </div>
+
+  const moderatorActionsRow = <div className={classes.row}>
+    <div className={classes.row}>
+      <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
+        <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
+      </LWTooltip>
+      <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
+        <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
+      </LWTooltip>
+      <LWTooltip title="Approve" placement="top">
+        <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
+      </LWTooltip>
+      <LWTooltip title="Ban for 3 months" placement="top">
+        <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
+      </LWTooltip>
+      <LWTooltip title="Purge (delete and ban)" placement="top">
+        <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
+      </LWTooltip>
+      <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
+        <div>Flag this user for more review</div>
+        <div><em>(This will not remove them from sidebar)</em></div>
+      </div>} placement="top">
+        <div onClick={handleFlag} className={classes.modButton} >
+          {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
+        </div>
+      </LWTooltip>
+      <div className={classes.row}>
+        <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
+      </div>
+    </div>
+  </div>
   
   const permissionsRow = <div className={classes.permissionsRow}>
       <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
@@ -422,114 +525,85 @@ const UsersReviewInfoCard = ({ user, classes }: {
         </div>
       </LWTooltip>
     </div>
+
+  const votesRow = <div className={classes.votesRow}>
+    <span>Votes: </span>
+    <LWTooltip title="Big Upvotes">
+        <span className={classes.bigUpvotes}>
+          { user.bigUpvoteCount || 0 }
+        </span>
+    </LWTooltip>
+    <LWTooltip title="Upvotes">
+        <span className={classes.upvotes}>
+          { user.smallUpvoteCount || 0 }
+        </span>
+    </LWTooltip>
+    <LWTooltip title="Downvotes">
+        <span className={classes.downvotes}>
+          { user.smallDownvoteCount || 0 }
+        </span>
+    </LWTooltip>
+    <LWTooltip title="Big Downvotes">
+        <span className={classes.bigDownvotes}>
+          { user.bigDownvoteCount || 0 }
+        </span>
+    </LWTooltip>
+  </div>
+
+  const postCommentSortingRow = <div>
+    Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
+        karma
+      </span>
+    <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
+        postedAt
+      </span>
+  </div>
+
+  const postSummaryRow = <div>
+    <LWTooltip title="Post count">
+        <span>
+          { user.postCount || 0 }
+          <DescriptionIcon className={classes.hoverPostIcon}/>
+        </span>
+    </LWTooltip>
+    {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
+    { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+  </div>
+
+  const commentSummaryRow = <div>
+    <LWTooltip title="Comment count">
+      { user.commentCount || 0 }
+    </LWTooltip>
+    <MessageIcon className={classes.icon}/>
+    {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
+    { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+  </div>
   
   return (
     <div className={classes.root}>
       <Typography variant="body2">
         <MetaInfo>
-          <div className={classes.info}>
-            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
-            {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-            <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-            <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
-            {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
-            <div className={classes.notes}>
-              <Input
-                value={notes}
-                fullWidth
-                onChange={e => setNotes(e.target.value)}
-                onClick={e => handleClick()}
-                disableUnderline
-                placeholder="Notes for other moderators"
-                multiline
-              />
+          <div className={classes.columns}>
+            <div className={classes.infoColumn}>
+              {basicInfoRow}
+              {moderatorActionLogRow}
+              {/* {votesRow}
+              {postCommentSortingRow}
+              {postSummaryRow}
+              {(commentsLoading || postsLoading) && <Loading/>}
+              {commentSummaryRow} */}
             </div>
-          </div>
-          <div className={classes.row}>
-            <div className={classes.row}>
-              <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
-                <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
-              </LWTooltip>
-              <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
-                <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
-              </LWTooltip>
-              <LWTooltip title="Approve" placement="top">
-                <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
-              </LWTooltip>
-              <LWTooltip title="Ban for 3 months" placement="top">
-                <RemoveCircleOutlineIcon className={classes.modButton} onClick={handleBan} />
-              </LWTooltip>
-              <LWTooltip title="Purge (delete and ban)" placement="top">
-                <DeleteForeverIcon className={classes.modButton} onClick={handlePurge} />
-              </LWTooltip>
-              <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
-                <div>Flag this user for more review</div>
-                <div><em>(This will not remove them from sidebar)</em></div>
-              </div>} placement="top">
-                <div onClick={handleFlag} className={classes.modButton} >
-                  {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
-                </div>
-              </LWTooltip>
+            <div className={classes.notesColumn}>
+              {moderatorNotesColumn}
             </div>
-            <div className={classes.row}>
-              <ModeratorMessageCount userId={user._id} />
-              <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
+            <div className={classes.actionsColumn}>
+              {moderatorActionsRow}
+              {permissionsRow}
             </div>
+            
+            {/* <SunshineNewUserPostsList posts={posts} user={user}/>
+            <SunshineNewUserCommentsList comments={comments} user={user}/> */}
           </div>
-          {permissionsRow}
-          <hr className={classes.hr}/>
-          <div className={classes.votesRow}>
-            <span>Votes: </span>
-            <LWTooltip title="Big Upvotes">
-                <span className={classes.bigUpvotes}>
-                  { user.bigUpvoteCount || 0 }
-                </span>
-            </LWTooltip>
-            <LWTooltip title="Upvotes">
-                <span className={classes.upvotes}>
-                  { user.smallUpvoteCount || 0 }
-                </span>
-            </LWTooltip>
-            <LWTooltip title="Downvotes">
-                <span className={classes.downvotes}>
-                  { user.smallDownvoteCount || 0 }
-                </span>
-            </LWTooltip>
-            <LWTooltip title="Big Downvotes">
-                <span className={classes.bigDownvotes}>
-                  { user.bigDownvoteCount || 0 }
-                </span>
-            </LWTooltip>
-          </div>
-          <div>
-            Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
-                karma
-              </span>
-            <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
-                postedAt
-              </span>
-          </div>
-          <div>
-            <LWTooltip title="Post count">
-                <span>
-                  { user.postCount || 0 }
-                  <DescriptionIcon className={classes.hoverPostIcon}/>
-                </span>
-            </LWTooltip>
-            {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-            { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
-          </div>
-          {(commentsLoading || postsLoading) && <Loading/>}
-          <div>
-            <LWTooltip title="Comment count">
-              { user.commentCount || 0 }
-            </LWTooltip>
-            <MessageIcon className={classes.icon}/>
-            {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
-            { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
-          </div>
-          <SunshineNewUserPostsList posts={posts} user={user}/>
-          <SunshineNewUserCommentsList comments={comments} user={user}/>
         </MetaInfo>
       </Typography>
     </div>
