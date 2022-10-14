@@ -10,7 +10,7 @@ import { forumTypeSetting } from "../../lib/instanceSettings";
  * 
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string, newModeAction?: true) {
+export async function triggerReviewIfNeeded(userId: string, newModAction?: true) {
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
@@ -28,7 +28,7 @@ export async function triggerReviewIfNeeded(userId: string, newModeAction?: true
   } else if (snoozed) {
     const contentCount = getCurrentContentCount(user);
     needsReview = contentCount >= user.snoozedUntilContentCount;
-  } else if (newModeAction && forumTypeSetting.get() === 'LessWrong') {
+  } else if (newModAction && forumTypeSetting.get() === 'LessWrong') {
     needsReview = true;
   }
 
