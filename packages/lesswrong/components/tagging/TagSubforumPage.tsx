@@ -12,6 +12,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { useDialog } from "../common/withDialog";
+import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,6 +35,30 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
     },
   },
+  headline: {
+    paddingLeft: 24,
+    paddingBottom: 15,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+    '& .SectionTitle-root': {
+      marginTop: 18,
+      paddingBottom: 6
+    }
+  },
+  title: {
+    textTransform: "capitalize",
+    fontSize: 22,
+    lineHeight: '28px'
+  },
+  membersListLink: {
+    background: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.5
+    },
+  },
   stickToBottom: {
     marginTop: "auto",
     marginBottom: 3,
@@ -51,16 +76,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.secondary.main,
     borderWidth: 2,
     borderRadius: 3,
-  },
-  title: {
-    textTransform: "capitalize",
-    marginLeft: 24,
-    marginBottom: 0,
-    paddingBottom: 0,
-  },
-  membersListLink: {
-    marginLeft: 24,
-    paddingBottom: 10,
   },
   wikiSidebar: {
     marginTop: 84,
@@ -99,14 +114,21 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   
   const { openDialog } = useDialog();
   
-  const onClickMembersList = () => {
-    openDialog({
-      componentName: 'SubforumMembersList',
-      // componentProps: dialogProps,
-      noClickawayCancel: false
-    });
-  }
+  const { results: members, loading: membersLoading } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 50},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile',
+    skip: !tag
+  })
   
+  const onClickMembersList = () => {
+    if (tag) {
+      openDialog({
+        componentName: 'SubforumMembersList',
+        componentProps: {tag, members},
+      })
+    }
+  }
 
   if (loading) {
     return <Loading />;
@@ -154,9 +176,9 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <div>
+        <div className={classes.headline}>
           <SectionTitle title={titleComponent} className={classes.title} />
-          <div className={classes.membersListLink} onClick={onClickMembersList}>27 members</div>
+          {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{members.length} members</button>}
         </div>
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread

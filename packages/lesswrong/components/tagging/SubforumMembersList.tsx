@@ -7,7 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   moderationGuidelines: {
@@ -19,38 +18,46 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SubforumMembersList = ({classes, onClose, post, user}: {
+const SubforumMembersList = ({classes, onClose, tag, members}: {
   classes: ClassesType,
   onClose: () => void,
-  post: PostsMinimumInfo,
-  user: UsersCurrent
+  tag: TagBasicInfo,
+  members: Array<UsersProfile>
 }) => {
-  const { LWDialog } = Components;
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { recordEvent } = useNewEvents();
+  const { LWDialog } = Components
+  const updateCurrentUser = useUpdateCurrentUser()
+  const { recordEvent } = useNewEvents()
 
-  const handleClick = () => {
-    void updateCurrentUser({
-      acknowledgedNewUserGuidelines: true
-    });
+  // const handleClick = () => {
+  //   void updateCurrentUser({
+  //     acknowledgedNewUserGuidelines: true
+  //   });
 
-    const eventProperties = {
-      userId: user._id,
-      important: false,
-      intercom: true,
-      documentId: post._id,
-    };
+  //   const eventProperties = {
+  //     userId: user._id,
+  //     important: false,
+  //     intercom: true,
+  //     documentId: post._id,
+  //   };
 
-    recordEvent('acknowledged-new-user-guidelines', false, eventProperties);
+  //   recordEvent('acknowledged-new-user-guidelines', false, eventProperties);
 
-    onClose();
-  }
+  //   onClose();
+  // }
   
   return (
     <LWDialog open={true} onClose={onClose}>
+      <DialogTitle>{tag.name} Subforum Members</DialogTitle>
+      <DialogContent>
+        {members.map(user => {
+          return <div key={user._id}>
+            {user.displayName}
+          </div>
+        })}
+      </DialogContent>
       <DialogActions>
-        <Button onClick={handleClick}>
-          Acknowledge
+        <Button onClick={() => {}}>
+          Join
         </Button>
       </DialogActions>
     </LWDialog>
