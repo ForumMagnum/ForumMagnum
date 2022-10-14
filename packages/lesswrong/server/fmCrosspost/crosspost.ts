@@ -6,8 +6,13 @@ import { signToken } from "./tokens";
 import { apiRoutes, makeApiUrl } from "./routes";
 import { makeCrossSiteRequest } from "./resolvers";
 import { crosspostUserAgent } from "../../lib/apollo/links";
+import { denormalizedFieldKeys, DenormalizedCrosspostData, extractDenormalizedData } from "./denormalizedFields";
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
+  if (post.isEvent) {
+    throw new Error("Events cannot be crossposted");
+  }
+
   if (!post.fmCrosspost || !post.userId || post.draft) {
     return post;
   }
@@ -22,15 +27,17 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     throw new Error("You have not connected a crossposting account yet");
   }
 
-  const token = await signToken<CrosspostPayload>({
-    localUserId: post.userId,
-    foreignUserId: user.fmCrosspostUserId,
-  });
-
   // If we're creating a new post without making a draft first then we won't have an ID yet
   if (!post._id) {
     post._id = randomId();
   }
+
+  const token = await signToken<CrosspostPayload>({
+    localUserId: post.userId,
+    foreignUserId: user.fmCrosspostUserId,
+    postId: post._id,
+    ...extractDenormalizedData(post),
+  });
 
   const apiUrl = makeApiUrl(apiRoutes.crosspost);
   const result = await fetch(apiUrl, {
@@ -39,11 +46,7 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
       "Content-Type": "application/json",
       "User-Agent": crosspostUserAgent,
     },
-    body: JSON.stringify({
-      token,
-      postId: post._id,
-      postTitle: post.title,
-    }),
+    body: JSON.stringify({token}),
   });
   const json = await result.json();
   if (json.status !== "posted" || !json.postId) {
@@ -54,12 +57,10 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
   return post;
 }
 
-const updateCrosspost = async (postId: string, draft: boolean, deletedDraft: boolean, title: string) => {
+const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
   const token = await signToken<UpdateCrosspostPayload>({
+    ...denormalizedData,
     postId,
-    draft,
-    deletedDraft,
-    title,
   });
   await makeCrossSiteRequest(
     apiRoutes.updateCrosspost,
@@ -70,24 +71,27 @@ const updateCrosspost = async (postId: string, draft: boolean, deletedDraft: boo
 }
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
-  if (
-    (data.draft !== undefined || data.deletedDraft !== undefined || data.title !== undefined) &&
-    document.fmCrosspost?.foreignPostId
-  ) {
-    await updateCrosspost(
-      document.fmCrosspost.foreignPostId,
-      data.draft ?? document.draft,
-      data.deletedDraft ?? document.deletedDraft,
-      data.title ?? document.title,
-    );
+  if (document.isEvent || data.isEvent) {
+    throw new Error("Events cannot be crossposted");
   }
 
+  if (
+    denormalizedFieldKeys.some((key) => data[key] !== undefined && data[key] !== document[key]) &&
+    document.fmCrosspost?.foreignPostId
+  ) {
+    const denormalizedData = denormalizedFieldKeys.reduce(
+      (result, key) => ({...result, [key]: data[key] ?? document[key]}),
+      {},
+    ) as DenormalizedCrosspostData;
+    await updateCrosspost(document.fmCrosspost.foreignPostId, denormalizedData);
+  }
+
+  const {_id, userId, fmCrosspost} = document;
   return performCrosspost({
-    _id: document._id,
-    title: document.title,
-    userId: document.userId,
-    draft: document.draft,
-    fmCrosspost: document.fmCrosspost,
+    _id,
+    userId,
+    fmCrosspost,
+    ...extractDenormalizedData(document),
     ...data,
   });
 }

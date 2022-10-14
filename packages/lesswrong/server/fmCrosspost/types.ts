@@ -1,4 +1,6 @@
 import { MissingParametersError } from "./errors";
+import { denormalizedFieldKeys, DenormalizedCrosspostData, isValidDenormalizedData } from "./denormalizedFields";
+import { hasStringParam } from "./validationHelpers";
 
 export type ConnectCrossposterArgs = {
   token: string,
@@ -7,19 +9,6 @@ export type ConnectCrossposterArgs = {
 export type ConnectCrossposterPayload = {
   userId: string,
 }
-
-const hasBooleanParam = (payload: unknown, param: string) =>
-  payload &&
-  typeof payload === "object" &&
-  param in payload &&
-  typeof payload[param] === "boolean";
-
-const hasStringParam = (payload: unknown, param: string) =>
-  payload &&
-  typeof payload === "object" &&
-  param in payload &&
-  typeof payload[param] === "string" &&
-  payload[param].length;
 
 export const validateConnectCrossposterPayload = (payload: unknown): payload is ConnectCrossposterPayload => {
   if (!hasStringParam(payload, "userId")) {
@@ -39,38 +28,31 @@ export const validateUnlinkCrossposterPayload = (payload: unknown): payload is U
   return true;
 }
 
-export type UpdateCrosspostPayload = {
-  postId: string,
-  draft: boolean,
-  deletedDraft: boolean,
-  title: string,
-}
+export type UpdateCrosspostPayload = DenormalizedCrosspostData & { postId: string }
 
 export const validateUpdateCrosspostPayload = (payload: unknown): payload is UpdateCrosspostPayload => {
-  if (
-    !hasStringParam(payload, "postId") ||
-    !hasBooleanParam(payload, "draft") ||
-    !hasBooleanParam(payload, "deletedDraft") ||
-    !hasStringParam(payload, "title")
-  ) {
-    throw new MissingParametersError(["postId", "draft", "draftDeleted", "title"], payload);
+  if (!hasStringParam(payload, "postId") || !isValidDenormalizedData(payload)) {
+    throw new MissingParametersError(["postId", ...denormalizedFieldKeys], payload);
   }
   return true;
 }
 
-export type CrosspostPayload = {
+export type CrosspostPayload = DenormalizedCrosspostData & {
   localUserId: string,
   foreignUserId: string,
+  postId: string,
 }
 
 export const validateCrosspostPayload = (payload: unknown): payload is CrosspostPayload => {
   if (
     !hasStringParam(payload, "localUserId") ||
-    !hasStringParam(payload, "foreignUserId")
+    !hasStringParam(payload, "foreignUserId") ||
+    !hasStringParam(payload, "postId") ||
+    !isValidDenormalizedData(payload)
   ) {
-    throw new MissingParametersError(["localUserId", "foreignUserId"], payload);
+    throw new MissingParametersError(["localUserId", "foreignUserId", "postId", ...denormalizedFieldKeys], payload);
   }
   return true;
 }
 
-export type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;
+export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | typeof denormalizedFieldKeys[number]>;
