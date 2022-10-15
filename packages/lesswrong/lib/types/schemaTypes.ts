@@ -1,5 +1,6 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
+import { formProperties } from '../vulcan-forms/schema_utils';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -113,7 +114,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     keyof ComponentTypes,
   placeholder?: string,
   hidden?: boolean|((formProps: any)=>boolean),
-  group?: FormGroup,
+  group?: FormGroup<T>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -133,7 +134,29 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
 }
 
-type FormGroup = {
+/** Field specification for a Form field, created from the collection schema */
+type FormField<T extends DbObject> = Pick<
+  CollectionFieldSpecification<T>,
+  typeof formProperties[number]
+> & {
+  document: any
+  name: string
+  datatype: any
+  layout: string
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  label: string
+  help: string
+  path: string
+  parentFieldName?: string
+  disabled?: boolean
+  arrayField: any
+  arrayFieldSchema: any
+  nestedInput: any
+  nestedSchema: any
+  nestedFields: any
+}
+
+type FormGroup<T extends DbObject = DbObject> = {
   name?: string,
   order: number,
   label?: string,
@@ -142,6 +165,7 @@ type FormGroup = {
   defaultStyle?: boolean,
   helpText?: string,
   flexStyle?: boolean,
+  fields?: FormField<T>[]
 }
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>

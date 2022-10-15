@@ -9,10 +9,6 @@ import { crosspostUserAgent } from "../../lib/apollo/links";
 import { denormalizedFieldKeys, DenormalizedCrosspostData, extractDenormalizedData } from "./denormalizedFields";
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
-  if (post.isEvent) {
-    throw new Error("Events cannot be crossposted");
-  }
-
   if (!post.fmCrosspost || !post.userId || post.draft) {
     return post;
   }
@@ -20,6 +16,10 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
   const {isCrosspost, hostedHere, foreignPostId} = post.fmCrosspost;
   if (!isCrosspost || !hostedHere || foreignPostId) {
     return post;
+  }
+
+  if (post.isEvent) {
+    throw new Error("Events cannot be crossposted");
   }
 
   const user = await Users.findOne({_id: post.userId});
@@ -71,14 +71,14 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
 }
 
 export const handleCrosspostUpdate = async (document: DbPost, data: Partial<DbPost>) => {
-  if (document.isEvent || data.isEvent) {
-    throw new Error("Events cannot be crossposted");
-  }
-
   if (
     denormalizedFieldKeys.some((key) => data[key] !== undefined && data[key] !== document[key]) &&
     document.fmCrosspost?.foreignPostId
   ) {
+    if (document.isEvent || data.isEvent) {
+      throw new Error("Events cannot be crossposted");
+    }
+  
     const denormalizedData = denormalizedFieldKeys.reduce(
       (result, key) => ({...result, [key]: data[key] ?? document[key]}),
       {},
