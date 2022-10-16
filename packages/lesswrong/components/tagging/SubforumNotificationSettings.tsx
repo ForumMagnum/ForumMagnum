@@ -93,11 +93,8 @@ const SubforumNotificationSettings = ({
                 documentId={userTagRel?._id}
                 queryFragment={getFragment("UserTagRelNotifications")}
                 mutationFragment={getFragment("UserTagRelNotifications")}
-                formComponents={{
-                  // FormSubmit: ,
-                  // FormGroupLayout: Components.DefaultStyleFormGroup
-                }}
                 changeCallback={() => {return "hello"}}
+                autoSubmit
               />
             </Paper>
           </ClickAwayListener>

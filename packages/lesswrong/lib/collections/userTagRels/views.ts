@@ -2,8 +2,8 @@ import UserTagRels from "./collection";
 
 declare global {
   interface UserTagRelsViewTerms extends ViewTermsBase {
-    userId: string,
-    tagId: string,
+    userId?: string,
+    tagId?: string,
   }
 }
 
