@@ -399,6 +399,8 @@ interface CommentsDefaultFragment { // fragment on Comments
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly tagId: string,
   readonly userId: string,
+  readonly subforumShowUnreadInSidebar: boolean,
+  readonly subforumEmailNotifications: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1845,6 +1847,14 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly currentUserExtendedVote: any,
 }
 
+interface UserTagRelNotifications { // fragment on UserTagRels
+  readonly _id: string,
+  readonly userId: string,
+  readonly tagId: string,
+  readonly subforumShowUnreadInSidebar: boolean,
+  readonly subforumEmailNotifications: boolean,
+}
+
 interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly userId: string,
@@ -2788,6 +2798,7 @@ interface FragmentTypes {
   TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
+  UserTagRelNotifications: UserTagRelNotifications
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
@@ -2953,6 +2964,7 @@ interface CollectionNamesByFragmentName {
   TagRelCreationFragment: "TagRels"
   TagRelMinimumFragment: "TagRels"
   WithVoteTagRel: "TagRels"
+  UserTagRelNotifications: "UserTagRels"
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"

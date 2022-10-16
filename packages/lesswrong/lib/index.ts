@@ -106,6 +106,8 @@ import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/userTagRels/collection';
+import './collections/userTagRels/views';
+import './collections/userTagRels/fragments';
 
 import './collections/tags/collection';
 import './collections/tags/views';

@@ -772,6 +772,9 @@ interface DbUserTagRel extends DbObject {
   tagId: string
   userId: string
   subforumLastVisitedAt: Date | null
+  subforumShowUnreadInSidebar: boolean
+  subforumEmailNotifications: boolean
+  createdAt: Date
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {

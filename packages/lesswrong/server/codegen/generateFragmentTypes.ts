@@ -138,6 +138,9 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     return { fieldType: "string", subfragment: null };
   }
   const schema = getSchema(collection);
+  if (collection.collectionName === 'Bans') {
+    console.log("logging from getFragmentFieldType", {fieldName, parsedFragmentField, collection, schema})
+  }
   
   // There are two ways a field name can appear in a schema. The first is as a
   // regular field with that name. The second is as a resolver with that name,
