@@ -1276,7 +1276,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['members'],
     control: "FMCrosspostControl",
     group: formGroups.advancedOptions,
-    hidden: !fmCrosspostSiteNameSetting.get(),
+    hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
     ...schemaDefaultValue({
       isCrosspost: false,
     }),
