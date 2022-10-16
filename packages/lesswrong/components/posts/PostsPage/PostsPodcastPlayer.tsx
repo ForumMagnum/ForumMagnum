@@ -55,7 +55,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
     return () => {
       newScript.parentNode?.removeChild(newScript);
     }
-  }, [podcastEpisode.episodeLink, document]);
+  }, [podcastEpisode.episodeLink]);
 
   const setMouseOverDiv = (isMouseOver: boolean) => {
     mouseOverDiv.current = isMouseOver;
