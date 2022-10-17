@@ -4,7 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
-import { tagGetCommentLink, tagGetSubforumUrl } from '../tags/helpers';
+import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
 
 // Get a comment author's name
@@ -20,7 +20,6 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
     const tag = await mongoFindOne("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
 
@@ -57,8 +56,8 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
     } else {
       return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
     }
-  } else if (tagSlug && tagCommentType) {
-    return tagGetCommentLink({tagSlug, commentId, tagCommentType, isAbsolute});
+  } else if (tagSlug) {
+    return tagGetCommentLink({tagSlug, commentId, tagCommentType: tagCommentType ?? "DISCUSSION", isAbsolute});
   } else {
     //throw new Error("commentGetPageUrlFromIds needs a post or tag");
     return "/"

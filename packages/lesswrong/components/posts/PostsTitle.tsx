@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon.maxIntensity,
+    color: theme.palette.icon.slightlyDim3,
   },
   primaryIcon: {
     color: theme.palette.icon.dim55,

@@ -169,7 +169,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 // tagCommentType is given a String type in packages/lesswrong/lib/collections/users/karmaChangesGraphQL.ts because we couldn't get an inline union of literal types to work,
-                // but actually we know it will always be a TagCommentType because the db schema contstrains it
+                // but actually we know it will always be a TagCommentType because the db schema constrains it
                 component={Link} to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
                 >
                 <span className={classes.votedItemScoreChange}>

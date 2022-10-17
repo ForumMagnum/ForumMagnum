@@ -5,7 +5,6 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { TagCommentType } from '../../lib/collections/comments/types';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 

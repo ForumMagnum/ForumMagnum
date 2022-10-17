@@ -130,7 +130,7 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
             </Index>
           </div>
         </Components.ErrorBoundary>
-        <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
+        <Link to={`/search?query=${currentQuery}`} className={classes.seeAll}>
           See all results
         </Link>
     </div>
