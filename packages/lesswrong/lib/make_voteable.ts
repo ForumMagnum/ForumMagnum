@@ -185,5 +185,21 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       onInsert: () => false
     },
+    afBaseScore: {
+      type: Number,
+      optional: true,
+      label: "Alignment Base Score",
+      viewableBy: ['guests'],
+    },
+    afExtendedScore: {
+      type: GraphQLJSON,
+      optional: true,
+      viewableBy: ['guests'],
+    },
+    afVoteCount: {
+      type: Number,
+      optional: true,
+      canRead: ['guests'],
+    },
   });
 }
