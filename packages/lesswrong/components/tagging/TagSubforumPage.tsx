@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -13,6 +13,8 @@ import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,14 +87,23 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     ContentItemBody,
     LWTooltip,
     HeadTags,
+    PostsList2,
   } = Components;
 
-  const { params, query } = useLocation();
+  const { params, query, location } = useLocation();
+  const { history } = useNavigation()
   const currentUser = useCurrentUser()
   const { slug } = params;
   const sortBy = query.sortBy || subforumDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
+  
+  const [tab, setTab] = useState(params.tab ?? 'discussion')
+  
+  const handleChangeTab = (e, value) => {
+    setTab(value)
+    history.replace({...location, pathname: location.pathname.replace(/\/subforum.*/, `/subforum/${value}`)})
+  }
 
   if (loading) {
     return <Loading />;
@@ -133,31 +144,44 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   </>
 
   return (
-    <div className={classes.root}>
-      <HeadTags
-        description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
-        title={`${startCase(tag.name)} Subforum`}
-      />
-      <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
-        {welcomeBoxComponent}
+    <AnalyticsContext pageContext="subforumPage" tagId={tag._id}>
+      <div className={classes.root}>
+        <HeadTags
+          description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
+          title={`${startCase(tag.name)} Subforum`}
+        />
+        <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
+          {welcomeBoxComponent}
+        </div>
+        <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
+          <SectionTitle title={titleComponent} className={classes.title} />
+          
+          <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} aria-label='view subforum discussion or posts'>
+            <Tab label="Discussion" value="discussion" />
+            <Tab label="Posts" value="posts" />
+          </Tabs>
+          {tab === 'discussion' && <AnalyticsContext pageSectionContext="commentsSection">
+            <SubforumCommentsThread
+              tag={tag}
+              terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
+            />
+          </AnalyticsContext>}
+          {tab === 'posts' && <AnalyticsContext pageSectionContext="postsSection">
+            <div>
+              {isSubscribed && <Button href={`/newPost?subforumTagId=${tag._id}`}>Add Post</Button>}
+            </div>
+            <PostsList2 tagId={tag._id} />
+          </AnalyticsContext>}
+        </SingleColumnSection>
+        <div className={classNames(classes.columnSection, classes.aside)}>
+          {tag?.tableOfContents?.html &&
+            <ContentStyles contentType="tag">
+              <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }} />
+            </ContentStyles>
+          }
+        </div>
       </div>
-      <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={titleComponent} className={classes.title} />
-        <AnalyticsContext pageSectionContext="commentsSection">
-          <SubforumCommentsThread
-            tag={tag}
-            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
-          />
-        </AnalyticsContext>
-      </SingleColumnSection>
-      <div className={classNames(classes.columnSection, classes.aside)}>
-        {tag?.tableOfContents?.html &&
-          <ContentStyles contentType="tag">
-            <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }} />
-          </ContentStyles>
-        }
-      </div>
-    </div>
+    </AnalyticsContext>
   );
 };
 

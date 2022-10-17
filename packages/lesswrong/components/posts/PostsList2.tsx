@@ -192,7 +192,7 @@ const PostsList2 = ({
             curatedIconLeft: curatedIconLeft,
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
-            showQuestionTag: terms.filter!=="questions",
+            showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from
             // undefined given the truthy check above
             showBottomBorder: showFinalBottomBorder || ((orderedResults!.length > 1) && i < (orderedResults!.length - 1))
