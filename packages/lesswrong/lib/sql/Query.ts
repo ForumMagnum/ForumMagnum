@@ -197,15 +197,16 @@ abstract class Query<T extends DbObject> {
   protected resolveFieldName(field: string, typeHint?: any): string {
     const arrayIndex = field.indexOf(".$");
     if (arrayIndex > -1) {
-      throw new Error("Array fields not yet implemented");
+      throw new Error("`.$` array fields not implemented");
     }
 
     const jsonIndex = field.indexOf(".");
     if (jsonIndex > -1) {
       const [first, ...rest] = field.split(".");
       if (this.getField(first)) {
-        const hint = this.getTypeHint(typeHint);
-        return [`("${first}"`, ...rest.map((token) => `'${token}'`)].join("->") + `)${hint}`;
+        return `("${first}"` +
+          rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
+          `)${this.getTypeHint(typeHint)}`;
       }
     }
 

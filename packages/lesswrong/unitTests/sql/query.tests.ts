@@ -148,6 +148,12 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select query with array fields",
+      getQuery: () => new SelectQuery(testTable, {"c.0": 3}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"[0])::INTEGER = $1',
+      expectedArgs: [3],
+    },
+    {
       name: "can build select query with sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
