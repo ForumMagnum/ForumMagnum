@@ -40,6 +40,7 @@ export const testTable = Table.fromCollection(TestCollection);
 testTable.addIndex(["a", "b"]);
 testTable.addIndex(["a", "c.d"]);
 testTable.addIndex(["a", "b"], {unique: true});
+testTable.addIndex(["a", "b"], {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
 
 export type DbTestObject2 = {
   _id: string,

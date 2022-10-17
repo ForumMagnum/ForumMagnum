@@ -148,6 +148,12 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select query with array fields",
+      getQuery: () => new SelectQuery(testTable, {"c.0": 3}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"[0])::INTEGER = $1',
+      expectedArgs: [3],
+    },
+    {
       name: "can build select query with sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
@@ -179,9 +185,9 @@ describe("Query", () => {
     },
     {
       name: "can build insert query",
-      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}),
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", c: {d: {e: "a" }}, schemaVersion: 1}),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
-      expectedArgs: ["abc", 3, "test", null, 1],
+      expectedArgs: ["abc", 3, "test", {d: {e: "a" }}, 1],
     },
     {
       name: "can build insert query returning the result",
@@ -349,6 +355,19 @@ describe("Query", () => {
       expectedArgs: [new Date('2022-01-01'), 3],
     },
     {
+      name: "can build select with $geoWithin",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        c: {
+          $geoWithin: {
+            $centerSphere: [ [ 123, 456 ], 789 ],
+            $comment: { locationName: `"c"->'location'` },
+          },
+        },
+      }),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) * 0.000621371) < $3`,
+      expectedArgs: [123, 456, 789],
+    },
+    {
       name: "can build update with $set",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test", c: "another-test"}}),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 , "c" = $2 WHERE "a" = $3',
@@ -449,6 +468,12 @@ describe("Query", () => {
       getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[2]),
       expectedSql: 'CREATE UNIQUE INDEX IF NOT EXISTS "idx_TestCollection_a_b" ON "TestCollection" USING btree ( "a" , COALESCE("b", \'\') )',
       expectedArgs: [],
+    },
+    {
+      name: "can build create index query with partial filter expression",
+      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[3]),
+      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_b_filtered" ON "TestCollection" USING btree ( "a" , "b" ) WHERE ( "a" > $1 AND "b" = $2 )',
+      expectedArgs: [3, "test"],
     },
     {
       name: "can build drop index query from TableIndex",

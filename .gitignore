@@ -7,6 +7,10 @@ npm-debug.log
 providers_secret.js
 *.sublime-project
 
+unit-coverage
+integration-coverage
+combined-coverage
+
 *.sublime-workspace
 codekit-config.json
 

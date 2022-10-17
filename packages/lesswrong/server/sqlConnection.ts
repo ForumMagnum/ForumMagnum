@@ -1,7 +1,7 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 
 const pgPromiseLib = pgp({
-  // Uncomment to view log executed queries for debugging, etc.
+  // Uncomment to log executed queries for debugging, etc.
   // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);
   // },
@@ -38,6 +38,7 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     max: MAX_CONNECTIONS,
   });
   await db.none("SET default_toast_compression = lz4");
-  await db.none("CREATE EXTENSION IF NOT EXISTS \"btree_gin\"");
+  await db.none("CREATE EXTENSION IF NOT EXISTS \"btree_gin\" CASCADE");
+  await db.none("CREATE EXTENSION IF NOT EXISTS \"earthdistance\" CASCADE");
   return db;
 }

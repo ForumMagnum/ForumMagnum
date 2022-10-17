@@ -6,7 +6,11 @@ import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import startCase from "lodash/startCase";
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { Link } from "../../lib/reactRouterWrapper";
+import { tagGetUrl } from "../../lib/collections/tags/helpers";
+import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,7 +28,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: '100%',
     [theme.breakpoints.up("lg")]: {
       margin: 0,
-    }
+    },
+    [theme.breakpoints.down("md")]: {
+      marginBottom: 0,
+    },
   },
   stickToBottom: {
     marginTop: "auto",
@@ -65,7 +72,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
-  const { Error404, Loading, SubforumCommentsThread, SectionTitle, SingleColumnSection, Typography, ContentStyles, ContentItemBody } = Components;
+  const {
+    Error404,
+    Loading,
+    SubforumCommentsThread,
+    SectionTitle,
+    SingleColumnSection,
+    Typography,
+    ContentStyles,
+    ContentItemBody,
+    LWTooltip,
+    HeadTags,
+  } = Components;
 
   const { params, query } = useLocation();
   const { slug } = params;
@@ -89,7 +107,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
-  const welcomeBoxComponent = tag.subforumWelcomeText ? (
+  const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
     <div className={classes.welcomeBox}>
       <ContentStyles contentType="comment">
         <ContentItemBody
@@ -100,13 +118,26 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     </div>
   ) : <></>;
 
+  const titleComponent = <>
+    <LWTooltip title={`To ${taggingNameSetting.get()} page`} placement="top-start" className={classes.tooltip}>
+      <Link to={tagGetUrl(tag)}>
+        {startCase(tag.name)}
+      </Link>
+    </LWTooltip>
+    {" "}Subforum
+  </>
+
   return (
     <div className={classes.root}>
+      <HeadTags
+        description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
+        title={`${startCase(tag.name)} Subforum`}
+      />
       <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={`${tag.name} Subforum`} className={classes.title} />
+        <SectionTitle title={titleComponent} className={classes.title} />
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}

@@ -80,7 +80,9 @@ import Localgroups from '../lib/collections/localgroups/collection';
   }
 }
 
-export async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
+export type MongoNearLocation = number[] | { type: "Point", coordinates: number[] }
+
+export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
   return await Users.aggregate([
     {
       "$geoNear": {
@@ -267,7 +269,7 @@ export const createNotifications = async ({ userIds, notificationType, documentT
   documentId: string|null,
   extraData?: any,
   noEmail?: boolean|null
-}) => { 
+}) => {
   return Promise.all(
     userIds.map(async userId => {
       await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail});

@@ -10,6 +10,7 @@
 	* `CREATE DATABASE <databasename>;`
 	* `CREATE ROLE <username> WITH LOGIN PASSWORD '<password>';`
 	* `GRANT ALL PRIVILEGES ON DATABASE <databasename> TO <username>;`
+	* `GRANT rds_superuser TO eaforum_admin` (if using AWS RDS)
 	* `ALTER USER <username> CREATEDB;`
 	* `exit;`
 3. Start a server with `PG_URL=postgres://<username>:<password>@127.0.0.1:5432/<databasename> yarn ea-start`

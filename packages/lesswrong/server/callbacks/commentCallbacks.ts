@@ -150,21 +150,7 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
   }
 });
 
-
-const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
-getCollectionHooks("Comments").newValidate.add(async function CommentsNewRateLimit (comment: DbComment, user: DbUser) {
-  if (!userIsAdmin(user)) {
-    const timeSinceLastComment = await userTimeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
-
-    // check that user waits more than 15 seconds between comments
-    if((timeSinceLastComment < commentInterval)) {
-      throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
-    }
-  }
-  return comment;
-});
-
+// TODO: move this to views?
 ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////

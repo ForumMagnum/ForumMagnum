@@ -954,7 +954,17 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ] // only show in-person events within 100 miles
+              // $centerSphere takes an array containing the grid coordinates of the circle's center
+              // point and the circle's radius measured in radians. We convert the maximum distance
+              // (which is specified in miles, with a default of 100) into radians by dividing by the
+              // approximate equitorial radius of the earth, 3963.2 miles.
+              // When converting this to Postgres, we actually want the location in the form of a raw
+              // longitude and latitude, which isn't the case for Mongo. To do this, we pass the selector
+              // to the query builder manually here using $comment. This is a hack, but it's the only
+              // place in the codebase where we use this operator so it's probably not worth spending a
+              // ton of time making this beautiful.
+              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ],
+              $comment: { locationName: `"googleLocation"->'geometry'->'location'` },
             }
           }
         },

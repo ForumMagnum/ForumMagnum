@@ -16,8 +16,15 @@ let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
 
-// TODO: PgCollection should probably implement CollectionBase instead (assuming
-// we can someday delete MongoCollection)
+/**
+ * PgCollection is the main external interface for other parts of the codebase to
+ * access data inside of Postgres. It's the Postgres equivalent of our MongoCollection
+ * class.
+ *
+ * For now, we extend MongoCollection explitely because there's a lot of magic
+ * happening there, but the eventual goal is to remove MongoCollection completely and
+ * to instead implement CollectionBase.
+ */
 class PgCollection<T extends DbObject> extends MongoCollection<T> {
   table: Table;
 

@@ -1,6 +1,7 @@
 import type { ApolloError } from "@apollo/client";
 import { useForeignApolloClient } from "./useForeignApolloClient";
 import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
+import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -16,6 +17,26 @@ export const isPostWithForeignId =
     !!post.fmCrosspost.isCrosspost &&
     typeof post.fmCrosspost.hostedHere === "boolean" &&
     !!post.fmCrosspost.foreignPostId;
+
+const hasTableOfContents =
+  <
+    Post extends PostWithForeignId,
+    WithContents extends Post & {tableOfContents: {sections: any[]}}
+  >(post: Post): post is WithContents =>
+    "tableOfContents" in post && Array.isArray((post as WithContents).tableOfContents?.sections);
+
+/**
+ * If this post was crossposted from elsewhere then we want to take some of the fields from
+ * our local copy (for correct links/ids/etc.), but we want to override many of the fields
+ * with foreign data, to keep the origin post as the source of truth, and get some metadata
+ * that isn't denormalized across sites.
+ */
+const overrideFields = [
+  "contents",
+  "tableOfContents",
+  "url",
+  "readTimeMinutes",
+] as const;
 
 /**
  * Load foreign crosspost data from the foreign site
@@ -46,13 +67,20 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
-    // If this post was crossposted from elsewhere then we want to take most of the fields from
-    // our local copy (for correct links/ids/etc.) but we need to override a few specific fields
-    // to actually get the correct content and some metadata that isn't denormalized across sites
-    const overrideFields = ["contents", "tableOfContents", "url", "readTimeMinutes"];
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
       combinedPost[field] = foreignPost?.[field] ?? localPost[field];
+    }
+    // We just took the table of contents from the foreign version, but we want to use the local comment count
+    if (hasTableOfContents(combinedPost)) {
+      combinedPost.tableOfContents = {
+        ...combinedPost.tableOfContents,
+        sections: combinedPost.tableOfContents.sections.map((section: {anchor?: string}) =>
+          section.anchor === "comments"
+            ? {...section, title: postGetCommentCountStr(localPost as unknown as PostsBase)}
+            : section
+        ),
+      };
     }
   }
 

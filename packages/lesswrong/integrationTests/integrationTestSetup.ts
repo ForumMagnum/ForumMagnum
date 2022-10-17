@@ -1,4 +1,3 @@
-import '../server';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
@@ -66,6 +65,11 @@ const ensurePgConnection = async () => {
 let setupRun = false;
 async function oneTimeSetup() {
   if (setupRun) return;
+
+  // We need to require this here instead of importing at the top level to make sure that
+  // Jest can do its magic to make ESM mocks work which requires calls to `jest.mock` to
+  // be evaluated before any of the mocked modules are loaded by node
+  require('../server');
 
   setServerSettingsCache({});
   setPublicSettings({});

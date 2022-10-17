@@ -626,18 +626,6 @@ Object.assign(schema, {
     hidden: (props) => alignmentForum || !props.alignmentForumPost
   },
 
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   suggestForAlignmentUserIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "suggestForAlignmentUserIds",

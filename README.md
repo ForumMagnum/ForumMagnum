@@ -66,7 +66,7 @@ mongod --dbpath ./myLocalDatabase
 yarn [start|ea-start]
 ```
 
-You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
+You should now have a local version running at [http://localhost:3000](http://localhost:3000/). Only use ea-start if you have access to the ForumCredentials repository.
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
 
@@ -165,7 +165,14 @@ run multiple times should instead be implemented as a server script.
 
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+
+### Jest
+
+* Run the unit test suite with `yarn unit`
+* Run the integration test suite with `yarn integration`
+
+Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
 ### Cypress
 
@@ -192,4 +199,3 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
-

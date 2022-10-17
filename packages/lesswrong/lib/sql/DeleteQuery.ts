@@ -7,6 +7,13 @@ export type DeleteSqlOptions = Partial<{
   noSafetyHarness: boolean,
 }>
 
+/**
+ * Builds a Postgres query to delete data from the given table.
+ *
+ * If no selector is provided then the query will delete _all_ data from the table. To
+ * prevent accidents, the query builder will throw an error if you try to do this but
+ * this check can be disabled by passing in `{ noSafetyHarness: true }`.
+ */
 class DeleteQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table,

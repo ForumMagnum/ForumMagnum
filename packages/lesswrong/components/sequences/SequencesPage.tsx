@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit * 4,
     position: 'relative',
     backgroundColor: theme.palette.panelBackground.default,
-    marginTop: -200,
+    marginTop: -127,
     zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {
       marginTop: -100,

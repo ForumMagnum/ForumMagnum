@@ -18,6 +18,26 @@ export type InsertSqlConflictOptions<T extends DbObject> = Partial<{
 
 export type InsertSqlOptions<T extends DbObject> = InsertSqlBaseOptions & InsertSqlConflictOptions<T>;
 
+/**
+ * Builds a Postgres query to insert some specific data into the given table.
+ *
+ * `data` may be either a single collection object to insert, or an array of
+ * objects.
+ *
+ * By default, a primary key conflict will result in an error being thrown when
+ * the query is executed. To change this behaviour, `sqlOptions` may be used to
+ * either ignore the conflict, or to enable upserting.
+ *
+ * When upserting, you can also supply an optional `upsertSelector` to test for
+ * conflicts on fields other than the primary key, but note that, like Mongo, a
+ * unique index must exist on exactly those fields to work. In general, this
+ * should be considered fragile; 1) because of the requirement for a unique index
+ * (meaning that indexes define the behaviour of the query, not just the speed), and
+ * 2) because Mongo and Postgres have different opinions on how conflicts should be
+ * treated on null fields which means we have to do some magic with `COALESCE` to make
+ * things backwards compatible (see CreateIndexQuery). If you use upserting, test it
+ * well!
+ */
 class InsertQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table,
@@ -106,7 +126,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
   private getConflictField(fieldName: string): string {
     const resolved = this.resolveFieldName(fieldName);
     const type = this.table.getField(fieldName);
-    const coalesceValue = type.getIndexCoalesceValue();
+    const coalesceValue = type?.getIndexCoalesceValue();
     return coalesceValue
       ? `COALESCE(${resolved}, ${coalesceValue})`
       : resolved;

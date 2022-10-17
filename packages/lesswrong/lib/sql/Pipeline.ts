@@ -1,6 +1,15 @@
 import Table from "./Table";
 import SelectQuery, { Lookup } from "./SelectQuery";
 
+/**
+ * Unit is the method by which Pipeline (see below) decomposes complex
+ * aggregations into simpler chunks that can be understood by the query
+ * builder. In general, each Unit can accept one of each 'kind' of
+ * aggregation operation. When a Pipeline attempts to add a second of a
+ * particular 'kind' of operation, the Unit marks itself as full and
+ * becomes a 'child' Unit of a newly created 'parent', which is returned.
+ * When compiled, 'child' units become subqueries of their 'parents'.
+ */
 class Unit<T extends DbObject> {
   private empty = true;
   private addFields: any;
@@ -92,6 +101,18 @@ class Unit<T extends DbObject> {
   }
 }
 
+/**
+ * Pipeline takes a Mongo aggregation pipeline and converts it into SQL by
+ * recursively splitting it into smaller 'Units' (see above) which can be
+ * understood by the query builder, and then nesting these Units together as
+ * sub-queries.
+ *
+ * Only a limited subset of aggregation operators are implemented (although
+ * adding more is often not too difficult). In general, Pipeline should be
+ * seen as a temporary measure to quickly migrate Mongo aggregations to
+ * Postgres that will eventually be rewritten in raw SQL, rather than as a
+ * fool-proof, feature-packed aggregation compiler.
+ */
 class Pipeline<T extends DbObject> {
   constructor(
     private table: Table,

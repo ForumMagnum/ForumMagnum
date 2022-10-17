@@ -1,6 +1,11 @@
 import Query from "./Query";
 import Table from "./Table";
 
+/**
+ * Builds a Postgres query to create a new database table with the schema
+ * defined by `table`. If the table already exists, setting `isNotExists`
+ * to true will prevent an error from being thrown.
+ */
 class CreateTableQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table, ifNotExists = false) {
     const fields = table.getFields();
