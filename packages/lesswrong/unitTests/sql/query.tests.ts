@@ -130,6 +130,12 @@ describe("Query", () => {
       expectedArgs: [1, 2, 3],
     },
     {
+      name: "can build select query with combined selector",
+      getQuery: () => new SelectQuery(testTable, {a: {$gt: 2, $lt: 10}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" > $1 AND "a" < $2 )',
+      expectedArgs: [2, 10],
+    },
+    {
       name: "can build select query with exists check",
       getQuery: () => new SelectQuery(testTable, {a: {$exists: true}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" IS NOT NULL',

@@ -248,7 +248,11 @@ abstract class Query<T extends DbObject> {
       return [`${field} IS NULL`];
     }
     if (typeof value === "object") {
-      const comparer = Object.keys(value)[0];
+      const keys = Object.keys(value);
+      if (keys.length > 1) {
+        return this.compileMultiSelector(keys.map((key) => ({[fieldName]: {[key]: value[key]}})), "AND");
+      }
+      const comparer = keys[0];
       switch (comparer) {
         case "$not":
           return ["NOT (", ...this.compileComparison(fieldName, value[comparer]), ")"];
