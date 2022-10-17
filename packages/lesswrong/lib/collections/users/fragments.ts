@@ -389,6 +389,7 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
 
     hideFrontpageMap
     hideTaggingProgressBar

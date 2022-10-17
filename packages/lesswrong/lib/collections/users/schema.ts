@@ -75,9 +75,12 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
+export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+
 export type NotificationTypeSettings = {
-  channel: "none"|"onsite"|"email"|"both",
-  batchingFrequency: "realtime"|"daily"|"weekly",
+  channel: NotificationChannelOption,
+  batchingFrequency: NotificationBatchingOption,
   timeOfDayGMT: number,
   dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
 };
@@ -137,7 +140,7 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
-const notificationTypeSettingsField = (overrideSettings?: any) => ({
+const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
@@ -1192,6 +1195,16 @@ const schema: SchemaType<DbUser> = {
     // Hide this while review is inactive
     hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  // notificationSubforumSidebarUnread: {
+  //   label: `Show unread message count for subforums in the sidebar`,
+  //   // Hide this while review is inactive
+  //   ...notificationTypeSettingsField({ channel: "onsite" }),
+  // },
+  notificationSubforumUnread: {
+    label: `New messages in subforums I'm subscribed to`,
+    // Hide this while review is inactive
+    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings

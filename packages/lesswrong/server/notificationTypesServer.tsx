@@ -24,6 +24,8 @@ import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
+import uniq from 'lodash/uniq';
+import startCase from 'lodash/startCase';
 
 interface ServerNotificationType {
   name: string,
@@ -166,6 +168,34 @@ export const NewCommentNotification = serverRegisterNotificationType({
     const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
     
     return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
+export const NewSubforumCommentNotification = serverRegisterNotificationType({
+  name: "newSubforumComment",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    const commentCount = comments.length
+    const subforumIds = uniq(comments.map(c => c.tagId))
+    
+    if (subforumIds.length === 1) {
+      const subforum = await Tags.findOne(subforumIds[0])
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} Subforum`
+    } else {
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} Subforums you are subscribed to`
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
+    return "email body!!"
   },
 });
 

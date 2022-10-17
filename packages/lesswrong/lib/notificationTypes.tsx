@@ -22,11 +22,13 @@ import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import DoneIcon from '@material-ui/icons/Done';
+import { NotificationChannelOption } from './collections/users/schema';
+import startCase from 'lodash/startCase';
 
 interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
-  mustBeEnabled?: boolean,
+  allowedChannels?: NotificationChannelOption[],
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
@@ -53,7 +55,9 @@ export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): Not
   return result;
 }
 
-const registerNotificationType = (notificationTypeClass: NotificationType) => {
+const registerNotificationType = ({allowedChannels = ["none", "onsite", "email", "both"], ...otherArgs}: NotificationType) => {
+  const notificationTypeClass = {allowedChannels, ...otherArgs};
+
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
   if (notificationTypeClass.userSettingField)
@@ -180,6 +184,23 @@ export const NewCommentNotification = registerNotificationType({
   },
 });
 
+// New comment on a subforum you're subscribed to.
+export const NewSubforumCommentNotification = registerNotificationType({
+  name: "newSubforumComment",
+  userSettingField: "notificationSubforumUnread",
+  allowedChannels: ["none", "onsite", "email", "both"],
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    // NOTE: Currently we only allow notifications by email to avoid double notifying (with both the sidebar unread count
+    // and the notification), if we ever want to allow notifications in the sidebar we'll probably want to update this message
+    // and double check the links work
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new comment on the "' + startCase(await getCommentParentTitle(document)) + '" Subforum';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
 export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
@@ -259,7 +280,7 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  mustBeEnabled: true,
+  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
@@ -286,7 +307,7 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
-  mustBeEnabled: true,
+  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost;
     const name = await postGetAuthorName(document);

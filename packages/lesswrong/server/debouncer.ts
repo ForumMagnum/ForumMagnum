@@ -213,6 +213,7 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 }
 
 export const dispatchPendingEvents = async () => {
+  console.log("Dispatching pending events");
   const now = new Date().getTime();
   const af = forumTypeSetting.get() === 'AlignmentForum'
   let eventToHandle: any = null;
@@ -271,6 +272,7 @@ export const forcePendingEvents = async (
     delay?: number
   } = {}
 ) => {
+  console.log("Forcing pending events");
   let eventToHandle = null;
   const af = forumTypeSetting.get() === 'AlignmentForum'
   let countHandled = 0;

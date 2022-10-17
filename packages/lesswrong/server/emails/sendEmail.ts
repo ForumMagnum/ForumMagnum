@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
 const getMailUrl = () => {
+  return "smtp://localhost:1025";
   if (mailUrlSetting.get())
     return mailUrlSetting.get();
   else if (process.env.MAIL_URL)
