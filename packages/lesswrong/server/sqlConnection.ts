@@ -1,7 +1,7 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 
 const pgPromiseLib = pgp({
-  // Uncomment to view log executed queries for debugging, etc.
+  // Uncomment to log executed queries for debugging, etc.
   // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);
   // },

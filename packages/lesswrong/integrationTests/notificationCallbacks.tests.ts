@@ -12,7 +12,7 @@ jest.mock('../server/notificationCallbacksHelpers', () => {
     if (document.collectionName === 'Localgroups') return [{_id: '111'}]
     // return users subscribed to the author
     if (document.collectionName === 'Users') return [{_id: '222'}, {_id: '333'}]
-  })
+  });
 
   return {
     __esModule: true,
@@ -37,9 +37,18 @@ describe("test postsNewNotifications", () => {
   })
   
   it("sends the newEventInRadius and newPost notifications when the new post is an event, not in a group", async () => {
-    const testPost = await createDummyPost()
-    testPost.isEvent = true
-    testPost.mongoLocation = true
+    const testPost = await createDummyPost(null, {
+      isEvent: true,
+      location: "Sample location",
+      googleLocation: {
+        geometry: {
+          location: {
+            lng: 123,
+            lat: 456,
+          },
+        },
+      },
+    });
     await postsNewNotifications(testPost)
     // only send one notification per user
     expect(createNotifications).toHaveBeenCalledWith({
@@ -57,9 +66,8 @@ describe("test postsNewNotifications", () => {
   })
   
   it("sends the newGroupPost and newPost notifications when the new post is in a group, not an event", async () => {
-    const testPost = await createDummyPost()
     const testGroup = await createDummyLocalgroup()
-    testPost.groupId = testGroup._id
+    const testPost = await createDummyPost(null, { groupId: testGroup._id });
     await postsNewNotifications(testPost)
 
     expect(createNotifications).toHaveBeenCalledWith({
@@ -77,11 +85,20 @@ describe("test postsNewNotifications", () => {
   })
   
   it("sends the newEvent, newEventInRadius, and newPost notifications when the new post is an event in a group", async () => {
-    const testPost = await createDummyPost()
     const testGroup = await createDummyLocalgroup()
-    testPost.groupId = testGroup._id
-    testPost.isEvent = true
-    testPost.mongoLocation = true
+    const testPost = await createDummyPost(null, {
+      groupId: testGroup._id,
+      isEvent: true,
+      location: "Sample location",
+      googleLocation: {
+        geometry: {
+          location: {
+            lng: 123,
+            lat: 456,
+          },
+        },
+      },
+    });
     await postsNewNotifications(testPost)
     // only send one notification per user
     expect(createNotifications).toHaveBeenCalledWith({

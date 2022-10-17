@@ -266,7 +266,8 @@ export const createDummyMessage = async (user: any, data?: any) => {
 export const createDummyLocalgroup = async (data?: any) => {
   let defaultData = {
     _id: randomId(),
-    name: randomId()
+    name: randomId(),
+    organizerIds: [],
   }
   const groupData = {...defaultData, ...data};
   const groupResponse = await createMutator({

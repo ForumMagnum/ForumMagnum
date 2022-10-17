@@ -185,9 +185,9 @@ describe("Query", () => {
     },
     {
       name: "can build insert query",
-      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", schemaVersion: 1}),
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", c: {d: {e: "a" }}, schemaVersion: 1}),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
-      expectedArgs: ["abc", 3, "test", null, 1],
+      expectedArgs: ["abc", 3, "test", {d: {e: "a" }}, 1],
     },
     {
       name: "can build insert query returning the result",
