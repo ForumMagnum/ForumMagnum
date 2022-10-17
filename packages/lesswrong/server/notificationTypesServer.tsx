@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -21,7 +21,7 @@ import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { forumTitleSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting } from '../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 

@@ -10,7 +10,7 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -100,7 +100,7 @@ const AllTagsPage = ({classes}: {
               header={<SectionTitle title={sectionTitle}>
                 <SectionButton>
                   {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
-                    to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
+                    to={tagCreateUrl}
                   >
                     <AddBoxIcon className={classes.addTagButton}/>
                     New {taggingNameCapitalSetting.get()}
