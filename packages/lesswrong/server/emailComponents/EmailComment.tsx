@@ -7,8 +7,7 @@ import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
-import { tagGetSubforumUrl, tagGetUrl } from '../../lib/collections/tags/helpers';
-import { TagCommentType } from '../../lib/collections/comments/types';
+import { tagGetUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 
@@ -21,9 +20,9 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   const { EmailComment, EmailCommentsOnPostHeader } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
-  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === TagCommentType.Discussion)
+  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
   const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
-  const commentsOnSubforums = filter(comments, comment => !!comment.tagId && comment.tagCommentType === TagCommentType.Subforum)
+  const commentsOnSubforums = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "SUBFORUM")
   const commentsBySubforumTagId = groupBy(commentsOnSubforums, (comment:DbComment)=>comment.tagId);
   
   return <div>
@@ -70,11 +69,15 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforu
   if (!tag)
     return null;
   
-  const tagDescriptor = isSubforum ? `${startCase(tag.name)} Subforum` : tag.name;
-  const link = isSubforum ? tagGetUrl(tag) : tagGetSubforumUrl(tag, true);
-  return <div>
-    New comments on <a href={link}>{tagDescriptor}</a>
-  </div>;
+  return isSubforum ? (
+    <div>
+      New comments in <a href={tagGetSubforumUrl(tag, true)}>{`${startCase(tag.name)} Subforum`}</a>
+    </div>
+  ) : (
+    <div>
+      New comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
+    </div>
+  );
 }
 
 const EmailCommentsOnPostHeaderComponent = registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);

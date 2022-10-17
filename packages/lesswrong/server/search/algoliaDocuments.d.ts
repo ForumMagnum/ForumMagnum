@@ -27,7 +27,7 @@ interface AlgoliaComment {
   tagId?: string,
   tagName?: string,
   tagSlug?: string,
-  tagCommentType?: string,
+  tagCommentType?: import("../../lib/collections/comments/types").TagCommentType,
 }
 
 interface AlgoliaSequence {

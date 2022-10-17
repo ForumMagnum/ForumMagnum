@@ -31,7 +31,6 @@ import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
-import { TagCommentType } from '../lib/collections/comments/types';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -448,7 +447,7 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
   }
   
   // 3. If this comment is in a subforum, notify members with email notifications enabled
-  if (comment.tagId && comment.tagCommentType === TagCommentType.Subforum) {
+  if (comment.tagId && comment.tagCommentType === "SUBFORUM") {
     const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId }))
       .map((u) => u._id)
       .filter((id) => id !== comment.userId);
