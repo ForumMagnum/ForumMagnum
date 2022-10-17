@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsPageActions = ({post, vertical, classes}: {
+const PostActionsButton = ({post, vertical, classes}: {
   post: PostsList,
   vertical?: boolean,
   classes: ClassesType,
@@ -49,7 +49,7 @@ const PostsPageActions = ({post, vertical, classes}: {
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
       placement="right-start"
-      allowOverflow      
+      allowOverflow
     >
       <ClickawayListener onClickAway={handleClose}>
         <PostActions post={post} closeMenu={handleClose}/>
@@ -59,10 +59,10 @@ const PostsPageActions = ({post, vertical, classes}: {
 }
 
 
-const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions, {styles});
+const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsPageActions: typeof PostsPageActionsComponent
+    PostActionsButton: typeof PostActionsButtonComponent
   }
 }

@@ -32,7 +32,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions, ContentStyles } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles } = Components
  
   if (!posts) return null
 
@@ -52,7 +52,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
               <SmallSideVote document={post} collection={Posts}/>
             </span>
           </div>
-          <PostsPageActions post={post} />
+          <PostActionsButton post={post} />
         </div>
         {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
           <div dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />

@@ -127,7 +127,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
+    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
 
   
@@ -184,7 +184,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
           {!hideMenu &&
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostsPageActions post={post} />
+                <PostActionsButton post={post} />
               </AnalyticsContext>
             </span>
           }

@@ -436,7 +436,7 @@ const PostsItem2 = ({
   }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
-    PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
+    PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
     AddToCalendarButton, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
 
@@ -546,7 +546,7 @@ const PostsItem2 = ({
                 <div className={classes.mobileSecondRowSpacer}/>
 
                 {<div className={classes.mobileActions}>
-                  {!resumeReading && <PostsPageActions post={post} />}
+                  {!resumeReading && <PostActionsButton post={post} />}
                 </div>}
 
                 {showIcons && <div className={classes.nonMobileIcons}>
@@ -598,7 +598,7 @@ const PostsItem2 = ({
 
           {<div className={classes.actions}>
             {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical />}
+            {!resumeReading && <PostActionsButton post={post} vertical />}
           </div>}
           {<div className={classes.archiveButton}>
             {archiveButton}
