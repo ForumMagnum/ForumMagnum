@@ -954,7 +954,11 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ] // only show in-person events within 100 miles
+              // $centerSphere takes an array containing the grid coordinates of the circle's center
+              // point and the circle's radius measured in radians. We convert the maximum distance
+              // (which is specified in miles, with a default of 100) into radians by dividing by the
+              // approximate equitorial radius of the earth, 3963.2 miles.
+              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ]
             }
           }
         },
