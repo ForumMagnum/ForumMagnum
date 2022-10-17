@@ -355,6 +355,19 @@ describe("Query", () => {
       expectedArgs: [new Date('2022-01-01'), 3],
     },
     {
+      name: "can build select with $geoWithin",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        c: {
+          $geoWithin: {
+            $centerSphere: [ [ 123, 456 ], 789 ],
+            $comment: { locationName: `"c"->'location'` },
+          },
+        },
+      }),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) * 0.000621371) < $3`,
+      expectedArgs: [123, 456, 789],
+    },
+    {
       name: "can build update with $set",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test", c: "another-test"}}),
       expectedSql: 'UPDATE "TestCollection" SET "b" = $1 , "c" = $2 WHERE "a" = $3',

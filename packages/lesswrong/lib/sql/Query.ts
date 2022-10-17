@@ -263,6 +263,30 @@ abstract class Query<T extends DbObject> {
           return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+        case "$geoWithin":
+          // We can be very specific here because this is only used in a single place in the codebase;
+          // when we search for events within a certain maximum distance of the user ("nearbyEvents"
+          // in posts/view.ts).
+          // When converting this to Postgres, we actually want the location in the form of a raw
+          // longitude and latitude, which isn't the case for Mongo. To do this, we pass the selector
+          // to the query builder manually here using $comment. This is a hack, but it's the only
+          // place in the codebase where we use this operator so it's probably not worth spending a
+          // ton of time making this beautiful.
+          const {$centerSphere: center, $comment: { locationName }} = value[comparer];
+          if (!center || !Array.isArray(center) || center.length !== 2 || !locationName) {
+            throw new Error("Invalid $geoWithin selector");
+          }
+          const [lng, lat] = center[0];
+          const distance = center[1];
+          return [
+            `(EARTH_DISTANCE(LL_TO_EARTH((${locationName}->>'lng')::FLOAT8, (${locationName}->>'lat')::FLOAT8),`,
+            "LL_TO_EARTH(",
+            this.createArg(lng),
+            ",",
+            this.createArg(lat),
+            ")) * 0.000621371) <", // Convert metres to miles
+            this.createArg(distance),
+          ];
         default:
           break;
       }
