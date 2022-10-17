@@ -15390,9 +15390,9 @@ uid2@0.0.x:
   resolved "https://registry.yarnpkg.com/uid2/-/uid2-0.0.4.tgz#033f3b1d5d32505f5ce5f888b9f3b667123c0a44"
   integrity sha512-IevTus0SbGwQzYh3+fRsAMTVVPOoIVufzacXcHPmdlle1jUpq7BRL+mw3dgeLanvGZdwwbWhRV6XrcFNdBmjWA==
 
-"umzug@https://github.com/oetherington/umzug#0e44d9eafca4ce6efdb83dec72d31113623ed1a6":
+"umzug@https://github.com/oetherington/umzug#50123224e1ac9ad365ca4bb57cf62cecee005bf5":
   version "3.2.1"
-  resolved "https://github.com/oetherington/umzug#0e44d9eafca4ce6efdb83dec72d31113623ed1a6"
+  resolved "https://github.com/oetherington/umzug#50123224e1ac9ad365ca4bb57cf62cecee005bf5"
   dependencies:
     "@rushstack/ts-command-line" "^4.12.2"
     emittery "^0.13.0"
