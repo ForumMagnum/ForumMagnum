@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Component for displaying details about currently selected conversation
 const ConversationDetails = ({conversation, classes}: {
-  conversation: conversationsListFragment,
+  conversation: ConversationsListFragment,
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();

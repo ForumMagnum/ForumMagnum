@@ -1,7 +1,7 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import * as _ from 'underscore';
 
-export const conversationGetTitle = (conversation: conversationsListFragment, currentUser: UsersCurrent): string => {
+export const conversationGetTitle = (conversation: ConversationsListFragment, currentUser: UsersCurrent): string => {
   if (!!conversation.title) {
     return conversation.title
   } else if (conversation.participants) {

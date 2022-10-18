@@ -69,6 +69,14 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 60
   });
 
+  // const { results: reviewedUser, refetch: refetchReviewedUsers } = useMulti({
+  //   terms: {view:"allUsers", limit: 25},
+  //   collectionName: "Users",
+  //   fragmentName: 'SunshineUsersList',
+  //   enableTotal: true,
+  //   itemsPerPage: 60
+  // });
+
   if (!userIsAdmin(currentUser)) {
     return null;
   }
@@ -79,15 +87,22 @@ const ModerationDashboard = ({ classes }: {
     // <SingleColumnSection>
     <div className={classes.page}>
       <div>
-      {usersToReview && usersToReview.map(user =>
-        <div key={user._id} >
-          <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
-        </div>
+        {usersToReview && usersToReview.map(user =>
+          <div key={user._id} >
+            <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+          </div>
         )}
         <div className={classes.loadMore}>
           <LoadMore {...loadMoreProps}/>
         </div>
       </div>
+      {/* <div>
+        {reviewedUser?.map(user => 
+          <div key={user._id}>
+            <UsersReviewInfoCard user={user} refetch={refetchReviewedUsers} currentUser={currentUser}/>
+          </div>
+        )}
+      </div> */}
       <div className={classes.tableWrapper}>
         <table className={classes.table}>
           <thead>

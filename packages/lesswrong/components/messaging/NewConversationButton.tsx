@@ -26,7 +26,6 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   includeModerators?: boolean,
   setEmbeddedConversation?: (conversationId: conversationIdFragment) => void
 }) => {
-  
   const { history } = useNavigation();
   const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
@@ -61,7 +60,11 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
 
     const response = await createConversation({data})
     const conversationId = response.data?.createConversation.data._id
-    history.push({pathname: `/inbox/${conversationId}`, ...search})
+    if (setEmbeddedConversation) {
+      setEmbeddedConversation({_id: conversationId})
+    } else {
+      history.push({pathname: `/inbox/${conversationId}`, ...search})
+    }
   }, [createConversation, user, history, includeModerators]);
 
   const existingConversationCheck = (initiatingUser: UsersCurrent) => () => {

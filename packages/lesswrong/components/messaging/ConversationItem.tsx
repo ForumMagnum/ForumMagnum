@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
-  conversation: conversationsListFragment,
+  conversation: ConversationsListFragment,
   updateConversation: any,
   currentUser: UsersCurrent,
   classes: ClassesType,

@@ -10,6 +10,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userCanDo } from '../../lib/vulcan-users';
+import { NewMessageForm } from './NewMessageForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -64,7 +65,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   const { document: conversation, loading: loadingConversation } = useSingle({
     documentId,
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsListFragment',
   });
   const loading = loadingMessages || loadingConversation;
 
@@ -139,34 +140,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         </Typography>
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}
-        <div className={classes.editor}>
-          <WrappedSmartForm
-            collection={Messages}
-            prefilledProps={{
-              conversationId: conversation._id,
-              contents: {
-                originalContents: {
-                  type: "ckEditorMarkup",
-                  data: templateHtml
-                }
-              }
-            }}
-            mutationFragment={getFragment("messageListFragment")}
-            successCallback={() => {
-              captureEvent('messageSent', {
-                conversationId: conversation._id,
-                sender: currentUser._id,
-                participantIds: conversation.participantIds,
-                messageCount: (conversation.messageCount || 0) + 1,
-                ...(profileViewedFrom.current && {from: profileViewedFrom.current})
-              })
-            }}
-            errorCallback={(message: any) => {
-              //eslint-disable-next-line no-console
-              console.error("Failed to send", message)
-            }}
-          />
-        </div>
+        <NewMessageForm />
       </div>
     </SingleColumnSection>
   )
