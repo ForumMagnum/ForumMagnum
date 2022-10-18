@@ -1,0 +1,19 @@
+name: 'Setup Environment'
+description: 'Setup the server environment for Forum Magnum'
+inputs:
+  node-version:
+    description: 'Which version of nodejs to use'
+    required: false
+    default: 18
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: yarn
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --frozen-lockfile
