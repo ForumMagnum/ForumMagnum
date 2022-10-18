@@ -71,11 +71,11 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforu
   
   return isSubforum ? (
     <div>
-      New comments in <a href={tagGetSubforumUrl(tag, true)}>{`${startCase(tag.name)} Subforum`}</a>
+      New comments in the <a href={tagGetSubforumUrl(tag, true)}>{`${startCase(tag.name)} subforum`}</a>
     </div>
   ) : (
     <div>
-      New comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
+      New discussion comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
     </div>
   );
 }
