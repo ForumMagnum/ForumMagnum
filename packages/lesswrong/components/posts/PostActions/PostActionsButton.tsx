@@ -4,7 +4,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import ClickawayListener from '@material-ui/core/ClickAwayListener';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,9 +51,10 @@ const PostActionsButton = ({post, vertical, classes}: {
       placement="right-start"
       allowOverflow
     >
-      <ClickawayListener onClickAway={handleClose}>
+      {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
+      {/*<ClickAwayListener onClickAway={handleClose}>*/}
         <PostActions post={post} closeMenu={handleClose}/>
-      </ClickawayListener>
+      {/*</ClickAwayListener>*/}
     </PopperCard>
   </div>
 }

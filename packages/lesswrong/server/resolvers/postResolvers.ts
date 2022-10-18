@@ -40,9 +40,11 @@ augmentFieldsDict(Posts, {
       resolver: async (post, args: void, context: ResolverContext) => {
         const toc = await Utils.getToCforPost({document: post, version: null, context});
         const html = toc?.html || post?.contents?.html
+        const {allResults, highKarmaResults} = await getPostBlockCommentLists(context, post);
         return {
           html: addBlockIDsToHTML(html),
-          commentsByBlock: await getPostBlockCommentLists(context, post),
+          commentsByBlock: allResults,
+          highKarmaCommentsByBlock: highKarmaResults,
         };
       }
     },

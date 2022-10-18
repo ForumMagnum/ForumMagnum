@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -17,6 +17,7 @@ import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
+import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -208,6 +209,12 @@ const PostsPage = ({post, refetch, classes}: {
     throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
   }
   
+  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>("all");
+  const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
+    () => ({ sideCommentMode, setSideCommentMode }),
+    [sideCommentMode, setSideCommentMode]
+  );
+  
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
   const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
@@ -271,6 +278,7 @@ const PostsPage = ({post, refetch, classes}: {
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
       tableOfContents={tableOfContents}
       header={header}
@@ -283,10 +291,13 @@ const PostsPage = ({post, refetch, classes}: {
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         <ContentStyles contentType="post" className={classes.postContent}>
-          <PostBodyPrefix post={post} query={query}/>
+          <PostBodyPrefix post={post} query={query} />
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              {htmlWithAnchors && <PostBody post={post} html={htmlWithAnchors}/>}
+              {htmlWithAnchors && <PostBody
+                post={post} html={htmlWithAnchors}
+                sideCommentMode={sideCommentMode}
+              />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>
@@ -311,6 +322,7 @@ const PostsPage = ({post, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+    </SideCommentVisibilityContext.Provider>
   </AnalyticsContext>);
 }
 

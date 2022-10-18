@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
 import { useSingle } from '../../lib/crud/withSingle';
 import CommentIcon from '@material-ui/icons/ModeComment';
-import { ClickAwayListener } from '@material-ui/core';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import classNames from 'classnames';
 import Badge from '@material-ui/core/Badge';
 

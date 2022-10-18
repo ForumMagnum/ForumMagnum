@@ -152,7 +152,12 @@ function findQuoteInPost(parsedPost, quoteShards: string[]): string|null {
  * This function is potentially quite slow, if there are a lot of comments and/or
  * the post is very long. FIXME: Build caching for this.
  */
-export async function getPostBlockCommentLists(context: ResolverContext, post: DbPost): Promise<Record<string,string[]>> {
+export async function getPostBlockCommentLists(context: ResolverContext, post: DbPost): Promise<{
+  allResults: Record<string,string[]>,
+  highKarmaResults: Record<string,string[]>,
+}> {
+  const minKarma = 10;
+  
   const postHTML = post.contents?.html;
   //@ts-ignore
   const parsedPost = cheerio.load(addBlockIDsToHTML(postHTML), null, false);
@@ -162,15 +167,24 @@ export async function getPostBlockCommentLists(context: ResolverContext, post: D
     postId: post._id,
   }).fetch();
   
-  let result: Record<string,string[]> = {};
+  let allResults: Record<string,string[]> = {};
+  let highKarmaResults: Record<string,string[]> = {};
+  
   for (let comment of comments) {
     //@ts-ignore
     const quoteShards = commentToQuoteShards(comment.contents?.html);
     const blockID = findQuoteInPost(parsedPost, quoteShards);
+    
     if (blockID) {
-      if (blockID in result) result[blockID].push(comment._id);
-      else result[blockID] = [comment._id];
+      if (blockID in allResults) allResults[blockID].push(comment._id);
+      else allResults[blockID] = [comment._id];
+      
+      if (comment.baseScore >= minKarma) {
+        if (blockID in highKarmaResults) highKarmaResults[blockID].push(comment._id);
+        else highKarmaResults[blockID] = [comment._id];
+      }
     }
   }
-  return result;
+  
+  return {allResults, highKarmaResults};
 }
