@@ -12,7 +12,6 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
-        cache: yarn
 
     - name: Install dependencies
       shell: bash
