@@ -114,7 +114,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   
   const { openDialog } = useDialog();
   
-  const { results: members, loading: membersLoading } = useMulti({
+  const { results: members } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 50},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
@@ -124,8 +124,8 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
   const onClickMembersList = () => {
     if (tag) {
       openDialog({
-        componentName: 'SubforumMembersList',
-        componentProps: {tag, members},
+        componentName: 'SubforumMembersDialog',
+        componentProps: {tag},
       })
     }
   }

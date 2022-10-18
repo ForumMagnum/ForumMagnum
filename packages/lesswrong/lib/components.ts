@@ -549,7 +549,7 @@ importComponent("TagProgressBar", () => require('../components/tagging/TagProgre
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
-importComponent("SubforumMembersList", () => require('../components/tagging/SubforumMembersList'));
+importComponent("SubforumMembersDialog", () => require('../components/tagging/SubforumMembersDialog'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 
 // SequenceEditor
