@@ -1198,7 +1198,6 @@ const schema: SchemaType<DbUser> = {
   },
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
-    // Hide this while review is inactive
     ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
   },
 
