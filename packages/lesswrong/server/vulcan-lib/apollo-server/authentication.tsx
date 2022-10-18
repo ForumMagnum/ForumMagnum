@@ -22,7 +22,6 @@ import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
 import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
-import { isProduction } from '../../../lib/executionEnvironment';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -57,8 +56,8 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
     // that never changed their password.)
     return done(null, false, { message: 'Incorrect password.' });
   }
-
-  const match = isProduction ? (!!user.services.password.bcrypt && await comparePasswords(password, user.services.password?.bcrypt)) : true;
+  
+  const match = !!user.services.password.bcrypt && await comparePasswords(password, user.services.password?.bcrypt);
 
   // If no immediate match, we check whether we have a match with their legacy password
   if (!match) {

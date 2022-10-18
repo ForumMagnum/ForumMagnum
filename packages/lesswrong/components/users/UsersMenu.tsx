@@ -25,7 +25,6 @@ import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
-import { isProduction } from '../../lib/executionEnvironment';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -198,14 +197,6 @@ const UsersMenu = ({classes}: {
                   Shortform Page
                 </MenuItem>
               </Link>
-            }
-            {!isProduction &&
-              <MenuItem onClick={()=> openDialog({componentName: "LoginPopup"})}>
-                <ListItemIcon>
-                  <PersonIcon className={classes.icon} />
-                </ListItemIcon>
-                Switch accounts
-              </MenuItem>
             }
             <Divider/>
             <MenuItem component="a" href="/logout">
