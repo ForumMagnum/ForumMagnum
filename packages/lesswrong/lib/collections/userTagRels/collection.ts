@@ -39,7 +39,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
-    ...schemaDefaultValue(false),
+    ...schemaDefaultValue(true),
   },
   subforumEmailNotifications: {
     type: Boolean,
@@ -49,7 +49,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
-    ...schemaDefaultValue(false),
+    ...schemaDefaultValue(true),
   },
 };
 
