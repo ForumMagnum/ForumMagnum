@@ -1,7 +1,6 @@
 import { Umzug } from "@centreforeffectivealtruism/umzug";
 import { readFileSync } from "fs";
 import { createHash } from "crypto";
-import { createSqlConnection } from "../../sqlConnection";
 import PgStorage from "./PgStorage";
 
 declare global {
@@ -19,9 +18,7 @@ declare global {
 
 const root = "./packages/lesswrong/server/migrations";
 
-export const createMigrator = async () => {
-  const db = await createSqlConnection();
-
+export const createMigrator = async (db: SqlClient) => {
   const storage = new PgStorage();
   await storage.setupEnvironment(db);
 
