@@ -65,9 +65,9 @@ async function serverStartup() {
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err);
-    if (forumTypeSetting.get() === "EAForum") {
-      process.exit(1);
-    }
+    // if (forumTypeSetting.get() === "EAForum") {
+    //   process.exit(1);
+    // }
   }
 
   // eslint-disable-next-line no-console

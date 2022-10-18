@@ -11831,6 +11831,16 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
+nearley@^2.20.1:
+  version "2.20.1"
+  resolved "https://registry.yarnpkg.com/nearley/-/nearley-2.20.1.tgz#246cd33eff0d012faf197ff6774d7ac78acdd474"
+  integrity sha512-+Mc8UaAebFzgV+KpI5n7DasuuQCHA89dmwm7JXw3TV43ukfNQ9DnBH3Mdb2g/I4Fdxc26pwimBWvjIw0UAILSQ==
+  dependencies:
+    commander "^2.19.0"
+    moo "^0.5.0"
+    railroad-diagrams "^1.0.0"
+    randexp "0.4.6"
+
 nearley@^2.7.10:
   version "2.19.9"
   resolved "https://registry.yarnpkg.com/nearley/-/nearley-2.19.9.tgz"
@@ -14526,6 +14536,14 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
+
+sql-formatter@^11.0.2:
+  version "11.0.2"
+  resolved "https://registry.yarnpkg.com/sql-formatter/-/sql-formatter-11.0.2.tgz#2fde373c8c1845f8ee9f201d2eccb1fb365cd893"
+  integrity sha512-6QumAdGHEnI5dXEq1d0aBRP876AyA9Wp/UE7wopKNA2Mp9sKGRKVqGgoWHk4dr0J0nceesC85Y0p36qmGoNqhw==
+  dependencies:
+    argparse "^2.0.1"
+    nearley "^2.20.1"
 
 sse-z@0.3.0:
   version "0.3.0"

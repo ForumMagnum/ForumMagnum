@@ -168,7 +168,7 @@ export function startWebserver() {
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
-  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+  addStaticRoute("/build/client/js/bundle.js", ({query}, req, res, context) => {
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
     let headers = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
@@ -248,7 +248,7 @@ export function startWebserver() {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script defer src="/build/client/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
