@@ -1,4 +1,2 @@
-export enum TagCommentType {
-  Subforum = "SUBFORUM",
-  Discussion = "DISCUSSION",
-}
+export type TagCommentType = "SUBFORUM" | "DISCUSSION"
+export const tagCommentTypes: TagCommentType[] = ["SUBFORUM", "DISCUSSION"]

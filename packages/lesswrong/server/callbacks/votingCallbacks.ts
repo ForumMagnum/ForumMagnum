@@ -3,7 +3,8 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
-import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { triggerAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 /**
  * @summary Update the karma of the item's owner
@@ -46,6 +47,12 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
 
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
   return triggerReviewIfNeeded(document.vote.userId)
+});
+
+voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
+  if (newDocument.__collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
+    void triggerAutomodIfNeeded(newDocument.userId)
+  }
 });
 
 
