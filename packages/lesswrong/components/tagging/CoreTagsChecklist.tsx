@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Checkbox from '@material-ui/core/Checkbox';
 import { tagStyle } from './FooterTag';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,7 +51,7 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   const handleOnTagSelected = (tag) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name}) : undefined
 
   return <>
-    {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> tag</div>}>
+    {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> {taggingNameSetting.get()}</div>}>
       <div className={classes.tag} onClick={() => handleOnTagSelected(tag)}>
         {tag.name}
       </div>

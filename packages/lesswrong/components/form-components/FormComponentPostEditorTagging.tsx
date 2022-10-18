@@ -11,7 +11,7 @@ import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
  * voting-on-tag-relevance as the post page. Styling doesn't match between these
  * two, which is moderately unfortunate.
  */
-const FormComponentPostEditorTagging = ({value, path, document, label, placeholder, formType, updateCurrentValues}: {
+const FormComponentPostEditorTagging = ({value, path, document, formType, updateCurrentValues, placeholder}: {
   value: any,
   path: string,
   document: any,
@@ -27,13 +27,14 @@ const FormComponentPostEditorTagging = ({value, path, document, label, placehold
       hideScore
       hidePostTypeTag
       showCoreTags
+      link={false}
     />
   } else {
     return <div>
       <CoreTagsChecklist existingTagIds={Object.keys(value||{})} onTagSelected={(tag)=> {
         updateCurrentValues(
           mapValues(
-            {tagRelevance:[tag.tagId]},
+            changes,
             (arrayOfTagIds: string[]) => toDictionary(
               arrayOfTagIds, tagId=>tagId, tagId=>1
             )
@@ -42,7 +43,7 @@ const FormComponentPostEditorTagging = ({value, path, document, label, placehold
       }}/>
       <TagMultiselect
         path={path}
-        placeholder={`+ Add ${taggingNamePluralCapitalSetting.get()}`}
+        placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
         
         value={Object.keys(value||{})}
         updateCurrentValues={(changes) => {

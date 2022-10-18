@@ -40,14 +40,15 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
-  smallText?: boolean
+  smallText?: boolean,
+  link?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -159,6 +160,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
         tag={tagRel.tag} 
         hideScore={hideScore}
         smallText={smallText}
+        link={link}
       />
     )}
     { !hidePostTypeTag && postType }
