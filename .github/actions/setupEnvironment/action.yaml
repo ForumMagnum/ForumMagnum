@@ -1,8 +1,8 @@
 name: 'Setup Environment'
-description: 'Setup the server environment for Forum Magnum'
+description: 'Setup the server environment for ForumMagnum'
 inputs:
   node-version:
-    description: 'Which version of nodejs to use'
+    description: 'Which version of NodeJS to use'
     required: false
     default: 18
 runs:
@@ -13,6 +13,14 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
+    - name: Cache modules
+      id: cache-node-modules
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: node-modules-${{ hashFiles('yarn.lock') }}
+
     - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: yarn install --frozen-lockfile
