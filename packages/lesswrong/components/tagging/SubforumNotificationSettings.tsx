@@ -1,18 +1,28 @@
 import React, { useState } from "react";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
+import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import { useCurrentUser } from "../common/withUser";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Paper from "@material-ui/core/Paper";
 import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../lib/crud/withMulti";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import Checkbox from "@material-ui/core/Checkbox";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {},
+  notificationsButton: {
+    margin: "0px 12px 10px 0px",
+    padding: 4,
+  },
+  popout: {
+    padding: "1px 0px 4px 0px",
+  },
+  accountLink: {
+    marginTop: -6,
+    padding: "0px 8px",
+    fontStyle: "italic",
+  },
 });
 
 const SubforumNotificationSettings = ({
@@ -27,20 +37,16 @@ const SubforumNotificationSettings = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
 
-  const { LWPopper, WrappedSmartForm } = Components;
+  const { LWPopper, WrappedSmartForm, Typography, Loading } = Components;
 
   const { loading, results } = useMulti({
-    terms: { tagId: tag._id, userId: currentUser._id },
+    terms: { view: "single", tagId: tag._id, userId: currentUser._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelNotifications",
     fetchPolicy: "cache-and-network",
   });
 
-  const { mutate: updateUserTagRel } = useUpdate({
-    collectionName: "UserTagRels",
-    fragmentName: "UserTagRelNotifications",
-  });
-
+  // Don't show notification settings if the user is not subscribed to the tag
   if (!currentUser || !currentUser.profileTagIds.includes(tag._id)) return null;
 
   const userTagRel = results?.length ? results[0] : undefined;
@@ -67,35 +73,34 @@ const SubforumNotificationSettings = ({
   };
 
   return (
-    <AnalyticsContext pageSection="karmaChangeNotifer">
+    <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={classes.root}>
-        <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
-          <NotificationsIcon />
+        <IconButton onClick={handleToggle} className={classes.notificationsButton}>
+          {loading || (!userTagRel?.subforumEmailNotifications && !userTagRel?.subforumEmailNotifications) ? (
+            <NotificationsNoneIcon />
+          ) : (
+            <NotificationsIcon />
+          )}
         </IconButton>
         <LWPopper open={open} anchorEl={anchorEl} placement="bottom-end" className={classes.karmaNotifierPopper}>
           <ClickAwayListener onClickAway={handleClose}>
-            <Paper className={classes.karmaNotifierPaper}>
-              {/* <div>
-                <div className={classes.root}>
-                  <Checkbox
-                    className={classes.size}
-                    checked={true}
-                    onChange={(event, checked) => {}}
-                    disableRipple
+            <Paper className={classes.popout}>
+              {loading ? (
+                <Loading />
+              ) : (
+                <>
+                  <WrappedSmartForm
+                    collection={UserTagRels}
+                    documentId={userTagRel?._id}
+                    queryFragment={getFragment("UserTagRelNotifications")}
+                    mutationFragment={getFragment("UserTagRelNotifications")}
+                    autoSubmit
                   />
-                  <Components.Typography className={classes.inline} variant="body2" component="label">
-                    {"test"}
-                  </Components.Typography>
-                </div>
-              </div> */}
-              <WrappedSmartForm
-                collection={UserTagRels}
-                documentId={userTagRel?._id}
-                queryFragment={getFragment("UserTagRelNotifications")}
-                mutationFragment={getFragment("UserTagRelNotifications")}
-                changeCallback={() => {return "hello"}}
-                autoSubmit
-              />
+                  <Typography variant="subheading" className={classes.accountLink}>
+                    <Link to={"/account"}>Change batching in user settings</Link>
+                  </Typography>
+                </>
+              )}
             </Paper>
           </ClickAwayListener>
         </LWPopper>

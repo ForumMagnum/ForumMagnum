@@ -1196,11 +1196,6 @@ const schema: SchemaType<DbUser> = {
     hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
-  // notificationSubforumSidebarUnread: {
-  //   label: `Show unread message count for subforums in the sidebar`,
-  //   // Hide this while review is inactive
-  //   ...notificationTypeSettingsField({ channel: "onsite" }),
-  // },
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
     // Hide this while review is inactive

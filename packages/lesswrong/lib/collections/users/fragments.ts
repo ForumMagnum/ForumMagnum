@@ -188,6 +188,7 @@ registerFragment(`
     ...SharedUserBooleans
 
     acknowledgedNewUserGuidelines
+    notificationSubforumUnread
   }
 `);
 

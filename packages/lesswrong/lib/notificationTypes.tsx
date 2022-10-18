@@ -188,8 +188,7 @@ export const NewCommentNotification = registerNotificationType({
 export const NewSubforumCommentNotification = registerNotificationType({
   name: "newSubforumComment",
   userSettingField: "notificationSubforumUnread",
-  // TODO only allow email and none
-  allowedChannels: ["none", "onsite", "email", "both"],
+  allowedChannels: ["none", "email"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     // NOTE: Currently we only allow notifications by email to avoid double notifying (with both the sidebar unread count
     // and the notification), if we ever want to allow notifications in the sidebar we'll probably want to update this message

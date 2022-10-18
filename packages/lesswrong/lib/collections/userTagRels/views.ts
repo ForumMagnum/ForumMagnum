@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-UserTagRels.addDefaultView(({userId, tagId}: UserTagRelsViewTerms) => {
+UserTagRels.addView('single', ({userId, tagId}: UserTagRelsViewTerms) => {
   return ({
     selector: {
       userId,

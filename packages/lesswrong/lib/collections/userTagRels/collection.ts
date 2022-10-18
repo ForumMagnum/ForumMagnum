@@ -45,7 +45,7 @@ const schema: SchemaType<DbUserTagRel> = {
     type: Boolean,
     nullable: false,
     optional: false,
-    label: "Email notifications",
+    control: "SubforumEmailNotifications",
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],

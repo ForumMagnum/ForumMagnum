@@ -2324,6 +2324,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
   readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
 }
 
 interface UserBookmarkedPosts { // fragment on Users
