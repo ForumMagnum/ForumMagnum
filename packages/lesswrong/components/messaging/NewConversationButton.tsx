@@ -8,16 +8,23 @@ import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
+interface TemplateQueryStrings {
+  templateCommentId: string;
+  firstName: string;
+  displayName: string;
+}
+
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, from, includeModerators, templateQueries }: {
+const NewConversationButton = ({ user, currentUser, children, from, includeModerators, templateQueries, setEmbeddedConversation }: {
   user: {
     _id: string
   },
   currentUser: UsersCurrent|null,
-  templateQueries?: object,
+  templateQueries?: TemplateQueryStrings,
   from?: string,
   children: any,
-  includeModerators?: boolean
+  includeModerators?: boolean,
+  setEmbeddedConversation?: (conversationId: conversationIdFragment) => void
 }) => {
   
   const { history } = useNavigation();
@@ -68,7 +75,11 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
     const search = searchParams.length > 0 ? {search:`?${searchParams.join('&')}`} : {}
     
     for (let conversation of (results ?? [])) {
-      history.push({pathname: `/inbox/${conversation._id}`, ...search})
+      if (setEmbeddedConversation) {
+        setEmbeddedConversation(conversation)
+      } else {
+        history.push({pathname: `/inbox/${conversation._id}`, ...search})
+      }
       return
     }
     void newConversation(search, initiatingUser);

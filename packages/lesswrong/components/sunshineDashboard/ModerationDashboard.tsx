@@ -3,7 +3,7 @@ import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import {userCanDo, userIsAdmin} from '../../lib/vulcan-users/permissions';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -58,12 +58,10 @@ const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
   const { ModeratorActionItem, SingleColumnSection, WrappedSmartForm, SunshineNewUsersItem, SunshineNewUsersInfo, UsersReviewInfoCard, LoadMore } = Components;
-  
-  // const { SunshineListCount, SunshineListTitle,  } = Components
-  
+    
   const currentUser = useCurrentUser();
   
-  const { results: usersToReview, totalCount, loadMoreProps } = useMulti({
+  const { results: usersToReview, totalCount, loadMoreProps, refetch } = useMulti({
     terms: {view:"sunshineNewUsers", limit: 25},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -71,34 +69,19 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 60
   });
 
-  const userIds = usersToReview?.map(({ _id }) => _id) ?? [];
-  
-  const { results: moderatorActions } = useMulti({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionDisplay',
-    terms: {
-      view: 'userModeratorActions',
-      userIds
-    },
-    skip: userIds.length === 0
-  });
-
   if (!userIsAdmin(currentUser)) {
     return null;
   }
 
-  const usersReviewInfo = usersToReview?.map(user => ({
-    ...user,
-    moderatorActions: moderatorActions?.filter(modAction => modAction.userId === user._id) ?? []
-  }));
+  const moderatorActions = usersToReview?.flatMap(user => user.moderatorActions);
 
   return (
     // <SingleColumnSection>
     <div className={classes.page}>
       <div>
-      {usersReviewInfo && usersReviewInfo.map(user =>
+      {usersToReview && usersToReview.map(user =>
         <div key={user._id} >
-          <UsersReviewInfoCard user={user}/>
+          <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
         </div>
         )}
         <div className={classes.loadMore}>

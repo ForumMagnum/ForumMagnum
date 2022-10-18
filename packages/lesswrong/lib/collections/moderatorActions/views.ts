@@ -2,14 +2,13 @@ import { ensureIndex } from '../../collectionUtils';
 import ModeratorActions from './collection';
 
 declare global {
-  type ModeratorActionsViewTerms = ViewTermsBase & {
+  type ModeratorActionsViewTerms = Omit<ViewTermsBase, 'view'> & ({
     view: 'userModeratorActions',
     userIds: string[]
-  }
-  // interface ModeratorActionsViewTerms extends ViewTermsBase {
-  //   view?: ModeratorActionsViewName,
-  //   userId?: string
-  // }
+  } | {
+    view?: undefined,
+    userIds?: undefined
+  })
 }
 
 ModeratorActions.addView('userModeratorActions', function (terms: ModeratorActionsViewTerms) {

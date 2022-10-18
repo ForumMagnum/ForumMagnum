@@ -40,9 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
+const SunshineSendMessageWithDefaults = ({ user, tagSlug, setEmbeddedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   tagSlug: string,
+  setEmbeddedConversation?: (conversationId: conversationIdFragment) => void
   classes: ClassesType,
 }) => {
   
@@ -91,7 +92,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, firstName, displayName: user.displayName}} includeModerators>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, firstName, displayName: user.displayName}} includeModerators setEmbeddedConversation={setEmbeddedConversation}>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>

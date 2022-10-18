@@ -150,8 +150,12 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
-  void triggerReviewIfNeeded(document._id)
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<DbUser>) {
+  console.log({ data });
+  const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
+  if (reviewTriggerFields.some(field => field in data)) {
+    void triggerReviewIfNeeded(document._id)
+  }
 })
 
 // When the very first user account is being created, add them to Sunshine
