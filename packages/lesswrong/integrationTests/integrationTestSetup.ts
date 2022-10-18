@@ -107,10 +107,13 @@ afterAll(async () => {
     closeDatabaseConnection(),
     closeSqlClient(getSqlClientOrThrow()),
   ]);
-  // This will fail for all but the first Jest worker - we don't care which this is
-  // try {
-    // const cutoff = new Date();
-    // cutoff.setDate(cutoff.getDate() - 1);
-    // await dropTestingDatabases(cutoff);
-  // } catch {}
+
+  // Our approach to database cleanup is to just delete all the runs older than 1 day.
+  // This allows us to inspect the databases created during the last run if necessary
+  // for debugging whilst also making sure that we clean up after ourselves eventually
+  // (assuming that the tests are run again some day).
+  if (process.env.JEST_WORKER_ID === "1") {
+    const cutoff = new Date();
+    await dropTestingDatabases(cutoff);
+  }
 });
