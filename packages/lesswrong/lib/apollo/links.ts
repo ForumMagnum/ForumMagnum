@@ -26,22 +26,16 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
  * Http link is used for client side rendering
  */
 export const createHttpLink = (baseUrl = '/') => {
-  // Type of window.fetch may differ slightly from type of the fetch used on server
-  let fetch: typeof window.fetch;
-  if (isServer) {
-    // We won't need to import fetch in node 18
-    const nodeFetch = require('node-fetch');
-    fetch = (url, options) => nodeFetch(url, {
+  const fetch: typeof globalThis.fetch = isServer
+    ? (url, options) => globalThis.fetch(url, {
       ...options,
       headers: {
         ...options?.headers,
         // user agent because LW bans bot agents
         'User-Agent': crosspostUserAgent,
       }
-    });
-  } else {
-    fetch = window.fetch;
-  }
+    })
+    : globalThis.fetch;
   return new BatchHttpLink({
     uri: baseUrl + 'graphql',
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',

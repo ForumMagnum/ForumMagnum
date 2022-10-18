@@ -4,7 +4,6 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
@@ -122,9 +121,10 @@ export function startWebserver() {
       }
     }))
   }
-  app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
-  app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
+
+  app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
@@ -155,7 +155,7 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: async ({ req, res }) => {
+    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const user = await getUserFromReq(req);
       const context = await computeContextFromUser(user, req, res);
       configureSentryScope(context);
@@ -164,8 +164,8 @@ export function startWebserver() {
     plugins: [new ApolloServerLogging()]
   });
 
-  app.use('/graphql', bodyParser.json({ limit: '50mb' }));
-  app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
+  app.use('/graphql', express.json({ limit: '50mb' }));
+  app.use('/graphql', express.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
