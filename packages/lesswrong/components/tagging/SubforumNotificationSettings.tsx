@@ -82,7 +82,7 @@ const SubforumNotificationSettings = ({
             <NotificationsIcon />
           )}
         </IconButton>
-        <LWPopper open={open} anchorEl={anchorEl} placement="bottom-end" className={classes.karmaNotifierPopper}>
+        <LWPopper open={open} anchorEl={anchorEl} placement="bottom-end">
           <ClickAwayListener onClickAway={handleClose}>
             <Paper className={classes.popout}>
               {loading ? (
