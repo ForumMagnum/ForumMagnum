@@ -16,13 +16,33 @@ declare global {
   }
 }
 
+const migrationNameToTime = (name: string): number => {
+  const s = name.split(".")[0];
+  if (s.length !== 15 || s[8] !== "T") {
+    throw new Error(`Invalid migration name: '${s}'`);
+  }
+  const stamp = `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 11)}:${s.slice(11, 13)}:${s.slice(13, 15)}.000Z`;
+  return new Date(stamp).getTime();
+}
+
+const getLastMigration = async (storage: PgStorage, db: SqlClient): Promise<string | undefined> => {
+  const context = {db, timers: {}, hashes: {}};
+  const executed = await storage.executed({context}) ?? [];
+  return executed[0];
+}
+
+const reportOutOfOrderRun = (lastMigrationName: string, currentMigrationName: string) => {
+  console.log("Warning: Out-of-order migrations detected");
+  console.log(`Trying to run '${currentMigrationName}' after '${lastMigrationName}'`);
+}
+
 const root = "./packages/lesswrong/server/migrations";
 
 export const createMigrator = async (db: SqlClient) => {
   const storage = new PgStorage();
   await storage.setupEnvironment(db);
 
-  return new Umzug({
+  const migrator = new Umzug({
     migrations: {
       glob: `${root}/*.ts`,
       resolve: ({name, path, context}) => {
@@ -46,7 +66,7 @@ export const createMigrator = async (db: SqlClient) => {
             if (migration.down) {
               return migration.down(context);
             } else {
-            // eslint-disable-next-line no-console
+              // eslint-disable-next-line no-console
               console.warn(`Migration '${name}' has no down step`);
             }
           },
@@ -68,4 +88,18 @@ export const createMigrator = async (db: SqlClient) => {
       folder: root,
     },
   });
+
+  const lastMigration = await getLastMigration(storage, db);
+  if (lastMigration) {
+    const lastMigrationTime = migrationNameToTime(lastMigration);
+    migrator.on("migrating", ({name}) => {
+      const time = migrationNameToTime(name);
+      if (time < lastMigrationTime) {
+        reportOutOfOrderRun(lastMigration, name);
+        throw new Error("Aborting due to out-of-order run");
+      }
+    });
+  }
+
+  return migrator;
 }

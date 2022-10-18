@@ -9,8 +9,11 @@ const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta
       const migrator = await createMigrator(transaction);
       await migrator.runAsCLI();
     });
-  } finally {
-    // Call exit manually as the Postgres thread pool stalls the exit for ~10 seconds
+  } catch (e) {
+    console.error("An error occurred while running migrations:", e);
     process.exit(1);
+  } finally {
+    // Call exit manually as the Postgres thread pool can stall the exit for ~10 seconds
+    process.exit(0);
   }
 })();
