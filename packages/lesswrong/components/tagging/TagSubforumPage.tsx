@@ -11,10 +11,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
-import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -58,7 +55,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     textTransform: "capitalize",
     marginLeft: 24,
-    marginBottom: 10,
+    marginBottom: 0,
+    lineHeight: 1.2,
   },
   wikiSidebar: {
     marginTop: 84,
@@ -71,6 +69,36 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('md')]: {
       display: 'none',
+    },
+  },
+  tabSection: {
+    marginBottom: 16,
+    display: 'flex',
+    width: '100%',
+  },
+  tab: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexGrow: 1,
+    textTransform: 'none',
+    background: theme.palette.grey[200],
+    padding: '8px 16px',
+    outline: 'none',
+    '& > .Typography-root': {
+      color: theme.palette.grey[500],
+    },
+    borderRadius: 0,
+    '&:active': {
+      background: 'transparent',
+    },
+  },
+  tabSelected: {
+    background: 'transparent',
+    borderTop: `2px solid ${theme.palette.grey[200]}`,
+    '& .Typography-root': {
+      color: 'unset',
+      borderBottom: `solid 2px ${theme.palette.primary.main}`,
     },
   }
 });
@@ -87,10 +115,10 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     ContentItemBody,
     LWTooltip,
     HeadTags,
-    PostsList2,
+    TagSubforumPostsSection,
   } = Components;
 
-  const { params, query, location } = useLocation();
+  const { params, query, location, hash } = useLocation();
   const { history } = useNavigation()
   const currentUser = useCurrentUser()
   const { slug } = params;
@@ -98,11 +126,11 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   
-  const [tab, setTab] = useState(params.tab ?? 'discussion')
+  const [tab, setTab] = useState(hash?.slice(1) || 'discussion')
   
-  const handleChangeTab = (e, value) => {
+  const handleChangeTab = (value) => {
     setTab(value)
-    history.replace({...location, pathname: location.pathname.replace(/\/subforum.*/, `/subforum/${value}`)})
+    history.replace({...location, hash: value})
   }
 
   if (loading) {
@@ -121,7 +149,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     );
   }
 
-  const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
+  const welcomeBoxComponent = tag.subforumWelcomeText?.html && tab === 'discussion' ? (
     <div className={classes.welcomeBox}>
       <ContentStyles contentType="comment">
         <ContentItemBody
@@ -140,7 +168,6 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
       </Link>
     </LWTooltip>
     {" "}Subforum
-    {isSubscribed && <Button href={`/newPost?subforumTagId=${tag._id}`}>Add Post</Button>}
   </>
 
   return (
@@ -153,13 +180,16 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
           {welcomeBoxComponent}
         </div>
-        <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
+        <SingleColumnSection className={classNames(classes.columnSection)}>
           <SectionTitle title={titleComponent} className={classes.title} />
-          
-          <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} aria-label='view subforum discussion or posts'>
-            <Tab label="Discussion" value="discussion" />
-            <Tab label="Posts" value="posts" />
-          </Tabs>
+          <div onChange={handleChangeTab} className={classes.tabSection} aria-label='view subforum discussion or posts'>
+            <button onClick={() => handleChangeTab('discussion')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'discussion'})}>
+              <Typography variant="headline">Discussion</Typography>
+            </button>
+            <button onClick={() => handleChangeTab('posts')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'posts'})}>
+              <Typography variant="headline">Posts</Typography>
+            </button>
+          </div>
           {tab === 'discussion' && <AnalyticsContext pageSectionContext="commentsSection">
             <SubforumCommentsThread
               tag={tag}
@@ -167,10 +197,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
             />
           </AnalyticsContext>}
           {tab === 'posts' && <AnalyticsContext pageSectionContext="postsSection">
-            <div>
-              {isSubscribed && <Button href={`/newPost?subforumTagId=${tag._id}`}>Add Post</Button>}
-            </div>
-            <PostsList2 tagId={tag._id} />
+            <TagSubforumPostsSection tag={tag}/>
           </AnalyticsContext>}
         </SingleColumnSection>
         <div className={classNames(classes.columnSection, classes.aside)}>

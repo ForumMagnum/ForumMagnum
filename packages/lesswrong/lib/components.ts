@@ -550,6 +550,7 @@ importComponent("SingleLineTagUpdates", () => require('../components/tagging/Sin
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
+importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
