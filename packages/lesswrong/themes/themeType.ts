@@ -2,11 +2,16 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
+import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
   type ColorString = string;
-  
+
+  type UserThemeName = typeof userThemeNames[number];
+  type UserThemeSetting = typeof userThemeSettings[number];
+  type MuiThemeName = typeof muiThemeNames[number];
+
   type ThemeGreyscale = MuiColorShades & {
     0: ColorString,
     1000: ColorString,
@@ -46,7 +51,7 @@ declare global {
     
     // Used by material-UI for picking some of its own colors, and also by site
     // themes
-    type: "light"|"dark",
+    type: MuiThemeName,
   }
   type ThemeComponentPalette = {
     primary: {

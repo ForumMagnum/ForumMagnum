@@ -508,7 +508,7 @@ const schema: SchemaType<DbUser> = {
     form: {
       options: [
         {value: "auto", label: "Auto"},
-        {value: "light", label: "Light"},
+        {value: "default", label: "Light"},
         {value: "dark", label: "Dark"},
       ],
     },

@@ -23,7 +23,7 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
+import { ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';

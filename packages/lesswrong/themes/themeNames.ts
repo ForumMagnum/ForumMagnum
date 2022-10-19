@@ -1,6 +1,8 @@
 import { forumTypeSetting, ForumTypeString } from '../lib/instanceSettings';
 
-export type UserThemeName = "default"|"dark"
+export const userThemeNames = ["default", "dark"] as const;
+export const userThemeSettings = [...userThemeNames, "auto"] as const;
+export const muiThemeNames = ["light", "dark"] as const;
 
 export type ThemeOptions = {
   name: UserThemeName
