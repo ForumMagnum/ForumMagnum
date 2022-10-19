@@ -83,8 +83,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             <SettingsButton
               className={classes.hideOnMobile}
               label={filterSettingsVisibleDesktop ?
-                "Customize Feed [[DESKTOP]] (Hide)" :
-                "Customize Feed [[DESKTOP]] (Show)"}
+                "Customize Feed (Hide)" :
+                "Customize Feed"}
               showIcon={false}
               onClick={() => {
                 setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
