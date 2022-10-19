@@ -160,7 +160,6 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     </div>
   ) : <></>;
 
-  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
   const titleComponent = <>
     <LWTooltip title={`To ${taggingNameSetting.get()} page`} placement="top-start" className={classes.tooltip}>
       <Link to={tagGetUrl(tag)}>
