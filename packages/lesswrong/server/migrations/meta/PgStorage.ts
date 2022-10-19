@@ -1,4 +1,4 @@
-import { MigrationParams, UmzugStorage } from "umzug";
+import { MigrationParams, UmzugStorage } from "@centreforeffectivealtruism/umzug";
 
 /**
  * We use umzug for orchestrating migrations which is agnostic to any particular

@@ -1522,6 +1522,17 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@centreforeffectivealtruism/umzug@^3.2.1":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@centreforeffectivealtruism/umzug/-/umzug-3.2.1.tgz#da9e41210310045961b0c42024b4fd937f6cfe83"
+  integrity sha512-JdKG0qUhORDQSQnLMT3FT5E5GcoKO1ZJ0OfOZQzxYUKTg7896Pbt6lswcxbekvSyrLaaa/XLNIWdclgd/It2yw==
+  dependencies:
+    "@rushstack/ts-command-line" "^4.12.2"
+    emittery "^0.13.0"
+    glob "^8.0.3"
+    pony-cause "^2.1.4"
+    type-fest "^2.18.0"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -2557,9 +2568,9 @@
     lodash-es "^4.17.15"
 
 "@rushstack/ts-command-line@^4.12.2":
-  version "4.12.5"
-  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.12.5.tgz#c9aaed76ca6f3537bd7c100eb6be65af76733fec"
-  integrity sha512-PCKrOu4RXKXPHcswHEQ9MYDW7Z7iQ+vbkvPtqHC46zFxD67ZCBXkm9P8QNOtED0cQzXh5nCtFnSOMuaOQf0GaQ==
+  version "4.13.0"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.13.0.tgz#a56aa90e5742c25d330cdb0cda1da19225d7bfcf"
+  integrity sha512-crLT31kl+qilz0eBRjqqYO06CqwbElc0EvzS6jI69B9Ikt1SkkSzIZ2iDP7zt/rd1ZYipKIS9hf9CQR9swDIKg==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
@@ -15396,16 +15407,6 @@ uid2@0.0.x:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/uid2/-/uid2-0.0.4.tgz#033f3b1d5d32505f5ce5f888b9f3b667123c0a44"
   integrity sha512-IevTus0SbGwQzYh3+fRsAMTVVPOoIVufzacXcHPmdlle1jUpq7BRL+mw3dgeLanvGZdwwbWhRV6XrcFNdBmjWA==
-
-"umzug@https://github.com/oetherington/umzug.git#50123224e1ac9ad365ca4bb57cf62cecee005bf5":
-  version "3.2.1"
-  resolved "https://github.com/oetherington/umzug.git#50123224e1ac9ad365ca4bb57cf62cecee005bf5"
-  dependencies:
-    "@rushstack/ts-command-line" "^4.12.2"
-    emittery "^0.13.0"
-    glob "^8.0.3"
-    pony-cause "^2.1.4"
-    type-fest "^2.18.0"
 
 unbox-primitive@^1.0.2:
   version "1.0.2"

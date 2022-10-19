@@ -56,6 +56,7 @@
   "dependencies": {
     "@apollo/client": "^3.2.0",
     "@babel/runtime": "^7.12.1",
+    "@centreforeffectivealtruism/umzug": "^3.2.1",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "@material-ui/core": "3.1.2",
     "@material-ui/icons": "^3.0.0",
@@ -266,7 +267,6 @@
     "turndown-plugin-gfm": "^1.0.2",
     "type-fest": "^1.1.1",
     "typescript": "^4.7.4",
-    "umzug": "https://github.com/oetherington/umzug.git#50123224e1ac9ad365ca4bb57cf62cecee005bf5",
     "underscore": "^1.12.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
