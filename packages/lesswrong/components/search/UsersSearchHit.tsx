@@ -32,7 +32,8 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   showIcon?: boolean
 }) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
-  const user = hit as AlgoliaUser;
+  const user = hit as AlgoliaUser
+
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="User">
       <PersonIcon className={classes.icon} />
@@ -42,7 +43,7 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
         {user.displayName}
       </MetaInfo>
       <MetaInfo>
-        <FormatDate date={user.createdAt}/>
+        <FormatDate date={user.createdAt} />
       </MetaInfo>
       <MetaInfo>
         {user.karma||0} karma
@@ -58,4 +59,3 @@ declare global {
     UsersSearchHit: typeof UsersSearchHitComponent
   }
 }
-

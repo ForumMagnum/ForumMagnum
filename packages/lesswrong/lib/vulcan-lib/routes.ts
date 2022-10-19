@@ -13,7 +13,7 @@ export type RouterLocation = {
   url: string,
   hash: string,
   params: Record<string,string>,
-  query: Record<string,string>,
+  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
   redirected?: boolean,
 };
 

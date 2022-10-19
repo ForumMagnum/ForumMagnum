@@ -18,6 +18,7 @@ import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 import { truncatise } from '../../lib/truncatise';
+import moment from 'moment';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
@@ -45,7 +46,9 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
+    publicDateMs: moment(comment.postedAt).valueOf(),
     af: comment.af,
+    tags: comment.tagId ? [comment.tagId] : [],
     body: "",
   };
   const commentAuthor = await Users.findOne({_id: comment.userId});
@@ -54,7 +57,6 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
   }
-
   if (comment.postId) {
     const parentPost = await Posts.findOne({_id: comment.postId});
     if (parentPost) {
@@ -63,6 +65,10 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
       algoliaComment.postSlug = parentPost.slug;
       algoliaComment.postIsEvent = parentPost.isEvent;
       algoliaComment.postGroupId = parentPost.groupId;
+      const tags = parentPost.tagRelevance ?
+        Object.entries(parentPost.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+        : []
+      algoliaComment.tags = tags
     }
   }
   if (comment.tagId) {
@@ -70,6 +76,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     if (tag) {
       algoliaComment.tagId = comment.tagId;
       algoliaComment.tagCommentType = comment.tagCommentType;
+      algoliaComment.tagName = tag.name;
       algoliaComment.tagSlug = tag.slug;
     }
   }
@@ -95,8 +102,10 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
     title: sequence.title,
     userId: sequence.userId,
     createdAt: sequence.createdAt,
+    publicDateMs: moment(sequence.createdAt).valueOf(),
     af: sequence.af,
     plaintextDescription: "",
+    bannerImageId: sequence.bannerImageId,
   };
   const sequenceAuthor = await Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
@@ -137,6 +146,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     username: user.username,
     displayName: user.displayName,
     createdAt: user.createdAt,
+    publicDateMs: moment(user.createdAt).valueOf(),
     isAdmin: user.isAdmin,
     profileImageId: user.profileImageId,
     bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
@@ -154,6 +164,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     website: user.website,
     groups: user.groups,
     af: user.groups && user.groups.includes('alignmentForum'),
+    tags: user.profileTagIds,
     ...(user.mapLocation?.geometry?.location?.lat && {_geoloc: {
       lat: user.mapLocation.geometry.location.lat,
       lng: user.mapLocation.geometry.location.lng,
@@ -181,18 +192,22 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     slug: post.slug,
     baseScore: post.baseScore,
     status: post.status,
+    curated: !!post.curatedDate,
     legacy: post.legacy,
     commentCount: post.commentCount,
     userIP: post.userIP,
     createdAt: post.createdAt,
     postedAt: post.postedAt,
+    publicDateMs: moment(post.postedAt).valueOf(),
     isFuture: post.isFuture,
+    isEvent: post.isEvent,
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
     af: post.af,
     tags,
     body: "",
+    order: 0,
   };
   const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
@@ -221,16 +236,18 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
         // Some random tests seem to imply that they use UTF-8, which means between 1 and 4 bytes per character.
         // So limit to 18,000 characters under the assumption that we have ~1.1 bytes/character.
         body: paragraph.slice(0, 18000),
+        order: paragraphCounter
       }));
     })
   } else {
     postBatch.push(_.clone({
       ...algoliaMetaInfo,
       objectID: post._id + "_0",
-      body: ""
+      body: "",
+      order: 0
     }));
   }
-  return postBatch;
+  return postBatch
 }
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
@@ -256,9 +273,11 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
     wikiOnly: tag.wikiOnly,
+    isSubforum: tag.isSubforum,
     description,
+    bannerImageId: tag.bannerImageId
   }];
-} 
+}
 
 
 // Do algoliaIndex.waitTask as an async function rather than a

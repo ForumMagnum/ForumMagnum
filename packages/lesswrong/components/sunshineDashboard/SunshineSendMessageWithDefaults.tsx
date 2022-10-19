@@ -7,8 +7,8 @@ import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
@@ -63,6 +63,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
   
   
   if (!(user && currentUser)) return null
+  const firstName = user.displayName.split(" ")[0]
   
   return (
     <div className={classes.root}>
@@ -70,7 +71,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}
       >
-        Start Message
+        New Message
       </span>
       <Menu
         onClick={() => setAnchorEl(null)}
@@ -79,7 +80,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
       >
         <MenuItem value={0}>
           <NewConversationButton user={user} currentUser={currentUser} includeModerators>
-            Start a message
+            New Message
           </NewConversationButton>
         </MenuItem>
         {defaultResponses && defaultResponses.map((comment, i) =>
@@ -90,13 +91,13 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id} includeModerators>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, firstName, displayName: user.displayName}} includeModerators>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>
             </LWTooltip>
           </div>)}
-          <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
+          <Link to={tagGetDiscussionUrl({slug: tagSlug})}>
             <MenuItem>
               <ListItemIcon>
                 <EditIcon className={classes.editIcon}/>
