@@ -4,7 +4,6 @@ import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import React from 'react';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
@@ -52,7 +51,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
       groupId: comment.postGroupId,
     })}#${comment._id}`;
   } else if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType)
+    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
   }
 
   return <div className={classes.root}>

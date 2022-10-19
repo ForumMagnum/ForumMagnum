@@ -1,7 +1,6 @@
 import { addCronJob, removeCronJob } from './cronUtil';
 import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
-import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
