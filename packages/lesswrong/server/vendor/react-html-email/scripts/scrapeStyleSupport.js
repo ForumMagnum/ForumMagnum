@@ -1,5 +1,4 @@
 import cheerio from 'cheerio'
-import fetch from 'node-fetch'
 
 function scrapeProperties(html) {
   const $ = cheerio.load(html)
