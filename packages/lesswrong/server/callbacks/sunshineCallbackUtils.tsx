@@ -36,7 +36,6 @@ export function getReasonForReview(user: DbUser, override?: true) {
 }
 
 export async function triggerReviewIfNeeded(userId: string, override?: true) {
-  console.log({ userId, override });
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");

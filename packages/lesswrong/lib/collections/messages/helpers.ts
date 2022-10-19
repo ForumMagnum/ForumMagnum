@@ -1,4 +1,4 @@
-export const getDraftMessageHtml = ({html, displayName}:{
+export const getDraftMessageHtml = ({ html, displayName }: {
   html: string, 
   displayName?: string
 }) => {

@@ -150,7 +150,6 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
 });
 
 getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<DbUser>) {
-  console.log({ data });
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
     void triggerReviewIfNeeded(document._id)
