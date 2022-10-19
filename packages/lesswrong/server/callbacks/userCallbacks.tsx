@@ -1,5 +1,4 @@
 import React from 'react';
-import fetch from "node-fetch";
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';

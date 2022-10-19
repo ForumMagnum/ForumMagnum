@@ -1,7 +1,6 @@
 import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
 import { combineUrls } from "../../lib/vulcan-lib";
-import { json } from "body-parser";
-import type { Application, Request, Response } from "express";
+import { Application, Request, Response, json } from "express";
 import {
   onCrosspostTokenRequest,
   onConnectCrossposterRequest,

@@ -1,4 +1,4 @@
-FROM node:15.5.0
+FROM node:18.11.0
 ENV IS_DOCKER=true
 # Transcrypt dependency
 RUN apt-get update && apt-get install -y bsdmainutils
