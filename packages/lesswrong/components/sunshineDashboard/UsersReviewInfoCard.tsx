@@ -106,12 +106,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12,
     marginBottom: 12
   },
-  hr: {
-    height: 0,
-    borderTop: "none",
-    borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
-    width: "100%"
-  },
   notes: {
     border: theme.palette.border.normal,
     borderRadius: 2,
@@ -174,12 +168,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   columns: {
     display: 'flex'
   },
-  nameColumn: {
-    width: 120,
-    padding: 16,
-    whiteSpace: "nowrap",
-    borderRight: theme.palette.border.extraFaint,
-  },
   infoColumn: {
     width: '30%',
     padding: 16,
@@ -209,6 +197,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: 300,
     overflow: "hidden"
   },
+  contentSummaryRow: {
+    display: "flex",
+    flexWrap: "wrap"
+  }
 })
 
 interface UserContentCountPartial {
@@ -621,7 +613,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       </span>
   </div>
 
-  const postSummaryRow = <div>
+  const postSummaryRow = <div className={classes.contentSummaryRow}>
     <LWTooltip title="Post count">
         <span>
           { user.postCount || 0 }
@@ -632,7 +624,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
   </div>
 
-  const commentSummaryRow = <div>
+  const commentSummaryRow = <div className={classes.contentSummaryRow}>
     <LWTooltip title="Comment count">
       { user.commentCount || 0 }
     </LWTooltip>
