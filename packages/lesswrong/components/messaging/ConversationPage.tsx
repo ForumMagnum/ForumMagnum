@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import Messages from "../../lib/collections/messages/collection";
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -10,7 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userCanDo } from '../../lib/vulcan-users';
-import { NewMessageForm } from './NewMessageForm';
+import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -23,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     marginTop: theme.spacing.unit*4,
-    ...theme.typography.commentStyle,
     position:"relative",
   },
   backButton: {
@@ -34,18 +32,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between"
   }
 })
-
-const getDraftMessageHtml = ({html, displayName, firstName}) => {
-  if (!html) return
-  let newHtml = html.replace(/.*\\\\/, "")
-  if (displayName) {
-    newHtml = newHtml.replace(/{{displayName}}/g, displayName)
-  }
-  if (firstName) {
-    newHtml = newHtml.replace(/{{firstName}}/g, firstName)
-  }
-  return newHtml
-}
 
 // The Navigation for the Inbox components
 const ConversationPage = ({ documentId, terms, currentUser, classes }: {
@@ -65,19 +51,13 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   const { document: conversation, loading: loadingConversation } = useSingle({
     documentId,
     collectionName: "Conversations",
-    fragmentName: 'ConversationsListFragment',
+    fragmentName: 'conversationsListFragment',
   });
   const loading = loadingMessages || loadingConversation;
 
   const { query } = useLocation()
   const { captureEvent } = useTracking()
 
-  const { document: template, loading: loadingTemplate } = useSingle({
-    documentId: query.templateCommentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
-  
   // Scroll to bottom when loading finishes. Note that this overlaps with the
   // initialScroll:"bottom" setting in the route, which is handled by the
   // ScrollToTop component, except that the ScrollToTop component does its thing
@@ -108,7 +88,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     }
   }, [query.from, conversation, currentUser._id])
 
-  const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
+  const { SingleColumnSection, ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
     if (loading) return <Loading />
@@ -119,12 +99,10 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     </div>
   }
 
-  if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
+  if (loading) return <Loading />
   if (!conversation) return <Error404 />
 
   const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
-
-  const templateHtml = getDraftMessageHtml({html: template?.contents?.html, displayName: query.displayName, firstName: query.firstName })
 
   return (
     <SingleColumnSection>
@@ -140,7 +118,21 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         </Typography>
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}
-        <NewMessageForm />
+        <div className={classes.editor}>
+          <NewMessageForm  
+            conversationId={conversation._id}
+            templateQueries={{templateCommentId: query.templateCommentId, displayName: query.displayName}}
+            successEvent={() => {
+              captureEvent('messageSent', {
+                conversationId: conversation._id,
+                sender: currentUser._id,
+                participantIds: conversation.participantIds,
+                messageCount: (conversation.messageCount || 0) + 1,
+                ...(profileViewedFrom?.current && {from: profileViewedFrom.current})
+              })
+            }}
+          />
+        </div>
       </div>
     </SingleColumnSection>
   )

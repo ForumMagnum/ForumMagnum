@@ -9,7 +9,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-
+import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -40,10 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, tagSlug, setEmbeddedConversation, classes }: {
+const SunshineSendMessageWithDefaults = ({ user, tagSlug, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   tagSlug: string,
-  setEmbeddedConversation?: (conversationId: conversationIdFragment) => void
+  embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType,
 }) => {
   
@@ -61,10 +61,8 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, setEmbeddedConversatio
     fetchPolicy: 'cache-and-network',
     limit: 50
   });
-  
-  
+
   if (!(user && currentUser)) return null
-  const firstName = user.displayName.split(" ")[0]
   
   return (
     <div className={classes.root}>
@@ -92,7 +90,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, setEmbeddedConversatio
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, firstName, displayName: user.displayName}} includeModerators setEmbeddedConversation={setEmbeddedConversation}>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, displayName: user.displayName}} includeModerators embedConversation={embedConversation}>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>

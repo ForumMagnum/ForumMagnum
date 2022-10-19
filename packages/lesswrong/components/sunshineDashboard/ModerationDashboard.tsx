@@ -1,5 +1,4 @@
-import React from 'react';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
+import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
@@ -11,24 +10,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '90%',
     margin: 'auto'
   },
-  form: {
-    padding: 8,
-    paddingLeft: 16,
+  topBar: {
+    position: "sticky",
+    top:0,
+    display: "flex",
+    alignItems: "center",
     background: theme.palette.background.pageActiveAreaBackground,
-    boxShadow: theme.palette.boxShadow.featuredResourcesCard,
-    marginBottom: 16
-  },
-  tableWrapper: {
-    ...theme.typography.commentStyle,
-    marginBottom: 24,
-    background: theme.palette.panelBackground.default,
+    boxShadow: theme.palette.boxShadow.eventCard,
+    marginBottom: 16,
     padding: 12,
-    paddingTop: 2,
-    boxShadow: theme.palette.boxShadow.default,
-  },
-  table: {
-    tableLayout: 'fixed',
-    width: '100%'
+    ...theme.typography.body2,
+    '& div': {
+      marginRight: 8
+    }
   }
 });
 
@@ -57,35 +51,35 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { ModeratorActionItem, SingleColumnSection, WrappedSmartForm, SunshineNewUsersItem, SunshineNewUsersInfo, UsersReviewInfoCard, LoadMore } = Components;
+  const { UsersReviewInfoCard, LoadMore } = Components;
     
   const currentUser = useCurrentUser();
+
+  const [view, setView] = useState<UsersViewName>("sunshineNewUsers")
   
-  const { results: usersToReview, totalCount, loadMoreProps, refetch } = useMulti({
-    terms: {view:"sunshineNewUsers", limit: 25},
+  const { results: usersToReview, count, totalCount, loadMoreProps, refetch } = useMulti({
+    terms: {view: view, limit: 25},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
     itemsPerPage: 60
   });
 
-  // const { results: reviewedUser, refetch: refetchReviewedUsers } = useMulti({
-  //   terms: {view:"allUsers", limit: 25},
-  //   collectionName: "Users",
-  //   fragmentName: 'SunshineUsersList',
-  //   enableTotal: true,
-  //   itemsPerPage: 60
-  // });
-
   if (!userIsAdmin(currentUser)) {
     return null;
   }
 
-  const moderatorActions = usersToReview?.flatMap(user => user.moderatorActions);
-
   return (
-    // <SingleColumnSection>
     <div className={classes.page}>
+      <div className={classes.topBar}>
+        <div>{count}</div>
+        <div onClick={() => setView("sunshineNewUsers")}>
+          Unreviewed Users
+        </div>
+        <div onClick={() => setView("allUsers")}>
+          Reviewed Users
+        </div>
+      </div>
       <div>
         {usersToReview && usersToReview.map(user =>
           <div key={user._id} >
@@ -96,36 +90,7 @@ const ModerationDashboard = ({ classes }: {
           <LoadMore {...loadMoreProps}/>
         </div>
       </div>
-      {/* <div>
-        {reviewedUser?.map(user => 
-          <div key={user._id}>
-            <UsersReviewInfoCard user={user} refetch={refetchReviewedUsers} currentUser={currentUser}/>
-          </div>
-        )}
-      </div> */}
-      <div className={classes.tableWrapper}>
-        <table className={classes.table}>
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Action Type</th>
-              <th>Active</th>
-              <th>Created At</th>
-              <th>Ended At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {moderatorActions && moderatorActions.map(moderatorAction => <ModeratorActionItem key={moderatorAction._id} moderatorAction={moderatorAction} />)}
-          </tbody>
-        </table>
-      </div>
-      <div className={classes.form}>
-        <WrappedSmartForm
-          collection={ModeratorActions}
-        />
-      </div>
     </div>
-    // </SingleColumnSection>
   );
 };
 

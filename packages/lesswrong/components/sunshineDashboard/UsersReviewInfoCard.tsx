@@ -1,9 +1,8 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
-import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import FlagIcon from '@material-ui/icons/Flag';
@@ -19,7 +18,6 @@ import * as _ from 'underscore';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import {defaultModeratorPMsTagSlug} from "./SunshineNewUsersInfo";
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl} from '../../lib/collections/users/helpers';
 import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
@@ -31,8 +29,15 @@ export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[0],
-    boxShadow: theme.palette.boxShadow.comment,
-    marginBottom: 16
+    boxShadow: theme.palette.boxShadow.eventCard,
+    marginBottom: 16,
+    ...theme.typography.body2,
+    fontSize: "1rem"
+  },
+  displayName: {
+    marginTop: 4,
+    fontSize: theme.typography.body2.fontSize,
+    marginBottom: 8
   },
   icon: {
     height: 13,
@@ -53,6 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   permissionsRow: {
     display: "flex",
     alignItems: "center",
+    flexWrap: "wrap",
     marginBottom: 8,
     marginTop: 8
   },
@@ -116,12 +122,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     marginBottom: 8,
   },
-  defaultMessage: { //UNUSED
-    maxWidth: 500,
-    backgroundColor: theme.palette.panelBackground.default,
-    padding:12,
-    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
-  },
   sortButton: {
     marginLeft: 6,
     cursor: "pointer"
@@ -158,14 +158,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 4
   },
   permissionsButton: {
-    fontSize: 10,
     padding: 6,
     paddingTop: 3,
     paddingBottom: 3,
     border: theme.palette.border.normal,
     borderRadius: 2,
-    marginRight: 10,
-    cursor: "pointer"
+    marginRight: 8,
+    marginBottom: 8,
+    cursor: "pointer",
+    whiteSpace: "nowrap"
   },
   permissionDisabled: {
     border: "none"
@@ -174,15 +175,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex'
   },
   nameColumn: {
-    width: 100,
+    width: 120,
     padding: 16,
+    whiteSpace: "nowrap",
+    borderRight: theme.palette.border.extraFaint,
   },
   infoColumn: {
     width: '30%',
     padding: 16,
     borderRight: theme.palette.border.extraFaint,
   },
-  notesColumn: {
+  contentColumn: {
     width: '35%',
     padding: 16,
     borderRight: theme.palette.border.extraFaint,
@@ -208,12 +211,8 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
-interface UserReviewInfo extends SunshineUsersList {
-  moderatorActions: ModeratorActionDisplay[]
-}
-
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
-  user: UserReviewInfo,
+  user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
   classes: ClassesType,
@@ -237,7 +236,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
-  const [embeddedConversation, setEmbeddedConversation] = useState<conversationIdFragment | undefined>();
   
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
   
@@ -445,7 +443,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
   
-  const { MetaInfo, FormatDate, ConversationPage, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper, ModeratorMessageCount, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
   
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -477,31 +475,21 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     }
   }
 
-  const basicInfoRow = <div>
-    <div className={classes.info}>
+  const basicInfoRow = <div className={classes.info}>
+    <Link className={classNames(classes.displayName)} to={userGetProfileUrl(user)}>
+      {user.displayName}
+    </Link>
+    <div className={classes.row}>
       <MetaInfo className={classes.info}>
         { user.karma || 0 }
       </MetaInfo>
       <MetaInfo className={classes.info}>
-        <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={userGetProfileUrl(user)}>
-            {user.displayName}
-        </Link>
-      </MetaInfo>
-      <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
-      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
-      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-      {user.reviewedAt
-        ? <div><p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p></div>
-        : null }
-      {user.banned
-        ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
-        : null }
     </div>
-    <hr className={classes.hr}/>
-    <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
-    {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+
+    {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+    {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
   </div>
 
   const moderatorActionLogRow = <div>
@@ -631,43 +619,44 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
     { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
   </div>
-
-  const messagesTerms: MessagesViewTerms = {view: 'messagesConversation', conversationId: embeddedConversation?._id};
   
   return (
     <div className={classes.root}>
-      <Typography variant="body2">
-        <MetaInfo>
-          <div className={classes.columns}>
-            <div className={classes.nameColumn}>
-              {user.displayName}
-            </div>
-            <div className={classes.infoColumn}>
-              {basicInfoRow}
-              <SunshineNewUserPostsList posts={posts} user={user}/>
-              <SunshineNewUserCommentsList comments={comments} user={user}/>
-            </div>
-            <div className={classes.notesColumn}>
-              {moderatorActionLogRow}
-              {moderatorNotesColumn}
-              {votesRow}
-              {postCommentSortingRow}
-              {postSummaryRow}
-              {(commentsLoading || postsLoading) && <Loading/>}
-              {commentSummaryRow}
-            </div>
-            <div className={classes.actionsColumn}>
-              {moderatorActionsRow}
-              {permissionsRow}
-              <div className={classes.row}>
-                <ModeratorMessageCount userId={user._id} />
-                <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()} setEmbeddedConversation={setEmbeddedConversation}/>
-              </div>
-              {embeddedConversation && <ConversationPage documentId={embeddedConversation._id} currentUser={currentUser} terms={messagesTerms} />}
-            </div>
+      <div className={classes.columns}>
+        <div className={classes.nameColumn}>
+          {basicInfoRow}
+        </div>
+        <div className={classes.infoColumn}>
+          {moderatorNotesColumn}
+          <div>
+            {moderatorActionLogRow}
+            {user.reviewedAt
+              ? <div><p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p></div>
+              : null 
+            }
+            {user.banned
+              ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
+              : null 
+            }
           </div>
-        </MetaInfo>
-      </Typography>
+        </div>
+        <div className={classes.contentColumn}>
+          <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+          {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+          {votesRow}
+          {postCommentSortingRow}
+          {postSummaryRow}
+          {(commentsLoading || postsLoading) && <Loading/>}
+          {commentSummaryRow}
+          <SunshineNewUserPostsList posts={posts} user={user}/>
+          <SunshineNewUserCommentsList comments={comments} user={user}/>
+        </div>
+        <div className={classes.actionsColumn}>
+          {moderatorActionsRow}
+          {permissionsRow}
+          <SunshineUserMessages user={user}/>
+        </div>
+      </div>
     </div>
   )
 }

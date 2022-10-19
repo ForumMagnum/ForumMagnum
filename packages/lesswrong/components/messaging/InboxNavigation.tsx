@@ -21,14 +21,14 @@ const InboxNavigation = ({terms, currentUser, title="Your Conversations"}: {
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: 'ConversationsListFragment',
+    fragmentName: 'conversationsListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 50,
   });
   
   const { mutate: updateConversation } = useUpdate({
     collectionName: "Conversations",
-    fragmentName: 'ConversationsListFragment',
+    fragmentName: 'conversationsListFragment',
   });
   
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox, Typography, LoadMore } = Components
