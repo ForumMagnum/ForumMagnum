@@ -16,7 +16,6 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
-import { TagCommentType } from '../../lib/collections/comments/types';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
 
 addGraphQLSchema(`
@@ -64,7 +63,7 @@ addGraphQLResolvers({
         postedAt: {$lt: before, $gt: after},
         topLevelCommentId: null,
         tagId: {$exists: true, $ne: null},
-        tagCommentType: TagCommentType.Discussion,
+        tagCommentType: "DISCUSSION",
       }).fetch();
       
       const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])

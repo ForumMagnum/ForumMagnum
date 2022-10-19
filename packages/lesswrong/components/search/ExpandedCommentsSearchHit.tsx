@@ -5,7 +5,6 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
-import { TagCommentType } from '../../lib/collections/comments/types';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { useNavigation } from '../../lib/routeUtil';
@@ -85,7 +84,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
       groupId: comment.postGroupId,
     })}#${comment._id}`
   } else if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType)
+    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
   }
   
   const handleClick = () => {
