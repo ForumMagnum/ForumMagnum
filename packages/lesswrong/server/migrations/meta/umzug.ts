@@ -1,6 +1,5 @@
-import { Umzug } from "umzug";
+import { Umzug } from "@centreforeffectivealtruism/umzug";
 import { readFileSync } from "fs";
-import { dirname, basename, join } from "path";
 import { createHash } from "crypto";
 import { createSqlConnection } from "../../sqlConnection";
 import PgStorage from "./PgStorage";

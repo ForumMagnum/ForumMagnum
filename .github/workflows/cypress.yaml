@@ -1,24 +1,20 @@
 name: Run Cypress Tests
-on: [push]
+on:
+  push:
+  pull_request:
+    branches-ignore:
+      - ea-deploy
+  workflow_dispatch:
 concurrency: cypress
 jobs:
   buildAndRunCypressTests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
-
-    - name: yarn install
-      run: yarn install --frozen-lockfile
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
 
     - name: Cypress run
       uses: cypress-io/github-action@v2
