@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight: 8,
-    wordBreak: "break-word"
+    whiteSpace: "nowrap"
   },
   draft: {
     color: theme.palette.grey[400]

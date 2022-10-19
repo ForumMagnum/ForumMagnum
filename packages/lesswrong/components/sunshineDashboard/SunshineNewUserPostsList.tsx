@@ -8,7 +8,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   post: {
     marginTop: theme.spacing.unit*2,

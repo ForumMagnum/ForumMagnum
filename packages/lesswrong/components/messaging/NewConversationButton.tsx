@@ -1,8 +1,8 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
-import Conversations, { userCanStartConversations } from '../../lib/collections/conversations/collection';
+import { userCanStartConversations } from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -23,7 +23,6 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   from?: string,
   children: any,
   includeModerators?: boolean,
-  setEmbeddedConversation?: (conversationId: conversationIdFragment) => void,
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
   const { history } = useNavigation();
