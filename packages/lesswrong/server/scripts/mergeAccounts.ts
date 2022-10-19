@@ -368,7 +368,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
         await Users.rawUpdateOne(
           {_id: sourceUserId},
           {$set: {
-            'emails.0': {address: newEmail, verified: source.emails[0].verified}
+            'emails.0': {address: newEmail, verified: sourceUser.emails[0].verified}
           }}
         );
       }
