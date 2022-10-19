@@ -7,9 +7,9 @@ import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
+import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -96,7 +96,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, embedConversation, cla
               </MenuItem>
             </LWTooltip>
           </div>)}
-          <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
+          <Link to={tagGetDiscussionUrl({slug: tagSlug})}>
             <MenuItem>
               <ListItemIcon>
                 <EditIcon className={classes.editIcon}/>
