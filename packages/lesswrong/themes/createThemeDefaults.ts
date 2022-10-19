@@ -20,6 +20,7 @@ export const zIndexes = {
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   singleColumnSection: 1,
+  modTopBar: 1, 
   spotlightItem: 1,
   editorPresenceList: 1,
   spotlightItemCloseButton: 2,

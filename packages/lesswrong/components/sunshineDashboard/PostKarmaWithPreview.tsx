@@ -34,10 +34,10 @@ const PostKarmaWithPreview = ({ post, classes }: {
         anchorEl={anchorEl}
         placement="bottom-start"
       >
-        <div>
-          <PostsPreviewTooltip post={post}/>
-        </div>
-      </LWPopper>
+      <div>
+        <PostsPreviewTooltip post={post}/>
+      </div>
+    </LWPopper>
   </span>
 }
 

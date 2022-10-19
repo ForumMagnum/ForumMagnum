@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   displayName: {
     marginTop: 4,
     fontSize: theme.typography.body2.fontSize,
-    marginBottom: 8
+    marginBottom: 16
   },
   icon: {
     height: 13,
@@ -189,11 +189,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '35%',
     padding: 16,
     borderRight: theme.palette.border.extraFaint,
+    position: "relative"
   },
   actionsColumn: {
     width: '35%',
     padding: 16
-  }
+  },
+  content: {
+    marginTop: 16,
+    marginBottom: 8,
+    borderTop: theme.palette.border.extraFaint
+  },
+  expandButton: {
+    display: "flex",
+    justifyContent: "right",
+    color: theme.palette.grey[500]
+  },
+  contentCollapsed: {
+    maxHeight: 300,
+    overflow: "hidden"
+  },
 })
 
 interface UserContentCountPartial {
@@ -236,6 +251,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
+  const [contentExpanded, setContentExpanded] = useState<boolean>(false)
   
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
   
@@ -475,10 +491,15 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     }
   }
 
-  const basicInfoRow = <div className={classes.info}>
-    <Link className={classNames(classes.displayName)} to={userGetProfileUrl(user)}>
-      {user.displayName}
-    </Link>
+  const basicInfoRow = <div>
+    <div>
+      <Link className={classes.displayName} to={userGetProfileUrl(user)}>
+        {user.displayName} 
+      </Link>
+      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+    </div>
+
     <div className={classes.row}>
       <MetaInfo className={classes.info}>
         { user.karma || 0 }
@@ -487,9 +508,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
     </div>
+    <div>{user.email}</div>
 
-    {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
-    {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+
   </div>
 
   const moderatorActionLogRow = <div>
@@ -623,10 +644,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   return (
     <div className={classes.root}>
       <div className={classes.columns}>
-        <div className={classes.nameColumn}>
-          {basicInfoRow}
-        </div>
         <div className={classes.infoColumn}>
+          {basicInfoRow}
           {moderatorNotesColumn}
           <div>
             {moderatorActionLogRow}
@@ -648,8 +667,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {postSummaryRow}
           {(commentsLoading || postsLoading) && <Loading/>}
           {commentSummaryRow}
-          <SunshineNewUserPostsList posts={posts} user={user}/>
-          <SunshineNewUserCommentsList comments={comments} user={user}/>
+          <div className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})}>
+            <SunshineNewUserPostsList posts={posts} user={user}/>
+            <SunshineNewUserCommentsList comments={comments} user={user}/>
+          </div>
+          <a className={classes.expandButton} onClick={() => setContentExpanded(!contentExpanded)}>{contentExpanded ? "Collapse" : "Expand"}</a>
         </div>
         <div className={classes.actionsColumn}>
           {moderatorActionsRow}

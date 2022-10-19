@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 
@@ -20,9 +21,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16,
     padding: 12,
     ...theme.typography.body2,
-    '& div': {
-      marginRight: 8
-    }
+    zIndex: theme.zIndexes.modTopBar
+  },
+  tabButton: {
+    marginRight: 25,
+    color: theme.palette.grey[600],
+    cursor: "pointer"
+  },
+  tabButtonSelected: {
+    color: theme.palette.grey[900]
+  },
+  row: {
+    display: "flex"
+  },
+  toc: {
+    width: 200,
+    ...theme.typography.body2,
+    position: "sticky",
+    top: 64,
+    paddingTop: 12,
+  },
+  main: {
+    width: "calc(100% - 230px)"
+  },
+  tocListing: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 12
   }
 });
 
@@ -51,13 +76,13 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, LoadMore } = Components;
+  const { UsersReviewInfoCard, LoadMore, Loading } = Components;
     
   const currentUser = useCurrentUser();
 
   const [view, setView] = useState<UsersViewName>("sunshineNewUsers")
   
-  const { results: usersToReview, count, totalCount, loadMoreProps, refetch } = useMulti({
+  const { results: usersToReview, count, totalCount, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: view, limit: 25},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -71,23 +96,39 @@ const ModerationDashboard = ({ classes }: {
 
   return (
     <div className={classes.page}>
-      <div className={classes.topBar}>
-        <div>{count}</div>
-        <div onClick={() => setView("sunshineNewUsers")}>
-          Unreviewed Users
-        </div>
-        <div onClick={() => setView("allUsers")}>
-          Reviewed Users
-        </div>
-      </div>
-      <div>
-        {usersToReview && usersToReview.map(user =>
-          <div key={user._id} >
-            <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+      <div className={classes.row}>
+        <div>
+          <div className={classes.toc}>
+            {usersToReview?.map(user => {
+              return <div key={user._id} className={classes.tocListing}>
+                {user.displayName}
+              </div>
+            })}
+            <div className={classes.loadMore}>
+              <LoadMore {...loadMoreProps}/>
+            </div>
           </div>
-        )}
-        <div className={classes.loadMore}>
-          <LoadMore {...loadMoreProps}/>
+        </div>
+        <div className={classes.main}>
+          <div className={classes.topBar}>
+            <div 
+              onClick={() => setView("sunshineNewUsers")}
+              className={classNames(classes.tabButton, {[classes.tabButtonSelected]: view === "sunshineNewUsers"})} 
+            >
+              Unreviewed Users {view === "sunshineNewUsers" && (loading ? <Loading/> : <>({count} to Review)</>)}
+            </div>
+            <div 
+              onClick={() => setView("allUsers")}
+              className={classNames(classes.tabButton, {[classes.tabButtonSelected]: view === "allUsers"})}         
+            >
+              Reviewed Users
+            </div>
+          </div>
+          {usersToReview && usersToReview.map(user =>
+            <div key={user._id}>
+              <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+            </div>
+          )}
         </div>
       </div>
     </div>
