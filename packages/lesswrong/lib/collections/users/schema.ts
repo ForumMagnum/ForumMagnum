@@ -498,11 +498,22 @@ const schema: SchemaType<DbUser> = {
   
   theme: {
     type: String,
-    optional: true, 
+    optional: true,
+    nullable: true,
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
-    hidden: true,
+    hidden: forumTypeSetting.get() !== "EAForum",
+    control: "select",
+    form: {
+      options: [
+        {value: "auto", label: "Auto"},
+        {value: "light", label: "Light"},
+        {value: "dark", label: "Dark"},
+      ],
+    },
+    order: 1,
+    group: formGroups.siteCustomizations,
   },
   
   lastUsedTimezone: {

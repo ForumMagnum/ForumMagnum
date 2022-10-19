@@ -326,6 +326,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
+    theme
 
     # Emails
     email
