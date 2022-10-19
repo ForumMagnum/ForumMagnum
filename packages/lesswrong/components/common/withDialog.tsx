@@ -25,7 +25,6 @@ export const DialogManager = ({children}: {
   const isOpen = !!componentName;
   
   const closeDialog = useCallback(() => {
-    console.log("Closing dialog")
     captureEvent("dialogBox", {open: false, dialogName: componentName})
     setComponentName(null);
     setComponentProps(null);

@@ -557,6 +557,7 @@ importComponent("SingleLineTagUpdates", () => require('../components/tagging/Sin
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
 importComponent("SubforumMembersDialog", () => require('../components/tagging/SubforumMembersDialog'));
+importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 
 // SequenceEditor

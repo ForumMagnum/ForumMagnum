@@ -61,13 +61,14 @@ const getUserInitials = (displayName: string) => {
  * where we didn't like how the layout looked with that empty space.
  * So this component includes a couple fallbacks in case the user has no photo.
  */
-const ProfilePhoto = ({user, noLink=false, className, classes}: {
+const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   user: {
     slug: string,
     profileImageId?: string,
     displayName?: string
   }|null,
   noLink?: boolean,
+  from?: string,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -101,7 +102,7 @@ const ProfilePhoto = ({user, noLink=false, className, classes}: {
   
   return noLink ? <div className={className}>
     {imgNode}
-  </div> : <Link to={`/users/${user.slug}`} className={className}>
+  </div> : <Link to={`/users/${user.slug}${from ?? ''}`} className={className}>
     {imgNode}
   </Link>
 }

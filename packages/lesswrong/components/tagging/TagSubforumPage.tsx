@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";

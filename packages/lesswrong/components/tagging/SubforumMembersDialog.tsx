@@ -1,28 +1,25 @@
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
+import DialogContent from '@material-ui/core/DialogContent';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: 20,
-    flexWrap: 'wrap',
-    padding: '12px 24px 20px'
+    columnGap: 14,
+    padding: '0 24px',
+    [theme.breakpoints.down("sm")]: {
+    },
   },
   title: {
     fontFamily: theme.typography.postStyle.fontFamily,
-    fontSize: 22,
-    fontWeight: 400
+    fontSize: 20,
+    lineHeight: '26px',
+    fontWeight: 400,
+    textTransform: 'capitalize'
   },
   joinBtn: {
     '& button': {
@@ -32,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   user: {
-    borderBottom: theme.palette.border.extraFaint
+    marginBottom: 20
   }
 })
 
@@ -42,24 +39,24 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
   tag: TagBasicInfo,
 }) => {
   const { results: members } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 50},
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
     skip: !tag
   })
   
-  const { LWDialog, CommunityMemberCard, SubforumSubscribeSection } = Components
+  const { LWDialog, SubforumSubscribeSection, SubforumMember } = Components
   
   return (
     <LWDialog open={true} onClose={onClose}>
       <h2 className={classes.titleRow}>
-        <div className={classes.title}>{tag.name} Subforum Members</div>
+        <div className={classes.title}>Members{members ? ` (${members.length})` : ''}</div>
         <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />
       </h2>
       <DialogContent>
         {members?.map(user => {
           return <div key={user._id} className={classes.user}>
-            <CommunityMemberCard user={user} />
+            <SubforumMember user={user} />
           </div>
         })}
       </DialogContent>
