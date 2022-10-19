@@ -312,6 +312,17 @@ interface DbMigration extends DbObject {
   createdAt: Date
 }
 
+interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "ModeratorActions"> {
+}
+
+interface DbModeratorAction extends DbObject {
+  __collectionName?: "ModeratorActions"
+  userId: string
+  type: "rateLimitOnePerDay" | "commentLowQualityWarning" | "commentMediocreQualityWarning"
+  endedAt: Date | null
+  createdAt: Date
+}
+
 interface NotificationsCollection extends CollectionBase<DbNotification, "Notifications"> {
 }
 
@@ -1113,6 +1124,7 @@ interface CollectionsByName {
   Localgroups: LocalgroupsCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
+  ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
@@ -1153,6 +1165,7 @@ interface ObjectsByCollectionName {
   Localgroups: DbLocalgroup
   Messages: DbMessage
   Migrations: DbMigration
+  ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode

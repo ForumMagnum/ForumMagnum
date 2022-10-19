@@ -172,6 +172,9 @@ import './collections/spotlights/fragments';
 import './collections/spotlights/permissions';
 import './collections/spotlights/views';
 
+// Moderator actions
+import './collections/moderatorActions/index';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
