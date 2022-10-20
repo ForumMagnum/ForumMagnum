@@ -21,7 +21,7 @@ import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 
-const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
+export const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 

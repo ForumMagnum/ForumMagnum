@@ -16,7 +16,7 @@ type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
 type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
-type ModeratorActionsViewName = never
+type ModeratorActionsViewName = "userModeratorActions";
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
@@ -57,7 +57,7 @@ interface ViewTermsByCollectionName {
   Localgroups: LocalgroupsViewTerms
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
-  ModeratorActions: ViewTermsBase
+  ModeratorActions: ModeratorActionsViewTerms
   Notifications: NotificationsViewTerms
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms
@@ -81,4 +81,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"

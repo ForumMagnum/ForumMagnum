@@ -2301,6 +2301,20 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
+
+  moderatorActions: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[ModeratorAction]',
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (doc, args, context) => {
+      const { ModeratorActions, loaders } = context;
+      return ModeratorActions.find({ userId: doc._id }).fetch();
+    }
+  }),
+
+  'moderatorActions.$': {
+    type: 'Object'
+  }
 };
 
 /* Alignment Forum fields */
