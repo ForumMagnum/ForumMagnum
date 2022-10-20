@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
@@ -86,19 +86,19 @@ const ModerationDashboard = ({ classes }: {
   const [view, setView] = useState<'sunshineNewUsers' | 'allUsers'>('sunshineNewUsers');
   
   const { results: usersToReview, count, loadMoreProps, refetch, loading } = useMulti({
-    terms: {view: "sunshineNewUsers", limit: 25},
+    terms: {view: "sunshineNewUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    itemsPerPage: 60
+    itemsPerPage: 20
   });
 
   const { results: allUsers, loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
-    terms: {view: "allUsers", limit: 25},
+    terms: {view: "allUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    itemsPerPage: 60
+    itemsPerPage: 20,
   });
 
   if (!userIsAdmin(currentUser)) {
@@ -146,27 +146,23 @@ const ModerationDashboard = ({ classes }: {
             >
               Reviewed Users
             </div>
-            {/* <div 
-              onClick={() => setView("allUsers")}
-              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'allUsers' })} 
-            >
-              Automoderated Users
-            </div> */}
           </div>
-          <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
-            {usersToReview && usersToReview.map(user =>
-              <div key={user._id}>
-                <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
-              </div>
-            )}
-          </div>
-          <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
-            {allUsers && allUsers.map(user =>
-              <div key={user._id}>
-                <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
-              </div>
-          )}
-          </div>
+          {usersToReview && allUsers && <>
+            <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+              {usersToReview?.map(user =>
+                <div key={user._id}>
+                  <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+                </div>
+              )}
+            </div>
+            <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+              {allUsers?.map(user =>
+                <div key={user._id}>
+                  <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+                </div>
+              )}
+            </div>
+          </>}
         </div>
       </div>
     </div>

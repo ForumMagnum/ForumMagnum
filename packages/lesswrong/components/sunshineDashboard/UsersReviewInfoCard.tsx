@@ -436,7 +436,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 10
   });
   
   const { results: comments, loading: commentsLoading } = useMulti({
@@ -444,7 +444,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 10
   });
   
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
@@ -678,7 +678,7 @@ const UsersReviewInfoCardComponent = registerComponent('UsersReviewInfoCard', Us
   styles,
   hocs: [
     withErrorBoundary,
-  ]
+  ],
 });
 
 declare global {
