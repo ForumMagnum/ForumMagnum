@@ -23,7 +23,7 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq, requestPrefersDarkMode } from '../../utils/httpUtil';
-import { ThemeOptions, getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
+import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
@@ -207,15 +207,10 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
-  
-  // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
-  // context.
-  const sheetsRegistry = context.sheetsRegistry;
 
   const prefersDarkMode = requestPrefersDarkMode(req);
   const stylesheet = getMergedStylesheet(themeOptions, prefersDarkMode);
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
+  const jssSheets = '<style id="jss-insertion-point"></style>'
     +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
   
   const finishedTime = new Date();

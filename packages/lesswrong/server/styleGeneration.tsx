@@ -15,6 +15,7 @@ import { isValidSerializedThemeOptions, AbstractThemeOptions, ThemeOptions, getF
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { requestPrefersDarkMode } from './utils/httpUtil';
+import { usedMuiComponents } from './usedMuiComponents';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -30,6 +31,10 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
+    {Object.keys(usedMuiComponents).map((componentName: string) => {
+      const StyledComponent = withStyles(usedMuiComponents[componentName], {name: componentName})(DummyComponent)
+      return <StyledComponent key={componentName}/>
+    })}
     {componentsWithStylesByPriority.map((componentName: string) => {
       const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
