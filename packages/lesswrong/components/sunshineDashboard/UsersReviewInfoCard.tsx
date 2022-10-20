@@ -224,7 +224,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  // const currentUser = useCurrentUser();
   
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",

@@ -70,6 +70,18 @@ interface DbChapter extends DbObject {
   createdAt: Date
 }
 
+interface ClientIdsCollection extends CollectionBase<DbClientId, "ClientIds"> {
+}
+
+interface DbClientId extends DbObject {
+  __collectionName?: "ClientIds"
+  clientId: string
+  firstSeenReferrer: string | null
+  firstSeenLandingPage: string
+  userIds: Array<string>
+  createdAt: Date
+}
+
 interface CollectionsCollection extends CollectionBase<DbCollection, "Collections"> {
 }
 
@@ -1110,6 +1122,7 @@ interface CollectionsByName {
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
+  ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -1151,6 +1164,7 @@ interface ObjectsByCollectionName {
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
+  ClientIds: DbClientId
   Collections: DbCollection
   Comments: DbComment
   Conversations: DbConversation
