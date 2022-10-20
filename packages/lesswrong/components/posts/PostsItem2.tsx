@@ -538,7 +538,7 @@ const PostsItem2 = ({
                 <span className={classes.spacer} />
 
                 { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()} tooltipPlacement="top"/>
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
