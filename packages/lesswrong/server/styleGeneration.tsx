@@ -11,11 +11,16 @@ import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
-import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
+import { isValidSerializedThemeOptions, AbstractThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 
-const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
+const abstractThemeToConcreteSSR = (theme: AbstractThemeOptions): ThemeOptions =>
+  theme.name === "auto"
+    ? {...theme, name: "default"}
+    : theme as ThemeOptions;
+
+const generateMergedStylesheet = (themeOptions: AbstractThemeOptions): Buffer => {
   importAllComponents();
   
   const context: any = {};
@@ -38,7 +43,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
-  const theme = getForumTheme(themeOptions);
+  const theme = getForumTheme(abstractThemeToConcreteSSR(themeOptions));
   
   const mergedCSS = [
     draftjsStyles(theme),
@@ -55,7 +60,7 @@ type StylesheetAndHash = {
   hash: string
 }
 
-const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
+const generateMergedStylesheetAndHash = (theme: AbstractThemeOptions): StylesheetAndHash => {
   const stylesheet = generateMergedStylesheet(theme);
   const hash = crypto.createHash('sha256').update(stylesheet).digest('hex');
   return {
@@ -67,7 +72,7 @@ const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash
 // Serialized ThemeOptions (string) -> StylesheetAndHash
 const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
 
-export const getMergedStylesheet = (theme: ThemeOptions): {css: Buffer, url: string, hash: string} => {
+export const getMergedStylesheet = (theme: AbstractThemeOptions): {css: Buffer, url: string, hash: string} => {
   const actualForumType = forumTypeSetting.get();
   const themeKey = JSON.stringify({
     name: theme.name,

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ThemeMetadata, themeMetadata, getForumType, ThemeOptions } from '../../themes/themeNames';
+import { ThemeMetadata, themeMetadata, getForumType, ThemeOptions, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
 import { useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
@@ -84,13 +84,20 @@ const ThemePickerMenu = ({children, classes}: {
       });
     }
   }
+
+  const setAbstractTheme = async (themeOptions: AbstractThemeOptions) => {
+    if (themeOptions.name === "auto") {
+      themeOptions.name = "default"; // TODO: Properly resolve 'auto'
+    }
+    setTheme(themeOptions as ThemeOptions);
+  }
   
   const selectedForumTheme = getForumType(currentThemeOptions);
   
   const submenu = <Paper>
     {themeMetadata.map((themeMetadata: ThemeMetadata) =>
       <MenuItem key={themeMetadata.name} onClick={async (ev) => {
-        await setTheme({
+        await setAbstractTheme({
           ...currentThemeOptions,
           name: themeMetadata.name
         })
@@ -121,7 +128,7 @@ const ThemePickerMenu = ({children, classes}: {
       </div>
       {allForumTypes.map((forumType: ForumTypeString) =>
         <MenuItem key={forumType} onClick={async (ev) => {
-          await setTheme({
+          await setAbstractTheme({
             ...currentThemeOptions,
             siteThemeOverride: {
               ...currentThemeOptions.siteThemeOverride,

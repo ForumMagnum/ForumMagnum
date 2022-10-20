@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
-import { isClient } from '../../../lib/executionEnvironment';
 import { useCurrentUser } from '../../common/withUser';
-import { getThemeOptions } from '../../../themes/themeNames';
+import { ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
 import { useCookies } from 'react-cookie';
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
@@ -41,6 +40,9 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   const themeCookie = cookies['theme'];
 
   const themeOptions = getThemeOptions(themeCookie, currentUser);
+  if (themeOptions.name === "auto") {
+    themeOptions.name = "default"; // TODO: Properly resolve 'auto'
+  }
   const isDarkMode = themeOptions.name === 'dark';
 
   // Embed a reference to the generated-per-episode buzzsprout script, which is

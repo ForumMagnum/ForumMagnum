@@ -23,7 +23,7 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
+import { ThemeOptions, getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
@@ -46,7 +46,7 @@ export type RenderResult = {
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
-  themeOptions: ThemeOptions,
+  themeOptions: AbstractThemeOptions,
   renderedAt: Date,
   timings: RenderTimings
 }
@@ -135,7 +135,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-export function getThemeOptionsFromReq(req: Request, user: DbUser|null) {
+export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
   const themeCookie = getCookieFromReq(req, "theme");
   return getThemeOptions(themeCookie, user);
 }
@@ -260,7 +260,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
-    themeOptions: themeOptions,
+    themeOptions,
     renderedAt: now,
     timings,
   };
