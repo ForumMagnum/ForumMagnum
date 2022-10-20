@@ -17,6 +17,8 @@ import './collections/posts/fragments';
 import './collections/comments/fragments';
 import './collections/revisions/fragments';
 
+// ClientIds
+import './collections/clientIds/collection';
 
 // Notifications
 import './collections/notifications/collection';

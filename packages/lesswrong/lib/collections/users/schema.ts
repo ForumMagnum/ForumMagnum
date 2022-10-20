@@ -2278,6 +2278,19 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.disabledPrivileges,
     order: 72,
   },
+  
+  
+  associatedClientId: resolverOnlyField({
+    type: "ClientId",
+    graphQLtype: "ClientId",
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId|null> => {
+      return await context.ClientIds.findOne({userIds: user._id}, {
+        sort: {createdAt: -1}
+      });
+    }
+  }),
 
   acknowledgedNewUserGuidelines: {
     type: Boolean,

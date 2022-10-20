@@ -274,6 +274,12 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    
+    associatedClientId {
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
   }
 `);
 
