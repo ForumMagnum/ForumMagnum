@@ -1,7 +1,11 @@
+/* eslint-disable no-console */
+/* eslint-disable import/no-dynamic-require */
 import { Umzug } from "@centreforeffectivealtruism/umzug";
 import { readFileSync } from "fs";
 import { createHash } from "crypto";
-import { createSqlConnection } from "../../sqlConnection";
+import { resolve } from "path";
+import { rename } from "node:fs/promises";
+import * as readline from "node:readline/promises";
 import PgStorage from "./PgStorage";
 
 declare global {
@@ -19,13 +23,59 @@ declare global {
 
 const root = "./packages/lesswrong/server/migrations";
 
-export const createMigrator = async () => {
-  const db = await createSqlConnection();
+const createMigrationPrefix = () => new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
 
+const migrationNameToTime = (name: string): number => {
+  const s = name.split(".")[0];
+  if (s.length !== 15 || s[8] !== "T") {
+    throw new Error(`Invalid migration name: '${s}'`);
+  }
+  const stamp = `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 11)}:${s.slice(11, 13)}:${s.slice(13, 15)}.000Z`;
+  return new Date(stamp).getTime();
+}
+
+const getLastMigration = async (storage: PgStorage, db: SqlClient): Promise<string | undefined> => {
+  const context = {db, timers: {}, hashes: {}};
+  const executed = await storage.executed({context}) ?? [];
+  return executed[0];
+}
+
+const reportOutOfOrderRun = async (lastMigrationName: string, currentMigrationName: string) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  console.log("\nWarning: Out-of-order migrations detected");
+  console.log(`Trying to run '${currentMigrationName}' after '${lastMigrationName}'`);
+
+  try {
+    const response = await rl.question("\nDo you want to automatically update the migration date? [n] [y] [force]: ");
+    const strategy = response.toLowerCase();
+    if (["y", "yes"].includes(strategy)) {
+      const tokens = currentMigrationName.split(".");
+      tokens[0] = createMigrationPrefix();
+      const newName = tokens.join(".");
+      const oldPath = resolve(root, currentMigrationName);
+      const newPath = resolve(root, newName);
+      await rename(oldPath, newPath);
+      console.log(`\nMigration renamed to '${newName}' - rerun your last command to try again`);
+      process.exit(0);
+    } else if (strategy === "force") {
+      // Do nothing - let the migration run continue
+    } else { // Default to 'no'
+      throw new Error("Aborting due to out-of-order migration run");
+    }
+  } finally {
+    rl.close();
+  }
+}
+
+export const createMigrator = async (db: SqlClient) => {
   const storage = new PgStorage();
   await storage.setupEnvironment(db);
 
-  return new Umzug({
+  const migrator = new Umzug({
     migrations: {
       glob: `${root}/*.ts`,
       resolve: ({name, path, context}) => {
@@ -38,18 +88,15 @@ export const createMigrator = async () => {
           name,
           up: async () => {
             context.timers[name] = {start: new Date()};
-            // eslint-disable-next-line import/no-dynamic-require
             const result = await require(path).up(context);
             context.timers[name].end = new Date();
             return result;
           },
           down: () => {
-            // eslint-disable-next-line import/no-dynamic-require
             const migration = require(path);
             if (migration.down) {
               return migration.down(context);
             } else {
-            // eslint-disable-next-line no-console
               console.warn(`Migration '${name}' has no down step`);
             }
           },
@@ -64,11 +111,24 @@ export const createMigrator = async () => {
     storage,
     logger: console,
     create: {
-      prefix: () => new Date().toISOString().replace(/[-:]/g, "").split(".")[0],
+      prefix: createMigrationPrefix,
       template: (filepath: string) => [
-        [`${filepath}.ts`, readFileSync(`${root}/meta/template.ts`).toString()],
+        [`${filepath}.ts`, readFileSync(resolve(root, "meta/template.ts")).toString()],
       ],
       folder: root,
     },
   });
+
+  const lastMigration = await getLastMigration(storage, db);
+  if (lastMigration) {
+    const lastMigrationTime = migrationNameToTime(lastMigration);
+    migrator.on("migrating", async ({name}) => {
+      const time = migrationNameToTime(name);
+      if (time < lastMigrationTime) {
+        await reportOutOfOrderRun(lastMigration, name);
+      }
+    });
+  }
+
+  return migrator;
 }
