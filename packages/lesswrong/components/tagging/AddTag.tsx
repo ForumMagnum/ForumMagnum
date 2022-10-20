@@ -6,8 +6,8 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -106,7 +106,7 @@ const AddTag = ({onTagSelected, classes}: {
     </Link>
     {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
       target="_blank"
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
+      to={tagCreateUrl}
       className={classes.newTag}
     >
       Create {taggingNameCapitalSetting.get()}

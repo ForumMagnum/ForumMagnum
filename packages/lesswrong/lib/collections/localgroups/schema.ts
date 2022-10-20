@@ -238,7 +238,10 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     label: "Banner Image",
     control: "ImageUpload",
-    tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)"
+    tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
+    form: {
+      croppingAspectRatio: 1.91
+    }
   },
   
   inactive: {

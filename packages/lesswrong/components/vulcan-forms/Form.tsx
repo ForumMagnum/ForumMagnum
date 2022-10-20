@@ -52,27 +52,7 @@ import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
 
-/** Field specification for a Form field, created from the collection schema */
-type FormField<T extends DbObject> = Pick<
-  CollectionFieldSpecification<T>,
-  typeof formProperties[number]
-> & {
-  document: any
-  name: string
-  datatype: any
-  layout: string
-  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
-  label: string
-  help: string
-  path: string
-  parentFieldName?: string
-  disabled?: boolean
-  arrayField: any
-  arrayFieldSchema: any
-  nestedInput: any
-  nestedSchema: any
-  nestedFields: any
-}
+
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
@@ -296,7 +276,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   getFieldGroups = () => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
-    let fields: Array<any> = this.getFieldNames(this.props).map((fieldName: string) => {
+    let fields = this.getFieldNames(this.props).map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema, mutableFields);
     });
@@ -304,29 +284,27 @@ class Form<T extends DbObject> extends Component<any,any> {
     fields = _.sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g:any) => g && g.name));
+    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g) => g && g.name));
 
     // for each group, add relevant fields
     groups = groups.map(group => {
       group.label =
         group.label || this.context.intl.formatMessage({ id: group.name });
-      group.fields = _.filter(fields, field => {
+      group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
-      });
+      })
       return group;
     });
-
+    
     // add default group
-    groups = [
-      {
-        name: 'default',
-        label: 'default',
-        order: 0,
-        fields: _.filter(fields, field => {
-          return !field.group;
-        })
-      }
-    ].concat(groups);
+    groups.unshift({
+      name: 'default',
+      label: 'default',
+      order: 0,
+      fields: _.filter(fields, field => {
+        return !field.group;
+      })
+    });
 
     // sort by order
     groups = _.sortBy(groups, 'order');
@@ -1062,7 +1040,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     errors: this.state.errors
   });
 
-  getFormGroupProps = group => ({
+  getFormGroupProps = (group: FormGroup<T>) => ({
     key: group.name,
     ...group,
     errors: this.state.errors,

@@ -5,7 +5,6 @@ import type { ConnectCrossposterArgs, UnlinkCrossposterPayload } from "./types";
 import { ApiRoute, apiRoutes, makeApiUrl } from "./routes";
 import { signToken } from "./tokens";
 import type { Request } from "express";
-import fetch from "node-fetch";
 import { crosspostUserAgent } from "../../lib/apollo/links";
 
 const getUserId = (req?: Request) => {
@@ -32,6 +31,8 @@ export const makeCrossSiteRequest = async <T extends {}>(
   });
   const json = await result.json();
   if (json.status !== expectedStatus) {
+    // eslint-disable-next-line no-console
+    console.error("Cross-site request failed:", json);
     throw new ApiError(500, onErrorMessage);
   }
   return json;
