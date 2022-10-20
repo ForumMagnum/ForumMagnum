@@ -1,10 +1,10 @@
+import React, {useRef, useState} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdate } from '../lib/crud/withUpdate';
-import React, { PureComponent } from 'react';
+import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import { withTheme } from '@material-ui/core/styles';
-import { withLocation } from '../lib/routeUtil';
+import { useTheme } from './themes/useTheme';
+import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
@@ -110,69 +110,45 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-interface ExternalProps {
-  currentUser: UsersCurrent | null,
+const Layout = ({currentUser, children, classes}: {
+  currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-}
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
-  theme: ThemeType,
-  updateUser: any,
-}
-interface LayoutState {
-  toc: {title: string|null, sections?: ToCSection[]}|null,
-  hideNavigationSidebar: boolean,
-}
-
-class Layout extends PureComponent<LayoutProps,LayoutState> {
-  searchResultsAreaRef: React.RefObject<HTMLDivElement>
+  classes: ClassesType,
+}) => {
+  const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
+  const [toc,setToCState] = useState<{title: string|null, sections?: ToCSection[]}|null>(null);
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const theme = useTheme();
+  const location = useLocation();
+  const {mutate: updateUser} = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersCurrent',
+  });
   
-  constructor (props: LayoutProps) {
-    super(props);
-    const { currentUser } = this.props;
-
-    this.state = {
-      toc: null,
-      hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
-    };
-
-    this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
-  }
-
-  setToC = (title: string|null, sectionData: ToCData|null) => {
+  const setToC = (title: string|null, sectionData: ToCData|null) => {
     if (title) {
-      this.setState({
-        toc: {
-          title: title,
-          sections: sectionData?.sections
-        }
+      setToCState({
+        title: title,
+        sections: sectionData?.sections
       });
     } else {
-      this.setState({
-        toc: null,
-      });
+      setToCState(null);
     }
   }
 
-  toggleStandaloneNavigation = () => {
-    const { updateUser, currentUser } = this.props
-    this.setState(prevState => {
-      if (currentUser) {
-        void updateUser({
-          selector: {_id: currentUser._id},
-          data: {
-            hideNavigationSidebar: !prevState.hideNavigationSidebar
-          }
-        })
-      }
-      return {
-        hideNavigationSidebar: !prevState.hideNavigationSidebar
-      }
-    })
+  const toggleStandaloneNavigation = () => {
+    if (currentUser) {
+      void updateUser({
+        selector: {_id: currentUser._id},
+        data: {
+          hideNavigationSidebar: !hideNavigationSidebar
+        }
+      })
+    }
+    setHideNavigationSidebar(!hideNavigationSidebar);
   }
 
-  render () {
-    const {currentUser, location, children, classes, theme} = this.props;
-    const {hideNavigationSidebar} = this.state
+  const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, IntercomWrapper } = Components
 
     // Check whether the current route is one which should have standalone
@@ -187,7 +163,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         .includes(currentRoute?.name)
     
     const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
-        
+    
     const shouldUseGridLayout = standaloneNavigation
 
     const renderPetrovDay = () => {
@@ -200,13 +176,13 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-      
+    
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
-      <TableOfContentsContext.Provider value={this.setToC}>
+      <TableOfContentsContext.Provider value={setToC}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
@@ -230,10 +206,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
               
               {!currentRoute?.standalone && <Header
-                toc={this.state.toc}
-                searchResultsArea={this.searchResultsAreaRef}
+                toc={toc}
+                searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
-                toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                toggleStandaloneNavigation={toggleStandaloneNavigation}
               />}
               
               {renderPetrovDay() && <PetrovDayWrapper/>}
@@ -242,7 +218,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
-                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white",
                   [classes.mainNoPadding]: currentRoute?.noPadding,
@@ -272,19 +248,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       </UserContext.Provider>
       </AnalyticsContext>
     )
-  }
+  };
+  return render();
 }
 
-const LayoutComponent = registerComponent<ExternalProps>(
-  'Layout', Layout, { styles, hocs: [
-    withLocation,
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'UsersCurrent',
-    }),
-    withTheme()
-  ]}
-);
+const LayoutComponent = registerComponent('Layout', Layout, {styles});
 
 declare global {
   interface ComponentTypes {
