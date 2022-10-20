@@ -39,22 +39,25 @@ const ThemePickerMenu = ({children, classes}: {
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const submenu = <Paper>
-    {themeMetadata.map((themeMetadata: ThemeMetadata) =>
-      <MenuItem key={themeMetadata.name} onClick={() => {
-        setTheme({
-          ...currentThemeOptions,
-          name: themeMetadata.name
-        })
-      }}>
-        {currentThemeOptions?.name === themeMetadata.name
-          ? <Check className={classes.check}/>
-          : <div className={classes.notChecked}/>
-        }
-        {themeMetadata.label}
-      </MenuItem>
-    )}
-
-    <Divider/>
+    {forumTypeSetting.get() !== "EAForum" &&
+      <>
+        {themeMetadata.map((themeMetadata: ThemeMetadata) =>
+          <MenuItem key={themeMetadata.name} onClick={() => {
+            setTheme({
+              ...currentThemeOptions,
+              name: themeMetadata.name
+            })
+          }}>
+            {currentThemeOptions?.name === themeMetadata.name
+              ? <Check className={classes.check}/>
+              : <div className={classes.notChecked}/>
+            }
+            {themeMetadata.label}
+          </MenuItem>
+        )}
+        <Divider/>
+      </>
+    }
 
     {currentUser?.isAdmin && <div>
       <div>
