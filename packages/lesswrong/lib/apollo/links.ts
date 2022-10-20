@@ -19,28 +19,23 @@ export const crosspostUserAgent = "ForumMagnum/2.1";
  * Schema link is used for SSR
  */
 export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
-  new SchemaLink({ schema, context });
+  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
+  new SchemaLink({ schema, context: () => ({...context}) });
 
 /**
  * Http link is used for client side rendering
  */
 export const createHttpLink = (baseUrl = '/') => {
-  // Type of window.fetch may differ slightly from type of the fetch used on server
-  let fetch: typeof window.fetch;
-  if (isServer) {
-    // We won't need to import fetch in node 18
-    const nodeFetch = require('node-fetch');
-    fetch = (url, options) => nodeFetch(url, {
+  const fetch: typeof globalThis.fetch = isServer
+    ? (url, options) => globalThis.fetch(url, {
       ...options,
       headers: {
         ...options?.headers,
         // user agent because LW bans bot agents
         'User-Agent': crosspostUserAgent,
       }
-    });
-  } else {
-    fetch = window.fetch;
-  }
+    })
+    : globalThis.fetch;
   return new BatchHttpLink({
     uri: baseUrl + 'graphql',
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',

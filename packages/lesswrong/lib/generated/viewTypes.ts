@@ -16,6 +16,7 @@ type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
 type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
+type ModeratorActionsViewName = never
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
@@ -56,6 +57,7 @@ interface ViewTermsByCollectionName {
   Localgroups: LocalgroupsViewTerms
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
+  ModeratorActions: ViewTermsBase
   Notifications: NotificationsViewTerms
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms

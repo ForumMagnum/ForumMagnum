@@ -6,8 +6,8 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -49,7 +49,7 @@ const AllTagsAlphabetical = ({classes}: {
         {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
           <SectionButton>
             <AddBoxIcon/>
-            <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
+            <Link to={tagCreateUrl}>
               New {taggingNameCapitalSetting.get()}
             </Link>
           </SectionButton>
