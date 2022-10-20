@@ -106,11 +106,18 @@ const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOp
 }
 
 export function getThemeOptions(themeCookie: string | object, user: DbUser|UsersCurrent|null): AbstractThemeOptions {
+  // First, check if the user setting is a user string
   if (user?.theme && isValidUserThemeSetting(user?.theme)) {
     return {name: user?.theme};
   }
+
+  // Next, try to read from the cookie
   const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
+
+  // Next, check if the user setting is a serialized ThemeOptions object
   const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
+
+  // If we still don't have anything, use the default
   const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
   return deserializeThemeOptions(serializedThemeOptions);
 }
