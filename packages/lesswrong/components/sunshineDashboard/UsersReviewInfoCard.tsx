@@ -487,7 +487,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <Link className={classes.displayName} to={userGetProfileUrl(user)}>
         {user.displayName} 
       </Link>
-      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
       {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
     </div>
 
@@ -507,7 +507,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const moderatorActionLogRow = <div>
     {user.moderatorActions
       .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => <div>{MODERATOR_ACTION_TYPES[moderatorAction.type]}</div>)
+      .map(moderatorAction => <div key={`${user._id}_${moderatorAction.type}`}>{MODERATOR_ACTION_TYPES[moderatorAction.type]}</div>)
     }
   </div>
 
