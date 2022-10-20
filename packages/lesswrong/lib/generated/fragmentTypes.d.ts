@@ -2363,7 +2363,13 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly conversationsDisabled: boolean,
   readonly snoozedUntilContentCount: number,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
-  readonly associatedClientId: ClientId|null,
+  readonly associatedClientId: SunshineUsersList_associatedClientId|null,
+}
+
+interface SunshineUsersList_associatedClientId { // fragment on ClientIds
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly userIds: Array<string>,
 }
 
 interface SharedUserBooleans { // fragment on Users

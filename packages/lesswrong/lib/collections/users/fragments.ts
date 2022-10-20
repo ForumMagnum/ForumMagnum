@@ -277,7 +277,11 @@ registerFragment(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
-    associatedClientId
+    associatedClientId {
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
   }
 `);
 
