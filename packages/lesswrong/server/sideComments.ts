@@ -8,6 +8,8 @@ const defaultQuoteShardSettings: QuoteShardSettings = {
   minLength: 20,
 };
 
+const matchableBlockElementSelector = 'p,li,blockquote';
+
 
 /**
  * Given HTML (probably for a post), make it so every top-level block element
@@ -28,7 +30,7 @@ const defaultQuoteShardSettings: QuoteShardSettings = {
 export function addBlockIDsToHTML(html: string): string {
   //@ts-ignore
   const parsedPost = cheerio.load(html, null, false);
-  let markedElements = parsedPost('p,li,blockquote');
+  let markedElements = parsedPost(matchableBlockElementSelector);
   for (let i=0; i<markedElements.length; i++) {
     let markedElement = markedElements[i];
     if (!cheerio(markedElement).attr("id")) {
@@ -129,7 +131,7 @@ function addQuoteShardsFromElement(outQuoteShards: string[], blockquoteElement: 
  * found).
  */
 function findQuoteInPost(parsedPost, quoteShards: string[]): string|null {
-  let markedElements = parsedPost('p,li,blockquote');
+  let markedElements = parsedPost(matchableBlockElementSelector);
   for (let i=0; i<markedElements.length; i++) {
     const blockID = cheerio(markedElements[i]).attr("id");
     if (blockID) {
