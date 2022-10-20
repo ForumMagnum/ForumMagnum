@@ -48,6 +48,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
     paddingBottom: 4,
     paddingLeft: 12
+  },
+  hidden: {
+    display: "none"
   }
 });
 
@@ -80,10 +83,18 @@ const ModerationDashboard = ({ classes }: {
     
   const currentUser = useCurrentUser();
 
-  const [view, setView] = useState<UsersViewName>("sunshineNewUsers")
+  const [view, setView] = useState<'sunshineNewUsers' | 'allUsers'>('sunshineNewUsers');
   
-  const { results: usersToReview, count, totalCount, loadMoreProps, refetch, loading } = useMulti({
-    terms: {view: view, limit: 25},
+  const { results: usersToReview, count, loadMoreProps, refetch, loading } = useMulti({
+    terms: {view: "sunshineNewUsers", limit: 25},
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+    enableTotal: true,
+    itemsPerPage: 60
+  });
+
+  const { results: allUsers, loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
+    terms: {view: "allUsers", limit: 25},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
@@ -97,7 +108,7 @@ const ModerationDashboard = ({ classes }: {
   return (
     <div className={classes.page}>
       <div className={classes.row}>
-        <div>
+        <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
           <div className={classes.toc}>
             {usersToReview?.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -109,26 +120,53 @@ const ModerationDashboard = ({ classes }: {
             </div>
           </div>
         </div>
+        <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+          <div className={classes.toc}>
+            {allUsers?.map(user => {
+              return <div key={user._id} className={classes.tocListing}>
+                {user.displayName}
+              </div>
+            })}
+            <div className={classes.loadMore}>
+              <LoadMore {...allUsersLoadMoreProps}/>
+            </div>
+          </div>
+        </div>
         <div className={classes.main}>
           <div className={classes.topBar}>
             <div 
               onClick={() => setView("sunshineNewUsers")}
-              className={classNames(classes.tabButton, {[classes.tabButtonSelected]: view === "sunshineNewUsers"})} 
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'sunshineNewUsers' })} 
             >
               Unreviewed Users {view === "sunshineNewUsers" && (loading ? <Loading/> : <>({count} to Review)</>)}
             </div>
             <div 
               onClick={() => setView("allUsers")}
-              className={classNames(classes.tabButton, {[classes.tabButtonSelected]: view === "allUsers"})}         
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'allUsers' })} 
             >
               Reviewed Users
             </div>
+            {/* <div 
+              onClick={() => setView("allUsers")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'allUsers' })} 
+            >
+              Automoderated Users
+            </div> */}
           </div>
-          {usersToReview && usersToReview.map(user =>
-            <div key={user._id}>
-              <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
-            </div>
+          <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+            {usersToReview && usersToReview.map(user =>
+              <div key={user._id}>
+                <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+              </div>
+            )}
+          </div>
+          <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+            {allUsers && allUsers.map(user =>
+              <div key={user._id}>
+                <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
+              </div>
           )}
+          </div>
         </div>
       </div>
     </div>

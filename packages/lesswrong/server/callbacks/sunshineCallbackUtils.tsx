@@ -2,9 +2,10 @@ import Users from "../../lib/collections/users/collection";
 import { getCurrentContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
 import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
-import { createMutator } from "../vulcan-lib";
-import { COMMENT_LOW_QUALITY_WARNING, COMMENT_MEDIOCRE_QUALITY_WARNING, isActionActive } from "../../lib/collections/moderatorActions/schema";
+import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { RECENTLY_DOWNVOTED_CONTENT_ALERT, LOW_AVERAGE_KARMA_COMMENT_ALERT, isActionActive, NEGATIVE_KARMA_USER_ALERT, LOW_AVERAGE_KARMA_POST_ALERT } from "../../lib/collections/moderatorActions/schema";
 import { forumTypeSetting } from "../../lib/instanceSettings";
+import { Posts } from "../../lib/collections/posts";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * 
@@ -52,7 +53,7 @@ function isNetDownvoted(comment: DbComment) {
   return comment.baseScore <= 0 && comment.voteCount > 0;
 }
 
-function areLowQualityComments(comments: DbComment[]) {
+export function areRecentlyDownvotedComments(comments: DbVoteableType[]) {
   if (comments.length < 5) return false;
 
   const lastFiveComments = comments.slice(0, 5);
@@ -62,7 +63,7 @@ function areLowQualityComments(comments: DbComment[]) {
   return downvotedCommentCount >= badCommentCountThreshold;
 }
 
-function areMediocreQualityComments(comments: DbComment[]) {
+export function isLowAverageKarmaContent(comments: DbVoteableType[], karmaThreshold: number) {
   if (comments.length < 20) return false;
 
   const mediocreAverageKarmaThreshold = 1.5;
@@ -72,7 +73,8 @@ function areMediocreQualityComments(comments: DbComment[]) {
   return averageCommentKarma < mediocreAverageKarmaThreshold;
 }
 
-async function triggerCommentQualityWarning(userId: string, warningType: DbModeratorAction['type']) {
+async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
+  const context = createAdminContext();
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   // No previous commentQualityWarning on record for this user
   if (!lastModeratorAction) {
@@ -82,6 +84,8 @@ async function triggerCommentQualityWarning(userId: string, warningType: DbModer
         type: warningType,
         userId
       },
+      currentUser: context.currentUser,
+      context
     });
 
     // User already has an active commentQualityWarning, escalate?
@@ -96,18 +100,67 @@ async function triggerCommentQualityWarning(userId: string, warningType: DbModer
         type: warningType,
         userId  
       },
+      currentUser: context.currentUser,
+      context
     });
   }
 }
 
-export async function triggerAutomodIfNeeded(userId: string) {
-  const latestComments = await Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch();
-  // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
-  if (areLowQualityComments(latestComments)) {
-    void triggerCommentQualityWarning(userId, COMMENT_LOW_QUALITY_WARNING);
+async function disableModerationAction(userId: string, warningType: DbModeratorAction['type']) {
+  const context = createAdminContext();
+  const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
+  if (lastModeratorAction && isActionActive(lastModeratorAction)) {
+    // TODO
+    void updateMutator({
+      collection: ModeratorActions,
+      documentId: lastModeratorAction._id,
+      data: {
+        endedAt: new Date()
+      },
+      currentUser: context.currentUser,
+      context
+    });
   }
+}
 
-  if (areMediocreQualityComments(latestComments)) {
-    void triggerCommentQualityWarning(userId, COMMENT_MEDIOCRE_QUALITY_WARNING);
+/**
+ * Enables or disables a moderator action on a specific user, based on a conditional
+ */
+function handleAutomodAction(triggerAction: boolean, userId: string, actionType: DbModeratorAction['type']) {
+  if (triggerAction) {
+    void triggerModerationAction(userId, actionType);
+  } else {
+    void disableModerationAction(userId, actionType);
   }
+}
+
+export async function triggerAutomodIfNeededForUser(user: DbUser) {
+  const userId = user._id;
+
+  const lowUserKarma = user.karma < -5;
+  handleAutomodAction(lowUserKarma, userId, NEGATIVE_KARMA_USER_ALERT);
+
+  const [latestComments, latestPosts] = await Promise.all([
+    Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
+    Posts.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch()
+  ]);
+
+  const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
+  
+  // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
+
+  const lowQualityComments = areRecentlyDownvotedComments(voteableContent);
+  const mediocreQualityComments = isLowAverageKarmaContent(latestComments, 1.5);
+  const mediocreQualityPosts = isLowAverageKarmaContent(latestPosts, 5);
+
+  handleAutomodAction(lowQualityComments, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
+  handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
+  handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT);
+}
+
+export async function triggerAutomodIfNeeded(userId: string) {
+  const user = await Users.findOne(userId);
+  if (!user) return;
+
+  await triggerAutomodIfNeededForUser(user);
 }
