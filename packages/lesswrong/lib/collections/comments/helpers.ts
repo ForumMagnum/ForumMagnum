@@ -1,10 +1,10 @@
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { forumTypeSetting, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
-import { tagGetCommentLink, tagGetSubforumUrl } from '../tags/helpers';
+import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
 
 // Get a comment author's name
@@ -20,15 +20,10 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
     const tag = await mongoFindOne("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
 
-    if (comment.tagCommentType === TagCommentType.Discussion) {
-      return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
-    } else {
-      return `${prefix}${tagGetSubforumUrl(tag)}#${comment._id}`;
-    }
+    return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
   }
@@ -38,13 +33,13 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
   if (comment.post) {
     return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tag) {
-    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${comment.tag.slug}/discussion#${comment._id}`;
+    return tagGetCommentLink({tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {
     throw new Error(`Unable to find document for comment: ${comment._id}`);
   }
 }
 
+// TODO there are several functions which do this, some of them should be combined
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string,
   postSlug?: string,
@@ -62,7 +57,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
       return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
     }
   } else if (tagSlug) {
-    return tagGetCommentLink(tagSlug, commentId, tagCommentType, isAbsolute);
+    return tagGetCommentLink({tagSlug, commentId, tagCommentType: tagCommentType ?? "DISCUSSION", isAbsolute});
   } else {
     //throw new Error("commentGetPageUrlFromIds needs a post or tag");
     return "/"

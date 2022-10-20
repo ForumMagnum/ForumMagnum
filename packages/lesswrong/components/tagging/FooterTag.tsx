@@ -5,7 +5,7 @@ import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -119,7 +119,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link
-        to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`}
+        to={tagGetUrl(tag)}
         className={!!isTopTag ? classes.flexContainer : null}
       >
         {!!isTopTag && <TopTagIcon tag={tag} />}
