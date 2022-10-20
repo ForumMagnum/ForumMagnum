@@ -14,7 +14,7 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
-import { ItemsReadContext } from './hooks/useRecordPostView';
+import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
@@ -133,8 +133,6 @@ interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps 
 interface LayoutState {
   timezone: string,
   toc: {title: string|null, sections?: ToCSection[]}|null,
-  postsRead: Record<string,boolean>,
-  tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
 }
 
@@ -149,8 +147,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     this.state = {
       timezone: savedTimezone,
       toc: null,
-      postsRead: {},
-      tagsRead: {},
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
@@ -265,20 +261,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
-      <ItemsReadContext.Provider value={{
-        postsRead: this.state.postsRead,
-        setPostRead: (postId: string, isRead: boolean): void => {
-          this.setState({
-            postsRead: {...this.state.postsRead, [postId]: isRead}
-          })
-        },
-        tagsRead: this.state.tagsRead,
-        setTagRead: (tagId: string, isRead: boolean): void => {
-          this.setState({
-            tagsRead: {...this.state.tagsRead, [tagId]: isRead}
-          })
-        },
-      }}>
+      <ItemsReadContextWrapper>
       <TableOfContentsContext.Provider value={this.setToC}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
@@ -338,7 +321,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         </div>
       </CommentOnSelectionPageWrapper>
       </TableOfContentsContext.Provider>
-      </ItemsReadContext.Provider>
+      </ItemsReadContextWrapper>
       </TimezoneContext.Provider>
       </UserContext.Provider>
       </AnalyticsContext>

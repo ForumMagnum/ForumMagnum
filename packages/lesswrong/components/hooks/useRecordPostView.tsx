@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useState } from 'react';
+import React, { useContext, useCallback, useState, useMemo } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
@@ -10,7 +10,7 @@ export type ItemsReadContextType = {
   tagsRead: Record<string,boolean>,
   setTagRead: (tagId: string, isRead: boolean) => void,
 };
-export const ItemsReadContext = React.createContext<ItemsReadContextType|null>(null);
+const ItemsReadContext = React.createContext<ItemsReadContextType|null>(null);
 export const useItemsRead = (): ItemsReadContextType => {
   const context = useContext(ItemsReadContext);
   if (!context) throw new Error("useItemsRead called but not a descedent of Layout");
@@ -116,4 +116,24 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
   
   return { recordTagView, isRead };
 }
+
+export const ItemsReadContextWrapper = ({children}: {children: React.ReactNode}) => {
+  const [postsRead,setPostsRead] = useState<Record<string,boolean>>({});
+  const [tagsRead,setTagsRead] = useState<Record<string,boolean>>({});
+  const providedContext = useMemo(() => ({
+    postsRead, tagsRead,
+    
+    setPostRead: (postId: string, isRead: boolean): void => {
+      setPostsRead({...postsRead, [postId]: isRead});
+    },
+    setTagRead: (tagId: string, isRead: boolean): void => {
+      setTagsRead({...tagsRead, [tagId]: isRead});
+    },
+  }), [postsRead, tagsRead]);
+  
+  return <ItemsReadContext.Provider value={providedContext}>
+    {children}
+  </ItemsReadContext.Provider>
+}
+
 
