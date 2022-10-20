@@ -3,7 +3,6 @@ import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import Intercom from 'react-intercom';
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
@@ -20,9 +19,7 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { getUserEmail } from "../lib/collections/users/helpers";
 
-const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -104,11 +101,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
-    ...(theme.palette.intercom ? {
-      '.intercom-launcher': {
-        backgroundColor: theme.palette.intercom.buttonBackground
-      }
-    } : null),
   },
   searchResultsArea: {
     position: "absolute",
@@ -120,7 +112,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface ExternalProps {
   currentUser: UsersCurrent | null,
-  messages: any,
   children?: React.ReactNode,
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
@@ -182,29 +173,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper } = Components
-
-    const showIntercom = (currentUser: UsersCurrent|null) => {
-      if (currentUser && !currentUser.hideIntercom) {
-        return <div id="intercome-outer-frame">
-          <ErrorBoundary>
-            <Intercom
-              appID={intercomAppIdSetting.get()}
-              user_id={currentUser._id}
-              email={getUserEmail(currentUser)}
-              name={currentUser.displayName}/>
-          </ErrorBoundary>
-        </div>
-      } else if (!currentUser) {
-        return <div id="intercome-outer-frame">
-            <ErrorBoundary>
-              <Intercom appID={intercomAppIdSetting.get()}/>
-            </ErrorBoundary>
-          </div>
-      } else {
-        return null
-      }
-    }
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, IntercomWrapper } = Components
 
     // Check whether the current route is one which should have standalone
     // navigation on the side. If there is no current route (ie, a 404 page),
@@ -254,19 +223,21 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
+              <IntercomWrapper/>
 
-              {/* Sign up user for Intercom, if they do not yet have an account */}
-              {!currentRoute?.standalone && showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              
               {!currentRoute?.standalone && <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
+              
               {renderPetrovDay() && <PetrovDayWrapper/>}
+              
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
