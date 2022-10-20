@@ -2139,7 +2139,30 @@ const schema: SchemaType<DbPost> = {
   
   sideComments: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
+  },
+  
+  sideCommentVisibility: {
+    type: String,
+    optional: true,
+    control: "select",
+    group: formGroups.advancedOptions,
+    
+    label: "Replies in sidebar",
+    viewableBy: ['guests'],
+    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
+    blackbox: true,
+    form: {
+      options: () => {
+        return [
+          {value: "highKarma", label: "10+ karma (default)"},
+          {value: "hidden", label: "Hide all"},
+        ];
+      }
+    },
   },
 
   // GraphQL only field that resolves based on whether the current user has closed

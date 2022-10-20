@@ -209,7 +209,8 @@ const PostsPage = ({post, refetch, classes}: {
     throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
   }
   
-  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>("all");
+  const defaultSideCommentVisibility = post.sideCommentVisibility ?? "highKarma";
+  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
   const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
     () => ({ sideCommentMode, setSideCommentMode }),
     [sideCommentMode, setSideCommentMode]
