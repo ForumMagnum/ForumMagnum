@@ -22,7 +22,7 @@ import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { getCookieFromReq, getPathFromReq, requestPrefersDarkMode } from '../../utils/httpUtil';
 import { ThemeOptions, getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
@@ -211,21 +211,9 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
   // context.
   const sheetsRegistry = context.sheetsRegistry;
-  
-  // Experimental handling to make default theme (dark mode or not) depend on
-  // the user's system setting. Currently doesn't work because, while this does
-  // successfully customize everything that goes through our merged stylesheet,
-  // it can't handle the material-UI stuff that gets stuck into the page header.
-  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
-  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +'<style>'
-    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
-    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
-    +'</style>'*/
-  
-  const stylesheet = getMergedStylesheet(themeOptions);
+
+  const prefersDarkMode = requestPrefersDarkMode(req);
+  const stylesheet = getMergedStylesheet(themeOptions, prefersDarkMode);
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
     +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`

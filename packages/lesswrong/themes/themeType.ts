@@ -12,6 +12,13 @@ declare global {
   type UserThemeSetting = typeof userThemeSettings[number];
   type MuiThemeName = typeof muiThemeNames[number];
 
+  // Overridden forum type (for admins to quickly test AF and EA Forum themes).
+  // This is the form of a partial forum-type=>forum-type mapping, where keys
+  // are the actual forum you're visiting and values are the theme you want.
+  // (So if you override this on LW, then go to AF it isn't overridden there,
+  // and vise versa.)
+  type SiteThemeOverride = Partial<Record<ForumTypeString, ForumTypeString>>;
+
   type ThemeGreyscale = MuiColorShades & {
     0: ColorString,
     1000: ColorString,

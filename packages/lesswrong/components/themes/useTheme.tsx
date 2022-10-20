@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
-import { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
+import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 
@@ -10,13 +10,6 @@ type ThemeContextObj = {
   setThemeOptions: (options: AbstractThemeOptions)=>void
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
-
-export const abstractThemeToConcrete = (
-  theme: AbstractThemeOptions,
-  prefersDarkMode: boolean,
-): ThemeOptions => themeOptionsAreConcrete(theme)
-  ? theme
-  : {...theme, name: prefersDarkMode ? "dark" : "default"};
 
 export const useTheme = (): ThemeType => {
   const themeContext = React.useContext(ThemeContext);

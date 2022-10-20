@@ -1,22 +1,17 @@
-import { forumTypeSetting, ForumTypeString } from '../lib/instanceSettings';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 export const userThemeNames = ["default", "dark"] as const;
 export const userThemeSettings = [...userThemeNames, "auto"] as const;
 export const muiThemeNames = ["light", "dark"] as const;
 
 export type ThemeOptions = {
-  name: UserThemeName
-
-  // Overridden forum type (for admins to quickly test AF and EA Forum themes).
-  // This is the form of a partial forum-type=>forum-type mapping, where keys
-  // are the actual forum you're visiting and values are the theme you want.
-  // (So if you override this on LW, then go to AF it isn't overridden there,
-  // and vise versa.)
-  siteThemeOverride?: Partial<Record<ForumTypeString,ForumTypeString>>
+  name: UserThemeName,
+  siteThemeOverride?: SiteThemeOverride,
 }
 
-export type AbstractThemeOptions = Pick<ThemeOptions, "siteThemeOverride"> & {
-  name: UserThemeSetting
+export type AbstractThemeOptions = {
+  name: UserThemeSetting,
+  siteThemeOverride?: SiteThemeOverride,
 }
 
 export const themeOptionsAreConcrete = (themeOptions: AbstractThemeOptions): themeOptions is ThemeOptions =>
@@ -78,6 +73,20 @@ export function isValidSerializedThemeOptions(options: string|object): boolean {
 
 export const isValidUserThemeSetting = (name: string): name is UserThemeSetting =>
   userThemeSettings.includes(name as unknown as UserThemeSetting);
+
+export const resolveThemeName = (
+  theme: UserThemeSetting,
+  prefersDarkMode: boolean,
+): UserThemeName =>  theme === "auto"
+  ? (prefersDarkMode ? "dark" : "default")
+  : theme;
+
+export const abstractThemeToConcrete = (
+  theme: AbstractThemeOptions,
+  prefersDarkMode: boolean,
+): ThemeOptions => themeOptionsAreConcrete(theme)
+  ? theme
+  : {...theme, name: prefersDarkMode ? "dark" : "default"};
 
 export function getForumType(themeOptions: AbstractThemeOptions) {
   const actualForumType = forumTypeSetting.get();

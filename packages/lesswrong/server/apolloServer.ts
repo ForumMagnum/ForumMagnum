@@ -41,6 +41,7 @@ import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCrosspostRoutes } from './fmCrosspost';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { requestPrefersDarkMode } from './utils/httpUtil';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -260,7 +261,8 @@ export function startWebserver() {
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
-    const stylesheet = getMergedStylesheet(themeOptions);
+    const prefersDarkMode = requestPrefersDarkMode(request);
+    const stylesheet = getMergedStylesheet(themeOptions, prefersDarkMode);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");

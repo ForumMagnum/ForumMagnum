@@ -15,7 +15,7 @@ const buildQuery = (cookies: Record<string, any>) =>
 
 export const usePrefersDarkMode = () => {
   const [cookies, setCookie] = useCookies();
-  const [query] = useState(buildQuery(cookies));
+  const [query] = useState(() => buildQuery(cookies));
   const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
 
   useEffect(() => {

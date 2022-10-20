@@ -11,16 +11,12 @@ import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
-import { isValidSerializedThemeOptions, AbstractThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isValidSerializedThemeOptions, AbstractThemeOptions, ThemeOptions, getForumType, resolveThemeName, abstractThemeToConcrete } from '../themes/themeNames';
+import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
+import { requestPrefersDarkMode } from './utils/httpUtil';
 
-const abstractThemeToConcreteSSR = (theme: AbstractThemeOptions): ThemeOptions =>
-  theme.name === "auto"
-    ? {...theme, name: "default"}
-    : theme as ThemeOptions;
-
-const generateMergedStylesheet = (themeOptions: AbstractThemeOptions): Buffer => {
+const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
   
   const context: any = {};
@@ -43,7 +39,7 @@ const generateMergedStylesheet = (themeOptions: AbstractThemeOptions): Buffer =>
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
-  const theme = getForumTheme(abstractThemeToConcreteSSR(themeOptions));
+  const theme = getForumTheme(themeOptions);
   
   const mergedCSS = [
     draftjsStyles(theme),
@@ -60,7 +56,7 @@ type StylesheetAndHash = {
   hash: string
 }
 
-const generateMergedStylesheetAndHash = (theme: AbstractThemeOptions): StylesheetAndHash => {
+const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
   const stylesheet = generateMergedStylesheet(theme);
   const hash = crypto.createHash('sha256').update(stylesheet).digest('hex');
   return {
@@ -72,15 +68,23 @@ const generateMergedStylesheetAndHash = (theme: AbstractThemeOptions): Styleshee
 // Serialized ThemeOptions (string) -> StylesheetAndHash
 const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
 
-export const getMergedStylesheet = (theme: AbstractThemeOptions): {css: Buffer, url: string, hash: string} => {
-  const actualForumType = forumTypeSetting.get();
-  const themeKey = JSON.stringify({
-    name: theme.name,
+type ThemeKey = {
+  name: UserThemeName,
+  forumTheme: ForumTypeString,
+}
+
+type MergedStylesheet = {css: Buffer, url: string, hash: string};
+
+export const getMergedStylesheet = (theme: AbstractThemeOptions, prefersDarkMode: boolean): MergedStylesheet => {
+  const themeKeyData: ThemeKey = {
+    name: resolveThemeName(theme.name, prefersDarkMode),
     forumTheme: getForumType(theme),
-  });
+  };
+  const themeKey = JSON.stringify(themeKeyData);
   
   if (!mergedStylesheets[themeKey]) {
-    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);
+    const concreteTheme = abstractThemeToConcrete(theme, prefersDarkMode);
+    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(concreteTheme);
   }
   const mergedStylesheet = mergedStylesheets[themeKey]!;
   
@@ -96,7 +100,8 @@ addStaticRoute("/allStyles", ({query}, req, res, next) => {
   const encodedThemeOptions = query?.theme;
   const serializedThemeOptions = decodeURIComponent(encodedThemeOptions);
   const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
-  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions);
+  const prefersDarkMode = requestPrefersDarkMode(req);
+  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions, prefersDarkMode);
   
   if (!expectedHash) {
     res.writeHead(302, {
