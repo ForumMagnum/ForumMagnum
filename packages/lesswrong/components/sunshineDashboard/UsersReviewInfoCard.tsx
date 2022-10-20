@@ -20,8 +20,9 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl} from '../../lib/collections/users/helpers';
-import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
 import { useCreate } from '../../lib/crud/withCreate';
+import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
 
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
@@ -260,13 +261,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       })
     }
   }
-  
-  // useEffect(() => {
-  //   return () => {
-  //     handleNotes();
-  //   }
-  // });
-  
+
   const handleReview = () => {
     if (canReview) {
       void updateUser({
@@ -511,7 +506,20 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const moderatorActionLogRow = <div>
     {user.moderatorActions
       .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => <div key={`${user._id}_${moderatorAction.type}`}>{MODERATOR_ACTION_TYPES[moderatorAction.type]}</div>)
+      .map(moderatorAction => {
+        let averageContentKarma: number | undefined;
+        if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
+          const mostRecentComments = _.sortBy(comments ?? [], 'postedAt').reverse();
+          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
+        } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
+          const mostRecentPosts = _.sortBy(posts ?? [], 'postedAt').reverse();
+          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
+        }
+
+        const suffix = typeof averageContentKarma === 'number' ? ` (${averageContentKarma})` : '';
+
+        return <div key={`${user._id}_${moderatorAction.type}`}>{`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}`}</div>;
+      })
     }
   </div>
 
@@ -521,6 +529,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       fullWidth
       onChange={e => setNotes(e.target.value)}
       onClick={e => handleClick()}
+      onBlur={handleNotes}
       disableUnderline
       placeholder="Notes for other moderators"
       multiline
