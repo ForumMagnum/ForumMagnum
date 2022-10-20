@@ -32,14 +32,14 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   } else {
     return <div>
       <CoreTagsChecklist existingTagIds={Object.keys(value||{})} onTagSelected={(tag)=> {
-        updateCurrentValues(
+        updateCurrentValues((changes) => {
           mapValues(
             changes,
             (arrayOfTagIds: string[]) => toDictionary(
               arrayOfTagIds, tagId=>tagId, tagId=>1
             )
           )
-        )
+        })
       }}/>
       <TagMultiselect
         path={path}
