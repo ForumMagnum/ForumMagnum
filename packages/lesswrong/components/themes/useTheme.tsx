@@ -11,6 +11,13 @@ type ThemeContextObj = {
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
 
+export const abstractThemeToConcrete = (
+  theme: AbstractThemeOptions,
+  prefersDarkMode: boolean,
+): ThemeOptions => themeOptionsAreConcrete(theme)
+  ? theme
+  : {...theme, name: prefersDarkMode ? "dark" : "default"};
+
 export const useTheme = (): ThemeType => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useTheme() used without the context available";
@@ -23,18 +30,18 @@ export const useThemeOptions = (): AbstractThemeOptions => {
   return themeContext.themeOptions;
 }
 
+export const useConcreteThemeOptions = (): ThemeOptions => {
+  const themeContext = React.useContext(ThemeContext);
+  if (!themeContext) throw "useThemeOptions() used without the context available";
+  const prefersDarkMode = usePrefersDarkMode();
+  return abstractThemeToConcrete(themeContext.themeOptions, prefersDarkMode);
+}
+
 export const useSetTheme = () => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useSetTheme() used without the context available";
   return themeContext.setThemeOptions;
 }
-
-export const abstractThemeToConcrete = (
-  theme: AbstractThemeOptions,
-  prefersDarkMode: boolean,
-): ThemeOptions => themeOptionsAreConcrete(theme)
-  ? theme
-  : {...theme, name: prefersDarkMode ? "dark" : "default"};
 
 const removeStylesheetsMatching = (substring: string) => {
   const linkTags = document.getElementsByTagName("link");
@@ -75,7 +82,7 @@ export const ThemeContextProvider = ({options, children}: {
   const [themeOptions, setThemeOptions] = useState(options);
   const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode)
+  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   useEffect(() => {
     const serializedThemeOptions = JSON.stringify(concreteTheme);

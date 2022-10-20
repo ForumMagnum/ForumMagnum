@@ -2,9 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
-import { useCurrentUser } from '../../common/withUser';
-import { ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
-import { useCookies } from 'react-cookie';
+import { useConcreteThemeOptions } from '../../themes/useTheme';
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -31,18 +29,11 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   postId: string,
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser();
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
 
-  const [cookies] = useCookies();
-  const themeCookie = cookies['theme'];
-
-  const themeOptions = getThemeOptions(themeCookie, currentUser);
-  if (themeOptions.name === "auto") {
-    themeOptions.name = "default"; // TODO: Properly resolve 'auto'
-  }
+  const themeOptions = useConcreteThemeOptions();
   const isDarkMode = themeOptions.name === 'dark';
 
   // Embed a reference to the generated-per-episode buzzsprout script, which is

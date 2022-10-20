@@ -26,7 +26,7 @@ export const usePrefersDarkMode = () => {
 
   useEffect(() => {
     setCookie(DARK_MODE_COOKIE, prefersDarkMode ? "true" : "false");
-  }, [prefersDarkMode]);
+  }, [prefersDarkMode, setCookie]);
 
   return prefersDarkMode;
 }
