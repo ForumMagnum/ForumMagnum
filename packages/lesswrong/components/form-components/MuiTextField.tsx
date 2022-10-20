@@ -27,6 +27,7 @@ const MuiTextField = ({
   children,
   select,
   defaultValue,
+  onChange,
   label,
   fullWidth,
   multiLine,
@@ -36,7 +37,8 @@ const MuiTextField = ({
   disabled=false,
   InputLabelProps
 }) => {
-  const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
+  const onChangeHandler: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
+    onChange?.(event);
     updateCurrentValues({
       [path]: event.target.value
     })
@@ -48,7 +50,7 @@ const MuiTextField = ({
     value={value ?? ""}
     defaultValue={defaultValue}
     label={label}
-    onChange={onChange}
+    onChange={onChangeHandler}
     multiline={multiLine}
     rows={rows}
     type={type}

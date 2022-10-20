@@ -504,14 +504,7 @@ const schema: SchemaType<DbUser> = {
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
     hidden: forumTypeSetting.get() !== "EAForum",
-    control: "select",
-    form: {
-      options: [
-        {value: "auto", label: "Auto"},
-        {value: "default", label: "Light"},
-        {value: "dark", label: "Dark"},
-      ],
-    },
+    control: "ThemeSelect",
     order: 1,
     group: formGroups.siteCustomizations,
   },

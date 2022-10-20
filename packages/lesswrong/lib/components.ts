@@ -643,6 +643,7 @@ importComponent("TagFlagToggleList", () => require('../components/form-component
 importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
+importComponent("ThemeSelect", () => require('../components/form-components/ThemeSelect'));
 
 importComponent(["CommentOnSelectionPageWrapper","SelectedTextToolbar","CommentOnSelectionContentWrapper"], () => require('../components/comments/CommentOnSelection'));
 importComponent("PopupCommentEditor", () => require('../components/comments/PopupCommentEditor'));
