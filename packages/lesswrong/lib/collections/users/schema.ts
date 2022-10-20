@@ -281,16 +281,6 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     group: adminGroup,
   },
-  isNotAdmin: {
-    type: Boolean,
-    label: 'Admin',
-    input: 'checkbox',
-    optional: true,
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    canRead: ['guests'],
-    group: adminGroup,
-  },
   profile: {
     type: Object,
     optional: true,
