@@ -9,7 +9,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';

@@ -1,6 +1,6 @@
 import React, { useContext, useCallback, useState } from 'react';
 import { useMutation, gql } from '@apollo/client';
-import { useCurrentUser } from './withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 
@@ -76,7 +76,6 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
   return { recordPostView, isRead };
 }
 
-export const withRecordPostView = hookToHoc(useRecordPostView);
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
   const {recordEvent} = useNewEvents()
@@ -118,4 +117,3 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
   return { recordTagView, isRead };
 }
 
-export default withRecordPostView;

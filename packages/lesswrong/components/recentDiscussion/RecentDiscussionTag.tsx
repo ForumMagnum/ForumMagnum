@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
-import { useRecordTagView } from '../common/withRecordPostView';
+import { useRecordTagView } from '../hooks/useRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';

@@ -14,7 +14,7 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
-import { ItemsReadContext } from './common/withRecordPostView';
+import { ItemsReadContext } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';

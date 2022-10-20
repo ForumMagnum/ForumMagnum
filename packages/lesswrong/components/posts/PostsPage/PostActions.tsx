@@ -8,7 +8,7 @@ import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/hel
 import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
-import { useItemsRead } from '../../common/withRecordPostView';
+import { useItemsRead } from '../../hooks/useRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';

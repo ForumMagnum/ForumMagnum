@@ -7,7 +7,7 @@ import {
 import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
