@@ -4,13 +4,11 @@ import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
-import moment from '../lib/moment-timezone';
-import { withCookies } from 'react-cookie'
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
-import { TimezoneContext } from './common/withTimezone';
+import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
@@ -126,12 +124,10 @@ interface ExternalProps {
   children?: React.ReactNode,
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
-  cookies: any,
   theme: ThemeType,
   updateUser: any,
 }
 interface LayoutState {
-  timezone: string,
   toc: {title: string|null, sections?: ToCSection[]}|null,
   hideNavigationSidebar: boolean,
 }
@@ -141,11 +137,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   
   constructor (props: LayoutProps) {
     super(props);
-    const { cookies, currentUser } = this.props;
-    const savedTimezone = cookies?.get('timezone');
+    const { currentUser } = this.props;
 
     this.state = {
-      timezone: savedTimezone,
       toc: null,
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
@@ -183,25 +177,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         hideNavigationSidebar: !prevState.hideNavigationSidebar
       }
     })
-  }
-
-  componentDidMount() {
-    const { updateUser, currentUser, cookies } = this.props;
-    const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
-      cookies.set('timezone', newTimezone);
-      if (currentUser) {
-        void updateUser({
-          selector: {_id: currentUser._id},
-          data: {
-            lastUsedTimezone: newTimezone,
-          }
-        })
-      }
-      this.setState({
-        timezone: newTimezone
-      });
-    }
   }
 
   render () {
@@ -260,7 +235,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
-      <TimezoneContext.Provider value={this.state.timezone}>
+      <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <TableOfContentsContext.Provider value={this.setToC}>
       <CommentOnSelectionPageWrapper>
@@ -322,7 +297,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       </CommentOnSelectionPageWrapper>
       </TableOfContentsContext.Provider>
       </ItemsReadContextWrapper>
-      </TimezoneContext.Provider>
+      </TimezoneWrapper>
       </UserContext.Provider>
       </AnalyticsContext>
     )
@@ -331,7 +306,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
-    withLocation, withCookies,
+    withLocation,
     withUpdate({
       collectionName: "Users",
       fragmentName: 'UsersCurrent',
