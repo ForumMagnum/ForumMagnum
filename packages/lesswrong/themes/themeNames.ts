@@ -93,7 +93,7 @@ export function getForumType(themeOptions: AbstractThemeOptions) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = {"name":"default"};
+export const defaultThemeOptions = {name: forumTypeSetting.get() === "EAForum" ? "auto" : "default"};
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {
