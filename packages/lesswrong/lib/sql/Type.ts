@@ -25,7 +25,7 @@ export abstract class Type {
     return this;
   }
 
-  isArray(): boolean {
+  isArray(): this is ArrayType {
     return false;
   }
 
@@ -130,7 +130,7 @@ export class JsonType extends Type {
 }
 
 export class ArrayType extends Type {
-  private subtype: Type;
+  subtype: Type;
 
   constructor(subtype: Type) {
     super();
@@ -164,23 +164,24 @@ export class IdType extends StringType {
  * Annotate a type as being non-nullable. Subtype may or may not be concrete.
  */
 export class NotNullType extends Type {
-  constructor(private subtype: Type) {
+  constructor(private type: Type) {
     super();
   }
 
   toString() {
-    return `${this.subtype.toString()} NOT NULL`;
+    return `${this.type.toString()} NOT NULL`;
   }
 
   toConcrete() {
-    return this.subtype.toConcrete();
+    return this.type.toConcrete();
   }
 
   isArray() {
-    return this.subtype.isArray();
+    return this.type.isArray();
   }
 }
 
+// FIXME there are bugs here, but don't try and fix them as part of this
 const valueToString = (value: any, subtype?: Type): string => {
   if (Array.isArray(value) && value.length === 0) {
     return subtype ? `'{}'::${subtype.toString()}[]` : "'{}'";
@@ -196,24 +197,24 @@ const valueToString = (value: any, subtype?: Type): string => {
  * Annotate a type as having a default value. Subtype may or may not be concrete.
  */
 export class DefaultValueType extends Type {
-  constructor(private subtype: Type, private value: any) {
+  constructor(private type: Type, private value: any) {
     super();
   }
 
   toString() {
-    return `${this.subtype.toString()} DEFAULT ${this.valueToString()}`;
+    return `${this.type.toString()} DEFAULT ${this.valueToString()}`;
   }
 
   private valueToString() {
-    return valueToString(this.value, this.subtype);
+    return valueToString(this.value, this.type.isArray() ? this.type.subtype : undefined);
   }
 
   toConcrete() {
-    return this.subtype.toConcrete();
+    return this.type.toConcrete();
   }
 
-  isArray() {
-    return this.subtype.isArray();
+  isArray(): this is ArrayType {
+    return this.type.isArray();
   }
 }
 

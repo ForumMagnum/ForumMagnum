@@ -40,7 +40,8 @@ export const createMigrator = async () => {
           up: async () => {
             context.timers[name] = {start: new Date()};
             // eslint-disable-next-line import/no-dynamic-require
-            const result = await require(path).up(context);
+            const result = await require(path).acceptsSchemaHash;
+            console.log(result);
             context.timers[name].end = new Date();
             return result;
           },
@@ -50,7 +51,7 @@ export const createMigrator = async () => {
             if (migration.down) {
               return migration.down(context);
             } else {
-            // eslint-disable-next-line no-console
+              // eslint-disable-next-line no-console
               console.warn(`Migration '${name}' has no down step`);
             }
           },

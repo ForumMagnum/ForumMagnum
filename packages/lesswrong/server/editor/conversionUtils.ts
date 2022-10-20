@@ -13,7 +13,7 @@ import markdownItFootnote from 'markdown-it-footnote'
 import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 import { mjpage }  from 'mathjax-node-page'
-import { isAnyTest } from '../../lib/executionEnvironment';
+import { isAnyTest, isScript } from '../../lib/executionEnvironment';
 import cheerio from 'cheerio';
 
 const turndownService = new TurndownService()
@@ -45,7 +45,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
   return new Promise((resolve, reject) => {
     let finished = false;
 
-    if (!isAnyTest) {
+    if (!isAnyTest && !isScript) {
       setTimeout(() => {
         if (!finished) {
           const errorMessage = `Timed out in mjpage when processing html: ${html}`;

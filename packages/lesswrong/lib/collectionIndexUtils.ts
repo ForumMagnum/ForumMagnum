@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { isServer, isAnyTest } from './executionEnvironment';
+import { isServer, isAnyTest, isScript } from './executionEnvironment';
 
 export type IndexDefinition = {
   key: Record<string, 1>,

@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
-import { onStartup, isAnyTest } from '../lib/executionEnvironment';
+import { onStartup, isAnyTest, isScript } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { printInFlightRequests, checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
 import { printInProgressCallbacks } from '../lib/vulcan-lib/callbacks';
@@ -68,7 +68,7 @@ const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentr
 const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 2000);
 
 onStartup(() => {
-  if (!isAnyTest) {
+  if (!isAnyTest && !isScript) {
     setInterval(() => {
       const memoryUsage = process.memoryUsage()?.heapTotal;
       if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {

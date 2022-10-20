@@ -40,7 +40,7 @@ import './server/scripts/mongoToSql';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
-import './server/scripts/checkSchema';
+import './server/scripts/makeMigrations';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';

@@ -1,5 +1,5 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { isDevelopment, isAnyTest } from '../lib/executionEnvironment';
+import { isDevelopment, isAnyTest, isScript } from '../lib/executionEnvironment';
 import { initializeSetting } from '../lib/publicSettings'
 import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, registeredSettings } from '../lib/settingsCache';
 import groupBy from 'lodash/groupBy';
@@ -24,7 +24,7 @@ if (isDevelopment && runValidateSettings) {
 }
 
 // We use Meteor.setInterval to make sure the code runs in a Fiber
-if (!isAnyTest) {
+if (!isAnyTest && !isScript) {
   setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
 }
 

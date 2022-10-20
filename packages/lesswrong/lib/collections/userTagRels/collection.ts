@@ -1,4 +1,5 @@
 import { ensureIndex } from "../../collectionIndexUtils";
+import { addUniversalFields } from "../../collectionUtils";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { createCollection } from '../../vulcan-lib';
 
@@ -49,6 +50,7 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
   //   },
   // }),
 });
+addUniversalFields({collection: UserTagRels})
 
 UserTagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbUserTagRel, context: ResolverContext|null): Promise<boolean> => {
   // Currently we don't need to access this via graphql so access is disabled
