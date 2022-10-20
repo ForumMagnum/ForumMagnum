@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ThemeMetadata, themeMetadata, getForumType, ThemeOptions, AbstractThemeOptions } from '../../themes/themeNames';
+import { ThemeMetadata, themeMetadata, getForumType } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
-import { useSetTheme } from './useTheme';
+import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import Divider from '@material-ui/core/Divider';
 import Check from '@material-ui/icons/Check';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
-import { useCookies } from 'react-cookie'
-import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
@@ -29,75 +27,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const removeStylesheetsMatching = (substring: string) => {
-  const linkTags = document.getElementsByTagName("link");
-  for (let i=0; i<linkTags.length; i++) {
-    if (linkTags[i].getAttribute("rel") === "stylesheet") {
-      const href = linkTags[i].getAttribute("href")
-      if (href && href.indexOf(substring) >= 0) {
-        linkTags[i].parentElement!.removeChild(linkTags[i]);
-        break;
-      }
-    }
-  }
-}
-const addStylesheet = (href: string, onFinish: (success: boolean)=>void) => {
-  const styleNode = document.createElement("link");
-  styleNode.setAttribute("rel", "stylesheet");
-  styleNode.setAttribute("href", href);
-  styleNode.onload = () => {
-    onFinish(true);
-  }
-  styleNode.onerror = () => {
-    onFinish(false);
-  }
-  document.head.appendChild(styleNode);
-}
-
-const THEME_COOKIE_NAME = "theme";
-
 const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  const [cookies, setCookie] = useCookies([THEME_COOKIE_NAME]);
   const { LWTooltip, Typography } = Components;
-  const [currentThemeOptions, setCurrentThemeOptions] = useState(window?.themeOptions);
-  const setPageTheme = useSetTheme();
+  const currentThemeOptions = useThemeOptions();
+  const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
-  
-  const setTheme = async (themeOptions: ThemeOptions) => {
-    setCurrentThemeOptions(themeOptions);
-    if (JSON.stringify(window.themeOptions) !== JSON.stringify(themeOptions)) {
-      const oldThemeOptions = window.themeOptions;
-      const serializedThemeOptions = JSON.stringify(themeOptions);
-      window.themeOptions = themeOptions;
-      setPageTheme(themeOptions);
-      setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
-        path: "/",
-        expires: moment().add(9999, 'days').toDate(),
-      });
-      addStylesheet(`/allStyles?theme=${encodeURIComponent(serializedThemeOptions)}`, (success: boolean) => {
-        if (success) {
-          removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));
-        }
-      });
-    }
-  }
 
-  const setAbstractTheme = async (themeOptions: AbstractThemeOptions) => {
-    if (themeOptions.name === "auto") {
-      themeOptions.name = "default"; // TODO: Properly resolve 'auto'
-    }
-    setTheme(themeOptions as ThemeOptions);
-  }
-  
   const selectedForumTheme = getForumType(currentThemeOptions);
-  
+
   const submenu = <Paper>
     {themeMetadata.map((themeMetadata: ThemeMetadata) =>
-      <MenuItem key={themeMetadata.name} onClick={async (ev) => {
-        await setAbstractTheme({
+      <MenuItem key={themeMetadata.name} onClick={() => {
+        setTheme({
           ...currentThemeOptions,
           name: themeMetadata.name
         })
@@ -109,9 +53,9 @@ const ThemePickerMenu = ({children, classes}: {
         {themeMetadata.label}
       </MenuItem>
     )}
-    
+
     <Divider/>
-    
+
     {currentUser?.isAdmin && <div>
       <div>
         <Typography variant="body2" className={classes.siteThemeOverrideLabel}>
@@ -127,8 +71,8 @@ const ThemePickerMenu = ({children, classes}: {
         </Typography>
       </div>
       {allForumTypes.map((forumType: ForumTypeString) =>
-        <MenuItem key={forumType} onClick={async (ev) => {
-          await setAbstractTheme({
+        <MenuItem key={forumType} onClick={() => {
+          setTheme({
             ...currentThemeOptions,
             siteThemeOverride: {
               ...currentThemeOptions.siteThemeOverride,
@@ -145,8 +89,7 @@ const ThemePickerMenu = ({children, classes}: {
       )}
     </div>}
   </Paper>
-  
-  
+
   return <LWTooltip
     title={submenu}
     tooltip={false} clickable={true}

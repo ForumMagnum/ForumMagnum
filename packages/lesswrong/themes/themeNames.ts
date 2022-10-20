@@ -19,6 +19,9 @@ export type AbstractThemeOptions = Pick<ThemeOptions, "siteThemeOverride"> & {
   name: UserThemeSetting
 }
 
+export const themeOptionsAreConcrete = (themeOptions: AbstractThemeOptions): themeOptions is ThemeOptions =>
+  userThemeNames.includes(themeOptions.name as UserThemeName);
+
 export type ThemeMetadata = {
   // Name to use for this theme internally, in config settings and stylesheet
   // names and whatnot. URL-safe characters only.
@@ -83,6 +86,16 @@ export function getForumType(themeOptions: AbstractThemeOptions) {
 
 export const defaultThemeOptions = {"name":"default"};
 
+const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
+  if (typeof themeOptions === "string") {
+    return isValidUserThemeSetting(themeOptions)
+      ? {name: themeOptions}
+      : JSON.parse(themeOptions);
+  } else {
+    return themeOptions as AbstractThemeOptions;
+  }
+}
+
 export function getThemeOptions(themeCookie: string | object, user: DbUser|UsersCurrent|null): AbstractThemeOptions {
   if (user?.theme && isValidUserThemeSetting(user?.theme)) {
     return {name: user?.theme};
@@ -90,6 +103,5 @@ export function getThemeOptions(themeCookie: string | object, user: DbUser|Users
   const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
   const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
   const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
-  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
-  return themeOptions;
+  return deserializeThemeOptions(serializedThemeOptions);
 }

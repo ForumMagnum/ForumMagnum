@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
-import type { AbstractThemeOptions, ThemeOptions } from '../../themes/themeNames';
+import { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import { usePrefersDarkMode } from './usePrefersDarkMode';
 
 type ThemeContextObj = {
   theme: ThemeType,
+  themeOptions: AbstractThemeOptions,
   setThemeOptions: (options: AbstractThemeOptions)=>void
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
@@ -15,53 +17,88 @@ export const useTheme = (): ThemeType => {
   return themeContext.theme;
 }
 
+export const useThemeOptions = (): AbstractThemeOptions => {
+  const themeContext = React.useContext(ThemeContext);
+  if (!themeContext) throw "useThemeOptions() used without the context available";
+  return themeContext.themeOptions;
+}
+
 export const useSetTheme = () => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useSetTheme() used without the context available";
   return themeContext.setThemeOptions;
 }
 
-const buildQuery = () => "window" in globalThis
-  ? window.matchMedia("(prefers-color-scheme: dark)")
-  : {
-    matches: false,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-  }; // TODO: Handle SSR
-
-const abstractThemeToConcrete = (
+export const abstractThemeToConcrete = (
   theme: AbstractThemeOptions,
-  query: {matches: boolean},
-): ThemeOptions => theme.name === "auto"
-  ? {...theme, name: query.matches ? "dark" : "default"}
-  : theme as ThemeOptions;
+  prefersDarkMode: boolean,
+): ThemeOptions => themeOptionsAreConcrete(theme)
+  ? theme
+  : {...theme, name: prefersDarkMode ? "dark" : "default"};
+
+const removeStylesheetsMatching = (substring: string) => {
+  const linkTags = document.getElementsByTagName("link");
+  for (let i = 0; i < linkTags.length; i++) {
+    if (linkTags[i].getAttribute("rel") === "stylesheet") {
+      const href = linkTags[i].getAttribute("href");
+      if (href && href.indexOf(substring) >= 0) {
+        linkTags[i].parentElement!.removeChild(linkTags[i]);
+        break;
+      }
+    }
+  }
+}
+
+type OnFinish = (error?: string | Event) => void;
+
+const addStylesheet = (href: string, onFinish: OnFinish) => {
+  const styleNode = document.createElement("link");
+  styleNode.setAttribute("rel", "stylesheet");
+  styleNode.setAttribute("href", href);
+  styleNode.onload = () => {
+    onFinish();
+  }
+  styleNode.onerror = onFinish;
+  document.head.appendChild(styleNode);
+}
+
+const addThemeStylesheet = (themeOptions: ThemeOptions, onFinish: OnFinish) => {
+  const serializedThemeOptions = JSON.stringify(themeOptions);
+  window.themeOptions = themeOptions;
+  addStylesheet(`/allStyles?theme=${encodeURIComponent(serializedThemeOptions)}`, onFinish);
+}
 
 export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
-  const [query] = useState(buildQuery());
-
   const [themeOptions, setThemeOptions] = useState(options);
   const [sheetsManager] = useState(new Map());
-
-  const [concreteTheme, setConcreteTheme] = useState(abstractThemeToConcrete(themeOptions, query));
+  const prefersDarkMode = usePrefersDarkMode();
+  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode)
 
   useEffect(() => {
-    const handler = (event: MediaQueryListEvent) => {
-      setConcreteTheme(abstractThemeToConcrete(themeOptions, event));
+    const serializedThemeOptions = JSON.stringify(concreteTheme);
+    if (serializedThemeOptions !== JSON.stringify(window?.themeOptions)) {
+      const oldThemeOptions = window.themeOptions;
+      addThemeStylesheet(concreteTheme, (error?: string | Event) => {
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("Failed to load stylesheet for theme:", concreteTheme, "Error:", error);
+        } else {
+          removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));
+        }
+      });
     }
-    query.addEventListener("change", handler);
-    return () => query.removeEventListener("change", handler);
-  }, [themeOptions]);
+  }, [themeOptions, concreteTheme]);
 
   const theme: any = useMemo(() =>
     getForumTheme(concreteTheme),
     [concreteTheme]
   );
   const themeContext = useMemo(() => (
-    {theme, setThemeOptions}),
-    [theme, setThemeOptions]
+    {theme, themeOptions, setThemeOptions}),
+    [theme, themeOptions, setThemeOptions]
   );
 
   return <ThemeContext.Provider value={themeContext}>
