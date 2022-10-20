@@ -507,7 +507,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const moderatorActionLogRow = <div>
     {user.moderatorActions
       .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => MODERATOR_ACTION_TYPES[moderatorAction.type])
+      .map(moderatorAction => <div>{MODERATOR_ACTION_TYPES[moderatorAction.type]}</div>)
     }
   </div>
 
