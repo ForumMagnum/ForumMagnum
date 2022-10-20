@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 }); 
 
 const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
-  onTagSelected?: (props: {tagId: string, tagName: string})=>void,
+  onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>)=>void,
   classes: ClassesType,
   existingTagIds?: Array<string|undefined>
 }) => {
@@ -48,11 +48,11 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
 
   const unusedCoreTags = results?.filter(tag => !existingTagIds.includes(tag._id))
 
-  const handleOnTagSelected = (tag) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name}) : undefined
+  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name}, existingTagIds) : undefined
 
   return <>
     {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> {taggingNameSetting.get()}</div>}>
-      <div className={classes.tag} onClick={() => handleOnTagSelected(tag)}>
+      <div className={classes.tag} onClick={() => handleOnTagSelected(tag, existingTagIds)}>
         {tag.name}
       </div>
     </LWTooltip>)}
