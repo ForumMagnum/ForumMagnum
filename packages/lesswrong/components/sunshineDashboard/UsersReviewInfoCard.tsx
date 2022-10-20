@@ -200,6 +200,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap"
+  },
+  reviewedAt: {
+    marginTop: 16,
+    fontStyle: "italic"
   }
 })
 
@@ -641,7 +645,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           <div>
             {moderatorActionLogRow}
             {user.reviewedAt
-              ? <div><p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p></div>
+              ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></div>
               : null 
             }
             {user.banned
