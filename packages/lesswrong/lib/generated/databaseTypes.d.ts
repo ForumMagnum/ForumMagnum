@@ -820,6 +820,7 @@ interface DbUser extends DbObject {
   legacy: boolean
   commentSorting: string
   sortDraftsBy: string
+  noKibitz: boolean
   showHideKarmaOption: boolean
   showPostAuthorCard: boolean
   hideIntercom: boolean
