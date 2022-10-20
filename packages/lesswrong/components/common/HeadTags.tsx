@@ -44,7 +44,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
         }
 
         <Helmet key={pathname}>
-          <meta charSet='utf-8'/>
+          <meta charset='utf-8'/>
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
