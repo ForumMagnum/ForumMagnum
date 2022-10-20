@@ -46,6 +46,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  qualitySignalRow: {
+  },
   permissionsRow: {
     display: "flex",
     alignItems: "center",
@@ -408,7 +410,14 @@ const SunshineNewUsersInfo = ({ user, classes }: {
             <div className={classes.info}>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              
+              {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+              {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+              {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
+                <em>Alternate accounts detected</em>
+              </div>}
+              <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
               <div className={classes.notes}>
