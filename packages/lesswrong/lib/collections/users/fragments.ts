@@ -277,6 +277,7 @@ registerFragment(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
+    associatedClientId
   }
 `);
 
