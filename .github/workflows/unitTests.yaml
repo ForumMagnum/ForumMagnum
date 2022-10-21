@@ -4,70 +4,43 @@ on:
   pull_request:
     branches-ignore:
       - ea-deploy
+  workflow_dispatch:
 jobs:
   runLint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
-    - run: yarn install --frozen-lockfile
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
     - run: yarn run eslint
 
   runTypecheck:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
-    - run: yarn install --frozen-lockfile
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
   runUnitTests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
-    - run: yarn install --frozen-lockfile
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
 
   runIntegrationTests:
     concurrency: integration
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
-    - run: yarn install --frozen-lockfile
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
     - name: Seed integration database
       if: failure()
       env:

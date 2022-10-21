@@ -2,7 +2,6 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const WebSocket = require('ws');
-const fetch = require("node-fetch");
 const crypto = require('crypto');
 const { zlib } = require("mz");
 

@@ -1,13 +1,13 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { TagCommentType } from './types';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 import { forumTypeSetting } from "../../instanceSettings";
 import GraphQLJSON from 'graphql-type-json';
 import { commentGetPageUrlFromDB } from './helpers';
+import { tagCommentTypes } from './types';
 
 
 export const moderationOptionsGroup: FormGroup = {
@@ -116,9 +116,9 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    allowedValues: Object.values(TagCommentType),
+    allowedValues: Object.values(tagCommentTypes),
     hidden: true,
-    ...schemaDefaultValue(TagCommentType.Discussion as string),
+    ...schemaDefaultValue("DISCUSSION"),
   },
   // The comment author's `_id`
   userId: {
