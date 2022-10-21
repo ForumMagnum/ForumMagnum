@@ -181,7 +181,7 @@ export class NotNullType extends Type {
   }
 }
 
-// FIXME there are bugs here, but don't try and fix them as part of this
+// FIXME there are bugs with the way strings are handled here, e.g. if there is a string within an object we don't escape the quotes
 const valueToString = (value: any, subtype?: Type): string => {
   if (Array.isArray(value) && value.length === 0) {
     return subtype ? `'{}'::${subtype.toString()}[]` : "'{}'";
