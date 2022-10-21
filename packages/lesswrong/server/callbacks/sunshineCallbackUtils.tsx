@@ -6,6 +6,7 @@ import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib"
 import { RECENTLY_DOWNVOTED_CONTENT_ALERT, LOW_AVERAGE_KARMA_COMMENT_ALERT, isActionActive, NEGATIVE_KARMA_USER_ALERT, LOW_AVERAGE_KARMA_POST_ALERT } from "../../lib/collections/moderatorActions/schema";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { Posts } from "../../lib/collections/posts";
+import { isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
 
 /** This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * 
@@ -63,16 +64,6 @@ export function areRecentlyDownvotedComments(comments: DbVoteableType[]) {
   return downvotedCommentCount >= badCommentCountThreshold;
 }
 
-export function isLowAverageKarmaContent(comments: DbVoteableType[], karmaThreshold: number) {
-  if (comments.length < 20) return false;
-
-  const mediocreAverageKarmaThreshold = 1.5;
-  const runningCommentKarma = comments.reduce((prev, curr) => prev + curr.baseScore, 0);
-  const averageCommentKarma = runningCommentKarma / comments.length;
-
-  return averageCommentKarma < mediocreAverageKarmaThreshold;
-}
-
 async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
   const context = createAdminContext();
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
@@ -110,7 +101,6 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
   const context = createAdminContext();
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   if (lastModeratorAction && isActionActive(lastModeratorAction)) {
-    // TODO
     void updateMutator({
       collection: ModeratorActions,
       documentId: lastModeratorAction._id,
@@ -148,10 +138,9 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
   
   // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
-
   const lowQualityComments = areRecentlyDownvotedComments(voteableContent);
-  const mediocreQualityComments = isLowAverageKarmaContent(latestComments, 1.5);
-  const mediocreQualityPosts = isLowAverageKarmaContent(latestPosts, 5);
+  const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(latestComments, 'comment');
+  const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(latestPosts, 'post');
 
   handleAutomodAction(lowQualityComments, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
   handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
