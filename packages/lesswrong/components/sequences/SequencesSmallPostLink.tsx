@@ -26,20 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 10,
     marginTop: 10
   },
-  read: {
-    width: 12,
-    color: forumTypeSetting.get() === "EAForum"
-      ? theme.palette.primary.main
-      : theme.palette.primary.light,
-    marginRight: 10,
+  checkbox: {
     position: "relative",
-    top: -1
-  },
-  unread: {
-    width: 12,
-    color: theme.palette.grey[400],
-    marginRight: 10,
-    top: -1
+    top: -1,
+    marginRight: 10
   }
 });
 
@@ -50,17 +40,13 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   large?: boolean,
   placement?: PopperPlacementType | undefined
 }) => {
-  const { LWTooltip, PostsPreviewTooltip } = Components
-
-  const { postsRead: clientPostsRead } = useItemsRead();
-
-  const isPostRead = post.isRead || clientPostsRead[post._id];
-
-  const icon = isPostRead ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
+  const { LWTooltip, PostsPreviewTooltip, PostReadCheckbox } = Components
 
   return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement={placement} inlineBlock={false} flip>
         <Link to={postGetPageUrl(post, false, sequenceId)} className={classNames(classes.title, {[classes.large]: large})}>
-          {icon} {post.title}
+          <div className={classes.checkbox}>
+            <PostReadCheckbox post={post} /> {post.title}
+          </div>
         </Link>
       </LWTooltip>
 }
