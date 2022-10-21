@@ -3,6 +3,10 @@ import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
+import { useCookies } from 'react-cookie'
+import moment from 'moment';
+
+const THEME_COOKIE_NAME = "theme";
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -72,6 +76,7 @@ export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
+  const [_cookies, setCookie] = useCookies([THEME_COOKIE_NAME]);
   const [themeOptions, setThemeOptions] = useState(options);
   const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
@@ -81,6 +86,11 @@ export const ThemeContextProvider = ({options, children}: {
     const serializedThemeOptions = JSON.stringify(concreteTheme);
     if (serializedThemeOptions !== JSON.stringify(window?.themeOptions)) {
       const oldThemeOptions = window.themeOptions;
+      window.themeOptions = themeOptions;
+      setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+        path: "/",
+        expires: moment().add(9999, 'days').toDate(),
+      });
       addThemeStylesheet(concreteTheme, (error?: string | Event) => {
         if (error) {
           // eslint-disable-next-line no-console
@@ -90,7 +100,7 @@ export const ThemeContextProvider = ({options, children}: {
         }
       });
     }
-  }, [themeOptions, concreteTheme]);
+  }, [themeOptions, concreteTheme, setCookie]);
 
   const theme: any = useMemo(() =>
     getForumTheme(concreteTheme),

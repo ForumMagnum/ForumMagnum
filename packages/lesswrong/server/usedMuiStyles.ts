@@ -6,16 +6,12 @@
  * and import the _file_ when the component is defined, not just the directory
  * (ie; "@material-ui/core/Badge/Badge" instead of "@material-ui/core/Badge").
  *
- * You also need to add any MUI components that the new component depends on
- * internally. To find these, you can either just look at the code in
- * node_modules/@material-ui/core, or you can use the dev tools inspector to
- * find any <style> nodes that were inserted into the page with data-jss=""
- * and data-meta="Mui..." - any component with this should be included here.
- * Failing to do this will result in the wrong theme being used during SSR - it
- * will be fixed during JS hydration, but you'll get an ugly flash of the wrong
- * theme.
+ * Some components also have a 'Base' variant that must be included here too
+ * even if they're only used indirectly (eg; InputBase, ButtonBase). Failing to
+ * do this will result in the wrong theme being used during SSR - it will be
+ * fixed during JS hydration, but you'll get an ugly flash of the wrong theme.
  */
-const getUsedMuiComponents = () => {
+const getUsedMuiStyles = () => {
   const components = {
     MuiBadge: require("@material-ui/core/Badge/Badge").styles,
     MuiButtonBase: require("@material-ui/core/ButtonBase/ButtonBase").styles,
@@ -79,4 +75,4 @@ const getUsedMuiComponents = () => {
   }, {});
 }
 
-export const usedMuiComponents = getUsedMuiComponents();
+export const usedMuiStyles = getUsedMuiStyles();

@@ -38,16 +38,25 @@ const ThemePickerMenu = ({children, classes}: {
 
   const selectedForumTheme = getForumType(currentThemeOptions);
 
+  const setThemeName = (name: UserThemeSetting) => {
+    setTheme({...currentThemeOptions, name});
+  }
+
+  const setThemeForum = (forumType: ForumTypeString) => {
+    setTheme({
+      ...currentThemeOptions,
+      siteThemeOverride: {
+        ...currentThemeOptions.siteThemeOverride,
+        [forumTypeSetting.get()]: forumType,
+      },
+    });
+  }
+
   const submenu = <Paper>
     {forumTypeSetting.get() !== "EAForum" &&
       <>
         {themeMetadata.map((themeMetadata: ThemeMetadata) =>
-          <MenuItem key={themeMetadata.name} onClick={() => {
-            setTheme({
-              ...currentThemeOptions,
-              name: themeMetadata.name
-            })
-          }}>
+          <MenuItem key={themeMetadata.name} onClick={() => setThemeName(themeMetadata.name)}>
             {currentThemeOptions?.name === themeMetadata.name
               ? <Check className={classes.check}/>
               : <div className={classes.notChecked}/>
@@ -74,15 +83,7 @@ const ThemePickerMenu = ({children, classes}: {
         </Typography>
       </div>
       {allForumTypes.map((forumType: ForumTypeString) =>
-        <MenuItem key={forumType} onClick={() => {
-          setTheme({
-            ...currentThemeOptions,
-            siteThemeOverride: {
-              ...currentThemeOptions.siteThemeOverride,
-              [forumTypeSetting.get()]: forumType
-            },
-          })
-        }}>
+        <MenuItem key={forumType} onClick={() => setThemeForum(forumType)}>
           {(selectedForumTheme === forumType)
             ? <Check className={classes.check}/>
             : <div className={classes.notChecked}/>
