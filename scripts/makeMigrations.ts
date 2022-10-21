@@ -4,6 +4,14 @@ import path from 'path';
 import { promisify } from 'util';
 import { migrationsPath } from '../packages/lesswrong/server/scripts/acceptMigrations';
 
+/**
+ * Entry point for `yarn makemigrations`
+ *
+ * This function is a simple wrapper around the `makeMigrations` script to provide some
+ * feedback to the user (because it runs as a server script any log output it sent to the server stdout).
+ * See `packages/lesswrong/server/scripts/makeMigrations.ts` for more complete documentation.
+ * @returns
+ */
 const run = async () => {
   const rootPath = path.join(__dirname, "../")
 

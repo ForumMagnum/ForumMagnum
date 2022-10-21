@@ -152,16 +152,27 @@ used.
 * (Note: currently aspirational): If you fix a bug, **write a test for it**.
 * If you're trying to debug an email problem, you might want to know about `forcePendingEvents`.
 
-### Database Migrations
+## Database Migrations
 
 All migrations should be designed to be idempotent and should represent a
 one-off operation (such as updating a table schema). Operations that need to be
 run multiple times should instead be implemented as a server script.
 
 * Run pending migrations with `yarn migrate up`
-* Create a new migration with `yarn migrate create --name=my-new-migration`
+* Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
 * View pending migrations with `yarn migrate pending`
 * View executed migrations with `yarn migrate executed`
+
+### Schema changing migrations
+
+Many (most) migrations will just be to update the database schema to be in line with what the code expects. For these we have
+scripts to autogenerate a migration template, and assert that the new schema has been "accepted" (i.e. you have remembered to write a migration).
+For these the development process will be like this:
+
+* Make some changes which add or alter fields in one of the `schema.ts` files
+* Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
+* Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
+* Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
 
 ## Testing
 
