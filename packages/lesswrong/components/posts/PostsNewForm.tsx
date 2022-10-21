@@ -12,7 +12,6 @@ import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
-import { groupLayoutStyles } from '../vulcan-forms/FormGroup';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -97,11 +96,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
-  },
-  tags: {
-    ...groupLayoutStyles(theme).formSection,
-    padding: 16,
-    paddingBottom: 12
   }
 })
 
@@ -165,7 +159,7 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, CoreTagsChecklist } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
