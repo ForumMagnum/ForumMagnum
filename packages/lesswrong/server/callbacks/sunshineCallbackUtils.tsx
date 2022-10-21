@@ -101,7 +101,6 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
   const context = createAdminContext();
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   if (lastModeratorAction && isActionActive(lastModeratorAction)) {
-    // TODO
     void updateMutator({
       collection: ModeratorActions,
       documentId: lastModeratorAction._id,
