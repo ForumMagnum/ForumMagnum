@@ -1,21 +1,17 @@
 import { useState, useEffect } from "react";
-import { useCookies } from "react-cookie";
 import { isClient } from "../../lib/executionEnvironment";
 
-const DARK_MODE_COOKIE = "prefersDarkMode";
-
-const buildQuery = (cookies: Record<string, any>) =>
+const buildQuery = () =>
   isClient && "matchMedia" in window
     ? window.matchMedia("(prefers-color-scheme: dark)")
     : {
-      matches: cookies[DARK_MODE_COOKIE] === "true",
+      matches: false,
       addEventListener: () => {},
       removeEventListener: () => {},
     };
 
 export const usePrefersDarkMode = () => {
-  const [cookies, setCookie] = useCookies();
-  const [query] = useState(() => buildQuery(cookies));
+  const [query] = useState(() => buildQuery());
   const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
 
   useEffect(() => {
@@ -23,10 +19,6 @@ export const usePrefersDarkMode = () => {
       query.addEventListener("change", handler);
       return () => query.removeEventListener("change", handler);
   }, [query]);
-
-  useEffect(() => {
-    setCookie(DARK_MODE_COOKIE, prefersDarkMode ? "true" : "false");
-  }, [prefersDarkMode, setCookie]);
 
   return prefersDarkMode;
 }

@@ -36,12 +36,6 @@ export function clearCookie(req, res, cookieName) {
   }
 }
 
-/**
- * Check the cookies on this request to see if the user prefers dark mode or not
- */
-export const requestPrefersDarkMode = (req: Request | IncomingMessage) =>
-  getCookieFromReq(req, "prefersDarkMode") === "true";
-
 // Differs between Meteor-wrapped Express and regular Express, for some reason.
 // (In Express it's a string; in Meteor it's parsed.)
 export function getPathFromReq(req: Request): string {

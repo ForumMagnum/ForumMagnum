@@ -24,9 +24,9 @@ export const useThemeOptions = (): AbstractThemeOptions => {
 }
 
 export const useConcreteThemeOptions = (): ThemeOptions => {
-  const themeContext = React.useContext(ThemeContext);
-  if (!themeContext) throw "useThemeOptions() used without the context available";
   const prefersDarkMode = usePrefersDarkMode();
+  const themeContext = React.useContext(ThemeContext);
+  if (!themeContext) throw "useConcreteThemeOptions() used without the context available";
   return abstractThemeToConcrete(themeContext.themeOptions, prefersDarkMode);
 }
 

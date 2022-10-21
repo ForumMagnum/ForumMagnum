@@ -11,10 +11,9 @@ import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
-import { isValidSerializedThemeOptions, AbstractThemeOptions, ThemeOptions, getForumType, resolveThemeName, abstractThemeToConcrete } from '../themes/themeNames';
+import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { requestPrefersDarkMode } from './utils/httpUtil';
 import { usedMuiComponents } from './usedMuiComponents';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
@@ -80,16 +79,15 @@ type ThemeKey = {
 
 type MergedStylesheet = {css: Buffer, url: string, hash: string};
 
-export const getMergedStylesheet = (theme: AbstractThemeOptions, prefersDarkMode: boolean): MergedStylesheet => {
+export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
   const themeKeyData: ThemeKey = {
-    name: resolveThemeName(theme.name, prefersDarkMode),
+    name: theme.name,
     forumTheme: getForumType(theme),
   };
   const themeKey = JSON.stringify(themeKeyData);
   
   if (!mergedStylesheets[themeKey]) {
-    const concreteTheme = abstractThemeToConcrete(theme, prefersDarkMode);
-    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(concreteTheme);
+    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);
   }
   const mergedStylesheet = mergedStylesheets[themeKey]!;
   
@@ -105,8 +103,7 @@ addStaticRoute("/allStyles", ({query}, req, res, next) => {
   const encodedThemeOptions = query?.theme;
   const serializedThemeOptions = decodeURIComponent(encodedThemeOptions);
   const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
-  const prefersDarkMode = requestPrefersDarkMode(req);
-  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions, prefersDarkMode);
+  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions);
   
   if (!expectedHash) {
     res.writeHead(302, {

@@ -20,10 +20,10 @@ import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
-import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq, requestPrefersDarkMode } from '../../utils/httpUtil';
+import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
+import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
@@ -198,7 +198,14 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
 
   // TODO: there should be a cleaner way to set this wrapper
   // id must always match the client side start.jsx file
-  const ssrBody = `<div id="react-app">${htmlContent}</div>`;
+  //
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const ssrBody = `<script>0</script><div id="react-app">${htmlContent}</div>`;
 
   // add headers using helmet
   const head = ReactDOM.renderToString(<Head />);
@@ -208,11 +215,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
-  const prefersDarkMode = requestPrefersDarkMode(req);
-  const stylesheet = getMergedStylesheet(themeOptions, prefersDarkMode);
-  const jssSheets = '<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
-  
+  const jssSheets = renderJssSheetImports(themeOptions);
+
   const finishedTime = new Date();
   const timings: RenderTimings = {
     prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
