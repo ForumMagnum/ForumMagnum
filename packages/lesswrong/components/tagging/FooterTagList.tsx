@@ -152,7 +152,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   
  
   return <span className={classes.root}>
-    {showCoreTags && <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/>}
+    {showCoreTags && <div><CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       tagRel.tag && <FooterTag 
         key={tagRel._id} 
