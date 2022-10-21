@@ -1,17 +1,7 @@
 [
   {
-    "schemaHash": "3d7167eb3107712820e05ee1ef583cca88d9650a",
-    "acceptedBy": "packages/lesswrong/server/migrations/path-to-migration.ts",
-    "timestamp": "2022-10-07T10:10:59.832Z"
-  },
-  {
     "acceptsSchemaHash": "f35e3a55fef9bc8ce69b41f9f8358f80",
-    "acceptedByMigration": "20221018T120000.test.ts",
-    "timestamp": "2022-10-18T12:00:00.000Z"
-  },
-  {
-    "acceptsSchemaHash": "654f4ac9cac8036a673df6776b5bc243",
-    "acceptedByMigration": "20221020T204321.auto.ts",
-    "timestamp": "2022-10-20T20:43:21.000Z"
+    "acceptedByMigration": "20221021T091915.auto.ts",
+    "timestamp": "2022-10-21T09:19:15.000Z"
   }
 ]

@@ -53,7 +53,7 @@ const generateMigration = async ({
 
   let contents = "";
   contents += migrationTemplateHeader.replace("%TIMESTAMP%", new Date().toISOString());
-  contents += paddedDiff;
+  contents += paddedDiff.length < 1500 ? paddedDiff : ` * ***Diff too large to display***`;
   contents += migrationTemplateFooter.replace("%HASH%", newHash);
   
   const fileTimestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
@@ -78,16 +78,17 @@ const getCreateTableQueryForCollection = (collectionName: string): string => {
   return sql;
 }
 
-Vulcan.makeMigrations = async ({write=true, rootPath=ROOT_PATH}: {write: boolean, rootPath: string}) => {
+export const makeMigrations = async ({
+  writeSchemaChangelog=true, writeAcceptedSchema=true, generateMigrations=true, rootPath=ROOT_PATH
+}: {writeSchemaChangelog: boolean, writeAcceptedSchema: boolean, generateMigrations: boolean, rootPath: string}) => {
   console.log(`=== Checking for schema changes ===`);
-  const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write, rootPath});
+  const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
 
   const currentHashes: Partial<Record<CollectionNameString, string>> = {};
   let schemaFileContents = "";
 
   // Sort collections by name, so that the order of the output is deterministic
   const collectionNames = getAllCollections().map(c => c.collectionName).sort();
-  console.log(collectionNames);
   let failed: string[] = [];
 
   for (const collectionName of collectionNames) {
@@ -109,18 +110,23 @@ Vulcan.makeMigrations = async ({write=true, rootPath=ROOT_PATH}: {write: boolean
   if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
   
   const overallHash = md5(Object.values(currentHashes).sort().join());
-  const schemaFileHeader = `-- Accepted on ${timestamp}${acceptedByMigration ? " by " + acceptedByMigration : ''}\n-- Overall schema hash: ${overallHash}\n\n`;
+  let schemaFileHeader = `-- Overall schema hash: ${overallHash}\n\n`;
   
   const newSchemaFile = newSchemaPath(rootPath);
   const acceptedSchemaFile = acceptedSchemePath(rootPath);
+
   if (overallHash !== acceptedHash) {
-    if (write) {
+    if (writeAcceptedSchema) {
       fs.writeFileSync(newSchemaFile, schemaFileHeader + schemaFileContents);
+    }
+    if (generateMigrations) {
       await generateMigration({oldSchemaFile: acceptedSchemaFile, newSchemaFile, newHash: overallHash, rootPath});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }
-  if (write) {
+
+  if (writeAcceptedSchema) {
+    schemaFileHeader = `-- Accepted on ${timestamp}${acceptedByMigration ? " by " + acceptedByMigration : ''}\n` + schemaFileHeader;
     await fs.writeFile(acceptedSchemaFile, schemaFileHeader + schemaFileContents);
     if (fs.existsSync(newSchemaFile)) {
       await fs.unlink(newSchemaFile);
@@ -130,4 +136,4 @@ Vulcan.makeMigrations = async ({write=true, rootPath=ROOT_PATH}: {write: boolean
   console.log("=== Done ===");
 }
 
-export default Vulcan.makeMigrations;
+Vulcan.makeMigrations = makeMigrations;

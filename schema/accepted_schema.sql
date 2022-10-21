@@ -1,5 +1,5 @@
--- Accepted on 2022-10-20T20:43:21.000Z by 20221020T204321.auto.ts
--- Overall schema hash: 654f4ac9cac8036a673df6776b5bc243
+-- Accepted on 2022-10-21T09:19:15.000Z by 20221021T091915.auto.ts
+-- Overall schema hash: f35e3a55fef9bc8ce69b41f9f8358f80
 
 -- Schema for "AdvisorRequests", hash: c68c630bbfc47b6b22cf8750fb8a8d74
 CREATE TABLE "AdvisorRequests" (
@@ -710,13 +710,12 @@ CREATE TABLE "UserTagRels" (
     "schemaVersion" real DEFAULT 1,
     "createdAt" timestamptz)
 
--- Schema for "Users", hash: dd0e0a33d17dd480d34e0785fcfe60b8
+-- Schema for "Users", hash: 9de9a90f9bcc664058f718184416b3ed
 CREATE TABLE "Users" (
     _id varchar(27) PRIMARY KEY,
     "username" text,
     "emails" jsonb[],
     "isAdmin" bool,
-    "isNotAdmin" bool,
     "profile" jsonb,
     "services" jsonb,
     "displayName" text,
