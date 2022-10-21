@@ -5,10 +5,20 @@
  * When adding a new component below, we sure to prepend it's name with 'Mui',
  * and import the _file_ when the component is defined, not just the directory
  * (ie; "@material-ui/core/Badge/Badge" instead of "@material-ui/core/Badge").
+ *
+ * You also need to add any MUI components that the new component depends on
+ * internally. To find these, you can either just look at the code in
+ * node_modules/@material-ui/core, or you can use the dev tools inspector to
+ * find any <style> nodes that were inserted into the page with data-jss=""
+ * and data-meta="Mui..." - any component with this should be included here.
+ * Failing to do this will result in the wrong theme being used during SSR - it
+ * will be fixed during JS hydration, but you'll get an ugly flash of the wrong
+ * theme.
  */
 const getUsedMuiComponents = () => {
   const components = {
     MuiBadge: require("@material-ui/core/Badge/Badge").styles,
+    MuiButtonBase: require("@material-ui/core/ButtonBase/ButtonBase").styles,
     MuiButton: require("@material-ui/core/Button/Button").styles,
     MuiCard: require("@material-ui/core/Card/Card").styles,
     MuiCardContent: require("@material-ui/core/CardContent/CardContent").styles,
@@ -21,10 +31,12 @@ const getUsedMuiComponents = () => {
     MuiDialogContentText: require("@material-ui/core/DialogContentText/DialogContentText").styles,
     MuiDialogTitle: require("@material-ui/core/DialogTitle/DialogTitle").styles,
     MuiDivider: require("@material-ui/core/Divider/Divider").styles,
+    MuiDrawer: require("@material-ui/core/Drawer/Drawer").styles,
     MuiFormControl: require("@material-ui/core/FormControl/FormControl").styles,
     MuiFormControlLabel: require("@material-ui/core/FormControlLabel/FormControlLabel").styles,
     MuiFormLabel: require("@material-ui/core/FormLabel/FormLabel").styles,
     MuiIconButton: require("@material-ui/core/IconButton/IconButton").styles,
+    MuiInputBase: require("@material-ui/core/InputBase/InputBase").styles,
     MuiInput: require("@material-ui/core/Input/Input").styles,
     MuiInputAdornment: require("@material-ui/core/InputAdornment/InputAdornment").styles,
     MuiInputLabel: require("@material-ui/core/InputLabel/InputLabel").styles,
@@ -35,6 +47,7 @@ const getUsedMuiComponents = () => {
     MuiListItemText: require("@material-ui/core/ListItemText/ListItemText").styles,
     MuiMenu: require("@material-ui/core/Menu/Menu").styles,
     MuiMenuItem: require("@material-ui/core/MenuItem/MenuItem").styles,
+    MuiModal: require("@material-ui/core/Modal/Modal").styles,
     MuiNoSsr: require("@material-ui/core/NoSsr/NoSsr").styles,
     MuiOutlinedInput: require("@material-ui/core/OutlinedInput/OutlinedInput").styles,
     MuiPaper: require("@material-ui/core/Paper/Paper").styles,
