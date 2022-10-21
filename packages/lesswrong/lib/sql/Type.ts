@@ -25,7 +25,7 @@ export abstract class Type {
     return this;
   }
 
-  isArray(): this is ArrayType {
+  isArray(): boolean {
     return false;
   }
 
@@ -130,7 +130,7 @@ export class JsonType extends Type {
 }
 
 export class ArrayType extends Type {
-  subtype: Type;
+  private subtype: Type;
 
   constructor(subtype: Type) {
     super();
@@ -164,24 +164,23 @@ export class IdType extends StringType {
  * Annotate a type as being non-nullable. Subtype may or may not be concrete.
  */
 export class NotNullType extends Type {
-  constructor(private type: Type) {
+  constructor(private subtype: Type) {
     super();
   }
 
   toString() {
-    return `${this.type.toString()} NOT NULL`;
+    return `${this.subtype.toString()} NOT NULL`;
   }
 
   toConcrete() {
-    return this.type.toConcrete();
+    return this.subtype.toConcrete();
   }
 
   isArray() {
-    return this.type.isArray();
+    return this.subtype.isArray();
   }
 }
 
-// FIXME there are bugs here, but don't try and fix them as part of this
 const valueToString = (value: any, subtype?: Type): string => {
   if (Array.isArray(value) && value.length === 0) {
     return subtype ? `'{}'::${subtype.toString()}[]` : "'{}'";
@@ -197,24 +196,24 @@ const valueToString = (value: any, subtype?: Type): string => {
  * Annotate a type as having a default value. Subtype may or may not be concrete.
  */
 export class DefaultValueType extends Type {
-  constructor(private type: Type, private value: any) {
+  constructor(private subtype: Type, private value: any) {
     super();
   }
 
   toString() {
-    return `${this.type.toString()} DEFAULT ${this.valueToString()}`;
+    return `${this.subtype.toString()} DEFAULT ${this.valueToString()}`;
   }
 
   private valueToString() {
-    return valueToString(this.value, this.type.isArray() ? this.type.subtype : undefined);
+    return valueToString(this.value, this.subtype);
   }
 
   toConcrete() {
-    return this.type.toConcrete();
+    return this.subtype.toConcrete();
   }
 
-  isArray(): this is ArrayType {
-    return this.type.isArray();
+  isArray() {
+    return this.subtype.isArray();
   }
 }
 

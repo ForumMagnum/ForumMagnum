@@ -1,5 +1,5 @@
 -- Accepted on 2022-10-21T09:19:15.000Z by 20221021T091915.auto.ts
--- Overall schema hash: f35e3a55fef9bc8ce69b41f9f8358f80
+-- Overall schema hash: b176ca446ee855231bf4bd5b4b498bfb
 
 -- Schema for "AdvisorRequests", hash: c68c630bbfc47b6b22cf8750fb8a8d74
 CREATE TABLE "AdvisorRequests" (
@@ -346,7 +346,7 @@ CREATE TABLE "PostRelations" (
     "schemaVersion" real DEFAULT 1,
     "createdAt" timestamptz)
 
--- Schema for "Posts", hash: 5de25300679283e5afe837e085d55a2b
+-- Schema for "Posts", hash: 22c85503ac37424e9b7037a1be34a60b
 CREATE TABLE "Posts" (
     _id varchar(27) PRIMARY KEY,
     "postedAt" timestamptz,
@@ -383,17 +383,17 @@ CREATE TABLE "Posts" (
     "reviewVoteCount" real DEFAULT 0,
     "positiveReviewVoteCount" real DEFAULT 0,
     "reviewVoteScoreAF" real DEFAULT 0,
-    "reviewVotesAF" real[] DEFAULT '{}' ::real[],
+    "reviewVotesAF" real[] DEFAULT '{}' ::real[][],
     "reviewVoteScoreHighKarma" real DEFAULT 0,
-    "reviewVotesHighKarma" real[] DEFAULT '{}' ::real[],
+    "reviewVotesHighKarma" real[] DEFAULT '{}' ::real[][],
     "reviewVoteScoreAllKarma" real DEFAULT 0,
-    "reviewVotesAllKarma" real[] DEFAULT '{}' ::real[],
+    "reviewVotesAllKarma" real[] DEFAULT '{}' ::real[][],
     "finalReviewVoteScoreHighKarma" real DEFAULT 0,
-    "finalReviewVotesHighKarma" real[] DEFAULT '{}' ::real[],
+    "finalReviewVotesHighKarma" real[] DEFAULT '{}' ::real[][],
     "finalReviewVoteScoreAllKarma" real DEFAULT 0,
-    "finalReviewVotesAllKarma" real[] DEFAULT '{}' ::real[],
+    "finalReviewVotesAllKarma" real[] DEFAULT '{}' ::real[][],
     "finalReviewVoteScoreAF" real DEFAULT 0,
-    "finalReviewVotesAF" real[] DEFAULT '{}' ::real[],
+    "finalReviewVotesAF" real[] DEFAULT '{}' ::real[][],
     "lastCommentPromotedAt" timestamptz,
     "tagRelevance" jsonb,
     "noIndex" bool DEFAULT false,
