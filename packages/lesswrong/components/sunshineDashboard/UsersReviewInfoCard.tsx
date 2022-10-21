@@ -20,8 +20,9 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl} from '../../lib/collections/users/helpers';
-import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
 import { useCreate } from '../../lib/crud/withCreate';
+import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
 
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
@@ -200,6 +201,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap"
+  },
+  reviewedAt: {
+    marginTop: 16,
+    fontStyle: "italic"
   }
 })
 
@@ -256,13 +261,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       })
     }
   }
-  
-  // useEffect(() => {
-  //   return () => {
-  //     handleNotes();
-  //   }
-  // });
-  
+
   const handleReview = () => {
     if (canReview) {
       void updateUser({
@@ -436,7 +435,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 10
   });
   
   const { results: comments, loading: commentsLoading } = useMulti({
@@ -444,7 +443,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 10
   });
   
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
@@ -487,7 +486,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <Link className={classes.displayName} to={userGetProfileUrl(user)}>
         {user.displayName} 
       </Link>
-      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
       {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
     </div>
 
@@ -507,7 +506,20 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const moderatorActionLogRow = <div>
     {user.moderatorActions
       .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => MODERATOR_ACTION_TYPES[moderatorAction.type])
+      .map(moderatorAction => {
+        let averageContentKarma: number | undefined;
+        if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
+          const mostRecentComments = _.sortBy(comments ?? [], 'postedAt').reverse();
+          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
+        } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
+          const mostRecentPosts = _.sortBy(posts ?? [], 'postedAt').reverse();
+          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
+        }
+
+        const suffix = typeof averageContentKarma === 'number' ? ` (${averageContentKarma})` : '';
+
+        return <div key={`${user._id}_${moderatorAction.type}`}>{`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}`}</div>;
+      })
     }
   </div>
 
@@ -517,6 +529,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       fullWidth
       onChange={e => setNotes(e.target.value)}
       onClick={e => handleClick()}
+      onBlur={handleNotes}
       disableUnderline
       placeholder="Notes for other moderators"
       multiline
@@ -641,7 +654,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           <div>
             {moderatorActionLogRow}
             {user.reviewedAt
-              ? <div><p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p></div>
+              ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></div>
               : null 
             }
             {user.banned
@@ -678,7 +691,7 @@ const UsersReviewInfoCardComponent = registerComponent('UsersReviewInfoCard', Us
   styles,
   hocs: [
     withErrorBoundary,
-  ]
+  ],
 });
 
 declare global {

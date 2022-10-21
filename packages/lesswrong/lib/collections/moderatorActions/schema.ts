@@ -2,13 +2,17 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
-export const COMMENT_LOW_QUALITY_WARNING = 'commentLowQualityWarning';
-export const COMMENT_MEDIOCRE_QUALITY_WARNING = 'commentMediocreQualityWarning';
+export const RECENTLY_DOWNVOTED_CONTENT_ALERT = 'recentlyDownvotedContentAlert';
+export const LOW_AVERAGE_KARMA_COMMENT_ALERT = 'lowAverageKarmaCommentAlert';
+export const LOW_AVERAGE_KARMA_POST_ALERT = 'lowAverageKarmaPostAlert';
+export const NEGATIVE_KARMA_USER_ALERT = 'negativeUserKarmaAlert';
 
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (one per day)',
-  [COMMENT_LOW_QUALITY_WARNING]: 'Low Comment Quality Warning',
-  [COMMENT_MEDIOCRE_QUALITY_WARNING]: 'Mediocre Comment Quality Warning',
+  [RECENTLY_DOWNVOTED_CONTENT_ALERT]: 'Recently Downvoted Content',
+  [LOW_AVERAGE_KARMA_COMMENT_ALERT]: 'Low Average Karma Comments',
+  [LOW_AVERAGE_KARMA_POST_ALERT]: 'Low Average Karma Posts',
+  [NEGATIVE_KARMA_USER_ALERT]: 'Negative Karma User'
 };
 
 /**

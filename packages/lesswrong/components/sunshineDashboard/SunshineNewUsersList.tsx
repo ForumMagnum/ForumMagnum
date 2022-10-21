@@ -32,7 +32,7 @@ const SunshineNewUsersList = ({ classes, terms }: {
     return (
       <div>
         <SunshineListTitle>
-          <Link to="/admins/moderation">New Users</Link>
+          <Link to="/admin/moderation">New Users</Link>
           <SunshineListCount count={totalCount}/>
         </SunshineListTitle>
         {results.map(user =>
