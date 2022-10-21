@@ -273,9 +273,7 @@
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0",
-    "uuid": "^7.0.0",
-    "ws": "^7.4.6",
-    "wtfnode": "^0.9.1"
+    "uuid": "^7.0.0"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
@@ -310,7 +308,6 @@
     "jest": "^27.3.1",
     "mongodb-memory-server": "7.3.6",
     "pg-formatter": "^1.3.0",
-    "sql-formatter": "^11.0.2",
     "ts-jest": "^27.0.7",
     "ts-loader": "^8.0.5",
     "wait-on": "^6.0.1"

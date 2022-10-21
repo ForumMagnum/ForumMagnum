@@ -3,20 +3,16 @@ import * as _ from 'underscore';
 declare global {
   let bundleIsServer: boolean;
   let bundleIsTest: boolean;
-  let bundleIsScript: boolean;
   let bundleIsProduction: boolean;
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
 }
-
-bundleIsServer = true;
 
 export const isClient = !bundleIsServer
 export const isServer = bundleIsServer
 export const isDevelopment = !bundleIsProduction
 export const isProduction = bundleIsProduction
 export const isAnyTest = bundleIsTest
-export const isScript = false
 export const isPackageTest = bundleIsTest
 
 let alreadyRunStartupFuntions = false

@@ -12,7 +12,6 @@ const SpotlightDocumentType = new SimpleSchema({
     allowedValues: DOCUMENT_TYPES,
   }
 });
-const x = SpotlightDocumentType.schema('documentType');
 
 interface ShiftSpotlightItemParams {
   startBound: number;

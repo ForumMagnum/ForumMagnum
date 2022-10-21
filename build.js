@@ -30,7 +30,6 @@ const [opts, args] = cliopts.parse(
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
   ["postgresUrlFile", "The name of a text file which contains a postgresql URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
-  ["entryPoint", "Use a different entry point for the server (e.g. for running scripts)", "<file>"],
 );
 
 // Two things this script should do, that it currently doesn't:
@@ -40,7 +39,6 @@ const [opts, args] = cliopts.parse(
 
 const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
-const serverEntryPoint = opts.entryPoint || "./packages/lesswrong/server/serverStartup.ts";
 
 if (isProduction) {
   process.env.NODE_ENV="production";
@@ -83,7 +81,6 @@ const bundleDefinitions = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
-  "bundleIsScript": opts.entryPoint ? true : false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
   "serverPort": getServerPort(),
@@ -134,12 +131,12 @@ build({
   },
 });
 
-let serverCli = ["node", "--inspect", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
+let serverCli = ["node", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
 
 build({
-  entryPoints: [serverEntryPoint],
+  entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
   bundle: true,
   outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",
