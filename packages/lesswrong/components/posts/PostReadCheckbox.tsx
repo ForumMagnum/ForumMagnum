@@ -28,6 +28,7 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
 }) => {
   const { LWTooltip } = Components
   const {postsRead, setPostRead} = useItemsRead();
+  
 
   const isRead = post.isRead || postsRead[post._id];
 
@@ -38,20 +39,12 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
     graphqlArgs: {postId: 'String', isRead: 'Boolean'},
   });
   
-  const handleMarkAsRead = () => {
+  const handleSetIsRead = (isRead) => {
     void markAsReadOrUnread({
       postId: post._id,
-      isRead: true,
+      isRead: isRead,
     });
-    setPostRead(post._id, true);
-  }
-
-  const handleMarkAsUnread = () => {
-    void markAsReadOrUnread({
-      postId: post._id,
-      isRead: false,
-    });
-    setPostRead(post._id, false);
+    setPostRead(post._id, isRead);
   }
 
   if (isRead) {
@@ -59,7 +52,7 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
       <CheckBoxTwoToneIcon 
         className={classNames(classes.root, classes.read)} 
         style={{width}}
-        onClick={handleMarkAsUnread}
+        onClick={() => handleSetIsRead(false)}
       />
     </LWTooltip>
   } else {
@@ -67,10 +60,9 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
       <CheckBoxOutlineBlankIcon 
         className={classNames(classes.root, classes.unread)} 
         style={{width}} 
-        onClick={handleMarkAsRead} 
+        onClick={() => handleSetIsRead(true)}
       />
     </LWTooltip>
-
   }
 }
 
