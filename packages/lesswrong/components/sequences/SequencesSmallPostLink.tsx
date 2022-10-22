@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     position: "relative",
-    top: -1,
+    top: 1,
     marginRight: 10
   }
 });
@@ -42,13 +42,16 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
 }) => {
   const { LWTooltip, PostsPreviewTooltip, PostReadCheckbox } = Components
 
-  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement={placement} inlineBlock={false} flip>
-        <Link to={postGetPageUrl(post, false, sequenceId)} className={classNames(classes.title, {[classes.large]: large})}>
-          <div className={classes.checkbox}>
-            <PostReadCheckbox post={post} /> {post.title}
-          </div>
-        </Link>
-      </LWTooltip>
+  return <div className={classNames(classes.title, {[classes.large]: large})}>
+    <span className={classes.checkbox}>
+      <PostReadCheckbox post={post} />
+    </span>
+    <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement={placement} inlineBlock={false} flip>
+      <Link to={postGetPageUrl(post, false, sequenceId)}>
+        {post.title}
+      </Link>
+    </LWTooltip>
+  </div>
 }
 
 const SequencesSmallPostLinkComponent = registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
