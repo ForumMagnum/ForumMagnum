@@ -5,7 +5,7 @@ import {
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
-import { useCrosspostApolloClient } from "../hooks/useCrosspostApolloClient";
+import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
@@ -51,7 +51,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   fmCrosspostUserId: string,
   classes: ClassesType,
 }) => {
-  const apolloClient = useCrosspostApolloClient();
+  const apolloClient = useForeignApolloClient();
   const {document, loading} = useSingle({
     documentId: fmCrosspostUserId,
     collectionName: "Users",

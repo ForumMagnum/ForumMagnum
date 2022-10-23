@@ -2,7 +2,6 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const WebSocket = require('ws');
-const fetch = require("node-fetch");
 const crypto = require('crypto');
 const { zlib } = require("mz");
 
@@ -144,7 +143,7 @@ build({
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql",
     "bcrypt", "node-pre-gyp", "intercom-client",
-    "fsevents", "chokidar", "auth0",
+    "fsevents", "chokidar", "auth0", "dd-trace"
   ],
 })
 

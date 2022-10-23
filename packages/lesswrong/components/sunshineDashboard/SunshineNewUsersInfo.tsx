@@ -21,7 +21,7 @@ import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 
-const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
+export const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -45,6 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  qualitySignalRow: {
   },
   permissionsRow: {
     display: "flex",
@@ -369,7 +371,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
 
-  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper } = Components
+  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper, ModeratorMessageCount } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -408,7 +410,14 @@ const SunshineNewUsersInfo = ({ user, classes }: {
             <div className={classes.info}>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              
+              {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+              {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+              {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
+                <em>Alternate accounts detected</em>
+              </div>}
+              <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
               <div className={classes.notes}>
@@ -450,6 +459,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
                 </LWTooltip>
               </div>
               <div className={classes.row}>
+                <ModeratorMessageCount userId={user._id} />
                 <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
               </div>
             </div>

@@ -92,7 +92,7 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = TagCommentType.Discussion, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
+const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
 {
   prefilledProps?: any,
   post?: PostsMinimumInfo,

@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
@@ -45,7 +45,8 @@ const SuggestCurated = ({post}: {
       !post.curatedDate &&
       !post.reviewForCuratedUserId &&
       forumTypeSetting.get() !== 'AlignmentForum' &&
-      userCanDo(currentUser, "posts.moderate.all"))
+      (userCanDo(currentUser, "posts.moderate.all") || 
+      userIsMemberOf(currentUser, 'canSuggestCuration')))
   {
     return <div className="posts-page-suggest-curated">
       { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?

@@ -360,7 +360,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: 'SearchPage',
+    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
     title: 'Search',
     background: "white"
   },
@@ -1264,6 +1264,12 @@ addRoute(
     path: '/admin/migrations',
     componentName: 'MigrationsDashboard',
     title: "Migrations"
+  },
+  {
+    name: 'moderatorActions',
+    path: '/admin/moderation',
+    componentName: 'ModerationDashboard',
+    title: "Moderator Actions"
   },
   {
     name: 'moderation',

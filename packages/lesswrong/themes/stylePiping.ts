@@ -2,12 +2,12 @@
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after': {
+  '& a, & a:hover, & a:focus, & a::after, & li': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
-  }
+  },
 });
 
 const spoilerStyles = (theme: ThemeType): JssStyles => ({

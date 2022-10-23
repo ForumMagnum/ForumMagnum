@@ -1,5 +1,4 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
 
 const MozillaHubsData = `type MozillaHubsData {

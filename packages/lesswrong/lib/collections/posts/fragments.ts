@@ -220,6 +220,7 @@ registerFragment(`
       wordCount
       version
     }
+    fmCrosspost
   }
 `);
 
@@ -501,6 +502,7 @@ registerFragment(`
 
     currentUserVote
     currentUserExtendedVote
+    fmCrosspost
 
     contents {
       _id

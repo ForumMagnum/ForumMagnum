@@ -17,6 +17,8 @@ import './collections/posts/fragments';
 import './collections/comments/fragments';
 import './collections/revisions/fragments';
 
+// ClientIds
+import './collections/clientIds/collection';
 
 // Notifications
 import './collections/notifications/collection';
@@ -27,6 +29,7 @@ import './collections/notifications/fragments';
 import './collections/messages/collection'
 import './collections/messages/views';
 import './collections/messages/permissions';
+import './collections/messages/helpers';
 import './collections/messages/fragments';
 
 import './collections/conversations/collection'
@@ -171,6 +174,9 @@ import './collections/spotlights/collection';
 import './collections/spotlights/fragments';
 import './collections/spotlights/permissions';
 import './collections/spotlights/views';
+
+// Moderator actions
+import './collections/moderatorActions/index';
 
 // Internationalization
 import './i18n-en-us/en_US';

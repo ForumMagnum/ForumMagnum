@@ -2278,15 +2278,43 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.disabledPrivileges,
     order: 72,
   },
+  
+  
+  associatedClientId: resolverOnlyField({
+    type: "ClientId",
+    graphQLtype: "ClientId",
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId|null> => {
+      return await context.ClientIds.findOne({userIds: user._id}, {
+        sort: {createdAt: -1}
+      });
+    }
+  }),
 
   acknowledgedNewUserGuidelines: {
     type: Boolean,
     optional: true,
     nullable: true,
+    hidden: true,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
+
+  moderatorActions: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[ModeratorAction]',
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (doc, args, context) => {
+      const { ModeratorActions, loaders } = context;
+      return ModeratorActions.find({ userId: doc._id }).fetch();
+    }
+  }),
+
+  'moderatorActions.$': {
+    type: 'Object'
+  }
 };
 
 /* Alignment Forum fields */

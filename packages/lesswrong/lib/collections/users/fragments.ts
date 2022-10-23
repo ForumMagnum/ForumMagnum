@@ -221,6 +221,7 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
       }
       tagRevisions {
         _id
@@ -273,6 +274,14 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    moderatorActions {
+      ...ModeratorActionDisplay
+    }
+    associatedClientId {
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
   }
 `);
 

@@ -70,6 +70,18 @@ interface DbChapter extends DbObject {
   createdAt: Date
 }
 
+interface ClientIdsCollection extends CollectionBase<DbClientId, "ClientIds"> {
+}
+
+interface DbClientId extends DbObject {
+  __collectionName?: "ClientIds"
+  clientId: string
+  firstSeenReferrer: string | null
+  firstSeenLandingPage: string
+  userIds: Array<string>
+  createdAt: Date
+}
+
 interface CollectionsCollection extends CollectionBase<DbCollection, "Collections"> {
 }
 
@@ -309,6 +321,17 @@ interface DbMigration extends DbObject {
   started: Date
   finished: Date
   succeeded: boolean
+  createdAt: Date
+}
+
+interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "ModeratorActions"> {
+}
+
+interface DbModeratorAction extends DbObject {
+  __collectionName?: "ModeratorActions"
+  userId: string
+  type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert"
+  endedAt: Date | null
   createdAt: Date
 }
 
@@ -1099,6 +1122,7 @@ interface CollectionsByName {
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
+  ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -1112,6 +1136,7 @@ interface CollectionsByName {
   Localgroups: LocalgroupsCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
+  ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
@@ -1139,6 +1164,7 @@ interface ObjectsByCollectionName {
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
+  ClientIds: DbClientId
   Collections: DbCollection
   Comments: DbComment
   Conversations: DbConversation
@@ -1152,6 +1178,7 @@ interface ObjectsByCollectionName {
   Localgroups: DbLocalgroup
   Messages: DbMessage
   Migrations: DbMigration
+  ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
