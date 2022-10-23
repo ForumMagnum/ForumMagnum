@@ -1259,6 +1259,14 @@ interface WithVoteComment { // fragment on Comments
   readonly voteCount: number,
 }
 
+interface CommentsListWithModerationMetadata extends CommentsListWithParentMetadata { // fragment on Comments
+  readonly allVotes: Array<CommentsListWithModerationMetadata_allVotes>,
+}
+
+interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
+  readonly voteType: string,
+}
+
 interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
@@ -2768,6 +2776,7 @@ interface FragmentTypes {
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
   WithVoteComment: WithVoteComment
+  CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
@@ -2936,6 +2945,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
   WithVoteComment: "Comments"
+  CommentsListWithModerationMetadata: "Comments"
   RevisionDisplay: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"

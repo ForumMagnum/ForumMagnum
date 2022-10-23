@@ -76,14 +76,31 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
   );
 };
 
+type DashboardTabs = 'sunshineNewUsers' | 'allUsers' | 'downvotedComments';
+
+const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] }) => {
+  const voteCounts = {
+    smallUpvote: 0,
+    smallDownvote: 0,
+    bigUpvote: 0,
+    bigDownvote: 0,
+    neutral: 0
+  };
+
+  return allVotes.reduce((prev, curr) => {
+    prev[curr.voteType]++;
+    return prev;
+  }, voteCounts);
+}
+
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, LoadMore, Loading } = Components;
+  const { UsersReviewInfoCard, CommentsReviewInfoCard, LoadMore, Loading } = Components;
     
   const currentUser = useCurrentUser();
 
-  const [view, setView] = useState<'sunshineNewUsers' | 'allUsers'>('sunshineNewUsers');
+  const [view, setView] = useState<DashboardTabs>('sunshineNewUsers');
   
   const { results: usersToReview, count, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: "sunshineNewUsers", limit: 10},
@@ -101,14 +118,32 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 20,
   });
 
+  const { results: recentVotedComments, loadMoreProps: commentsLoadMoreProps } = useMulti({
+    collectionName: "Comments",
+    fragmentName: 'CommentsListWithModerationMetadata',
+    terms: {
+      view: 'recentVotedComments',
+      limit: 100
+    },
+    itemsPerPage: 100
+  });
+
   if (!userIsAdmin(currentUser)) {
     return null;
   }
 
+  const recentDownvotedComments = recentVotedComments?.filter(comment => {
+    const { smallDownvote, bigDownvote } = getVoteDistribution(comment);
+    const totalDownvotes = smallDownvote + bigDownvote;
+    return totalDownvotes >= 2;
+  });
+
+  console.log({ commentVotes: recentDownvotedComments?.map(comment => JSON.stringify({ id: comment._id, votes: getVoteDistribution(comment) }, null, 2)) })
+
   return (
     <div className={classes.page}>
       <div className={classes.row}>
-        <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+        <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
           <div className={classes.toc}>
             {usersToReview?.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -120,7 +155,7 @@ const ModerationDashboard = ({ classes }: {
             </div>
           </div>
         </div>
-        <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+        <div className={classNames({ [classes.hidden]: view !== 'allUsers' })}>
           <div className={classes.toc}>
             {allUsers?.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -129,6 +164,18 @@ const ModerationDashboard = ({ classes }: {
             })}
             <div className={classes.loadMore}>
               <LoadMore {...allUsersLoadMoreProps}/>
+            </div>
+          </div>
+        </div>
+        <div className={classNames({ [classes.hidden]: view !== 'downvotedComments' })}>
+          <div className={classes.toc}>
+            {recentDownvotedComments?.map(comment => {
+              return <div key={comment._id} className={classes.tocListing}>
+                {comment.user?.displayName}
+              </div>
+            })}
+            <div className={classes.loadMore}>
+              <LoadMore {...commentsLoadMoreProps}/>
             </div>
           </div>
         </div>
@@ -146,21 +193,31 @@ const ModerationDashboard = ({ classes }: {
             >
               Reviewed Users
             </div>
+            <div
+              onClick={() => setView("downvotedComments")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'downvotedComments' })} 
+            >
+              Downvoted Comments
+            </div>
           </div>
-          {usersToReview && allUsers && <>
-            <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+          {usersToReview && allUsers && recentDownvotedComments && <>
+            <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
               {usersToReview?.map(user =>
                 <div key={user._id}>
                   <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
                 </div>
               )}
             </div>
-            <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+            <div className={classNames({ [classes.hidden]: view !== 'allUsers' })}>
               {allUsers?.map(user =>
+                // TODO: we probably want to display something different for already-reviewed users, since a bunch of the actions we can take only make sense for unreviewed users
                 <div key={user._id}>
                   <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
                 </div>
               )}
+            </div>
+            <div className={classNames({ [classes.hidden]: view !== 'downvotedComments' })}>
+            {recentDownvotedComments?.map(comment => <CommentsReviewInfoCard comment={comment} />)}
             </div>
           </>}
         </div>
