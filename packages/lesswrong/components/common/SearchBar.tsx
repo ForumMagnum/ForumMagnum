@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { routerOnUpdate } from './NavigationEventSender';
+import { routerOnUpdate } from '../hooks/useOnNavigate';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
