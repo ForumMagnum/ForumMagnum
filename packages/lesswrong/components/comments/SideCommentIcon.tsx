@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
 import { useSingle } from '../../lib/crud/withSingle';
@@ -106,19 +106,53 @@ const SideCommentSingle = ({commentId, post}: {
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
   });
+  const [hoveredBlockquoteId,setHoveredBlockquoteId] = useState<string|null>(null);
+  const rootDivRef = useRef<HTMLDivElement|null>(null);
+  
+  useEffect(() => {
+    const rootDiv = rootDivRef.current;
+    if (!rootDiv) return;
+    
+    const listener = (ev: MouseEvent) => {
+      let pos: HTMLElement|null = ev.currentTarget as HTMLElement;
+      let newBlockquoteId: string|null = null;
+      
+      while (pos) {
+        if (pos.tagName === 'blockquote') {
+          // TODO: this isn't distinguishing between the comment and its children, and isn't distinguishing between blockquotes within that comment
+          newBlockquoteId = `blockquote_${commentId}_1`;
+        }
+        pos = pos.parentElement;
+      }
+      
+      if (newBlockquoteId !== hoveredBlockquoteId) {
+        setHoveredBlockquoteId(newBlockquoteId);
+      }
+    };
+    
+    rootDiv.addEventListener('mousemove', listener);
+    return () => {
+      rootDiv!.removeEventListener('mousemove', listener);
+    }
+  }, [commentId, hoveredBlockquoteId, rootDivRef]);
   
   if (loading) return <Loading/>
   if (!comment) return null;
   
-  return <CommentWithReplies
-    comment={comment} post={post}
-    commentNodeProps={{
-      treeOptions: {
-        showPostTitle: false,
-        showCollapseButtons: true,
-      },
-    }}
-  />
+  return <div ref={rootDivRef}>
+    {hoveredBlockquoteId && <style>
+      {`.${hoveredBlockquoteId} { background: "rgba(128,128,128,.2)"; }`}
+    </style>}
+    <CommentWithReplies
+      comment={comment} post={post}
+      commentNodeProps={{
+        treeOptions: {
+          showPostTitle: false,
+          showCollapseButtons: true,
+        },
+      }}
+    />
+  </div>
 }
 
 const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon, {styles});

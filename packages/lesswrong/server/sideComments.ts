@@ -1,5 +1,7 @@
 import cheerio from 'cheerio';
+import { cheerioParse, tokenizeHtml } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
+import groupBy from 'lodash/groupBy';
 
 export interface QuoteShardSettings {
   minLength: number
@@ -28,8 +30,7 @@ const matchableBlockElementSelector = 'p,li,blockquote';
  * the right margin.
  */
 export function addBlockIDsToHTML(html: string): string {
-  //@ts-ignore
-  const parsedPost = cheerio.load(html, null, false);
+  const parsedPost = cheerioParse(html);
   let markedElements = parsedPost(matchableBlockElementSelector);
   for (let i=0; i<markedElements.length; i++) {
     let markedElement = markedElements[i];
@@ -39,6 +40,140 @@ export function addBlockIDsToHTML(html: string): string {
   }
   return parsedPost.html();
 }
+
+/**
+ * Given HTML (probably for a comment), find every blockqute and add a unique
+ * CSS class to it of the form blockquote_${documentId}_${n}, where n is a
+ * counter to distinguish all the blockquotes in the comment.
+ */
+export function annotateMatchableBlockquotes(html: string, documentId: string): string {
+  const parsedDocument = cheerioParse(html);
+  let blockquotes = parsedDocument('blockquote');
+  for (let i=0; i<blockquotes.length; i++) {
+    const blockquote = blockquotes[i];
+    const markerClass = `blockquote_${documentId}_${i+1}`;
+    const existingClasses = cheerio(blockquote).attr("class");
+    if (existingClasses) {
+      if (existingClasses.split(' ').indexOf(markerClass) >= 0) {
+        // Annotation already present
+      } else {
+        cheerio(blockquote).attr('class', `${existingClasses} ${markerClass}`);
+      }
+    } else {
+      cheerio(blockquote).attr('class', markerClass);
+    }
+  }
+  return parsedDocument.html();
+}
+
+
+interface MarkedInterval {
+  start: number
+  end: number
+  spanClass: string
+}
+
+/**
+ * Given HTML (probably for a post) and a list of marked intervals, wrap those
+ * intervals in <span> tags with the given class name. The start and end of each
+ * interval is given as an offset in characters into the HTML, and is guaranteed
+ * to be in a place where text insertion is valid.
+ *
+ * If an interval crosses an open tag and doesn't cross the corresponding close
+ * tag, it results in multiple spans.
+ *
+ * For example:
+ *            |start       |end
+ *   <p>Lorem ipsum <em>dolor</em> sit amet adipiscing
+ * becomes
+ *   <p>Lorem <span ...>ipsum </span><em><span ...>dol</span>or</em> sit amet adipiscing
+ *
+ * Whereas
+ *            |start                  |end
+ *   <p>Lorem ipsum <em>dolor</em> sit amet adipiscing
+ * would need only one span:
+ *   <p>Lorem <span ...>ipsum <em>dolor</em> sit</span> amet adipiscing
+ */
+export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]): string {
+  let intervalsByStart = groupBy(intervals, interval=>interval.start);
+  let intervalsByEnd = groupBy(intervals, interval=>interval.end);
+  let sb: string[] = [];
+  let pos = 0;
+  
+  let activeSpan: string|null = null;
+  let activeClasses = new Set<string>();
+  
+  function setActiveSpan(classes: string|null) {
+    if (classes) {
+      if (activeSpan) {
+        if (activeSpan !== classes) {
+          sb.push(`</span><span class="${classes}">`);
+        }
+      } else {
+        sb.push(`<span class="${classes}">`);
+      }
+    } else {
+      if (activeSpan) {
+        sb.push('</span>');
+      }
+    }
+    activeSpan = classes;
+  }
+  
+  for (let [tokenType,tokenStr] of tokenizeHtml(html)) {
+    switch(tokenType) {
+      case 'startTagStart':
+      case 'endTagStart':
+        setActiveSpan(null);
+        sb.push(tokenStr);
+        pos += tokenStr.length;
+        break;
+      case 'data':
+      case 'space':
+        let lastSplit = 0;
+        
+        for (let i=0; i<tokenStr.length; i++) {
+          if (intervalsByStart[i+pos] || intervalsByEnd[i+pos]) {
+            if (i>lastSplit) {
+              const activeClassStrs = [...(activeClasses.values())];
+              setActiveSpan(activeClassStrs.join(" "));
+              
+              sb.push(tokenStr.substr(lastSplit, i-lastSplit));
+              lastSplit = i;
+            }
+            
+            //let oldActiveClassesCount = activeSpans.size;
+            let closedHere = intervalsByEnd[i+pos]
+            if (closedHere) {
+              for (let interval of closedHere) {
+                activeClasses.delete(interval.spanClass);
+              }
+            }
+            let startedHere = intervalsByStart[i+pos]
+            if (intervalsByStart[i+pos]) {
+              for (let interval of startedHere) {
+                activeClasses.add(interval.spanClass);
+              }
+            }
+          }
+        }
+        
+        const activeClassStrs = [...(activeClasses.values())];
+        setActiveSpan(activeClassStrs.join(" "));
+        
+        sb.push(tokenStr.substr(lastSplit, tokenStr.length-lastSplit));
+        pos += tokenStr.length;
+        break;
+      default:
+        sb.push(tokenStr);
+        pos += tokenStr.length;
+        break;
+    }
+  }
+  
+  return sb.join('');
+}
+
 
 /**
  * Given the HTML of a post body which has IDs on every block (from

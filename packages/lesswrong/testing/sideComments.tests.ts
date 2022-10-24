@@ -1,6 +1,6 @@
 import { testStartup } from './testMain';
 import chai from 'chai';
-import { QuoteShardSettings, getCommentQuotedBlockID, commentToQuoteShards } from '../server/sideComments';
+import { QuoteShardSettings, getCommentQuotedBlockID, commentToQuoteShards, annotateMatchedSpans } from '../server/sideComments';
 
 testStartup();
 
@@ -64,3 +64,66 @@ describe('side-comment blockquote matching', () => {
   });
 });
 
+describe('annotateMatchedSpans', () => {
+  it('works inside a single text node', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [{start: 9, end: 10, spanClass: "c"}]
+      ),
+      '<p>Lorem <span class="c">i</span>psum <em>dolor</em> sit amet adipiscing</p>',
+    );
+  });
+  // Disabled test: when a marked span crosses something entirely, we can avoid closing and reopening spans, saving some download size. But that's not currently implemented.
+  /*it('works when enclosing an element', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [{start: 9, end: 33, spanClass: "c"}]
+      ),
+      '<p>Lorem <span class="c">ipsum <em>dolor</em> sit</span> amet adipiscing</p>',
+    );
+  });*/
+  it('works when crossing into an element', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [{start: 9, end: 22, spanClass: "c"}]
+      ),
+      '<p>Lorem <span class="c">ipsum </span><em><span class="c">dol</span>or</em> sit amet adipiscing</p>',
+    );
+  });
+  it('works when crossing out of an element', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [{start: 19, end: 33, spanClass: "c"}]
+      ),
+      '<p>Lorem ipsum <em><span class="c">dolor</span></em><span class="c"> sit</span> amet adipiscing</p>',
+    );
+  });
+  it('works with multiple disjoint spans', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [
+          {start: 9, end: 14, spanClass: "A"},
+          {start: 34, end: 38, spanClass: "B"},
+        ]
+      ),
+      '<p>Lorem <span class="A">ipsum</span> <em>dolor</em> sit <span class="B">amet</span> adipiscing</p>',
+    );
+  });
+  it('works with partially overlapping spans', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [
+          {start: 9, end: 33, spanClass: "A"},
+          {start: 19, end: 38, spanClass: "B"},
+        ]
+      ),
+      '<p>Lorem <span class="A">ipsum </span><em><span class="A B">dolor</span></em><span class="A B"> sit</span><span class="B"> amet</span> adipiscing</p>',
+    );
+  });
+});

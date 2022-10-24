@@ -180,6 +180,7 @@
     "graphql-voyager": "^1.0.0-rc.26",
     "he": "^1.1.1",
     "history": "^3.0.0",
+    "html-lexer": "^0.4.1",
     "html-to-text": "^2.1.0",
     "htmlparser2": "^3.9.2",
     "import": "0.0.6",
