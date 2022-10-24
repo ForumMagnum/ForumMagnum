@@ -159,6 +159,7 @@ one-off operation (such as updating a table schema). Operations that need to be
 run multiple times should instead be implemented as a server script.
 
 * Run pending migrations with `yarn migrate up`
+* Revert migrations with `yarn migrate down`, but note that we treat down migrations as optionally so this may or may not work as expected
 * Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
 * View pending migrations with `yarn migrate pending`
 * View executed migrations with `yarn migrate executed`
