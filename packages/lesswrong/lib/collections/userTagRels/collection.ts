@@ -41,16 +41,16 @@ const schema: SchemaType<DbUserTagRel> = {
     canUpdate: [userOwns, 'admins'],
     ...schemaDefaultValue(true),
   },
-  subforumEmailNotifications: {
-    type: Boolean,
-    nullable: false,
-    optional: false,
-    control: "SubforumEmailNotifications",
-    canRead: [userOwns, 'admins'],
-    canCreate: ['members', 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    ...schemaDefaultValue(true),
-  },
+  // subforumEmailNotifications: {
+    // type: Boolean,
+    // nullable: false,
+    // optional: false,
+    // control: "SubforumEmailNotifications",
+    // canRead: [userOwns, 'admins'],
+    // canCreate: ['members', 'admins'],
+    // canUpdate: [userOwns, 'admins'],
+    // ...schemaDefaultValue(true),
+  // },
 };
 
 export const UserTagRels: UserTagRelsCollection = createCollection({

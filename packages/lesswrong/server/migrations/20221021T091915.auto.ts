@@ -9,7 +9,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "35c7d5a0e5f2e74715e1820234008b78";
+export const acceptsSchemaHash = "4ebfa3522c2dba0f92c789ac95d81a3d";
 
 export const up = async ({db}: MigrationContext) => {
   // TODO

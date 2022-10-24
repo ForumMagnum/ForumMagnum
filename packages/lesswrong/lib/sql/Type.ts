@@ -53,7 +53,8 @@ export abstract class Type {
     }
 
     if (schema.optional === false || schema.nullable === false) {
-      return new NotNullType(Type.fromSchema(fieldName, {...schema, optional: true}, indexSchema));
+      const newSchema = {...schema, optional: true, nullable: true};
+      return new NotNullType(Type.fromSchema(fieldName, newSchema, indexSchema));
     }
 
     switch (schema.type) {
