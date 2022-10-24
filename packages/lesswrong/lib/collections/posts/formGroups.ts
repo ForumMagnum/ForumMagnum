@@ -50,13 +50,13 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     startCollapsed: true,
   },
   advancedOptions: {
-    order:40,
+    order:21,
     name: "advancedOptions",
     label: "Options",
-    startCollapsed: true,
+    // startCollapsed: true,
   },
   highlight: {
-    order: 21,
+    order: 22,
     name: "highlight",
     label: "Highlight",
     startCollapsed: true,
