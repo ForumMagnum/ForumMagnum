@@ -31,6 +31,7 @@ interface ServerNotificationType {
   name: string,
   from?: string,
   canCombineEmails?: boolean,
+  skip?: (user: DbUser, notification: DbNotification) => boolean,
   loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
   emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
   emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,

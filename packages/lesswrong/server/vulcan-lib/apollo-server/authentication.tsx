@@ -16,12 +16,13 @@ import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
-import { clearCookie } from '../../utils/httpUtil';
+import { getCookieFromReq, clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
 import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
+import { ClientIds } from "../../../lib/collections/clientIds/collection";
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -330,6 +331,23 @@ function registerLoginEvent(user, req) {
     currentUser: user,
     validate: false,
   })
+  
+  const clientId = getCookieFromReq(req, "clientId");
+  if (clientId) {
+    void recordAssociationBetweenUserAndClientID(clientId, user);
+  }
+}
+
+async function recordAssociationBetweenUserAndClientID(clientId: string, user: DbUser) {
+  const clientIdEntry = await ClientIds.findOne({clientId});
+  if (clientIdEntry) {
+    const userId = user._id;
+    if (!clientIdEntry.userIds?.includes(userId)) {
+      await ClientIds.rawUpdateOne({clientId}, {$set: {
+        userIds: [...(clientIdEntry.userIds??[]), userId],
+      }});
+    }
+  }
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret

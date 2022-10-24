@@ -557,7 +557,7 @@ async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
   for (const subforumId of newSubforumIds) {
     const subforum = await Tags.findOne(subforumId)
     if (subforum?.isSubforum) {
-      const modIds = subforum.subforumModeratorIds
+      const modIds = subforum.subforumModeratorIds || []
       await createNotifications({
         userIds: modIds,
         notificationType: 'newSubforumMember',

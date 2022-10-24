@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
@@ -9,6 +9,9 @@ import Paper from "@material-ui/core/Paper";
 import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
+import { useMutation } from "@apollo/client/react";
+import { gql } from "@apollo/client";
+import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -39,17 +42,28 @@ const SubforumNotificationSettings = ({
 
   const { LWPopper, WrappedSmartForm, Typography, Loading } = Components;
 
-  const { loading, results } = useMulti({
+  const { loading, results, refetch } = useMulti({
     terms: { view: "single", tagId: tag._id, userId: currentUser._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelNotifications",
     fetchPolicy: "cache-and-network",
   });
-
-  // Don't show notification settings if the user is not subscribed to the tag
-  if (!currentUser || !currentUser.profileTagIds.includes(tag._id)) return null;
+  const recordSubforumView = useRecordSubforumView({userId: currentUser._id, tagId: tag._id});
 
   const userTagRel = results?.length ? results[0] : undefined;
+  
+  // This is to ensure the userTagRel exists, which it almost always should because it is created as a result of loading `SubforumCommentsThread`
+  // but there are some weird edge cases related to logging in and out
+  useEffect(() => {
+    if (!loading && !userTagRel) {
+      void recordSubforumView().then(() => refetch())
+    }
+  }, [userTagRel, recordSubforumView, refetch, loading]);
+
+  // Don't show notification settings if the user is not subscribed to the tag
+  if (!currentUser || !currentUser.profileTagIds?.includes(tag._id)) return null;
+  if (!userTagRel) return null
+  if (loading) return null
 
   const handleOpen = (event) => {
     setOpen(true);
@@ -61,7 +75,6 @@ const SubforumNotificationSettings = ({
       return;
     }
     setOpen(false);
-    setAnchorEl(null);
   };
 
   const handleToggle = (e) => {
@@ -76,7 +89,7 @@ const SubforumNotificationSettings = ({
     <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={classes.root}>
         <IconButton onClick={handleToggle} className={classes.notificationsButton}>
-          {loading || (!userTagRel?.subforumEmailNotifications && !userTagRel?.subforumEmailNotifications) ? (
+          {(!userTagRel.subforumEmailNotifications && !userTagRel.subforumEmailNotifications) ? (
             <NotificationsNoneIcon />
           ) : (
             <NotificationsIcon />

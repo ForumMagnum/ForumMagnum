@@ -1,5 +1,5 @@
 import { userCanUseTags } from "../../betas";
-import { addUniversalFields, ensureIndex, getDefaultMutations, getDefaultResolvers, schemaDefaultValue } from "../../collectionUtils";
+import { addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue } from "../../collectionUtils";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
@@ -59,9 +59,8 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('UserTagRels'),
   mutations: getDefaultMutations('UserTagRels', {
-    //, FIXME is this necessary/correct?
     newCheck: (user: DbUser|null, userTagRel: DbUserTagRel|null) => {
-      return Boolean(userCanUseTags(user) && userTagRel);
+      return userCanUseTags(user);
     },
     editCheck: (user: DbUser|null, userTagRel: DbUserTagRel|null) => {
       return userCanUseTags(user);
@@ -75,13 +74,11 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
 addUniversalFields({collection: UserTagRels})
 
 UserTagRels.checkAccess = async (currentUser: DbUser|null, userTagRel: DbUserTagRel, context: ResolverContext|null): Promise<boolean> => {
-  if (userIsAdmin(currentUser) || userOwns(currentUser, userTagRel)) { // admins can always see everything, users can always see their own posts
+  if (userIsAdmin(currentUser) || userOwns(currentUser, userTagRel)) { // admins can always see everything, users can always see their own settings
     return true;
   } else {
     return false;
   }
 }
-
-ensureIndex(UserTagRels, {tagId:1, userId:1}, {unique: true});
 
 export default UserTagRels;
