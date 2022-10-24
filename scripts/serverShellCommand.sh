@@ -10,6 +10,7 @@ if [ "$1" = "--wait" ]; then
 fi
 
 COMMAND="$1"
+echo "Checking that a local server is running..."
 scripts/waitForServer.sh
 
 OUTFILE=tmp/pendingShellCommands/command$$.js

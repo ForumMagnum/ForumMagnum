@@ -5,7 +5,7 @@
     "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
-    "acceptmigrations": "ts-node scripts/acceptmigrations",
+    "acceptmigrations": "ts-node scripts/acceptmigrations || git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql",
     "makemigrations": "ts-node scripts/makemigrations",
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",

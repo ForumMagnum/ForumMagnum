@@ -1,4 +1,4 @@
-import { fs } from 'mz';
+import { readFile, readdir, writeFile } from 'node:fs/promises'
 import path from 'path';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
@@ -33,13 +33,13 @@ const assertNoDuplicateTimestamps = (entries: SchemaChangelogEntry[]) => {
 }
 
 const getSchemaChangelogEntries = async (rootPath: string): Promise<SchemaChangelogEntry[]> => {
-  const schemaChangelog = await fs.readFile(schemaChangelogPath(rootPath), 'utf8');
+  const schemaChangelog = await readFile(schemaChangelogPath(rootPath), 'utf8');
   return JSON.parse(schemaChangelog);
 }
 
 const getMigrationChangelogEntries = async (rootPath: string): Promise<SchemaChangelogEntry[]> => {
   const migrationFiles = (
-    (await fs.readdir(migrationsPath(rootPath), { withFileTypes: true }))
+    (await readdir(migrationsPath(rootPath), { withFileTypes: true }))
       .filter(dirent => dirent.isFile())
       .map(dirent => path.join(migrationsPath(rootPath), dirent.name))
   );
@@ -49,7 +49,7 @@ const getMigrationChangelogEntries = async (rootPath: string): Promise<SchemaCha
     // NOTE: I'm using this regex hack rather than importing because esbuild doesn't support
     // dynamic imports, I would very much like to change this
     const acceptsHashRegex = new RegExp(/^export const acceptsSchemaHash = "(.*)"/);
-    const contents = fs.readFileSync(migrationFile).toString().split("\n");
+    const contents = (await readFile(migrationFile)).toString().split("\n");
     const acceptsHashLine = contents.find(line => acceptsHashRegex.test(line));
     
     if (!acceptsHashLine) continue;
@@ -139,7 +139,7 @@ export const acceptMigrations = async ({write=true, rootPath=ROOT_PATH}: {write:
   const newSchemaChangelogEntries = await updateSchemaChangelogWithMigrationEntries({schemaChangelogEntries, migrationChangelogEntries});
    
   if (write) {
-    await fs.writeFile(schemaChangelogPath(rootPath), JSON.stringify(newSchemaChangelogEntries, null, 2));
+    await writeFile(schemaChangelogPath(rootPath), JSON.stringify(newSchemaChangelogEntries, null, 2));
   } else {
     if (JSON.stringify(newSchemaChangelogEntries) !== JSON.stringify(schemaChangelogEntries)) {
       throw new Error(`schema_changelog.json is out of date. Run 'yarn acceptmigrations' to update it.`);

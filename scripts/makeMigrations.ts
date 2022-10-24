@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import { fs } from 'mz';
+import { readdir } from 'node:fs/promises'
 import path from 'path';
 import { promisify } from 'util';
 import { migrationsPath } from '../packages/lesswrong/server/scripts/acceptMigrations';
@@ -16,16 +16,17 @@ const run = async () => {
   const rootPath = path.join(__dirname, "../")
 
   const migrationFilesBefore = (
-    (await fs.readdir(migrationsPath(rootPath), { withFileTypes: true }))
+    (await readdir(migrationsPath(rootPath), { withFileTypes: true }))
       .filter(dirent => dirent.isFile())
       .map(dirent => path.join(migrationsPath(rootPath), dirent.name))
   );
   
   const runExec = promisify(exec)
+  console.log("Checking that a local server is running...");
   await runExec("./scripts/serverShellCommand.sh --wait \"Vulcan.makeMigrations({})\"")
   
   const migrationFilesAfter = (
-    (await fs.readdir(migrationsPath(rootPath), { withFileTypes: true }))
+    (await readdir(migrationsPath(rootPath), { withFileTypes: true }))
       .filter(dirent => dirent.isFile())
       .map(dirent => path.join(migrationsPath(rootPath), dirent.name))
   );
