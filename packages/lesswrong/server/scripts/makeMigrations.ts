@@ -144,7 +144,6 @@ export const makeMigrations = async ({
 
   if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
   
-  console.log(currentHashes);
   const overallHash = md5(Object.values(currentHashes).sort().join());
   let schemaFileHeader = schemaFileHeaderTemplate + `-- Overall schema hash: ${overallHash}\n\n`;
   
