@@ -559,6 +559,7 @@ importComponent("TagProgressBar", () => require('../components/tagging/TagProgre
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
+importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 
 // SequenceEditor
@@ -632,6 +633,7 @@ importComponent("LocationFormComponent", () => require('../components/form-compo
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
 importComponent("MultiSelectButtons", () => require('../components/form-components/MultiSelectButtons'));
 importComponent("FormComponentCheckbox", () => require('../components/form-components/FormComponentCheckbox'));
+importComponent("SubforumEmailNotifications", () => require('../components/form-components/SubforumEmailNotifications'));
 importComponent("FormComponentRadioGroup", () => require('../components/form-components/FormComponentRadioGroup'));
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));

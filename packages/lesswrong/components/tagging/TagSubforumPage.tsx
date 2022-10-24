@@ -11,6 +11,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
+export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const {
     Error404,
     Loading,
@@ -83,9 +84,10 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     ContentItemBody,
     LWTooltip,
     HeadTags,
+    SubforumNotificationSettings
   } = Components;
-
   const { params, query } = useLocation();
+  const currentUser = useCurrentUser();
   const { slug } = params;
   const sortBy = query.sortBy || subforumDefaultSorting;
 
@@ -137,7 +139,9 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={titleComponent} className={classes.title} />
+        <SectionTitle title={titleComponent} className={classes.title}>
+          {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
+        </SectionTitle>
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
             tag={tag}

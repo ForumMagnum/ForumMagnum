@@ -156,6 +156,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -406,6 +412,8 @@ interface CommentsDefaultFragment { // fragment on Comments
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly tagId: string,
   readonly userId: string,
+  readonly subforumShowUnreadInSidebar: boolean,
+  readonly subforumEmailNotifications: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1854,6 +1862,14 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly currentUserExtendedVote: any,
 }
 
+interface UserTagRelNotifications { // fragment on UserTagRels
+  readonly _id: string,
+  readonly userId: string,
+  readonly tagId: string,
+  readonly subforumShowUnreadInSidebar: boolean,
+  readonly subforumEmailNotifications: boolean,
+}
+
 interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly userId: string,
@@ -2315,6 +2331,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
   readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2525,6 +2547,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly notificationGroupAdministration: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
+  readonly notificationSubforumUnread: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -2822,6 +2850,7 @@ interface FragmentTypes {
   TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
+  UserTagRelNotifications: UserTagRelNotifications
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
@@ -2990,6 +3019,7 @@ interface CollectionNamesByFragmentName {
   TagRelCreationFragment: "TagRels"
   TagRelMinimumFragment: "TagRels"
   WithVoteTagRel: "TagRels"
+  UserTagRelNotifications: "UserTagRels"
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"

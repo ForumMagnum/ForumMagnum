@@ -29,6 +29,8 @@ import moment from 'moment';
 import difference from 'lodash/difference';
 import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
+import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
+import UserTagRels from '../lib/collections/userTagRels/collection';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -442,6 +444,28 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
   const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
   if (postSubscriberIdsToNotify.length > 0) {
     await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
+    notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
+  }
+  
+  // 3. If this comment is in a subforum, notify members with email notifications enabled
+  if (comment.tagId && comment.tagCommentType === "SUBFORUM") {
+    const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId }))
+      .map((u) => u._id)
+    const subforumSubscriberIdsMaybeNotify = (
+      await UserTagRels.find({
+        userId: { $in: subforumSubscriberIds },
+        tagId: comment.tagId,
+        subforumEmailNotifications: true,
+      }).fetch()
+    ).map((u) => u.userId);
+    const subforumSubscriberIdsToNotify = _.difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
+
+    await createNotifications({
+      userIds: subforumSubscriberIdsToNotify,
+      notificationType: "newSubforumComment",
+      documentType: "comment",
+      documentId: comment._id,
+    });
   }
 });
 
@@ -533,7 +557,7 @@ async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
   for (const subforumId of newSubforumIds) {
     const subforum = await Tags.findOne(subforumId)
     if (subforum?.isSubforum) {
-      const modIds = subforum.subforumModeratorIds
+      const modIds = subforum.subforumModeratorIds || []
       await createNotifications({
         userIds: modIds,
         notificationType: 'newSubforumMember',
