@@ -63,9 +63,9 @@ describe('Voting', function() {
         Posts.findOne({_id: curatedPost._id}),
       ]);
 
-      (updatedNormalPost?.score as any).should.be.closeTo(recalculateScore(normalPost), 0.001);
-      (updatedFrontpagePost?.score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.001);
-      (updatedCuratedPost?.score as any).should.be.closeTo(recalculateScore(curatedPost), 0.001);
+      (updatedNormalPost?.score as any).should.be.closeTo(recalculateScore(normalPost), 0.002);
+      (updatedFrontpagePost?.score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.002);
+      (updatedCuratedPost?.score as any).should.be.closeTo(recalculateScore(curatedPost), 0.002);
     });
   });
   describe('performVoteServer', () => {

@@ -157,8 +157,8 @@ build({
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql",
-    "bcrypt", "node-pre-gyp", "intercom-client",
-    "fsevents", "chokidar", "auth0", "dd-trace"
+    "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
+    "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter"
   ],
 })
 

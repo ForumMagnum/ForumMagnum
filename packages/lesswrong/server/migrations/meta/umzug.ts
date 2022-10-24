@@ -7,6 +7,7 @@ import { resolve } from "path";
 import { rename } from "node:fs/promises";
 import * as readline from "node:readline/promises";
 import PgStorage from "./PgStorage";
+import { migrationNameToTime } from "../../scripts/acceptMigrations";
 
 declare global {
   interface MigrationTimer {
@@ -24,15 +25,6 @@ declare global {
 const root = "./packages/lesswrong/server/migrations";
 
 const createMigrationPrefix = () => new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-
-const migrationNameToTime = (name: string): number => {
-  const s = name.split(".")[0];
-  if (s.length !== 15 || s[8] !== "T") {
-    throw new Error(`Invalid migration name: '${s}'`);
-  }
-  const stamp = `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 11)}:${s.slice(11, 13)}:${s.slice(13, 15)}.000Z`;
-  return new Date(stamp).getTime();
-}
 
 const getLastMigration = async (storage: PgStorage, db: SqlClient): Promise<string | undefined> => {
   const context = {db, timers: {}, hashes: {}};

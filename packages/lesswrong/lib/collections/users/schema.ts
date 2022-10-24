@@ -749,7 +749,8 @@ const schema: SchemaType<DbUser> = {
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: 'guests',
-    ...schemaDefaultValue(getDefaultFilterSettings),
+    // FIXME this isn't filling default values as intended
+    // ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,

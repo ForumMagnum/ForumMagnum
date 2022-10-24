@@ -388,12 +388,11 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly isPinnedOnProfile: boolean,
   readonly af: boolean,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
+  readonly agentFoundationsId: string,
 }
 
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
@@ -443,8 +442,6 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly postId: string,
   readonly deleted: boolean,
   readonly userId: string,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -626,13 +623,12 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly commentCount: number,
   readonly af: boolean,
   readonly afDate: Date,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
+  readonly agentFoundationsId: string,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -2628,7 +2624,7 @@ interface UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: "Sequence" | "Post",
   readonly position: number,
   readonly duration: number,
   readonly customTitle: string | null,
@@ -2641,7 +2637,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
   readonly draft: boolean,
   readonly position: number,

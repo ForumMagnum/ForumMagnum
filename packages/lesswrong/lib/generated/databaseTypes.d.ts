@@ -53,6 +53,7 @@ interface DbBook extends DbObject {
   hideProgressBar: boolean
   showChapters: boolean
   contents: EditableFieldContents
+  contents_latest: string
   createdAt: Date
 }
 
@@ -67,6 +68,7 @@ interface DbChapter extends DbObject {
   sequenceId: string
   postIds: Array<string>
   contents: EditableFieldContents
+  contents_latest: string
   createdAt: Date
 }
 
@@ -82,6 +84,7 @@ interface DbCollection extends DbObject {
   firstPageLink: string
   hideStartReadingButton: boolean
   contents: EditableFieldContents
+  contents_latest: string
   createdAt: Date
 }
 
@@ -133,19 +136,22 @@ interface DbComment extends DbObject {
   moderatorHat: boolean
   isPinnedOnProfile: boolean
   af: boolean
-  afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
   afDate: Date
   moveToAlignmentUserId: string
+  agentFoundationsId: string
   createdAt: Date
   contents: EditableFieldContents
+  contents_latest: string
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
 }
 
 interface ConversationsCollection extends CollectionBase<DbConversation, "Conversations"> {
@@ -233,6 +239,7 @@ interface DbGardenCode extends DbObject {
   afOnly: boolean
   createdAt: Date
   contents: EditableFieldContents
+  contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
@@ -285,6 +292,7 @@ interface DbLocalgroup extends DbObject {
   inactive: boolean
   deleted: boolean
   contents: EditableFieldContents
+  contents_latest: string
   createdAt: Date
 }
 
@@ -297,6 +305,7 @@ interface DbMessage extends DbObject {
   conversationId: string
   noEmail: boolean
   contents: EditableFieldContents
+  contents_latest: string
   createdAt: Date
 }
 
@@ -535,23 +544,28 @@ interface DbPost extends DbObject {
   commentCount: number
   af: boolean
   afDate: Date
-  afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afCommentCount: number
   afLastCommentedAt: Date
   afSticky: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
+  agentFoundationsId: string
   createdAt: Date
   contents: EditableFieldContents
+  contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
   customHighlight: EditableFieldContents
+  customHighlight_latest: string
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
 }
 
 interface RSSFeedsCollection extends CollectionBase<DbRSSFeed, "RSSFeeds"> {
@@ -645,6 +659,9 @@ interface DbRevision extends DbObject {
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
 }
 
 interface SequencesCollection extends CollectionBase<DbSequence, "Sequences"> {
@@ -665,6 +682,7 @@ interface DbSequence extends DbObject {
   hideFromAuthorPage: boolean
   af: boolean
   contents: EditableFieldContents
+  contents_latest: string
   createdAt: Date
 }
 
@@ -684,6 +702,7 @@ interface DbSpotlight extends DbObject {
   spotlightImageId: string | null
   createdAt: Date
   description: EditableFieldContents
+  description_latest: string
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription, "Subscriptions"> {
@@ -711,6 +730,7 @@ interface DbTagFlag extends DbObject {
   order: number
   createdAt: Date
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface TagRelsCollection extends CollectionBase<DbTagRel, "TagRels"> {
@@ -722,14 +742,15 @@ interface DbTagRel extends DbObject {
   postId: string
   deleted: boolean
   userId: string
-  afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   createdAt: Date
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
 }
 
 interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
@@ -772,7 +793,9 @@ interface DbTag extends DbObject {
   parentTagId: string
   createdAt: Date
   description: EditableFieldContents
+  description_latest: string
   subforumWelcomeText: EditableFieldContents
+  subforumWelcomeText_latest: string
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
@@ -783,6 +806,7 @@ interface DbUserTagRel extends DbObject {
   tagId: string
   userId: string
   subforumLastVisitedAt: Date | null
+  createdAt: Date
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -1048,9 +1072,13 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean
   createdAt: Date
   moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
   howOthersCanHelpMe: EditableFieldContents
+  howOthersCanHelpMe_latest: string
   howICanHelpOthers: EditableFieldContents
+  howICanHelpOthers_latest: string
   biography: EditableFieldContents
+  biography_latest: string
   recommendationSettings: {
     frontpage: {
       method: string,
