@@ -86,7 +86,7 @@ const getCreateTableQueryForCollection = (collectionName: string): string => {
   const createTableQuery = new CreateTableQuery(table);
   const compiled = createTableQuery.compile();
 
-  const sql = compiled.sql;
+  const sql = compiled.sql + ";";
   const args = compiled.args;
   
   if (args.length) throw new Error(`Unexpected arguments: ${args}`);
@@ -134,7 +134,7 @@ export const makeMigrations = async ({
       
       // Include the hash of every collection to make it easier to see what changed
       schemaFileContents += `-- Schema for "${collectionName}", hash: ${hash}\n`
-      schemaFileContents += `${format(sql)}\n`;
+      schemaFileContents += `${format(sql)}`;
     } catch (e) {
       console.error(`Failed to check schema for collection ${collectionName}`);
       failed.push(collectionName);
@@ -145,7 +145,7 @@ export const makeMigrations = async ({
   if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
   
   const overallHash = md5(Object.values(currentHashes).sort().join());
-  let schemaFileHeader = schemaFileHeaderTemplate + `-- Overall schema hash: ${overallHash}\n`;
+  let schemaFileHeader = schemaFileHeaderTemplate + `-- Overall schema hash: ${overallHash}\n\n`;
   
   const toAcceptSchemaFile = schemaToAcceptPath(rootPath);
   const acceptedSchemaFile = acceptedSchemePath(rootPath);

@@ -1657,7 +1657,7 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     label: "Alignment Base Score",
-    defaultValue: false,
+    defaultValue: 0,
     canRead: ['guests'],
   },
 

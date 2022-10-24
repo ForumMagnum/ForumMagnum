@@ -1,6 +1,7 @@
 import { getCollection } from "../vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
+import { ID_LENGTH } from "../random";
 
 const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents"];
 
@@ -152,7 +153,7 @@ export class ArrayType extends Type {
  */
 export class IdType extends StringType {
   constructor(private collection: CollectionBase<any>) {
-    super(27);
+    super(ID_LENGTH);
   }
 
   getCollection() {
@@ -181,14 +182,28 @@ export class NotNullType extends Type {
   }
 }
 
-// FIXME there are bugs with the way strings are handled here, e.g. if there is a string within an object we don't escape the quotes
-const valueToString = (value: any, subtype?: Type): string => {
-  if (Array.isArray(value) && value.length === 0) {
-    return subtype ? `'{}'::${subtype.toString()}[]` : "'{}'";
+const sqlEscape = (data: string): string => data.replace(/((?<!')('{2})*'(?!'))/g, "$1'");
+
+const escapedValueToString = (value: any, subtype?: Type): string =>
+  sqlEscape(valueToString(value, subtype, true));
+
+const valueToString = (value: any, subtype?: Type, isNested = false): string => {
+  if (value instanceof Date) {
+    return `'${value.toISOString()}'`;
+  } else if (Array.isArray(value)) {
+    const itemType = subtype instanceof ArrayType ? subtype.subtype : undefined;
+    const toString = isNested ? valueToString : escapedValueToString;
+    const items = value.map((item: any) => toString(item, itemType)).join(",");
+    if (isNested) {
+      return `{${items}}`;
+    }
+    const wrappedItems = `'{${items}}'`;
+    return subtype ? `${wrappedItems}::${subtype.toString()}[]` : wrappedItems;
   } else if (typeof value === "string") {
-    return `'${value}'`;
+    return value.toLowerCase() === "current_timestamp" ? "CURRENT_TIMESTAMP" : `'${value}'`;
   } else if (typeof value === "object" && value) {
-    return `'{${Object.keys(value).map((key) => `"${key}": ${valueToString(value[key])}`).join(",")}}'`;
+    const result = JSON.stringify(value);
+    return isNested ? result : `'${sqlEscape(result)}'::JSONB`;
   }
   return `${value}`;
 }

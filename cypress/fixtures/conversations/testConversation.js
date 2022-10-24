@@ -1,5 +1,5 @@
 module.exports = {
-    _id : "test-seeded-conversation",
+    _id : "test-seeded-conv",
     createdAt: new Date(),
     latestActivity: new Date(),
     participantIds : [ 
