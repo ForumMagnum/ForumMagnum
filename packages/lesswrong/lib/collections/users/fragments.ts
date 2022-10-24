@@ -188,6 +188,7 @@ registerFragment(`
     ...SharedUserBooleans
 
     acknowledgedNewUserGuidelines
+    notificationSubforumUnread
   }
 `);
 
@@ -274,6 +275,14 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    moderatorActions {
+      ...ModeratorActionDisplay
+    }
+    associatedClientId {
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
   }
 `);
 
@@ -389,6 +398,7 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
 
     hideFrontpageMap
     hideTaggingProgressBar

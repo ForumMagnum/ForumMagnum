@@ -3,6 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
@@ -31,7 +32,7 @@ const SunshineNewUsersList = ({ classes, terms }: {
     return (
       <div>
         <SunshineListTitle>
-          <span>New Users</span>
+          <Link to="/admin/moderation">New Users</Link>
           <SunshineListCount count={totalCount}/>
         </SunshineListTitle>
         {results.map(user =>
