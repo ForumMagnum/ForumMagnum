@@ -31,7 +31,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
-    - run: yarn run unit-ci
+    - run: yarn run unit-ci || git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql
 
   runIntegrationTests:
     concurrency: integration
