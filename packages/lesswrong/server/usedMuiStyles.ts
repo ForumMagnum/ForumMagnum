@@ -2,8 +2,8 @@
  * As part of our static CSS generation, we need to get the styles for all of
  * the MaterialUI components that we use.
  *
- * When adding a new component below, we sure to prepend it's name with 'Mui',
- * and import the _file_ when the component is defined, not just the directory
+ * When adding a new component below, be sure to prepend it's name with 'Mui',
+ * and import the _file_ where the component is defined, not just the directory
  * (ie; "@material-ui/core/Badge/Badge" instead of "@material-ui/core/Badge").
  *
  * Some components also have a 'Base' variant that must be included here too
