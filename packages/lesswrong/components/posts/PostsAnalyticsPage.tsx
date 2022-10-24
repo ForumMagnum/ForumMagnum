@@ -160,7 +160,9 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
 
 }
 
-const PostsAnalyticsPage = ({ classes }) => {
+const PostsAnalyticsPage = ({ classes }: {
+  classes: ClassesType;
+}) => {
   const { query } = useLocation()
   // Cannot destructure and retain return type typing due to TS version
   const postReturn = useSingle({

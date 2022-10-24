@@ -4,10 +4,14 @@ type OrderPreservingArrayPolicy = "prepend-new" | "append-new" | "interleave-new
 type IndexType = string | number;
 
 const arrayToIndexMap = (arr: IndexType[]): Record<IndexType, number> =>
-  Object.keys(arr).reduce(function (map, idx) {
-    map[arr[idx]] = idx;
-    return map;
-  }, {});
+  Object.fromEntries(
+    Object.entries(arr).map(([key, val]) => [val, Number(key)] as const)
+  );
+  // TODO: verify that this is identical
+  // Object.keys(arr).reduce(function (map, idx) {
+  //   map[arr[idx]] = idx;
+  //   return map;
+  // }, {});
 
 const indexMapToArray = (map: Record<IndexType, number>): IndexType[] => {
   const unsortedKeys = Object.keys(map);

@@ -4,9 +4,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 
-type FromPartial<T> = T extends Partial<infer U> ? U : never;
-
-type CloseableComponents = {
+export type CloseableComponents = {
   [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['propTypes']> extends { onClose: any } | undefined ? T : never
 }[keyof ComponentTypes];
 

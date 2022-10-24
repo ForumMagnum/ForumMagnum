@@ -23,7 +23,7 @@ export const SunshineUserMessages = ({classes, user}: {
 
   const { captureEvent } = useTracking()
 
-  const embedConversation = (conversationId, templateQueries) => {
+  const embedConversation = (conversationId: string, templateQueries: TemplateQueryStrings) => {
     setEmbeddedConversationId(conversationId)
     setTemplateQueries(templateQueries)
   }

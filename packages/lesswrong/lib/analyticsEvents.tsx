@@ -175,7 +175,7 @@ export const AnalyticsContext = ({children, ...props}: any) => {
 // value were set to {} in the usual way, it would be a new instance of {} each
 // time; this way, it's the same {}, which in turn matters for making
 // useCallback return the same thing each tie.
-const emptyEventProps = {};
+const emptyEventProps = {} as any;
 
 export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
   eventType?: string,
@@ -196,10 +196,10 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps, sk
 
 export const withTracking = hookToHoc(useTracking)
 
-export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
+export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
   eventType?: string,
-  eventProps?: any,
-  captureOnMount?: any,
+  eventProps?: T,
+  captureOnMount?: boolean | ((eventProps: T) => boolean),
   skip?: boolean
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)

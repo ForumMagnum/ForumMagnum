@@ -52,7 +52,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
  
   useEffect(() => {
-    const selectionChangedHandler = (event) => {
+    const selectionChangedHandler = () => {
       const selection = document.getSelection();
       const selectionText = selection+"";
       
@@ -101,7 +101,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
     };
   }, []);
   
-  const onClickComment = (ev) => {
+  const onClickComment = () => {
     const firstSelectedNode = document.getSelection()?.anchorNode;
     if (!firstSelectedNode) {
       return;
@@ -134,7 +134,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
  *   the page is scrolled to the top.
  */
 const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
-  onClickComment: (ev)=>void,
+  onClickComment: (ev: React.MouseEvent)=>void,
   x: number, y: number,
   classes: ClassesType,
 }) => {

@@ -200,7 +200,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-export const socialMediaIcon = (user: UsersProfile, field: string, className: string) => {
+export const socialMediaIcon = (user: UsersProfile, field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS, className: string) => {
   if (!user[field]) return null
   return <a key={field}
     href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`}
@@ -233,7 +233,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     const ls = getBrowserLocalStorage()
     if (currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
-      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      let profiles: any[] = JSON.parse(ls.getItem('lastViewedProfiles')) || []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
@@ -320,7 +320,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
   const userKarma = user.karma || 0
   
-  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
@@ -507,7 +507,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
             </span>
             {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
+              {Object
+                .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
+                .map((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => 
+                socialMediaIcon(user, field, classes.socialMediaIcon)
+            )}
             </div>}
             {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
               <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>

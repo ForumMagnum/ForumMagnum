@@ -20,7 +20,7 @@ const NewFeedButton = ({user, closeModal}: {
           collection={RSSFeeds}
           mutationFragment={getFragment('newRSSFeedFragment')}
           prefilledProps={{userId: user._id}}
-          successCallback={conversation => {
+          successCallback={() => {
             closeModal();
           }}
         />

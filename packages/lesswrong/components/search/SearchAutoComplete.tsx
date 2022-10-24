@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
-import Autosuggest from 'react-autosuggest';
+import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
 const styles = (theme: ThemeType): JssStyles => ({
   autoComplete: {
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }: {
-  clickAction: any,
+  clickAction: (id: string) => void,
   placeholder: string,
   noSearchPlaceholder: string,
   renderSuggestion: any,
@@ -47,7 +47,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     }}/>;
   }
   
-  const onSuggestionSelected = (event, { suggestion }) => {
+  const onSuggestionSelected: OnSuggestionSelected<any> = (event, { suggestion }) => {
     event.preventDefault();
     event.stopPropagation();
     clickAction(suggestion._id)

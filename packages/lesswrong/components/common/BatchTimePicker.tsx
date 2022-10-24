@@ -14,12 +14,17 @@ type TimeChange = {
   dayOfWeek: string;
 };
 
+export interface PickedTime {
+  timeOfDayGMT: number;
+  dayOfWeekGMT: string;
+}
+
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
 const BatchTimePicker = ({ mode, value, onChange}: {
   mode: string,
-  value: any,
-  onChange: any,
+  value: PickedTime,
+  onChange: (value: PickedTime) => void,
 }) => {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);

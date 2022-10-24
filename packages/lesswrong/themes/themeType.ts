@@ -33,7 +33,7 @@ declare global {
     680: ColorString,
   }
   type ThemeShadePalette = {
-    grey: MuiColorShades,
+    grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,

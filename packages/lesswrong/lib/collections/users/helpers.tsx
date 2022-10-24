@@ -76,11 +76,11 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = post => {
+const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return post.moderationGuidelines?.originalContents || post.moderationStyle
+  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
 }
 
 export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
@@ -300,7 +300,7 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   return user.markDownPostEditor
 }
 
-export const userCanEdit = (currentUser, user) => {
+export const userCanEdit = (currentUser: UsersProfile | DbUser | null, user: UsersMinimumInfo | DbUser | DbObject | HasUserIdType) => {
   return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
 }
 

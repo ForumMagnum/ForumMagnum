@@ -9,10 +9,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   
 });
 
-const TagFlagToggleList = ({ value, path }, context) => {
+const TagFlagToggleList = ({ value, path }: {
+  value: string[];
+  path: string;
+}, context: any) => {
   const { Loading, TagFlagItem } = Components
 
-  const handleClick = (option) => {    
+  const handleClick = (option: string) => {    
     if (value.includes(option)) {
       context.updateCurrentValues({
         [path]: _.without(value, option)

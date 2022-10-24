@@ -17,6 +17,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
+import { fieldIn } from '../../lib/utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -284,8 +285,8 @@ const ReviewVotingPage = ({classes}: {
     console.error('Error loading posts', postsError);
   }
 
-  function getCostTotal (posts) {
-    return posts?.map(post=>getCostData({})[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0)
+  function getCostTotal (posts: PostsListWithVotes[] | null) {
+    return posts?.map(post=>getCostData({})[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0) ?? 0
   }
   const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
@@ -323,7 +324,7 @@ const ReviewVotingPage = ({classes}: {
 
   const canInitialResort = !!postsResults
 
-  const reSortPosts = useCallback((sortPosts, sortReversed) => {
+  const reSortPosts = useCallback((sortPosts: string, sortReversed) => {
     if (!postsResults) return
 
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
@@ -372,8 +373,8 @@ const ReviewVotingPage = ({classes}: {
           if (post1Score > post2Score) return -1
         }
 
-        if (post1[sortPosts] > post2[sortPosts]) return -1
-        if (post1[sortPosts] < post2[sortPosts]) return 1
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1
 
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
@@ -405,7 +406,10 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
 
-  const FaqCard = ({linkText, children}) => (
+  const FaqCard = ({linkText, children}: {
+    linkText: string;
+    children: React.ReactNode;
+  }) => (
     <LWTooltip tooltip={false} title={
       <Card className={classes.faqCard}>
         <ContentStyles contentType="comment">

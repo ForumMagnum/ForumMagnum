@@ -29,7 +29,7 @@ const PostsPageActions = ({post, vertical, classes}: {
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
 
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent) => {
     captureEvent("tripleDotClick", {open: true, itemType: "post", postId: post._id})
     setAnchorEl(anchorEl ? null : e.target);
   }

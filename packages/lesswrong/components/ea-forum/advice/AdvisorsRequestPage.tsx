@@ -67,7 +67,7 @@ const AdvisorsRequestPage = ({classes}: {
           <WrappedSmartForm
             documentId={"PK9TvjiAzRuj45toq"}
             collection={AdvisorRequests}
-            successCallback={async (user) => {
+            successCallback={async () => {
               // console.log("SUCCESS");
             }}
             queryFragment={getFragment('AdvisorRequestsMinimumInfo')}

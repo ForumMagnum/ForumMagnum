@@ -70,7 +70,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)
-  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length > 0, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
@@ -109,7 +109,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   
   const contentTypeInfo = forumSelect(contentTypes);
   
-  const PostTypeTag = ({tooltipBody, label}) =>
+  const PostTypeTag = ({tooltipBody, label}: {
+    tooltipBody: React.ReactNode;
+    label: string;
+  }) =>
     <LWTooltip
       title={<Card className={classes.card}>
         <ContentStyles contentType="comment">

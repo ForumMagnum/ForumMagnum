@@ -210,7 +210,11 @@ const ReviewVoteTableRow = (
   const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: getReviewPhase() === "VOTING" })} onClick={markAsRead}>
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
+      {showKarmaVotes && post.currentUserVote && <LWTooltip
+        title={`You gave this post ${voteMap[post.currentUserVote as keyof typeof voteMap]}`}
+        placement="left"
+        inlineBlock={false}
+      >
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: getReviewPhase() === "VOTING"})}>

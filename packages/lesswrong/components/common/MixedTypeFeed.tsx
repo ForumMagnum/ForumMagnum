@@ -188,7 +188,7 @@ const MixedTypeFeed = (args: {
   useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && data[resolverName]?.results) || [];
-  const keyFunc = (result) => `${result.type}_${result[result.type]?._id}`;
+  const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`;
   const orderedResults = useOrderPreservingArray(results, keyFunc);
   return <div>
     {orderedResults.map((result) =>

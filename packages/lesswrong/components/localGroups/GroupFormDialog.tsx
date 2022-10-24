@@ -114,7 +114,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
           FormSubmit: SubmitComponent
         }}
         prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id], isOnline: isOnline}} // If edit form, do not prefill any data
-        successCallback={group => {
+        successCallback={(group: any) => {
           onClose();
           if (documentId) {
             flash({messageString: "Successfully edited local group " + group.name});

@@ -226,7 +226,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
+const FormComponentDateTime = ({ path, value, name, label, classes }: {
+  path: string;
+  value: string | Date;
+  name: string;
+  label: string;
+  classes: ClassesType;
+}, context: any) => {
   const updateDate = (date: Date | undefined) => {
     if (date) context.updateCurrentValues({[path]: date})
   }
@@ -242,6 +248,7 @@ const FormComponentDateTime = ({ path, value, name, label, classes, position }, 
     </InputLabel>
     <div className={classes.wrapper}>
       <DateTimePicker
+        // TODO: DateTimePicker is complaining about the possibility of `null` for `value`, but it's been working?  What do?
         value={date}
         inputProps={{
           name:name,

@@ -13,6 +13,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import type { SubmitToFrontpageCheckboxProps } from '../posts/SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from '../posts/PostSubmit';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -37,7 +39,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
     fragmentName: 'SuggestAlignmentPost',
   });
   
-  const QuestionSubmit = (props) => {
+  const QuestionSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       <SubmitToFrontpageCheckbox {...props}/>
       <PostSubmit feedbackLabel={"Get Feedback"} {...props} />

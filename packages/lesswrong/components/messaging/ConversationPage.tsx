@@ -84,7 +84,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       // if this is a conversation with one other person, see if we have info on where the current user found them
       const otherUserId = conversation.participantIds.find(id => id !== currentUser._id)
       const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles'))
-      profileViewedFrom.current = lastViewedProfiles?.find(profile => profile.userId === otherUserId)?.from
+      profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from
     }
   }, [query.from, conversation, currentUser._id])
 

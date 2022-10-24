@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement, arrayMove, SortableContainerProps} from 'react-sortable-hoc';
 import type {SortEvent, SortEventWithTag} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
@@ -7,11 +7,20 @@ export const makeSortableListComponent = ({renderItem}: {
   renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id:string)=>void, classes: ClassesType }) => React.ReactNode
 }) => {
   // eslint-disable-next-line babel/new-cap
-  const SortableItem = SortableElement(({contents, removeItem, classes}) => <>
+  const SortableItem = SortableElement(({contents, removeItem, classes}: {
+    contents: string,
+    removeItem: (id:string)=>void,
+    classes: ClassesType
+  }) => <>
     {renderItem({contents, removeItem, classes})}
   </>);
   // eslint-disable-next-line babel/new-cap
-  const SortableList = SortableContainer(({items, removeItem, className, classes}) => {
+  const SortableList = SortableContainer(({items, removeItem, className, classes}: {
+    items: string[],
+    removeItem: (id:string)=>void,
+    className?: string,
+    classes: ClassesType
+  }) => {
     return <span className={className}>
       {items.map((contents, index) => {
         return <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} contents={contents} classes={classes}/>
@@ -30,7 +39,12 @@ export const makeSortableListComponent = ({renderItem}: {
     }
   }
   
-  return (props) => {
+  return (props: {
+    value: string[],
+    setValue: (value: string[]) => void,
+    className?: string,
+    classes: ClassesType,
+  } & SortableContainerProps) => {
     const {value, setValue, className, ...otherProps} = props;
     
     const onSortEnd = useCallback(({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {

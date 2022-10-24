@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const refreshDisplayMode = ( editor, sidebarElement ) => {
+const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
   
@@ -95,7 +95,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   }, [])
 
   const editorRef = useRef<CKEditor>(null)
-  const sidebarRef = useRef(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
   const presenceListRef = useRef(null)
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
@@ -141,7 +141,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       onChange={onChange}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={editor => {
+      onInit={(editor: any) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -159,7 +159,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       }}
       config={{
         autosave: {
-          save (editor) {
+          save (editor: any) {
             return onSave && onSave(editor.getData())
           }
         },

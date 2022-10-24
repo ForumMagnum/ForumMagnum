@@ -158,7 +158,7 @@ const CommunityMemberCard = ({user, classes}: {
 
   const { CloudinaryImage2, ContentStyles, ContentItemBody, Typography, NewConversationButton } = Components
   
-  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const userKarma = user.karma || 0
   const bioNode = (

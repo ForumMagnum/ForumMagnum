@@ -2,6 +2,7 @@ import type { ApolloError } from "@apollo/client";
 import { useForeignApolloClient } from "./useForeignApolloClient";
 import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
+// import type { PostWithForeignId } from "../posts/PostsPage/PostsPageCrosspostWrapper";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -38,6 +39,10 @@ const overrideFields = [
   "readTimeMinutes",
 ] as const;
 
+type PostFragmentNames = {
+  [k in keyof FragmentTypes]: k extends `${string}Post${string}` ? k : never;
+}[keyof FragmentTypes]
+
 /**
  * Load foreign crosspost data from the foreign site
  */
@@ -69,6 +74,8 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   if (!localPost.fmCrosspost.hostedHere) {
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
+      // TODO: come back to figure out proper typing for this
+      // @ts-ignore
       combinedPost[field] = foreignPost?.[field] ?? localPost[field];
     }
     // We just took the table of contents from the foreign version, but we want to use the local comment count

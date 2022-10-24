@@ -63,7 +63,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   path: string,
   label: string,
   classes: ClassesType
-}, context) => {
+}, context: any) => {
   const {updateCurrentValues, submitForm} = context;
   const { LWTooltip } = Components
   const {openDialog, closeDialog} = useDialog();

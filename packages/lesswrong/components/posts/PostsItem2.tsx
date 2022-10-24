@@ -413,8 +413,8 @@ const PostsItem2 = ({
     setMarkedVisitedAt(new Date()) 
   }
 
-  const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
-    const newComments = lastVisitedAt < lastCommentedAt;
+  const compareVisitedAndCommentedAt = (lastVisitedAt: Date, lastCommentedAt: Date | null) => {
+    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
     return (isRead && newComments && !readComments)
   }
 
