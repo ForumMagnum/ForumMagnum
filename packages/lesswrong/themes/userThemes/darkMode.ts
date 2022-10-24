@@ -1,5 +1,6 @@
 import type { PartialDeep } from 'type-fest'
 import { invertHexColor, invertColor } from '../colorUtil';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey
@@ -101,6 +102,20 @@ function generateColorOverrides(): string {
   }).join('\n');
 }
 
+const forumComponentPalette = forumSelect({
+  EAForum: {
+    primary: {
+      main: '#3c9eaf',
+      dark: '#0c869b'
+    },
+    secondary: {
+      main: '#3c9eaf',
+      dark: '#0c869b'
+    },
+  },
+  default: {},
+});
+
 export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
     grey: invertedGreyscale,
@@ -111,6 +126,7 @@ export const darkModeTheme: UserThemeSpecification = {
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
+    ...forumComponentPalette,
     text: {
       alwaysWhite: '#fff',
       aprilFools: {
