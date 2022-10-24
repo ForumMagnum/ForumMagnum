@@ -23,6 +23,49 @@ const formatters = {
 
 const showArray = <T>(array: T[]) => util.inspect(array, {maxArrayLength: null});
 
+const createIndexes = async (table: Table, sql: SqlClient) => {
+  const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
+  if (indexQueries.length === 0) {
+    console.warn("...Warning: 0 indexes found: did you wait for the timeout?");
+  }
+  for (const indexQuery of indexQueries) {
+    const compiled = indexQuery.compile();
+    await sql.none(compiled.sql, compiled.args);
+  }
+}
+
+const copyData = async <T extends DbObject>(table: Table, sql: SqlClient, collection: CollectionBase<T>) => {
+  // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65535. The largest
+  // collections have ~150 fields, so these can be safely imported in batches of 400 with a little safety
+  // margin. For collections with fewer fields, it may be quicker to increase this number appropriately.
+  const batchSize = 400;
+  const collectionName = collection.options.collectionName;
+  const formatData: (doc: DbObject) => DbObject = formatters[collectionName] ?? ((document) => document);
+  let errorIds: string[] = [];
+  let count = 0;
+  await forEachDocumentBatchInCollection({
+    collection,
+    batchSize,
+    callback: async (documents: DbObject[]) => {
+      console.log(`......Migrating ${documents.length} documents from index ${count}`);
+      count += batchSize;
+      const query = new InsertQuery(table, documents.map(formatData), {}, {conflictStrategy: "ignore"});
+      const compiled = query.compile();
+      try {
+        await sql.none(compiled.sql, compiled.args);
+      } catch (e) {
+        console.error(`ERROR IMPORTING DOCUMENT BATCH`);
+        console.error(e);
+        errorIds = errorIds.concat(documents.map(({_id}) => _id as string));
+      }
+    },
+  });
+
+  if (errorIds.length) {
+    console.log(`...${errorIds.length} import errors:`, errorIds);
+  }
+}
+
 /**
  * When importing large amounts of data, you can get a decent speed boost by running
  * `SET LOCAL synchronous_commit TO OFF` before this script. This is dangerous though,
@@ -59,48 +102,16 @@ Vulcan.mongoToSql = async (collectionName: CollectionNameString) => {
     throw e;
   }
 
-  await sql.none(`ALTER TABLE "${table.getName()}" SET UNLOGGED`);
+  try {
+    await sql.none(`ALTER TABLE "${table.getName()}" SET UNLOGGED`);
 
-  console.log("...Creating indexes");
-  const indexQueries = table.getIndexes().map((index) => new CreateIndexQuery(table, index));
-  if (indexQueries.length === 0) {
-    console.warn("...Warning: 0 indexes found: did you wait for the timeout?");
-  }
-  for (const indexQuery of indexQueries) {
-    const compiled = indexQuery.compile();
-    await sql.none(compiled.sql, compiled.args);
-  }
+    console.log("...Creating indexes");
+    await createIndexes(table, sql);
 
-  console.log("...Copying data");
-  // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65535. The largest
-  // collections have ~150 fields, so these can be safely imported in batches of 400 with a little safety
-  // margin. For collections with fewer fields, it may be quicker to increase this number appropriately.
-  const batchSize = 400;
-  const formatData: (doc: DbObject) => DbObject = formatters[collectionName] ?? ((document) => document);
-  let errorIds: string[] = [];
-  let count = 0;
-  await forEachDocumentBatchInCollection({
-    collection,
-    batchSize,
-    callback: async (documents: DbObject[]) => {
-      console.log(`......Migrating ${documents.length} documents from index ${count}`);
-      count += batchSize;
-      const query = new InsertQuery(table, documents.map(formatData), {}, {conflictStrategy: "ignore"});
-      const compiled = query.compile();
-      try {
-        await sql.none(compiled.sql, compiled.args);
-      } catch (e) {
-        console.error(`ERROR IMPORTING DOCUMENT BATCH`);
-        console.error(e);
-        errorIds = errorIds.concat(documents.map(({_id}) => _id as string));
-      }
-    },
-  });
-
-  await sql.none(`ALTER TABLE "${table.getName()}" SET LOGGED`);
-
-  if (errorIds.length) {
-    console.log(`...${errorIds.length} import errors:`, errorIds);
+    console.log("...Copying data");
+    await copyData(table, sql, collection);
+  } finally {
+    await sql.none(`ALTER TABLE "${table.getName()}" SET LOGGED`);
   }
 
   console.log(`=== Finished migrating collection '${collectionName}' ===`);
