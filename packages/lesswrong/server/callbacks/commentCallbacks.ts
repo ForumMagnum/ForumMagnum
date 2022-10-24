@@ -229,13 +229,15 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
           data: firstMessageContents
         }
       },
-      conversationId: conversation.data._id
+      conversationId: conversation.data._id,
+      noEmail: true
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
       contents: comment.contents,
-      conversationId: conversation.data._id
+      conversationId: conversation.data._id,
+      noEmail: true
     }
 
     await createMutator({
