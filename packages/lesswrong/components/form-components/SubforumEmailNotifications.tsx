@@ -7,7 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({})
 
 const SubforumEmailNotifications = (props, context) => {
   const currentUser = useCurrentUser();
-  const label = currentUser ? `${startCase(currentUser.notificationSubforumUnread.batchingFrequency)} email notifications` : "Email notifications"
+  const label = currentUser ? `${startCase(currentUser.notificationSubforumUnread?.batchingFrequency ?? "Daily")} email notifications` : "Email notifications"
   const { FormComponentCheckbox } = Components
 
   return <FormComponentCheckbox {...props} label={label} />

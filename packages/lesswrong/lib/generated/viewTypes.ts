@@ -2,6 +2,7 @@ type AdvisorRequestsViewName = "requestsByUser";
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
+type ClientIdsViewName = never
 type CollectionsViewName = never
 type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"postCommentsTop"|"afPostCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"profileRecentComments"|"allRecentComments"|"recentComments"|"afSubmissions"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"defaultModeratorResponses"|"repliesToAnswer"|"topShortform"|"shortform"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"reviews"|"tagDiscussionComments"|"tagSubforumComments"|"moderatorComments"|"alignmentSuggestedComments"|"rss";
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userGroupUntitledConversations";
@@ -15,7 +16,7 @@ type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
 type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
-type ModeratorActionsViewName = never
+type ModeratorActionsViewName = "userModeratorActions";
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
@@ -42,6 +43,7 @@ interface ViewTermsByCollectionName {
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
+  ClientIds: ViewTermsBase
   Collections: ViewTermsBase
   Comments: CommentsViewTerms
   Conversations: ConversationsViewTerms
@@ -55,7 +57,7 @@ interface ViewTermsByCollectionName {
   Localgroups: LocalgroupsViewTerms
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
-  ModeratorActions: ViewTermsBase
+  ModeratorActions: ModeratorActionsViewTerms
   Notifications: NotificationsViewTerms
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms
@@ -79,4 +81,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"

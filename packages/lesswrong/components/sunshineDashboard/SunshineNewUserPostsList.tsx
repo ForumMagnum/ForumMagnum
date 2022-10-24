@@ -8,7 +8,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   post: {
     marginTop: theme.spacing.unit*2,
@@ -55,7 +56,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           <PostsPageActions post={post} />
         </div>
         {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
-          <div dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
+          <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
         </ContentStyles>}
       </div>)}
     </div>

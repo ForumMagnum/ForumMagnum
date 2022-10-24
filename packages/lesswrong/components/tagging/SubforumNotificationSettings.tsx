@@ -89,7 +89,7 @@ const SubforumNotificationSettings = ({
     <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={classes.root}>
         <IconButton onClick={handleToggle} className={classes.notificationsButton}>
-          {(!userTagRel.subforumEmailNotifications && !userTagRel.subforumEmailNotifications) ? (
+          {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
             <NotificationsNoneIcon />
           ) : (
             <NotificationsIcon />
