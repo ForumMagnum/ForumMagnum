@@ -3,7 +3,6 @@ import { Components, registerComponent, getCollectionName } from '../../lib/vulc
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 import { useCurrentUser } from '../common/withUser';

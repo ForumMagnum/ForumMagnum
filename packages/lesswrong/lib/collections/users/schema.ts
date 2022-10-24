@@ -75,9 +75,12 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
+export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+
 export type NotificationTypeSettings = {
-  channel: "none"|"onsite"|"email"|"both",
-  batchingFrequency: "realtime"|"daily"|"weekly",
+  channel: NotificationChannelOption,
+  batchingFrequency: NotificationBatchingOption,
   timeOfDayGMT: number,
   dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
 };
@@ -137,7 +140,7 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
-const notificationTypeSettingsField = (overrideSettings?: any) => ({
+const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
@@ -1193,6 +1196,10 @@ const schema: SchemaType<DbUser> = {
     // Hide this while review is inactive
     hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationSubforumUnread: {
+    label: `New messages in subforums I'm subscribed to`,
+    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings
@@ -2279,6 +2286,19 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.disabledPrivileges,
     order: 72,
   },
+  
+  
+  associatedClientId: resolverOnlyField({
+    type: "ClientId",
+    graphQLtype: "ClientId",
+    nullable: true,
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId|null> => {
+      return await context.ClientIds.findOne({userIds: user._id}, {
+        sort: {createdAt: -1}
+      });
+    }
+  }),
 
   acknowledgedNewUserGuidelines: {
     type: Boolean,
@@ -2289,6 +2309,20 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
+
+  moderatorActions: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[ModeratorAction]',
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (doc, args, context) => {
+      const { ModeratorActions, loaders } = context;
+      return ModeratorActions.find({ userId: doc._id }).fetch();
+    }
+  }),
+
+  'moderatorActions.$': {
+    type: 'Object'
+  }
 };
 
 /* Alignment Forum fields */

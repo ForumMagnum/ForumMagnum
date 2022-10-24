@@ -9,12 +9,14 @@ import Comments from "../lib/collections/comments/collection";
 // import Users from "../lib/collections/users/collection";
 // import Conversations from "../lib/collections/conversations/collection";
 // import Messages from "../lib/collections/messages/collection";
+// import LocalGroups from "../lib/collections/localgroups/collection";
 
 import seedPosts from "../../../cypress/fixtures/posts";
 import seedComments from "../../../cypress/fixtures/comments";
 // import seedUsers from "../../../cypress/fixtures/users";
 // import seedConversations from "../../../cypress/fixtures/conversations";
 // import seedMessages from "../../../cypress/fixtures/messages";
+// import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 
 const importData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
   // eslint-disable-next-line no-console
@@ -36,6 +38,7 @@ const dropAndSeedCypressPg = async () => {
     // importData(Users, seedUsers),
     // importData(Conversations, seedConversations),
     // importData(Messages, seedMessages),
+    // importData(LocalGroups, seedLocalGroups),
   ]);
 }
 

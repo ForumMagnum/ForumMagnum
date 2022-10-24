@@ -2,6 +2,7 @@ import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
+import Users from "../users/collection";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -65,4 +66,8 @@ export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, ac
   if (user.isAdmin) return true
   if ((user.karma ?? 0) >= tagMinimumKarmaPermissions[action]) return true
   return false
+}
+
+export const subforumGetSubscribedUsers = async ({tagId}: {tagId: string}): Promise<DbUser[]> => {
+  return await Users.find({profileTagIds: tagId}).fetch()
 }

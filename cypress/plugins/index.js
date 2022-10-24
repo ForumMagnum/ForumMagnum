@@ -8,6 +8,7 @@ const seedComments = require('../fixtures/comments');
 const seedUsers = require('../fixtures/users');
 const seedConversations = require('../fixtures/conversations');
 const seedMessages = require('../fixtures/messages');
+const seedLocalgroups = require('../fixtures/localgroups');
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -60,6 +61,7 @@ const dropAndSeedMongo = async (url) => {
     db.collection('conversations').insertMany(seedConversations),
     db.collection('posts').insertMany(seedPosts),
     db.collection('messages').insertMany(seedMessages),
+    db.collection('localgroups').insertMany(seedLocalgroups),
   ]);
 }
 
