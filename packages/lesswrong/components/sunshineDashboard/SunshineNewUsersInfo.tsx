@@ -177,9 +177,10 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
-const SunshineNewUsersInfo = ({ user, classes }: {
+const SunshineNewUsersInfo = ({ user, classes, refetch }: {
   user: SunshineUsersList,
   classes: ClassesType,
+  refetch: () => void
 }) => {
   const currentUser = useCurrentUser();
 
@@ -236,7 +237,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
             </div>
-            <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts}/>
+            <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts} refetch={refetch}/>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
               <span>Votes: </span>

@@ -116,6 +116,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   infoColumn: {
     width: '30%',
+    minWidth: 388,
     padding: 16,
     paddingTop: 12,
     borderRight: theme.palette.border.extraFaint,
@@ -146,10 +147,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentCollapsed: {
     maxHeight: 300,
     overflowY: "scroll",
-    cursor: "pointer",
-    '&:after': { 
-      content: '"<a>Expand</a>"',
-    }
+    cursor: "pointer"
   },
   contentSummaryRow: {
     display: "flex",

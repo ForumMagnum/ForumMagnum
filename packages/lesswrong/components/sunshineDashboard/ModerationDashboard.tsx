@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
@@ -85,7 +84,7 @@ const ModerationDashboard = ({ classes }: {
   const currentUser = useCurrentUser();
 
   const [view, setView] = useState<'sunshineNewUsers' | 'allUsers'>('sunshineNewUsers');
-  
+
   const { results: usersToReview, count, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: "sunshineNewUsers", limit: 10},
     collectionName: "Users",

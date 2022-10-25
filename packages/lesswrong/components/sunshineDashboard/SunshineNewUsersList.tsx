@@ -19,7 +19,7 @@ const SunshineNewUsersList = ({ classes, terms }: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const { results, totalCount, loadMoreProps } = useMulti({
+  const { results, totalCount, loadMoreProps, refetch } = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -37,7 +37,7 @@ const SunshineNewUsersList = ({ classes, terms }: {
         </SunshineListTitle>
         {results.map(user =>
           <div key={user._id} >
-            <SunshineNewUsersItem user={user}/>
+            <SunshineNewUsersItem user={user} refetch={refetch}/>
           </div>
         )}
         <div className={classes.loadMore}>

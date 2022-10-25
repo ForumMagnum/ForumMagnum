@@ -81,7 +81,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   user: SunshineUsersList,
   classes: ClassesType,
   currentUser: UsersCurrent,
-  refetch?: () => void,
+  refetch: () => void,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
@@ -316,7 +316,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
     setNotes(newNotes);
     // If we have a efetch to ensure the button displays (toggled on/off) properly 
-    refetch && refetch();
+    refetch();
   }
 
   const actionRow = <div className={classes.row}>
@@ -392,6 +392,15 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   </div>
 
   return <div>
+    {actionRow}
+    {permissionsRow}
+    <div>
+      <LWTooltip title={`${mostRecentRateLimit?.active ? "Un-rate-limit" : "Rate-limit"} this user's ability to post and comment`}>
+        <div className={classes.permissionsButton}onClick={handleRateLimit}>
+          {MODERATOR_ACTION_TYPES[RATE_LIMIT_ONE_PER_DAY]}
+        </div>
+      </LWTooltip>
+    </div>
     <div className={classes.notes}>
       <Input
         value={notes}
@@ -404,15 +413,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         multiline
         rowsMax={5}
       />
-    </div>
-    {actionRow}
-    {permissionsRow}
-    <div>
-      <LWTooltip title={`${mostRecentRateLimit?.active ? "Un-rate-limit" : "Rate-limit"} this user's ability to post and comment`}>
-        <div className={classes.permissionsButton}onClick={handleRateLimit}>
-          {MODERATOR_ACTION_TYPES[RATE_LIMIT_ONE_PER_DAY]}
-        </div>
-      </LWTooltip>
     </div>
     {moderatorActionLog}
   </div>
