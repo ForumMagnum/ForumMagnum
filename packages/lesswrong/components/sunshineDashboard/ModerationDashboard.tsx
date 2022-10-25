@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
+import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
@@ -112,7 +113,9 @@ const ModerationDashboard = ({ classes }: {
           <div className={classes.toc}>
             {usersToReview?.map(user => {
               return <div key={user._id} className={classes.tocListing}>
-                {user.displayName}
+                <a href={`/admin/moderation#${user._id}`}>
+                  {user.displayName}
+                </a>
               </div>
             })}
             <div className={classes.loadMore}>
@@ -150,7 +153,7 @@ const ModerationDashboard = ({ classes }: {
           {usersToReview && allUsers && <>
             <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
               {usersToReview.map(user =>
-                <div key={user._id}>
+                <div key={user._id} id={user._id}>
                   <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
                 </div>
               )}
