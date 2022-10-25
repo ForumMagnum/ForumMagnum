@@ -215,7 +215,6 @@ const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
   // Ensure that the tag is inside a 'p' element and that all the text in that 'p' is in tags of
   // the same type as our base tag
   const para = cheerio(tag).closest('p');
-  console.log("cheerio", {para, tag})
   if (!para || para.text().trim() !== para.find(tag.name).text().trim()) {
     return false;
   }
