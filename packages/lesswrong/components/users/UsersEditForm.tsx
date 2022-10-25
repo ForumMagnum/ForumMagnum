@@ -9,6 +9,7 @@ import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -99,7 +100,9 @@ const UsersEditForm = ({terms, classes}: {
         hideFields={["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
           if (user?.theme) {
-            setTheme({...currentThemeOptions, ...user.theme});
+            const theme = {...currentThemeOptions, ...user.theme};
+            setTheme(theme);
+            captureEvent("setUserTheme", theme);
           }
           flash(`User "${userGetDisplayName(user)}" edited`);
           try {
