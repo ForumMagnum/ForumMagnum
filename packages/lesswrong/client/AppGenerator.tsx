@@ -5,6 +5,7 @@ import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
 import { wrapWithMuiTheme } from './themeProvider';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
+import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 import { CookiesProvider } from 'react-cookie';
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
@@ -28,7 +29,9 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
         <CookiesProvider>
           <BrowserRouter>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+              <PrefersDarkModeProvider>
+                <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+              </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>
           </BrowserRouter>
         </CookiesProvider>
