@@ -9,9 +9,6 @@ import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
-import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
-
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -220,31 +217,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
     </div>
-
-
   </div>
-
-  const moderatorActionLogRow = <div>
-    {user.moderatorActions
-      .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => {
-        let averageContentKarma: number | undefined;
-        if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
-          const mostRecentComments = _.sortBy(comments ?? [], 'postedAt').reverse();
-          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
-        } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
-          const mostRecentPosts = _.sortBy(posts ?? [], 'postedAt').reverse();
-          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
-        }
-
-        const suffix = typeof averageContentKarma === 'number' ? ` (${averageContentKarma})` : '';
-
-        return <div key={`${user._id}_${moderatorAction.type}`}>{`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}`}</div>;
-      })
-    }
-  </div>
-
-  
 
   const votesRow = <div className={classes.votesRow}>
     <span>Votes: </span>
@@ -305,8 +278,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <div className={classes.columns}>
         <div className={classes.infoColumn}>
           <div>
-            <ModeratorActions user={user} currentUser={currentUser} refetch={refetch}/>
-            {moderatorActionLogRow}
+            <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
             {user.reviewedAt
               ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></div>
               : null 

@@ -236,7 +236,7 @@ const SunshineNewUsersInfo = ({ user, classes }: {
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
             </div>
-            <ModeratorActions user={user} currentUser={currentUser}/>
+            <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts}/>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
               <span>Votes: </span>

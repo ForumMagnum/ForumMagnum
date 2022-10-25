@@ -149,14 +149,14 @@ const ModerationDashboard = ({ classes }: {
           </div>
           {usersToReview && allUsers && <>
             <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
-              {usersToReview?.map(user =>
+              {usersToReview.map(user =>
                 <div key={user._id}>
                   <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
                 </div>
               )}
             </div>
             <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
-              {allUsers?.map(user =>
+              {allUsers.map(user =>
                 <div key={user._id}>
                   <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
                 </div>
