@@ -88,7 +88,7 @@ export function commentExcerptFromHTML (comment: CommentsList, currentUser?: Use
       // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
       TruncateLength: Math.floor(truncationCharCount - (truncationCharCount/4)),
       TruncateBy: "characters",
-      Suffix: `... <span class="read-more">(read more)</span>${styles}`,
+      Suffix: `... <span class="read-more-button">(read more)</span>${styles}`,
     });
   } else {
     return htmlRemovedStyles

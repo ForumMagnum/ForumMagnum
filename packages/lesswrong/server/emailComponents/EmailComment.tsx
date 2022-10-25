@@ -7,8 +7,9 @@ import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import startCase from 'lodash/startCase';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
@@ -21,6 +22,8 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
   const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
+  const commentsOnSubforums = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "SUBFORUM")
+  const commentsBySubforumTagId = groupBy(commentsOnSubforums, (comment:DbComment)=>comment.tagId);
   
   return <div>
     {Object.keys(commentsByPostId).map(postId => <div key={postId}>
@@ -29,8 +32,13 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
         <EmailComment key={comment._id} commentId={comment._id}/>)}
     </div>)}
     {Object.keys(commentsByTagId).map(tagId => <div key={tagId}>
-      <EmailCommentsOnTagHeader tagId={tagId}/>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false}/>
       {commentsByTagId[tagId]?.map(comment =>
+        <EmailComment key={comment._id} commentId={comment._id}/>)}
+    </div>)}
+    {Object.keys(commentsBySubforumTagId).map(tagId => <div key={tagId}>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={true}/>
+      {commentsBySubforumTagId[tagId]?.map(comment =>
         <EmailComment key={comment._id} commentId={comment._id}/>)}
     </div>)}
   </div>;
@@ -52,7 +60,7 @@ const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   </div>;
 }
 
-const EmailCommentsOnTagHeader = ({tagId}: {tagId: string}) => {
+const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforum: boolean}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
     collectionName: "Tags",
@@ -61,9 +69,15 @@ const EmailCommentsOnTagHeader = ({tagId}: {tagId: string}) => {
   if (!tag)
     return null;
   
-  return <div>
-    New comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
-  </div>;
+  return isSubforum ? (
+    <div>
+      New comments in the <a href={tagGetSubforumUrl(tag, true)}>{`${startCase(tag.name)} subforum`}</a>
+    </div>
+  ) : (
+    <div>
+      New discussion comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
+    </div>
+  );
 }
 
 const EmailCommentsOnPostHeaderComponent = registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);
