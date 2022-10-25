@@ -65,13 +65,14 @@ export function invertColor(color: ColorTuple): ColorTuple
 {
   // HACK: Gamma here is tuned empirically for a visual result, not based on
   // anything principled.
-  const gamma=1.5;
+  // TODO; Forum gate
+  const gamma=1.24;
   
   function invertChannel(channel: number) {
     const linearized = Math.pow(channel, gamma);
     const invertedLinearized = 1.0-linearized;
     const inverted = Math.pow(invertedLinearized, 1.0/gamma);
-    return inverted;
+    return .92 * inverted + .08;
   }
   const [r,g,b,a] = color;
   return [invertChannel(r),invertChannel(g),invertChannel(b),1];

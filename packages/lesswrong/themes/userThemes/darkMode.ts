@@ -20,8 +20,8 @@ export const invertedGreyscale = {
   A700: invertHexColor('#616161'),
   
   // Greyscale colors not in the MUI palette
-  0: "#000",
-  1000: "#fff",
+  0: invertHexColor('#ffffff'),
+  1000: invertHexColor('#000000'),
   
   10: invertHexColor('#fefefe'),
   20: invertHexColor('#fdfdfd'),
@@ -105,12 +105,18 @@ function generateColorOverrides(): string {
 const forumComponentPalette = forumSelect({
   EAForum: {
     primary: {
-      main: '#3c9eaf',
-      dark: '#0c869b'
+      main: '#009da8',
+      light: '#0c869b',
+      dark: '#009da8'
     },
     secondary: {
       main: '#3c9eaf',
-      dark: '#0c869b'
+      light: '#0c869b',
+      dark: '#3c9eaf'
+    },
+    lwTertiary: {
+      main: "#0e9bb4",
+      dark: "#0e9bb4",
     },
   },
   default: {},
