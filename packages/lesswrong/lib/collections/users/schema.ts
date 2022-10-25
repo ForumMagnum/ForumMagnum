@@ -13,7 +13,7 @@ import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
-import { defaultThemeOptions } from "../../../themes/themeNames";
+import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -177,6 +177,20 @@ const partiallyReadSequenceItem = new SimpleSchema({
   lastReadTime: {
     type: Date,
     optional: true,
+  },
+});
+
+const userTheme = new SimpleSchema({
+  name: {
+    type: String,
+    allowedValues: [...userThemeSettings],
+    optional: true,
+    nullable: true,
+  },
+  siteThemeOverride: {
+    type: Object,
+    optional: true,
+    nullable: true,
   },
 });
 
@@ -498,10 +512,10 @@ const schema: SchemaType<DbUser> = {
   },
   
   theme: {
-    type: String,
+    type: userTheme,
     optional: true,
     nullable: true,
-    defaultValue: JSON.stringify(defaultThemeOptions),
+    ...schemaDefaultValue(defaultThemeOptions),
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,

@@ -802,7 +802,10 @@ interface DbUser extends DbObject {
   noindex: boolean
   groups: Array<string>
   lwWikiImport: boolean
-  theme: string | null
+  theme: {
+    name: "default" | "dark" | "auto" | null,
+    siteThemeOverride: any /*{"definitions":[{}]}*/,
+  } | null
   lastUsedTimezone: string
   whenConfirmationEmailSent: Date
   legacy: boolean
