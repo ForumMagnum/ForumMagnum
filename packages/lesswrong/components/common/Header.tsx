@@ -133,10 +133,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, static=false, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
-  static?: boolean,
+  stayAtTop?: boolean,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
@@ -266,7 +266,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, static
           )}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={static}
+          disable={stayAtTop}
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>

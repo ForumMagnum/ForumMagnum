@@ -318,7 +318,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
-                static={Boolean(currentRoute?.fullscreen)}
+                stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               <div className={classNames({[classes.gridActivated]: shouldUseGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
