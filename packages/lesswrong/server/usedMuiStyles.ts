@@ -68,11 +68,7 @@ const getUsedMuiStyles = () => {
   };
 
   // Filter out components that don't have any styles
-  return Object.keys(components).reduce((result, componentName) => {
-    return components[componentName]
-      ? {...result, [componentName]: components[componentName]}
-      : result;
-  }, {});
+  return Object.fromEntries(Object.entries(components).filter(([_, styles]) => Boolean(styles)));
 }
 
 export const usedMuiStyles = getUsedMuiStyles();
