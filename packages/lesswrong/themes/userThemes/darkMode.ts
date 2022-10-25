@@ -102,7 +102,7 @@ function generateColorOverrides(): string {
   }).join('\n');
 }
 
-const forumComponentPalette = forumSelect({
+const forumComponentPalette = (shadePalette: ThemeShadePalette) => forumSelect({
   EAForum: {
     primary: {
       main: '#009da8',
@@ -118,6 +118,9 @@ const forumComponentPalette = forumSelect({
       main: "#0e9bb4",
       dark: "#0e9bb4",
     },
+    panelBackground: {
+      default: shadePalette.grey[20],
+    },
   },
   default: {},
 });
@@ -132,7 +135,6 @@ export const darkModeTheme: UserThemeSpecification = {
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
-    ...forumComponentPalette,
     text: {
       alwaysWhite: '#fff',
       aprilFools: {
@@ -174,6 +176,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
+    ...forumComponentPalette(shadePalette),
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {

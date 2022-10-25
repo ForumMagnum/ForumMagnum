@@ -18,7 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    // TODO; not matching
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   title: {
