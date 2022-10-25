@@ -7,12 +7,9 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
-import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import { Link } from '../../lib/reactRouterWrapper';
-import { userGetProfileUrl} from '../../lib/collections/users/helpers';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
 import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
 
 
@@ -27,9 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1rem"
   },
   displayName: {
-    marginTop: 4,
-    fontSize: theme.typography.body2.fontSize,
-    marginBottom: 16
+    fontSize: theme.typography.body1.fontSize,
+    marginBottom: 4
   },
   icon: {
     height: 13,
@@ -43,16 +39,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  basicInfoRow: {
+    padding: 16,
+    paddingBottom: 14,
+    borderBottom: theme.palette.border.extraFaint
+  },
   row: {
     display: "flex",
     alignItems: "center",
-  },
-  permissionsRow: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-    marginBottom: 8,
-    marginTop: 8
   },
   disabled: {
     opacity: .2,
@@ -98,16 +92,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12,
     marginBottom: 12
   },
-  notes: {
-    border: theme.palette.border.normal,
-    borderRadius: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingTop: 4,
-    paddingBottom: 4,
-    marginTop: 8,
-    marginBottom: 8,
-  },
   sortButton: {
     marginLeft: 6,
     cursor: "pointer"
@@ -130,50 +114,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexWrap: 'wrap'
   },
-  modButton:{
-    marginTop: 6,
-    marginRight: 16,
-    cursor: "pointer",
-    '&:hover': {
-      opacity: .5
-    }
-  },
-  snooze10: {
-    color: theme.palette.primary.main,
-    fontSize: 34,
-    marginTop: 4
-  },
-  permissionsButton: {
-    padding: 6,
-    paddingTop: 3,
-    paddingBottom: 3,
-    border: theme.palette.border.normal,
-    borderRadius: 2,
-    marginRight: 8,
-    marginBottom: 8,
-    cursor: "pointer",
-    whiteSpace: "nowrap"
-  },
-  permissionDisabled: {
-    border: "none"
-  },
   columns: {
     display: 'flex'
   },
   infoColumn: {
     width: '30%',
     padding: 16,
+    paddingTop: 12,
     borderRight: theme.palette.border.extraFaint,
+    position: "relative",
   },
   contentColumn: {
-    width: '35%',
+    width: '38%',
     padding: 16,
+    paddingTop: 12,
     borderRight: theme.palette.border.extraFaint,
     position: "relative"
   },
-  actionsColumn: {
-    width: '35%',
-    padding: 16
+  messagesColumn: {
+    width: '32%',
+    padding: 16,
+    paddingTop: 12,
   },
   content: {
     marginTop: 16,
@@ -187,7 +148,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   contentCollapsed: {
     maxHeight: 300,
-    overflow: "hidden"
+    overflowY: "scroll",
+    cursor: "pointer",
+    '&:after': { 
+      content: '"<a>Expand</a>"',
+    }
   },
   contentSummaryRow: {
     display: "flex",
@@ -205,22 +170,10 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  
-  
-  const [notes, setNotes] = useState(user.sunshineNotes || "")
+    
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
-  const handleNotes = () => {
-    if (notes != user.sunshineNotes) {
-      void updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineNotes: notes
-        }
-      })
-    }
-  }
   
   const { results: posts, loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
@@ -241,47 +194,32 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
   
-  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
   
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
-  
-  const signAndDate = (sunshineNotes:string) => {
-    if (!sunshineNotes.match(signature)) {
-      const padding = !sunshineNotes ? ": " : ": \n\n"
-      return signature + padding + sunshineNotes
-    }
-    return sunshineNotes
-  }
-  
-  const handleClick = () => {
-    const signedNotes = signAndDate(notes)
-    if (signedNotes != notes) {
-      setNotes(signedNotes)
-    }
-  }
 
-  const basicInfoRow = <div>
+  const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
-      <Link className={classes.displayName} to={userGetProfileUrl(user)}>
-        {user.displayName} 
-      </Link>
-      {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
-      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+      <div className={classes.displayName}>
+        <UsersName user={user}/>
+        {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
+        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+      </div>
     </div>
 
     <div className={classes.row}>
       <MetaInfo className={classes.info}>
-        { user.karma || 0 }
+        { user.karma || 0 } karma
       </MetaInfo>
+      <div>{user.email}</div>
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
     </div>
-    <div>{user.email}</div>
 
 
   </div>
@@ -306,69 +244,29 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     }
   </div>
 
-  const moderatorNotesColumn = <div className={classes.notes}>
-    <Input
-      value={notes}
-      fullWidth
-      onChange={e => setNotes(e.target.value)}
-      onClick={e => handleClick()}
-      onBlur={handleNotes}
-      disableUnderline
-      placeholder="Notes for other moderators"
-      multiline
-      rowsMax={5}
-    />
-  </div>
   
-  const permissionsRow = <div className={classes.permissionsRow}>
-      <LWTooltip title={`${user.postingDisabled ? "Enable" : "Disable"} this user's ability to create posts`}>
-        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.postingDisabled})} onClick={handleDisablePosting}>
-          Posts
-        </div>
-      </LWTooltip>
-      <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
-        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
-          All Comments
-        </div>
-      </LWTooltip>
-      <LWTooltip title={`${user.commentingOnOtherUsersDisabled ? "Enable" : "Disable"} this user's ability to comment on other people's posts`}>
-        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.commentingOnOtherUsersDisabled})} onClick={handleDisableCommentingOnOtherUsers}>
-          Other Comments
-        </div>
-      </LWTooltip>
-      <LWTooltip title={`${user.conversationsDisabled ? "Enable" : "Disable"} this user's ability to start new private conversations`}>
-        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.conversationsDisabled})}onClick={handleDisableConversations}>
-          Conversations
-        </div>
-      </LWTooltip>
-      <LWTooltip title={`${mostRecentRateLimit?.active ? "Un-rate-limit" : "Rate-limit"} this user's ability to post and comment`}>
-        <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: !!mostRecentRateLimit?.active})}onClick={handleRateLimit}>
-          {MODERATOR_ACTION_TYPES[RATE_LIMIT_ONE_PER_DAY]}
-        </div>
-      </LWTooltip>
-    </div>
 
   const votesRow = <div className={classes.votesRow}>
     <span>Votes: </span>
     <LWTooltip title="Big Upvotes">
-        <span className={classes.bigUpvotes}>
-          { user.bigUpvoteCount || 0 }
-        </span>
+      <span className={classes.bigUpvotes}>
+        { user.bigUpvoteCount || 0 }
+      </span>
     </LWTooltip>
     <LWTooltip title="Upvotes">
-        <span className={classes.upvotes}>
-          { user.smallUpvoteCount || 0 }
-        </span>
+      <span className={classes.upvotes}>
+        { user.smallUpvoteCount || 0 }
+      </span>
     </LWTooltip>
     <LWTooltip title="Downvotes">
-        <span className={classes.downvotes}>
-          { user.smallDownvoteCount || 0 }
-        </span>
+      <span className={classes.downvotes}>
+        { user.smallDownvoteCount || 0 }
+      </span>
     </LWTooltip>
     <LWTooltip title="Big Downvotes">
-        <span className={classes.bigDownvotes}>
-          { user.bigDownvoteCount || 0 }
-        </span>
+      <span className={classes.bigDownvotes}>
+        { user.bigDownvoteCount || 0 }
+      </span>
     </LWTooltip>
   </div>
 
@@ -403,11 +301,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   
   return (
     <div className={classes.root}>
+      {basicInfoRow}
       <div className={classes.columns}>
         <div className={classes.infoColumn}>
-          {basicInfoRow}
-          {moderatorNotesColumn}
           <div>
+            <ModeratorActions user={user} currentUser={currentUser} refetch={refetch}/>
             {moderatorActionLogRow}
             {user.reviewedAt
               ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></div>
@@ -427,15 +325,14 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {postSummaryRow}
           {(commentsLoading || postsLoading) && <Loading/>}
           {commentSummaryRow}
-          <div className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})}>
+          <div 
+            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(!contentExpanded)}
+          >
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </div>
-          <a className={classes.expandButton} onClick={() => setContentExpanded(!contentExpanded)}>{contentExpanded ? "Collapse" : "Expand"}</a>
         </div>
-        <div className={classes.actionsColumn}>
-          {moderatorActionsRow}
-          {permissionsRow}
+        <div className={classes.messagesColumn}>
           <SunshineUserMessages user={user}/>
         </div>
       </div>

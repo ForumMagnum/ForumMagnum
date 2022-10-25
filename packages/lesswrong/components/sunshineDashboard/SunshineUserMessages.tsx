@@ -9,6 +9,9 @@ const styles = (theme: JssStyles) => ({
   row: {
     display: "flex",
     alignItems: "center"
+  },
+  messageForm: {
+    width: 500
   }
 })
 
@@ -37,7 +40,7 @@ export const SunshineUserMessages = ({classes, user}: {
         embedConversation={embedConversation}
       />
     </div>
-    {embeddedConversationId && <NewMessageForm 
+    {embeddedConversationId && <div className={classes.messageForm}><NewMessageForm 
       conversationId={embeddedConversationId} 
       templateQueries={templateQueries}
       successEvent={() => {
@@ -47,7 +50,7 @@ export const SunshineUserMessages = ({classes, user}: {
           moderatorConveration: true
         })
       }}
-    />}
+    /></div>}
   </div>;
 }
 

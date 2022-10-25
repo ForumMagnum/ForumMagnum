@@ -32,6 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sendMessageButton: {
     padding: 8,
     height: 32,
+    wordBreak: "keep-all",
     fontSize: "1rem",
     color: theme.palette.grey[500],
     '&:hover': {
