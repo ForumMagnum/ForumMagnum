@@ -10,8 +10,6 @@ import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 
-export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[0],

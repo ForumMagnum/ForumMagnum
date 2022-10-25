@@ -40,17 +40,19 @@ export const SunshineUserMessages = ({classes, user}: {
         embedConversation={embedConversation}
       />
     </div>
-    {embeddedConversationId && <div className={classes.messageForm}><NewMessageForm 
-      conversationId={embeddedConversationId} 
-      templateQueries={templateQueries}
-      successEvent={() => {
-        captureEvent('messageSent', {
-          conversationId: embeddedConversationId,
-          sender: currentUser?._id,
-          moderatorConveration: true
-        })
-      }}
-    /></div>}
+    {embeddedConversationId && <div className={classes.messageForm}>
+      <NewMessageForm 
+        conversationId={embeddedConversationId} 
+        templateQueries={templateQueries}
+        successEvent={() => {
+          captureEvent('messageSent', {
+            conversationId: embeddedConversationId,
+            sender: currentUser?._id,
+            moderatorConveration: true
+          })
+        }}
+      />
+    </div>}
   </div>;
 }
 

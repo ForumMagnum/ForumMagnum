@@ -13,8 +13,6 @@ import { userCanDo } from '../../lib/vulcan-users';
 
 export const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
-export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[50]
@@ -161,21 +159,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: "none"
   }
 })
-
-interface UserContentCountPartial {
-  postCount?: number,
-  commentCount?: number
-}
-
-export function getCurrentContentCount(user: UserContentCountPartial) {
-  const postCount = user.postCount ?? 0
-  const commentCount = user.commentCount ?? 0
-  return postCount + commentCount
-}
-
-export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: number) {
-  return getCurrentContentCount(user) + contentCount
-}
 
 const SunshineNewUsersInfo = ({ user, classes, refetch }: {
   user: SunshineUsersList,
