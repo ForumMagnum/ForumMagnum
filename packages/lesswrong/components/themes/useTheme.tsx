@@ -115,7 +115,7 @@ export const ThemeContextProvider = ({options, children}: {
         }
       }
     }
-  }, [themeOptions, concreteTheme, setCookie]);
+  }, [themeOptions, concreteTheme, setCookie, removeCookie]);
 
   const theme: any = useMemo(() =>
     getForumTheme(concreteTheme),

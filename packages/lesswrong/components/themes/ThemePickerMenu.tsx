@@ -57,9 +57,8 @@ const ThemePickerMenu = ({children, classes}: {
       },
     };
     setTheme(themeOptions);
-    console.log("Setting", themeOptions, forumTypeSetting.get(), !!currentUser);
     if (forumTypeSetting.get() === "EAForum" && currentUser) {
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: {theme: themeOptions},
       });
