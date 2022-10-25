@@ -21,7 +21,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly lwWikiImport: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
-    siteThemeOverride: any /*{"definitions":[{}]}*/,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
   readonly lastUsedTimezone: string,
   readonly whenConfirmationEmailSent: Date,
@@ -2315,7 +2315,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   },
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
-    siteThemeOverride: any /*{"definitions":[{}]}*/,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
@@ -2436,7 +2436,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly beta: boolean,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
-    siteThemeOverride: any /*{"definitions":[{}]}*/,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,

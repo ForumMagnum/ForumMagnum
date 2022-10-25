@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import { ThemeMetadata, themeMetadata, getForumType } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from './useTheme';
@@ -36,6 +37,11 @@ const ThemePickerMenu = ({children, classes}: {
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
 
+  const {mutate: updateUser} = useUpdate({
+    collectionName: "Users",
+    fragmentName: "UsersCurrent",
+  });
+
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const setThemeName = (name: UserThemeSetting) => {
@@ -43,13 +49,21 @@ const ThemePickerMenu = ({children, classes}: {
   }
 
   const setThemeForum = (forumType: ForumTypeString) => {
-    setTheme({
+    const themeOptions = {
       ...currentThemeOptions,
       siteThemeOverride: {
         ...currentThemeOptions.siteThemeOverride,
         [forumTypeSetting.get()]: forumType,
       },
-    });
+    };
+    setTheme(themeOptions);
+    console.log("Setting", themeOptions, forumTypeSetting.get(), !!currentUser);
+    if (forumTypeSetting.get() === "EAForum" && currentUser) {
+      updateUser({
+        selector: {_id: currentUser._id},
+        data: {theme: themeOptions},
+      });
+    }
   }
 
   const submenu = <Paper>

@@ -194,6 +194,7 @@ const userTheme = new SimpleSchema({
     type: Object,
     optional: true,
     nullable: true,
+    blackbox: true,
   },
 });
 

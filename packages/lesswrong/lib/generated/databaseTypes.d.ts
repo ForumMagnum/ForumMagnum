@@ -819,7 +819,7 @@ interface DbUser extends DbObject {
   lwWikiImport: boolean
   theme: {
     name: "default" | "dark" | "auto" | null,
-    siteThemeOverride: any /*{"definitions":[{}]}*/,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   } | null
   lastUsedTimezone: string
   whenConfirmationEmailSent: Date
