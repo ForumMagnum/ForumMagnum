@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
@@ -12,7 +12,6 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { useCurrentUser } from "../common/withUser";
-import { auto } from "@popperjs/core";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -63,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 24,
     marginBottom: 10,
   },
-  wikiSidebarWrapper: {
+  scrollableSidebarWrapper: {
     overflow: "auto",
     flexBasis: 0,
     flexGrow: 1,
@@ -128,7 +127,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
     <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
-      <div className={classNames(classes.wikiSidebarWrapper, classes.columnSection)}>
+      <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
         <div className={classes.welcomeBox} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false) }}></div>
       </div>
     </ContentStyles>
@@ -166,7 +165,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
       <div className={classNames(classes.columnSection, classes.aside)}>
         {tag?.tableOfContents?.html &&
           <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
-            <div className={classNames(classes.wikiSidebarWrapper, classes.columnSection)}>
+            <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
               <div className={classes.wikiSidebar} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}></div>
             </div>
           </ContentStyles>

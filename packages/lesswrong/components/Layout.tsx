@@ -58,20 +58,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 8,
       paddingRight: 8,
     },
-    height: "100%",
   },
-  wrapper: {
+  mainFullscreen: {
+    height: "100%",
+    padding: 0,
+  },
+  fullscreen: {
     height: "max(100vh, 550px)",
     display: "flex",
     flexDirection: "column",
   },
-  bodyWrapper: {
+  fullscreenBodyWrapper: {
     flexBasis: 0,
     flexGrow: 1,
     overflow: "auto",
-  },
-  mainNoPadding: {
-    padding: 0,
   },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -292,7 +292,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -318,17 +318,17 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                static={Boolean(currentRoute?.fullscreen)}
               />}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              {/* <div className={shouldUseGridLayout ? classes.gridActivated : null}> */}
-              <div className={classes.bodyWrapper}>
+              <div className={classNames({[classes.gridActivated]: shouldUseGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white",
-                  [classes.mainNoPadding]: currentRoute?.fullscreen,
+                  [classes.mainFullscreen]: currentRoute?.fullscreen,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

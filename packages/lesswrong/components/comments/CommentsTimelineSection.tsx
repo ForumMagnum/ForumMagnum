@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -86,10 +86,6 @@ const CommentsTimelineSection = ({
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
 
-  const bodyRef = useRef<HTMLDivElement>(null)
-  // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
-  // const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
-
   const sorting = query.sortBy || subforumDefaultSorting
   const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
 
@@ -101,30 +97,10 @@ const CommentsTimelineSection = ({
   };
   const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
 
-  // useEffect(() => {
-  //   recalculateTopAbsolutePosition()
-  //   window.addEventListener('resize', recalculateTopAbsolutePosition)
-  //   return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
-
-  // const recalculateTopAbsolutePosition = () => {
-  //   if (!bodyRef.current) return
-
-  //   // We want the position relative to the top of the page, not the top of the viewport, so add window.scrollY
-  //   const newPos = bodyRef.current.getBoundingClientRect().top + window.scrollY
-  //   if (newPos !== topAbsolutePosition)
-  //     setTopAbsolutePosition(newPos)
-  // }
-
   const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
 
   return (
-    <div
-      ref={bodyRef}
-      className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}
-      // style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
-    >
+    <div className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}>
       <CommentsTimeline
         treeOptions={{
           refetch,

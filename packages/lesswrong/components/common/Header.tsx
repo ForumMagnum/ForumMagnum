@@ -34,13 +34,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    // height: 64,
-    height: "100%",
+    height: 64,
     [theme.breakpoints.down('xs')]: {
       height: 56,
     },
-    
-    // flexGrow: 1,
     "@media print": {
       display: "none"
     }
@@ -136,9 +133,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, static=false, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
+  static?: boolean,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
@@ -268,7 +266,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           )}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={true}
+          disable={static}
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
