@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: theme.palette.border.itemSeparatorBottom,
     '& .SectionTitle-root': {
       marginTop: 18,
-      paddingBottom: 0
+      paddingBottom: 2
     }
   },
   title: {

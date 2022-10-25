@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import Button from '@material-ui/core/Button';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -99,11 +98,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 20,
     marginBottom: 6
   },
-  buttonRow: {
-    display: 'flex',
-    justifyContent: 'right',
-    marginTop: 4
-  },
   showMoreButton: {
     fontFamily: theme.typography.fontFamily,
     background: 'none',
@@ -118,9 +112,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   showLess: {
     marginTop: 10
-  },
-  messageBtn: {
-    boxShadow: 'none',
   },
 })
 
@@ -139,7 +130,7 @@ const SubforumMember = ({user, classes}: {
   // this tracks whether the bio section is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
 
-  const { CloudinaryImage2, ProfilePhoto, ContentStyles, ContentItemBody, Typography, NewConversationButton } = Components
+  const { ProfilePhoto, ContentStyles, ContentItemBody, Typography } = Components
   
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
   
@@ -195,18 +186,6 @@ const SubforumMember = ({user, classes}: {
         </div>}
       </div>}
       {bioNode}
-      {/* <div className={classes.buttonRow}>
-        <NewConversationButton user={user} currentUser={currentUser} from="subforum_members">
-          <Button
-            variant="outlined"
-            color="primary"
-            className={classes.messageBtn}
-            disabled={currentUser?._id === user._id}
-          >
-            Message
-          </Button>
-        </NewConversationButton>
-      </div> */}
     </div>
   </div>
 }

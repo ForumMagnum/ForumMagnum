@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import DialogContent from '@material-ui/core/DialogContent';
 
-
 const styles = (theme: ThemeType): JssStyles => ({
   titleRow: {
     display: 'flex',
@@ -11,8 +10,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     columnGap: 14,
     padding: '0 24px',
-    [theme.breakpoints.down("sm")]: {
-    },
   },
   title: {
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -38,14 +35,14 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
   onClose: () => void,
   tag: TagBasicInfo,
 }) => {
-  const { results: members } = useMulti({
+  const { results: members, loading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
     skip: !tag
   })
   
-  const { LWDialog, SubforumSubscribeSection, SubforumMember } = Components
+  const { LWDialog, SubforumSubscribeSection, SubforumMember, Loading } = Components
   
   return (
     <LWDialog open={true} onClose={onClose}>
@@ -54,6 +51,7 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
         <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />
       </h2>
       <DialogContent>
+        {loading && <Loading />}
         {members?.map(user => {
           return <div key={user._id} className={classes.user}>
             <SubforumMember user={user} />
