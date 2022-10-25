@@ -13,6 +13,7 @@ import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { useDialog } from "../common/withDialog";
 import { useMulti } from "../../lib/crud/withMulti";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,13 +42,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: theme.palette.border.itemSeparatorBottom,
     '& .SectionTitle-root': {
       marginTop: 18,
-      paddingBottom: 6
+      paddingBottom: 0
     }
   },
   title: {
     textTransform: "capitalize",
     fontSize: 22,
-    lineHeight: '28px'
+    lineHeight: '28px',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 18,
+      lineHeight: '24px',
+    }
   },
   membersListLink: {
     background: 'none',
@@ -92,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
+export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const {
     Error404,
     Loading,
@@ -104,9 +109,10 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     ContentItemBody,
     LWTooltip,
     HeadTags,
+    SubforumNotificationSettings
   } = Components;
-
   const { params, query } = useLocation();
+  const currentUser = useCurrentUser();
   const { slug } = params;
   const sortBy = query.sortBy || subforumDefaultSorting;
 
@@ -126,6 +132,7 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
       openDialog({
         componentName: 'SubforumMembersDialog',
         componentProps: {tag},
+        closeOnNavigate: true
       })
     }
   }
@@ -177,7 +184,9 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
         <div className={classes.headline}>
-          <SectionTitle title={titleComponent} className={classes.title} />
+          <SectionTitle title={titleComponent} className={classes.title}>
+            {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
+          </SectionTitle>
           {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{members.length} members</button>}
         </div>
         <AnalyticsContext pageSectionContext="commentsSection">
