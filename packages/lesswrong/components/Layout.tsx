@@ -58,6 +58,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 8,
       paddingRight: 8,
     },
+    height: "100%",
+  },
+  wrapper: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+  },
+  bodyWrapper: {
+    height: "100%"
   },
   mainNoPadding: {
     padding: 0,
@@ -309,7 +318,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
+              {/* <div className={shouldUseGridLayout ? classes.gridActivated : null}> */}
+              <div className={classes.bodyWrapper}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}

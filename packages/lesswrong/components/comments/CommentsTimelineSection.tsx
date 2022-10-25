@@ -19,11 +19,14 @@ const sortOptions: Option[] = [
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontWeight: 400,
-    margin: "0px auto -15px auto", // -15px is to offset the padding in Layout so that this fills exactly the whole page
+    margin: "0px auto 0px auto",
     ...theme.typography.commentStyle,
     position: "relative",
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    flexBasis: 0,
+    flexGrow: 1,
+    width: "100%",
   },
   maxWidthRoot: {
     maxWidth: 720,
@@ -98,12 +101,12 @@ const CommentsTimelineSection = ({
   };
   const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
 
-  useEffect(() => {
-    recalculateTopAbsolutePosition()
-    window.addEventListener('resize', recalculateTopAbsolutePosition)
-    return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // useEffect(() => {
+  //   recalculateTopAbsolutePosition()
+  //   window.addEventListener('resize', recalculateTopAbsolutePosition)
+  //   return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   const recalculateTopAbsolutePosition = () => {
     if (!bodyRef.current) return
@@ -120,7 +123,7 @@ const CommentsTimelineSection = ({
     <div
       ref={bodyRef}
       className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}
-      style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
+      // style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
     >
       <CommentsTimeline
         treeOptions={{

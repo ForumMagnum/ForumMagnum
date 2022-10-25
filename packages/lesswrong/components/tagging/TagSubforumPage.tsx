@@ -24,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0,
       flexDirection: "column",
     },
+    height: "100%"
   },
   columnSection: {
     maxWidth: '100%',
@@ -33,6 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down("md")]: {
       marginBottom: 0,
     },
+    display: "flex",
+    flexDirection: "column",
+    height: "100%"
   },
   stickToBottom: {
     marginTop: "auto",

@@ -34,7 +34,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: 64,
+    // height: 64,
+    height: "100%",
     [theme.breakpoints.down('xs')]: {
       height: 56,
     },
@@ -267,6 +268,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           )}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={true}
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
