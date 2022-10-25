@@ -50,9 +50,10 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     startCollapsed: true,
   },
   advancedOptions: {
-    order:21,
+    order:40,
     name: "advancedOptions",
     label: "Options",
+    startCollapsed: true,
   },
   highlight: {
     order: 22,
@@ -66,4 +67,9 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Audio",
     startCollapsed: true
   },
+  coauthors: {
+    order: 21,
+    name: "coauthors",
+    label: "Coauthors"
+  }
 };
