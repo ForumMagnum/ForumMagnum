@@ -502,8 +502,7 @@ if (taggingNameIsSet.get()) {
       name: 'taggingSubforumCustomName',
       path: `/topics/:slug/subforum`,
       componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
+      fullscreen: true,
     }
   )
 } else {

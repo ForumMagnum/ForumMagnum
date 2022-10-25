@@ -61,12 +61,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "100%",
   },
   wrapper: {
-    height: "100vh",
+    height: "max(100vh, 550px)",
     display: "flex",
     flexDirection: "column",
   },
   bodyWrapper: {
-    height: "100%"
+    flexBasis: 0,
+    flexGrow: 1,
+    overflow: "auto",
   },
   mainNoPadding: {
     padding: 0,
@@ -326,7 +328,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white",
-                  [classes.mainNoPadding]: currentRoute?.noPadding,
+                  [classes.mainNoPadding]: currentRoute?.fullscreen,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />
@@ -337,7 +339,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                       : children
                     }
                   </ErrorBoundary>
-                  {!currentRoute?.hideFooter && <Footer />}
+                  {!currentRoute?.fullscreen && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>

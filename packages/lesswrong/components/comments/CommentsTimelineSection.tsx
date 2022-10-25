@@ -88,7 +88,7 @@ const CommentsTimelineSection = ({
 
   const bodyRef = useRef<HTMLDivElement>(null)
   // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
-  const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
+  // const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
 
   const sorting = query.sortBy || subforumDefaultSorting
   const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
@@ -108,14 +108,14 @@ const CommentsTimelineSection = ({
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [])
 
-  const recalculateTopAbsolutePosition = () => {
-    if (!bodyRef.current) return
+  // const recalculateTopAbsolutePosition = () => {
+  //   if (!bodyRef.current) return
 
-    // We want the position relative to the top of the page, not the top of the viewport, so add window.scrollY
-    const newPos = bodyRef.current.getBoundingClientRect().top + window.scrollY
-    if (newPos !== topAbsolutePosition)
-      setTopAbsolutePosition(newPos)
-  }
+  //   // We want the position relative to the top of the page, not the top of the viewport, so add window.scrollY
+  //   const newPos = bodyRef.current.getBoundingClientRect().top + window.scrollY
+  //   if (newPos !== topAbsolutePosition)
+  //     setTopAbsolutePosition(newPos)
+  // }
 
   const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
 

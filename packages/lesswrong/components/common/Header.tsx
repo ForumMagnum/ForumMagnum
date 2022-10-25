@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 56,
     },
     
-    flexGrow: 1,
+    // flexGrow: 1,
     "@media print": {
       display: "none"
     }

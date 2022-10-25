@@ -12,6 +12,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { useCurrentUser } from "../common/withUser";
+import { auto } from "@popperjs/core";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   columnSection: {
     maxWidth: '100%',
+    height: "100%",
     [theme.breakpoints.up("lg")]: {
       margin: 0,
     },
@@ -36,11 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: "flex",
     flexDirection: "column",
-    height: "100%"
   },
   stickToBottom: {
     marginTop: "auto",
-    marginBottom: 3,
+    marginBottom: "1.3em",
   },
   aside: {
     width: 380,
@@ -50,6 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   welcomeBox: {
     padding: 16,
+    marginTop: "auto",
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     border: theme.palette.border.commentBorder,
     borderColor: theme.palette.secondary.main,
@@ -61,8 +63,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 24,
     marginBottom: 10,
   },
-  wikiSidebar: {
+  wikiSidebarWrapper: {
+    overflow: "auto",
+    flexBasis: 0,
+    flexGrow: 1,
+    padding: 0,
     marginTop: 84,
+  },
+  wikiSidebar: {
     gridColumnStart: 3,
     padding: '2em',
     backgroundColor: theme.palette.panelBackground.default,
@@ -73,6 +81,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
+  },
+  scrollableContentStyles: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
   }
 });
 
@@ -114,14 +127,11 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   }
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
-    <div className={classes.welcomeBox}>
-      <ContentStyles contentType="comment">
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
-          description={`${tag.name} subforum`}
-        />
-      </ContentStyles>
-    </div>
+    <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
+      <div className={classNames(classes.wikiSidebarWrapper, classes.columnSection)}>
+        <div className={classes.welcomeBox} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false) }}></div>
+      </div>
+    </ContentStyles>
   ) : <></>;
 
   const titleComponent = <>
@@ -139,7 +149,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
         description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
         title={`${startCase(tag.name)} Subforum`}
       />
-      <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
+      <div className={classNames(classes.columnSection, classes.aside)}>
         {welcomeBoxComponent}
       </div>
       <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
@@ -155,8 +165,10 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
       </SingleColumnSection>
       <div className={classNames(classes.columnSection, classes.aside)}>
         {tag?.tableOfContents?.html &&
-          <ContentStyles contentType="tag">
-            <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }} />
+          <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
+            <div className={classNames(classes.wikiSidebarWrapper, classes.columnSection)}>
+              <div className={classes.wikiSidebar} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}></div>
+            </div>
           </ContentStyles>
         }
       </div>

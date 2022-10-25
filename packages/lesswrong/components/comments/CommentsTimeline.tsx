@@ -14,7 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '0px 10px',
     flexBasis: 0,
     flexGrow: 1,
-    minHeight: 300,
   }
 })
 
