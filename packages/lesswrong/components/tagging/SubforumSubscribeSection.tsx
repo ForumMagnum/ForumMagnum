@@ -74,7 +74,7 @@ const SubforumSubscribeSection = ({
     }
   }
   
-  const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
+  const isSubscribed = currentUser?.profileTagIds?.includes(tag._id)
 
   return <div className={classNames(className, classes.root)}>
     {isSubscribed ? <Button variant="outlined" color="primary" className={classes.subscribeButton} onClick={onUnsubscribe}>

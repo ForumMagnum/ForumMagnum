@@ -120,10 +120,11 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   
   const { openDialog } = useDialog();
   
-  const { results: members } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 50},
+  const { results: members, totalCount: membersCount } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
+    enableTotal: true,
     skip: !tag
   })
   
@@ -187,7 +188,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
           <SectionTitle title={titleComponent} className={classes.title}>
             {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
           </SectionTitle>
-          {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{members.length} members</button>}
+          {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
         </div>
         <AnalyticsContext pageSectionContext="commentsSection">
           <SubforumCommentsThread
