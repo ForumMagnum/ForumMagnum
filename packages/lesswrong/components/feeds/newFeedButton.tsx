@@ -28,8 +28,7 @@ const NewFeedButton = ({classes, user, closeModal}: {
   const { results: feeds, loading } = useMulti({
     terms: {view: "usersFeed", userId: user._id},
     collectionName: "RSSFeeds",
-    fragmentName: "RSSFeedMinimumInfo",
-    fetchPolicy: 'cache-and-network',
+    fragmentName: "RSSFeedMinimumInfo"
   });
   
   if (currentUser) {
