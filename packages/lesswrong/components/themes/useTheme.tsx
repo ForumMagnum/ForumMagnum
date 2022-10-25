@@ -5,6 +5,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import { useCookies } from 'react-cookie'
 import moment from 'moment';
+import {forumTypeSetting} from '../../lib/instanceSettings';
 
 const THEME_COOKIE_NAME = "theme";
 
@@ -77,7 +78,7 @@ export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
-  const [_cookies, setCookie] = useCookies([THEME_COOKIE_NAME]);
+  const [_cookies, setCookie, removeCookie] = useCookies([THEME_COOKIE_NAME]);
   const [themeOptions, setThemeOptions] = useState(options);
   const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
@@ -86,10 +87,14 @@ export const ThemeContextProvider = ({options, children}: {
   useEffect(() => {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
-      setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
-        path: "/",
-        expires: moment().add(9999, 'days').toDate(),
-      });
+      if (forumTypeSetting.get() === "EAForum") {
+        removeCookie(THEME_COOKIE_NAME);
+      } else {
+        setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+          path: "/",
+          expires: moment().add(9999, 'days').toDate(),
+        });
+      }
       const stylesId = "main-styles";
       const tempStylesId = stylesId + "-temp";
       const oldStyles = document.getElementById(stylesId);
