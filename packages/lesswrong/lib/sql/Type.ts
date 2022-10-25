@@ -151,10 +151,15 @@ export class ArrayType extends Type {
 /**
  * IdType is a convinience type to automatically make sure Vulcan
  * ID fields are stored correctly and efficiently
+ * By default, our IDs are 17 characters (ID_LENGTH), but some legacy
+ * data in Mongo uses ObjectId types which can be longer, do we add
+ * an extra 10 characters for safety. In the future, we may be able to
+ * reduce this after cleaning up the data, but it's too dangerous to do
+ * right now.
  */
 export class IdType extends StringType {
   constructor(private collection: CollectionBase<any>) {
-    super(ID_LENGTH);
+    super(ID_LENGTH + 10);
   }
 
   getCollection() {

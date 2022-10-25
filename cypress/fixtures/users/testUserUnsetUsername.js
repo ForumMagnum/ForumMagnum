@@ -1,5 +1,5 @@
 module.exports = {
-    _id: "test-user-unset",
+    _id: "test-user-unset-username",
     email: "test-user-unset-username@testingaltrusim.org",
     isAdmin: false,
     usernameUnset: true,

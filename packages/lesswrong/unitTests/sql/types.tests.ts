@@ -11,7 +11,6 @@ import {
   DefaultValueType,
   UnknownType,
 } from "../../lib/sql/Type";
-import { randomId, ID_LENGTH } from "../../lib/random";
 import { Posts } from "../../lib/collections/posts/collection";
 
 describe("SQL Type", () => {
@@ -94,11 +93,9 @@ describe("SQL Type", () => {
     });
   });
   describe("IdType", () => {
-    it("Is Postgres string with the length of a random id", () => {
-      const id = randomId();
+    it("Is Postgres string of length 27", () => {
       const pgType = new IdType(Posts).toString();
-      expect(pgType).toBe(`VARCHAR(${id.length})`);
-      expect(pgType).toBe(`VARCHAR(${ID_LENGTH})`);
+      expect(pgType).toBe(`VARCHAR(27)`);
     });
     it("Is scalar", () => {
       expect(new IdType(Posts).isArray()).toBe(false);

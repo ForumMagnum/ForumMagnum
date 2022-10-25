@@ -1,6 +1,6 @@
 module.exports = {
-    _id : "test-message",
-    conversationId : "test-seeded-conv",
+    _id : "test-seeded-message",
+    conversationId : "test-seeded-conversation",
     createdAt: new Date(),
     contents : {
         originalContents : {

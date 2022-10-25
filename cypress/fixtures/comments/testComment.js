@@ -1,5 +1,5 @@
 module.exports = {
-    _id: "test-comment",
+    _id: "test-seeded-comment",
     postId: "test-seeded-post",
     createdAt: new Date(),
     postedAt: new Date(),

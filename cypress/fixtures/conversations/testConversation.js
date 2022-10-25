@@ -1,8 +1,8 @@
 module.exports = {
-    _id : "test-seeded-conv",
+    _id : "test-seeded-conversation",
     createdAt: new Date(),
     latestActivity: new Date(),
-    participantIds : [ 
+    participantIds : [
         "test-other-user",
         "test-user",
     ],

@@ -12,7 +12,7 @@ describe('Groups', function() {
 
   it('can create a post in a group', function() {
     // Go to local group page and click "New event"
-    cy.visit(`/groups/test-localgroup`);
+    cy.visit(`/groups/test-seeded-localgroup`);
     cy.contains('New event').click();
     cy.url().should('include', 'newPost');
     
