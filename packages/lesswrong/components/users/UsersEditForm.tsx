@@ -99,7 +99,7 @@ const UsersEditForm = ({terms, classes}: {
         hideFields={["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
           if (user?.theme) {
-            setTheme({...currentThemeOptions, name: user.theme});
+            setTheme({...currentThemeOptions, ...user.theme});
           }
           flash(`User "${userGetDisplayName(user)}" edited`);
           try {

@@ -40,23 +40,14 @@ export const useSetTheme = () => {
   return themeContext.setThemeOptions;
 }
 
-const removeStylesheetsMatching = (substring: string) => {
-  const linkTags = document.getElementsByTagName("link");
-  for (let i = 0; i < linkTags.length; i++) {
-    if (linkTags[i].getAttribute("rel") === "stylesheet") {
-      const href = linkTags[i].getAttribute("href");
-      if (href && href.indexOf(substring) >= 0) {
-        linkTags[i].parentElement!.removeChild(linkTags[i]);
-        break;
-      }
-    }
-  }
-}
+const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
+  `/allStyles?theme=${encodeURIComponent(JSON.stringify(themeOptions))}`;
 
 type OnFinish = (error?: string | Event) => void;
 
-const addStylesheet = (href: string, onFinish: OnFinish) => {
+const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
   const styleNode = document.createElement("link");
+  styleNode.setAttribute("id", id);
   styleNode.setAttribute("rel", "stylesheet");
   styleNode.setAttribute("href", href);
   styleNode.onload = () => {
@@ -66,10 +57,20 @@ const addStylesheet = (href: string, onFinish: OnFinish) => {
   document.head.appendChild(styleNode);
 }
 
-const addThemeStylesheet = (themeOptions: ThemeOptions, onFinish: OnFinish) => {
-  const serializedThemeOptions = JSON.stringify(themeOptions);
-  window.themeOptions = themeOptions;
-  addStylesheet(`/allStyles?theme=${encodeURIComponent(serializedThemeOptions)}`, onFinish);
+const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
+  const light = makeStylesheetUrl({name: "default", ...siteThemeOverride});
+  const dark = makeStylesheetUrl({name: "dark", ...siteThemeOverride});
+  const styleNode = document.createElement("style");
+  styleNode.setAttribute("id", id);
+  styleNode.innerHTML = `
+    @import url("${light}") screen and (prefers-color-scheme: light);
+    @import url("${dark}") screen and (prefers-color-scheme: dark);
+  `;
+  styleNode.onload = () => {
+    onFinish();
+  }
+  styleNode.onerror = onFinish;
+  document.head.appendChild(styleNode);
 }
 
 export const ThemeContextProvider = ({options, children}: {
@@ -83,22 +84,31 @@ export const ThemeContextProvider = ({options, children}: {
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   useEffect(() => {
-    const serializedThemeOptions = JSON.stringify(concreteTheme);
-    if (serializedThemeOptions !== JSON.stringify(window?.themeOptions)) {
-      const oldThemeOptions = window.themeOptions;
+    if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
         path: "/",
         expires: moment().add(9999, 'days').toDate(),
       });
-      addThemeStylesheet(concreteTheme, (error?: string | Event) => {
-        if (error) {
-          // eslint-disable-next-line no-console
-          console.error("Failed to load stylesheet for theme:", concreteTheme, "Error:", error);
-        } else {
-          removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));
+      const stylesId = "main-styles";
+      const tempStylesId = stylesId + "-temp";
+      const oldStyles = document.getElementById(stylesId);
+      if (oldStyles) {
+        oldStyles.setAttribute("id", tempStylesId);
+        const onFinish = (error?: string | Event) => {
+          if (error) {
+            // eslint-disable-next-line no-console
+            console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
+          } else {
+            oldStyles.parentElement!.removeChild(oldStyles);
+          }
         }
-      });
+        if (themeOptions.name === "auto") {
+          addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
+        } else {
+          addStylesheet(makeStylesheetUrl(concreteTheme), stylesId, onFinish);
+        }
+      }
     }
   }, [themeOptions, concreteTheme, setCookie]);
 
