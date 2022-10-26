@@ -61,16 +61,11 @@ const SubforumSubscribeSection = ({
   }
   
   const onUnsubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    try {
-      e.preventDefault()
+    e.preventDefault()
 
-      captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
-
-      if (currentUser) {
-        void updateCurrentUser({profileTagIds: currentUser.profileTagIds.filter(id => id !== tag._id)})
-      }
-    } catch(error) {
-      flash({messageString: error.message});
+    captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
+    if (currentUser) {
+      void updateCurrentUser({profileTagIds: currentUser.profileTagIds.filter(id => id !== tag._id)})
     }
   }
   
