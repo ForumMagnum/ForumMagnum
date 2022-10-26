@@ -94,6 +94,7 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
     },
     options: {
       sort: {
+        defaultOrder: -1,
         name: 1
       }
     },

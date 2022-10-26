@@ -830,12 +830,20 @@ const schema: SchemaType<DbPost> = {
     }
   }),
   
-  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
+  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie
+  // Record<string,number>. If submitted as part of a new-post submission, the
+  // submitter applies/upvotes relevance for any tags included as keys.
   tagRelevance: {
     type: Object,
     optional: true,
-    hidden: true,
+    insertableBy: ['members'],
+    editableBy: [],
     viewableBy: ['guests'],
+    
+    blackbox: true,
+    group: formGroups.tags,
+    control: "FormComponentPostEditorTagging",
+    hidden: (props) => props.eventForm,
   },
   
   "tagRelevance.$": {
@@ -1219,6 +1227,7 @@ const schema: SchemaType<DbPost> = {
     label: "Co-Authors",
     control: "CoauthorsListEditor",
     group: formGroups.advancedOptions,
+    order: 1,
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
@@ -1249,6 +1258,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['sunshineRegiment', 'admins'],
     control: "ImageUpload",
     group: formGroups.advancedOptions,
+    order: 4,
   },
   
   // Autoset OpenGraph image, derived from the first post image in a callback
@@ -1276,6 +1286,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['members'],
     control: "FMCrosspostControl",
     group: formGroups.advancedOptions,
+    order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
     ...schemaDefaultValue({
       isCrosspost: false,
