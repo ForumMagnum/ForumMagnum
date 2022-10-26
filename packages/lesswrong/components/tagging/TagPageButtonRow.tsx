@@ -169,8 +169,8 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       />
     </LWTooltip>}
     <div className={classes.button}>
-      {tag.isSubforum ?
-        <TagSubforumButton tag={tag} /> : <TagDiscussionButton tag={tag} hideLabelOnMobile />}
+      {/* {tag.isSubforum ?
+        <TagSubforumButton tag={tag} /> : <TagDiscussionButton tag={tag} hideLabelOnMobile />} */}
     </div>
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}

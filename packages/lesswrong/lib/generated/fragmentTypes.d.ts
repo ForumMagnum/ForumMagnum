@@ -2029,6 +2029,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
