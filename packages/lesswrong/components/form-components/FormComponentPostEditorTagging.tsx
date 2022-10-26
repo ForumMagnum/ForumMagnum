@@ -47,6 +47,9 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
         
         value={Object.keys(value||{})}
         updateCurrentValues={(changes) => {
+          // post tagRelevance field needs to look like {string: /
+          // number}, so even though it's extra work both here and in 
+          // the callback, we need to maintain that structure.
           updateCurrentValues(
             mapValues(
               changes,
