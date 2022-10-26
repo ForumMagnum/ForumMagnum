@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import { tagPostTerms } from "./TagPage";
+import { useLocation } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,22 +17,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignSelf: "flex-end",
     marginBottom: 8,
   },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    '& .PostsListSortDropdown-root': {
+      marginTop: 0,
+      marginBottom: 6,
+    }
+  }
 });
 
 export const TagSubforumPostsSection = ({ classes, tag }: { classes: ClassesType; tag: TagSubforumFragment }) => {
-  const { SectionButton, PostsList2 } = Components;
+  const { SectionButton, PostsList2, PostsListSortDropdown } = Components;
+  const { query } = useLocation();
 
   const topRef = useRef<HTMLDivElement>(null);
   const [yPosition, setYPosition] = useState<number>(200);
+  
+  const sorting = query["postsSortedBy"] || "new";
 
   const terms = {
-    ...tagPostTerms(tag, {}),
+    ...tagPostTerms(tag, {sortedBy: sorting}),
     limit: 15,
   };
 
   const recalculateYPosition = useCallback(() => {
     if (!topRef.current) return;
-    const bottomMargin = 40;
+    // FIXME remove this js logic and use same strategy as https://github.com/ForumMagnum/ForumMagnum/pull/5939 once it is merged
+    const bottomMargin = 45;
     const newYPosition = topRef.current.getBoundingClientRect().top + bottomMargin;
     if (newYPosition !== yPosition) setYPosition(newYPosition);
   }, [yPosition]);
@@ -46,14 +59,18 @@ export const TagSubforumPostsSection = ({ classes, tag }: { classes: ClassesType
     <>
       <div ref={topRef} />
       <div className={classes.root}>
-        <a className={classes.newPostButton} href={`/newPost?subforumTagId=${tag._id}`}>
-          <SectionButton>
-            <AddBoxIcon />
-            New Subforum Post
-          </SectionButton>
-        </a>
-        <div className={classes.postsScrollContainer} style={{ height: `calc(100vh - ${yPosition + 5}px)` }}>
-          <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={30} />
+        <div className={classes.header}>
+          <PostsListSortDropdown value={sorting} sortingParam={"postsSortedBy"} />
+          {/* TODO need to flesh out the behaviour we want before adding subforum only posts */}
+          {/* <a className={classes.newPostButton} href={`/newPost?subforumTagId=${tag._id}`}>
+            <SectionButton>
+              <AddBoxIcon />
+              New Subforum Post
+            </SectionButton>
+          </a> */}
+        </div>
+        <div className={classes.postsScrollContainer} style={{ height: `calc(100vh - ${yPosition}px)` }}>
+          <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={30} hideTrailingButtons tooltipPlacement={"top-end"} />
         </div>
       </div>
     </>

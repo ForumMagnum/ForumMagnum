@@ -80,6 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    flexBasis: 0,
     flexGrow: 1,
     textTransform: 'none',
     background: theme.palette.grey[200],
@@ -124,7 +125,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const currentUser = useCurrentUser()
 
   const { slug } = params;
-  const sortBy = query.sortBy || subforumDefaultSorting;
+  const sortDiscussionBy = query.sortDiscussionBy || subforumDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   
@@ -196,7 +197,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
           {tab === 'discussion' && <AnalyticsContext pageSectionContext="commentsSection">
             <SubforumCommentsThread
               tag={tag}
-              terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
+              terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy: sortDiscussionBy }}
             />
           </AnalyticsContext>}
           {tab === 'posts' && <AnalyticsContext pageSectionContext="postsSection">
