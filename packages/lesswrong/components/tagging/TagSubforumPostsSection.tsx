@@ -62,12 +62,12 @@ export const TagSubforumPostsSection = ({ classes, tag }: { classes: ClassesType
         <div className={classes.header}>
           <PostsListSortDropdown value={sorting} sortingParam={"postsSortedBy"} />
           {/* TODO need to flesh out the behaviour we want before adding subforum only posts */}
-          {/* <a className={classes.newPostButton} href={`/newPost?subforumTagId=${tag._id}`}>
+          <a className={classes.newPostButton} href={`/newPost?subforumTagId=${tag._id}`}>
             <SectionButton>
               <AddBoxIcon />
               New Subforum Post
             </SectionButton>
-          </a> */}
+          </a>
         </div>
         <div className={classes.postsScrollContainer} style={{ height: `calc(100vh - ${yPosition}px)` }}>
           <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={30} hideTrailingButtons tooltipPlacement={"top-end"} />
