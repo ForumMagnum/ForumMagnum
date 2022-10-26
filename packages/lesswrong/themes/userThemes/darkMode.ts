@@ -102,28 +102,41 @@ function generateColorOverrides(): string {
   }).join('\n');
 }
 
-const forumComponentPalette = (shadePalette: ThemeShadePalette) => forumSelect({
-  EAForum: {
-    primary: {
-      main: '#009da8',
-      light: '#0c869b',
-      dark: '#009da8'
+const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
+  forumSelect({
+    EAForum: {
+      primary: {
+        main: '#009da8',
+        light: '#0c869b',
+        dark: '#009da8'
+      },
+      secondary: {
+        main: '#3c9eaf',
+        light: '#0c869b',
+        dark: '#3c9eaf'
+      },
+      lwTertiary: {
+        main: "#0e9bb4",
+        dark: "#0e9bb4",
+      },
+      panelBackground: {
+        default: shadePalette.grey[20],
+      },
     },
-    secondary: {
-      main: '#3c9eaf',
-      light: '#0c869b',
-      dark: '#3c9eaf'
+    default: {},
+  });
+
+const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
+  forumSelect({
+    EAForum: {
+      PostsTopSequencesNav: {
+        title: {
+          color: palette.icon.dim,
+        },
+      },
     },
-    lwTertiary: {
-      main: "#0e9bb4",
-      dark: "#0e9bb4",
-    },
-    panelBackground: {
-      default: shadePalette.grey[20],
-    },
-  },
-  default: {},
-});
+    default: {},
+  });
 
 export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
@@ -185,6 +198,7 @@ export const darkModeTheme: UserThemeSpecification = {
       // have black-on-transparent text in them.
       background: "#ffffff",
     },
+    overrides: forumOverrides(palette),
     rawCSS: [
       safeColorFallbacks,
       generateColorOverrides()
