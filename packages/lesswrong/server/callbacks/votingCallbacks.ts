@@ -3,7 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
-import { triggerAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { triggerAutomodIfNeeded, triggerCommentAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 /**
@@ -50,8 +50,9 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
 });
 
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
-  if (newDocument.__collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
+  if (vote.collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
     void triggerAutomodIfNeeded(newDocument.userId)
+    void triggerCommentAutomodIfNeeded(newDocument._id, vote);
   }
 });
 

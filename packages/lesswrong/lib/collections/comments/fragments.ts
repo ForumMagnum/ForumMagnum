@@ -146,7 +146,7 @@ registerFragment(`
 
 registerFragment(`
   fragment CommentsListWithModerationMetadata on Comment {
-    ...CommentsListWithParentMetadata
+    ...CommentWithRepliesFragment
     allVotes {
       voteType
     }

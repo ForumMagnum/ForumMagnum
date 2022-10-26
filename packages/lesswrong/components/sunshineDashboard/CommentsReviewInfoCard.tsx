@@ -1,4 +1,5 @@
 import React from 'react';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -62,12 +63,15 @@ const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] })
   }, voteCounts);
 }
 
-export const CommentsReviewInfoCard = ({ comment, classes }: {
-  comment: CommentsListWithModerationMetadata,
+export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
+  commentModeratorAction: CommentModeratorActionDisplay,
   classes: ClassesType,
 }) => {
-  const { CommentsNode, LWTooltip } = Components;
+  const { CommentWithReplies, LWTooltip } = Components;
+  const { comment } = commentModeratorAction;
   const commentVotes = getVoteDistribution(comment);
+  const [commentTreeNode] = unflattenComments([comment]);
+
   const votesRow = <div className={classes.votesRow}>
     <span>Votes: </span>
     <LWTooltip title="Big Upvotes">
@@ -94,15 +98,12 @@ export const CommentsReviewInfoCard = ({ comment, classes }: {
 
   return <div className={classes.root}>
     {votesRow}
-    <CommentsNode
-      treeOptions={{
-        condensed: false,
-        post: comment.post || undefined,
-        tag: comment.tag || undefined,
-        showPostTitle: true,
+    <CommentWithReplies
+      post={comment.post ?? undefined}
+      commentNodeProps={{
+        karmaCollapseThreshold: -9000
       }}
-      comment={comment}
-      forceNotSingleLine
+      comment={commentTreeNode.item}
     />
   </div>;
 }

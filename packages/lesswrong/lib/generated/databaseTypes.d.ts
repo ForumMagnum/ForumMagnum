@@ -97,6 +97,17 @@ interface DbCollection extends DbObject {
   createdAt: Date
 }
 
+interface CommentModeratorActionsCollection extends CollectionBase<DbCommentModeratorAction, "CommentModeratorActions"> {
+}
+
+interface DbCommentModeratorAction extends DbObject {
+  __collectionName?: "CommentModeratorActions"
+  commentId: string
+  type: "downvotedCommentAlert"
+  endedAt: Date | null
+  createdAt: Date
+}
+
 interface CommentsCollection extends CollectionBase<DbComment, "Comments"> {
 }
 
@@ -1124,6 +1135,7 @@ interface CollectionsByName {
   Chapters: ChaptersCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
+  CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
   DatabaseMetadata: DatabaseMetadataCollection
@@ -1166,6 +1178,7 @@ interface ObjectsByCollectionName {
   Chapters: DbChapter
   ClientIds: DbClientId
   Collections: DbCollection
+  CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
   DatabaseMetadata: DbDatabaseMetadata

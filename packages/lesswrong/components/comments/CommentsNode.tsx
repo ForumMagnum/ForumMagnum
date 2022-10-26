@@ -61,6 +61,7 @@ export interface CommentsNodeProps {
   showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
   displayMode?: CommentFormDisplayMode,
+  karmaCollapseThreshold?: number,
   classes: ClassesType,
 }
 
@@ -87,11 +88,12 @@ const CommentsNode = ({
   showPinnedOnProfile=false,
   enableGuidelines=true,
   displayMode="default",
+  karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   classes
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
+  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
 
