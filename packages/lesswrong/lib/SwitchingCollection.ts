@@ -55,6 +55,7 @@ class SwitchingCollection<T extends DbObject> {
     this.readTarget = "mongo";
     this.writeTarget = "mongo";
 
+    // Don't try this at home...
     return new Proxy(this, {
       get: (target: any, property: string, _receiver: any) => {
         if (property in target) {

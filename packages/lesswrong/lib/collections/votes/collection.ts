@@ -5,7 +5,7 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 export const Votes: VotesCollection = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
-  postgres: true,
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Votes'),
 });
