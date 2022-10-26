@@ -1412,14 +1412,3 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
     },
   };
 });
-
-Posts.addView('tagSubforumPosts', ({subforumTagId}: PostsViewTerms) => {
-  return {
-    selector: {
-      subforumTagId: subforumTagId,
-    },
-    options: {
-      sort: sortings.magic,
-    },
-  }
-});

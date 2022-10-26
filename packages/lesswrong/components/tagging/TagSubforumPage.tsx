@@ -5,7 +5,7 @@ import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import { subforumDiscussionDefaultSorting } from "../../lib/collections/comments/views";
 import startCase from "lodash/startCase";
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -125,7 +125,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const currentUser = useCurrentUser()
 
   const { slug } = params;
-  const sortDiscussionBy = query.sortDiscussionBy || subforumDefaultSorting;
+  const sortDiscussionBy = query.sortDiscussionBy || subforumDiscussionDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   
