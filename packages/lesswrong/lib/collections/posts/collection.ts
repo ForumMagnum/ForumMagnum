@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userOwns, userCanDo, userIsPodcaster } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
@@ -23,12 +23,14 @@ const options: MutationOptions<DbPost> = {
   editCheck: async (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
     if (userCanDo(user, 'posts.alignment.move.all') ||
-        userCanDo(user, 'posts.alignment.suggest')) {
+        userCanDo(user, 'posts.alignment.suggest') ||
+        userIsMemberOf(user, 'canSuggestCuration')) {
       return true
     }
+
     
     return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
-    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
+    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
@@ -70,7 +72,7 @@ makeEditable({
     permissions: {
       viewableBy: ['guests'],
       // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
-      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
       insertableBy: ['members']
     },
   }

@@ -5,9 +5,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-// We're not using Link, just useHistory
-// eslint-disable-next-line no-restricted-imports
-import { useHistory } from 'react-router-dom';
+import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -63,7 +61,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const history = useHistory()
+  const { history } = useNavigation()
   
   const { FormatDate, UserNameDeleted } = Components
   const post: AlgoliaPost = hit

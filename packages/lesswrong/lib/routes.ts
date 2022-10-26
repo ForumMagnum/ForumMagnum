@@ -1266,6 +1266,12 @@ addRoute(
     title: "Migrations"
   },
   {
+    name: 'moderatorActions',
+    path: '/admin/moderation',
+    componentName: 'ModerationDashboard',
+    title: "Moderator Actions"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',

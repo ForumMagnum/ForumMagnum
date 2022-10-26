@@ -200,12 +200,14 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     postedAt: post.postedAt,
     publicDateMs: moment(post.postedAt).valueOf(),
     isFuture: post.isFuture,
+    isEvent: post.isEvent,
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
     af: post.af,
     tags,
     body: "",
+    order: 0,
   };
   const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
@@ -234,16 +236,18 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
         // Some random tests seem to imply that they use UTF-8, which means between 1 and 4 bytes per character.
         // So limit to 18,000 characters under the assumption that we have ~1.1 bytes/character.
         body: paragraph.slice(0, 18000),
+        order: paragraphCounter
       }));
     })
   } else {
     postBatch.push(_.clone({
       ...algoliaMetaInfo,
       objectID: post._id + "_0",
-      body: ""
+      body: "",
+      order: 0
     }));
   }
-  return postBatch.reverse()
+  return postBatch
 }
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {

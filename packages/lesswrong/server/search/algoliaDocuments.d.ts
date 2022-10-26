@@ -20,7 +20,6 @@ interface AlgoliaComment {
   postId?: string,
   postTitle?: string,
   postSlug?: string,
-  postSequenceId?: string,
   postIsEvent?: boolean,
   postGroupId?: string,
   tags: Array<string>, // an array of tag _ids that are associated with the comment, whether via tagId or via tagRels
@@ -28,7 +27,7 @@ interface AlgoliaComment {
   tagId?: string,
   tagName?: string,
   tagSlug?: string,
-  tagCommentType?: string,
+  tagCommentType?: import("../../lib/collections/comments/types").TagCommentType,
 }
 
 interface AlgoliaSequence {
@@ -88,6 +87,7 @@ interface AlgoliaPost {
   postedAt: Date,
   publicDateMs: number,
   isFuture: boolean,
+  isEvent: boolean,
   viewCount: number,
   lastCommentedAt: Date,
   draft: boolean,
@@ -98,7 +98,8 @@ interface AlgoliaPost {
   authorFullName?: string,
   feedName?: string,
   feedLink?: string,
-  body: string
+  body: string,
+  order: number // we split posts into multiple records (based on body paragraph) - this tells us the order to reconstruct them
 }
 
 interface AlgoliaTag {

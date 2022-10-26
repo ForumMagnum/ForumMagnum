@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import Messages from "../../lib/collections/messages/collection";
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -10,6 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userCanDo } from '../../lib/vulcan-users';
+import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -22,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     marginTop: theme.spacing.unit*4,
-    ...theme.typography.commentStyle,
     position:"relative",
   },
   backButton: {
@@ -59,12 +58,6 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   const { query } = useLocation()
   const { captureEvent } = useTracking()
 
-  const { document: template, loading: loadingTemplate } = useSingle({
-    documentId: query.templateCommentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
-  
   // Scroll to bottom when loading finishes. Note that this overlaps with the
   // initialScroll:"bottom" setting in the route, which is handled by the
   // ScrollToTop component, except that the ScrollToTop component does its thing
@@ -95,7 +88,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     }
   }, [query.from, conversation, currentUser._id])
 
-  const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
+  const { SingleColumnSection, ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
     if (loading) return <Loading />
@@ -106,15 +99,17 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     </div>
   }
 
-  if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
+  if (loading) return <Loading />
   if (!conversation) return <Error404 />
+
+  const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
 
   return (
     <SingleColumnSection>
       <div className={classes.conversationSection}>
         <div className={classes.row}>
           <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
-          {userCanDo(currentUser, 'conversations.view.all') && conversation.moderator && <Typography variant="body2" className={classes.backButton}>
+          {showModInboxLink && <Typography variant="body2" className={classes.backButton}>
             <Link to="/moderatorInbox"> Moderator Inbox </Link>
           </Typography>}
         </div>
@@ -124,30 +119,17 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}
         <div className={classes.editor}>
-          <WrappedSmartForm
-            collection={Messages}
-            prefilledProps={{
-              conversationId: conversation._id,
-              contents: {
-                originalContents: {
-                  type: "ckEditorMarkup",
-                  data: template?.contents?.html,
-                }
-              }
-            }}
-            mutationFragment={getFragment("messageListFragment")}
-            successCallback={() => {
+          <NewMessageForm  
+            conversationId={conversation._id}
+            templateQueries={{templateCommentId: query.templateCommentId, displayName: query.displayName}}
+            successEvent={() => {
               captureEvent('messageSent', {
                 conversationId: conversation._id,
                 sender: currentUser._id,
                 participantIds: conversation.participantIds,
                 messageCount: (conversation.messageCount || 0) + 1,
-                ...(profileViewedFrom.current && {from: profileViewedFrom.current})
+                ...(profileViewedFrom?.current && {from: profileViewedFrom.current})
               })
-            }}
-            errorCallback={(message: any) => {
-              //eslint-disable-next-line no-console
-              console.error("Failed to send", message)
             }}
           />
         </div>

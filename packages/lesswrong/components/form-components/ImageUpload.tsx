@@ -58,7 +58,7 @@ const cloudinaryArgsByImageType = {
   bannerImageId: {
     minImageHeight: 300,
     minImageWidth: 700,
-    croppingAspectRatio: 1.91,
+    croppingAspectRatio: 4.7,
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
@@ -117,12 +117,13 @@ const formPreviewSizeByImageType = {
   }
 }
 
-const ImageUpload = ({name, document, updateCurrentValues, clearField, label, classes}: {
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
   document: Object,
   updateCurrentValues: Function,
   clearField: Function,
   label: string,
+  croppingAspectRatio?: number,
   classes: ClassesType
 }) => {
   const theme = useTheme();
@@ -173,7 +174,8 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
             }
         }
       },
-      ...cloudinaryArgs
+      ...cloudinaryArgs,
+      ...(croppingAspectRatio ? {croppingAspectRatio} : {})
     }, setImageInfo);
   }
   

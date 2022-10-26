@@ -55,8 +55,9 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
-    ranking: ['typo','geo','words','filters','exact','proximity','attribute','custom'],
+    ranking: ['typo','geo','words','filters','proximity','attribute','exact','custom'],
     customRanking: [
+      'asc(order)',
       'desc(baseScore)',
       'desc(score)'
     ],
@@ -67,7 +68,8 @@ export const algoliaConfigureIndexes = async () => {
       'postedAt',
       'publicDateMs',
       'searchable(tags)',
-      'curated'
+      'curated',
+      'isEvent'
     ],
     attributesToHighlight: ['title'],
     attributesToSnippet: isEAForum ? ['body:20'] : ['body:10'],
@@ -140,6 +142,7 @@ export const algoliaConfigureIndexes = async () => {
       'desc(postCount)',
     ],
     attributesForFaceting: [
+      'filterOnly(wikiOnly)',
       'filterOnly(isSubforum)',
     ],
     distinct: false,

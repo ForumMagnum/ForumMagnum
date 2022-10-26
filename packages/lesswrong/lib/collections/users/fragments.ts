@@ -188,6 +188,7 @@ registerFragment(`
     ...SharedUserBooleans
 
     acknowledgedNewUserGuidelines
+    notificationSubforumUnread
   }
 `);
 
@@ -221,6 +222,7 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
       }
       tagRevisions {
         _id
@@ -273,6 +275,14 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    moderatorActions {
+      ...ModeratorActionDisplay
+    }
+    associatedClientId {
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
   }
 `);
 
@@ -388,6 +398,7 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
 
     hideFrontpageMap
     hideTaggingProgressBar

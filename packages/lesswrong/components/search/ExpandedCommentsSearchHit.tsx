@@ -5,12 +5,9 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
-import { TagCommentType } from '../../lib/collections/comments/types';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-// We're not using Link, just useHistory
-// eslint-disable-next-line no-restricted-imports
-import { useHistory } from 'react-router-dom';
+import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -73,7 +70,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const history = useHistory()
+  const { history } = useNavigation()
 
   const { FormatDate, UserNameDeleted } = Components
   const comment: AlgoliaComment = hit
@@ -87,7 +84,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
       groupId: comment.postGroupId,
     })}#${comment._id}`
   } else if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink(comment.tagSlug, comment._id, comment.tagCommentType as TagCommentType)
+    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
   }
   
   const handleClick = () => {

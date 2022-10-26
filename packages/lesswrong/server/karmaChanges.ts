@@ -88,6 +88,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
         description: {$arrayElemAt: ["$comment.contents.html",0]},
         postId: {$arrayElemAt: ["$comment.postId",0]},
         tagId: {$arrayElemAt: ["$comment.tagId",0]},
+        tagCommentType: {$arrayElemAt: ["$comment.tagCommentType",0]},
       }},
     ]
   ).toArray()
