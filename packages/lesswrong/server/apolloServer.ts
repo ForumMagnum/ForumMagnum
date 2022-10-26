@@ -42,6 +42,7 @@ import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles
 import { addCrosspostRoutes } from './fmCrosspost';
 import { addCypressRoutes } from './cypress';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { inspect } from "util";
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -146,8 +147,9 @@ export function startWebserver() {
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
+      const {message, ...properties} = e;
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
       // TODO: Replace sketchy apollo-errors package with something first-party
       // and that doesn't require a cast here
       return formatError(e) as any;
