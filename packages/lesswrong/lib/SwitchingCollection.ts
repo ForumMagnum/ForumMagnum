@@ -171,6 +171,10 @@ class SwitchingCollection<T extends DbObject> {
   setPgCollection(pgCollection: PgCollection<T>) {
     this.pgCollection = pgCollection;
   }
+
+  getName() {
+    return (this.mongoCollection as unknown as CollectionBase<DbObject>).options.collectionName;
+  }
 }
 
 export default SwitchingCollection;

@@ -85,6 +85,7 @@ function removeUndefinedFields(selector: any) {
 export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
+  options = {}
   
   constructor(tableName: string, options?: {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection
