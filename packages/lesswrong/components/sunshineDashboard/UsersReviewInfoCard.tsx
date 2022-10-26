@@ -301,7 +301,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           </div>
         </div>
         <div className={classes.messagesColumn}>
-          <SunshineUserMessages user={user}/>
+          <SunshineUserMessages user={user} currentUser={currentUser}/>
         </div>
       </div>
     </div>

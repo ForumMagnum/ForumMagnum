@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import {defaultModeratorPMsTagSlug} from "./SunshineNewUsersInfo";
 
@@ -15,14 +14,14 @@ const styles = (theme: JssStyles) => ({
   }
 })
 
-export const SunshineUserMessages = ({classes, user}: {
+export const SunshineUserMessages = ({classes, user, currentUser}: {
   user: SunshineUsersList,
   classes: ClassesType,
+  currentUser: UsersCurrent,
 }) => {
   const { ModeratorMessageCount, SunshineSendMessageWithDefaults, NewMessageForm } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
-  const currentUser = useCurrentUser()
 
   const { captureEvent } = useTracking()
 
@@ -47,7 +46,7 @@ export const SunshineUserMessages = ({classes, user}: {
         successEvent={() => {
           captureEvent('messageSent', {
             conversationId: embeddedConversationId,
-            sender: currentUser?._id,
+            sender: currentUser._id,
             moderatorConveration: true
           })
         }}
