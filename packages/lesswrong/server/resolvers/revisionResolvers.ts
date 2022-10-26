@@ -19,21 +19,28 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
+      resolver: ({originalContents}) => originalContents
+        ? dataToMarkdown(originalContents.data, originalContents.type)
+        : null,
     }
   },
   draftJS: {
     type: Object,
     resolveAs: {
       type: 'JSON',
-      resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
+      resolver: ({originalContents}) => originalContents
+        ? dataToDraftJS(originalContents.data, originalContents.type)
+        : null,
     }
   },
   ckEditorMarkup: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}, html}) => (type === 'ckEditorMarkup' ? data : html) // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
+      resolver: ({originalContents, html}) => originalContents
+        // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
+        ? (originalContents.type === 'ckEditorMarkup' ? originalContents.data : html)
+        : null,
     }
   },
   htmlHighlight: {
