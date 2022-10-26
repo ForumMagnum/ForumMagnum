@@ -121,7 +121,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const { openDialog } = useDialog();
   
   const { results: members, totalCount: membersCount } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id},
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
     enableTotal: true,
