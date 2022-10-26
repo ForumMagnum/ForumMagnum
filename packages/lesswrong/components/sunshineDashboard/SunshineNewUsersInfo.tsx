@@ -160,12 +160,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersInfo = ({ user, classes, refetch }: {
+const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  refetch: () => void
+  refetch: () => void,
+  currentUser: UsersCurrent
 }) => {
-  const currentUser = useCurrentUser();
 
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
 
@@ -193,7 +193,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch }: {
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
-  if (!currentUser || !userCanDo(currentUser, "posts.moderate.all")) return null
+  if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
   return (
       <div className={classes.root}>

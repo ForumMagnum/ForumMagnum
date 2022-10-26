@@ -27,10 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
-const SunshineNewUsersItem = ({ user, classes, refetch }: {
+const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
   refetch: () => void,
+  currentUser: UsersCurrent,
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 
@@ -40,7 +41,7 @@ const SunshineNewUsersItem = ({ user, classes, refetch }: {
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <SunshineNewUsersInfo user={user} refetch={refetch}/>
+          <SunshineNewUsersInfo user={user} refetch={refetch} currentUser={currentUser}/>
         </SidebarHoverOver>
         <div>
           <MetaInfo className={classes.info}>
