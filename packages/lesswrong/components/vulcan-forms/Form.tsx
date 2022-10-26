@@ -652,7 +652,7 @@ class Form<T extends DbObject> extends Component<any,any> {
   updateCurrentValues = async (newValues, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
-    const { changeCallback } = this.props;
+    const { autoSubmit, changeCallback } = this.props;
 
     // keep the previous ones and extend (with possible replacement) with new ones
     return new Promise<void>((resolve, reject) => {
@@ -693,7 +693,10 @@ class Form<T extends DbObject> extends Component<any,any> {
         });
         if (changeCallback) changeCallback(newState.currentDocument);
         return newState;
-      }, resolve)
+      }, () => {
+        if (autoSubmit) void this.submitForm();
+        return resolve()
+      })
     });
   };
 
@@ -1094,7 +1097,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
         {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}
 
-        <FormComponents.FormSubmit {...this.getFormSubmitProps()} />
+        {!this.props.autoSubmit && <FormComponents.FormSubmit {...this.getFormSubmitProps()} />}
       </FormComponents.FormElement>
     );
   }

@@ -11,6 +11,7 @@
     "start": "NODE_OPTIONS=--max_old_space_size=8192 ./build.js --no-clear -run -watch --settings settings.json",
     "start-dev-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
+    "start-local-db": "./build.js --no-clear -run --watch --mongoUrl mongodb://127.0.0.1:27017/?directConnection=true --settings ./settings-test.json",
     "shell": "./build.js --no-clear -run --settings settings.json --shell",
     "shell-dev-db": "./build.js --no-clear -run --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-devdb.json --shell",
     "shell-prod-db": "./build.js --no-clear -run --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json --shell",
@@ -42,7 +43,9 @@
     "ea-load-xpost-dev-db": "mongo $(< ../ForumCredentials/xpost-dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
     "ea-load-staging-db": "mongo $(< ../ForumCredentials/staging-db-conn.txt) ../ForumCredentials/loadStagingDbSettings.js",
     "ea-load-prod-db": "cd ../ForumCredentials && node loadProdDbSettingsIfSafe.js",
-    "ea-load-testing-db": "mongo $(< ../ForumCredentials/testing-db-conn.txt) ../ForumCredentials/loadTestingDbSettings.js"
+    "ea-load-testing-db": "mongo $(< ../ForumCredentials/testing-db-conn.txt) ../ForumCredentials/loadTestingDbSettings.js",
+    "local-cypress-run": "yarn cypress run --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true",
+    "local-cypress-open": "yarn cypress open --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
@@ -70,7 +73,7 @@
     "@types/draft-convert": "^2.1.1",
     "@types/draft-js": "^0.10.40",
     "@types/enzyme": "^3.10.5",
-    "@types/express": "^4.17.8",
+    "@types/express": "4.17.14",
     "@types/express-session": "^1.17.3",
     "@types/gapi": "0.0.39",
     "@types/google__maps": "^0.5.14",
@@ -92,8 +95,7 @@
     "@types/moment": "^2.13.0",
     "@types/mongodb": "^3.6.3",
     "@types/mz": "^2.7.3",
-    "@types/node": "12",
-    "@types/node-fetch": "^2.5.6",
+    "@types/node": "18.11.0",
     "@types/nodemailer": "^6.4.1",
     "@types/papaparse": "^5.0.3",
     "@types/passport": "^1.0.6",
@@ -132,7 +134,6 @@
     "apollo-server-express": "2.15.0",
     "auth0": "^2.42.0",
     "bcrypt": "^5.0.1",
-    "body-parser": "^1.18.3",
     "bowser": "^1.9.4",
     "cheerio": "1.0.0-rc.9",
     "chokidar": "^3.5.0",
@@ -206,7 +207,6 @@
     "moment": "^2.29.4",
     "mongodb": "^3.6.3",
     "mz": "^2.7.0",
-    "node-fetch": "^2.6",
     "nodemailer": "^6.6.1",
     "papaparse": "^4.6.2",
     "passport": "^0.5.2",
@@ -307,5 +307,8 @@
     "graphql": "^14.5.8",
     "graphql-tools": "^4.0.7",
     "ts-node": "^10.9.1"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

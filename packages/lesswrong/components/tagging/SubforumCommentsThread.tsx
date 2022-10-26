@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
+import { useRecordSubforumView } from '../hooks/useRecordSubforumView';
 
 const SubforumCommentsThread = ({ tag, terms }: {
   tag: TagBasicInfo,
@@ -18,12 +18,7 @@ const SubforumCommentsThread = ({ tag, terms }: {
   });
 
   const currentUser = useCurrentUser();
-  const [recordSubforumViewMutation] = useMutation(gql`
-    mutation recordSubforumView($userId: String!, $tagId: String!) {
-      recordSubforumView(userId: $userId, tagId: $tagId)
-    }
-  `);
-  const recordSubforumView = useCallback(async () => recordSubforumViewMutation({variables: {userId: currentUser?._id, tagId: tag._id}}), [currentUser?._id, tag, recordSubforumViewMutation]);
+  const recordSubforumView = useRecordSubforumView({userId: currentUser?._id, tagId: tag._id});
 
   useEffect(() => {
     if (results && results.length)

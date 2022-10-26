@@ -103,7 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user: UsersProfile }) => {
+export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const {
     Error404,
     Loading,
@@ -116,11 +116,13 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
     LWTooltip,
     HeadTags,
     TagSubforumPostsSection,
+    SubforumNotificationSettings
   } = Components;
 
   const { params, query, location, hash } = useLocation();
   const { history } = useNavigation()
   const currentUser = useCurrentUser()
+
   const { slug } = params;
   const sortBy = query.sortBy || subforumDefaultSorting;
 
@@ -180,7 +182,9 @@ export const TagSubforumPage = ({ classes, user }: { classes: ClassesType; user:
           {welcomeBoxComponent}
         </div>
         <SingleColumnSection className={classNames(classes.columnSection)}>
-          <SectionTitle title={titleComponent} className={classes.title} />
+          <SectionTitle title={titleComponent} className={classes.title}>
+            {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
+          </SectionTitle>
           <div onChange={handleChangeTab} className={classes.tabSection} aria-label='view subforum discussion or posts'>
             <button onClick={() => handleChangeTab('discussion')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'discussion'})}>
               <Typography variant="headline">Discussion</Typography>

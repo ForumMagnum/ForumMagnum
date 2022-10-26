@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { DatabaseServerSetting } from './databaseSettings';
 
 const zohoClientId = new DatabaseServerSetting('zoho.clientId', '')

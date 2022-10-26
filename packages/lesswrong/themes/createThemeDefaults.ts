@@ -20,6 +20,7 @@ export const zIndexes = {
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   singleColumnSection: 1,
+  modTopBar: 1, 
   spotlightItem: 1,
   editorPresenceList: 1,
   spotlightItemCloseButton: 2,
@@ -115,7 +116,8 @@ export const baseTheme: BaseThemeSpecification = {
         },
         largeChapterTitle: {
           fontSize: '1.4rem',
-          margin: "1.5em 0 .2em 0"
+          margin: "1.5em 0 .5em 0",
+          color: palette.grey[800]
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,
