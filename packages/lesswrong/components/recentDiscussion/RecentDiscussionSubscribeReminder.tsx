@@ -17,6 +17,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import TextField from '@material-ui/core/TextField';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
+// mailchimp link to sign up for the EA Forum's digest
 const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -261,7 +262,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       {forumTypeSetting.get() === 'EAForum' ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
         <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
         <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
-          Submit
+          Sign up
         </Button>
       </form> : <div className={classes.loginForm}>
         <WrappedLoginForm startingState="signup" />
