@@ -636,6 +636,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
   readonly afCommentCount: number,
@@ -1069,6 +1070,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
+  readonly subforumTagId: string,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts

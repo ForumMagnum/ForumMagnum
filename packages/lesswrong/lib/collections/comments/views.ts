@@ -493,7 +493,7 @@ export const subforumSorting = {
   new: { postedAt: -1 },
   recentDiscussion: { lastSubthreadActivity: -1 },
 }
-export const subforumDefaultSorting = "recentDiscussion"
+export const subforumDiscussionDefaultSorting = "recentDiscussion"
 
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
@@ -502,7 +502,7 @@ Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   },
 }));
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
