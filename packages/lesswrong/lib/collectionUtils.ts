@@ -107,6 +107,16 @@ export function addUniversalFields<T extends DbObject>({
       onInsert: () => new Date(),
       ...createdAtOptions,
     },
+    legacyData: {
+      type: Object,
+      optional: true,
+      nullable: true,
+      blackbox: true,
+      hidden: true,
+      viewableBy: ['admins'],
+      insertableBy: ['admins'],
+      editableBy: ['admins'],
+    },
   })
   ensureIndex(collection, {schemaVersion: 1});
 }

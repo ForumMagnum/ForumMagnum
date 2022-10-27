@@ -9,10 +9,6 @@ const schema: SchemaType<DbLegacyData> = {
   collectionName: {
     type: String,
   },
-  legacyData: {
-    type: Object,
-    blackbox: true
-  },
 };
 
 export const LegacyData: LegacyDataCollection = createCollection({
