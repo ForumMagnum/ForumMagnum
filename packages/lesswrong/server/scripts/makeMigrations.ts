@@ -117,6 +117,7 @@ export const makeMigrations = async ({
   console.log(`=== Checking for schema changes ===`);
   // Get the most recent accepted schema hash from `schema_changelog.json`
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
+  console.log(`-- Using accepted hash ${acceptedHash}`);
 
   const currentHashes: Partial<Record<CollectionNameString, string>> = {};
   let schemaFileContents = "";
