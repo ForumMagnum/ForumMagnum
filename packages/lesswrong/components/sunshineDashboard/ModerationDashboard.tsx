@@ -164,6 +164,9 @@ const ModerationDashboard = ({ classes }: {
                 <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
               </div>
             )}
+            <div className={classes.loadMore}>
+              <LoadMore {...loadMoreProps}/>
+            </div>
           </div>
           <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
             {allUsers.map(user =>
@@ -171,6 +174,9 @@ const ModerationDashboard = ({ classes }: {
                 <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
               </div>
             )}
+            <div className={classes.loadMore}>
+              <LoadMore {...allUsersLoadMoreProps}/>
+            </div>
           </div>
         </div>
       </div>
