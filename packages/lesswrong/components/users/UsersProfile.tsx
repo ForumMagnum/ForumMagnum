@@ -248,7 +248,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<a>Register RSS</a>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>

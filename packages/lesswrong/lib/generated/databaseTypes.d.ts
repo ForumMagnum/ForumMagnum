@@ -463,7 +463,7 @@ interface DbPost extends DbObject {
   finalReviewVoteScoreAF: number
   finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
+  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
   noIndex: boolean
   rsvps: Array<{
     name: string,
@@ -556,6 +556,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  subforumTagId: string
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -806,6 +807,9 @@ interface DbUserTagRel extends DbObject {
   tagId: string
   userId: string
   subforumLastVisitedAt: Date | null
+  subforumShowUnreadInSidebar: boolean
+  subforumEmailNotifications: boolean
+  createdAt: Date
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -957,6 +961,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationPostsNominatedReview: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationSubforumUnread: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,

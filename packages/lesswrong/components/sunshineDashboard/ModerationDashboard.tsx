@@ -9,7 +9,10 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType): JssStyles => ({
   page: {
     width: '90%',
-    margin: 'auto'
+    margin: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+    }
   },
   topBar: {
     position: "sticky",
@@ -40,9 +43,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "sticky",
     top: 64,
     paddingTop: 12,
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   main: {
-    width: "calc(100% - 230px)"
+    width: "calc(100% - 230px)",
+    [theme.breakpoints.down('md')]: {
+      width: "100%"
+    }
   },
   tocListing: {
     paddingTop: 4,
@@ -114,7 +123,9 @@ const ModerationDashboard = ({ classes }: {
           <div className={classes.toc}>
             {usersToReview?.map(user => {
               return <div key={user._id} className={classes.tocListing}>
-                {user.displayName}
+                <a href={`/admin/moderation#${user._id}`}>
+                  {user.displayName}
+                </a>
               </div>
             })}
             <div className={classes.loadMore}>

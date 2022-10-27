@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { getCurrentContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
+import { getCurrentContentCount } from '../../components/sunshineDashboard/ModeratorActions';
 import { Comments } from "../../lib/collections/comments";
 import { ModeratorActions } from "../../lib/collections/moderatorActions";
 import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";

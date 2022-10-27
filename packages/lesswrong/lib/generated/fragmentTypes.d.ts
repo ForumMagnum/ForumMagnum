@@ -156,6 +156,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -406,6 +412,8 @@ interface CommentsDefaultFragment { // fragment on Comments
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly tagId: string,
   readonly userId: string,
+  readonly subforumShowUnreadInSidebar: boolean,
+  readonly subforumEmailNotifications: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -538,7 +546,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
   readonly lastCommentPromotedAt: Date,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly noIndex: boolean,
   readonly rsvps: Array<{
     name: string,
@@ -631,6 +639,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
   readonly afBaseScore: number,
@@ -879,7 +888,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -888,7 +897,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -1065,6 +1074,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
+  readonly subforumTagId: string,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1260,7 +1270,6 @@ interface WithVoteComment { // fragment on Comments
 }
 
 interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment { // fragment on Comments
-  readonly parentComment: CommentWithRepliesFragment|null,
   readonly allVotes: Array<CommentsListWithModerationMetadata_allVotes>,
 }
 
@@ -1839,7 +1848,7 @@ interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRel
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -1861,6 +1870,14 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly voteCount: number,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+}
+
+interface UserTagRelNotifications { // fragment on UserTagRels
+  readonly _id: string,
+  readonly userId: string,
+  readonly tagId: string,
+  readonly subforumShowUnreadInSidebar: boolean,
+  readonly subforumEmailNotifications: boolean,
 }
 
 interface TagBasicInfo { // fragment on Tags
@@ -2324,6 +2341,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovOptOut: boolean | null,
   readonly lastUsedTimezone: string,
   readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly notificationSubforumUnread: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2534,6 +2557,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly notificationGroupAdministration: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
+  readonly notificationSubforumUnread: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -2848,6 +2877,7 @@ interface FragmentTypes {
   TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
+  UserTagRelNotifications: UserTagRelNotifications
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
@@ -3019,6 +3049,7 @@ interface CollectionNamesByFragmentName {
   TagRelCreationFragment: "TagRels"
   TagRelMinimumFragment: "TagRels"
   WithVoteTagRel: "TagRels"
+  UserTagRelNotifications: "UserTagRels"
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"

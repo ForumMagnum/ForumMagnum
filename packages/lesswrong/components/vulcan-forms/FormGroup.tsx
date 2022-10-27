@@ -43,7 +43,7 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
+export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey400,

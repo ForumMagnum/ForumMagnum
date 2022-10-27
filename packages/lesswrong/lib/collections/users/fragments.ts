@@ -188,6 +188,7 @@ registerFragment(`
     ...SharedUserBooleans
 
     acknowledgedNewUserGuidelines
+    notificationSubforumUnread
   }
 `);
 
@@ -397,6 +398,7 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
 
     hideFrontpageMap
     hideTaggingProgressBar
