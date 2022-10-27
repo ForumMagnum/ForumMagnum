@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useOnNavigate } from '../common/NavigationEventSender';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
