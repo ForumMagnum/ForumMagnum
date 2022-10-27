@@ -114,15 +114,15 @@ const SideCommentSingle = ({commentId, post}: {
     if (!rootDiv) return;
     
     const listener = (ev: MouseEvent) => {
-      let pos: HTMLElement|null = ev.currentTarget as HTMLElement;
       let newBlockquoteId: string|null = null;
+      const hoveredElementPath = ev.composedPath();
       
-      while (pos) {
-        if (pos.tagName === 'blockquote') {
+      for (let pos of hoveredElementPath) {
+        if ((pos as HTMLElement).tagName === 'BLOCKQUOTE') {
           // TODO: this isn't distinguishing between the comment and its children, and isn't distinguishing between blockquotes within that comment
           newBlockquoteId = `blockquote_${commentId}_1`;
+          break;
         }
-        pos = pos.parentElement;
       }
       
       if (newBlockquoteId !== hoveredBlockquoteId) {
@@ -134,14 +134,14 @@ const SideCommentSingle = ({commentId, post}: {
     return () => {
       rootDiv!.removeEventListener('mousemove', listener);
     }
-  }, [commentId, hoveredBlockquoteId, rootDivRef]);
+  }, [commentId, hoveredBlockquoteId, rootDivRef.current]);
   
   if (loading) return <Loading/>
   if (!comment) return null;
   
   return <div ref={rootDivRef}>
     {hoveredBlockquoteId && <style>
-      {`.${hoveredBlockquoteId} { background: "rgba(128,128,128,.2)"; }`}
+      {`.${hoveredBlockquoteId} { background: rgba(128,128,128,.2); }`}
     </style>}
     <CommentWithReplies
       comment={comment} post={post}

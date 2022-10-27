@@ -1,6 +1,7 @@
 import { testStartup } from './testMain';
 import chai from 'chai';
-import { QuoteShardSettings, getCommentQuotedBlockID, commentToQuoteShards, annotateMatchedSpans } from '../server/sideComments';
+import { QuoteShardSettings, getCommentQuotedBlockID, commentToQuoteShards, annotateMatchedSpans, matchSideComments } from '../server/sideComments';
+import { cheerioParseAndMarkOffsets } from '../server/utils/htmlUtil';
 
 testStartup();
 
@@ -124,6 +125,59 @@ describe('annotateMatchedSpans', () => {
         ]
       ),
       '<p>Lorem <span class="A">ipsum </span><em><span class="A B">dolor</span></em><span class="A B"> sit</span><span class="B"> amet</span> adipiscing</p>',
+    );
+  });
+  it('works with elements that have attributes', () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p id="block0">Lorem ipsum <em>dolor</em> sit amet adipiscing</p>',
+        [{start: 21, end: 22, spanClass: "c"}]
+      ),
+      '<p id="block0">Lorem <span class="c">i</span>psum <em>dolor</em> sit amet adipiscing</p>',
+    );
+  });
+});
+
+describe('cheerioParseAndMarkOffsets', () => {
+  const html = '<p>Lorem <em>ipsum</em> dolor</p>';
+  const parsed = cheerioParseAndMarkOffsets(html);
+  const em = parsed('em')[0] as cheerio.TagElement;
+  const p = parsed('p')[0] as cheerio.TagElement;
+  
+  it('marks offsets of text nodes', () => {
+    chai.assert.equal((em.children[0] as any).offset, 13);
+    chai.assert.equal(typeof (em.children[0] as any).offset, "number");
+    chai.assert.equal((p.children[0] as any).offset, 3);
+    chai.assert.equal((p.children[2] as any).offset, 23);
+  });
+  it('annotates the offset of tags', () => {
+    chai.assert.equal((em as any).offset, 9);
+  });
+  it('annotates the offset of the root tag', () => {
+    chai.assert.equal((p as any).offset, 0);
+  });
+  it('roundtrips HTML', () => {
+    chai.assert.equal(parsed.html(), html);
+  });
+});
+
+describe('matchSideComments', () => {
+  it('annotates a quoted range', () => {
+    chai.assert.deepEqual(
+      matchSideComments({
+        postId: "postId",
+        html: "<div><p>Lorem ipsum dolor sit amet adipiscing</p></div>",
+        quoteShardSettings: testQuoteShardSettings,
+        comments: [{
+          _id: "comment1",
+          html: "<blockquote>ipsum dolor sit amet</blockquote>",
+          baseScore: 999,
+        }]
+      }),
+      {
+        html: '<div><p id="block0">Lorem <span class="blockquote_comment1_1">ipsum dolor sit amet</span> adipiscing</p></div>',
+        sideCommentsByBlock: {"block0": ["comment1"]},
+      },
     );
   });
 });

@@ -3,7 +3,7 @@ import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtil
 import { getLocalTime } from '../mapsUtils'
 import { Utils } from '../../lib/vulcan-lib/utils';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import { addBlockIDsToHTML, getPostBlockCommentLists } from '../sideComments';
+import { addBlockIDsToHTML, getSideComments } from '../sideComments';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -40,12 +40,7 @@ augmentFieldsDict(Posts, {
       resolver: async (post, args: void, context: ResolverContext) => {
         const toc = await Utils.getToCforPost({document: post, version: null, context});
         const html = toc?.html || post?.contents?.html
-        const {allResults, highKarmaResults} = await getPostBlockCommentLists(context, post);
-        return {
-          html: addBlockIDsToHTML(html),
-          commentsByBlock: allResults,
-          highKarmaCommentsByBlock: highKarmaResults,
-        };
+        return await getSideComments(context, post._id, html);
       }
     },
   },
