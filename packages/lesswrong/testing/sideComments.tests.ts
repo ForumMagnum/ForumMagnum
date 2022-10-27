@@ -10,6 +10,10 @@ const testQuoteShardSettings: QuoteShardSettings = {
 };
 
 describe('side-comment blockquote matching', () => {
+  function commentToQuoteShardStrings(comment: string) {
+    return commentToQuoteShards(comment).map(shard => shard.text);
+  }
+  
   it('finds exact-match blockquotes', () => {
     chai.assert.equal(
       getCommentQuotedBlockID(
@@ -34,7 +38,7 @@ describe('side-comment blockquote matching', () => {
   it('splits comments into quote shards', () => {
     // Split on paragraphs
     chai.assert.deepEqual(
-      commentToQuoteShards("<blockquote><p>Lorem ipsum dolor sit amet</p><p>adipiscing lorem amor asdf dolor sit amet</p></blockquote>"),
+      commentToQuoteShardStrings("<blockquote><p>Lorem ipsum dolor sit amet</p><p>adipiscing lorem amor asdf dolor sit amet</p></blockquote>"),
       ["Lorem ipsum dolor sit amet", "adipiscing lorem amor asdf dolor sit amet"],
     );
     
@@ -42,7 +46,7 @@ describe('side-comment blockquote matching', () => {
     const ellipsesVariants = ["...", " ... ", "\u2026", "[...]", "[\u2026]"];
     for (const ellipses of ellipsesVariants) {
       chai.assert.deepEqual(
-        commentToQuoteShards("<blockquote>Lorem ipsum dolor sit amet"+ellipses+"adipiscing lorem amor asdf dolor sit amet</blockquote>"),
+        commentToQuoteShardStrings("<blockquote>Lorem ipsum dolor sit amet"+ellipses+"adipiscing lorem amor asdf dolor sit amet</blockquote>"),
         ["Lorem ipsum dolor sit amet", "adipiscing lorem amor asdf dolor sit amet"],
       );
     }
@@ -51,7 +55,7 @@ describe('side-comment blockquote matching', () => {
     // TODO not implemented
     //for (const ellipses of ellipsesVariants) {
     //  chai.assert.deepEqual(
-    //    commentToQuoteShards("<blockquote>The quick brown fox [Ahri] jumped over the lazy dog.</blockquote>", testQuoteShardSettings),
+    //    commentToQuoteShardStrings("<blockquote>The quick brown fox [Ahri] jumped over the lazy dog.</blockquote>", testQuoteShardSettings),
     //    ["The quick brown fox", "jumped over the lazy dog."]
     //  );
     //}
@@ -59,7 +63,7 @@ describe('side-comment blockquote matching', () => {
   
   it('handles HTML inside quote shards', () => {
     chai.assert.deepEqual(
-      commentToQuoteShards("<blockquote><p>Lorem <i>ipsum</i> dolor sit amet</p><p>adipiscing lorem amor asdf dolor sit amet</p></blockquote>"),
+      commentToQuoteShardStrings("<blockquote><p>Lorem <i>ipsum</i> dolor sit amet</p><p>adipiscing lorem amor asdf dolor sit amet</p></blockquote>"),
       ["Lorem <i>ipsum</i> dolor sit amet", "adipiscing lorem amor asdf dolor sit amet"],
     );
   });
@@ -134,6 +138,15 @@ describe('annotateMatchedSpans', () => {
         [{start: 21, end: 22, spanClass: "c"}]
       ),
       '<p id="block0">Lorem <span class="c">i</span>psum <em>dolor</em> sit amet adipiscing</p>',
+    );
+  });
+  it("isn't messed up by &nbsp", () => {
+    chai.assert.equal(
+      annotateMatchedSpans(
+        '<p>Lorem ipsum&nbsp;<em>dolor</em> sit amet adipiscing</p>',
+        [{start: 9, end: 27, spanClass: "c"}]
+      ),
+      '<p>Lorem <span class="c">ipsum&nbsp;</span><em><span class="c">dol</span>or</em> sit amet adipiscing</p>',
     );
   });
 });

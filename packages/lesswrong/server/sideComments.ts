@@ -2,9 +2,14 @@ import cheerio from 'cheerio';
 import { cheerioParse, cheerioParseAndMarkOffsets, tokenizeHtml } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
 import groupBy from 'lodash/groupBy';
+import some from 'lodash/some';
 
 export interface QuoteShardSettings {
   minLength: number
+}
+export interface QuoteShard {
+  text: string,
+  blockquoteIndex: number,
 }
 const defaultQuoteShardSettings: QuoteShardSettings = {
   minLength: 20,
@@ -102,6 +107,7 @@ export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]):
   
   let activeSpan: string|null = null;
   let activeClasses = new Set<string>();
+  let activeIntervals: MarkedInterval[] = [];
   let isInTag = false;
   
   function setActiveSpan(classes: string|null) {
@@ -141,16 +147,18 @@ export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]):
         let lastSplit = 0;
         
         for (let i=0; i<tokenStr.length; i++) {
-          if (intervalsByStart[i+pos] || intervalsByEnd[i+pos]) {
+          //if (intervalsByStart[i+pos] || intervalsByEnd[i+pos]) {
+          //if (intervalsByStart[i+pos] || some(activeIntervals, interval => interval.end > i+pos)) {
+          {
             if (i>lastSplit) {
-              const activeClassStrs = [...(activeClasses.values())];
+              const activeClassStrs = activeIntervals.map(interval => interval.spanClass);
               setActiveSpan(activeClassStrs.join(" "));
               
               sb.push(tokenStr.substr(lastSplit, i-lastSplit));
               lastSplit = i;
             }
             
-            //let oldActiveClassesCount = activeSpans.size;
+            // FIXME: Don't rely on exact end offsets; close anything that's overshot.
             let closedHere = intervalsByEnd[i+pos]
             if (closedHere) {
               for (let interval of closedHere) {
@@ -161,12 +169,15 @@ export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]):
             if (intervalsByStart[i+pos]) {
               for (let interval of startedHere) {
                 activeClasses.add(interval.spanClass);
+                activeIntervals.push(interval);
               }
             }
+            
+            activeIntervals = activeIntervals.filter(interval => interval.end > i+pos);
           }
         }
         
-        const activeClassStrs = [...(activeClasses.values())];
+        const activeClassStrs = activeIntervals.map(interval => interval.spanClass);
         setActiveSpan(activeClassStrs.join(" "));
         
         sb.push(tokenStr.substr(lastSplit, tokenStr.length-lastSplit));
@@ -218,9 +229,9 @@ export function getCommentQuotedBlockID(postHTML: string, commentHTML: string, o
  *    split into a before-the-bracket shard and an after-the-bracket shard.
  *  * Discard shards shorter than 20 characters.
  */
-export function commentToQuoteShards(commentHTML: string, options?: QuoteShardSettings): string[] {
+export function commentToQuoteShards(commentHTML: string, options?: QuoteShardSettings): QuoteShard[] {
   options = options||defaultQuoteShardSettings;
-  const result: string[] = [];
+  const result: QuoteShard[] = [];
   
   // Parse the HTML into cheerio
   const parsedComment = cheerioParse(commentHTML);
@@ -234,7 +245,7 @@ export function commentToQuoteShards(commentHTML: string, options?: QuoteShardSe
   return result;
 }
 
-function addQuoteShardsFromElement(outQuoteShards: string[], blockquoteElement: any, options: QuoteShardSettings): void {
+function addQuoteShardsFromElement(outQuoteShards: QuoteShard[], blockquoteElement: any, options: QuoteShardSettings): void {
   // HACK: Rather than do this in full generality, we first assume that a
   // blockquote element either contains only other block types or no block
   // types.
@@ -265,7 +276,10 @@ function addQuoteShardsFromElement(outQuoteShards: string[], blockquoteElement: 
     if (section) {
       const trimmed = section.trim();
       if (trimmed.length >= options.minLength) {
-        outQuoteShards.push(trimmed);
+        outQuoteShards.push({
+          text: trimmed,
+          blockquoteIndex: 1, //TODO
+        });
       }
     }
   }
@@ -281,7 +295,7 @@ interface QuoteInPost {
  * quote shards, return the ID of the first block which matches a quote shard
  * (or null if no match is found).
  */
-function findQuoteInPost(parsedPost, quoteShards: string[]): QuoteInPost|null {
+function findQuoteInPost(parsedPost, quoteShards: QuoteShard[]): QuoteInPost|null {
   let markedElements = parsedPost(matchableBlockElementSelector);
   let firstMatchingBlockID: string|null = null;
   let matchingSpans: {start: number, end: number}[] = [];
@@ -293,7 +307,7 @@ function findQuoteInPost(parsedPost, quoteShards: string[]): QuoteInPost|null {
       const markedHtml = parsedPost.html(cheerio(markedElements[i]))||"";
       
       for (let quoteShard of quoteShards) {
-        const quoteShardOffset = markedHtml.indexOf(quoteShard);
+        const quoteShardOffset = markedHtml.indexOf(quoteShard.text);
         if (quoteShardOffset >= 0) {
           if (!firstMatchingBlockID) {
             firstMatchingBlockID = blockID;
@@ -301,7 +315,7 @@ function findQuoteInPost(parsedPost, quoteShards: string[]): QuoteInPost|null {
           // FIXME: This assumes that a parse-and-serialize roundtrip through cheerio doesn't change any offsets, but this assumption is not valid.
           matchingSpans.push({
             start: blockStartOffset + quoteShardOffset,
-            end: blockStartOffset + quoteShardOffset + quoteShard.length,
+            end: blockStartOffset + quoteShardOffset + quoteShard.text.length,
           });
         }
       }
@@ -404,7 +418,10 @@ export function matchSideComments({postId, html, comments, quoteShardSettings}: 
     }
   }
   
+  console.log(htmlWithBlockIDs);
+  console.log(markedSpans);
   const htmlWithSpanAnnotations = annotateMatchedSpans(htmlWithBlockIDs, markedSpans);
+  console.log(htmlWithSpanAnnotations );
   
   return {
     html: htmlWithSpanAnnotations,

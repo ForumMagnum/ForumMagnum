@@ -19,6 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sideCommentIcon: {
     position: 'absolute',
     cursor: "pointer",
+    top: 4,
     marginLeft: 25,
     "& svg": {
       height: 17,
@@ -37,6 +38,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.normal,
   },
 });
+
+const blockquoteHighlightColor = "#ccffcc"; //TODO migrate this into the theme
+const blockquoteHighlightColor2 = "#ccffcc"; //TODO migrate this into the theme
+const blockquoteHighlightMode = "hoverComment";
+//const blockquoteHighlightMode = "hoverBlockquote";
+
 
 const SideCommentIcon = ({commentIds, post, classes}: {
   commentIds: string[]
@@ -139,9 +146,16 @@ const SideCommentSingle = ({commentId, post}: {
   if (loading) return <Loading/>
   if (!comment) return null;
   
+  let hoverColor: string|null = null;
+  if (hoveredBlockquoteId) {
+    hoverColor = blockquoteHighlightColor2;
+  } else if (blockquoteHighlightMode==="hoverComment") {
+    hoverColor = blockquoteHighlightColor;
+  }
+  
   return <div ref={rootDivRef}>
-    {hoveredBlockquoteId && <style>
-      {`.${hoveredBlockquoteId} { background: rgba(128,128,128,.2); }`}
+    {hoverColor && <style>
+      {`.blockquote_${commentId}_1 { background: ${hoverColor}; }`}
     </style>}
     <CommentWithReplies
       comment={comment} post={post}
