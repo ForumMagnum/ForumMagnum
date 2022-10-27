@@ -127,6 +127,19 @@ describe("SwitchingCollection", () => {
     expect(writeCollections[0]).toBeInstanceOf(MongoCollection);
     expect(writeCollections[1]).toBeInstanceOf(PgCollection);
   });
+  it("can get and set options", () => {
+    const collection = new SwitchingCollection("test");
+    const mongoCollection = collection.getMongoCollection();
+    const pgCollection = collection.getPgCollection();
+
+    expect(collection.options.test).toBe(undefined);
+    expect((mongoCollection.options as any).test).toBe(undefined);
+    expect((pgCollection.options as any).test).toBe(undefined);
+
+    collection.options.test = "test";
+    expect((mongoCollection.options as any).test).toBe("test");
+    expect((pgCollection.options as any).test).toBe("test");
+  });
   describe("read: mongo - write: mongo", switchingCheckTestCase.bind(
     null,
     "mongo",

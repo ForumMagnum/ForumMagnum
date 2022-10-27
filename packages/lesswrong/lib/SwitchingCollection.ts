@@ -44,6 +44,18 @@ class SwitchingCollection<T extends DbObject> {
     "updateMany",
   ];
 
+  public options = new Proxy(this, {
+    get: (target: any, property: string, _receiver: any) => {
+      const base = target.getReadTarget() as unknown as CollectionBase<T>;
+      return base[property];
+    },
+    set: (object: any, key: string, value: any, _proxy: typeof Proxy): boolean => {
+      object.mongoCollection.options[key] = value;
+      object.pgCollection.options[key] = value;
+      return true;
+    },
+  });
+
   private mongoCollection: MongoCollection<T>;
   private pgCollection: PgCollection<T>;
   private readTarget: ReadTarget;
@@ -83,6 +95,10 @@ class SwitchingCollection<T extends DbObject> {
             result[op] = this.proxiedWrite(targets, op);
           }
           return () => result;
+        }
+
+        if (property in this.mongoCollection) {
+          return this.mongoCollection[property];
         }
 
         return undefined;
