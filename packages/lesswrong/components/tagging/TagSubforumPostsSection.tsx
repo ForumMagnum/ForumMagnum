@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
   },
   postsScrollContainer: {
-    overflowY: "scroll",
+    overflowY: "auto",
     flexBasis: 0,
     flexGrow: 1,
   },
