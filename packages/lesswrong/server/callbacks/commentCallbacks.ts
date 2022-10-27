@@ -5,12 +5,10 @@ import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
-import { userIsAdmin, userCanDo } from '../../lib/vulcan-users/permissions';
-import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { performVoteServer } from '../voteServer';
-import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
-import { getCommentAncestorIds, getCommentSubtree } from '../utils/commentTreeUtils';
+import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -203,6 +201,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
     const lwAccount = await getAdminTeamAccount();
+    const commentUser = await Users.findOne({_id: comment.userId})
 
     const conversationData = {
       participantIds: [comment.userId, lwAccount._id],
@@ -221,6 +220,10 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
+    const noEmail = forumTypeSetting.get() === "EAForum" 
+    ? false 
+    : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+
     const firstMessageData = {
       userId: lwAccount._id,
       contents: {
@@ -230,14 +233,14 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         }
       },
       conversationId: conversation.data._id,
-      noEmail: true
+      noEmail: noEmail
     }
 
     const secondMessageData = {
       userId: lwAccount._id,
       contents: comment.contents,
       conversationId: conversation.data._id,
-      noEmail: true
+      noEmail: noEmail
     }
 
     await createMutator({
