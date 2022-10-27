@@ -169,7 +169,8 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   
-  const [tab, setTab] = useState(hash?.slice(1) || 'discussion')
+  const hashContents = hash?.slice(1)
+  const [tab, setTab] = useState<"discussion" | "posts">(hashContents === "posts" ? hashContents : 'discussion')
   
   const handleChangeTab = (value) => {
     setTab(value)
