@@ -62,6 +62,7 @@ export interface CommentsNodeProps {
   enableGuidelines?: boolean,
   displayMode?: CommentFormDisplayMode,
   karmaCollapseThreshold?: number,
+  showParentDefault?: boolean,
   classes: ClassesType,
 }
 
@@ -89,6 +90,7 @@ const CommentsNode = ({
   enableGuidelines=true,
   displayMode="default",
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
+  showParentDefault=false,
   classes
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
@@ -189,7 +191,7 @@ const CommentsNode = ({
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode, showParentDefault }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame

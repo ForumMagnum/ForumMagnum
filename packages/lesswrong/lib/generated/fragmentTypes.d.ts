@@ -1260,6 +1260,7 @@ interface WithVoteComment { // fragment on Comments
 }
 
 interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment { // fragment on Comments
+  readonly parentComment: CommentWithRepliesFragment|null,
   readonly allVotes: Array<CommentsListWithModerationMetadata_allVotes>,
 }
 

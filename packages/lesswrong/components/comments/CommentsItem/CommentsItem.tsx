@@ -137,7 +137,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, showParentDefault=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -153,11 +153,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
   displayMode?: CommentFormDisplayMode,
+  showParentDefault?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
-  const [showParentState, setShowParentState] = useState(false);
+  const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = displayMode === "minimalist"
   const now = useCurrentTime();
   
@@ -312,7 +313,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               post={post} tag={tag}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
-              truncated={false}
+              truncated={showParentDefault}
               key={comment.parentCommentId}
             />
           </div>

@@ -101,9 +101,11 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
     <CommentWithReplies
       post={comment.post ?? undefined}
       commentNodeProps={{
-        karmaCollapseThreshold: -9000
+        karmaCollapseThreshold: -9000,
+        showParentDefault: true
       }}
       comment={commentTreeNode.item}
+
     />
   </div>;
 }
