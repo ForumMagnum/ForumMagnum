@@ -316,21 +316,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
-      id: 'local-groups',
-      title: 'Local Groups',
-      link: '/community',
-      subItem: true,
-    }, {
-      id: 'online-groups',
-      title: 'Online Groups',
-      link: '/community#online',
-      subItem: true,
-    }, {
-      id: 'community-members',
-      title: 'Community Members',
-      link: '/community#individuals',
-      subItem: true,
-    }, {
       id: 'advice',
       title: 'Book a 1:1 [BETA]',
       link: `/advice`,
