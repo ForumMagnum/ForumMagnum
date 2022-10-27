@@ -158,7 +158,7 @@ export class ArrayType extends Type {
  * right now.
  */
 export class IdType extends StringType {
-  constructor(private collection: CollectionBase<any>) {
+  constructor(private collection?: CollectionBase<any>) {
     super(ID_LENGTH + 10);
   }
 

@@ -1,6 +1,6 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
-import { UnknownType } from "./Type";
+import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
 
 export type SimpleLookup = {
@@ -225,19 +225,18 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       }
     }
 
-    if (this.table instanceof SelectQuery && !this.table.syntheticFields._id) {
-      // TODO: I think there are some aggregations where this prevents a SQL error
-      // with multiple ambiguous _id fields, but it also causing some other things
-      // to break (aggregation with multiple layers of $project lose their id). Work
-      // out if this original issue still exists or if this can be removed. If it
-      // still exists, I probably need to find a better solution...
-      // autoIncludeId = false;
+    if (
+      this.table instanceof SelectQuery &&
+      (!this.table.syntheticFields._id || projection._id)
+    ) {
+      autoIncludeId = false;
     }
 
     let fields: string[] = [this.getStarSelector()];
     if (include.length && !exclude.length) {
       if (autoIncludeId && !include.includes("_id")) {
         include.push("_id");
+        this.syntheticFields._id = new IdType();
       }
       fields = include;
     } else if (exclude.length && !include.length) {
@@ -245,9 +244,12 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     } else if (include.length && exclude.length) {
       if (autoIncludeId && !include.includes("_id") && !exclude.includes("_id")) {
         include.push("_id");
+        this.syntheticFields._id = new IdType();
       }
       fields = include;
-    } else if (!autoIncludeId) {
+    } else if (autoIncludeId) {
+        this.syntheticFields._id = new IdType();
+    } else {
       fields = [];
     }
 
