@@ -5,10 +5,10 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 import type { Option } from '../common/InlineSelect';
-import { isEmpty } from 'underscore';
+import { isEmpty, omit } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
-import { subforumDefaultSorting } from '../../lib/collections/comments/views';
+import { subforumDiscussionDefaultSorting } from '../../lib/collections/comments/views';
 import { useTracking } from '../../lib/analyticsEvents';
 
 const sortOptions: Option[] = [
@@ -66,6 +66,7 @@ const CommentsTimelineSection = ({
   comments,
   parentAnswerId,
   startThreadTruncated,
+  sortingParam="sortDiscussionBy",
   refetch = () => {},
   classes,
 }: {
@@ -78,6 +79,7 @@ const CommentsTimelineSection = ({
   comments: CommentWithRepliesFragment[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
+  sortingParam?: string,
   refetch?: any,
   classes: ClassesType,
 }) => {
@@ -86,14 +88,15 @@ const CommentsTimelineSection = ({
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
 
-  const sorting = query.sortBy || subforumDefaultSorting
+  // FIXME "sortBy" is here for backwards compatibility with old links, remove it eventually
+  const sorting = query[sortingParam] || query["sortBy"] || subforumDiscussionDefaultSorting
   const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
 
   const handleSortingSelect = (option: Option) => {
-    const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
-    const newQuery = {...currentQuery, sortBy: option.value}
+    const currentQuery = isEmpty(query) ? {[sortingParam]: subforumDiscussionDefaultSorting} : omit(query, "sortBy")
+    const newQuery = {...currentQuery, [sortingParam]: option.value}
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
-    captureEvent("subforumSortingChanged", {oldSorting: currentQuery.sortBy, newSorting: option.value})
+    captureEvent("subforumSortingChanged", {oldSorting: currentQuery['sortingParameter'], newSorting: option.value})
   };
   const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
 
@@ -116,7 +119,6 @@ const CommentsTimelineSection = ({
         loadMoreComments={loadMoreComments}
         loadingMoreComments={loadingMoreComments}
       />
-      {/* TODO add permissions check here */}
       {isSubscribed ? (
         <>
           <Typography

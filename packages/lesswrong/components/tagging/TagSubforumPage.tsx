@@ -1,16 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
 import { isMissingDocumentError } from "../../lib/utils/errorUtil";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import { subforumDefaultSorting } from "../../lib/collections/comments/views";
+import { subforumDiscussionDefaultSorting } from "../../lib/collections/comments/views";
 import startCase from "lodash/startCase";
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { useDialog } from "../common/withDialog";
+import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -38,9 +40,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
   },
-  stickToBottom: {
-    marginTop: "auto",
-    marginBottom: "1.3em",
+  headline: {
+    paddingLeft: 24,
+    paddingBottom: 12,
+    '& .SectionTitle-root': {
+      marginTop: 18,
+      paddingBottom: 2
+    }
+  },
+  title: {
+    textTransform: "capitalize",
+    fontSize: 22,
+    lineHeight: '28px',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 18,
+      lineHeight: '24px',
+    }
+  },
+  membersListLink: {
+    background: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.5
+    },
   },
   aside: {
     width: 380,
@@ -56,11 +81,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.secondary.main,
     borderWidth: 2,
     borderRadius: 3,
-  },
-  title: {
-    textTransform: "capitalize",
-    marginLeft: 24,
-    marginBottom: 10,
   },
   scrollableSidebarWrapper: {
     overflow: "auto",
@@ -85,6 +105,42 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
+  },
+  tabSection: {
+    marginBottom: 16,
+    display: 'flex',
+    width: '100%',
+  },
+  tab: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexBasis: 0,
+    flexGrow: 1,
+    textTransform: 'none',
+    background: theme.palette.grey[200],
+    padding: '8px 16px',
+    outline: 'none',
+    '& > .Typography-root': {
+      color: theme.palette.grey[500],
+      fontSize: 20,
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 16,
+        lineHeight: '24px',
+      }
+    },
+    borderRadius: 0,
+    '&:active': {
+      background: 'transparent',
+    },
+  },
+  tabSelected: {
+    background: 'transparent',
+    borderTop: `4px solid ${theme.palette.grey[200]}`,
+    '& .Typography-root': {
+      color: 'unset',
+      borderBottom: `solid 2px ${theme.palette.primary.main}`,
+    },
   }
 });
 
@@ -100,14 +156,45 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
     ContentItemBody,
     LWTooltip,
     HeadTags,
+    TagSubforumPostsSection,
     SubforumNotificationSettings
   } = Components;
-  const { params, query } = useLocation();
-  const currentUser = useCurrentUser();
+
+  const { params, query, location, hash } = useLocation();
+  const { history } = useNavigation()
+  const currentUser = useCurrentUser()
+
   const { slug } = params;
-  const sortBy = query.sortBy || subforumDefaultSorting;
+  const sortDiscussionBy = query.sortDiscussionBy || subforumDiscussionDefaultSorting;
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
+  
+  const [tab, setTab] = useState(hash?.slice(1) || 'discussion')
+  
+  const handleChangeTab = (value) => {
+    setTab(value)
+    history.replace({...location, hash: value})
+  }
+
+  const { openDialog } = useDialog();
+  
+  const { results: members, totalCount: membersCount } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile',
+    enableTotal: true,
+    skip: !tag
+  })
+  
+  const onClickMembersList = () => {
+    if (tag) {
+      openDialog({
+        componentName: 'SubforumMembersDialog',
+        componentProps: {tag},
+        closeOnNavigate: true
+      })
+    }
+  }
 
   if (loading) {
     return <Loading />;
@@ -125,7 +212,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
     );
   }
 
-  const welcomeBoxComponent = tag.subforumWelcomeText?.html ? (
+  const welcomeBoxComponent = tag.subforumWelcomeText?.html && tab === 'discussion' ? (
     <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
       <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
         <div className={classes.welcomeBox} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false) }}></div>
@@ -143,35 +230,51 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   </>
 
   return (
-    <div className={classes.root}>
-      <HeadTags
-        description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
-        title={`${startCase(tag.name)} Subforum`}
-      />
-      <div className={classNames(classes.columnSection, classes.aside)}>
-        {welcomeBoxComponent}
+    <AnalyticsContext pageContext="subforumPage" tagId={tag._id}>
+      <div className={classes.root}>
+        <HeadTags
+          description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
+          title={`${startCase(tag.name)} Subforum`}
+        />
+        <div className={classNames(classes.columnSection, classes.aside)}>
+          {welcomeBoxComponent}
+        </div>
+        <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
+          <div className={classes.headline}>
+            <SectionTitle title={titleComponent} className={classes.title}>
+              {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
+            </SectionTitle>
+            {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
+          </div>
+          <div onChange={handleChangeTab} className={classes.tabSection} aria-label='view subforum discussion or posts'>
+            <button onClick={() => handleChangeTab('discussion')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'discussion'})}>
+              <Typography variant="headline">Discussion</Typography>
+            </button>
+            <button onClick={() => handleChangeTab('posts')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'posts'})}>
+              <Typography variant="headline">Posts</Typography>
+            </button>
+          </div>
+          {tab === 'discussion' && <AnalyticsContext pageSectionContext="commentsSection">
+            <SubforumCommentsThread
+              tag={tag}
+              terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy: sortDiscussionBy }}
+            />
+          </AnalyticsContext>}
+          {tab === 'posts' && <AnalyticsContext pageSectionContext="postsSection">
+            <TagSubforumPostsSection tag={tag}/>
+          </AnalyticsContext>}
+        </SingleColumnSection>
+        <div className={classNames(classes.columnSection, classes.aside)}>
+          {tag?.tableOfContents?.html &&
+            <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
+              <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
+                <div className={classes.wikiSidebar} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}></div>
+              </div>
+            </ContentStyles>
+          }
+        </div>
       </div>
-      <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
-        <SectionTitle title={titleComponent} className={classes.title}>
-          {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
-        </SectionTitle>
-        <AnalyticsContext pageSectionContext="commentsSection">
-          <SubforumCommentsThread
-            tag={tag}
-            terms={{ tagId: tag._id, view: "tagSubforumComments", limit: 50, sortBy }}
-          />
-        </AnalyticsContext>
-      </SingleColumnSection>
-      <div className={classNames(classes.columnSection, classes.aside)}>
-        {tag?.tableOfContents?.html &&
-          <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
-            <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
-              <div className={classes.wikiSidebar} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}></div>
-            </div>
-          </ContentStyles>
-        }
-      </div>
-    </div>
+    </AnalyticsContext>
   );
 };
 

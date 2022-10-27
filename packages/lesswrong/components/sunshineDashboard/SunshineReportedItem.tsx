@@ -3,7 +3,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useCurrentUser } from '../common/withUser'
 import DoneIcon from '@material-ui/icons/Done';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -22,12 +21,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SunshineReportedItem = ({report, updateReport, classes}: {
+const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
   report: any,
   updateReport: WithUpdateFunction<ReportsCollection>,
   classes: ClassesType,
+  currentUser: UsersCurrent,
+  refetch: () => void
 }) => {
-  const currentUser = useCurrentUser();
+
   const { hover, anchorEl, eventHandlers } = useHover();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -99,7 +100,7 @@ const SunshineReportedItem = ({report, updateReport, classes}: {
               <PostsTitle post={post}/>
               <PostsHighlight post={post} maxLengthWords={600}/>
             </div>}
-            {reportedUser && <SunshineNewUsersInfo user={reportedUser}/>}
+            {reportedUser && <SunshineNewUsersInfo user={reportedUser} currentUser={currentUser} refetch={refetch}/>}
           </Typography>
         </SidebarHoverOver>
         {comment && <SunshineCommentsItemOverview comment={comment}/>}
@@ -110,7 +111,7 @@ const SunshineReportedItem = ({report, updateReport, classes}: {
           </>}
           {reportedUser && <div>
             <Link to={report.link} className={classes.reportedUser}>
-              <strong>{ reportedUser?.displayName }</strong>
+              <strong>{ reportedUser.displayName }</strong>
               <PersonOutlineIcon className={classes.reportedUserIcon}/>
             </Link>
           </div>}

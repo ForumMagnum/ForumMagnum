@@ -64,7 +64,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
   },
   fullscreen: {
-    height: "max(100vh, 550px)",
+    // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
+    // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
+    // for this. Here is one site with a good list from 2018: https://mediag.com/blog/popular-screen-resolutions-designing-for-all/
+    height: "max(100vh, 600px)",
     display: "flex",
     flexDirection: "column",
   },

@@ -446,6 +446,7 @@ registerFragment(`
       ...RevisionEdit
     }
     tableOfContents
+    subforumTagId
   }
 `);
 
