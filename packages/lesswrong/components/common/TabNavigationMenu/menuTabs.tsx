@@ -340,7 +340,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'about',
-      title: 'About the Forum',
+      title: 'How to use the Forum',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,
