@@ -248,7 +248,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       }
       fields = include;
     } else if (autoIncludeId) {
-        this.syntheticFields._id = new IdType();
+      this.syntheticFields._id = new IdType();
     } else {
       fields = [];
     }
