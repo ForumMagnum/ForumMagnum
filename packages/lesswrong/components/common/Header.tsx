@@ -38,8 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       height: 56,
     },
-    
-    flexGrow: 1,
     "@media print": {
       display: "none"
     }
@@ -135,9 +133,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
+  stayAtTop?: boolean,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
@@ -267,6 +266,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           )}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={stayAtTop}
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
