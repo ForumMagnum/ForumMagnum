@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
@@ -9,13 +9,11 @@ import Paper from "@material-ui/core/Paper";
 import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@apollo/client";
 import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
-    margin: "0px 12px 10px 0px",
+    margin: "0 12px 0 0",
     padding: 4,
   },
   popout: {

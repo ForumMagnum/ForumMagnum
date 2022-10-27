@@ -11,6 +11,8 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { useDialog } from "../common/withDialog";
+import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -34,6 +36,33 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
     },
   },
+  headline: {
+    paddingLeft: 24,
+    paddingBottom: 12,
+    '& .SectionTitle-root': {
+      marginTop: 18,
+      paddingBottom: 2
+    }
+  },
+  title: {
+    textTransform: "capitalize",
+    fontSize: 22,
+    lineHeight: '28px',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 18,
+      lineHeight: '24px',
+    }
+  },
+  membersListLink: {
+    background: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.5
+    },
+  },
   stickToBottom: {
     marginTop: "auto",
     marginBottom: 3,
@@ -51,12 +80,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.secondary.main,
     borderWidth: 2,
     borderRadius: 3,
-  },
-  title: {
-    textTransform: "capitalize",
-    marginLeft: 24,
-    marginBottom: 0,
-    lineHeight: 1.2,
   },
   wikiSidebar: {
     marginTop: 84,
@@ -88,6 +111,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     outline: 'none',
     '& > .Typography-root': {
       color: theme.palette.grey[500],
+      fontSize: 20,
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 16,
+        lineHeight: '24px',
+      }
     },
     borderRadius: 0,
     '&:active': {
@@ -96,7 +124,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tabSelected: {
     background: 'transparent',
-    borderTop: `2px solid ${theme.palette.grey[200]}`,
+    borderTop: `4px solid ${theme.palette.grey[200]}`,
     '& .Typography-root': {
       color: 'unset',
       borderBottom: `solid 2px ${theme.palette.primary.main}`,
@@ -134,6 +162,26 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const handleChangeTab = (value) => {
     setTab(value)
     history.replace({...location, hash: value})
+  }
+
+  const { openDialog } = useDialog();
+  
+  const { results: members, totalCount: membersCount } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile',
+    enableTotal: true,
+    skip: !tag
+  })
+  
+  const onClickMembersList = () => {
+    if (tag) {
+      openDialog({
+        componentName: 'SubforumMembersDialog',
+        componentProps: {tag},
+        closeOnNavigate: true
+      })
+    }
   }
 
   if (loading) {
@@ -182,10 +230,13 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
         <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
           {welcomeBoxComponent}
         </div>
-        <SingleColumnSection className={classNames(classes.columnSection)}>
-          <SectionTitle title={titleComponent} className={classes.title}>
-            {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
-          </SectionTitle>
+        <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
+          <div className={classes.headline}>
+            <SectionTitle title={titleComponent} className={classes.title}>
+              {currentUser ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : null}
+            </SectionTitle>
+            {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
+          </div>
           <div onChange={handleChangeTab} className={classes.tabSection} aria-label='view subforum discussion or posts'>
             <button onClick={() => handleChangeTab('discussion')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'discussion'})}>
               <Typography variant="headline">Discussion</Typography>

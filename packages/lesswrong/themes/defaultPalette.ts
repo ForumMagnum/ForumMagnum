@@ -396,7 +396,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   tag: {
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
-    coreTagBorder: shades.greyBorder("1px", .12),
+    coreTagBorder: shades.greyBorder("1px", .15),
     text: shades.greyAlpha(.9),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     hollowTagBackground: shades.grey[0],

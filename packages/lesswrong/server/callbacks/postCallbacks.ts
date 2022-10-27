@@ -301,3 +301,24 @@ getCollectionHooks("Posts").updateBefore.add((
   data: Partial<DbPost>,
   {document}: UpdateCallbackProperties<DbPost>,
 ) => handleCrosspostUpdate(document, data));
+
+getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  const {currentUser, context} = props;
+  
+  if (post.tagRelevance) {
+    // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
+    const tagsToApply = Object.keys(post.tagRelevance);
+    post = {...post, tagRelevance: undefined};
+    
+    for (let tagId of tagsToApply) {
+      await addOrUpvoteTag({
+        tagId, postId: post._id,
+        currentUser: currentUser!,
+        context
+      });
+    }
+  }
+  
+  return post;
+});
+
