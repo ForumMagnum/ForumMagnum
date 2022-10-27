@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const ModerationTemplatesPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ContentItemBody } = Components
+  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem } = Components
   
   const currentUser = useCurrentUser();
   
@@ -29,8 +29,7 @@ export const ModerationTemplatesPage = ({classes}: {
     }
   });
   
-  
-  // if (userCanDo(currentUser, 'moderationTemplates.edit.all')) return null
+  if (userCanDo(currentUser, 'moderationTemplates.edit.all')) return null
   
   return <SingleColumnSection>
     <SectionTitle title={'New Moderation Template'} />
@@ -42,13 +41,7 @@ export const ModerationTemplatesPage = ({classes}: {
     </div>
     {/*{loading && <Loading/>}*/}
     <SectionTitle title="Moderation Templates"/>
-    {moderationTemplates.map(template => <div key={template._id}>
-      <div>{template.name}</div>
-      <ContentItemBody
-        dangerouslySetInnerHTML={{__html: template.contents?.html ?? ''}}
-        // description={`${template.documentType} ${template.document._id}`}
-      />
-    </div>)}
+    {moderationTemplates.map(template => <ModerationTemplateItem key={template._id} template={template}/>)}
   </SingleColumnSection>
 }
   

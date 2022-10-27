@@ -3,7 +3,7 @@ import ModerationTemplates from './collection';
 
 declare global {
   type ModerationTemplatesViewTerms = Omit<ViewTermsBase, 'view'> & ({
-    view: 'moderationTemplates',
+    view: 'moderationTemplatesPage',
   } | {
     view?: undefined,
   })

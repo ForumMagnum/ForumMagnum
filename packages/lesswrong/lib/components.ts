@@ -457,6 +457,7 @@ importComponent("AdminHome", () => require('../components/admin/AdminHome'));
 importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
 importComponent(["ModeratorActionItem", "ModerationDashboard"], () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("ModerationTemplatesPage", () => require('../components/moderationTemplates/ModerationTemplatesPage'));
+importComponent("ModerationTemplateItem", () => require('../components/moderationTemplates/ModerationTemplateItem'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
