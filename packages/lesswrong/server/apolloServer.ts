@@ -40,7 +40,7 @@ import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCrosspostRoutes } from './fmCrosspost';
-import { addCypressRoutes } from './cypress';
+import { addCypressRoutes } from './createTestingPgDb';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 
@@ -245,6 +245,13 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
+
+  if (isDevelopment) {
+    app.post('/api/kill', (_req, res) => {
+      res.status(202).send('Killing server');
+      process.kill(estrellaPid, 'SIGINT');
+    })
+  }
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression

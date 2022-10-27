@@ -25,7 +25,7 @@
     "unit-ci": "jest --config jest.unit.config.ts --forceExit --ci",
     "unit-watch": "jest --config jest.unit.config.ts --watchAll",
     "unit-coverage": "jest --config jest.unit.config.ts --forceExit --coverage",
-    "seed-integration-db": "./scripts/seedIntegrationDb.sh",
+    "create-integration-db": "./scripts/createIntegrationPgDb.sh",
     "integration": "jest --config jest.integration.config.ts --forceExit",
     "integration-ci": "jest --config jest.integration.config.ts --forceExit --ci",
     "integration-watch": "jest --config jest.integration.config.ts --watchAll",

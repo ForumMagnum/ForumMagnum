@@ -1,5 +1,5 @@
 import { isDevelopment } from "../lib/executionEnvironment";
-import type { Application, Request, Response } from "express";
+import { Application, json, Request, Response } from "express";
 import { createTestingSqlClient } from "../lib/sql/tests/testingSqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { setSqlClient, getSqlClient } from "../lib/sql/sqlClient";
@@ -24,31 +24,40 @@ const importData = async <T extends {}>(collection: CollectionBase<any>, data: T
   await collection.rawInsert(data);
 }
 
-const dropAndSeedCypressPg = async () => {
-  const id = "cypress_template";
+const dropAndCreatePg = async ({ seed, templateId}: {seed?: boolean, templateId?: string}) => {
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());
   await oldClient?.$pool.end();
   // eslint-disable-next-line no-console
-  console.log("Creating Cypress PG database");
-  await createTestingSqlClient(id, true);
-  await Promise.all([
-    importData(Posts, seedPosts),
-    importData(Comments, seedComments),
-    // importData(Users, seedUsers),
-    // importData(Conversations, seedConversations),
-    // importData(Messages, seedMessages),
-    // importData(LocalGroups, seedLocalGroups),
-  ]);
+  console.log("Creating PG database");
+  await createTestingSqlClient(templateId, true);
+  if (seed) {
+    // eslint-disable-next-line no-console
+    console.log("Seeding PG database");
+    await Promise.all([
+      importData(Posts, seedPosts),
+      importData(Comments, seedComments),
+      // importData(Users, seedUsers),
+      // importData(Conversations, seedConversations),
+      // importData(Messages, seedMessages),
+      // importData(LocalGroups, seedLocalGroups),
+    ]);
+  }
 }
 
 // In development mode, we need a clean way to reseed the test database for Cypress.
 // We definitely don't ever want this in prod though.
 export const addCypressRoutes = (app: Application) => {
   if (isDevelopment) {
-    app.post("/api/dropAndSeedCypress", async (_req: Request, res: Response) => {
+    const route = "/api/dropAndCreatePg"
+    app.use(route, json({ limit: "1mb" }));
+    app.post(route, async (req: Request, res: Response) => {
       try {
-        await dropAndSeedCypressPg();
+        const { seed, templateId } = req.body
+        if (typeof seed !== 'boolean' || !templateId) {
+          throw new Error(`Missing seed or templateId ${JSON.stringify(req.body)}`);
+        }
+        await dropAndCreatePg({ seed: seed, templateId });
         res.status(200).send({status: "ok"});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});

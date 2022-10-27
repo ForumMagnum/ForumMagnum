@@ -66,7 +66,14 @@ const dropAndSeedMongo = async (url) => {
 }
 
 const dropAndSeedPostgres = async () => {
-  const result = await fetch("http://localhost:3000/api/dropAndSeedCypress", {method: "POST"});
+  const body = {
+    seed: true,
+    templateId: "cypress_template"
+  }
+  const result = await fetch(
+    "http://localhost:3000/api/dropAndCreatePg",
+    {method: "POST", body: JSON.stringify(body), headers: {"Content-Type": "application/json"}}
+  );
   const data = await result.json();
   if (data.status === "error") {
     throw new Error(data.message);

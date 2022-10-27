@@ -82,8 +82,12 @@ const bundleDefinitions = {
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
-  "serverPort": getServerPort(),
 };
+
+const serverBundleDefinitions = {
+  "serverPort": getServerPort(),
+  "estrellaPid": process.pid,
+}
 
 const clientOutfilePath = `./${outputDir}/client/js/bundle.js`;
 build({
@@ -151,6 +155,7 @@ build({
   },
   define: {
     ...bundleDefinitions,
+    ...serverBundleDefinitions,
     "bundleIsServer": true,
   },
   external: [
