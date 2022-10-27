@@ -1,5 +1,4 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import fetch from 'node-fetch'
 import markdownIt from 'markdown-it'
 import markdownItMathjax from '../editor/markdown-mathjax'
 import { mjPagePromise } from '../editor/make_editable_callbacks';

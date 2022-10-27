@@ -32,9 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsListSortDropdown = ({classes, value}:{
+const PostsListSortDropdown = ({classes, value, sortingParam="sortedBy"}:{
   classes: ClassesType,
   value: string
+  sortingParam?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
@@ -48,7 +49,7 @@ const PostsListSortDropdown = ({classes, value}:{
       onClose={()=>setAnchorEl(null)}
     >
       {Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS).map(sorting => (
-        <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
+        <QueryLink key={sorting} query={{[sortingParam]:sorting}} merge>
           <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
             {TAG_POSTS_SORT_ORDER_OPTIONS[sorting].label}
           </MenuItem>

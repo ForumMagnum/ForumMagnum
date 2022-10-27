@@ -1,25 +1,30 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
-import Conversations, { userCanStartConversations } from '../../lib/collections/conversations/collection';
+import { userCanStartConversations } from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
+export interface TemplateQueryStrings {
+  templateCommentId: string;
+  displayName: string;
+}
+
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, templateCommentId, from, includeModerators }: {
+const NewConversationButton = ({ user, currentUser, children, from, includeModerators, templateQueries, embedConversation }: {
   user: {
     _id: string
   },
   currentUser: UsersCurrent|null,
-  templateCommentId?: string,
+  templateQueries?: TemplateQueryStrings,
   from?: string,
   children: any,
-  includeModerators?: boolean
+  includeModerators?: boolean,
+  embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
-  
   const { history } = useNavigation();
   const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
@@ -42,37 +47,45 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     limit: 1,
     skip: !currentUser
   });
-  
-  const newConversation = useCallback(async (search, initiatingUser: UsersCurrent) =>  {
-    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
-    let baseData = {
-      participantIds:[user._id, initiatingUser._id], 
-      ...alignmentFields
-    }
-    const data = includeModerators ? { moderator: true, ...baseData} : {...baseData}
-
-    const response = await createConversation({data})
-    const conversationId = response.data?.createConversation.data._id
-    history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, history, includeModerators]);
-
-  const existingConversationCheck = (initiatingUser: UsersCurrent) => () => {
-    let searchParams: Array<string> = []
-    if (templateCommentId) {
-      searchParams.push(qs.stringify({templateCommentId: templateCommentId}))
+  const getTemplateParams = () => {
+    let templateParams: Array<string> = []
+    if (templateQueries) {
+      templateParams.push(qs.stringify(templateQueries))
     }
     if (from) {
-      searchParams.push(`from=${from}`)
+      templateParams.push(`from=${from}`)
     }
-    const search = searchParams ? {search:`?${searchParams.join('&')}`} : {}
-    
-    for (let conversation of (results ?? [])) {
-      history.push({pathname: `/inbox/${conversation._id}`, ...search})
-      return
-    }
-    void newConversation(search, initiatingUser);
+    return templateParams.length > 0 ? {search:`?${templateParams.join('&')}`} : {}
   }
+
+  const newConversation = async (initiatingUser: UsersCurrent) => {
+    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+    const moderatorField = includeModerators ? { moderator: true } : {}
+
+    const data = {
+      participantIds:[user._id, initiatingUser._id], 
+      ...alignmentFields,
+      ...moderatorField
+    }
+
+    const response = await createConversation({data})
+    return response.data?.createConversation.data._id
+  }
+
+  const openConversation = async (initiatingUser: UsersCurrent) => {
+    const conversationId = results?.[0]?._id ?? await newConversation(initiatingUser)
+    if (embedConversation) {
+      embedConversation(conversationId, templateQueries)
+    } else {
+      const templateParams = getTemplateParams()
+      history.push({pathname: `/inbox/${conversationId}`, ...templateParams})
+    }
+  }
+
+  const handleClick = currentUser 
+    ? () => openConversation(currentUser) 
+    : () => openDialog({componentName: "LoginPopup"})
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
   
@@ -83,7 +96,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId,
     </div>
   
   return (
-    <div onClick={currentUser ? existingConversationCheck(currentUser) : () => openDialog({componentName: "LoginPopup"})}>
+    <div onClick={handleClick}>
       {children}
     </div>
   )

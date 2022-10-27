@@ -319,7 +319,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
     commentNodeEven: shades.grey[120],
     commentNodeOdd: shades.grey[25],
-    commentModeratorHat: "#5f9b651c",
+    commentModeratorHat: "#ecf2ed",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
     metaculusBackground: "#2c3947",
@@ -396,7 +396,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   tag: {
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
-    coreTagBorder: shades.greyBorder("1px", .12),
+    coreTagBorder: shades.greyBorder("1px", .15),
     text: shades.greyAlpha(.9),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     hollowTagBackground: shades.grey[0],

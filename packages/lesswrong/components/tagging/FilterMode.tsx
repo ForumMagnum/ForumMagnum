@@ -10,9 +10,10 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
@@ -211,7 +212,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
-        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag?.slug}`}>
+        <Link to={tagGetUrl(tag)}>
           {tagLabel}
         </Link> :
         tagLabel

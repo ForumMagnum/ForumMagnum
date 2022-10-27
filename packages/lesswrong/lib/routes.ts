@@ -360,7 +360,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: 'SearchPage',
+    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
     title: 'Search',
     background: "white"
   },
@@ -498,13 +498,6 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
-    {
-      name: 'taggingSubforumCustomName',
-      path: `/topics/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
-    }
   )
 } else {
   addRoute(
@@ -726,6 +719,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/wiki',
       redirect: () => '/topics/all'
     },
+    {
+      name: 'subforum',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      fullscreen: true,
+    }
   ],
   LessWrong: [
     {
@@ -1264,6 +1263,12 @@ addRoute(
     path: '/admin/migrations',
     componentName: 'MigrationsDashboard',
     title: "Migrations"
+  },
+  {
+    name: 'moderatorActions',
+    path: '/admin/moderation',
+    componentName: 'ModerationDashboard',
+    title: "Moderator Actions"
   },
   {
     name: 'moderation',

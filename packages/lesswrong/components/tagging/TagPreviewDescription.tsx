@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    "& a.read-more": {
+    "& a.read-more-button": {
       fontSize: ".85em",
       color: theme.palette.grey[600]
     },
@@ -35,7 +35,7 @@ const TagPreviewDescription = ({tag, classes}: {
   const { history } = useNavigation();
 
   if (!tag) return null
-
+  
   const showCustomDescriptionHighlight = isLW && tag.core;
 
   let highlight: string | undefined;
@@ -47,13 +47,13 @@ const TagPreviewDescription = ({tag, classes}: {
   // Otherwise (or if the custom description is missing), use the tag's description
   if (!highlight) {
     highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs",
-    '.. <a class="read-more" href="#">(read more)</a>');
+    '.. <a class="read-more-button" href="#">(read more)</a>');
   }
 
   if (tag.description?.htmlHighlight) {
     return <div
       onClick={(ev: React.SyntheticEvent) => {
-        if ((ev.target as any)?.className==="read-more") {
+        if ((ev.target as any)?.className==="read-more-button") {
           history.push(tagGetUrl(tag));
         }
       }}

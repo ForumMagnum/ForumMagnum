@@ -13,7 +13,7 @@ export type RouterLocation = {
   url: string,
   hash: string,
   params: Record<string,string>,
-  query: Record<string,string>,
+  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
   redirected?: boolean,
 };
 
@@ -42,8 +42,7 @@ export type Route = {
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
   standalone?: boolean // if true, this page has no header / intercom
-  hideFooter?: boolean // if true, this page has no footer
-  noPadding?: boolean
+  fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
   
   // enablePrefetch: Start loading stylesheet and JS bundle before the page is
   // rendered. This requires sending headers before rendering, which means

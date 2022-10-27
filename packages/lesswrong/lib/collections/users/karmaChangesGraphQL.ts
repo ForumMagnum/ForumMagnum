@@ -16,6 +16,7 @@ addGraphQLSchema(`
     description: String
     postId: String
     tagSlug: String
+    tagCommentType: String
   }
   type RevisionsKarmaChange {
     _id: String

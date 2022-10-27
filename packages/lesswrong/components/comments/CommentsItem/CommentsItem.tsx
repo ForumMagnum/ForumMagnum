@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
@@ -16,6 +16,7 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } 
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
+import startCase from 'lodash/startCase';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -328,7 +329,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
                 {comment.post.title}
               </Link>
             </LWTooltip>}
-          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
+            {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
+          </Link>}
         </div>
           <div className={classes.body}>
             <div className={classes.meta}>
@@ -347,7 +350,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            {singleLineCollapse && <a className={classes.collapse} onClick={() => 
+            {singleLineCollapse && <a className={classes.collapse} onClick={() =>
               setSingleLine && setSingleLine(true)}>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
