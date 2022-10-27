@@ -59,8 +59,22 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 8,
     },
   },
-  mainNoPadding: {
+  mainFullscreen: {
+    height: "100%",
     padding: 0,
+  },
+  fullscreen: {
+    // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
+    // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
+    // for this. Here is one site with a good list from 2018: https://mediag.com/blog/popular-screen-resolutions-designing-for-all/
+    height: "max(100vh, 600px)",
+    display: "flex",
+    flexDirection: "column",
+  },
+  fullscreenBodyWrapper: {
+    flexBasis: 0,
+    flexGrow: 1,
+    overflow: "auto",
   },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -281,7 +295,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -307,16 +321,17 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
+              <div className={classNames({[classes.gridActivated]: shouldUseGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white",
-                  [classes.mainNoPadding]: currentRoute?.noPadding,
+                  [classes.mainFullscreen]: currentRoute?.fullscreen,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />
@@ -327,7 +342,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                       : children
                     }
                   </ErrorBoundary>
-                  {!currentRoute?.hideFooter && <Footer />}
+                  {!currentRoute?.fullscreen && <Footer />}
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <Components.SunshineSidebar/>
