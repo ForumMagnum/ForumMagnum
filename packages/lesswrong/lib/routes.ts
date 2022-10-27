@@ -723,9 +723,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'subforum',
       path: `/topics/:slug/subforum`,
       componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
-    },
+      fullscreen: true,
+    }
   ],
   LessWrong: [
     {

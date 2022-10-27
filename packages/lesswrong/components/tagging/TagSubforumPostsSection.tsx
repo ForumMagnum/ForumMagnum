@@ -9,9 +9,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     padding: "0 10px",
+    flexBasis: 0,
+    flexGrow: 1,
   },
   postsScrollContainer: {
-    overflowY: "scroll",
+    overflowY: "auto",
+    flexBasis: 0,
+    flexGrow: 1,
   },
   newPostButton: {
     alignSelf: "flex-end",
@@ -30,9 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TagSubforumPostsSection = ({ classes, tag }: { classes: ClassesType; tag: TagSubforumFragment }) => {
   const { SectionButton, PostsList2, PostsListSortDropdown } = Components;
   const { query } = useLocation();
-
-  const topRef = useRef<HTMLDivElement>(null);
-  const [yPosition, setYPosition] = useState<number>(200);
   
   const sorting = query["postsSortedBy"] || "new";
 
@@ -41,38 +42,21 @@ export const TagSubforumPostsSection = ({ classes, tag }: { classes: ClassesType
     limit: 30,
   };
 
-  const recalculateYPosition = useCallback(() => {
-    if (!topRef.current) return;
-    // FIXME remove this js logic and use same strategy as https://github.com/ForumMagnum/ForumMagnum/pull/5939 once it is merged
-    const bottomMargin = 45;
-    const newYPosition = topRef.current.getBoundingClientRect().top + bottomMargin;
-    if (newYPosition !== yPosition) setYPosition(newYPosition);
-  }, [yPosition]);
-
-  useEffect(() => {
-    recalculateYPosition();
-    window.addEventListener("resize", recalculateYPosition);
-    return () => window.removeEventListener("resize", recalculateYPosition);
-  }, [recalculateYPosition]);
-
   return (
-    <>
-      <div ref={topRef} />
-      <div className={classes.root}>
-        <div className={classes.header}>
-          <PostsListSortDropdown value={sorting} sortingParam={"postsSortedBy"} />
-          <a className={classes.newPostButton} href={`/newPost?subforumTagId=${tag._id}`}>
-            <SectionButton>
-              <AddBoxIcon />
-              New Subforum Post
-            </SectionButton>
-          </a>
-        </div>
-        <div className={classes.postsScrollContainer} style={{ height: `calc(100vh - ${yPosition}px)` }}>
-          <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={30} hideTrailingButtons tooltipPlacement={"top-end"} />
-        </div>
+    <div className={classes.root}>
+      <div className={classes.header}>
+        <PostsListSortDropdown value={sorting} sortingParam={"postsSortedBy"} />
+        <a className={classes.newPostButton} href={`/newPost?subforumTagId=${tag._id}`}>
+          <SectionButton>
+            <AddBoxIcon />
+            New Subforum Post
+          </SectionButton>
+        </a>
       </div>
-    </>
+      <div className={classes.postsScrollContainer}>
+        <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={30} hideTrailingButtons tooltipPlacement={"top-end"} />
+      </div>
+    </div>
   );
 };
 

@@ -26,15 +26,19 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0,
       flexDirection: "column",
     },
+    height: "100%"
   },
   columnSection: {
     maxWidth: '100%',
+    height: "100%",
     [theme.breakpoints.up("lg")]: {
       margin: 0,
     },
     [theme.breakpoints.down("md")]: {
       marginBottom: 0,
     },
+    display: "flex",
+    flexDirection: "column",
   },
   headline: {
     paddingLeft: 24,
@@ -63,10 +67,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     },
   },
-  stickToBottom: {
-    marginTop: "auto",
-    marginBottom: 3,
-  },
   aside: {
     width: 380,
     [theme.breakpoints.down("md")]: {
@@ -75,14 +75,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   welcomeBox: {
     padding: 16,
+    marginTop: "auto",
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     border: theme.palette.border.commentBorder,
     borderColor: theme.palette.secondary.main,
     borderWidth: 2,
     borderRadius: 3,
   },
-  wikiSidebar: {
+  scrollableSidebarWrapper: {
+    overflow: "auto",
+    flexBasis: 0,
+    flexGrow: 1,
+    padding: 0,
     marginTop: 84,
+  },
+  wikiSidebar: {
     gridColumnStart: 3,
     padding: '2em',
     backgroundColor: theme.palette.panelBackground.default,
@@ -93,6 +100,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
+  },
+  scrollableContentStyles: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
   },
   tabSection: {
     marginBottom: 16,
@@ -201,14 +213,11 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   }
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html && tab === 'discussion' ? (
-    <div className={classes.welcomeBox}>
-      <ContentStyles contentType="comment">
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: tag.subforumWelcomeText?.html || "" }}
-          description={`${tag.name} subforum`}
-        />
-      </ContentStyles>
-    </div>
+    <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
+      <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
+        <div className={classes.welcomeBox} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false) }}></div>
+      </div>
+    </ContentStyles>
   ) : <></>;
 
   const titleComponent = <>
@@ -227,7 +236,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
           description={`A space for casual discussion of ${tag.name.toLowerCase()} on ${siteNameWithArticleSetting.get()}`}
           title={`${startCase(tag.name)} Subforum`}
         />
-        <div className={classNames(classes.columnSection, classes.stickToBottom, classes.aside)}>
+        <div className={classNames(classes.columnSection, classes.aside)}>
           {welcomeBoxComponent}
         </div>
         <SingleColumnSection className={classNames(classes.columnSection, classes.fullWidth)}>
@@ -257,8 +266,10 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
         </SingleColumnSection>
         <div className={classNames(classes.columnSection, classes.aside)}>
           {tag?.tableOfContents?.html &&
-            <ContentStyles contentType="tag">
-              <div className={classNames(classes.wikiSidebar, classes.columnSection)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }} />
+            <ContentStyles contentType="tag" className={classes.scrollableContentStyles}>
+              <div className={classNames(classes.scrollableSidebarWrapper, classes.columnSection)}>
+                <div className={classes.wikiSidebar} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.tableOfContents.html, false) }}></div>
+              </div>
             </ContentStyles>
           }
         </div>
