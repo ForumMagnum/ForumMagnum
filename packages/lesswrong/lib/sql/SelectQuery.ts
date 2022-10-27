@@ -226,7 +226,12 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
 
     if (this.table instanceof SelectQuery && !this.table.syntheticFields._id) {
-      autoIncludeId = false;
+      // TODO: I think there are some aggregations where this prevents a SQL error
+      // with multiple ambiguous _id fields, but it also causing some other things
+      // to break (aggregation with multiple layers of $project lose their id). Work
+      // out if this original issue still exists or if this can be removed. If it
+      // still exists, I probably need to find a better solution...
+      // autoIncludeId = false;
     }
 
     let fields: string[] = [this.getStarSelector()];

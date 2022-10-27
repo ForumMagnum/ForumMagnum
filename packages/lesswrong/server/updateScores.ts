@@ -1,3 +1,4 @@
+import { getCollection, Vulcan } from "./vulcan-lib";
 import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR } from '../lib/scoring';
 import * as _ from 'underscore';
 
@@ -182,3 +183,10 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   }
   return updatedDocumentsCounter;
 }
+
+export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}) => {
+  const collection = getCollection(collectionName);
+  return batchUpdateScore({collection, inactive, forceUpdate});
+}
+
+Vulcan.batchUpdateScoreByName = batchUpdateScoreByName;
