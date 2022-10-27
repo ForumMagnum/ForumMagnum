@@ -754,6 +754,14 @@ const schema: SchemaType<DbUser> = {
     canCreate: 'guests',
     ...schemaDefaultValue(getDefaultFilterSettings),
   },
+  hideFrontpageFilterSettingsDesktop: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true
+  },
   allPostsTimeframe: {
     type: String,
     optional: true,

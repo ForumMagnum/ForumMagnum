@@ -452,7 +452,7 @@ interface DbPost extends DbObject {
   finalReviewVoteScoreAF: number
   finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
+  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
   noIndex: boolean
   rsvps: Array<{
     name: string,
@@ -837,6 +837,7 @@ interface DbUser extends DbObject {
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string
   allPostsFilter: string
   allPostsSorting: string

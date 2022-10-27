@@ -109,6 +109,7 @@ registerFragment(`
     hideNavigationSidebar
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter

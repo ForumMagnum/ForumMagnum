@@ -546,7 +546,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
   readonly lastCommentPromotedAt: Date,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly noIndex: boolean,
   readonly rsvps: Array<{
     name: string,
@@ -888,7 +888,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -897,7 +897,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -1840,7 +1840,7 @@ interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRel
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -2229,6 +2229,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly hideFrontpageFilterSettingsDesktop: boolean | null,
   readonly allPostsTimeframe: string,
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,

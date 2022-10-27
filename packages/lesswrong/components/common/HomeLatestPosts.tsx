@@ -12,6 +12,7 @@ import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
+import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 
 const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
   marginBottom: 8
@@ -53,9 +54,11 @@ const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts'
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const currentUser = useCurrentUser();
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(true);
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(!currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop}, captureOnMount: true})
@@ -74,7 +77,18 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     forum: true,
     limit:limit
   }
-
+  
+  const changeShowTagFilterSettingsDesktop = () => {
+    setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
+    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
+    
+    captureEvent("filterSettingsClicked", {
+      settingsVisible: !filterSettingsVisibleDesktop,
+      settings: filterSettings,
+      pageSectionContext: "latestPosts"
+    })
+  }
+  
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -86,14 +100,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 "Customize Feed (Hide)" :
                 "Customize Feed"}
               showIcon={false}
-              onClick={() => {
-                setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-                captureEvent("filterSettingsClicked", {
-                  settingsVisible: !filterSettingsVisibleDesktop,
-                  settings: filterSettings,
-                  pageSectionContext: "latestPosts"
-                })
-              }}
+              onClick={changeShowTagFilterSettingsDesktop}
             />
             <SettingsButton
               className={classes.hideOnDesktop}
