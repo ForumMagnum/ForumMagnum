@@ -247,9 +247,9 @@ export function startWebserver() {
   addCypressRoutes(app);
 
   if (isDevelopment) {
-    app.post('/api/kill', (_req, res) => {
-      res.status(202).send('Killing server');
-      process.kill(estrellaPid, 'SIGINT');
+    app.post('/api/quit', (_req, res) => {
+      res.status(202).send('Quiting server');
+      process.kill(estrellaPid, 'SIGQUIT');
     })
   }
 

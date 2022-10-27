@@ -5,6 +5,8 @@ const WebSocket = require('ws');
 const crypto = require('crypto');
 const { zlib } = require("mz");
 
+process.on("SIGQUIT", () => process.exit(0));
+
 const defaultServerPort = 3000;
 
 const getServerPort = () => {
@@ -82,10 +84,16 @@ const bundleDefinitions = {
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
+  "serverPort": getServerPort(),
 };
 
+const clientBundleDefinitions = {
+  "bundleIsServer": false,
+  "global": "window",
+}
+
 const serverBundleDefinitions = {
-  "serverPort": getServerPort(),
+  "bundleIsServer": true,
   "estrellaPid": process.pid,
 }
 
@@ -129,8 +137,7 @@ build({
   },
   define: {
     ...bundleDefinitions,
-    "bundleIsServer": false,
-    "global": "window",
+    ...clientBundleDefinitions,
   },
 });
 
@@ -156,7 +163,6 @@ build({
   define: {
     ...bundleDefinitions,
     ...serverBundleDefinitions,
-    "bundleIsServer": true,
   },
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
