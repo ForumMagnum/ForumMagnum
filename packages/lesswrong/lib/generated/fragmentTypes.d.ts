@@ -2733,12 +2733,18 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
 
 interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplates
   readonly name: string,
+  readonly collectionName: {
+    documentType: "Messages" | "Comments",
+  },
   readonly defaultOrder: number,
 }
 
 interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly _id: string,
   readonly name: string,
+  readonly collectionName: {
+    documentType: "Messages" | "Comments",
+  },
   readonly defaultOrder: number,
   readonly deleted: boolean,
   readonly contents: RevisionEdit|null,

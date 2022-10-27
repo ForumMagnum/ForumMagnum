@@ -4,6 +4,7 @@ registerFragment(`
   fragment ModerationTemplateFragment on ModerationTemplate {
     _id
     name
+    collectionName
     defaultOrder
     deleted
     contents {

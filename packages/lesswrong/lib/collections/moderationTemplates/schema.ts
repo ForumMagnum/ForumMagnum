@@ -1,8 +1,4 @@
-import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
-import { userOwns } from '../../vulcan-users/permissions';
-import {formGroups} from "../tags/formGroups";
 import {schemaDefaultValue} from "../../collectionUtils";
-import {taggingNamePluralSetting, taggingNameSetting} from "../../instanceSettings";
 import SimpleSchema from "simpl-schema";
 
 const ALLOWABLE_COLLECTIONS: CollectionNameString[] = ['Messages', 'Comments'];
@@ -22,17 +18,17 @@ const schema: SchemaType<DbModerationTemplate> = {
     canUpdate: ['members'],
     order: 1,
   },
-  // collectionName: {
-  //   type: ModerationTemplatesCollection,
-  //   typescriptType: "CollectionNameString",
-  //   canCreate: ['admins', 'sunshineRegiment'],
-  //   canUpdate: ['admins', 'sunshineRegiment'],
-  //   canRead: ['guests'],
-  //   control: 'select',
-  //   form: {
-  //     options: () => ALLOWABLE_COLLECTIONS.map(collectionName => ({ label: collectionName, value: collectionName }))
-  //   },
-  // },
+  collectionName: {
+    type: ModerationTemplatesCollection,
+    typescriptType: "CollectionNameString",
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    control: 'select',
+    form: {
+      options: () => ALLOWABLE_COLLECTIONS.map(collectionName => ({ label: collectionName, value: collectionName }))
+    },
+  },
   defaultOrder: {
     type: Number,
     viewableBy: ['guests'],
@@ -44,7 +40,6 @@ const schema: SchemaType<DbModerationTemplate> = {
   deleted: {
     type: Boolean,
     optional: true,
-    canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   },

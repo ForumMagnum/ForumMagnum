@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import Spotlights from "../../lib/collections/spotlights/collection";
 import { ModerationTemplates } from "../../lib/collections/moderationTemplates";
 import { userCanDo } from "../../lib/vulcan-users";
 import { useCurrentUser } from "../common/withUser";
@@ -29,7 +28,7 @@ export const ModerationTemplatesPage = ({classes}: {
     }
   });
   
-  if (userCanDo(currentUser, 'moderationTemplates.edit.all')) return null
+  if (!userCanDo(currentUser, 'moderationTemplates.edit.all')) return null
   
   return <SingleColumnSection>
     <SectionTitle title={'New Moderation Template'} />
