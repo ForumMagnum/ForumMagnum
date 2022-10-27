@@ -1,5 +1,4 @@
 import React from 'react';
-import fetch from "node-fetch";
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
@@ -31,6 +30,7 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {ClientIds} from '../../lib/collections/clientIds/collection';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -150,8 +150,11 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
-  void triggerReviewIfNeeded(document._id)
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<DbUser>) {
+  const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
+  if (reviewTriggerFields.some(field => field in data)) {
+    void triggerReviewIfNeeded(document._id)
+  }
 })
 
 // When the very first user account is being created, add them to Sunshine
@@ -195,6 +198,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
+  // FIXME totally broken
   if (!user.abTestKey) {
     const abTestKey = user.profile?.clientId || randomId();
     await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});

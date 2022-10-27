@@ -7,9 +7,9 @@ import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-
+import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
+import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -32,6 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sendMessageButton: {
     padding: 8,
     height: 32,
+    wordBreak: "keep-all",
     fontSize: "1rem",
     color: theme.palette.grey[500],
     '&:hover': {
@@ -40,9 +41,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
+const SunshineSendMessageWithDefaults = ({ user, tagSlug, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   tagSlug: string,
+  embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType,
 }) => {
   
@@ -60,8 +62,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
     fetchPolicy: 'cache-and-network',
     limit: 50
   });
-  
-  
+
   if (!(user && currentUser)) return null
   
   return (
@@ -70,7 +71,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}
       >
-        Start Message
+        New Message
       </span>
       <Menu
         onClick={() => setAnchorEl(null)}
@@ -79,7 +80,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
       >
         <MenuItem value={0}>
           <NewConversationButton user={user} currentUser={currentUser} includeModerators>
-            Start a message
+            New Message
           </NewConversationButton>
         </MenuItem>
         {defaultResponses && defaultResponses.map((comment, i) =>
@@ -90,13 +91,13 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id} includeModerators>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, displayName: user.displayName}} includeModerators embedConversation={embedConversation}>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>
             </LWTooltip>
           </div>)}
-          <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
+          <Link to={tagGetDiscussionUrl({slug: tagSlug})}>
             <MenuItem>
               <ListItemIcon>
                 <EditIcon className={classes.editIcon}/>

@@ -33,4 +33,4 @@ TARGET_ID=${@:$OPTIND+1:1}
 
 echo "Merging user $SOURCE_ID into $TARGET_ID"
 
-scripts/serverShellCommand.sh "Vulcan.mergeAccounts('$SOURCE_ID', '$TARGET_ID', false)"
+scripts/serverShellCommand.sh "Vulcan.mergeAccounts({sourceUserId:'$SOURCE_ID', targetUserId:'$TARGET_ID', dryRun:false})"

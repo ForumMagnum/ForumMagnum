@@ -70,9 +70,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
-  primaryColor: {
-    color: theme.palette.primary.light
-  },
   title: {
     cursor: "pointer"
   },
@@ -251,7 +248,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<a>Register RSS</a>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>

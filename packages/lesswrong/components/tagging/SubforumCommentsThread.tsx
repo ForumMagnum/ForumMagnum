@@ -1,7 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { useCurrentUser } from '../common/withUser';
+import { useRecordSubforumView } from '../hooks/useRecordSubforumView';
 
 const SubforumCommentsThread = ({ tag, terms }: {
   tag: TagBasicInfo,
@@ -14,6 +16,14 @@ const SubforumCommentsThread = ({ tag, terms }: {
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
+
+  const currentUser = useCurrentUser();
+  const recordSubforumView = useRecordSubforumView({userId: currentUser?._id, tagId: tag._id});
+
+  useEffect(() => {
+    if (results && results.length)
+      void recordSubforumView();
+  }, [results, recordSubforumView]);
   
   const sortByRef = useRef(terms.sortBy);
   const orderedResults = useOrderPreservingArray(

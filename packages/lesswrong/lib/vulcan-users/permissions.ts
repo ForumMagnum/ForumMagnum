@@ -121,10 +121,9 @@ export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, documen
   if (!user) return false
   return !user.previousDisplayName
 }
-  
 
 // Check if a user is an admin
-export const userIsAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
+export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(user: T): user is Exclude<T, null> & { isAdmin: true } {
   if (!user) return false;
   return user.isAdmin;
 };

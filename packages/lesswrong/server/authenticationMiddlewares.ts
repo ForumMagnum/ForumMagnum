@@ -276,37 +276,41 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const googleClientId =  googleClientIdSetting.get()
   const googleOAuthSecret = googleOAuthSecretSetting.get()
   if (googleClientId && googleOAuthSecret) {
-    passport.use(new GoogleOAuthStrategy({
-      clientID: googleClientId,
-      clientSecret: googleOAuthSecret,
-      callbackURL: `${getSiteUrl()}auth/google/callback`,
-      proxy: true
-    },
-    createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
-      services: {
-        google: profile
+    passport.use(
+      new GoogleOAuthStrategy({
+        clientID: googleClientId,
+        clientSecret: googleOAuthSecret,
+        callbackURL: `${getSiteUrl()}auth/google/callback`,
+        proxy: true
       },
-      email: profile.emails?.[0].value,
-      emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
-      username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-      displayName: profile.displayName,
-      emailSubscribedToCurated: true
-      // Type assertion here is because @types/passport-google-oauth20 doesn't
-      // think their verify callback is able to take a null in the place of the
-      // error, which seems like a bug and which prevents are seemingly working
-      // code from type-checking
-    })) as (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: GoogleVerifyCallback) => Promise<void>
-  ))}
+      createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
+        services: {
+          google: profile
+        },
+        email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
+        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+        displayName: profile.displayName,
+        emailSubscribedToCurated: true
+        // Type assertion here is because @types/passport-google-oauth20 doesn't
+        // think their verify callback is able to take a null in the place of the
+        // error, which seems like a bug and which prevents are seemingly working
+        // code from type-checking
+      })) as (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: GoogleVerifyCallback) => Promise<void>
+      )
+    )
+  }
   
   const facebookClientId = facebookClientIdSetting.get()
   const facebookOAuthSecret = facebookOAuthSecretSetting.get()
   if (facebookClientId && facebookOAuthSecret) {
-    passport.use(new FacebookOAuthStrategy({
-      clientID: facebookClientId,
-      clientSecret: facebookOAuthSecret,
-      callbackURL: `${getSiteUrl()}auth/facebook/callback`,
-      profileFields: ['id', 'emails', 'name', 'displayName'],
-    },
+    passport.use(
+      new FacebookOAuthStrategy({
+        clientID: facebookClientId,
+        clientSecret: facebookOAuthSecret,
+        callbackURL: `${getSiteUrl()}auth/facebook/callback`,
+        profileFields: ['id', 'emails', 'name', 'displayName'],
+      },
       createOAuthUserHandler<FacebookProfile>('services.facebook', profile => profile.id, async profile => ({
         email: profile.emails?.[0].value,
         emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],

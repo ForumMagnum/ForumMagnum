@@ -150,9 +150,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fill: theme.palette.grey[600],
     marginRight: 4
   },
-  tags: {
-    marginTop: 20,
-  },
   btns: {
     display: 'flex',
     columnGap: 20,
@@ -226,6 +223,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
+    fetchPolicy: 'cache-and-network'
   });
   const user = getUserFromResults(results)
   
@@ -272,7 +270,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     skip: !user
   })
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, FooterTag,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
@@ -516,9 +514,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               {user.website}
             </a>}
           </ContentStyles>
-          {user.profileTagIds && <div className={classes.tags}>
-            {user.profileTags.map(tag => <FooterTag key={tag._id} tag={{...tag, core: false}} />)}
-          </div>}
+          {user.profileTagIds && <EAUsersProfileTags tags={user.profileTags} />}
           {currentUser?._id != user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
@@ -541,7 +537,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <div className={classes.registerRssLink}>
                 <DialogGroup
                   actions={[]}
-                  trigger={<span>Register RSS</span>}
+                  trigger={<a>Register RSS</a>}
                 >
                   { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                   <div><Components.newFeedButton user={user} /></div>

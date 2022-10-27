@@ -6,7 +6,6 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
-import { TagCommentType } from './types';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -499,16 +498,16 @@ export const subforumDefaultSorting = "recentDiscussion"
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
-    tagCommentType: TagCommentType.Discussion as string
+    tagCommentType: "DISCUSSION"
   },
 }));
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms) => {
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
     tagId: tagId,
-    tagCommentType: TagCommentType.Subforum as string,
+    tagCommentType: "SUBFORUM",
     topLevelCommentId: viewFieldNullOrMissing,
   },
   options: {
