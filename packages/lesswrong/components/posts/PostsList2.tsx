@@ -210,17 +210,20 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { (maybeMorePosts||loading) && 
-          <LoadMore
-            {...loadMoreProps}
-            loadMore={() => {
-              loadMore();
-              setHaveLoadedMore(true);
-            }}
-            hideLoading={dimWhenLoading || !showLoading}
-            sectionFooterStyles
-          />
-        }
+        <LoadMore
+          {...loadMoreProps}
+          loading={loading}
+          loadMore={() => {
+            loadMore();
+            setHaveLoadedMore(true);
+          }}
+          hideLoading={dimWhenLoading || !showLoading}
+          // It's important to use hidden here rather than not rendering the component,
+          // because LoadMore has an "isFirstRender" check that prevents it from showing loading dots
+          // on the first render. Not rendering resets this
+          hidden={!maybeMorePosts && !loading}
+          sectionFooterStyles
+        />
         { children }
       </SectionFooter>}
     </div>

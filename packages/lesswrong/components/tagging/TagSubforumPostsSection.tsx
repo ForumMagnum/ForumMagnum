@@ -38,7 +38,7 @@ export const TagSubforumPostsSection = ({ classes, tag }: { classes: ClassesType
 
   const terms = {
     ...tagPostTerms(tag, {sortedBy: sorting}),
-    limit: 15,
+    limit: 30,
   };
 
   const recalculateYPosition = useCallback(() => {
