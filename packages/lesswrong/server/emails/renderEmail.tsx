@@ -268,7 +268,7 @@ function validateSheets(sheetsRegistry: SheetsRegistry)
 }
 
 
-const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
+const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelofdsfpmentEmails', true)
 export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {

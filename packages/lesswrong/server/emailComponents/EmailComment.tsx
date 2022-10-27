@@ -12,12 +12,21 @@ import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  comment: {
+  headingLink: {
+    color: theme.palette.text.maxIntensity,
+    textDecoration: "none",
+    fontWeight: "normal",
+    fontFamily: "Arial, sans-serif"
+  },
+  commentHr: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 10
   },
 });
 
-const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
-  const { EmailComment, EmailCommentsOnPostHeader } = Components;
+const EmailCommentBatch = ({comments, classes}:{comments: DbComment[], classes: ClassesType}) => {
+  const { EmailComment } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
@@ -27,26 +36,29 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   
   return <div>
     {Object.keys(commentsByPostId).map(postId => <div key={postId}>
-      <EmailCommentsOnPostHeader postId={postId}/>
+      <EmailCommentsOnPostHeader postId={postId} classes={classes}/>
       {commentsByPostId[postId]?.map(comment =>
         <EmailComment key={comment._id} commentId={comment._id}/>)}
     </div>)}
     {Object.keys(commentsByTagId).map(tagId => <div key={tagId}>
-      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false}/>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false}  classes={classes}/>
       {commentsByTagId[tagId]?.map(comment =>
         <EmailComment key={comment._id} commentId={comment._id}/>)}
     </div>)}
     {Object.keys(commentsBySubforumTagId).map(tagId => <div key={tagId}>
-      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={true}/>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={true}  classes={classes}/>
       {commentsBySubforumTagId[tagId]?.map(comment =>
-        <EmailComment key={comment._id} commentId={comment._id}/>)}
+        <div key={comment._id}>
+          <EmailComment commentId={comment._id}/>
+          <hr className={classes.commentHr}/>
+        </div>)}
     </div>)}
   </div>;
 }
 
 const EmailCommentBatchComponent = registerComponent("EmailCommentBatch", EmailCommentBatch, {styles});
 
-const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
+const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: ClassesType}) => {
   const { document: post } = useSingle({
     documentId: postId,
     collectionName: "Posts",
@@ -55,12 +67,13 @@ const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   if (!post)
     return null;
   
+    // TODO change here too
   return <div>
     New comments on <a href={postGetPageUrl(post, true)}>{post.title}</a>
   </div>;
 }
 
-const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforum: boolean}) => {
+const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, isSubforum: boolean, classes: ClassesType}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
     collectionName: "Tags",
@@ -70,17 +83,15 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforu
     return null;
   
   return isSubforum ? (
-    <div>
-      New comments in the <a href={tagGetSubforumUrl(tag, true)}>{`${startCase(tag.name)} subforum`}</a>
-    </div>
+    <h1>
+      <a href={tagGetSubforumUrl(tag, true)} className={classes.headingLink}>New comments in the {`${startCase(tag.name)} subforum`}</a>
+    </h1>
   ) : (
-    <div>
-      New discussion comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
-    </div>
+    <h1>
+      <a href={tagGetUrl(tag)} className={classes.headingLink}>New discussion comments on {tag.name}</a>
+    </h1>
   );
 }
-
-const EmailCommentsOnPostHeaderComponent = registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);
 
 const EmailComment = ({commentId, classes}: {
   commentId: string,
@@ -102,12 +113,11 @@ const EmailComment = ({commentId, classes}: {
   
   return <div>
     <div className={classes.comment}>
-      <EmailUsername user={comment.user}/>
-      {" "}
       <a href={commentGetPageUrl(comment, true)}>
         <EmailFormatDate date={comment.postedAt}/>
       </a>
-      {" "}
+      {" by "}
+      <EmailUsername user={comment.user}/>
       {comment.post && <a href={postGetPageUrl(comment.post, true)}>
         {comment.post.title}
       </a>}
@@ -121,7 +131,6 @@ const EmailCommentComponent = registerComponent("EmailComment", EmailComment, {s
 declare global {
   interface ComponentTypes {
     EmailCommentBatch: typeof EmailCommentBatchComponent,
-    EmailCommentsOnPostHeader: typeof EmailCommentsOnPostHeaderComponent,
     EmailComment: typeof EmailCommentComponent,
   }
 }
