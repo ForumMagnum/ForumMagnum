@@ -2261,6 +2261,25 @@ const schema: SchemaType<DbPost> = {
   },
 };
 
+/* subforum-related fields */
+Object.assign(schema, {
+  // If this post is associated with a subforum, the _id of the tag
+  subforumTagId: {
+    ...foreignKeyField({
+      idFieldName: "subforumTagId",
+      resolverName: "subforumTag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'], // TODO: maybe use userOwns, or actually maybe limit to subforum members
+    canUpdate: ['admins'],
+    hidden: true,
+  },
+})
+
 /* Alignment Forum fields */
 Object.assign(schema, {
   af: {

@@ -498,13 +498,6 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
-    {
-      name: 'taggingSubforumCustomName',
-      path: `/topics/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
-    }
   )
 } else {
   addRoute(
@@ -725,6 +718,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'wikiTopisRedirect',
       path: '/wiki',
       redirect: () => '/topics/all'
+    },
+    {
+      name: 'subforum',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      hideFooter: true,
+      noPadding: true,
     },
   ],
   LessWrong: [
