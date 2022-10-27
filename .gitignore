@@ -69,6 +69,7 @@ typings
 *.secret
 
 build*
+!build.js
 yarn-error.log
 
 # Created by @shelf/jest-mongodb

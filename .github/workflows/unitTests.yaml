@@ -42,11 +42,10 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Seed integration database
-      if: failure()
       env:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
         PG_URL: ${{ secrets.PG_URL }}
-      run: yarn seed-integration-db
+      run: yarn create-integration-db
     - name: yarn run integration-ci
       env:
         PG_URL: ${{ secrets.PG_URL }}

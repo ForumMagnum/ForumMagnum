@@ -5,6 +5,8 @@ const WebSocket = require('ws');
 const crypto = require('crypto');
 const { zlib } = require("mz");
 
+process.on("SIGQUIT", () => process.exit(0));
+
 const defaultServerPort = 3000;
 
 const getServerPort = () => {
@@ -85,6 +87,16 @@ const bundleDefinitions = {
   "serverPort": getServerPort(),
 };
 
+const clientBundleDefinitions = {
+  "bundleIsServer": false,
+  "global": "window",
+}
+
+const serverBundleDefinitions = {
+  "bundleIsServer": true,
+  "estrellaPid": process.pid,
+}
+
 const clientOutfilePath = `./${outputDir}/client/js/bundle.js`;
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
@@ -125,8 +137,7 @@ build({
   },
   define: {
     ...bundleDefinitions,
-    "bundleIsServer": false,
-    "global": "window",
+    ...clientBundleDefinitions,
   },
 });
 
@@ -151,7 +162,7 @@ build({
   },
   define: {
     ...bundleDefinitions,
-    "bundleIsServer": true,
+    ...serverBundleDefinitions,
   },
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
