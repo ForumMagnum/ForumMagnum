@@ -34,20 +34,31 @@ jobs:
     - run: yarn run unit-ci
 
   runIntegrationTests:
-    concurrency: integration
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.5-alpine
+        env:
+          POSTGRES_DB: unittest_jest_template
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
+      PG_URL: postgres://postgres:postgres@localhost:5432/unittest_jest_template
+      NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Seed integration database
-      env:
-        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
-        PG_URL: ${{ secrets.PG_URL }}
       run: yarn create-integration-db
     - name: yarn run integration-ci
-      env:
-        PG_URL: ${{ secrets.PG_URL }}
-        NODE_OPTIONS: "--max_old_space_size=4096"
       run: yarn run integration-ci
