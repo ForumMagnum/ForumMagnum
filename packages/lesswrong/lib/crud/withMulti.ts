@@ -294,7 +294,7 @@ export function useMulti<
   const { query: locationQuery, location } = useLocation();
   const { history } = useNavigation();
 
-  const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) ?? (terms && terms.limit) ?? initialLimit)
+  let defaultLimit: number = (((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || terms.limit) ?? initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
