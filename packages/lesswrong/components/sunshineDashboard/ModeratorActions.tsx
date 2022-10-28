@@ -17,6 +17,7 @@ import Input from '@material-ui/core/Input';
 import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
 import { sortBy } from 'underscore';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import { hideScrollBars } from '../../themes/styleUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -60,6 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8,
+    ...hideScrollBars
   },
 });
 

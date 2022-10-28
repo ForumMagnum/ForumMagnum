@@ -452,7 +452,7 @@ interface DbPost extends DbObject {
   finalReviewVoteScoreAF: number
   finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
+  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
   noIndex: boolean
   rsvps: Array<{
     name: string,
