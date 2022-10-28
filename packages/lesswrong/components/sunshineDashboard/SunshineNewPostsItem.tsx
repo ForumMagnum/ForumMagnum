@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMutation, gql } from '@apollo/client';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -39,7 +38,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   post: SunshinePostsList,
   classes: ClassesType
 }) => {
-  const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   
@@ -47,28 +45,8 @@ const SunshineNewPostsItem = ({post, classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const [addTagsMutation] = useMutation(gql`
-    mutation addTagsMutation($postId: String, $tagIds: [String]) {
-      addTags(postId: $postId, tagIds: $tagIds)
-    }
-  `);
-
-  const applyTags = () => {
-    const tagsApplied: Array<string> = [];
-    for (let tagId of Object.keys(selectedTags)) {
-      if (selectedTags[tagId])
-        tagsApplied.push(tagId);
-    }
-    void addTagsMutation({
-      variables: {
-        postId: post._id,
-        tagIds: tagsApplied,
-      }
-    });
-  }
   
   const handlePersonal = () => {
-    applyTags();
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -80,8 +58,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   }
 
   const handlePromote = () => {
-    applyTags();
-    
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -94,7 +70,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
-      applyTags();
       window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
         selector: { _id: post._id},
@@ -115,10 +90,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <FooterTagList post={post} />
-          <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
-            setSelectedTags(selectedTags);
-          }}/>
+          <FooterTagList post={post} showCoreTags/>
           <div className={classes.buttonRow}>
               <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal

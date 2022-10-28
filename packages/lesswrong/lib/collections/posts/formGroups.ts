@@ -1,3 +1,4 @@
+import { taggingNamePluralCapitalSetting } from "../../instanceSettings";
 
 export const formGroups: Partial<Record<string,FormGroup>> = {
   default: {
@@ -71,5 +72,11 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     order: 21,
     name: "coauthors",
     label: "Coauthors"
+  },
+  tags: {
+    order: 60,
+    name: "tags",
+    label: `Post ${taggingNamePluralCapitalSetting.get()}`,
+    startCollapsed: false
   }
 };

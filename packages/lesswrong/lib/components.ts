@@ -232,6 +232,7 @@ importComponent("PostsListSortDropdown", () => require('../components/posts/Post
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
+importComponent("PostReadCheckbox", () => require('../components/posts/PostReadCheckbox'))
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip'));
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle'));
 importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltipSingle'));
@@ -495,6 +496,7 @@ importComponent("SidebarAction", () => require('../components/sunshineDashboard/
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount'));
 importComponent("UsersReviewInfoCard", () => require('../components/sunshineDashboard/UsersReviewInfoCard'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
+importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
@@ -559,8 +561,11 @@ importComponent("TagProgressBar", () => require('../components/tagging/TagProgre
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
+importComponent("SubforumMembersDialog", () => require('../components/tagging/SubforumMembersDialog'));
+importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
 importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
+importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
@@ -616,6 +621,7 @@ importComponent("PostsListEditor", () => require('../components/form-components/
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
 importComponent("FMCrosspostControl", () => require('../components/form-components/FMCrosspostControl'));
 importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
+importComponent("FormComponentPostEditorTagging", () => require('../components/form-components/FormComponentPostEditorTagging'));
 importComponent("SequencesListEditor", () => require('../components/form-components/SequencesListEditor'));
 importComponent("SequencesListEditorItem", () => require('../components/form-components/SequencesListEditorItem'));
 importComponent("SubmitButton", () => require('../components/form-components/SubmitButton'));
