@@ -3,7 +3,7 @@ import { Components } from '../../lib/vulcan-lib';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useOnNavigate } from './NavigationEventSender';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 
 export interface OpenDialogContextType {
   openDialog: <T extends keyof ComponentTypes>({componentName, componentProps, noClickawayCancel}: {
