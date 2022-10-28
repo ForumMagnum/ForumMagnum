@@ -17,6 +17,7 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
+import FlagIcon from '@material-ui/icons/Flag';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -134,6 +135,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
   titleRow: {
     display: 'flex',
     columnGap: 8,
+    alignItems: 'center'
+  },
+  flagIcon: {
+    height: 13,
+    color: theme.palette.error,
+    position: "relative",
+    top: 3
   },
 })
 
@@ -164,7 +172,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -323,7 +331,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
             <StickyIcon />
           </div>}
-
+          {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
           {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
               <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                 {comment.post.draft && "[Draft] "}

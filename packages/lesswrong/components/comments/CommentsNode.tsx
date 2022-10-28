@@ -61,7 +61,17 @@ export interface CommentsNodeProps {
   showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
   displayMode?: CommentFormDisplayMode,
+  /**
+   * Determines the karma threshold used to decide whether to collapse a comment.
+   * 
+   * Currently only overriden in the comment moderation tab.
+   */
   karmaCollapseThreshold?: number,
+  /**
+   * Determines whether to expand this comment's parent comment (if it exists) by default.
+   * 
+   * Default: false.  Currently only used in the comment moderation tab.
+   */
   showParentDefault?: boolean,
   classes: ClassesType,
 }

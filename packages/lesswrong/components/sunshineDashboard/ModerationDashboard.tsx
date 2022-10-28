@@ -178,7 +178,7 @@ const ModerationDashboard = ({ classes }: {
               Moderated Comments
             </div>
           </div>
-          {usersToReview && allUsers && <>
+          {usersToReview && <>
             <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
               {usersToReview?.map(user =>
                 <div key={user._id}>
