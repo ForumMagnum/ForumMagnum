@@ -37,6 +37,10 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
     border: "none",
     boxShadow: "none",
     cursor: "pointer",
+    background: "none",
+    '&:hover': {
+      opacity: 0.5,
+    }
   },
   
   figure: {

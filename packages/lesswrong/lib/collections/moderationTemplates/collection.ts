@@ -18,6 +18,9 @@ addUniversalFields({collection: ModerationTemplates});
 makeEditable({
   collection: ModerationTemplates,
   options: {
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
     order: 20
   }
 })

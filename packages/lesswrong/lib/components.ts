@@ -79,6 +79,7 @@ importComponent("CommentOnYourDraftNotificationHover", () => require('../compone
 importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
+importComponent("Row", () => require('../components/common/Row'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
 importComponent("ContentStyles", () => require('../components/common/ContentStyles'));
 importComponent("FormatDate", () => require('../components/common/FormatDate'));
@@ -628,6 +629,7 @@ importComponent("SequencesListEditor", () => require('../components/form-compone
 importComponent("SequencesListEditorItem", () => require('../components/form-components/SequencesListEditorItem'));
 importComponent("SubmitButton", () => require('../components/form-components/SubmitButton'));
 importComponent("FormSubmit", () => require('../components/form-components/FormSubmit'));
+importComponent("BasicFormStyles", () => require('../components/form-components/BasicFormStyles'));
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
 importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("SingleTagItem", () => require('../components/form-components/SingleTagItem'));

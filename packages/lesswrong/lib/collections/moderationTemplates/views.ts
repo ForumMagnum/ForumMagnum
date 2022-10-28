@@ -11,7 +11,7 @@ declare global {
 
 ModerationTemplates.addView('moderationTemplatesPage', function (terms: ModerationTemplatesViewTerms) {
   return {
-    options: { sort: { defaultOrder: 1 } }
+    options: { sort: { deleted: 1, defaultOrder: 1 } }
   };
 })
 

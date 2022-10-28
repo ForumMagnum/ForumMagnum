@@ -3,8 +3,10 @@ import SimpleSchema from "simpl-schema";
 
 const ALLOWABLE_COLLECTIONS: CollectionNameString[] = ['Messages', 'Comments'];
 
-const ModerationTemplatesCollection = new SimpleSchema({
-  documentType: {
+type CollectionNameString = 'Messages' | 'Comments';
+
+const CollectionNameType = new SimpleSchema({
+  collectionName: {
     type: String,
     allowedValues: ALLOWABLE_COLLECTIONS,
   }
@@ -13,14 +15,14 @@ const ModerationTemplatesCollection = new SimpleSchema({
 const schema: SchemaType<DbModerationTemplate> = {
   name: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
     order: 1,
   },
   collectionName: {
-    type: ModerationTemplatesCollection,
-    typescriptType: "CollectionNameString",
+    type: CollectionNameType.schema('collectionName'),
+    typescriptType: "CollectionNameType",
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canRead: ['guests'],
@@ -31,7 +33,7 @@ const schema: SchemaType<DbModerationTemplate> = {
   },
   defaultOrder: {
     type: Number,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
@@ -40,6 +42,7 @@ const schema: SchemaType<DbModerationTemplate> = {
   deleted: {
     type: Boolean,
     optional: true,
+    canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   },
