@@ -19,8 +19,7 @@ const getMailUrl = () => {
  * API descended from meteor
  */
 export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
-  // const mailUrl = getMailUrl();
-  const mailUrl = "smtp://localhost:1025";
+  const mailUrl = getMailUrl();
   
   if (!mailUrl) {
     // eslint-disable-next-line no-console
