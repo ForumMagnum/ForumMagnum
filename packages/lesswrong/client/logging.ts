@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { routerOnUpdate } from '../components/common/NavigationEventSender';
+import { routerOnUpdate } from '../components/hooks/useOnNavigate';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil, userIdentifiedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
