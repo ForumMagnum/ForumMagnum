@@ -8,7 +8,7 @@ export const LOW_AVERAGE_KARMA_POST_ALERT = 'lowAverageKarmaPostAlert';
 export const NEGATIVE_KARMA_USER_ALERT = 'negativeUserKarmaAlert';
 
 export const MODERATOR_ACTION_TYPES = {
-  [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (one per day)',
+  [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 / day)',
   [RECENTLY_DOWNVOTED_CONTENT_ALERT]: 'Recently Downvoted Content',
   [LOW_AVERAGE_KARMA_COMMENT_ALERT]: 'Low Average Karma Comments',
   [LOW_AVERAGE_KARMA_POST_ALERT]: 'Low Average Karma Posts',
