@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
+import DoneIcon from '@material-ui/icons/Done';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -49,10 +52,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: "50%",
     fontWeight: 600,
   },
-  infoRow: {
+  columns: {
+    display: 'flex',
+    borderBottom: theme.palette.border.slightlyIntense
+  },
+  infoColumn: {
     padding: 16,
     paddingBottom: 8,
-    borderBottom: theme.palette.border.slightlyIntense
+    borderRight: theme.palette.border.slightlyIntense
+  },
+  modActionsColumn: {
+    padding: 16,
+    paddingBottom: 8,
+    borderRight: theme.palette.border.slightlyIntense
   },
   nestedInfoRow: {
     paddingBottom: 4
@@ -65,6 +77,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     textAlign: "right",
     color: theme.palette.lwTertiary.main,
+  },
+  modButton:{
+    marginTop: 6,
+    marginRight: 16,
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
   },
 });
 
@@ -92,47 +112,75 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   commentModeratorAction: CommentWithModeratorActions,
   classes: ClassesType,
 }) => {
-  const { CommentWithReplies, LWTooltip } = Components;
+  const { CommentWithReplies, LWTooltip, Loading } = Components;
   const { comment, actions } = commentModeratorAction;
   const commentVotes = getVoteDistribution(comment);
   const [commentTreeNode] = unflattenComments([comment]);
 
-  const seeInContextUrl = `${commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}#${comment._id}`;
-  const seeInContextLink = <Link className={classes.seeInContext} to={seeInContextUrl}>
-    See in context
-  </Link>;
+  const { mutate: updateModeratorActions } = useUpdate({
+    collectionName: 'CommentModeratorActions',
+    fragmentName: 'CommentModeratorActionDisplay'
+  });
 
-  const infoRow = <div className={classes.infoRow}>
-    <div className={classes.nestedInfoRow}>
-      {actions.map(action => action.type)}
-    </div>
-    <div className={classes.nestedInfoRow}>
-      <span>Votes: </span>
-      <LWTooltip title="Big Upvotes">
-          <span className={classes.bigUpvotes}>
-            { commentVotes.bigUpvote }
-          </span>
-      </LWTooltip>
-      <LWTooltip title="Upvotes">
-          <span className={classes.upvotes}>
-            { commentVotes.smallUpvote }
-          </span>
-      </LWTooltip>
-      <LWTooltip title="Downvotes">
-          <span className={classes.downvotes}>
-            { commentVotes.smallDownvote }
-          </span>
-      </LWTooltip>
-      <LWTooltip title="Big Downvotes">
-          <span className={classes.bigDownvotes}>
-            { commentVotes.bigDownvote }
-          </span>
-      </LWTooltip>
-    </div>
-    <div className={classes.nestedInfoRow}>
-      {seeInContextLink}
-    </div>
-  </div>
+  const [dismissed, setDismissed] = useState(false);
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    const moderatorActionIds = actions.map(action => action._id);
+    moderatorActionIds.forEach(actionId => {
+      void updateModeratorActions({
+        selector: { _id: actionId },
+        data: { endedAt: new Date() }
+      });
+    });
+  };
+
+  const activeActionsRow = <div className={classes.nestedInfoRow}>
+    {actions.map(action => COMMENT_MODERATOR_ACTION_TYPES[action.type])}
+  </div>;
+
+  const voteDistributionRow = <div className={classes.nestedInfoRow}>
+    <span>Votes: </span>
+    <LWTooltip title="Big Upvotes">
+        <span className={classes.bigUpvotes}>
+          { commentVotes.bigUpvote }
+        </span>
+    </LWTooltip>
+    <LWTooltip title="Upvotes">
+        <span className={classes.upvotes}>
+          { commentVotes.smallUpvote }
+        </span>
+    </LWTooltip>
+    <LWTooltip title="Downvotes">
+        <span className={classes.downvotes}>
+          { commentVotes.smallDownvote }
+        </span>
+    </LWTooltip>
+    <LWTooltip title="Big Downvotes">
+        <span className={classes.bigDownvotes}>
+          { commentVotes.bigDownvote }
+        </span>
+    </LWTooltip>
+  </div>;
+
+  const seeInContextUrl = `${commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}#${comment._id}`;
+  const seeInContextRow = <div className={classes.nestedInfoRow}>
+    <Link className={classes.seeInContext} to={seeInContextUrl}>
+      See in context
+    </Link>
+  </div>;
+
+  const infoColumn = <div className={classes.infoColumn}>
+    {activeActionsRow}
+    {voteDistributionRow}
+    {seeInContextRow}
+  </div>;
+
+  const modActionsColumn = <div className={classes.modActionsColumn}>
+    {dismissed ? <Loading /> : <LWTooltip title="Dismiss" placement="top">
+      <DoneIcon onClick={handleDismiss} className={classes.modButton}/>
+    </LWTooltip>}
+  </div>;
 
   const commentsRow = <div className={classes.commentsRow}>
     <CommentWithReplies
@@ -150,7 +198,10 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   </div>;
 
   return <div className={classes.root}>
-    {infoRow}
+    <div className={classes.columns}>
+      {infoColumn}
+      {modActionsColumn}
+    </div>
     {commentsRow}
   </div>;
 }

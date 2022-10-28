@@ -18,7 +18,12 @@ declare global {
 
 CommentModeratorActions.addView('activeCommentModeratorActions', function (terms: ActiveCommentModeratorActionsViewTerms) {
   return {
-    selector: { endedAt: null },
+    selector: {
+      $or: [
+        { endedAt: { $exists: false } },
+        { endedAt: null }
+      ]
+    },
     options: { sort: { createdAt: -1 }, limit: terms.limit }
   };
 })
