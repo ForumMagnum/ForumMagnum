@@ -27,6 +27,7 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
       "USING",
     ]);
 
+    this.isIndex = true;
     this.isUnique = index.isUnique();
     const {useGin, fields} = this.getFieldList(index);
     this.atoms = this.atoms.concat([useGin ? "gin (" : "btree (", ...fields, ")"]);

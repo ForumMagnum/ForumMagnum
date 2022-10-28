@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { JsonType, Type } from "./Type";
+import { Type, JsonType, ArrayType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -29,6 +29,12 @@ class Arg {
  * to its name).
  */
 export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
+
+class NonScalarArrayAccessError extends Error {
+  constructor(public fieldName: string, public path: string[]) {
+    super("Non-scale array index");
+  }
+}
 
 const isMagnitudeOp = (op: string) => ["$lt", "$lte", "$gt", "$gte"].indexOf(op) > -1;
 
@@ -74,6 +80,7 @@ const arithmeticOps = {
 abstract class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
   protected nameSubqueries = true;
+  protected isIndex = false;
 
   protected constructor(
     protected table: Table | Query<T>,
@@ -208,7 +215,10 @@ abstract class Query<T extends DbObject> {
     const jsonIndex = field.indexOf(".");
     if (jsonIndex > -1) {
       const [first, ...rest] = field.split(".");
-      if (this.getField(first)) {
+      const fieldType = this.getField(first);
+      if (fieldType instanceof ArrayType && !this.isIndex) {
+        throw new NonScalarArrayAccessError(first, rest);
+      } else if (fieldType) {
         return `("${first}"` +
           rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
           `)${this.getTypeHint(typeHint)}`;
@@ -244,25 +254,61 @@ abstract class Query<T extends DbObject> {
   }
 
   /**
+   * Mongo allows us to use selectors like `{"coauthorStatuses.userId": userId}`
+   * (where `coauthorStatuses` is an array of JSONB) to match a record when any
+   * item in the nested JSON matches the given scalar value. This requires special
+   * handling in Postgres. This solution isn't particularly fast though - any
+   * query that hits this code path would be a good place to consider writing some
+   * better-optimized hand-rolled SQL.
+   */
+  private compileNonScalarArrayAccess(fieldName: string, path: string[], value: any): Atom<T>[] {
+    path = path.map((element: string) => `'${element}'`);
+    path.unshift("unnested");
+    const last = path.pop();
+    const selector = path.join("->") + "->>" + last;
+    return [
+      "(_id IN (SELECT _id FROM",
+      this.table,
+      `, UNNEST("${fieldName}") unnested WHERE ${selector} =`,
+      this.createArg(value),
+      "))",
+    ];
+  }
+
+  /**
    * Compile an arbitrary Mongo selector into an array of atoms.
    * `this.atoms` is not modified.
    */
   private compileComparison(fieldName: string, value: any): Atom<T>[] {
-    const field = this.resolveFieldName(fieldName, value);
+    let field: string;
+    try {
+      field = this.resolveFieldName(fieldName, value);
+    } catch (e) {
+      if (e instanceof NonScalarArrayAccessError) {
+        return this.compileNonScalarArrayAccess(e.fieldName, e.path, value);
+      } else {
+        throw e;
+      }
+    }
+
     if (value === null || value === undefined) {
       return [`${field} IS NULL`];
     }
+
     if (typeof value === "object") {
       const keys = Object.keys(value);
       if (keys.length > 1) {
         return this.compileMultiSelector(keys.map((key) => ({[fieldName]: {[key]: value[key]}})), "AND");
       }
+
       const comparer = keys[0];
       switch (comparer) {
         case "$not":
           return ["NOT (", ...this.compileComparison(fieldName, value[comparer]), ")"];
+
         case "$nin":
           return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
+
         case "$in":
           if (!Array.isArray(value[comparer])) {
             throw new Error("$in expects an array");
@@ -270,8 +316,10 @@ abstract class Query<T extends DbObject> {
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
           return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
           // when we search for events within a certain maximum distance of the user ("nearbyEvents"
@@ -296,9 +344,11 @@ abstract class Query<T extends DbObject> {
             ")) * 0.000621371) <", // Convert metres to miles
             this.createArg(distance),
           ];
+
         default:
           break;
       }
+
       const op = comparisonOps[comparer];
       if (op) {
         return this.arrayify(fieldName, field, op, value[comparer]);
@@ -306,6 +356,7 @@ abstract class Query<T extends DbObject> {
         throw new Error(`Invalid comparison selector: ${field}: ${JSON.stringify(value)}`);
       }
     }
+
     return this.arrayify(fieldName, field, "=", value);
   }
 
