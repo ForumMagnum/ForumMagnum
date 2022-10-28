@@ -139,7 +139,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   flagIcon: {
     height: 13,
-    color: theme.palette.error,
+    color: theme.palette.error.main,
     position: "relative",
     top: 3
   },

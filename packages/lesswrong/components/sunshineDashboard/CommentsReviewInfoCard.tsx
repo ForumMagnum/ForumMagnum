@@ -104,6 +104,9 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
 
   const infoRow = <div className={classes.infoRow}>
     <div className={classes.nestedInfoRow}>
+      {actions.map(action => action.type)}
+    </div>
+    <div className={classes.nestedInfoRow}>
       <span>Votes: </span>
       <LWTooltip title="Big Upvotes">
           <span className={classes.bigUpvotes}>
@@ -125,9 +128,6 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
             { commentVotes.bigDownvote }
           </span>
       </LWTooltip>
-    </div>
-    <div className={classes.nestedInfoRow}>
-      {actions.map(action => action.type)}
     </div>
     <div className={classes.nestedInfoRow}>
       {seeInContextLink}
