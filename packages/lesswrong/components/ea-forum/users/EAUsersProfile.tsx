@@ -260,7 +260,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }, [currentUser, user])
   
   // show/hide the "Posts" section sort/filter settings
-  const [showPostSettings, setShowPostSetttings] = useState(false)
+  const [showPostSettings, setShowPostSettings] = useState(false)
   
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
     terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
@@ -273,7 +273,12 @@ const EAUsersProfile = ({terms, slug, classes}: {
   // count posts here rather than using user.postCount,
   // because the latter doesn't include posts where the user is a coauthor
   const { totalCount: userPostsCount } = useMulti({
-    terms: {view: 'userPosts', userId: user?._id, limit: 0},
+    terms: {
+      view: 'userPosts',
+      userId: user?._id,
+      authorIsUnreviewed: currentUser?.isAdmin ? null : false,
+      limit: 1
+    },
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
     enableTotal: true,
@@ -590,7 +595,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{userPostsCount}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSetttings(!showPostSettings)}
+            <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings
