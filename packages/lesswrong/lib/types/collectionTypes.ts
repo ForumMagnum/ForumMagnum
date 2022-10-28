@@ -193,7 +193,6 @@ interface DbVoteableType extends VoteableType, DbObject {
 interface DbObject extends HasIdType {
   __collectionName?: CollectionNameString
   schemaVersion: number
-  _id: string
 }
 
 interface HasSlugType extends DbObject {

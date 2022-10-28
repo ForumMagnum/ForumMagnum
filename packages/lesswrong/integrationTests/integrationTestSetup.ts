@@ -65,6 +65,7 @@ const ensurePgConnection = async () => {
 let setupRun = false;
 async function oneTimeSetup() {
   if (setupRun) return;
+  setupRun = true;
 
   // We need to require this here instead of importing at the top level to make sure that
   // Jest can do its magic to make ESM mocks work which requires calls to `jest.mock` to
@@ -84,8 +85,6 @@ async function oneTimeSetup() {
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
-
-  setupRun = true;
 }
 
 jest.setTimeout(20000);
