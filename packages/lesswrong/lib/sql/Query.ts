@@ -32,7 +32,7 @@ export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
 class NonScalarArrayAccessError extends Error {
   constructor(public fieldName: string, public path: string[]) {
-    super("Non-scale array index");
+    super("Non-scalar array access");
   }
 }
 
