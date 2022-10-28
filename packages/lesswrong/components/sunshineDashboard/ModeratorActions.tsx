@@ -16,6 +16,7 @@ import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
 import { sortBy } from 'underscore';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -178,6 +179,18 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       selector: {_id: user._id},
       data: {
         needsReview: true,
+        sunshineNotes: newNotes
+      }
+    })    
+    setNotes( newNotes )
+  }
+
+  const handleRemoveNeedsReview = () => {
+    const newNotes = signatureWithNote("removed from review queue without snooze/approval") + notes;
+    void updateUser({
+      selector: {_id: user._id},
+      data: {
+        needsReview: false,
         sunshineNotes: newNotes
       }
     })    
@@ -347,6 +360,9 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
     {!user.needsReview && <LWTooltip title="Return this user to the review queue">
       <VisibilityOutlinedIcon className={classes.modButton} onClick={handleNeedsReview}/>
+    </LWTooltip>}
+    {user.needsReview && <LWTooltip title="Remove this user from the review queue">
+      <VisibilityOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
   </div>
 
