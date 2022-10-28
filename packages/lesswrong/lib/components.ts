@@ -90,7 +90,7 @@ importComponent("HeadTags", () => require('../components/common/HeadTags'));
 importComponent("Home2", () => require('../components/common/Home2'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker'));
-importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender'));
+importComponent("NavigationEventSender", () => require('../components/hooks/useOnNavigate'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
 importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
@@ -496,6 +496,7 @@ importComponent("SidebarAction", () => require('../components/sunshineDashboard/
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount'));
 importComponent("UsersReviewInfoCard", () => require('../components/sunshineDashboard/UsersReviewInfoCard'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
+importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
@@ -564,6 +565,7 @@ importComponent("SubforumMembersDialog", () => require('../components/tagging/Su
 importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
 importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
+importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
@@ -619,6 +621,7 @@ importComponent("PostsListEditor", () => require('../components/form-components/
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
 importComponent("FMCrosspostControl", () => require('../components/form-components/FMCrosspostControl'));
 importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
+importComponent("FormComponentPostEditorTagging", () => require('../components/form-components/FormComponentPostEditorTagging'));
 importComponent("SequencesListEditor", () => require('../components/form-components/SequencesListEditor'));
 importComponent("SequencesListEditorItem", () => require('../components/form-components/SequencesListEditorItem'));
 importComponent("SubmitButton", () => require('../components/form-components/SubmitButton'));
