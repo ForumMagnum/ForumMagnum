@@ -277,7 +277,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       view: 'userPosts',
       userId: user?._id,
       authorIsUnreviewed: currentUser?.isAdmin ? null : false,
-      limit: 1
+      limit: 0
     },
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
@@ -590,10 +590,10 @@ const EAUsersProfile = ({terms, slug, classes}: {
         
         <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
         
-        {!!userPostsCount && <div className={classes.section}>
+        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
-              Posts <div className={classes.sectionHeadingCount}>{userPostsCount}</div>
+              Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
             <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
