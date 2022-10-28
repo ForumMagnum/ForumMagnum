@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type } from "./Type";
+import { JsonType, Type } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -9,11 +9,16 @@ import { Type } from "./Type";
 class Arg {
   public typehint = "";
 
-  constructor(public value: any) {
+  constructor(public value: any, type?: Type) {
     // JSON arrays make node-postgres fall over, but we can work around it
     // with a special-case typehint
     if (Array.isArray(value) && value[0] && typeof value[0] === "object") {
-      this.typehint = "::JSONB[]";
+      if (type instanceof JsonType) {
+        this.value = JSON.stringify(this.value);
+        this.typehint = "::JSONB";
+      } else {
+        this.typehint = "::JSONB[]";
+      }
     }
   }
 }
@@ -135,8 +140,8 @@ abstract class Query<T extends DbObject> {
    * Internal helper to create a new Arg - allows us to encapsulate Arg
    * locally in this file.
    */
-  protected createArg(value: any) {
-    return new Arg(value);
+  protected createArg(value: any, type?: Type) {
+    return new Arg(value, type);
   }
 
   /**

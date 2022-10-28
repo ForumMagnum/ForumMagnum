@@ -1,5 +1,6 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
+import { Type } from "./Type";
 import { randomId } from '../random';
 
 export type ConflictStrategy = "error" | "ignore" | "upsert";
@@ -76,10 +77,9 @@ class InsertQuery<T extends DbObject> extends Query<T> {
       throw new Error("Empty insert data");
     }
     const fields = this.table.getFields();
-    const keys = Object.keys(fields);
     this.atoms.push("(");
     let prefix = "";
-    for (const key of keys) {
+    for (const key in fields) {
       this.atoms.push(`${prefix}"${key}"`);
       prefix = ", ";
     }
@@ -87,19 +87,19 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     prefix = "";
     for (const item of data) {
       this.atoms.push(prefix);
-      this.appendItem(keys, item);
+      this.appendItem(fields, item);
       prefix = ",";
     }
   }
 
-  private appendItem(keys: string[], item: T): void {
+  private appendItem(fields: Record<string, Type>, item: T): void {
     let prefix = "(";
-    for (const key of keys) {
+    for (const key in fields) {
       this.atoms.push(prefix);
       if (key === "_id" && !item[key]) {
         item[key] = randomId();
       }
-      this.atoms.push(this.createArg(item[key] ?? null));
+      this.atoms.push(this.createArg(item[key] ?? null, fields[key]));
       prefix = ", ";
     }
     this.atoms.push(")");
