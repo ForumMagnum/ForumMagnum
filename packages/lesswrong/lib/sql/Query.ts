@@ -30,6 +30,8 @@ class Arg {
  */
 export type Atom<T extends DbObject> = string | Arg | Query<T> | Table;
 
+const atomIsArg = <T extends DbObject>(atom: Atom<T>): atom is Arg => atom instanceof Arg;
+
 class NonScalarArrayAccessError extends Error {
   constructor(public fieldName: string, public path: string[]) {
     super("Non-scalar array access");
@@ -184,8 +186,8 @@ abstract class Query<T extends DbObject> {
    * precise type hints separately in isolation.
    */
   private getUnifiedTypeHint(a: Atom<T>[], b: Atom<T>[]): string | undefined {
-    const aArg = a.find((atom) => atom instanceof Arg) as Arg;
-    const bArg = b.find((atom) => atom instanceof Arg) as Arg;
+    const aArg = a.find(atomIsArg);
+    const bArg = b.find(atomIsArg);
     if (!aArg || !bArg || typeof aArg.value !== typeof bArg.value) {
       return undefined;
     }
