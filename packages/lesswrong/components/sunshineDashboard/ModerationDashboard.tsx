@@ -94,20 +94,20 @@ const ModerationDashboard = ({ classes }: {
 
   const [view, setView] = useState<'sunshineNewUsers' | 'allUsers'>('sunshineNewUsers');
 
-  const { results: usersToReview, count, loadMoreProps, refetch, loading } = useMulti({
+  const { results: usersToReview=[], count, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: "sunshineNewUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    itemsPerPage: 20
+    itemsPerPage: 50
   });
 
-  const { results: allUsers, loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
+  const { results: allUsers=[], loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
     terms: {view: "allUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    itemsPerPage: 20,
+    itemsPerPage: 50,
   });
 
   if (!userIsAdmin(currentUser)) {
@@ -119,7 +119,7 @@ const ModerationDashboard = ({ classes }: {
       <div className={classes.row}>
         <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
           <div className={classes.toc}>
-            {usersToReview?.map(user => {
+            {usersToReview.map(user => {
               return <div key={user._id} className={classes.tocListing}>
                 <a href={`/admin/moderation#${user._id}`}>
                   {user.displayName}
@@ -133,7 +133,7 @@ const ModerationDashboard = ({ classes }: {
         </div>
         <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
           <div className={classes.toc}>
-            {allUsers?.map(user => {
+            {allUsers.map(user => {
               return <div key={user._id} className={classes.tocListing}>
                 {user.displayName}
               </div>
@@ -158,22 +158,26 @@ const ModerationDashboard = ({ classes }: {
               Reviewed Users
             </div>
           </div>
-          {usersToReview && allUsers && <>
-            <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
-              {usersToReview.map(user =>
-                <div key={user._id} id={user._id}>
-                  <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
-                </div>
-              )}
+          <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+            {usersToReview.map(user =>
+              <div key={user._id} id={user._id}>
+                <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+              </div>
+            )}
+            <div className={classes.loadMore}>
+              <LoadMore {...loadMoreProps}/>
             </div>
-            <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
-              {allUsers.map(user =>
-                <div key={user._id}>
-                  <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
-                </div>
-              )}
+          </div>
+          <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+            {allUsers.map(user =>
+              <div key={user._id}>
+                <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
+              </div>
+            )}
+            <div className={classes.loadMore}>
+              <LoadMore {...allUsersLoadMoreProps}/>
             </div>
-          </>}
+          </div>
         </div>
       </div>
     </div>

@@ -29,8 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   moderation: {
     marginBottom: 12
   },
+  metaInfoRow: {
+    marginBottom: 8,
+    display: "flex",
+    alignItems: "center"
+  },
   vote: {
-    marginBottom: 8
+    marginRight: 8
   }
 })
 
@@ -80,7 +85,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -107,7 +112,19 @@ const SunshineNewPostsItem = ({post, classes}: {
                 { post.title }
               </Link>
             </Typography>
-            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
+            <div className={classes.metaInfoRow}>
+              <span className={classes.vote}>
+                <SmallSideVote document={post} collection={Posts}/>
+              </span>
+              <MetaInfo>
+                <FormatDate date={post.postedAt}/>
+              </MetaInfo>
+              {post.commentCount && <MetaInfo>
+                <Link to={`postGetPageUrl(post)#comments`}>
+                  {post.commentCount} comments
+                </Link>
+              </MetaInfo>}
+            </div>
             {moderationSection && <div className={classes.moderation}>
               {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>
