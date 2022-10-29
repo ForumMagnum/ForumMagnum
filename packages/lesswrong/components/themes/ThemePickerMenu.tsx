@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { ThemeMetadata, themeMetadata, getForumType } from '../../themes/themeNames';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
@@ -36,33 +36,34 @@ const ThemePickerMenu = ({children, classes}: {
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
-
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: "UsersCurrent",
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const selectedForumTheme = getForumType(currentThemeOptions);
 
+  const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
+    if (forumTypeSetting.get() === "EAForum" && currentUser) {
+      void updateCurrentUser({
+        theme: newThemeOptions as DbUser['theme'],
+      });
+    }
+  }
+
   const setThemeName = (name: UserThemeSetting) => {
-    setTheme({...currentThemeOptions, name});
+    const newThemeOptions = {...currentThemeOptions, name};
+    setTheme(newThemeOptions);
+    persistUserTheme(newThemeOptions);
   }
 
   const setThemeForum = (forumType: ForumTypeString) => {
-    const themeOptions = {
+    const newThemeOptions = {
       ...currentThemeOptions,
       siteThemeOverride: {
         ...currentThemeOptions.siteThemeOverride,
         [forumTypeSetting.get()]: forumType,
       },
     };
-    setTheme(themeOptions);
-    if (forumTypeSetting.get() === "EAForum" && currentUser) {
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {theme: themeOptions},
-      });
-    }
+    setTheme(newThemeOptions);
+    persistUserTheme(newThemeOptions);
   }
 
   const submenu = <Paper>
