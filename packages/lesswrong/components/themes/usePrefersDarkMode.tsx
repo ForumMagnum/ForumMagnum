@@ -37,7 +37,7 @@ export const PrefersDarkModeProvider = ({children}) => {
 
 export const usePrefersDarkMode = () => useContext(prefersDarkModeContext);
 
-export const userPrefersDarkMode = () => {
+export const devicePrefersDarkMode = () => {
   const query = buildQuery();
   return query?.matches ?? false;
 }
