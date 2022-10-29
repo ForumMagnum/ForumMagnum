@@ -10,6 +10,8 @@
  * even if they're only used indirectly (eg; InputBase, ButtonBase). Failing to
  * do this will result in the wrong theme being used during SSR - it will be
  * fixed during JS hydration, but you'll get an ugly flash of the wrong theme.
+ *
+ * TODO: There's probably some way to do this automatically?
  */
 const getUsedMuiStyles = () => {
   const components = {
@@ -68,7 +70,7 @@ const getUsedMuiStyles = () => {
   };
 
   // Filter out components that don't have any styles
-  return Object.fromEntries(Object.entries(components).filter(([_, styles]) => Boolean(styles)));
+  return Object.fromEntries(Object.entries(components).filter(([_, styles]) => !!styles));
 }
 
 export const usedMuiStyles = getUsedMuiStyles();
