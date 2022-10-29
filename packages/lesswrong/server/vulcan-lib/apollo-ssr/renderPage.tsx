@@ -86,7 +86,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     recordCacheBypass();
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
-      req, user, startTime, res, clientId,
+      req, user, startTime, res, clientId, userAgent,
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
@@ -106,7 +106,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   } else {
     const abTestGroups = getAllUserABTestGroups(user, clientId);
     const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
-      req, user: null, startTime, res, clientId,
+      req, user: null, startTime, res, clientId, userAgent
     }));
     
     if (rendered.cached) {
@@ -140,12 +140,26 @@ export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): Abstrac
   return getThemeOptions(themeCookie, user);
 }
 
-export const renderRequest = async ({req, user, startTime, res, clientId}: {
+const buildSSRBody = (htmlContent: string, userAgent?: string) => {
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  // TODO: there should be a cleaner way to set this wrapper
+  // id must always match the client side start.jsx file
+  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+}
+
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
   req: Request,
   user: DbUser|null,
   startTime: Date,
   res: Response,
   clientId: string,
+  userAgent?: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
@@ -196,16 +210,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   }
   const afterPrerenderTime = new Date();
 
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  //
-  // When the theme name is "auto", we load the correct style by combining @import url()
-  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
-  // Firefox bug where this can cause a flash of unstyled content. For reasons that
-  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
-  // first child of <body> which forces the browser to load the CSS before rendering.
-  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
-  const ssrBody = `<script>0</script><div id="react-app">${htmlContent}</div>`;
+  const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
   const head = ReactDOM.renderToString(<Head />);
