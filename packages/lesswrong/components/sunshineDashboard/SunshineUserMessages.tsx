@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
-import {defaultModeratorPMsTagSlug} from "./SunshineNewUsersInfo";
 
 const styles = (theme: JssStyles) => ({
   row: {
@@ -35,7 +34,6 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
       <ModeratorMessageCount userId={user._id} />
       <SunshineSendMessageWithDefaults 
         user={user} 
-        tagSlug={defaultModeratorPMsTagSlug.get()} 
         embedConversation={embedConversation}
       />
     </div>

@@ -2735,6 +2735,7 @@ interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplate
   readonly name: string,
   readonly collectionName: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Messages","Comments"]}]},"optional":false,"label":"Collection name"}}]}*/,
   readonly defaultOrder: number,
+  readonly deleted: boolean,
 }
 
 interface ModerationTemplateFragment { // fragment on ModerationTemplates

@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const ModerationTemplateItem = ({classes, template}: {
   classes: ClassesType,
-  template: any
+  template: ModerationTemplateFragment
 }) => {
   const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
@@ -39,9 +39,14 @@ export const ModerationTemplateItem = ({classes, template}: {
             successCallback={() => setEdit(false)}
           /> 
         </BasicFormStyles>
-      : <ContentItemBody
-          dangerouslySetInnerHTML={{__html: template.contents?.html ?? ''}}
-        />
+      : <div>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: template.contents?.html ?? ''}}
+          />
+          <p>
+            <MetaInfo>Position {template.defaultOrder }</MetaInfo>
+          </p>
+        </div>
     }
   </div>
 }
