@@ -2734,7 +2734,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
 interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplates
   readonly name: string,
   readonly collectionName: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Messages","Comments"]}]},"optional":false,"label":"Collection name"}}]}*/,
-  readonly defaultOrder: number,
+  readonly order: number,
   readonly deleted: boolean,
 }
 
@@ -2742,7 +2742,7 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly _id: string,
   readonly name: string,
   readonly collectionName: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Messages","Comments"]}]},"optional":false,"label":"Collection name"}}]}*/,
-  readonly defaultOrder: number,
+  readonly order: number,
   readonly deleted: boolean,
   readonly contents: RevisionEdit|null,
 }

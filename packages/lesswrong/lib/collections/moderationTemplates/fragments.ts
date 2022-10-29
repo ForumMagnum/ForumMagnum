@@ -5,7 +5,7 @@ registerFragment(`
     _id
     name
     collectionName
-    defaultOrder
+    order
     deleted
     contents {
       ...RevisionEdit

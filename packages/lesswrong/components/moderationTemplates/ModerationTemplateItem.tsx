@@ -44,7 +44,7 @@ export const ModerationTemplateItem = ({classes, template}: {
             dangerouslySetInnerHTML={{__html: template.contents?.html ?? ''}}
           />
           <p>
-            <MetaInfo>Position {template.defaultOrder }</MetaInfo>
+            <MetaInfo>Position {template.order }</MetaInfo>
           </p>
         </div>
     }

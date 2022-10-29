@@ -31,7 +31,7 @@ const schema: SchemaType<DbModerationTemplate> = {
       options: () => ALLOWABLE_COLLECTIONS.map(collectionName => ({ label: collectionName, value: collectionName }))
     },
   },
-  defaultOrder: {
+  order: {
     type: Number,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],

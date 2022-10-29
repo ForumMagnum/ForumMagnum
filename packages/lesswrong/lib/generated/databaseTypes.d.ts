@@ -331,7 +331,7 @@ interface DbModerationTemplate extends DbObject {
   __collectionName?: "ModerationTemplates"
   name: string
   collectionName: CollectionNameType
-  defaultOrder: number
+  order: number
   deleted: boolean
   createdAt: Date
   contents: EditableFieldContents

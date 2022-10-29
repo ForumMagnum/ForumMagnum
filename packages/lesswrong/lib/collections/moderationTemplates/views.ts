@@ -11,14 +11,14 @@ declare global {
 
 ModerationTemplates.addView('moderationTemplatesPage', function (terms: ModerationTemplatesViewTerms) {
   return {
-    options: { sort: { deleted: 1, defaultOrder: 1 } }
+    options: { sort: { deleted: 1, order: 1 } }
   };
 })
-ensureIndex(ModerationTemplates, { defaultOrder: 1 })
+ensureIndex(ModerationTemplates, { order: 1 })
 
 ModerationTemplates.addView('moderationTemplatesQuickview', function (terms: ModerationTemplatesViewTerms) {
   return {
     selector: { deleted: false },
-    options: { sort: { defaultOrder: 1 } }
+    options: { sort: { order: 1 } }
   };
 })
