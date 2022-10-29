@@ -58,6 +58,12 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
   document.head.appendChild(styleNode);
 }
 
+/**
+ * The 'auto' stylesheet is an inline style that will automatically import
+ * either the light or dark theme based on the device preferences. If the
+ * preference changes whilst the site is open, the sheet will automatically
+ * be switched.
+ */
 const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
   const light = makeStylesheetUrl({name: "default", ...siteThemeOverride});
   const dark = makeStylesheetUrl({name: "dark", ...siteThemeOverride});
