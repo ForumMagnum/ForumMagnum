@@ -18,14 +18,14 @@ export const PrefersDarkModeProvider = ({children}) => {
   const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
 
   useEffect(() => {
-      const handler = ({matches}: MediaQueryListEvent) => {
-        setPrefersDarkMode(matches);
-        captureEvent("prefersDarkModeChange", {
-          prefersDarkMode: matches,
-        });
-      }
-      query.addEventListener("change", handler);
-      return () => query.removeEventListener("change", handler);
+    const handler = ({matches}: MediaQueryListEvent) => {
+      setPrefersDarkMode(matches);
+      captureEvent("prefersDarkModeChange", {
+        prefersDarkMode: matches,
+      });
+    }
+    query.addEventListener("change", handler);
+    return () => query.removeEventListener("change", handler);
   }, [query]);
 
   return (
