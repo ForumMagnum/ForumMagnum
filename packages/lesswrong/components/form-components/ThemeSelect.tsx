@@ -3,6 +3,18 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { themeMetadata, defaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
 
+const getValue = (props: any) => {
+  if (props.value?.name) {
+    return props.value.name;
+  }
+
+  if (typeof window !== "undefined" && window.themeOptions?.name) {
+    return window.themeOptions.name;
+  }
+
+  return defaultThemeOptions.name;
+}
+
 const ThemeSelect = (props: any) => {
   const themeOptions = useThemeOptions();
   const options = themeMetadata.map(({name, label}) => ({value: name, label}));
@@ -18,7 +30,7 @@ const ThemeSelect = (props: any) => {
     <Components.FormComponentSelect
       {...props}
       defaultValue={undefined}
-      value={props.value?.name ?? defaultThemeOptions.name}
+      value={getValue(props)}
       updateCurrentValues={updateCurrentValues}
       options={options}
     />

@@ -53,7 +53,7 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
     },
   ];
 
-export function isValidSerializedThemeOptions(options: string|object): boolean {
+export function isValidSerializedThemeOptions(options: string|object): options is string | AbstractThemeOptions {
   try {
     if (typeof options==="object") {
       const optionsObj = (options as any)
@@ -93,7 +93,8 @@ export function getForumType(themeOptions: AbstractThemeOptions) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = {name: forumTypeSetting.get() === "EAForum" ? "auto" : "default"};
+export const defaultThemeOptions: AbstractThemeOptions =
+  {name: forumTypeSetting.get() === "EAForum" ? "auto" : "default"};
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {
@@ -105,17 +106,26 @@ const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOp
   }
 }
 
-export function getThemeOptions(themeCookie: string | object, user: DbUser|UsersCurrent|null): AbstractThemeOptions {
-  // Check if the user setting is a serialized ThemeOptions object
-  if (user?.theme && isValidSerializedThemeOptions(user.theme)) {
-    return deserializeThemeOptions(user.theme);
-  }
-
+const getSerializedThemeOptions = (
+  themeCookie: string | object,
+  user: DbUser|UsersCurrent | null,
+): string|AbstractThemeOptions => {
   // Try to read from the cookie
   if (themeCookie && isValidSerializedThemeOptions(themeCookie)) {
-    return deserializeThemeOptions(themeCookie);
+    return themeCookie;
+  }
+
+  // Check if the user setting is a serialized ThemeOptions object
+  if (user?.theme && isValidSerializedThemeOptions(user.theme)) {
+    return user.theme;
   }
 
   // If we still don't have anything, use the default
-  return deserializeThemeOptions(defaultThemeOptions);
+  return defaultThemeOptions;
 }
+
+export const getThemeOptions = (
+  themeCookie: string | object,
+  user: DbUser|UsersCurrent | null,
+): AbstractThemeOptions =>
+  deserializeThemeOptions(getSerializedThemeOptions(themeCookie, user));
