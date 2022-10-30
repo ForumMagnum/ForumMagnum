@@ -118,5 +118,13 @@ export interface CommentTreeOptions {
   /**
    * If passed, never start comments collapsed to single line.
    */
-  forceNotSingleLine?: boolean
+  forceNotSingleLine?: boolean,
+  
+  /**
+   * By default, every comment has its comment ID added to the DOM as an
+   * element ID, to enable within-page linking. If passed, skip those
+   * IDs (eg because the same comment would appear in the page more than
+   * once and this isn't the one you want to link to.)
+   */
+  noHash?: boolean,
 }
