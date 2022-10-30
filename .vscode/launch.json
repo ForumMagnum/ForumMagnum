@@ -3,8 +3,15 @@
     "configurations": [
         {
             "type": "chrome",
+            "request": "launch",
+            "name": "Chrome: launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/build/client"
+        },
+        {
+            "type": "chrome",
             "request": "attach",
-            "name": "Chrome attach",
+            "name": "Chrome: attach",
             "port": 9222,
             "urlFilter": "http://localhost:3000/*",
             "webRoot": "${workspaceFolder}/build/client",
@@ -12,7 +19,7 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "Server attach",
+            "name": "Server: attach",
             "restart": true,
             "port": 9229
         }
