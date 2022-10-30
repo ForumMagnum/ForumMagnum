@@ -57,7 +57,6 @@ export interface CommentsNodeProps {
   loadDirectReplies?: boolean,
   showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
-  displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
 }
 /**
@@ -85,14 +84,13 @@ const CommentsNode = ({
   loadDirectReplies=false,
   showPinnedOnProfile=false,
   enableGuidelines=true,
-  displayMode="default",
   classes
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, replyFormStyle="default" } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -186,7 +184,7 @@ const CommentsNode = ({
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
@@ -249,7 +247,6 @@ const CommentsNode = ({
             childComments={child.children}
             key={child.item._id}
             enableGuidelines={enableGuidelines}
-            displayMode={displayMode}
           />)}
       </div>}
 

@@ -142,7 +142,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -157,13 +157,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
-  displayMode?: CommentFormDisplayMode,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
-  const isMinimalist = displayMode === "minimalist"
+  const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
@@ -282,7 +281,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           }}
           type="reply"
           enableGuidelines={enableGuidelines}
-          displayMode={displayMode}
+          replyFormStyle={treeOptions.replyFormStyle}
         />
       </div>
     )

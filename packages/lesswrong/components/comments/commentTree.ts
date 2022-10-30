@@ -1,3 +1,4 @@
+import type { CommentFormDisplayMode } from './CommentsNewForm';
 
 export interface CommentTreeOptions {
   /**
@@ -127,4 +128,10 @@ export interface CommentTreeOptions {
    * once and this isn't the one you want to link to.)
    */
   noHash?: boolean,
+  
+  /**
+   * If provided, overrides the style of the reply button and reply
+   * form. Used in subforums.
+   */
+  replyFormStyle?: CommentFormDisplayMode,
 }

@@ -110,6 +110,7 @@ const CommentsTimelineSection = ({
           postPage: true,
           showCollapseButtons: true,
           tag: tag,
+          replyFormStyle: "minimalist",
         }}
         comments={comments}
         startThreadTruncated={startThreadTruncated}
@@ -141,7 +142,7 @@ const CommentsTimelineSection = ({
               successCallback={refetch}
               type="comment"
               enableGuidelines={false}
-              displayMode="minimalist" />
+              replyFormStyle="minimalist" />
           </div>
         </>
       ) : (

@@ -108,6 +108,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     highlightDate: lastVisitedAt,
     tag: tag,
     condensed: true,
+    replyFormStyle: isSubforum ? "minimalist" : "default",
   }
   
   const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
@@ -144,7 +145,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
               nestingLevel={1}
               comment={comment.item}
               childComments={comment.children}
-              displayMode={isSubforum ? "minimalist" : "default"}
               key={comment.item._id}
             />
           </div>

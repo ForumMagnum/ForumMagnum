@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeOptions } from './commentTree';
 import { CommentFormDisplayMode } from './CommentsNewForm';
+import type { CommentsNodeProps } from './CommentsNode';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -89,14 +90,13 @@ const CommentsTimelineFn = ({
     );
   }
   
-  const commentNodeProps = {
+  const commentNodeProps: Partial<CommentsNodeProps> = {
     treeOptions: treeOptions,
     startThreadTruncated: startThreadTruncated,
     parentCommentId: parentCommentId,
     parentAnswerId: parentAnswerId,
     isChild: defaultNestingLevel > 1,
     enableGuidelines: false,
-    displayMode: "minimalist" as CommentFormDisplayMode,
   }
 
   return (
