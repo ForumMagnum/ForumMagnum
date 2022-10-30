@@ -5,6 +5,7 @@ registerFragment(`
     _id
     postId
     tagId
+    tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
@@ -12,6 +13,7 @@ registerFragment(`
       _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil

@@ -45,6 +45,7 @@ declare global {
     forum?: boolean,
     question?: boolean,
     tagId?: string,
+    subforumTagId?: string,
     legacyId?: string,
     postId?: string,
     authorIsUnreviewed?: boolean|null,

@@ -453,6 +453,7 @@ registerFragment(`
       ...RevisionEdit
     }
     tableOfContents
+    subforumTagId
   }
 `);
 

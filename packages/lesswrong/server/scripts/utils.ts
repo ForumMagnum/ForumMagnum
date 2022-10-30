@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import * as _ from 'underscore';
 
 // Bulk apply a js function to a mongo collection; this is possibly less

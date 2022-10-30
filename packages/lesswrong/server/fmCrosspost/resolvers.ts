@@ -5,7 +5,6 @@ import type { ConnectCrossposterArgs, UnlinkCrossposterPayload } from "./types";
 import { ApiRoute, apiRoutes, makeApiUrl } from "./routes";
 import { signToken } from "./tokens";
 import type { Request } from "express";
-import fetch from "node-fetch";
 import { crosspostUserAgent } from "../../lib/apollo/links";
 
 const getUserId = (req?: Request) => {

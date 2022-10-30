@@ -3,12 +3,14 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   post: {
     marginTop: theme.spacing.unit*2,
@@ -47,15 +49,26 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
               <PostsTitle post={post} showIcons={false} wrap/> 
               {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
             </Link>
-            <span className={classes.meta}>
-              <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
-              <SmallSideVote document={post} collection={Posts}/>
-            </span>
+            <div>
+              <span className={classes.meta}>
+                <span className={classes.vote}>
+                  <SmallSideVote document={post} collection={Posts}/>
+                </span>
+                <MetaInfo>
+                  <FormatDate date={post.postedAt}/>
+                </MetaInfo>
+                {post.commentCount && <MetaInfo>
+                  <Link to={`postGetPageUrl(post)#comments`}>
+                    {post.commentCount} comments
+                  </Link>
+                </MetaInfo>}
+              </span>
+            </div>
           </div>
           <PostActionsButton post={post} />
         </div>
         {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
-          <div dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
+          <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
         </ContentStyles>}
       </div>)}
     </div>

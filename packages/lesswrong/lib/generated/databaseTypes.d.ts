@@ -70,6 +70,18 @@ interface DbChapter extends DbObject {
   createdAt: Date
 }
 
+interface ClientIdsCollection extends CollectionBase<DbClientId, "ClientIds"> {
+}
+
+interface DbClientId extends DbObject {
+  __collectionName?: "ClientIds"
+  clientId: string
+  firstSeenReferrer: string | null
+  firstSeenLandingPage: string
+  userIds: Array<string>
+  createdAt: Date
+}
+
 interface CollectionsCollection extends CollectionBase<DbCollection, "Collections"> {
 }
 
@@ -318,7 +330,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "commentLowQualityWarning" | "commentMediocreQualityWarning"
+  type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert"
   endedAt: Date | null
   createdAt: Date
 }
@@ -440,7 +452,7 @@ interface DbPost extends DbObject {
   finalReviewVoteScoreAF: number
   finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
+  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
   noIndex: boolean
   rsvps: Array<{
     name: string,
@@ -534,6 +546,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  subforumTagId: string
   af: boolean
   afDate: Date
   afBaseScore: number
@@ -784,6 +797,9 @@ interface DbUserTagRel extends DbObject {
   tagId: string
   userId: string
   subforumLastVisitedAt: Date | null
+  subforumShowUnreadInSidebar: boolean
+  subforumEmailNotifications: boolean
+  createdAt: Date
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
@@ -935,6 +951,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationPostsNominatedReview: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationSubforumUnread: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -1111,6 +1133,7 @@ interface CollectionsByName {
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
+  ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -1152,6 +1175,7 @@ interface ObjectsByCollectionName {
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
+  ClientIds: DbClientId
   Collections: DbCollection
   Comments: DbComment
   Conversations: DbConversation

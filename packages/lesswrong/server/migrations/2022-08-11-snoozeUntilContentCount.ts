@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 
 import { Users } from '../../lib/collections/users/collection';
-import { getNewSnoozeUntilContentCount } from '../../components/sunshineDashboard/SunshineNewUsersInfo';
+import { getNewSnoozeUntilContentCount } from '../../components/sunshineDashboard/ModeratorActions';
 
 registerMigration({
   name: "setSnoozeUntilContentCountValues",

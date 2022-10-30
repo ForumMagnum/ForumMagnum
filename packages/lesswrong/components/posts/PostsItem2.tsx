@@ -15,10 +15,16 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import qs from "qs";
+import { PopperPlacementType } from '@material-ui/core/Popper';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  row: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
   root: {
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -295,6 +301,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   isRead: {
     // this is just a placeholder, enabling easier theming.
+  },
+  checkbox: {
+    marginRight: 10
   }
 })
 
@@ -320,7 +329,6 @@ const PostsItem2 = ({
   defaultToShowComments=false,
   sequenceId, 
   chapter,
-  index,
   terms,
   resumeReading,
   dismissRecommendation,
@@ -337,11 +345,14 @@ const PostsItem2 = ({
   showNominationCount=false,
   showReviewCount=false,
   hideAuthor=false,
+  hideTrailingButtons=false,
+  tooltipPlacement="bottom-end",
   classes,
   curatedIconLeft=false,
   strikethroughTitle=false,
   translucentBackground=false,
-  forceSticky=false
+  forceSticky=false,
+  showReadCheckbox=false
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -386,11 +397,14 @@ const PostsItem2 = ({
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
+  hideTrailingButtons?: boolean,
+  tooltipPlacement?: PopperPlacementType,
   classes: ClassesType,
   curatedIconLeft?: boolean,
   strikethroughTitle?: boolean
   translucentBackground?: boolean,
-  forceSticky?: boolean
+  forceSticky?: boolean,
+  showReadCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -438,7 +452,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
+    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
   const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
@@ -468,7 +482,11 @@ const PostsItem2 = ({
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   return (
-      <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
+    <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
+      <div className={classes.row}>
+        {showReadCheckbox && <div className={classes.checkbox}>
+          <PostReadCheckbox post={post} width={14} />
+        </div>}
         <div className={classNames(
           classes.root,
           {
@@ -476,11 +494,12 @@ const PostsItem2 = ({
             [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
-            [classes.isRead]: isRead
+            [classes.isRead]: isRead && !showReadCheckbox  // readCheckbox and post-title read-status don't aesthetically match
           })}
         >
           <PostsItemTooltipWrapper
             post={post}
+            placement={tooltipPlacement}
             className={classNames(
               classes.postsItem,
               classes.withGrayHover, {
@@ -503,7 +522,7 @@ const PostsItem2 = ({
                     <PostsTitle
                       postLink={post.draft ? postEditLink : postLink}
                       post={post}
-                      read={isRead}
+                      read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
                       sticky={isSticky(post, terms) || forceSticky}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
@@ -513,7 +532,6 @@ const PostsItem2 = ({
                     />
                   </AnalyticsTracker>
                 </span>
-
 
                 {(resumeReading?.sequence || resumeReading?.collection) &&
                   <div className={classes.subtitle}>
@@ -596,13 +614,15 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {<div className={classes.actions}>
-            {dismissButton}
-            {!resumeReading && <PostActionsButton post={post} vertical />}
-          </div>}
-          {<div className={classes.archiveButton}>
-            {archiveButton}
-          </div>}
+          {!hideTrailingButtons && <>
+            {<div className={classes.actions}>
+              {dismissButton}
+              {!resumeReading && <PostActionsButton post={post} vertical />}
+            </div>}
+            {<div className={classes.archiveButton}>
+              {archiveButton}
+            </div>}
+          </>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}
@@ -615,7 +635,8 @@ const PostsItem2 = ({
             />
           </div>}
         </div>
-      </AnalyticsContext>
+      </div>
+    </AnalyticsContext>
   )
 };
 

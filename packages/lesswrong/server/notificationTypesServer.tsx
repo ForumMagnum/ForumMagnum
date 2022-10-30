@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -21,14 +21,17 @@ import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { forumTitleSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNamePluralSetting } from '../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
+import uniq from 'lodash/uniq';
+import startCase from 'lodash/startCase';
 
 interface ServerNotificationType {
   name: string,
   from?: string,
   canCombineEmails?: boolean,
+  skip?: (user: DbUser, notification: DbNotification) => boolean,
   loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
   emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
   emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,
@@ -158,6 +161,33 @@ export const NewCommentNotification = serverRegisterNotificationType({
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
       return `${author.displayName} commented on a post you subscribed to`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
+export const NewSubforumCommentNotification = serverRegisterNotificationType({
+  name: "newSubforumComment",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+
+    const commentCount = comments.length
+    const subforumIds = uniq(comments.map(c => c.tagId))
+    
+    if (subforumIds.length === 1) {
+      const subforum = await Tags.findOne(subforumIds[0])
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} subforum`
+    } else {
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} subforums you are subscribed to`
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {

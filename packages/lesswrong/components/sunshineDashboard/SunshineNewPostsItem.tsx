@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMutation, gql } from '@apollo/client';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -30,8 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   moderation: {
     marginBottom: 12
   },
+  metaInfoRow: {
+    marginBottom: 8,
+    display: "flex",
+    alignItems: "center"
+  },
   vote: {
-    marginBottom: 8
+    marginRight: 8
   }
 })
 
@@ -39,7 +43,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   post: SunshinePostsList,
   classes: ClassesType
 }) => {
-  const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   
@@ -47,28 +50,8 @@ const SunshineNewPostsItem = ({post, classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const [addTagsMutation] = useMutation(gql`
-    mutation addTagsMutation($postId: String, $tagIds: [String]) {
-      addTags(postId: $postId, tagIds: $tagIds)
-    }
-  `);
-
-  const applyTags = () => {
-    const tagsApplied: Array<string> = [];
-    for (let tagId of Object.keys(selectedTags)) {
-      if (selectedTags[tagId])
-        tagsApplied.push(tagId);
-    }
-    void addTagsMutation({
-      variables: {
-        postId: post._id,
-        tagIds: tagsApplied,
-      }
-    });
-  }
   
   const handlePersonal = () => {
-    applyTags();
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -80,8 +63,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   }
 
   const handlePromote = () => {
-    applyTags();
-    
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -94,7 +75,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
-      applyTags();
       window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
         selector: { _id: post._id},
@@ -105,7 +85,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -115,10 +95,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <FooterTagList post={post} />
-          <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
-            setSelectedTags(selectedTags);
-          }}/>
+          <FooterTagList post={post} showCoreTags/>
           <div className={classes.buttonRow}>
               <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal
@@ -135,7 +112,19 @@ const SunshineNewPostsItem = ({post, classes}: {
                 { post.title }
               </Link>
             </Typography>
-            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
+            <div className={classes.metaInfoRow}>
+              <span className={classes.vote}>
+                <SmallSideVote document={post} collection={Posts}/>
+              </span>
+              <MetaInfo>
+                <FormatDate date={post.postedAt}/>
+              </MetaInfo>
+              {post.commentCount && <MetaInfo>
+                <Link to={`postGetPageUrl(post)#comments`}>
+                  {post.commentCount} comments
+                </Link>
+              </MetaInfo>}
+            </div>
             {moderationSection && <div className={classes.moderation}>
               {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>
