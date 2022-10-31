@@ -143,6 +143,7 @@ interface DbComment extends DbObject {
   reviewedByUserId: string
   hideAuthor: boolean
   moderatorHat: boolean
+  hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   af: boolean
   afBaseScore: number

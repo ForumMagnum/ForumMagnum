@@ -361,7 +361,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               scrollIntoView={scrollIntoView}
               scrollOnClick={postPage && !isParentComment}
             />
-            {comment.moderatorHat && <span className={classes.moderatorHat}>
+            {comment.moderatorHat && !comment.hideModeratorHat && <span className={classes.moderatorHat}>
               Moderator Comment
             </span>}
             <SmallSideVote
