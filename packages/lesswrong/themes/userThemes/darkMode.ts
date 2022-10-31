@@ -1,5 +1,6 @@
 import type { PartialDeep } from 'type-fest'
 import { invertHexColor, invertColor } from '../colorUtil';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey
@@ -19,8 +20,8 @@ export const invertedGreyscale = {
   A700: invertHexColor('#616161'),
   
   // Greyscale colors not in the MUI palette
-  0: "#000",
-  1000: "#fff",
+  0: invertHexColor('#ffffff'),
+  1000: invertHexColor('#000000'),
   
   10: invertHexColor('#fefefe'),
   20: invertHexColor('#fdfdfd'),
@@ -101,6 +102,42 @@ function generateColorOverrides(): string {
   }).join('\n');
 }
 
+const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
+  forumSelect({
+    EAForum: {
+      primary: {
+        main: '#009da8',
+        light: '#0c869b',
+        dark: '#009da8'
+      },
+      secondary: {
+        main: '#3c9eaf',
+        light: '#0c869b',
+        dark: '#3c9eaf'
+      },
+      lwTertiary: {
+        main: "#0e9bb4",
+        dark: "#0e9bb4",
+      },
+      panelBackground: {
+        default: shadePalette.grey[20],
+      },
+    },
+    default: {},
+  });
+
+const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
+  forumSelect({
+    EAForum: {
+      PostsTopSequencesNav: {
+        title: {
+          color: palette.icon.dim,
+        },
+      },
+    },
+    default: {},
+  });
+
 export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
     grey: invertedGreyscale,
@@ -125,7 +162,7 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent3: "rgba(0,0,0,.75)",
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
-      commentMoaderatorHat: "#202719",
+      commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
     },
     background: {
@@ -152,6 +189,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
+    ...forumComponentPalette(shadePalette),
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
@@ -160,6 +198,7 @@ export const darkModeTheme: UserThemeSpecification = {
       // have black-on-transparent text in them.
       background: "#ffffff",
     },
+    overrides: forumOverrides(palette),
     rawCSS: [
       safeColorFallbacks,
       generateColorOverrides()

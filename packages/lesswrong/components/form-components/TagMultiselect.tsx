@@ -33,18 +33,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false, updateCurrentValues }: {
   value: Array<string>,
   path: string,
   classes: ClassesType,
   label?: string,
   placeholder?: string,
   hidePostCount?: boolean,
+  startWithBorder?: boolean,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
   const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
 
-  const [focused, setFocused] = useState(false)
+  const [focused, setFocused] = useState(startWithBorder)
 
   const addTag = (id: string) => {
     if (!value.includes(id)) {
