@@ -3,8 +3,13 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { createGenerateClassName } from '@material-ui/core/styles';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { ThemeContextProvider } from '../../components/themes/useTheme';
+import { AbstractThemeOptions } from '../../themes/themeNames';
 
-export function wrapWithMuiTheme (app: React.ReactNode, context, themeOptions) {
+export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: SheetsRegistry}>(
+  app: React.ReactNode,
+  context: Context,
+  themeOptions: AbstractThemeOptions,
+): React.ReactElement => {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({

@@ -5,11 +5,12 @@ import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
 import { wrapWithMuiTheme } from './themeProvider';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
+import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 import { CookiesProvider } from 'react-cookie';
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abTestImpl';
-import type { ThemeOptions } from '../themes/themeNames';
+import type { AbstractThemeOptions } from '../themes/themeNames';
 import type { TimeOverride } from '../lib/utils/timeUtil';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
@@ -19,7 +20,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   abTestGroupsUsed: RelevantTestGroupAllocation,
-  themeOptions: ThemeOptions,
+  themeOptions: AbstractThemeOptions,
   timeOverride: TimeOverride,
 }) => {
   const App = (
@@ -28,7 +29,9 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
         <CookiesProvider>
           <BrowserRouter>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+              <PrefersDarkModeProvider>
+                <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+              </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>
           </BrowserRouter>
         </CookiesProvider>
