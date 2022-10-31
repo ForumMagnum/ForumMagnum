@@ -258,7 +258,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       <div className={classes.bottom}>
         <CommentBottomCaveats comment={comment} />
         {showReplyButton && (
-          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+          treeOptions?.replaceReplyButtonsWith?.(comment)
+          || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
             {showInlineCancel ? "Cancel" : "Reply"}
           </a>
         )}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { CommentFormDisplayMode } from './CommentsNewForm';
 
 export interface CommentTreeOptions {
@@ -134,4 +135,10 @@ export interface CommentTreeOptions {
    * form. Used in subforums.
    */
   replyFormStyle?: CommentFormDisplayMode,
+  
+  /**
+   * If provided, Reply buttons are replaced with something else. Used
+   * in side-comments, to replace Reply with See In Context.
+   */
+  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,)=>ReactNode
 }

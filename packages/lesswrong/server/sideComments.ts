@@ -418,10 +418,7 @@ export function matchSideComments({postId, html, comments, quoteShardSettings}: 
     }
   }
   
-  console.log(htmlWithBlockIDs);
-  console.log(markedSpans);
   const htmlWithSpanAnnotations = annotateMatchedSpans(htmlWithBlockIDs, markedSpans);
-  console.log(htmlWithSpanAnnotations );
   
   return {
     html: htmlWithSpanAnnotations,

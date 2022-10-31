@@ -15,6 +15,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.darken03,
     borderRadius: 8,
     color: theme.palette.icon.dim6,
+    
+    "@media print": {
+      display: "none",
+    },
   },
   sideCommentIcon: {
     position: 'absolute',
@@ -36,6 +40,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sideCommentHover: {
     border: theme.palette.border.normal,
+  },
+  seeInContext: {
+    color: theme.palette.link.dim,
   },
 });
 
@@ -103,9 +110,10 @@ const SideCommentHover = ({commentIds, post, classes}: {
   </div>
 }
 
-const SideCommentSingle = ({commentId, post}: {
+const SideCommentSingle = ({commentId, post, classes}: {
   commentId: string,
   post: PostsDetails,
+  classes: ClassesType,
 }) => {
   const { CommentWithReplies, Loading } = Components;
   const { document: comment, data, loading, error } = useSingle({
@@ -141,6 +149,10 @@ const SideCommentSingle = ({commentId, post}: {
     return () => {
       rootDiv!.removeEventListener('mousemove', listener);
     }
+  // Ignoring exhaustive-deps warning because it incorrectly thinks that
+  // `rootDivRef.current` shouldn't be a dependency (but taking it out
+  // as a dependency does in fact break the functionality.)
+  //   eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentId, hoveredBlockquoteId, rootDivRef.current]);
   
   if (loading) return <Loading/>
@@ -163,6 +175,7 @@ const SideCommentSingle = ({commentId, post}: {
         treeOptions: {
           showPostTitle: false,
           showCollapseButtons: true,
+          replaceReplyButtonsWith: (comment) => <a href={"#"+comment._id} className={classes.seeInContext}>See in context</a>
         },
       }}
     />
