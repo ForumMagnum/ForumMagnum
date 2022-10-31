@@ -152,4 +152,4 @@ registerFragment(`
       voteType
     }
   }
-`)
+`);

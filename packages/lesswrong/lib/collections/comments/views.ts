@@ -528,21 +528,3 @@ ensureIndex(Comments,
   augmentForDefaultView({moderatorHat: 1}),
   { name: "comments.moderatorHat" }
 );
-
-Comments.addView('recentVotedComments', (terms: CommentsViewTerms) => {
-  const sevenDaysAgo = moment().subtract(14, 'days').toDate();
-  return {
-    selector: {
-      postedAt: {
-        $gt: sevenDaysAgo
-      },
-      voteCount: {
-        $gt: 2
-      },
-    },
-    options: {
-      sort: { postedAt: -1 },
-      limit: terms.limit
-    }
-  };
-});
