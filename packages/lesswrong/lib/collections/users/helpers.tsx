@@ -478,3 +478,13 @@ export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
 
   return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
 };
+
+export const getSignature = (name: string) => {
+  const today = new Date();
+  const todayString = today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  return `${name}, ${todayString}`;
+};
+
+export const getSignatureWithNote = (name: string, note: string) => {
+  return `${getSignature(name)}: ${note}\n`;
+};

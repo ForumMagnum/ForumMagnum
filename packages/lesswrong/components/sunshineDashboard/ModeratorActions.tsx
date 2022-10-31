@@ -18,6 +18,7 @@ import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions
 import { sortBy } from 'underscore';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
+import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -113,10 +114,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     return today.toLocaleString('default', { month: 'short', day: 'numeric'});
   }
 
-  const signature = `${currentUser?.displayName}, ${getTodayString()}`
-  const signatureWithNote = (note:string) => {
-    return `${signature}: ${note}\n`
-  }
+  const signature = getSignature(currentUser.displayName);
+  
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
       void updateUser({
@@ -159,7 +158,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handleSnooze = (contentCount: number) => {
-    const newNotes = signatureWithNote(`Snooze ${contentCount}`)+notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, `Snooze ${contentCount}`)+notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -174,7 +173,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handleNeedsReview = () => {
-    const newNotes = signatureWithNote("set to manual review") + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, "set to manual review") + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -186,7 +185,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
 
   const handleRemoveNeedsReview = () => {
-    const newNotes = signatureWithNote("removed from review queue without snooze/approval") + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, "removed from review queue without snooze/approval") + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -200,7 +199,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const banMonths = 3
   
   const handleBan = () => {
-    const newNotes = signatureWithNote("Ban") + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, "Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
       void updateUser({
         selector: {_id: user._id},
@@ -234,7 +233,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
           sunshineNotes: notes
         }
       })
-      setNotes( signatureWithNote("Purge")+notes )
+      setNotes( getSignatureWithNote(currentUser.displayName, "Purge")+notes )
     }
   }
   
@@ -248,12 +247,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     })
     
     const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    setNotes( signatureWithNote(flagStatus)+notes )
+    setNotes( getSignatureWithNote(currentUser.displayName, flagStatus)+notes )
   }
   
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
-    const newNotes = signatureWithNote(`posting ${abled}`) + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, `posting ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -266,7 +265,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableAllCommenting = () => {
     const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
-    const newNotes = signatureWithNote(`all commenting ${abled}`) + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, `all commenting ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -279,7 +278,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
-    const newNotes = signatureWithNote(`commenting on other's ${abled}`) + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, `commenting on other's ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -292,7 +291,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableConversations = () => {
     const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
-    const newNotes = signatureWithNote(`conversations ${abled}`) + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, `conversations ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -307,7 +306,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
   const handleRateLimit = async () => {
     const addedOrRemoved = mostRecentRateLimit?.active ? 'removed' : 'added';
-    const newNotes = signatureWithNote(`rate limit ${addedOrRemoved}`) + notes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, `rate limit ${addedOrRemoved}`) + notes;
     await updateUser({
       selector: { _id: user._id },
       data: { sunshineNotes: newNotes }

@@ -15,6 +15,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
+import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -188,29 +189,30 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
-const getTodayString = () => {
-  const today = new Date();
-  return today.toLocaleString('default', { month: 'short', day: 'numeric'});
-}
-
-const getSignature = (name: string) => `${name}, ${getTodayString()}`
-export const getSignatureWithNote = (name: string, note: string) => {
-  return `${getSignature(name)}: ${note}\n`;
-}
-
 /**
- * Adds a note to a user's sunshineNotes when an admin sets one of their posts back to draft
+ * Creates a moderator action when an admin sets one of the user's posts back to draft
+ * This also adds a note to a user's sunshineNotes
  */
 getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
   if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
-    const postAuthorId = document.userId;
-    const postAuthor = await context.loaders.Users.load(postAuthorId);
-    const responsibleAdminName = currentUser.displayName;
-    const newNote = getSignatureWithNote(responsibleAdminName, ` set post "${document.title}" back to draft`);
-    const oldNotes = postAuthor.sunshineNotes ?? '';
-    const updatedNotes = `${newNote}${oldNotes}`;
+    createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
+    // const postAuthorId = document.userId;
+    // const postAuthor = await context.loaders.Users.load(postAuthorId);
+    // const responsibleAdminName = currentUser.displayName;
+    // const newNote = getSignatureWithNote(responsibleAdminName, ` set post "${document.title}" back to draft`);
+    // const oldNotes = postAuthor.sunshineNotes ?? '';
+    // const updatedNotes = `${newNote}${oldNotes}`;
 
-    void context.Users.rawUpdateOne({ _id: postAuthorId }, { $set: { sunshineNotes: updatedNotes } });
+    // void context.Users.rawUpdateOne({ _id: postAuthorId }, { $set: { sunshineNotes: updatedNotes } });
   }
 });
 

@@ -1,16 +1,18 @@
 import Conversations from '../../lib/collections/conversations/collection'
+import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/schema';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { getSignatureWithNote } from './postCallbacks';
+import { createMutator } from '../vulcan-lib';
 
 getCollectionHooks("Messages").createAsync.add(function unArchiveConversations({document}) {
   void Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}});
 });
 
 /**
- * Adds a note to a user's sunshineNotes when the first message in a mod conversation is sent to them
+ * Creates a moderator action when the first message in a mod conversation is sent to the user
+ * This also adds a note to a user's sunshineNotes
  */
-getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnModMessage({ document, context }) {
+getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnModMessage({ document, currentUser, context }) {
   const { conversationId } = document;
   const conversation = await context.loaders.Conversations.load(conversationId);
   if (conversation.moderator) {
@@ -23,14 +25,16 @@ getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnM
     const nonAdminParticipant = conversationParticipants.find(user => !userIsAdmin(user));
 
     if (nonAdminParticipant && conversationMessageCount === 1) {
-      const messageAuthorId = document.userId;
-      const messageAuthor = await context.loaders.Users.load(messageAuthorId);
-      const responsibleAdminName = messageAuthor.displayName;
-      const newNote = getSignatureWithNote(responsibleAdminName, ' sent moderator message');
-      const oldNotes = nonAdminParticipant.sunshineNotes ?? '';
-      const updatedNotes = `${newNote}${oldNotes}`;
-  
-      void context.Users.rawUpdateOne({ _id: nonAdminParticipant._id }, { $set: { sunshineNotes: updatedNotes } });  
+      createMutator({
+        collection: context.ModeratorActions,
+        context,
+        currentUser,
+        document: {
+          userId: nonAdminParticipant._id,
+          type: SENT_MODERATOR_MESSAGE,
+          endedAt: new Date()
+        }
+      });
     }
   }
 });
