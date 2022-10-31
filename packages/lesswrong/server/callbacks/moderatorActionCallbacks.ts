@@ -1,10 +1,12 @@
-import { MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
+import { isActionActive, MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 
 getCollectionHooks('ModeratorActions').createAfter.add(async function triggerReview(doc) {
-  void triggerReviewIfNeeded(doc.userId, true);
+  if (isActionActive(doc)) {
+    void triggerReviewIfNeeded(doc.userId, true);
+  }
   return doc;
 });
 

@@ -205,14 +205,6 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
         endedAt: new Date()
       }
     });
-    // const postAuthorId = document.userId;
-    // const postAuthor = await context.loaders.Users.load(postAuthorId);
-    // const responsibleAdminName = currentUser.displayName;
-    // const newNote = getSignatureWithNote(responsibleAdminName, ` set post "${document.title}" back to draft`);
-    // const oldNotes = postAuthor.sunshineNotes ?? '';
-    // const updatedNotes = `${newNote}${oldNotes}`;
-
-    // void context.Users.rawUpdateOne({ _id: postAuthorId }, { $set: { sunshineNotes: updatedNotes } });
   }
 });
 
