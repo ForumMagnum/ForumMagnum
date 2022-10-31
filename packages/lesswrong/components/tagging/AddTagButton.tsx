@@ -1,7 +1,6 @@
-import React, { useState }  from 'react';
+import React, { useRef, useState }  from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from '@material-ui/core/Paper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -26,10 +25,10 @@ const AddTagButton = ({onTagSelected, classes, children}: {
   children?: any
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
+  const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTag } = Components
+  const { LWPopper, AddTag, LWClickAwayListener } = Components
 
   if (!userCanUseTags(currentUser)) {
     return null;
@@ -37,33 +36,32 @@ const AddTagButton = ({onTagSelected, classes, children}: {
 
   return <a
     onClick={(ev) => {
-      setAnchorEl(ev.currentTarget);
       setIsOpen(true);
       captureEvent("addTagClicked")
     }}
     className={classes.addTagButton}
+    ref={anchorEl}
   >
     {children ? children : <span className={classes.defaultButton}>+ Add {taggingNameCapitalSetting.get()}</span>}
 
     <LWPopper
       open={isOpen}
-      anchorEl={anchorEl}
+      anchorEl={anchorEl.current}
       placement="bottom"
       allowOverflow
     >
-      <ClickAwayListener
+      <LWClickAwayListener
         onClickAway={() => setIsOpen(false)}
       >
         <Paper>
           <AddTag
             onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
-              setAnchorEl(null);
               setIsOpen(false);
               onTagSelected({tagId, tagName});
             }}
           />
         </Paper>
-      </ClickAwayListener>
+      </LWClickAwayListener>
     </LWPopper>
   </a>;
 }

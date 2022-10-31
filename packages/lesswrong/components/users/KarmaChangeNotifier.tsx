@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -210,7 +210,7 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
   const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null)
+  const anchorEl = useRef<HTMLDivElement|null>(null)
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
   
@@ -222,18 +222,13 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
   
   const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
 
-  const handleOpen = (event) => {
+  const handleOpen = () => {
     setOpen(true);
-    setAnchorEl(event.currentTarget);
     setKarmaChangeLastOpened(new Date());
   }
 
-  const handleClose = (e) => {
-    if (e && anchorEl?.contains(e.target)) {
-      return;
-    }
+  const handleClose = () => {
     setOpen(false);
-    setAnchorEl(null);
     if (!currentUser) return;
     if (document?.karmaChanges) {
       void updateCurrentUser({
@@ -247,11 +242,11 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     }
   }
 
-  const handleToggle = (e) => {
+  const handleToggle = () => {
     if (open) {
-      handleClose(null) // When closing from toggle, force a close by not providing an event
+      handleClose()
     } else {
-      handleOpen(e)
+      handleOpen()
     }
     captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges: stateKarmaChanges})
   }
@@ -270,29 +265,31 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
     
-    const { LWPopper } = Components;
+    const { LWClickAwayListener, LWPopper } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classes.root}>
-        <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
-          {starIsHollow
-            ? <StarBorderIcon className={classes.starIcon}/>
-            : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
-                <StarIcon className={classes.starIcon}/>
-              </Badge>
-          }
-        </IconButton>
+        <div ref={anchorEl}>
+          <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
+            {starIsHollow
+              ? <StarBorderIcon className={classes.starIcon}/>
+              : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
+                  <StarIcon className={classes.starIcon}/>
+                </Badge>
+            }
+          </IconButton>
+        </div>
         <LWPopper
           open={open}
-          anchorEl={anchorEl}
+          anchorEl={anchorEl.current}
           placement="bottom-end"
           className={classes.karmaNotifierPopper}
         >
-          <ClickAwayListener onClickAway={handleClose}>
+          <LWClickAwayListener onClickAway={handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
               <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={handleClose} />
             </Paper>
-          </ClickAwayListener>
+          </LWClickAwayListener>
         </LWPopper>
       </div>
     </AnalyticsContext>
