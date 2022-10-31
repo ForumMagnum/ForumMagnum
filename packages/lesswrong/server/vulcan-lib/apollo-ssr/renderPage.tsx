@@ -20,10 +20,10 @@ import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
-import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
+import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
+import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
@@ -46,7 +46,7 @@ export type RenderResult = {
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
-  themeOptions: ThemeOptions,
+  themeOptions: AbstractThemeOptions,
   renderedAt: Date,
   timings: RenderTimings
 }
@@ -86,7 +86,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     recordCacheBypass();
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
-      req, user, startTime, res, clientId,
+      req, user, startTime, res, clientId, userAgent,
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
@@ -106,7 +106,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   } else {
     const abTestGroups = getAllUserABTestGroups(user, clientId);
     const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
-      req, user: null, startTime, res, clientId,
+      req, user: null, startTime, res, clientId, userAgent
     }));
     
     if (rendered.cached) {
@@ -135,17 +135,31 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-export function getThemeOptionsFromReq(req: Request, user: DbUser|null) {
+export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
   const themeCookie = getCookieFromReq(req, "theme");
   return getThemeOptions(themeCookie, user);
 }
 
-export const renderRequest = async ({req, user, startTime, res, clientId}: {
+const buildSSRBody = (htmlContent: string, userAgent?: string) => {
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  // TODO: there should be a cleaner way to set this wrapper
+  // id must always match the client side start.jsx file
+  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+}
+
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
   req: Request,
   user: DbUser|null,
   startTime: Date,
   res: Response,
   clientId: string,
+  userAgent?: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
@@ -196,9 +210,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   }
   const afterPrerenderTime = new Date();
 
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  const ssrBody = `<div id="react-app">${htmlContent}</div>`;
+  const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
   const head = ReactDOM.renderToString(<Head />);
@@ -207,29 +219,9 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
-  
-  // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
-  // context.
-  const sheetsRegistry = context.sheetsRegistry;
-  
-  // Experimental handling to make default theme (dark mode or not) depend on
-  // the user's system setting. Currently doesn't work because, while this does
-  // successfully customize everything that goes through our merged stylesheet,
-  // it can't handle the material-UI stuff that gets stuck into the page header.
-  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
-  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +'<style>'
-    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
-    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
-    +'</style>'*/
-  
-  const stylesheet = getMergedStylesheet(themeOptions);
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
-  
+
+  const jssSheets = renderJssSheetImports(themeOptions);
+
   const finishedTime = new Date();
   const timings: RenderTimings = {
     prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
@@ -260,7 +252,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
-    themeOptions: themeOptions,
+    themeOptions,
     renderedAt: now,
     timings,
   };

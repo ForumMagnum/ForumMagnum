@@ -1,9 +1,8 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { Components } from '../../lib/vulcan-lib';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useOnNavigate } from './NavigationEventSender';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 
 export interface OpenDialogContextType {
   openDialog: <T extends keyof ComponentTypes>({componentName, componentProps, noClickawayCancel}: {
@@ -50,8 +49,10 @@ export const DialogManager = ({children}: {
     if (closeOnNavigate) closeDialog()
   })
 
+  const { LWClickAwayListener } = Components
+
   const modal = isOpen && <ModalComponent {...componentProps} onClose={closeDialog} />
-  const withClickaway = isOpen && (noClickawayCancel ? modal : <ClickAwayListener onClickAway={closeDialog}>{modal}</ClickAwayListener>);
+  const withClickaway = isOpen && (noClickawayCancel ? modal : <LWClickAwayListener onClickAway={closeDialog}>{modal}</LWClickAwayListener>);
   return (
     <OpenDialogContext.Provider value={providedContext}>
       {children}

@@ -14,8 +14,11 @@ import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import TextField from '@material-ui/core/TextField';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
+// mailchimp link to sign up for the EA Forum's digest
+const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,6 +44,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   loginForm: {
     margin: "0 auto -4px",
     maxWidth: 252,
+  },
+  digestForm: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+    columnGap: 30,
+    rowGap: '14px',
+    padding: '20px 50px 20px 20px',
+    [theme.breakpoints.down('xs')]: {
+      padding: 10
+    }
+  },
+  digestFormInput: {
+    flexGrow: 1
+  },
+  digestFormSubmitBtn: {
+    minHeight: 0,
+    boxShadow: 'none'
   },
   message: {
     display: "flex",
@@ -238,9 +259,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     );
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
-      <div className={classes.loginForm}>
+      {forumTypeSetting.get() === 'EAForum' ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
+        <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
+        <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
+          Sign up
+        </Button>
+      </form> : <div className={classes.loginForm}>
         <WrappedLoginForm startingState="signup" />
-      </div>
+      </div>}
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {

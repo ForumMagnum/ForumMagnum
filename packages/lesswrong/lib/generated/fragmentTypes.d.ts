@@ -19,7 +19,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
-  readonly theme: string,
+  readonly theme: {
+    name: "default" | "dark" | "auto" | null,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
+  } | null,
   readonly lastUsedTimezone: string,
   readonly whenConfirmationEmailSent: Date,
   readonly legacy: boolean,
@@ -1210,6 +1213,7 @@ interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
+  readonly wordCount: number,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -2320,7 +2324,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
       onlyUnread: boolean,
     },
   },
-  readonly theme: string,
+  readonly theme: {
+    name: "default" | "dark" | "auto" | null,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
+  } | null,
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
@@ -2438,6 +2445,10 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
   readonly beta: boolean,
+  readonly theme: {
+    name: "default" | "dark" | "auto" | null,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
+  } | null,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
