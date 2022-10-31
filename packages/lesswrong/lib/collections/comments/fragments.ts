@@ -13,6 +13,7 @@ registerFragment(`
       _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil

@@ -452,7 +452,7 @@ interface DbPost extends DbObject {
   finalReviewVoteScoreAF: number
   finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
+  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
   noIndex: boolean
   rsvps: Array<{
     name: string,
@@ -818,7 +818,10 @@ interface DbUser extends DbObject {
   noindex: boolean
   groups: Array<string>
   lwWikiImport: boolean
-  theme: string
+  theme: {
+    name: "default" | "dark" | "auto" | null,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
+  } | null
   lastUsedTimezone: string
   whenConfirmationEmailSent: Date
   legacy: boolean
