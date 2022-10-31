@@ -1132,17 +1132,12 @@ interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
-  readonly moderatorActions: Array<SunshinePostsList_user_moderatorActions>,
+  readonly moderatorActions: Array<ModeratorActionDisplay>,
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
-}
-
-interface SunshinePostsList_user_moderatorActions { // fragment on ModeratorActions
-  readonly active: boolean,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "manualFlag",
 }
 
 interface WithVotePost { // fragment on Posts
