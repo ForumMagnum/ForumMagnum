@@ -40,6 +40,9 @@ describe('Voting', function() {
       const normalPost = await createDummyPost(user, {baseScore: 10});
       const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
       const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      await waitUntilCallbacksFinished();
+      // TODO: HACK - one of the callbacks seems to set normalPost.frontpageDate, but we want it to be null
+      await Posts.rawUpdateOne({_id: normalPost._id}, {$set: {frontpageDate: null}});
       await batchUpdateScore({collection: Posts});
       const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();

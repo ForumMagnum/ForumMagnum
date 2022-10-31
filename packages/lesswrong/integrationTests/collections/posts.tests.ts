@@ -7,6 +7,7 @@ import {
   assertIsPermissionsFlavoredError,
 } from '../utils'
 import { waitUntilCallbacksFinished } from '../../lib/vulcan-lib';
+import Posts from '../../lib/collections/posts/collection';
 import * as _ from 'underscore';
 
 describe('PostsEdit', () => {
@@ -114,6 +115,12 @@ describe('Posts RSS Views', () => {
     const personalPost1 = await createDummyPost(user, {baseScore: 10});
     const personalPost2 = await createDummyPost(user, {baseScore: 10});
     const personalPost3 = await createDummyPost(user, {baseScore: 10});
+
+    // TODO: HACK - one of the callbacks seems to set normalPost.frontpageDate, but we want it to be null
+    await Posts.rawUpdateMany(
+      {_id: {$in: [personalPost1._id, personalPost2._id, personalPost3._id]}},
+      {$set: {frontpageDate: null}},
+    );
 
     const query = `
       query {
