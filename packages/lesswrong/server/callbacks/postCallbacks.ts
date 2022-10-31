@@ -202,9 +202,7 @@ export const getSignatureWithNote = (name: string, note: string) => {
  * Adds a note to a user's sunshineNotes when an admin sets one of their posts back to draft
  */
 getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
-  console.log('in updateUserNotesOnPostDraft callback');
   if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
-    console.log('in updateUserNotesOnPostDraft callback if block');
     const postAuthorId = document.userId;
     const postAuthor = await context.loaders.Users.load(postAuthorId);
     const responsibleAdminName = currentUser.displayName;

@@ -33,4 +33,4 @@ getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnM
       void context.Users.rawUpdateOne({ _id: nonAdminParticipant._id }, { $set: { sunshineNotes: updatedNotes } });  
     }
   }
-})
+});
