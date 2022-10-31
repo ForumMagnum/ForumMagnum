@@ -11,7 +11,10 @@ import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { Posts } from '../../lib/collections/posts';
+import { useCreate } from '../../lib/crud/withCreate';
+import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -50,6 +53,11 @@ const SunshineNewPostsItem = ({post, classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
+
+  const { create: createModeratorAction } = useCreate({
+    collectionName: 'ModeratorActions',
+    fragmentName: 'ModeratorActionsDefaultFragment'
+  });
   
   const handlePersonal = () => {
     void updatePost({
@@ -85,6 +93,20 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
+  const lastManualUserFlag = post.user?.moderatorActions.find(action => action.type === MANUAL_FLAG_ALERT);
+
+  const handleFlagUser = async () => {
+    const isAlreadyFlagged = lastManualUserFlag?.active;
+    if (isAlreadyFlagged) return;
+
+    await createModeratorAction({
+      data: {
+        type: MANUAL_FLAG_ALERT,
+        userId: post.userId,
+      }
+    });
+  }
+
   const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
@@ -96,7 +118,7 @@ const SunshineNewPostsItem = ({post, classes}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <FooterTagList post={post} showCoreTags/>
-          <div className={classes.buttonRow}>
+            <div className={classes.buttonRow}>
               <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal
               </Button>
@@ -105,6 +127,9 @@ const SunshineNewPostsItem = ({post, classes}: {
               </Button>}
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
+              </Button>
+              <Button onClick={handleFlagUser}>
+                <VisibilityOutlinedIcon className={classes.icon} /> Flag User
               </Button>
             </div>
             <Typography variant="title" className={classes.title}>
