@@ -8,7 +8,7 @@ export type WriteTarget = ReadTarget | "both";
  * SwitchingCollection is a temporary utility class used to enable zero
  * downtime migrations from Mongo to Postgres by allowing us to switch
  * reading and writing on and off for MongoDB and Postgres in a
- * collection independant manner.
+ * collection independant manner whilst the server is running.
  *
  * It doesn't implement BaseCollection or extend MongoCollection for
  * implementation reasons, but the expected usage is that it will be a
@@ -44,18 +44,6 @@ class SwitchingCollection<T extends DbObject> {
     "updateMany",
   ];
 
-  public options = new Proxy(this, {
-    get: (target: any, property: string, _receiver: any) => {
-      const base = target.getReadTarget() as unknown as CollectionBase<T>;
-      return base[property];
-    },
-    set: (object: any, key: string, value: any, _proxy: typeof Proxy): boolean => {
-      object.mongoCollection.options[key] = value;
-      object.pgCollection.options[key] = value;
-      return true;
-    },
-  });
-
   private mongoCollection: MongoCollection<T>;
   private pgCollection: PgCollection<T>;
   private readTarget: ReadTarget;
@@ -69,7 +57,7 @@ class SwitchingCollection<T extends DbObject> {
 
     // Don't try this at home...
     return new Proxy(this, {
-      get: (target: any, property: string, _receiver: any) => {
+      get: (target: SwitchingCollection<T>, property: string): any => {
         if (property in target) {
           return target[property];
         }
@@ -97,14 +85,26 @@ class SwitchingCollection<T extends DbObject> {
           return () => result;
         }
 
-        if (property in this.mongoCollection) {
-          return this.mongoCollection[property];
+        if (property === "options") {
+          return new Proxy(this, {
+            get: (target: SwitchingCollection<T>, property: string) => {
+              const base = target.getReadCollection() as unknown as CollectionBase<T>;
+              return base.options[property];
+            },
+
+            set: (object: SwitchingCollection<T>, key: string, value: any): boolean => {
+              object.mongoCollection.options[key] = value;
+              object.pgCollection.options[key] = value;
+              return true;
+            },
+          });
         }
 
-        return undefined;
+        const base = target.getReadCollection() as unknown as CollectionBase<T>;
+        return base[property];
       },
 
-      set: (object: any, key: string, value: any, _proxy: typeof Proxy): boolean => {
+      set: (object: SwitchingCollection<T>, key: string, value: any): boolean => {
         if (key in object) {
           object[key] = value;
         } else {
@@ -155,7 +155,9 @@ class SwitchingCollection<T extends DbObject> {
 
   proxiedWrite(targets: any[], operation: string) {
     return async (...args: any[]) => {
-      const result = await Promise.all(targets.map((target) => target[operation](...args)));
+      const result = await Promise.all(
+        targets.map((target) => target[operation](...args)),
+      );
       return result[0];
     };
   }
@@ -189,7 +191,8 @@ class SwitchingCollection<T extends DbObject> {
   }
 
   getName() {
-    return (this.mongoCollection as unknown as CollectionBase<DbObject>).options.collectionName;
+    const base = this.mongoCollection as unknown as CollectionBase<DbObject>;
+    return base.collectionName;
   }
 }
 

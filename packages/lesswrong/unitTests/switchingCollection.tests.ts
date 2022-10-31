@@ -1,6 +1,7 @@
 import SwitchingCollection, { ReadTarget, WriteTarget } from "../lib/SwitchingCollection";
 import { MongoCollection } from "../lib/mongoCollection";
 import PgCollection from "../lib/sql/PgCollection";
+import { createCollection } from '../lib/vulcan-lib';
 
 const createMockCollection = () => {
   const rawCollection = {
@@ -132,13 +133,18 @@ describe("SwitchingCollection", () => {
     const mongoCollection = collection.getMongoCollection();
     const pgCollection = collection.getPgCollection();
 
-    expect(collection.options.test).toBe(undefined);
-    expect((mongoCollection.options as any).test).toBe(undefined);
-    expect((pgCollection.options as any).test).toBe(undefined);
+    const base = collection as unknown as CollectionBase<DbObject>;
+    const mongoBase = mongoCollection as unknown as CollectionBase<DbObject>;
+    const pgBase = pgCollection as unknown as CollectionBase<DbObject>;
 
-    collection.options.test = "test";
-    expect((mongoCollection.options as any).test).toBe("test");
-    expect((pgCollection.options as any).test).toBe("test");
+    expect(base.options.typeName).toBe(undefined);
+    expect(mongoBase.options.typeName).toBe(undefined);
+    expect(pgBase.options.typeName).toBe(undefined);
+
+    base.options.typeName = "test";
+    expect(base.options.typeName).toBe("test");
+    expect(mongoBase.options.typeName).toBe("test");
+    expect(pgBase.options.typeName).toBe("test");
   });
   describe("read: mongo - write: mongo", switchingCheckTestCase.bind(
     null,
@@ -218,4 +224,38 @@ describe("SwitchingCollection", () => {
       expect(pgCollection[op]).toHaveBeenCalled();
     },
   ));
+  describe("can create collection", () => {
+    const schema: SchemaType<DbRSSFeed> = {
+      status: {
+        type: String,
+        viewableBy: ['guests'],
+        editableBy: ['admins'],
+        optional: true,
+      },
+    };
+
+    const collection: SwitchingCollection<DbRSSFeed> = createCollection({
+      collectionName: 'RSSFeeds',
+      typeName: 'RSSFeed',
+      collectionType: 'switching',
+      schema,
+    });
+
+    expect(collection).toBeInstanceOf(SwitchingCollection);
+    expect(collection.getMongoCollection()).toBeInstanceOf(MongoCollection);
+    expect(collection.getPgCollection()).toBeInstanceOf(PgCollection);
+
+    const checkCollection = (collection: CollectionBase<DbObject>) => {
+      expect(collection.typeName).toBe("RSSFeed");
+      expect(collection.options.typeName).toBe("RSSFeed");
+      expect(collection.options.singleResolverName).toBe("rSSFeed");
+      expect(collection.options.multiResolverName).toBe("rSSFeeds");
+      expect(collection.collectionName).toBe("RSSFeeds");
+      expect(collection.options.collectionName).toBe("RSSFeeds");
+    }
+
+    checkCollection(collection as unknown as CollectionBase<DbObject>);
+    checkCollection(collection.getMongoCollection() as unknown as CollectionBase<DbObject>);
+    checkCollection(collection.getPgCollection() as unknown as CollectionBase<DbObject>);
+  });
 });

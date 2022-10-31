@@ -14,18 +14,18 @@ type Transaction = ITask<{}>;
 // Custom formatters to fix data integrity issues on a per-collection basis
 // A place for nasty hacks to live...
 const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject>> = {
-  Posts: (document: DbPost): DbPost => {
+  Posts: (post: DbPost): DbPost => {
     const scoreThresholds = [2, 30, 45, 75, 125, 200];
     for (const threshold of scoreThresholds) {
       const prop = `scoreExceeded${threshold}Date`;
-      if (typeof document[prop] === "boolean") {
-        document[prop] = null;
+      if (typeof post[prop] === "boolean") {
+        post[prop] = null;
       }
     }
-    if (!document.title) {
-      document.title = "";
+    if (!post.title) {
+      post.title = "";
     }
-    return document;
+    return post;
   },
 };
 
@@ -62,21 +62,12 @@ const createIndexes = async (sql: Transaction, collections: SwitchingCollection<
   }
 }
 
-const setUnlogged = async (sql: Transaction, collections: SwitchingCollection<DbObject>[]) => {
-  console.log("...Making tables unlogged");
-  for (const collection of collections) {
-    console.log(`......${collection.getName()}`);
-    const table = collection.getPgCollection().table;
-    await sql.none(`ALTER TABLE "${table.getName()}" SET UNLOGGED`);
-  }
-}
-
-const setLogged = async (sql: Transaction, collections: SwitchingCollection<DbObject>[]) => {
+const setLogged = async (sql: Transaction, collections: SwitchingCollection<DbObject>[], logged: boolean) => {
   console.log("...Making tables logged");
   for (const collection of collections) {
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
-    await sql.none(`ALTER TABLE "${table.getName()}" SET LOGGED`);
+    await sql.none(`ALTER TABLE "${table.getName()}" SET ${logged ? "LOGGED" : "UNLOGGED"}`);
   }
 }
 
@@ -91,7 +82,7 @@ const pickBatchSize = (collection: SwitchingCollection<DbObject>) => {
 
 const makeBatchFilter = (createdSince?: Date) =>
   createdSince
-    ? { createdAt: { $exists: true, $gt: createdSince, } }
+    ? { createdAt: { $gte: createdSince } }
     : {};
 
 const copyData = async (
@@ -113,7 +104,7 @@ const copyData = async (
       batchSize,
       filter: makeBatchFilter(createdSince),
       callback: async (documents: DbObject[]) => {
-        console.log(`.........Migrating ${documents.length} '${collection.getName()}' documents from index ${count}`);
+        console.log(`.........Migrating ${collection.getName()} documents ${count}-${count + documents.length}`);
         count += batchSize;
         const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
         const compiled = query.compile();
@@ -150,11 +141,11 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
     await sql.tx(async (transaction) => {
       await createTables(transaction, collections);
       await createIndexes(transaction, collections);
-      await setUnlogged(transaction, collections);
+      await setLogged(transaction, collections, false);
 
       const copyStart = new Date();
       await copyData(transaction, collections, 1);
-      await setLogged(transaction, collections);
+      await setLogged(transaction, collections, true);
 
       const copyStart2 = new Date();
       await copyData(transaction, collections, 2, copyStart);

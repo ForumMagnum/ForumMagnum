@@ -26,7 +26,7 @@ const options: MutationOptions<DbRSSFeed> = {
 export const RSSFeeds: RSSFeedsCollection = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
-  collectionType: 'mongo', // TODO
+  collectionType: 'switching',
   schema,
   resolvers: getDefaultResolvers('RSSFeeds'),
   mutations: getDefaultMutations('RSSFeeds', options),
