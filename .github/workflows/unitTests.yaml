@@ -51,14 +51,14 @@ jobs:
           --health-retries 10
     env:
       TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
-      PG_URL: postgres://postgres:postgres@localhost:5432/unittest_jest_template
+      PG_URL: postgres://postgres:postgres@localhost:5432/postgres
       NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
-    - name: Seed integration database
+    - name: Setup database schema
       run: yarn create-integration-db
     - name: yarn run integration-ci
       run: yarn run integration-ci

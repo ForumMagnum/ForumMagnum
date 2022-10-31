@@ -24,13 +24,19 @@ const importData = async <T extends {}>(collection: CollectionBase<any>, data: T
   await collection.rawInsert(data);
 }
 
-const dropAndCreatePg = async ({ seed, templateId}: {seed?: boolean, templateId?: string}) => {
+type DropAndCreatePgArgs = {
+  seed?: boolean,
+  templateId?: string,
+  dropExisting?: boolean,
+}
+
+const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePgArgs) => {
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());
   await oldClient?.$pool.end();
   // eslint-disable-next-line no-console
   console.log("Creating PG database");
-  await createTestingSqlClient(templateId, true);
+  await createTestingSqlClient(templateId, dropExisting);
   if (seed) {
     // eslint-disable-next-line no-console
     console.log("Seeding PG database");
@@ -53,11 +59,16 @@ export const addCypressRoutes = (app: Application) => {
     app.use(route, json({ limit: "1mb" }));
     app.post(route, async (req: Request, res: Response) => {
       try {
-        const { seed, templateId } = req.body
-        if (typeof seed !== 'boolean' || !templateId) {
-          throw new Error(`Missing seed or templateId ${JSON.stringify(req.body)}`);
+        const {seed, templateId, dropExisting} = req.body;
+        if (
+          typeof seed !== "boolean" ||
+          typeof templateId !== "string" ||
+          !templateId.length ||
+          typeof dropExisting !== "boolean"
+        ) {
+          throw new Error(`Missing seed, templateId or dropExisting: ${JSON.stringify(req.body)}`);
         }
-        await dropAndCreatePg({ seed: seed, templateId });
+        await dropAndCreatePg({ seed, templateId, dropExisting });
         res.status(200).send({status: "ok"});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});

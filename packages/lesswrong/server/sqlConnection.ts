@@ -38,7 +38,12 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     max: MAX_CONNECTIONS,
   });
   await db.none("SET default_toast_compression = lz4");
-  await db.none("CREATE EXTENSION IF NOT EXISTS \"btree_gin\" CASCADE");
-  await db.none("CREATE EXTENSION IF NOT EXISTS \"earthdistance\" CASCADE");
+  try {
+    await db.none("CREATE EXTENSION IF NOT EXISTS \"btree_gin\" CASCADE");
+    await db.none("CREATE EXTENSION IF NOT EXISTS \"earthdistance\" CASCADE");
+  } catch (e) {
+    // eslint-disable-next-line
+    console.error("Failed to create Postgres extensions:", e);
+  }
   return db;
 }

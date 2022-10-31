@@ -82,6 +82,8 @@ export const createTestingSqlClient = async (
   setAsGlobalClient = true,
 ): Promise<SqlClient> => {
   const dbName = makeDbName(id);
+  // eslint-disable-next-line no-console
+  console.log(`Creating test database '${dbName}'...`);
   let sql = await createTemporaryConnection();
   if (dropExisting) {
     await sql.none(`DROP DATABASE IF EXISTS ${dbName}`);
