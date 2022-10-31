@@ -293,7 +293,11 @@ abstract class Query<T extends DbObject> {
       }
     }
 
-    if (value === null || value === undefined) {
+    if (value === undefined) {
+      return ["1=1"];
+    }
+
+    if (value === null) {
       return [`${field} IS NULL`];
     }
 
