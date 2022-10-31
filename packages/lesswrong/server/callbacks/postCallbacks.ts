@@ -14,6 +14,7 @@ import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -184,6 +185,34 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
     await postPublishedCallback.runCallbacksAsync([document]);
+  }
+});
+
+const getTodayString = () => {
+  const today = new Date();
+  return today.toLocaleString('default', { month: 'short', day: 'numeric'});
+}
+
+const getSignature = (name: string) => `${name}, ${getTodayString()}`
+export const getSignatureWithNote = (name: string, note: string) => {
+  return `${getSignature(name)}: ${note}\n`;
+}
+
+/**
+ * Adds a note to a user's sunshineNotes when an admin sets one of their posts back to draft
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  console.log('in updateUserNotesOnPostDraft callback');
+  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+    console.log('in updateUserNotesOnPostDraft callback if block');
+    const postAuthorId = document.userId;
+    const postAuthor = await context.loaders.Users.load(postAuthorId);
+    const responsibleAdminName = currentUser.displayName;
+    const newNote = getSignatureWithNote(responsibleAdminName, ` set post "${document.title}" back to draft`);
+    const oldNotes = postAuthor.sunshineNotes ?? '';
+    const updatedNotes = `${newNote}${oldNotes}`;
+
+    void context.Users.rawUpdateOne({ _id: postAuthorId }, { $set: { sunshineNotes: updatedNotes } });
   }
 });
 
