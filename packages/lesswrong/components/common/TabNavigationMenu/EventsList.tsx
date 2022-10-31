@@ -16,7 +16,7 @@ const EventsList = ({currentUser, onClick}) => {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 4,
+      limit: isEAForum ? 2 : 4,
     }
     return <span>
       <AnalyticsContext pageSubSectionContext="menuEventsList">
@@ -28,16 +28,16 @@ const EventsList = ({currentUser, onClick}) => {
   const eventsListTerms: PostsViewTerms = {
     view: 'events',
     globalEvent: false,
-    limit: isEAForum ? 1 : 2,
+    limit: 2,
   }
   const globalTerms: PostsViewTerms = {
     view: 'globalEvents',
-    limit: isEAForum ? 3 : 2,
+    limit: 2,
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
       <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
-      <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
+      {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
     </AnalyticsContext>
   </span>
 }

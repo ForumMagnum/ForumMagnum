@@ -5,7 +5,8 @@ import { RefinementListExposed, RefinementListProvided, SearchState } from 'reac
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
@@ -67,10 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginBottom: 6
   },
+  mapLink: {
+    color: theme.palette.primary.main,
+    padding: 1,
+    marginTop: 30
+  },
   resultsColumn: {
     flex: '1 1 0',
   },
-
   searchIcon: {
     marginLeft: 12
   },
@@ -181,6 +186,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
     path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
+    startWithBorder
     updateCurrentValues={(values: {tags?: Array<string>}) => {
       setTagsFilter && setTagsFilter(values.tags)
     }}
@@ -324,6 +330,10 @@ const SearchPageTabbed = ({classes}:{
           value={true}
         />}
         <ClearRefinements />
+        
+        {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
+          <Link to="/community#individuals">View community map</Link>
+        </div>}
       </div>
 
       <div className={classes.resultsColumn}>
