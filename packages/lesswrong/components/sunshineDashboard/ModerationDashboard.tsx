@@ -180,7 +180,7 @@ const ModerationDashboard = ({ classes }: {
           </div>
           <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
             {usersToReview.map(user =>
-              <div key={user._id}>
+              <div key={user._id} id={user._id}>
                 <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
               </div>
             )}
