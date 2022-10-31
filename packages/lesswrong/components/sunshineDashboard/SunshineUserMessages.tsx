@@ -7,9 +7,6 @@ const styles = (theme: JssStyles) => ({
   row: {
     display: "flex",
     alignItems: "center"
-  },
-  messageForm: {
-    width: 500
   }
 })
 
@@ -37,7 +34,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
         embedConversation={embedConversation}
       />
     </div>
-    {embeddedConversationId && <div className={classes.messageForm}>
+    {embeddedConversationId && <div>
       <NewMessageForm 
         conversationId={embeddedConversationId} 
         templateQueries={templateQueries}
