@@ -531,8 +531,7 @@ registerFragment(`
       }
 
       moderatorActions {
-        active
-        type
+        ...ModeratorActionDisplay
       }
     }
   }
