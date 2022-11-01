@@ -58,7 +58,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                   <FormatDate date={post.postedAt}/>
                 </MetaInfo>
                 {post.commentCount && <MetaInfo>
-                  <Link to={`postGetPageUrl(post)#comments`}>
+                  <Link to={`${postGetPageUrl(post)}#comments`}>
                     {post.commentCount} comments
                   </Link>
                 </MetaInfo>}
