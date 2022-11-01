@@ -101,7 +101,7 @@ const SubforumNotificationSettings = ({
                     autoSubmit
                   />
                   <Typography variant="body2" className={classes.accountLink}>
-                    <Link to={"/account?highlightField=notificationSubforumUnread"}>Change batching and email/on-site in user settings</Link>
+                    <Link to={"/account?highlightField=notificationSubforumUnread"}>Change batching and email vs on-site in account settings</Link>
                   </Typography>
                 </>
               )}
