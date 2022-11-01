@@ -14,6 +14,8 @@ import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -184,6 +186,25 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
     await postPublishedCallback.runCallbacksAsync([document]);
+  }
+});
+
+/**
+ * Creates a moderator action when an admin sets one of the user's posts back to draft
+ * This also adds a note to a user's sunshineNotes
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
   }
 });
 
