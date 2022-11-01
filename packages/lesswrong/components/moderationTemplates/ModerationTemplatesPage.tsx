@@ -47,7 +47,6 @@ export const ModerationTemplatesPage = ({classes}: {
         />
       </BasicFormStyles>
     </div>
-    {/*{loading && <Loading/>}*/}
     <SectionTitle title="Moderation Templates"/>
     {loading && <Loading/>}
     {nonDeletedTemplates.map(template => <ModerationTemplateItem key={template._id} template={template}/>)}

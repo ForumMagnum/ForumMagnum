@@ -1,16 +1,8 @@
 import {schemaDefaultValue} from "../../collectionUtils";
-import SimpleSchema from "simpl-schema";
 
 const ALLOWABLE_COLLECTIONS: CollectionNameString[] = ['Messages', 'Comments'];
 
 type CollectionNameString = 'Messages' | 'Comments';
-
-const CollectionNameType = new SimpleSchema({
-  collectionName: {
-    type: String,
-    allowedValues: ALLOWABLE_COLLECTIONS,
-  }
-});
 
 const schema: SchemaType<DbModerationTemplate> = {
   name: {
@@ -21,12 +13,12 @@ const schema: SchemaType<DbModerationTemplate> = {
     order: 1,
   },
   collectionName: {
-    type: CollectionNameType.schema('collectionName'),
-    typescriptType: "CollectionNameType",
+    type: String,
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canRead: ['guests'],
     control: 'select',
+    allowedValues: ALLOWABLE_COLLECTIONS,
     form: {
       options: () => ALLOWABLE_COLLECTIONS.map(collectionName => ({ label: collectionName, value: collectionName }))
     },
