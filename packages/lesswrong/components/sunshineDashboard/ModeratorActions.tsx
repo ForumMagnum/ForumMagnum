@@ -111,7 +111,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
   const signature = getSignature(currentUser.displayName);
 
-  const getModSignatureWithNote = (note: string) => getModSignatureWithNote(note);
+  const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
   
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
