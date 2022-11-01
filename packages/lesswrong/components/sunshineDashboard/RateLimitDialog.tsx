@@ -13,8 +13,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const RateLimitDialog = ({ handleRateLimit, onClose, classes }: {
-  handleRateLimit: (endDate?: Date) => Promise<void>,
+export const RateLimitDialog = ({ createRateLimit, onClose, classes }: {
+  createRateLimit: (endDate?: Date) => Promise<void>,
   onClose: () => void,
   classes: ClassesType,
 }) => {
@@ -34,11 +34,11 @@ export const RateLimitDialog = ({ handleRateLimit, onClose, classes }: {
 
   const applyRateLimit = async () => {
     if (endAfterDays === undefined) {
-      await handleRateLimit();
+      await createRateLimit();
     } else {
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + endAfterDays);
-      await handleRateLimit(endDate);
+      await createRateLimit(endDate);
     }
     onClose();
   };

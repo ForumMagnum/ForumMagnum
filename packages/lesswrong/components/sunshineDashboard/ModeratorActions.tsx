@@ -354,10 +354,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       // Otherwise, we want to create a new one
       openDialog({
         componentName: 'RateLimitDialog',
-        componentProps: {
-          handleRateLimit: createRateLimit
-        }
-      })
+        componentProps: { createRateLimit },
+      });
     }
   };
 
