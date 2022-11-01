@@ -109,12 +109,9 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
-  const getTodayString = () => {
-    const today = new Date();
-    return today.toLocaleString('default', { month: 'short', day: 'numeric'});
-  }
-
   const signature = getSignature(currentUser.displayName);
+
+  const getModSignatureWithNote = (note: string) => getModSignatureWithNote(note);
   
   const handleNotes = () => {
     if (notes != user.sunshineNotes) {
@@ -158,7 +155,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handleSnooze = (contentCount: number) => {
-    const newNotes = getSignatureWithNote(currentUser.displayName, `Snooze ${contentCount}`)+notes;
+    const newNotes = getModSignatureWithNote(`Snooze ${contentCount}`)+notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -173,7 +170,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handleNeedsReview = () => {
-    const newNotes = getSignatureWithNote(currentUser.displayName, "set to manual review") + notes;
+    const newNotes = getModSignatureWithNote("set to manual review") + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -185,7 +182,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
 
   const handleRemoveNeedsReview = () => {
-    const newNotes = getSignatureWithNote(currentUser.displayName, "removed from review queue without snooze/approval") + notes;
+    const newNotes = getModSignatureWithNote("removed from review queue without snooze/approval") + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -199,7 +196,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const banMonths = 3
   
   const handleBan = () => {
-    const newNotes = getSignatureWithNote(currentUser.displayName, "Ban") + notes;
+    const newNotes = getModSignatureWithNote("Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
       void updateUser({
         selector: {_id: user._id},
@@ -233,7 +230,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
           sunshineNotes: notes
         }
       })
-      setNotes( getSignatureWithNote(currentUser.displayName, "Purge")+notes )
+      setNotes( getModSignatureWithNote("Purge")+notes )
     }
   }
   
@@ -247,12 +244,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     })
     
     const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    setNotes( getSignatureWithNote(currentUser.displayName, flagStatus)+notes )
+    setNotes( getModSignatureWithNote(flagStatus)+notes )
   }
   
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
-    const newNotes = getSignatureWithNote(currentUser.displayName, `posting ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`posting ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -265,7 +262,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableAllCommenting = () => {
     const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
-    const newNotes = getSignatureWithNote(currentUser.displayName, `all commenting ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`all commenting ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -278,7 +275,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
-    const newNotes = getSignatureWithNote(currentUser.displayName, `commenting on other's ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`commenting on other's ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -291,7 +288,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableConversations = () => {
     const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
-    const newNotes = getSignatureWithNote(currentUser.displayName, `conversations ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`conversations ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -306,7 +303,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
   const handleRateLimit = async () => {
     const addedOrRemoved = mostRecentRateLimit?.active ? 'removed' : 'added';
-    const newNotes = getSignatureWithNote(currentUser.displayName, `rate limit ${addedOrRemoved}`) + notes;
+    const newNotes = getModSignatureWithNote(`rate limit ${addedOrRemoved}`) + notes;
     await updateUser({
       selector: { _id: user._id },
       data: { sunshineNotes: newNotes }
