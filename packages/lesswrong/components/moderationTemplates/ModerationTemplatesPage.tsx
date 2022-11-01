@@ -51,7 +51,7 @@ export const ModerationTemplatesPage = ({classes}: {
     {loading && <Loading/>}
     {nonDeletedTemplates.map(template => <ModerationTemplateItem key={template._id} template={template}/>)}
     
-    <button onClick={() => setShowDeleted(!showDeleted)}>Show Deleted</button>
+    <a aria-role="button" onClick={() => setShowDeleted(!showDeleted)}>Show Deleted</a>
     
     {showDeleted && deletedTemplates.map(template => <ModerationTemplateItem key={template._id} template={template}/>)}
   </SingleColumnSection>
