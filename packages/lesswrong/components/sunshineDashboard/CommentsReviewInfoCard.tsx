@@ -61,13 +61,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
     borderRight: theme.palette.border.slightlyIntense
   },
-  modActionsColumn: {
-    padding: 16,
-    paddingBottom: 8,
+  headerColumn: {
+    fontSize: '1.2em',
+    padding: 8,
     borderRight: theme.palette.border.slightlyIntense
   },
-  nestedInfoRow: {
-    paddingBottom: 4
+  modActionsColumn: {
+    padding: 0,
+  },
+  nestedInfoColumn: {
+    padding: 8,
+    borderRight: theme.palette.border.slightlyIntense
   },
   commentsRow: {
     padding: 8,
@@ -80,7 +84,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   modButton:{
     marginTop: 6,
-    marginRight: 16,
+    marginRight: 8,
+    marginLeft: 8,
     cursor: "pointer",
     '&:hover': {
       opacity: .5
@@ -135,11 +140,11 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
     });
   };
 
-  const activeActionsRow = <div className={classes.nestedInfoRow}>
+  const activeActionsRow = <div className={classes.headerColumn}>
     {actions.map(action => COMMENT_MODERATOR_ACTION_TYPES[action.type])}
   </div>;
 
-  const voteDistributionRow = <div className={classes.nestedInfoRow}>
+  const voteDistributionRow = <div className={classes.nestedInfoColumn}>
     <span>Votes: </span>
     <LWTooltip title="Big Upvotes">
         <span className={classes.bigUpvotes}>
@@ -164,16 +169,10 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   </div>;
 
   const seeInContextUrl = `${commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}#${comment._id}`;
-  const seeInContextRow = <div className={classes.nestedInfoRow}>
+  const seeInContextRow = <div className={classes.nestedInfoColumn}>
     <Link className={classes.seeInContext} to={seeInContextUrl}>
       See in context
     </Link>
-  </div>;
-
-  const infoColumn = <div className={classes.infoColumn}>
-    {activeActionsRow}
-    {voteDistributionRow}
-    {seeInContextRow}
   </div>;
 
   const modActionsColumn = <div className={classes.modActionsColumn}>
@@ -199,7 +198,9 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
 
   return <div className={classes.root}>
     <div className={classes.columns}>
-      {infoColumn}
+      {activeActionsRow}
+      {voteDistributionRow}
+      {seeInContextRow}
       {modActionsColumn}
     </div>
     {commentsRow}
