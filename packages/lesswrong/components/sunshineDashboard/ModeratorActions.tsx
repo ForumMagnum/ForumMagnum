@@ -18,6 +18,7 @@ import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions
 import { sortBy } from 'underscore';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
+import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -90,6 +91,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 }) => {
   const { LWTooltip } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
+  const { openDialog } = useDialog()
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -305,34 +307,59 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
   const mostRecentRateLimit = user.moderatorActions.find(modAction => modAction.type === RATE_LIMIT_ONE_PER_DAY);
 
-  const handleRateLimit = async () => {
-    const addedOrRemoved = mostRecentRateLimit?.active ? 'removed' : 'added';
-    const newNotes = signatureWithNote(`rate limit ${addedOrRemoved}`) + notes;
-    await updateUser({
+  const createRateLimit = async (endDate?: Date) => {
+    const newNotes = signatureWithNote(`rate limit added`) + notes;
+    void updateUser({
       selector: { _id: user._id },
       data: { sunshineNotes: newNotes }
     });
 
-    // If we have an active rate limit, we want to disable it
-    if (mostRecentRateLimit?.active) {
-      await updateModeratorAction({
-        selector: { _id: mostRecentRateLimit._id },
-        data: { endedAt: new Date() }
-      });
-    } else {
-      // Otherwise, we want to create a new one
-      await createModeratorAction({
-        data: {
-          type: RATE_LIMIT_ONE_PER_DAY,
-          userId: user._id,
-        }
-      });
-    }
+    const maybeEndedAt = endDate ? { endedAt: endDate } : {};
+    // Otherwise, we want to create a new one
+    await createModeratorAction({
+      data: {
+        type: RATE_LIMIT_ONE_PER_DAY,
+        userId: user._id,
+        ...maybeEndedAt
+      }
+    });
 
     setNotes(newNotes);
-    // If we have a efetch to ensure the button displays (toggled on/off) properly 
+    // We have a refetch to ensure the button displays (toggled on/off) properly 
     refetch();
-  }
+  };
+
+  const endRateLimit = async (rateLimitId: string) => {
+    const newNotes = signatureWithNote(`rate limit removed`) + notes;
+    void updateUser({
+      selector: { _id: user._id },
+      data: { sunshineNotes: newNotes }
+    });
+
+    await updateModeratorAction({
+      selector: { _id: rateLimitId },
+      data: { endedAt: new Date() }
+    });
+
+    setNotes(newNotes);
+    // We have a refetch to ensure the button displays (toggled on/off) properly 
+    refetch();
+  };
+
+  const handleRateLimit = async () => {
+    // If we have an active rate limit, we want to disable it
+    if (mostRecentRateLimit?.active) {
+      await endRateLimit(mostRecentRateLimit._id);
+    } else {
+      // Otherwise, we want to create a new one
+      openDialog({
+        componentName: 'RateLimitDialog',
+        componentProps: {
+          handleRateLimit: createRateLimit
+        }
+      })
+    }
+  };
 
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
@@ -414,7 +441,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     {permissionsRow}
     <div>
       <LWTooltip title={`${mostRecentRateLimit?.active ? "Un-rate-limit" : "Rate-limit"} this user's ability to post and comment`}>
-        <div className={classes.permissionsButton}onClick={handleRateLimit}>
+        <div className={classNames(classes.permissionsButton, { [classes.permissionDisabled]: mostRecentRateLimit?.active })} onClick={handleRateLimit}>
           {MODERATOR_ACTION_TYPES[RATE_LIMIT_ONE_PER_DAY]}
         </div>
       </LWTooltip>

@@ -498,6 +498,7 @@ importComponent("SunshineListCount", () => require('../components/sunshineDashbo
 importComponent("UsersReviewInfoCard", () => require('../components/sunshineDashboard/UsersReviewInfoCard'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
+importComponent("RateLimitDialog", () => require('../components/sunshineDashboard/RateLimitDialog'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
