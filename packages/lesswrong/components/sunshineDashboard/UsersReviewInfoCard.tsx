@@ -261,7 +261,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         </span>
     </LWTooltip>
     {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-    { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+    { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null}
   </div>
 
   const commentSummaryRow = <div className={classes.contentSummaryRow}>
