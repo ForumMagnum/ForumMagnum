@@ -195,7 +195,7 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
  */
 getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
   if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
-    createMutator({
+    void createMutator({
       collection: context.ModeratorActions,
       context,
       currentUser,

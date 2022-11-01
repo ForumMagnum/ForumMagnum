@@ -25,7 +25,7 @@ getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnM
     const nonAdminParticipant = conversationParticipants.find(user => !userIsAdmin(user));
 
     if (nonAdminParticipant && conversationMessageCount === 1) {
-      createMutator({
+      void createMutator({
         collection: context.ModeratorActions,
         context,
         currentUser,
