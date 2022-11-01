@@ -31,13 +31,15 @@ interface ServerNotificationType {
   name: string,
   from?: string,
   canCombineEmails?: boolean,
-  skip?: (user: DbUser, notification: DbNotification) => boolean,
+  skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
   emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
   emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,
 }
+// A default skip function is added in serverRegisterNotificationType so it is optional when registering a notification type
+type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
 
-const notificationTypes: {string?: ServerNotificationType} = {};
+const notificationTypes: Record<string, ServerNotificationType> = {};
 
 export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
   if (name in notificationTypes)
@@ -46,10 +48,11 @@ export const getNotificationTypeByNameServer = (name: string): ServerNotificatio
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-const serverRegisterNotificationType = (notificationTypeClass: ServerNotificationType): ServerNotificationType => {
-  const name = notificationTypeClass.name;
-  notificationTypes[name] = notificationTypeClass;
-  return notificationTypeClass;
+const serverRegisterNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
+  const notificationType = {skip, ...notificationTypeClass};
+  const name = notificationType.name;
+  notificationTypes[name] = notificationType;
+  return notificationType;
 }
 
 export const NewPostNotification = serverRegisterNotificationType({
@@ -175,6 +178,13 @@ export const NewCommentNotification = serverRegisterNotificationType({
 export const NewSubforumCommentNotification = serverRegisterNotificationType({
   name: "newSubforumComment",
   canCombineEmails: true,
+  skip: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+
+    return comments.length === 0;
+  },
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
