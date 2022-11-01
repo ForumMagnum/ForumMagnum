@@ -56,11 +56,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     borderBottom: theme.palette.border.slightlyIntense
   },
-  infoColumn: {
-    padding: 16,
-    paddingBottom: 8,
-    borderRight: theme.palette.border.slightlyIntense
-  },
   headerColumn: {
     fontSize: '1.2em',
     padding: 8,
