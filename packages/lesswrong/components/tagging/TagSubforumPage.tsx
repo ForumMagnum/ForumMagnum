@@ -122,7 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '8px 16px',
     outline: 'none',
     '& > .Typography-root': {
-      color: theme.palette.grey[500],
+      color: theme.palette.text.dim4,
       fontSize: 20,
       [theme.breakpoints.down("xs")]: {
         fontSize: 16,
@@ -138,7 +138,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: 'transparent',
     borderTop: `4px solid ${theme.palette.grey[200]}`,
     '& .Typography-root': {
-      color: 'unset',
+      color: theme.palette.text.maxIntensity,
       borderBottom: `solid 2px ${theme.palette.primary.main}`,
     },
   }
