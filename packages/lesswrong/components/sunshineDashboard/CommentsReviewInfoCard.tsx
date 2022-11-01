@@ -4,6 +4,7 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import DoneIcon from '@material-ui/icons/Done';
+import LinkIcon from '@material-ui/icons/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/schema';
 
@@ -54,19 +55,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   columns: {
     display: 'flex',
-    borderBottom: theme.palette.border.slightlyIntense
+    padding: 8,
+    paddingBottom: 0,
+    alignItems: 'center'
   },
   headerColumn: {
     fontSize: '1.2em',
     padding: 8,
-    borderRight: theme.palette.border.slightlyIntense
   },
-  modActionsColumn: {
-    padding: 0,
-  },
-  nestedInfoColumn: {
-    padding: 8,
-    borderRight: theme.palette.border.slightlyIntense
+  votesColumn: {
+    marginLeft: 'auto'
   },
   commentsRow: {
     padding: 8,
@@ -76,6 +74,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     textAlign: "right",
     color: theme.palette.lwTertiary.main,
+  },
+  seeInContextIcon: {
+    fontSize: "1.5rem",
+    transform: "rotate(-45deg)",
+    verticalAlign: "middle",
+    color: theme.palette.icon.dim,
+    margin: "0 2px",
+    position: "relative",
   },
   modButton:{
     marginTop: 6,
@@ -135,11 +141,11 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
     });
   };
 
-  const activeActionsRow = <div className={classes.headerColumn}>
+  const headerColumn = <div className={classes.headerColumn}>
     {actions.map(action => COMMENT_MODERATOR_ACTION_TYPES[action.type])}
   </div>;
 
-  const voteDistributionRow = <div className={classes.nestedInfoColumn}>
+  const voteDistributionColumn = <div className={classes.votesColumn}>
     <span>Votes: </span>
     <LWTooltip title="Big Upvotes">
         <span className={classes.bigUpvotes}>
@@ -164,13 +170,14 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   </div>;
 
   const seeInContextUrl = `${commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}#${comment._id}`;
-  const seeInContextRow = <div className={classes.nestedInfoColumn}>
+  const seeInContextColumn = <div>
     <Link className={classes.seeInContext} to={seeInContextUrl}>
-      See in context
+      <LinkIcon className={classes.seeInContextIcon} />
+      {/* See in context */}
     </Link>
   </div>;
 
-  const modActionsColumn = <div className={classes.modActionsColumn}>
+  const modActionsColumn = <div>
     {dismissed ? <Loading /> : <LWTooltip title="Dismiss" placement="top">
       <DoneIcon onClick={handleDismiss} className={classes.modButton}/>
     </LWTooltip>}
@@ -193,9 +200,9 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
 
   return <div className={classes.root}>
     <div className={classes.columns}>
-      {activeActionsRow}
-      {voteDistributionRow}
-      {seeInContextRow}
+      {headerColumn}
+      {seeInContextColumn}
+      {voteDistributionColumn}
       {modActionsColumn}
     </div>
     {commentsRow}
