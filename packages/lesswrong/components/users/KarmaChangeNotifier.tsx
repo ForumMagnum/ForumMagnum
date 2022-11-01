@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -15,7 +15,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -167,7 +168,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             ))}
             {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
               <MenuItemUntyped className={classes.votedItemRow}
-                component={Link} to={commentGetPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, tagSlug:commentChange.tagSlug, commentId: commentChange._id})} key={commentChange._id}
+                // tagCommentType is given a String type in packages/lesswrong/lib/collections/users/karmaChangesGraphQL.ts because we couldn't get an inline union of literal types to work,
+                // but actually we know it will always be a TagCommentType because the db schema constrains it
+                component={Link} to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
                 >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
@@ -180,7 +183,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.tagRevisions.map(tagChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} key={tagChange._id}
-                to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
+                to={`${tagGetHistoryUrl({slug: tagChange.tagSlug})}?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
@@ -207,7 +210,7 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
   const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null)
+  const anchorEl = useRef<HTMLDivElement|null>(null)
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
   
@@ -219,18 +222,13 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
   
   const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
 
-  const handleOpen = (event) => {
+  const handleOpen = () => {
     setOpen(true);
-    setAnchorEl(event.currentTarget);
     setKarmaChangeLastOpened(new Date());
   }
 
-  const handleClose = (e) => {
-    if (e && anchorEl?.contains(e.target)) {
-      return;
-    }
+  const handleClose = () => {
     setOpen(false);
-    setAnchorEl(null);
     if (!currentUser) return;
     if (document?.karmaChanges) {
       void updateCurrentUser({
@@ -244,11 +242,11 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     }
   }
 
-  const handleToggle = (e) => {
+  const handleToggle = () => {
     if (open) {
-      handleClose(null) // When closing from toggle, force a close by not providing an event
+      handleClose()
     } else {
-      handleOpen(e)
+      handleOpen()
     }
     captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges: stateKarmaChanges})
   }
@@ -267,29 +265,31 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
     
-    const { LWPopper } = Components;
+    const { LWClickAwayListener, LWPopper } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classes.root}>
-        <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
-          {starIsHollow
-            ? <StarBorderIcon className={classes.starIcon}/>
-            : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
-                <StarIcon className={classes.starIcon}/>
-              </Badge>
-          }
-        </IconButton>
+        <div ref={anchorEl}>
+          <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
+            {starIsHollow
+              ? <StarBorderIcon className={classes.starIcon}/>
+              : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
+                  <StarIcon className={classes.starIcon}/>
+                </Badge>
+            }
+          </IconButton>
+        </div>
         <LWPopper
           open={open}
-          anchorEl={anchorEl}
+          anchorEl={anchorEl.current}
           placement="bottom-end"
           className={classes.karmaNotifierPopper}
         >
-          <ClickAwayListener onClickAway={handleClose}>
+          <LWClickAwayListener onClickAway={handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
               <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={handleClose} />
             </Paper>
-          </ClickAwayListener>
+          </LWClickAwayListener>
         </LWPopper>
       </div>
     </AnalyticsContext>

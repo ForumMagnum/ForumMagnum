@@ -10,8 +10,8 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { forumTypeSetting, } from '../../lib/instanceSettings';
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -88,7 +88,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, TagSubforumButton, ContentItemBody } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -153,7 +153,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     </LWTooltip>}
     {<Link
       className={classes.button}
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+      to={tagGetHistoryUrl(tag)}
     >
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
@@ -169,7 +169,8 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       />
     </LWTooltip>}
     <div className={classes.button}>
-      <TagDiscussionButton tag={tag} hideLabelOnMobile />
+      {tag.isSubforum ?
+        <TagSubforumButton tag={tag} /> : <TagDiscussionButton tag={tag} hideLabelOnMobile />}
     </div>
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}

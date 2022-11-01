@@ -2,12 +2,14 @@ import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,13 +59,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, classes }: {
-  tag: TagRecentDiscussion,
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+  tag: TagRecentDiscussion | TagRecentSubforumComments,
+  refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
+  tagCommentType?: TagCommentType,
   classes: ClassesType
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
+  const isSubforum = tagCommentType === "SUBFORUM"
+
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
@@ -72,16 +78,17 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
   
   const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
   
+  const onClickEventType = isSubforum ? "recentDiscussionSubforumClick" : "recentDiscussionTagClick"
   const markAsRead = useCallback(
     () => {
       setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordTagView({tag, extraEventProperties: {type: "recentDiscussionTagClick"}})
+      recordTagView({tag, extraEventProperties: {type: onClickEventType}})
     },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordTagView, tag]
+    [recordTagView, tag, onClickEventType]
   );
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
@@ -94,6 +101,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {
+    refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
     markAsRead: markAsRead,
@@ -102,32 +110,19 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     condensed: true,
   }
   
-  let metadataWording = ''
-  if (taggingNameIsSet.get()) {
-    if (tag.wikiOnly) {
-      metadataWording = `${taggingNameCapitalSetting.get()} page`
-    } else {
-      metadataWording = `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`
-    }
-  } else {
-    if (tag.wikiOnly) {
-      metadataWording = `Wiki page`
-    } else {
-      metadataWording = `Tag page - ${tag.postCount} posts`
-    }
-  }
+  const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
   return <div className={classes.root}>
     <div className={classes.tag}>
-      <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
-        {tag.name}
+      <Link to={isSubforum ? tagGetSubforumUrl(tag): tagGetDiscussionUrl(tag)} className={classes.title}>
+        {tag.name}{isSubforum && " Subforum"}
       </Link>
       
       <div className={classes.metadata}>
-        <span>{metadataWording}</span>
+        {!isSubforum && <span>{metadataWording}</span>}
       </div>
       
-      <div onClick={clickExpandDescription}>
+      {!isSubforum && <div onClick={clickExpandDescription}>
         <ContentStyles contentType="comment">
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
@@ -135,7 +130,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
             className={classes.description}
           />
         </ContentStyles>
-      </div>
+      </div>}
     </div>
     
     {nestedComments.length ? <div className={classes.content}>
@@ -149,6 +144,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
               nestingLevel={1}
               comment={comment.item}
               childComments={comment.children}
+              displayMode={isSubforum ? "minimalist" : "default"}
               key={comment.item._id}
             />
           </div>

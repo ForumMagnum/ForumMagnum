@@ -1,8 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import { CommentFormDisplayMode } from './CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -12,6 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflowY: 'scroll',
     marginTop: 'auto',
     padding: '0px 10px',
+    flexBasis: 0,
+    flexGrow: 1,
   }
 })
 
@@ -32,7 +34,7 @@ const CommentsTimelineFn = ({
   classes,
 }: {
   treeOptions: CommentTreeOptions;
-  comments: Array<CommentTreeNode<CommentsList>>;
+  comments: CommentWithRepliesFragment[];
   commentCount: number;
   loadMoreCount: number,
   totalComments: number,
@@ -52,11 +54,21 @@ const CommentsTimelineFn = ({
   // Scroll to the bottom when the page loads
   const currentHeight = bodyRef.current?.clientHeight;
   useEffect(() => {
-    if (!userHasScrolled && bodyRef.current)
+    if (!userHasScrolled && bodyRef.current) {
       bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
+
+      // For mobile: scroll the entire page to the bottom to stop the address bar from
+      // forcing the bottom off the end of the page. On desktop this just does nothing
+      // because the page fills the screen exactly
+      window.scrollTo({
+        top: 500,
+        // 'smooth' is to try and encourage it to scroll the address bar off the scree rather than overlaying it
+        behavior: 'smooth'
+      });
+    }
   }, [currentHeight, userHasScrolled])
 
-  const { CommentsNode, Typography } = Components;
+  const { CommentWithReplies, Typography } = Components;
 
   const handleScroll = (e) => {
     const isAtBottom = Math.abs((e.target.scrollHeight - e.target.scrollTop) - e.target.clientHeight) < 10;
@@ -71,7 +83,7 @@ const CommentsTimelineFn = ({
       loadMoreComments(commentCount + loadMoreCount);
   }
 
-  const commentsToRender = useMemo(() => comments.reverse(), [comments]);
+  const commentsToRender = useMemo(() => comments.slice().reverse(), [comments]);
 
   if (!comments) {
     return (
@@ -80,26 +92,29 @@ const CommentsTimelineFn = ({
       </Typography>
     );
   }
+  
+  const commentNodeProps = {
+    treeOptions: treeOptions,
+    startThreadTruncated: startThreadTruncated,
+    parentCommentId: parentCommentId,
+    parentAnswerId: parentAnswerId,
+    forceSingleLine: forceSingleLine,
+    forceNotSingleLine: forceNotSingleLine,
+    isChild: defaultNestingLevel > 1,
+    enableGuidelines: false,
+    displayMode: "minimalist" as CommentFormDisplayMode,
+  }
 
   return (
     <Components.ErrorBoundary>
       <div className={classes.nestedScroll} ref={bodyRef} onScroll={handleScroll}>
         {loadingMoreComments ? <Components.Loading /> : <></>}
         {commentsToRender.map((comment) => (
-          <CommentsNode
-            treeOptions={treeOptions}
-            startThreadTruncated={startThreadTruncated}
-            comment={comment.item}
-            childComments={comment.children}
-            key={comment.item._id}
-            parentCommentId={parentCommentId}
-            parentAnswerId={parentAnswerId}
-            forceSingleLine={forceSingleLine}
-            forceNotSingleLine={forceNotSingleLine}
-            shortform={(treeOptions.post as PostsBase)?.shortform}
-            isChild={defaultNestingLevel > 1}
-            enableGuidelines={false}
-            displayMode={"minimalist"}
+          <CommentWithReplies
+            comment={comment}
+            key={comment._id}
+            commentNodeProps={commentNodeProps}
+            initialMaxChildren={5}
           />
         ))}
       </div>

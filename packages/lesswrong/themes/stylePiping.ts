@@ -2,12 +2,12 @@
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after': {
+  '& a, & a:hover, & a:focus, & a::after, & li': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
-  }
+  },
 });
 
 const spoilerStyles = (theme: ThemeType): JssStyles => ({
@@ -458,6 +458,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& hr': {
           ...hrStyles(theme)
         },
+        '& ol, & ul': {
+          listStyleType: "revert !important",
+        },
       },
       '& .ck-placeholder:before': {
         whiteSpace: 'break-spaces'
@@ -514,7 +517,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main
+        '--ck-color-comment-count': theme.palette.primary.main,
       },
       
       "--ck-color-base-background": theme.palette.editor.commentPanelBackground,

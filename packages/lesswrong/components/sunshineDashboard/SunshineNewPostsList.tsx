@@ -14,7 +14,7 @@ const SunshineNewPostsList = ({ terms, classes }: {
   terms: PostsViewTerms,
   classes: ClassesType,
 }) => {
-  const { results, totalCount } = useMulti({
+  const { results, totalCount, refetch } = useMulti({
     terms,
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
@@ -31,7 +31,7 @@ const SunshineNewPostsList = ({ terms, classes }: {
         </SunshineListTitle>
         {results.map(post =>
           <div key={post._id} >
-            <SunshineNewPostsItem post={post}/>
+            <SunshineNewPostsItem post={post} refetch={refetch}/>
           </div>
         )}
       </div>

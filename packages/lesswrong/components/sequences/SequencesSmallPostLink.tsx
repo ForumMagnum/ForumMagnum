@@ -6,6 +6,8 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import { useItemsRead } from '../common/withRecordPostView';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import classNames from 'classnames';
+import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -19,41 +21,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6,
     marginTop: 6
   },
-  read: {
-    width: 12,
-    color: forumTypeSetting.get() === "EAForum"
-      ? theme.palette.primary.main
-      : theme.palette.primary.light,
-    marginRight: 10,
-    position: "relative",
-    top: -1
+  large: {
+    ...theme.typography.postsItemTitle,
+    marginBottom: 10,
+    marginTop: 10
   },
-  unread: {
-    width: 12,
-    color: theme.palette.grey[400],
-    marginRight: 10,
-    top: -1
+  checkbox: {
+    position: "relative",
+    top: 1,
+    marginRight: 10
   }
 });
 
-const SequencesSmallPostLink = ({classes, post, sequenceId}: {
+const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
   classes: ClassesType,
   post: PostsList,
-  sequenceId: string
+  sequenceId: string,
+  large?: boolean,
+  placement?: PopperPlacementType | undefined
 }) => {
-  const { LWTooltip, PostsPreviewTooltip } = Components
+  const { LWTooltip, PostsPreviewTooltip, PostReadCheckbox } = Components
 
-  const { postsRead: clientPostsRead } = useItemsRead();
-
-  const isPostRead = post.isRead || clientPostsRead[post._id];
-
-  const icon = isPostRead ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
-
-  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false}>
-        <Link to={postGetPageUrl(post, false, sequenceId)} className={classes.title}>
-          {icon} {post.title}
-        </Link>
-      </LWTooltip>
+  return <div className={classNames(classes.title, {[classes.large]: large})}>
+    <span className={classes.checkbox}>
+      <PostReadCheckbox post={post} />
+    </span>
+    <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement={placement} inlineBlock={false} flip>
+      <Link to={postGetPageUrl(post, false, sequenceId)}>
+        {post.title}
+      </Link>
+    </LWTooltip>
+  </div>
 }
 
 const SequencesSmallPostLinkComponent = registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});

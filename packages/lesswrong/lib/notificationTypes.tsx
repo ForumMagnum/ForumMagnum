@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -22,11 +22,13 @@ import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import DoneIcon from '@material-ui/icons/Done';
+import { NotificationChannelOption } from './collections/users/schema';
+import startCase from 'lodash/startCase';
 
 interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
-  mustBeEnabled?: boolean,
+  allowedChannels?: NotificationChannelOption[],
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
@@ -53,7 +55,9 @@ export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): Not
   return result;
 }
 
-const registerNotificationType = (notificationTypeClass: NotificationType) => {
+const registerNotificationType = ({allowedChannels = ["none", "onsite", "email", "both"], ...otherArgs}: NotificationType) => {
+  const notificationTypeClass = {allowedChannels, ...otherArgs};
+
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
   if (notificationTypeClass.userSettingField)
@@ -180,6 +184,23 @@ export const NewCommentNotification = registerNotificationType({
   },
 });
 
+// New comment on a subforum you're subscribed to.
+export const NewSubforumCommentNotification = registerNotificationType({
+  name: "newSubforumComment",
+  userSettingField: "notificationSubforumUnread",
+  allowedChannels: ["none", "email"],
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    // NOTE: Currently we only allow notifications by email to avoid double notifying (with both the sidebar unread count
+    // and the notification), if we ever want to allow notifications in the sidebar we'll probably want to update this message
+    // and double check the links work
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new comment on the "' + startCase(await getCommentParentTitle(document)) + '" Subforum';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
 export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
@@ -259,7 +280,7 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  mustBeEnabled: true,
+  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
@@ -286,10 +307,11 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
-  mustBeEnabled: true,
+  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost;
-    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+    const name = await postGetAuthorName(document);
+    return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -299,7 +321,10 @@ export const PostSharedWithUserNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/collaborateOnPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("PostSharedWithUserNotification documentId is missing")
+    }
+    return getPostCollaborateUrl(documentId, false)
   }
 });
 
@@ -379,6 +404,20 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
+export const NewSubforumMemberNotification = registerNotificationType({
+  name: "newSubforumMember",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'user') throw new Error("documentType must be user")
+    const newUser = await Users.findOne(documentId)
+    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
+    return `A new user has joined your subforum: ${newUser.displayName}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />

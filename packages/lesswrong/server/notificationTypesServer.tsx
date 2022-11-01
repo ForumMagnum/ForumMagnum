@@ -11,7 +11,7 @@ import { Conversations } from '../lib/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../lib/collections/users/collection';
-import { userGetDisplayName } from '../lib/collections/users/helpers';
+import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
@@ -22,17 +22,24 @@ import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
+import Tags from '../lib/collections/tags/collection';
+import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
+import uniq from 'lodash/uniq';
+import startCase from 'lodash/startCase';
 
 interface ServerNotificationType {
   name: string,
   from?: string,
   canCombineEmails?: boolean,
+  skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
   emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
   emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,
 }
+// A default skip function is added in serverRegisterNotificationType so it is optional when registering a notification type
+type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
 
-const notificationTypes: {string?: ServerNotificationType} = {};
+const notificationTypes: Record<string, ServerNotificationType> = {};
 
 export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
   if (name in notificationTypes)
@@ -41,10 +48,11 @@ export const getNotificationTypeByNameServer = (name: string): ServerNotificatio
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-const serverRegisterNotificationType = (notificationTypeClass: ServerNotificationType): ServerNotificationType => {
-  const name = notificationTypeClass.name;
-  notificationTypes[name] = notificationTypeClass;
-  return notificationTypeClass;
+const serverRegisterNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
+  const notificationType = {skip, ...notificationTypeClass};
+  const name = notificationType.name;
+  notificationTypes[name] = notificationType;
+  return notificationType;
 }
 
 export const NewPostNotification = serverRegisterNotificationType({
@@ -156,6 +164,40 @@ export const NewCommentNotification = serverRegisterNotificationType({
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
       return `${author.displayName} commented on a post you subscribed to`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
+export const NewSubforumCommentNotification = serverRegisterNotificationType({
+  name: "newSubforumComment",
+  canCombineEmails: true,
+  skip: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+
+    return comments.length === 0;
+  },
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+
+    const commentCount = comments.length
+    const subforumIds = uniq(comments.map(c => c.tagId))
+    
+    if (subforumIds.length === 1) {
+      const subforum = await Tags.findOne(subforumIds[0])
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} subforum`
+    } else {
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} subforums you are subscribed to`
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -289,14 +331,16 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `You have been shared on the ${post.draft ? "draft" : "post"} ${post.title}`;
+    const name = await postGetAuthorName(post);
+    return `${name} shared their ${post.draft ? "draft" : "post"} "${post.title}" with you`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetPageUrl(post, true);
+    const name = await postGetAuthorName(post);
     return <p>
-      You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
+      {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
     </p>
   },
 });
@@ -499,5 +543,34 @@ export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
         Your co-author request for <a href={link}>{post.title}</a> was accepted.
       </p>
     );
+  },
+});
+
+export const NewSubforumMemberNotification = serverRegisterNotificationType({
+  name: "newSubforumMember",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const newUser = await Users.findOne(notifications[0].documentId)
+    if (!newUser) throw new Error("Cannot find user for which this notification is being sent")
+    return `New member ${newUser.displayName} has joined your subforum`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const newUser = await Users.findOne(notifications[0].documentId)
+    const subforum = await Tags.findOne(notifications[0].extraData?.subforumId)
+    if (!newUser) throw new Error(`Cannot find user for which this notification is being sent, user id: ${notifications[0].documentId}`)
+    if (!subforum) throw new Error(`Cannot find subforum for which this notification is being sent, subforum id: ${notifications[0].extraData?.subforumId}`)
+
+    return <div>
+      <p>
+        Hi {user.displayName},
+      </p>
+      <p>
+        Your subforum, <a href={tagGetSubforumUrl(subforum, true)}> {subforum?.name}</a> has a new
+        member: <a href={userGetProfileUrl(newUser, true)}>{newUser?.displayName}</a>.
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
+      </p>
+    </div>
   },
 });

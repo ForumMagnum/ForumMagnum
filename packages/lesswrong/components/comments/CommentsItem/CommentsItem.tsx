@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
@@ -16,6 +16,7 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } 
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
+import startCase from 'lodash/startCase';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -295,6 +296,21 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     post &&
     currentUser?._id !== post.userId &&
     eligibleToNominate(currentUser)
+
+  /**
+   * Show the moderator comment annotation if:
+   * 1) it has the moderatorHat
+   * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
+   */
+  const showModeratorCommentAnnotation = comment.moderatorHat && (
+    userIsAdmin(currentUser)
+      ? true
+      : !comment.hideModeratorHat
+    );
+  
+  const moderatorCommentAnnotation = comment.hideModeratorHat
+    ? 'Moderator Comment (Invisible)'
+    : 'Moderator Comment';
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -328,7 +344,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
                 {comment.post.title}
               </Link>
             </LWTooltip>}
-          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
+            {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
+          </Link>}
         </div>
           <div className={classes.body}>
             <div className={classes.meta}>
@@ -347,7 +365,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            {singleLineCollapse && <a className={classes.collapse} onClick={() => 
+            {singleLineCollapse && <a className={classes.collapse} onClick={() =>
               setSingleLine && setSingleLine(true)}>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
@@ -358,8 +376,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               scrollIntoView={scrollIntoView}
               scrollOnClick={postPage && !isParentComment}
             />
-            {comment.moderatorHat && <span className={classes.moderatorHat}>
-              Moderator Comment
+            {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
+              {moderatorCommentAnnotation}
             </span>}
             <SmallSideVote
               document={comment}

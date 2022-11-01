@@ -1,6 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
+import {petrovPostIdSetting} from "./PetrovDayButton";
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -37,7 +38,7 @@ const PetrovDayLossScreen = ({classes}) => {
       <Components.Typography variant="display3" className={classes.title}>
         <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
       </Components.Typography>
-      <Link className={classes.link} to={"/posts/XfHXQPPKNY8BXkn72/honoring-petrov-day-on-lesswrong-in-2020"}>What happened?</Link>
+      <Link className={classes.link} to={"/posts/" + petrovPostIdSetting.get()}>What happened?</Link>
     </div>
   )
 }

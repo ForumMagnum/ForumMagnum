@@ -5,6 +5,7 @@ import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { makeEditable } from '../../editor/make_editable';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null) => {
@@ -75,5 +76,22 @@ addUniversalFields({
   collection: Comments,
   createdAtOptions: {canRead: ['admins']},
 });
+
+makeEditable({
+  collection: Comments,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    // Sets the algorithm for determing what storage ids to use for local storage management
+    getLocalStorageId: (comment, name) => {
+      if (comment._id) { return {id: comment._id, verify: true} }
+      if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
+      return {id: ('post:' + comment.postId), verify: false}
+    },
+    order: 25
+  }
+})
 
 export default Comments;

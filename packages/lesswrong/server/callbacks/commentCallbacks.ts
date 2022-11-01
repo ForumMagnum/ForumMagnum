@@ -16,7 +16,6 @@ import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbac
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { TagCommentType } from '../../lib/collections/comments/schema';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -90,9 +89,10 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
     await Posts.rawUpdateOne(comment.postId, {
       $set: {lastCommentedAt: new Date()},
     });
-  } else if (comment.tagId && comment.tagCommentType === TagCommentType.Discussion) {
+  } else if (comment.tagId) {
+    const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {
-      $set: {lastCommentedAt: new Date()},
+      $set: {[fieldToSet]: new Date()},
     });
   }
 
@@ -149,21 +149,7 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
   }
 });
 
-
-const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
-getCollectionHooks("Comments").newValidate.add(async function CommentsNewRateLimit (comment: DbComment, user: DbUser) {
-  if (!userIsAdmin(user)) {
-    const timeSinceLastComment = await userTimeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
-
-    // check that user waits more than 15 seconds between comments
-    if((timeSinceLastComment < commentInterval)) {
-      throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
-    }
-  }
-  return comment;
-});
-
+// TODO: move this to views?
 ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////
@@ -386,7 +372,7 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
 getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
   const ancestorIds: string[] = await getCommentAncestorIds(comment);
   
-  await Comments.rawUpdateOne({ _id: {$in: ancestorIds} }, {
+  await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
     $set: {lastSubthreadActivity: new Date()},
     $inc: {descendentCount:1},
   });
@@ -398,7 +384,7 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = context.oldDocument.deleted ? 1 : -1;
-    await Comments.rawUpdateOne({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
+    await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });

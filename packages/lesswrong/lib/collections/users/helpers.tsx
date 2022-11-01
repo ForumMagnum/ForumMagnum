@@ -29,17 +29,24 @@ export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|
   return null;
 };
 
-export const userOwnsAndInGroup = (group: string) => {
+export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
 }
 
-export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
+export interface SharableDocument {
+  coauthorStatuses?: DbPost["coauthorStatuses"]
+  shareWithUsers?: DbPost["shareWithUsers"]
+  sharingSettings?: DbPost["sharingSettings"]
+}
+
+export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: SharableDocument): boolean => {
   if (!currentUser) return false;
   
   // Shared as a coauthor? Always give access
-  if (document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  const coauthorStatuses = document.coauthorStatuses ?? []
+  if (coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
   
   // Explicitly shared?
   if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {
@@ -297,8 +304,6 @@ export const userCanEdit = (currentUser, user) => {
   return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
 }
 
-
-
 interface UserLocation {
   lat: number,
   lng: number,
@@ -462,3 +467,24 @@ export const getAuth0Id = (user: DbUser) => {
   }
   throw new Error("User does not have an Auth0 user ID");
 }
+
+const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
+export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+  if (forumTypeSetting.get() !== 'LessWrong') return false;
+
+  const userCreatedAfterCutoff = user.createdAt
+    ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
+    : false;
+
+  return !user.acknowledgedNewUserGuidelines && userCreatedAfterCutoff;
+};
+
+export const getSignature = (name: string) => {
+  const today = new Date();
+  const todayString = today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  return `${name}, ${todayString}`;
+};
+
+export const getSignatureWithNote = (name: string, note: string) => {
+  return `${getSignature(name)}: ${note}\n`;
+};

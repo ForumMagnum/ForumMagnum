@@ -20,9 +20,10 @@ export const zIndexes = {
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   singleColumnSection: 1,
-  curatedContentItem: 1,
+  modTopBar: 1, 
+  spotlightItem: 1,
   editorPresenceList: 1,
-  curatedContentItemCloseButton: 2,
+  spotlightItemCloseButton: 2,
   commentsMenu: 2,
   sequencesPageContent: 2,
   sequencesImageScrim: 2,
@@ -104,6 +105,19 @@ export const baseTheme: BaseThemeSpecification = {
           fontWeight: 400,
           fontSize: '1.1rem',
           lineHeight: '1.5rem',
+        },
+        postsItemTitle: {
+          fontSize: "1.3rem"
+        },
+        chapterTitle: {
+          fontSize: "1.2em",
+          textTransform: "uppercase",
+          color: palette.grey[600]
+        },
+        largeChapterTitle: {
+          fontSize: '1.4rem',
+          margin: "1.5em 0 .5em 0",
+          color: palette.grey[800]
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,

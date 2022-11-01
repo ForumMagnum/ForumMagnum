@@ -1,6 +1,6 @@
 import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
-import type { KarmaChangeSettingsType } from '../lib/collections/users/custom_fields';
+import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';
@@ -88,6 +88,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
         description: {$arrayElemAt: ["$comment.contents.html",0]},
         postId: {$arrayElemAt: ["$comment.postId",0]},
         tagId: {$arrayElemAt: ["$comment.tagId",0]},
+        tagCommentType: {$arrayElemAt: ["$comment.tagCommentType",0]},
       }},
     ]
   ).toArray()

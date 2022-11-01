@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FormLabel from '@material-ui/core/FormLabel';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   label: {
@@ -12,25 +13,40 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     width: '100%',
     maxWidth: 350,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
-    padding: 10,
+    border: "none",
     marginBottom: 8,
+    '& .SearchAutoComplete-autoComplete input': {
+      fontSize: 13
+    },
     '& input': {
-      width: '100%'
+      width: '100%',
+      cursor: "pointer",
     }
   },
+  focused: {
+    border: theme.palette.border.extraFaint,
+    borderRadius: 3,
+    padding: 5,
+    '& input': {
+      cursor: "text"
+    }
+  }
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false, updateCurrentValues }: {
   value: Array<string>,
   path: string,
   classes: ClassesType,
   label?: string,
   placeholder?: string,
+  hidePostCount?: boolean,
+  startWithBorder?: boolean,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-  
+  const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
+
+  const [focused, setFocused] = useState(startWithBorder)
+
   const addTag = (id: string) => {
     if (!value.includes(id)) {
       value.push(id)
@@ -39,8 +55,9 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
   }
   
   const removeTag = (id: string) => {
-    if (value.includes(id))
+    if (value.includes(id)) {
       updateCurrentValues({ [path]: value.filter(tag => tag !== id) })
+    }
   }
 
   return (
@@ -48,21 +65,22 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, updateCurren
       {label && <FormLabel className={classes.label}>{label}</FormLabel>}
       <div className={classes.tags}>
         {value.map(tagId => {
-          return <Components.SingleTagItem
+          return <SingleTagItem
             key={tagId}
             documentId={tagId}
             onDelete={(_: string) => removeTag(tagId)}
           />
         })}
       </div>
-      <Components.ErrorBoundary>
-        <div className={classes.inputContainer}>
-          <Components.TagsSearchAutoComplete
+      <ErrorBoundary>
+        <div className={classNames(classes.inputContainer, {[classes.focused]:focused})} onClick={() => setFocused(true)}>
+          <TagsSearchAutoComplete
             clickAction={(id: string) => addTag(id)}
             placeholder={placeholder}
+            hidePostCount={hidePostCount}
           />
         </div>
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
     </div>
   )
 }

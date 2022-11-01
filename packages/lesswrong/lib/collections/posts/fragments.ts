@@ -220,6 +220,7 @@ registerFragment(`
       wordCount
       version
     }
+    fmCrosspost
   }
 `);
 
@@ -313,6 +314,7 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
+    podcastEpisodeId
   }
 `);
 
@@ -444,6 +446,7 @@ registerFragment(`
       ...RevisionEdit
     }
     tableOfContents
+    subforumTagId
   }
 `);
 
@@ -500,6 +503,7 @@ registerFragment(`
 
     currentUserVote
     currentUserExtendedVote
+    fmCrosspost
 
     contents {
       _id
@@ -524,6 +528,11 @@ registerFragment(`
       moderationGuidelines {
         _id
         html
+      }
+
+      needsReview
+      moderatorActions {
+        ...ModeratorActionDisplay
       }
     }
   }

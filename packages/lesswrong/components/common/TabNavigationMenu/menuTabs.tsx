@@ -260,6 +260,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
+    },{
+      id: 'subforumsList',
+      customComponentName: "SubforumsList",
     }, {
       id: 'library',
       title: 'Library',
@@ -313,21 +316,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
-      id: 'local-groups',
-      title: 'Local Groups',
-      link: '/community',
-      subItem: true,
-    }, {
-      id: 'online-groups',
-      title: 'Online Groups',
-      link: '/community#online',
-      subItem: true,
-    }, {
-      id: 'community-members',
-      title: 'Community Members',
-      link: '/community#individuals',
-      subItem: true,
-    }, {
       id: 'advice',
       title: 'Book a 1:1 [BETA]',
       link: `/advice`,
@@ -352,7 +340,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'about',
-      title: 'About the Forum',
+      title: 'How to use the Forum',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,

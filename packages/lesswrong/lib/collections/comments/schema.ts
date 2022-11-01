@@ -1,15 +1,30 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { commentGetPageUrlFromDB } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
+import { forumTypeSetting } from "../../instanceSettings";
+import GraphQLJSON from 'graphql-type-json';
+import { commentGetPageUrlFromDB } from './helpers';
+import { tagCommentTypes } from './types';
 
-export enum TagCommentType {
-  Subforum = "SUBFORUM",
-  Discussion = "DISCUSSION",
-}
+
+export const moderationOptionsGroup: FormGroup = {
+  order: 50,
+  name: "moderation",
+  label: "Moderator Options",
+  startCollapsed: true
+};
+
+export const alignmentOptionsGroup = {
+  order: 50,
+  name: "alignment",
+  label: "Alignment Options",
+  startCollapsed: true
+};
+
+const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
 
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
@@ -101,9 +116,9 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    allowedValues: Object.values(TagCommentType),
+    allowedValues: Object.values(tagCommentTypes),
     hidden: true,
-    ...schemaDefaultValue(TagCommentType.Discussion as string),
+    ...schemaDefaultValue("DISCUSSION"),
   },
   // The comment author's `_id`
   userId: {
@@ -395,6 +410,306 @@ const schema: SchemaType<DbComment> = {
       return post.votingSystem || "default";
     }
   }),
+  // Legacy: Boolean used to indicate that post was imported from old LW database
+  legacy: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // Legacy ID: ID used in the original LessWrong database
+  legacyId: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // Legacy Poll: Boolean to indicate that original LW data had a poll here
+  legacyPoll: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // Legacy Parent Id: Id of parent comment in original LW database
+  legacyParentId: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
+  // retracted: Indicates whether a comment has been retracted by its author.
+  // Results in the text of the comment being struck-through, but still readable.
+  retracted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  // deleted: Indicates whether a comment has been deleted by an admin.
+  // Deleted comments and their replies are not rendered by default.
+  deleted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  deletedPublic: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  deletedReason: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+
+  deletedDate: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
+        return new Date()
+      }
+    },
+    hidden: true,
+  },
+
+  deletedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "deletedByUserId",
+      resolverName: "deletedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    hidden: true,
+    onEdit: (modifier, document, currentUser) => {
+      if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
+        return modifier.$set.deletedByUserId || currentUser._id
+      }
+    },
+  },
+
+  // spam: Indicates whether a comment has been marked as spam.
+  // This removes the content of the comment, but still renders replies.
+  spam: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    control: "checkbox",
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
+  // repliesBlockedUntil: Deactivates replying to this post by anyone except
+  // admins and sunshineRegiment members until the specified time is reached.
+  repliesBlockedUntil: {
+    type: Date,
+    optional: true,
+    group: moderationOptionsGroup,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    control: 'datetime'
+  },
+
+  needsReview: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+
+  reviewedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "reviewedByUserId",
+      resolverName: "reviewedByUser",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+
+  // hideAuthor: Displays the author as '[deleted]'. We use this to copy over
+  // old deleted comments from LW 1.0
+  hideAuthor: {
+    type: Boolean,
+    group: moderationOptionsGroup,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    ...schemaDefaultValue(false),
+  },
+  
+  moderatorHat: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
+
+  /**
+   * Suppress user-visible styling for comments marked with `moderatorHat: true`
+   */
+  hideModeratorHat: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    onUpdate: ({ newDocument }) => {
+      if (!newDocument.moderatorHat) return null;
+      return newDocument.hideModeratorHat;
+    },
+  },
+
+  // whether this comment is pinned on the author's profile
+  isPinnedOnProfile: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+  
 };
+
+/* Alignment Forum fields */
+Object.assign(schema, {
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "AI Alignment Forum",
+    ...schemaDefaultValue(false),
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForum', 'admins'],
+    insertableBy: ['alignmentForum', 'admins'],
+    hidden: (props) => alignmentForum || !props.alignmentForumPost
+  },
+
+  afBaseScore: {
+    type: Number,
+    optional: true,
+    label: "Alignment Base Score",
+    viewableBy: ['guests'],
+  },
+  afExtendedScore: {
+    type: GraphQLJSON,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+
+  suggestForAlignmentUserIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "suggestForAlignmentUserIds",
+      resolverName: "suggestForAlignmentUsers",
+      collectionName: "Users",
+      type: "User"
+    }),
+    viewableBy: ['members'],
+    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
+    optional: true,
+    label: "Suggested for Alignment by",
+    control: "UsersListEditor",
+    group: alignmentOptionsGroup,
+    hidden: true
+  },
+  'suggestForAlignmentUserIds.$': {
+    type: String,
+    optional: true
+  },
+
+  reviewForAlignmentUserId: {
+    type: String,
+    optional: true,
+    group: alignmentOptionsGroup,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForumAdmins', 'admins'],
+    label: "AF Review UserId",
+    hidden: forumTypeSetting.get() === 'EAForum'
+  },
+
+  afDate: {
+    order:10,
+    type: Date,
+    optional: true,
+    label: "Alignment Forum",
+    defaultValue: false,
+    hidden: true,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    insertableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    group: alignmentOptionsGroup,
+  },
+
+  moveToAlignmentUserId: {
+    ...foreignKeyField({
+      idFieldName: "moveToAlignmentUserId",
+      resolverName: "moveToAlignmentUser",
+      collectionName: "Users",
+      type: "User",
+    }),
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
+    group: alignmentOptionsGroup,
+    label: "Move to Alignment UserId",
+  },
+});
 
 export default schema;

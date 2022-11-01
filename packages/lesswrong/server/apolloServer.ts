@@ -4,7 +4,6 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
@@ -38,10 +37,10 @@ import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCrosspostRoutes } from './fmCrosspost';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -121,9 +120,10 @@ export function startWebserver() {
       }
     }))
   }
-  app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
-  app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
+
+  app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
@@ -154,7 +154,7 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: async ({ req, res }) => {
+    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const user = await getUserFromReq(req);
       const context = await computeContextFromUser(user, req, res);
       configureSentryScope(context);
@@ -163,8 +163,8 @@ export function startWebserver() {
     plugins: [new ApolloServerLogging()]
   });
 
-  app.use('/graphql', bodyParser.json({ limit: '50mb' }));
-  app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
+  app.use('/graphql', express.json({ limit: '50mb' }));
+  app.use('/graphql', express.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -260,7 +260,7 @@ export function startWebserver() {
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
-    const stylesheet = getMergedStylesheet(themeOptions);
+    const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
@@ -274,7 +274,7 @@ export function startWebserver() {
       '<!doctype html>\n'
       + '<html lang="en">\n'
       + '<head>\n'
-        + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
         + clientScript
@@ -288,7 +288,17 @@ export function startWebserver() {
     
     const renderResult = await renderWithCache(request, response, user);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
+    const {
+      ssrBody,
+      headers,
+      serializedApolloState,
+      serializedForeignApolloState,
+      jssSheets,
+      status,
+      redirectUrl,
+      renderedAt,
+      allAbTestGroups,
+    } = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
@@ -316,6 +326,7 @@ export function startWebserver() {
         + '</body>\n'
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
         + serializedApolloState + '\n'
+        + serializedForeignApolloState + '\n'
         + '</html>\n')
       response.end();
     }

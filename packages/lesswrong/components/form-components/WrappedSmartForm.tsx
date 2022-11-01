@@ -25,14 +25,14 @@ function WrappedSmartForm(props) {
         
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
         const editableFields = _.object(editableCollectionsFields[collectionName].map(fieldName => {
-          const { originalContents, updateType, commitMessage } = (data && data[fieldName]) || {}
+          const { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions } = (data && data[fieldName]) || {}
           return [
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
             // Ensure that we have data. We check for data field presence but
             // not truthiness, because the empty string is falsy.
             (typeof originalContents==="object" && "data" in originalContents)
               // If so, constrain it to correct shape
-              ? { originalContents, updateType, commitMessage }
+              ? { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions }
               // If not, set field to undefined
               : undefined
           ]

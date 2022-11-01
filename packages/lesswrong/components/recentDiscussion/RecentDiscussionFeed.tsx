@@ -104,8 +104,21 @@ const RecentDiscussionFeed = ({
                 render: (tag: TagRecentDiscussion) => (
                   <RecentDiscussionTag
                     tag={tag}
+                    refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
+                  />
+                )
+              },
+              tagSubforumCommented: {
+                fragmentName: "TagRecentSubforumComments",
+                render: (tag: TagRecentSubforumComments) => (
+                  <RecentDiscussionTag
+                    tag={tag}
+                    refetch={refetch}
+                    comments={tag.recentComments}
+                    expandAllThreads={expandAll}
+                    tagCommentType={"SUBFORUM"}
                   />
                 )
               },

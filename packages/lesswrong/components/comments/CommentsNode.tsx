@@ -34,6 +34,36 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+export interface CommentsNodeProps {
+  treeOptions: CommentTreeOptions,
+  comment: CommentsList & {gapIndicator?: boolean},
+  startThreadTruncated?: boolean,
+  truncated?: boolean,
+  shortform?: any,
+  nestingLevel?: number,
+  expandAllThreads?:boolean,
+  /**
+   * Determines whether this specific comment is expanded, without passing that
+   * expanded state to child comments
+   */
+  expandByDefault?: boolean,
+  isChild?: boolean,
+  parentAnswerId?: string|null,
+  parentCommentId?: string,
+  showExtraChildrenButton?: any,
+  noHash?: boolean,
+  hoverPreview?: boolean,
+  forceSingleLine?: boolean,
+  forceNotSingleLine?: boolean,
+  childComments?: Array<CommentTreeNode<CommentsList>>,
+  loadChildrenSeparately?: boolean,
+  loadDirectReplies?: boolean,
+  showPinnedOnProfile?: boolean,
+  enableGuidelines?: boolean,
+  displayMode?: CommentFormDisplayMode,
+  classes: ClassesType,
+}
+
 const CommentsNode = ({
   treeOptions,
   comment,
@@ -58,31 +88,7 @@ const CommentsNode = ({
   enableGuidelines=true,
   displayMode="default",
   classes
-}: {
-  treeOptions: CommentTreeOptions,
-  comment: CommentsList & {gapIndicator?: boolean},
-  startThreadTruncated?: boolean,
-  truncated?: boolean,
-  shortform?: any,
-  nestingLevel?: number,
-  expandAllThreads?:boolean,
-  expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
-  isChild?: boolean,
-  parentAnswerId?: string|null,
-  parentCommentId?: string,
-  showExtraChildrenButton?: any,
-  noHash?: boolean,
-  hoverPreview?: boolean,
-  forceSingleLine?: boolean,
-  forceNotSingleLine?: boolean,
-  childComments?: Array<CommentTreeNode<CommentsList>>,
-  loadChildrenSeparately?: boolean,
-  loadDirectReplies?: boolean,
-  showPinnedOnProfile?: boolean,
-  enableGuidelines?: boolean,
-  displayMode?: CommentFormDisplayMode,
-  classes: ClassesType,
-}) => {
+}: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);

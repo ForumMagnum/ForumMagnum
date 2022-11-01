@@ -8,7 +8,6 @@ import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { createMutator } from '../vulcan-lib/mutators';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import fetch from 'node-fetch';
 import crypto from 'crypto';
 import fs from 'fs';
 import * as _ from 'underscore';
@@ -163,6 +162,9 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
     type: "ckEditorMarkup",
   }
   
+  if (!user) {
+    throw Error("no user found for userId in saveDocumentRevision")
+  }
   if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
     const newRevision: Partial<DbRevision> = {
       ...await buildRevision({

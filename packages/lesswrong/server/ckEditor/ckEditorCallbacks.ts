@@ -1,16 +1,18 @@
 import { randomSecret } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { Posts } from '../../lib/collections/posts/collection';
-import { postCanEdit } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isCollaborative } from '../../components/editor/EditorFormComponent';
 import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { restrictViewableFields } from '../../lib/vulcan-users/permissions';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { pushRevisionToCkEditor } from './ckEditorWebhook';
 import * as _ from 'underscore';
 import crypto from 'crypto';
+import { userCanDo } from '../../lib/vulcan-users';
 
 export function generateLinkSharingKey(): string {
   return randomSecret();
@@ -92,11 +94,15 @@ defineQuery({
     //  * Link-sharing is enabled and the post doesn't have a link-sharing key
     //  * Link-sharing is enabled and this user has provided the correct key in
     //    the past
+    //  * The logged-in user is the post author
+    //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
     if (
-      (post?.shareWithUsers && _.contains(post.shareWithUsers, currentUser._id))
+      (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser._id))
       || (linkSharingEnabled(post)
           && (!post.linkSharingKey || constantTimeCompare(post.linkSharingKey, linkSharingKey)))
       || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser._id))
+      || currentUser._id === post.userId
+      || userCanDo(currentUser, 'posts.edit.all')
     ) {
       // Add the user to linkSharingKeyUsedBy, if not already there
       if (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
@@ -107,7 +113,7 @@ defineQuery({
       }
       
       // Return the post
-      const filteredPost = await accessFilterSingle(currentUser, Posts, post, context);
+      const filteredPost = restrictViewableFields(currentUser, Posts, post);
       return filteredPost;
     } else {
       throw new Error("Invalid postId or not shared with you");
@@ -146,7 +152,7 @@ defineMutation({
     }
     
     // Must have write access to the post
-    if (!postCanEdit(currentUser, post)) {
+    if (!canUserEditPostMetadata(currentUser, post)) {
       throw new Error("You don't have write access to this post");
     }
     

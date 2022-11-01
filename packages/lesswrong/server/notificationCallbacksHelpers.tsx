@@ -12,7 +12,7 @@ import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionUtils';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
+import { defaultNotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import keyBy from 'lodash/keyBy';

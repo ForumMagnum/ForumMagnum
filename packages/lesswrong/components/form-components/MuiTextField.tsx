@@ -45,7 +45,7 @@ const MuiTextField = ({
   return <TextField
     variant={variant || 'standard'}
     select={select}
-    value={value||""}
+    value={value ?? ""}
     defaultValue={defaultValue}
     label={label}
     onChange={onChange}

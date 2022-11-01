@@ -56,6 +56,7 @@
     "@ckeditor/ckeditor5-list": "^31.0.0",
     "@ckeditor/ckeditor5-media-embed": "^31.0.0",
     "@ckeditor/ckeditor5-paragraph": "^31.0.0",
+    "@ckeditor/ckeditor5-track-changes":  "^31.0.0",
     "@ckeditor/ckeditor5-paste-from-office": "^31.0.0",
     "@ckeditor/ckeditor5-real-time-collaboration": "^31.0.0",
     "@ckeditor/ckeditor5-remove-format": "^31.0.0",

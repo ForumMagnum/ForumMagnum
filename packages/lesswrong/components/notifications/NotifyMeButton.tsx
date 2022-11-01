@@ -3,7 +3,6 @@ import { Components, registerComponent, getCollectionName } from '../../lib/vulc
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -74,7 +73,7 @@ const NotifyMeButton = ({
   const { openDialog } = useDialog()
   const { flash } = useMessages();
   const { create: createSubscription } = useCreate({
-    collection: Subscriptions,
+    collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',
   });
   
@@ -132,7 +131,8 @@ const NotifyMeButton = ({
         documentId: document._id,
         collectionName,
         type: subscriptionType,
-      }
+      } as const;
+      
       await createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed

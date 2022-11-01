@@ -11,7 +11,8 @@ import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
 import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
-import { TagCommentType } from '../comments/schema';
+import Comments from '../comments/collection';
+import UserTagRels from '../userTagRels/collection';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -31,7 +32,7 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  
   ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
 }
 
-export const schema: SchemaType<DbTag> = {
+const schema: SchemaType<DbTag> = {
   name: {
     type: String,
     viewableBy: ['guests'],
@@ -115,12 +116,8 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
-  },
-  descriptionHtmlWithToc: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-    // See resolveAs in server/resolvers/tagResolvers.ts
+    // schemaDefaultValue throws an error if this is set to null, but we want to allow that
+    onUpdate: () => {},
   },
   postCount: {
     ...denormalizedCountOfReferences({
@@ -195,6 +192,12 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     viewableBy: ['guests'],
   },
+  lastSubforumCommentAt: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+  },
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -236,17 +239,19 @@ export const schema: SchemaType<DbTag> = {
     type: Array,
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
-    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
+    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false, tagCommentType = "DISCUSSION" }, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const lastCommentTime = tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt
+      const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
+
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         tagId: tag._id,
         score: {$gt:0},
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
-        tagCommentType: TagCommentType.Discussion,
+        tagCommentType: tagCommentType,
         ...(af ? {af:true} : {}),
       }, {
         limit: tagCommentsLimit,
@@ -454,7 +459,109 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  subforumUnreadMessagesCount: resolverOnlyField({
+    type: Number,
+    nullable: true,
+    canRead: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      if (!tag.isSubforum) return null;
+      const userTagRel = context.currentUser ? await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}) : null;
+      // This is when this field was added, so assume all messages before then have been read
+      const earliestDate = new Date('2022-09-30T15:07:34.026Z');
+      
+      if (!userTagRel) {
+        return await Comments.find({tagId: tag._id, tagCommentType: "SUBFORUM", deleted: {$ne: true}, postedAt: {$gt: earliestDate}}).count()
+      }
+
+      if (!userTagRel?.subforumShowUnreadInSidebar) return null;
+
+      const userLastVisitedAt = userTagRel?.subforumLastVisitedAt || earliestDate;
+      const count = await Comments.find({tagId: tag._id, tagCommentType: "SUBFORUM", deleted: {$ne: true}, postedAt: {$gt: userLastVisitedAt}}).count()
+
+      return count
+    },
+  }),
+  subforumModeratorIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "subforumModeratorIds",
+      resolverName: "subforumModerators",
+      collectionName: "Users",
+      type: "User",
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    control: "UsersListEditor",
+    label: "Subforum Moderators",
+  },
+  'subforumModeratorIds.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true,
+  },
+  parentTagId: {
+    ...foreignKeyField({
+      idFieldName: "parentTagId",
+      resolverName: "parentTag",
+      collectionName: "Tags",
+      type: "Tag",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Parent Tag",
+    tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
+    group: formGroups.advancedOptions,
+    control: 'TagSelect',
+    onCreate: async ({newDocument: tag, context }) => {
+      if (tag.parentTagId) {
+        // don't allow chained parent tag relationships
+        const { Tags } = context;
+        if ((await Tags.find({parentTagId: tag._id}).count())) {
+          throw Error(`Tag ${tag.name} is a parent tag of another tag.`);
+        }
+      }
+      return tag.parentTagId
+    },
+    onUpdate: async ({data, oldDocument, context}) => {
+      if (data.parentTagId) {
+        if (data.parentTagId === oldDocument._id) {
+          throw Error(`Can't set self as parent tag.`);
+        }
+        const { Tags } = context;
+        // don't allow chained parent tag relationships
+        if ((await Tags.find({parentTagId: oldDocument._id}).count())) {
+          throw Error(`Tag ${oldDocument.name} is a parent tag of another tag.`);
+        }
+      }
+      return data.parentTagId
+    },
+  },
+  subTags: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (tag, args: void, context: ResolverContext) => {
+      const { currentUser, Tags } = context;
+
+      const tags = await Tags.find({
+        parentTagId: tag._id
+      }, {
+        sort: {name: 1}
+      }).fetch();
+      return await accessFilterMultiple(currentUser, Tags, tags, context);
+    }
+  }),
+  'subTags.$': {
+    type: Object,
+    foreignKey: 'Tags',
+  },
 }
+
+export default schema;
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {
   0: "Uncategorized",

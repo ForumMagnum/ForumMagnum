@@ -5,9 +5,7 @@ import type { ConnectCrossposterArgs, UnlinkCrossposterPayload } from "./types";
 import { ApiRoute, apiRoutes, makeApiUrl } from "./routes";
 import { signToken } from "./tokens";
 import type { Request } from "express";
-import fetch from "node-fetch";
-
-export const crosspostUserAgent = "ForumMagnum/2.1";
+import { crosspostUserAgent } from "../../lib/apollo/links";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -33,6 +31,8 @@ export const makeCrossSiteRequest = async <T extends {}>(
   });
   const json = await result.json();
   if (json.status !== expectedStatus) {
+    // eslint-disable-next-line no-console
+    console.error("Cross-site request failed:", json);
     throw new ApiError(500, onErrorMessage);
   }
   return json;

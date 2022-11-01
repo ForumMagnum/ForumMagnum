@@ -6,7 +6,6 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
-import { TagCommentType } from './schema';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -485,34 +484,36 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
-
-// TODO remove (https://app.asana.com/0/0/1202945419128640/f)
-// renamed to tagDiscussionComments to better distinguish between comments on the tag subforum
-// we can delete this once we're confident browsers are no longer a bundle.js from before the rename (7 days after merge)
-Comments.addView('commentsOnTag', (terms: CommentsViewTerms) => ({
-  selector: {
-    tagId: terms.tagId,
-  },
-}));
 ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
 );
 
+export const subforumSorting = {
+  new: { postedAt: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 },
+}
+export const subforumDiscussionDefaultSorting = "recentDiscussion"
+
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
     tagId: terms.tagId,
-    // TODO (https://app.asana.com/0/0/1202945419128640/f) Change != Subforum to == Discussion once all comments have been migrated
-    tagCommentType: {$ne: TagCommentType.Subforum as string}
+    tagCommentType: "DISCUSSION"
   },
 }));
 
-Comments.addView('tagSubforumComments', (terms: CommentsViewTerms) => ({
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
+  const sorting = subforumSorting[sortBy] || subforumSorting.new
+  return {
   selector: {
-    tagId: terms.tagId,
-    tagCommentType: TagCommentType.Subforum as string
+    tagId: tagId,
+    tagCommentType: "SUBFORUM",
+    topLevelCommentId: viewFieldNullOrMissing,
   },
-}));
+  options: {
+    sort: sorting,
+  },
+}});
 
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({

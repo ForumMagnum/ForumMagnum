@@ -5,12 +5,15 @@ registerFragment(`
     _id
     postId
     tagId
+    tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
     contents {
+      _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -44,6 +47,7 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
+    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted

@@ -14,7 +14,7 @@ import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
@@ -150,9 +150,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fill: theme.palette.grey[600],
     marginRight: 4
   },
-  tags: {
-    marginTop: 20,
-  },
   btns: {
     display: 'flex',
     columnGap: 20,
@@ -202,6 +199,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+
+export const socialMediaIcon = (user: UsersProfile, field: string, className: string) => {
+  if (!user[field]) return null
+  return <a key={field}
+    href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <svg viewBox="0 0 24 24" className={className}>{socialMediaIconPaths[field]}</svg>
+  </a>
+}
+
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
@@ -214,6 +223,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
+    fetchPolicy: 'cache-and-network'
   });
   const user = getUserFromResults(results)
   
@@ -250,7 +260,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }, [currentUser, user])
   
   // show/hide the "Posts" section sort/filter settings
-  const [showPostSettings, setShowPostSetttings] = useState(false)
+  const [showPostSettings, setShowPostSettings] = useState(false)
   
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
     terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
@@ -259,8 +269,23 @@ const EAUsersProfile = ({terms, slug, classes}: {
     enableTotal: false,
     skip: !user
   })
+  
+  // count posts here rather than using user.postCount,
+  // because the latter doesn't include posts where the user is a coauthor
+  const { totalCount: userPostsCount } = useMulti({
+    terms: {
+      view: 'userPosts',
+      userId: user?._id,
+      authorIsUnreviewed: currentUser?.isAdmin ? null : false,
+      limit: 0
+    },
+    collectionName: "Posts",
+    fragmentName: 'PostsMinimumInfo',
+    enableTotal: true,
+    skip: !user
+  })
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, FooterTag,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
@@ -311,12 +336,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const userKarma = user.karma || 0
   
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
-  const socialMediaIcon = (field) => {
-    if (!user[field]) return null
-    return <a key={field} href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
-      <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
-    </a>
-  }
   
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
@@ -463,7 +482,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   return <div>
     <HeadTags
       description={metaDescription}
-      noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+      noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
     />
     <AnalyticsContext pageContext="userPage">
@@ -503,16 +522,14 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
             </span>
             {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
+              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
             </div>}
             {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
               <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
               {user.website}
             </a>}
           </ContentStyles>
-          {user.profileTagIds && <div className={classes.tags}>
-            {user.profileTags.map(tag => <FooterTag key={tag._id} tag={{...tag, core: false}} />)}
-          </div>}
+          {user.profileTagIds && <EAUsersProfileTags tags={user.profileTags} />}
           {currentUser?._id != user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
@@ -535,7 +552,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <div className={classes.registerRssLink}>
                 <DialogGroup
                   actions={[]}
-                  trigger={<span>Register RSS</span>}
+                  trigger={<a>Register RSS</a>}
                 >
                   { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                   <div><Components.newFeedButton user={user} /></div>
@@ -573,12 +590,12 @@ const EAUsersProfile = ({terms, slug, classes}: {
         
         <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
         
-        {!!user.postCount && <div className={classes.section}>
+        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
-              Posts <div className={classes.sectionHeadingCount}>{user.postCount}</div>
+              Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSetttings(!showPostSettings)}
+            <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings

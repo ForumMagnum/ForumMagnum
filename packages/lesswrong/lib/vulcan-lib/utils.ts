@@ -98,9 +98,11 @@ export const makeAbsolute = function (url: string): string {
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
+ * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
-export const getOutgoingUrl = function (url: string): string {
-  return getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+export const getOutgoingUrl = function (url: string, foreignId?: string): string {
+  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+  return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
 };
 
 export const slugify = function (s: string): string {
@@ -142,8 +144,9 @@ export const addHttp = function (url: string): string|null {
   }
 };
 
-// Combine urls without extra /s at the join
 // https://stackoverflow.com/questions/16301503/can-i-use-requirepath-join-to-safely-concatenate-urls
+// for searching: url-join
+/** Combine urls without extra /s at the join */
 export const combineUrls = (baseUrl: string, path:string) => {
   return path
     ? baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
@@ -228,7 +231,7 @@ export const decodeIntlError = (error, options = {stripped: false}) => {
   }
 };
 
-export const isPromise = (value: any): boolean => isFunction(get(value, 'then'));
+export const isPromise = (value: any): value is Promise<any> => isFunction(get(value, 'then'));
 
 export const removeProperty = (obj: any, propertyName: string): void => {
   for(const prop in obj) {

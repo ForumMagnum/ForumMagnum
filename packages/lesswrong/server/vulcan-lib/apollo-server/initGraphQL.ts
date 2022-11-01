@@ -304,7 +304,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     : `Type for ${collectionName}`;
 
   const { mainType, create, update, selector, selectorUnique, orderBy } = fields;
-  
+
   let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
   let addedMutations: Array<any> = [];
@@ -331,7 +331,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
     }
 
-    schemaFragments.push(selectorInputTemplate({ typeName, fields: selector }));
+    schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
 
     schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
 

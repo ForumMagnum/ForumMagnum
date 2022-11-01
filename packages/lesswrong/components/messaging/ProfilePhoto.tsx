@@ -56,17 +56,19 @@ const getUserInitials = (displayName: string) => {
 }
 
 /**
- * In almost all places where we use profile photos, if we don't have one to show,
- * we can just show nothing. So far the only exception is in private messaging,
+ * In most places where we use profile photos, if we don't have one to show, we can just show nothing.
+ * So far the only exceptions are in private messaging, search results, and subforums,
  * where we didn't like how the layout looked with that empty space.
  * So this component includes a couple fallbacks in case the user has no photo.
  */
-const ProfilePhoto = ({user, className, classes}: {
+const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   user: {
     slug: string,
-    profileImageId: string,
+    profileImageId?: string,
     displayName?: string
   }|null,
+  noLink?: boolean,
+  from?: string,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -86,7 +88,7 @@ const ProfilePhoto = ({user, className, classes}: {
   if (user.profileImageId) {
     // use the profile photo if possible
     imgNode = <Components.CloudinaryImage2
-      imgProps={{q: '100', h: `${PROFILE_IMG_DIAMETER}`, w: `${PROFILE_IMG_DIAMETER}`}}
+      imgProps={{q: '100', h: `${PROFILE_IMG_DIAMETER*2}`, w: `${PROFILE_IMG_DIAMETER*2}`}}
       publicId={user.profileImageId}
       className={classNames(classes.img, classes.profileImg)}
     />
@@ -98,7 +100,9 @@ const ProfilePhoto = ({user, className, classes}: {
     </div>
   }
   
-  return <Link to={`/users/${user.slug}`} className={className}>
+  return noLink ? <div className={className}>
+    {imgNode}
+  </div> : <Link to={`/users/${user.slug}${from ? `?from=${from}` : ''}`} className={className}>
     {imgNode}
   </Link>
 }

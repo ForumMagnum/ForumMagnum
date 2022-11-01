@@ -140,6 +140,7 @@ addRoute(
     name:'users.account',
     path:'/account',
     componentName: 'UsersAccount',
+    title: "Account Settings",
     background: "white"
   },
   {
@@ -160,12 +161,14 @@ addRoute(
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount',
-    background: "white"
+    title: "Account Settings",
+    background: "white",
   },
   {
     name:'users.abTestGroups',
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
+    title: "A/B Test Groups",
   },
   {
     name: "users.banNotice",
@@ -192,6 +195,7 @@ addRoute(
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     componentName: 'ResendVerificationEmailPage',
+    title: "Email Verification",
     background: "white"
   },
   {
@@ -199,6 +203,12 @@ addRoute(
     path: '/inbox',
     componentName: 'InboxWrapper',
     title: "Inbox"
+  },
+  {
+    name: 'moderatorInbox',
+    path: '/moderatorInbox',
+    componentName: 'ModeratorInboxWrapper',
+    title: "Moderator Inbox"
   },
   {
     name: 'conversation',
@@ -350,7 +360,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: 'SearchPage',
+    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
     title: 'Search',
     background: "white"
   },
@@ -488,13 +498,6 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
-    {
-      name: 'taggingSubforumCustomName',
-      path: `/topics/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
-    }
   )
 } else {
   addRoute(
@@ -716,6 +719,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/wiki',
       redirect: () => '/topics/all'
     },
+    {
+      name: 'subforum',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      fullscreen: true,
+    }
   ],
   LessWrong: [
     {
@@ -935,6 +944,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'SpotlightsPage',
+      path: '/spotlights',
+      componentName: 'SpotlightsPage',
+      title: 'Spotlights Page'
+    }
   ],
   AlignmentForum: [
     {
@@ -1248,6 +1263,18 @@ addRoute(
     path: '/admin/migrations',
     componentName: 'MigrationsDashboard',
     title: "Migrations"
+  },
+  {
+    name: 'moderatorActions',
+    path: '/admin/moderation',
+    componentName: 'ModerationDashboard',
+    title: "Moderation Dashboard"
+  },
+  {
+    name: 'moderationTemplates',
+    path: '/admin/moderationTemplates',
+    componentName: 'ModerationTemplatesPage',
+    title: "Moderation Message Templates"
   },
   {
     name: 'moderation',

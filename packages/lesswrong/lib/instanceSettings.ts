@@ -1,7 +1,7 @@
 import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
-import startCase from 'lodash/startCase'
+import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');

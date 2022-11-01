@@ -2,11 +2,41 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
+import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
   type ColorString = string;
-  
+
+  /**
+   * UserThemeName represents a concrete theme name that can be directly mapped
+   * to a stylesheet (eg; "default", "dark")
+   */
+  type UserThemeName = typeof userThemeNames[number];
+
+  /**
+   * UserThemeSetting is a strict superset of UserThemeName which also includes
+   * "abstract" themes which require some logic to be mapped to a stylesheet
+   * (eg; "auto")
+   */
+  type UserThemeSetting = typeof userThemeSettings[number];
+
+  /**
+   * MuiThemeName includes all theme names that can be directly passed to
+   * MaterialUI (eg; "light", "dark"). This is a 1-to-1 mapping from
+   * UserThemeName.
+   */
+  type MuiThemeName = typeof muiThemeNames[number];
+
+  /**
+   * Overridden forum type (for admins to quickly test AF and EA Forum themes).
+   * This is the form of a partial forum-type=>forum-type mapping, where keys
+   * are the actual forum you're visiting and values are the theme you want.
+   * (So if you override this on LW, then go to AF it isn't overridden there,
+   * and vise versa.)
+   */
+  type SiteThemeOverride = Partial<Record<ForumTypeString, ForumTypeString>>;
+
   type ThemeGreyscale = MuiColorShades & {
     0: ColorString,
     1000: ColorString,
@@ -35,6 +65,7 @@ declare global {
   type ThemeShadePalette = {
     grey: MuiColorShades,
     greyAlpha: (alpha: number) => ColorString,
+    inverseGreyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -45,7 +76,7 @@ declare global {
     
     // Used by material-UI for picking some of its own colors, and also by site
     // themes
-    type: "light"|"dark",
+    type: MuiThemeName,
   }
   type ThemeComponentPalette = {
     primary: {
@@ -108,6 +139,7 @@ declare global {
       error: ColorString,
       error2: ColorString,
       red: ColorString,
+      alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
     
@@ -317,10 +349,12 @@ declare global {
       default: ColorString
       paper: ColorString,
       pageActiveAreaBackground: ColorString,
+      translucentBackground: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primaryDim2: ColorString,
     },
     header: {
       text: ColorString,
@@ -346,7 +380,6 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
-    eaForumGroupsMobileImg: ColorString,
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
@@ -381,6 +414,9 @@ declare global {
       display2: JssStyles,
       display3: JssStyles,
       display4: JssStyles,
+      postsItemTitle: JssStyles,
+      chapterTitle: JssStyles,
+      largeChapterTitle: JssStyles,
       body1: JssStyles,
       body2: JssStyles,
       headline: JssStyles,

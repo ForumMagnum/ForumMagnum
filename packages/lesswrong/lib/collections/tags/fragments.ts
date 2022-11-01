@@ -27,6 +27,11 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
+    isSubforum
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -55,13 +60,6 @@ registerFragment(`
       plaintextDescription
       version
     }
-  }
-`);
-
-registerFragment(`
-  fragment TagWithTocFragment on Tag {
-    ...TagFragment
-    descriptionHtmlWithToc
   }
 `);
 
@@ -134,10 +132,18 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    tableOfContents
     subforumWelcomeText {
       _id
       html
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
+    subforumUnreadMessagesCount
   }
 `);
 
@@ -176,6 +182,7 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -191,10 +198,18 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment AllTagsPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
+  }
+`);
+
+registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -227,7 +242,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    ...TagBasicInfo
+    ...TagDetailsFragment
     parentTag {
       _id
       name
@@ -249,6 +264,16 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRecentSubforumComments on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }
