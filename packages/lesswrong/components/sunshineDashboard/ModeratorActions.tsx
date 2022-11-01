@@ -429,7 +429,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         disableUnderline
         placeholder="Notes for other moderators"
         multiline
-        rows={5}
+        rowsMax={5}
       />
     </div>
     {moderatorActionLog}
