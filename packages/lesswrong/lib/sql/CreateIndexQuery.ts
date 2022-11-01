@@ -13,7 +13,7 @@ import TableIndex from "./TableIndex";
  * We've enabled the 'btree_gin' extension so we can use field types in gin indexes that
  * ordinarily wouldn't be allowed.
  *
- * If the index already exists, setting `isNotExists` to true will prevent an error from being thrown.
+ * If the index already exists, setting `ifNotExists` to true will prevent an error from being thrown.
  */
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
   private isUnique: boolean;
