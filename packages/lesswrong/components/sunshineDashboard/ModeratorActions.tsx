@@ -428,8 +428,11 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         }
 
         const suffix = typeof averageContentKarma === 'number' ? ` (${averageContentKarma})` : '';
+        const endedAt = moderatorAction.endedAt ? `, ends on ${moment(moderatorAction.endedAt).format('YYYY-MM-DD').toString()}` : '';
 
-        return <div key={`${user._id}_${moderatorAction.type}`}>{`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}`}</div>;
+        return <div key={`${user._id}_${moderatorAction.type}`}>
+          {`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}${endedAt}`}
+        </div>;
       })
     }
   </div>
