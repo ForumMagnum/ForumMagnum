@@ -42,8 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewPostsItem = ({post, classes}: {
+const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
+  refetch: () => void,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -105,6 +106,8 @@ const SunshineNewPostsItem = ({post, classes}: {
         userId: post.userId,
       }
     });
+    
+    refetch();
   }
 
   const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
