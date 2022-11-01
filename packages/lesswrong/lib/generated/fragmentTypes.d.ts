@@ -1133,6 +1133,8 @@ interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
+  readonly needsReview: boolean,
+  readonly moderatorActions: Array<ModeratorActionDisplay>,
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
@@ -2730,7 +2732,7 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert",
+  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "manualFlag",
   readonly endedAt: Date | null,
 }
 
@@ -2738,7 +2740,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert",
+  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "manualFlag",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
