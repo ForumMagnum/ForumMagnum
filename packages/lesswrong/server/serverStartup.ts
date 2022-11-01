@@ -65,6 +65,7 @@ async function serverStartup() {
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err);
+    // TODO: Remove forum gating here when we expand Postgres usage
     if (forumTypeSetting.get() === "EAForum") {
       process.exit(1);
     }
