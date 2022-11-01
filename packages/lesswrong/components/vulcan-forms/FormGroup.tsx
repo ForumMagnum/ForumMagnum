@@ -5,6 +5,7 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { useLocation, withLocation } from '../../lib/routeUtil';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -110,8 +111,13 @@ class FormGroup extends PureComponent<any,any> {
     this.toggle = this.toggle.bind(this);
     this.renderHeading = this.renderHeading.bind(this);
     this.setFooterContent = this.setFooterContent.bind(this);
+
+    const { query } = this.props.location;
+    const highlightInFields = query.highlightField && props.fields.map(f => f.name).includes(query.highlightField)
+    const collapsed = (props.startCollapsed && !highlightInFields) || false
+
     this.state = {
-      collapsed: props.startCollapsed || false,
+      collapsed,
       footerContent: null,
     };
   }
@@ -207,7 +213,7 @@ class FormGroup extends PureComponent<any,any> {
   currentUser: PropTypes.object,
 };
 
-const FormGroupComponent = registerComponent('FormGroup', FormGroup);
+const FormGroupComponent = registerComponent('FormGroup', FormGroup, {hocs: [withLocation]});
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg
