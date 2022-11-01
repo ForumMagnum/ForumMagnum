@@ -325,6 +325,19 @@ interface DbMigration extends DbObject {
   createdAt: Date
 }
 
+interface ModerationTemplatesCollection extends CollectionBase<DbModerationTemplate, "ModerationTemplates"> {
+}
+
+interface DbModerationTemplate extends DbObject {
+  __collectionName?: "ModerationTemplates"
+  name: string
+  collectionName: "Messages" | "Comments"
+  order: number
+  deleted: boolean
+  createdAt: Date
+  contents: EditableFieldContents
+}
+
 interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "ModeratorActions"> {
 }
 
@@ -1150,6 +1163,7 @@ interface CollectionsByName {
   Localgroups: LocalgroupsCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
+  ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
@@ -1192,6 +1206,7 @@ interface ObjectsByCollectionName {
   Localgroups: DbLocalgroup
   Messages: DbMessage
   Migrations: DbMigration
+  ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PetrovDayLaunchs: DbPetrovDayLaunch

@@ -1,17 +1,13 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { userCanDo } from '../../lib/vulcan-users';
-
-export const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -214,7 +210,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                 </div>
                 <div className={classes.row}>
                   <ModeratorMessageCount userId={user._id} />
-                  <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
+                  <SunshineSendMessageWithDefaults user={user}/>
                 </div>
               </div>              
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>

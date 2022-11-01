@@ -180,6 +180,9 @@ import './collections/spotlights/views';
 // Moderator actions
 import './collections/moderatorActions/index';
 
+// ModerationTemplates
+import './collections/moderationTemplates/index';
+
 // Internationalization
 import './i18n-en-us/en_US';
 

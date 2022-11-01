@@ -83,7 +83,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
             <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
               AF Submission
             </Components.ContentStyles>
-            <Components.SunshineSendMessageWithDefaults user={post.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
+            <Components.SunshineSendMessageWithDefaults user={post.user}/>
           </Components.ContentStyles>}
           <Components.Typography variant="title">
             <Link to={postGetPageUrl(post)}>
