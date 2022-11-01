@@ -61,7 +61,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8,
-    ...hideScrollBars
+    ...hideScrollBars,
+    '& *': {
+      ...hideScrollBars
+    }
   },
 });
 
