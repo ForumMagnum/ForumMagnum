@@ -42,6 +42,7 @@ jobs:
         TESTING_DB_URL: mongodb://127.0.0.1:27017/test?retryWrites=true
         PG_URL: postgres://postgres:postgres@localhost:5432/postgres
         CYPRESS_CACHE_FOLDER: ${{ steps.setup-environment.outputs.cypress-cache-folder }}
+        NODE_OPTIONS: "--max_old_space_size=4096"
       with:
           start: yarn ea-start-testing-db
           command: yarn ci-cypress-run
