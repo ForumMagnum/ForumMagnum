@@ -70,7 +70,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
               <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
                 AF Submission
               </Components.ContentStyles>
-              <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
+              <Components.SunshineSendMessageWithDefaults user={comment.user} />
             </div>}
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>

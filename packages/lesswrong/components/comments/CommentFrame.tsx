@@ -155,7 +155,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
       [classes.condensed]: condensed,
       [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
       [classes.hoverPreview]: hoverPreview,
-      [classes.moderatorHat]: comment.moderatorHat,
+      [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
       [classes.promoted]: comment.promoted
     }
   )
