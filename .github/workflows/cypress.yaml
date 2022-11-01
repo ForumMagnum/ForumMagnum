@@ -23,6 +23,10 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+      mongodb:
+        image: mongo:4.4.17
+        ports:
+          - 27017:27017
 
     steps:
     - name: Checkout code
@@ -35,7 +39,7 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v4
       env:
-        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
+        TESTING_DB_URL: mongodb://127.0.0.1:27017/test?retryWrites=true
         PG_URL: postgres://postgres:postgres@localhost:5432/postgres
         CYPRESS_CACHE_FOLDER: ${{ steps.setup-environment.outputs.cypress-cache-folder }}
       with:
