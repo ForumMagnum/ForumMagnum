@@ -173,7 +173,6 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   const seeInContextColumn = <div>
     <Link className={classes.seeInContext} to={seeInContextUrl}>
       <LinkIcon className={classes.seeInContextIcon} />
-      {/* See in context */}
     </Link>
   </div>;
 

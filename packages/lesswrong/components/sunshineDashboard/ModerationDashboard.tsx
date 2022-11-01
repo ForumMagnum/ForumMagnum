@@ -146,16 +146,7 @@ const ModerationDashboard = ({ classes }: {
           </div>
         </div>
         <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
-          <div className={classes.toc}>
-            {/* {recentmoderatedComments?.map(comment => {
-              return <div key={comment._id} className={classes.tocListing}>
-                {comment.user?.displayName}
-              </div>
-            })}
-            <div className={classes.loadMore}>
-              <LoadMore {...commentsLoadMoreProps}/>
-            </div> */}
-          </div>
+          <div className={classes.toc}></div>
         </div>
         <div className={classes.main}>
           <div className={classes.topBar}>
