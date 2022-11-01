@@ -107,6 +107,8 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
       }
     });
     
+    // We need to refetch to make sure the "Flag User" button gets disabled
+    // The backend state only gets changed in a moderator action callback, so apollo doesn't handle it for us by updating the cache
     refetch();
   }
 
