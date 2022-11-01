@@ -1277,6 +1277,14 @@ interface WithVoteComment { // fragment on Comments
   readonly voteCount: number,
 }
 
+interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment { // fragment on Comments
+  readonly allVotes: Array<CommentsListWithModerationMetadata_allVotes>,
+}
+
+interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
+  readonly voteType: string,
+}
+
 interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
@@ -2746,6 +2754,22 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly endedAt: Date | null,
 }
 
+interface CommentModeratorActionsDefaultFragment { // fragment on CommentModeratorActions
+  readonly commentId: string,
+  readonly type: "downvotedCommentAlert",
+  readonly endedAt: Date | null,
+}
+
+interface CommentModeratorActionDisplay { // fragment on CommentModeratorActions
+  readonly _id: string,
+  readonly comment: CommentsListWithModerationMetadata,
+  readonly commentId: string,
+  readonly type: "downvotedCommentAlert",
+  readonly active: boolean,
+  readonly createdAt: Date,
+  readonly endedAt: Date | null,
+}
+
 interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplates
   readonly name: string,
   readonly collectionName: "Messages" | "Comments",
@@ -2829,6 +2853,7 @@ interface FragmentTypes {
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
   WithVoteComment: WithVoteComment
+  CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
@@ -2939,6 +2964,8 @@ interface FragmentTypes {
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
+  CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
+  CommentModeratorActionDisplay: CommentModeratorActionDisplay
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -3000,6 +3027,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
   WithVoteComment: "Comments"
+  CommentsListWithModerationMetadata: "Comments"
   RevisionDisplay: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"
@@ -3110,10 +3138,12 @@ interface CollectionNamesByFragmentName {
   SpotlightEditQueryFragment: "Spotlights"
   ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
+  CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
+  CommentModeratorActionDisplay: "CommentModeratorActions"
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
 

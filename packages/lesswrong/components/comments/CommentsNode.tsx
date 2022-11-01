@@ -61,6 +61,18 @@ export interface CommentsNodeProps {
   showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
   displayMode?: CommentFormDisplayMode,
+  /**
+   * Determines the karma threshold used to decide whether to collapse a comment.
+   * 
+   * Currently only overriden in the comment moderation tab.
+   */
+  karmaCollapseThreshold?: number,
+  /**
+   * Determines whether to expand this comment's parent comment (if it exists) by default.
+   * 
+   * Default: false.  Currently only used in the comment moderation tab.
+   */
+  showParentDefault?: boolean,
   classes: ClassesType,
 }
 
@@ -87,11 +99,13 @@ const CommentsNode = ({
   showPinnedOnProfile=false,
   enableGuidelines=true,
   displayMode="default",
+  karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
+  showParentDefault=false,
   classes
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
+  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
 
@@ -187,7 +201,7 @@ const CommentsNode = ({
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode }
+  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, displayMode, showParentDefault }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
