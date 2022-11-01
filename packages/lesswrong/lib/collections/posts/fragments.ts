@@ -530,6 +530,7 @@ registerFragment(`
         html
       }
 
+      needsReview
       moderatorActions {
         ...ModeratorActionDisplay
       }

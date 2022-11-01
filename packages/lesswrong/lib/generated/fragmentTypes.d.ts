@@ -1132,6 +1132,7 @@ interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
+  readonly needsReview: boolean,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
 }
 

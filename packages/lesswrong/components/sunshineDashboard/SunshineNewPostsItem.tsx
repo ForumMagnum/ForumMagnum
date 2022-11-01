@@ -94,10 +94,10 @@ const SunshineNewPostsItem = ({post, classes}: {
   }
 
   const lastManualUserFlag = post.user?.moderatorActions.find(action => action.type === MANUAL_FLAG_ALERT);
+  const isUserAlreadyFlagged = post.user?.needsReview || lastManualUserFlag?.active;
 
   const handleFlagUser = async () => {
-    const isAlreadyFlagged = lastManualUserFlag?.active;
-    if (isAlreadyFlagged) return;
+    if (isUserAlreadyFlagged) return;
 
     await createModeratorAction({
       data: {
@@ -128,7 +128,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
-              <Button onClick={handleFlagUser}>
+              <Button onClick={handleFlagUser} disabled={isUserAlreadyFlagged}>
                 <VisibilityOutlinedIcon className={classes.icon} /> Flag User
               </Button>
             </div>
@@ -145,7 +145,7 @@ const SunshineNewPostsItem = ({post, classes}: {
                 <FormatDate date={post.postedAt}/>
               </MetaInfo>
               {post.commentCount && <MetaInfo>
-                <Link to={`postGetPageUrl(post)#comments`}>
+                <Link to={`${postGetPageUrl(post)}#comments`}>
                   {post.commentCount} comments
                 </Link>
               </MetaInfo>}
