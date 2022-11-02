@@ -1284,7 +1284,7 @@ const schema: SchemaType<DbPost> = {
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     control: "FMCrosspostControl",
-    tooltip: fmCrosspostBaseUrlSetting.get() && ["https://forum.effectivealtruism.org", "https://forum.effectivealtruism.org/"].includes(fmCrosspostBaseUrlSetting.get()!) ?
+    tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
       "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it." :
       undefined,
     group: formGroups.advancedOptions,
