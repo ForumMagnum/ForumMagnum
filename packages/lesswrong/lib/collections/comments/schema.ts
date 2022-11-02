@@ -597,7 +597,22 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-    hidden: true,
+  },
+
+  /**
+   * Suppress user-visible styling for comments marked with `moderatorHat: true`
+   */
+  hideModeratorHat: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    onUpdate: ({ newDocument }) => {
+      if (!newDocument.moderatorHat) return null;
+      return newDocument.hideModeratorHat;
+    },
   },
 
   // whether this comment is pinned on the author's profile
