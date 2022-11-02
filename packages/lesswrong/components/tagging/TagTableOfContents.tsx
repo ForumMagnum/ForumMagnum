@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
 import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tableOfContentsWrapper: {
