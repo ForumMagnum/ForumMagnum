@@ -1,6 +1,7 @@
 import type { PartialDeep } from 'type-fest'
 import { invertHexColor, invertColor } from '../colorUtil';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import deepmerge from 'deepmerge';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey
@@ -147,7 +148,7 @@ export const darkModeTheme: UserThemeSpecification = {
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     type: "dark",
   },
-  componentPalette: (shadePalette: ThemeShadePalette) => ({
+  componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
       alwaysWhite: '#fff',
       aprilFools: {
@@ -189,8 +190,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
-    ...forumComponentPalette(shadePalette),
-  }),
+  }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
