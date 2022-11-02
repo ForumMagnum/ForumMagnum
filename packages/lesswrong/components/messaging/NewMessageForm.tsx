@@ -19,15 +19,18 @@ export const NewMessageForm = ({classes, conversationId, templateQueries, succes
 }) => {
   const { WrappedSmartForm, Loading, Error404 } = Components
 
+  const skip = !templateQueries?.templateId;
+
   const { document: template, loading: loadingTemplate } = useSingle({
-    documentId: templateQueries?.templateCommentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    skip: !templateQueries
+    documentId: templateQueries?.templateId,
+    collectionName: "ModerationTemplates",
+    fragmentName: 'ModerationTemplateFragment',
+    skip
   });
   
-  if (loadingTemplate) return <Loading/>
-  if (templateQueries?.templateCommentId && !template) return <Error404/>
+  // For some reason loading returns true even if we're skipping the query?
+  if (!skip && loadingTemplate) return <Loading/>
+  if (templateQueries?.templateId && !template) return <Error404/>
 
   const templateHtml = template?.contents?.html && getDraftMessageHtml({html: template.contents.html, displayName: templateQueries?.displayName })
 

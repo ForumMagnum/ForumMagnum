@@ -13,6 +13,7 @@ registerFragment(`
       _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -46,6 +47,7 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
+    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted
@@ -141,5 +143,14 @@ registerFragment(`
     afBaseScore
     afExtendedScore
     voteCount
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
   }
 `);

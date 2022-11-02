@@ -10,10 +10,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, } from '../../lib/instanceSettings';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -36,6 +33,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     "@media print": {
       display: "none",
+    },
+  },
+  headerSubforumLink: {
+    alignItems: "center",
+    marginRight: 16,
+    display: "none",
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
     },
   },
   buttonTooltip: {
@@ -168,10 +173,9 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
         subscriptionType={subscriptionTypes.newTagPosts}
       />
     </LWTooltip>}
-    <div className={classes.button}>
-      {/* {tag.isSubforum ?
-        <TagSubforumButton tag={tag} /> : <TagDiscussionButton tag={tag} hideLabelOnMobile />} */}
-    </div>
+    {tag.isSubforum ?
+      <div className={classes.headerSubforumLink}><TagSubforumButton tag={tag} /></div>
+      : <div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}

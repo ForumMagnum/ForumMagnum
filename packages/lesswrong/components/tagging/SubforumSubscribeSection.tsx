@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     padding: 7,
     justifyContent: "space-around",
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: 'transparent'
   },
   subscribeButton: {
     textTransform: 'none',
@@ -59,13 +59,26 @@ const SubforumSubscribeSection = ({
       flash({messageString: error.message});
     }
   }
+  
+  const onUnsubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+
+    captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
+    if (currentUser) {
+      void updateCurrentUser({profileTagIds: currentUser.profileTagIds.filter(id => id !== tag._id)})
+    }
+  }
+  
+  const isSubscribed = currentUser?.profileTagIds?.includes(tag._id)
 
   return <div className={classNames(className, classes.root)}>
-    <LWTooltip title={`Join to gain comment access and see ${tag.name} Subforum content on the frontpage`}>
+    {isSubscribed ? <Button variant="outlined" color="primary" className={classes.subscribeButton} onClick={onUnsubscribe}>
+      <span className={classes.subscribeText}>Leave</span>
+    </Button> : <LWTooltip title={`Join to gain comment access and see ${tag.name} Subforum content on the frontpage`}>
       <Button variant="contained" color="primary" className={classes.subscribeButton} onClick={onSubscribe}>
-        <span className={classes.subscribeText}>{`Join`}</span>
+        <span className={classes.subscribeText}>Join</span>
       </Button>
-    </LWTooltip>
+    </LWTooltip>}
   </div>
 }
 

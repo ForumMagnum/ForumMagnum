@@ -15,6 +15,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import qs from "qs";
+import { PopperPlacementType } from '@material-ui/core/Popper';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -344,6 +345,8 @@ const PostsItem2 = ({
   showNominationCount=false,
   showReviewCount=false,
   hideAuthor=false,
+  hideTrailingButtons=false,
+  tooltipPlacement="bottom-end",
   classes,
   curatedIconLeft=false,
   strikethroughTitle=false,
@@ -394,6 +397,8 @@ const PostsItem2 = ({
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
+  hideTrailingButtons?: boolean,
+  tooltipPlacement?: PopperPlacementType,
   classes: ClassesType,
   curatedIconLeft?: boolean,
   strikethroughTitle?: boolean
@@ -494,6 +499,7 @@ const PostsItem2 = ({
         >
           <PostsItemTooltipWrapper
             post={post}
+            placement={tooltipPlacement}
             className={classNames(
               classes.postsItem,
               classes.withGrayHover, {
@@ -608,13 +614,15 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {<div className={classes.actions}>
-            {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical />}
-          </div>}
-          {<div className={classes.archiveButton}>
-            {archiveButton}
-          </div>}
+          {!hideTrailingButtons && <>
+            <div className={classes.actions}>
+              {dismissButton}
+              {!resumeReading && <PostsPageActions post={post} vertical />}
+            </div>
+            <div className={classes.archiveButton}>
+              {archiveButton}
+            </div>
+          </>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}

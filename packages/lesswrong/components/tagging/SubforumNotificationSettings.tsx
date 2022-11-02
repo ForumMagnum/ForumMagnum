@@ -1,21 +1,20 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Paper from "@material-ui/core/Paper";
 import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@apollo/client";
 import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  notificationsButtonWrapper: {
+    margin: "0 12px 0 0",
+  },
   notificationsButton: {
-    margin: "0px 12px 10px 0px",
     padding: 4,
   },
   popout: {
@@ -37,10 +36,10 @@ const SubforumNotificationSettings = ({
   currentUser: UsersCurrent;
   classes: ClassesType;
 }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
 
-  const { LWPopper, WrappedSmartForm, Typography, Loading } = Components;
+  const { LWClickAwayListener, LWPopper, WrappedSmartForm, Typography, Loading } = Components;
 
   const { loading, results, refetch } = useMulti({
     terms: { view: "single", tagId: tag._id, userId: currentUser._id },
@@ -65,38 +64,20 @@ const SubforumNotificationSettings = ({
   if (!userTagRel) return null
   if (loading) return null
 
-  const handleOpen = (event) => {
-    setOpen(true);
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = (e) => {
-    if (e && anchorEl?.contains(e.target)) {
-      return;
-    }
-    setOpen(false);
-  };
-
-  const handleToggle = (e) => {
-    if (open) {
-      handleClose(null); // When closing from toggle, force a close by not providing an event
-    } else {
-      handleOpen(e);
-    }
-  };
-
   return (
     <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={classes.root}>
-        <IconButton onClick={handleToggle} className={classes.notificationsButton}>
-          {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
-            <NotificationsNoneIcon />
-          ) : (
-            <NotificationsIcon />
-          )}
-        </IconButton>
-        <LWPopper open={open} anchorEl={anchorEl} placement="bottom-end">
-          <ClickAwayListener onClickAway={handleClose}>
+        <div ref={anchorEl} className={classes.notificationsButtonWrapper}>
+          <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
+            {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
+              <NotificationsNoneIcon />
+            ) : (
+              <NotificationsIcon />
+            )}
+          </IconButton>
+        </div>
+        <LWPopper open={open} anchorEl={anchorEl.current} placement="bottom-end">
+          <LWClickAwayListener onClickAway={() => setOpen(false)}>
             <Paper className={classes.popout}>
               {loading ? (
                 <Loading />
@@ -115,7 +96,7 @@ const SubforumNotificationSettings = ({
                 </>
               )}
             </Paper>
-          </ClickAwayListener>
+          </LWClickAwayListener>
         </LWPopper>
       </div>
     </AnalyticsContext>

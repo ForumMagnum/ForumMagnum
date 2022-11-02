@@ -260,13 +260,28 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }, [currentUser, user])
   
   // show/hide the "Posts" section sort/filter settings
-  const [showPostSettings, setShowPostSetttings] = useState(false)
+  const [showPostSettings, setShowPostSettings] = useState(false)
   
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
     terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
+    skip: !user
+  })
+  
+  // count posts here rather than using user.postCount,
+  // because the latter doesn't include posts where the user is a coauthor
+  const { totalCount: userPostsCount } = useMulti({
+    terms: {
+      view: 'userPosts',
+      userId: user?._id,
+      authorIsUnreviewed: currentUser?.isAdmin ? null : false,
+      limit: 0
+    },
+    collectionName: "Posts",
+    fragmentName: 'PostsMinimumInfo',
+    enableTotal: true,
     skip: !user
   })
 
@@ -467,7 +482,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   return <div>
     <HeadTags
       description={metaDescription}
-      noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+      noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
     />
     <AnalyticsContext pageContext="userPage">
@@ -537,7 +552,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <div className={classes.registerRssLink}>
                 <DialogGroup
                   actions={[]}
-                  trigger={<span>Register RSS</span>}
+                  trigger={<a>Register RSS</a>}
                 >
                   { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                   <div><Components.newFeedButton user={user} /></div>
@@ -575,12 +590,12 @@ const EAUsersProfile = ({terms, slug, classes}: {
         
         <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
         
-        {!!user.postCount && <div className={classes.section}>
+        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
-              Posts <div className={classes.sectionHeadingCount}>{user.postCount}</div>
+              Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSetttings(!showPostSettings)}
+            <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings
