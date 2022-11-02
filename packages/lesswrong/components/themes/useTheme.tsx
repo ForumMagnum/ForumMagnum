@@ -16,6 +16,12 @@ type ThemeContextObj = {
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
 
+/**
+ * NOTE: The hooks in this file should NOT be used for dynamicly applying styles/colors/etc.
+ * to components as this will have undesired results during SSR where we may or may not know
+ * which theme to use if the user has their theme set to "auto". For this use case you should
+ * instead use `requireCssVar`.
+ */
 export const useTheme = (): ThemeType => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useTheme() used without the context available";

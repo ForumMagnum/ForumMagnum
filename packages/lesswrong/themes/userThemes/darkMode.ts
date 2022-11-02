@@ -183,6 +183,9 @@ export const darkModeTheme: UserThemeSpecification = {
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
     },
+    embeddedPlayer: {
+      opacity: 0.85,
+    },
     editor: {
       commentPanelBackground: shadePalette.grey[200],
       sideCommentEditorBackground: shadePalette.grey[100],

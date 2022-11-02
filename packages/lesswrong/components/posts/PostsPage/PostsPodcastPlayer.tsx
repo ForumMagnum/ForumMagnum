@@ -2,17 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
-import { useConcreteThemeOptions } from '../../themes/useTheme';
-import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { requireCssVar } from '../../../themes/cssVars';
+
+const playerOpacity = requireCssVar("palette", "embeddedPlayer", "opacity");
 
 const styles = (): JssStyles => ({
   embeddedPlayer: {
-    marginBottom: '2px'
-  },
-  playerDarkMode: {
-    opacity: 0.85
+    marginBottom: '2px',
+    opacity: playerOpacity,
   },
   podcastIconList: {
     paddingLeft: '0px',
@@ -32,9 +31,6 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
-
-  const themeOptions = useConcreteThemeOptions();
-  const isDarkMode = themeOptions.name === 'dark';
 
   // Embed a reference to the generated-per-episode buzzsprout script, which is
   // responsible for hydrating the player div (with the id
@@ -66,7 +62,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   return <>
     <div
       id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
-      className={classNames(classes.embeddedPlayer, { [classes.playerDarkMode]: isDarkMode })}
+      className={classes.embeddedPlayer}
       ref={divRef}
       onMouseOver={() => setMouseOverDiv(true)}
       onMouseOut={() => setMouseOverDiv(false)}
