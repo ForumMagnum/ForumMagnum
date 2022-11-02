@@ -188,7 +188,13 @@ export class NotNullType extends Type {
   }
 }
 
-const sqlEscape = (data: string): string => data.replace(/((?<!')('{2})*'(?!'))/g, "$1'");
+/**
+ * When we insert literal values into SQL strings we need to wrap them in single quotes, so we
+ * need escape any single quotes that are already in the string, which is done by adding a second
+ * single quote next to it. Note that this is only done when settings default values for new
+ * fields - other queries simply use Postgres arguments to avoid SQL injection attacks.
+ */
+const sqlEscape = (data: string): string => data.replace(/'/g, "''");
 
 const escapedValueToString = (value: any, subtype?: Type): string =>
   sqlEscape(valueToString(value, subtype, true));
