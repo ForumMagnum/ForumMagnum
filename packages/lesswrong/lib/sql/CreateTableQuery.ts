@@ -14,7 +14,7 @@ class CreateTableQuery<T extends DbObject> extends Query<T> {
       table,
       `(_id ${fields["_id"].toString()} PRIMARY KEY`,
     ]);
-    for (const field of Object.keys(fields).filter((field) => field !== "_id")) {
+    for (const field of Object.keys(fields).filter((fieldName) => fieldName !== "_id")) {
       this.atoms.push(`, "${field}" ${fields[field].toString()}`);
     }
     this.atoms.push(")");
