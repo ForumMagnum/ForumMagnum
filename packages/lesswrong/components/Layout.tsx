@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useCallback} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -139,7 +139,7 @@ const Layout = ({currentUser, children, classes}: {
     fragmentName: 'UsersCurrent',
   });
   
-  const setToC = (title: string|null, sectionData: ToCData|null) => {
+  const setToC = useCallback((title: string|null, sectionData: ToCData|null) => {
     if (title) {
       setToCState({
         title: title,
@@ -148,9 +148,9 @@ const Layout = ({currentUser, children, classes}: {
     } else {
       setToCState(null);
     }
-  }
+  }, []);
 
-  const toggleStandaloneNavigation = () => {
+  const toggleStandaloneNavigation = useCallback(() => {
     if (currentUser) {
       void updateUser({
         selector: {_id: currentUser._id},
@@ -160,7 +160,7 @@ const Layout = ({currentUser, children, classes}: {
       })
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
-  }
+  }, [updateUser, currentUser, hideNavigationSidebar]);
 
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, IntercomWrapper } = Components
