@@ -71,9 +71,20 @@ const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
 //   }
 // (Not real color values, but real syntax.)
 //
-const safeColorFallbacks = `
-.content td[style*="background-color:"], .content table[style*="background-color:"] {
+const safeColorFallbacks = (palette: ThemePalette) => `
+.content td[style*="background-color:"] {
   background-color: black !important;
+}
+.content th[style*="background-color:"] {
+  background-color: ${palette.panelBackground.tableHeading} !important;
+}
+.content table[style*="background-color:"] {
+  background-color: black !important;
+}
+.content td[style*="border:"], .content th[style*="border:"] {
+  border: ${palette.border.tableCell} !important;
+}
+.content table[style*="border:"] {
   border-color: #333 !important;
 }
 `;
@@ -200,7 +211,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     overrides: forumOverrides(palette),
     rawCSS: [
-      safeColorFallbacks,
+      safeColorFallbacks(palette),
       generateColorOverrides()
     ]
   }),
