@@ -15,15 +15,6 @@ import { ApiError } from "./errors";
 
 export const makeApiUrl = (route: ApiRoute) => combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", route);
 
-export const apiRoutes = {
-  crosspostToken: "/api/crosspostToken",
-  connectCrossposter: "/api/connectCrossposter",
-  unlinkCrossposter: "/api/unlinkCrossposter",
-  crosspost: "/api/crosspost",
-  updateCrosspost: "/api/updateCrosspost",
-  getCrosspost: "/api/getCrosspost"
-} as const;
-
 export const validatedGetRoutes = {
   crosspostToken: {
     path: "/api/crosspostToken",
