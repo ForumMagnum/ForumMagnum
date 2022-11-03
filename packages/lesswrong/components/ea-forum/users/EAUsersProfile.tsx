@@ -484,6 +484,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       description={metaDescription}
       noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
+      useSmallImage
     />
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
