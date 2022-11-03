@@ -58,7 +58,7 @@ const embedConfig = {
 		},
 		{
 			name: "Metaforecast",
-			url: /^metaforecast\.org\/questions\/(\w-+)$/,
+			url: /^metaforecast\.org\/questions\/([\w-]+)$/,
 			html: ([match, slug]) => `
 				<div data-metaforecast-id="${slug}" class="metaforecast-preview">
 					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}"/>
