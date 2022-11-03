@@ -10,7 +10,7 @@ type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 export type CrosspostContext = {
   hostedHere: boolean,
   localPost: PostType,
-  foreignPost?: GetCrosspostResponse['document'],
+  foreignPost?: PostType, // GetCrosspostResponse['document'],
   combinedPost?: PostType,
 }
 

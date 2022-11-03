@@ -50,7 +50,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   loading: boolean,
   error?: ApolloError,
   localPost: Post,
-  foreignPost?: GetCrosspostResponse['document'], // FragmentTypes[FragmentTypeName],
+  foreignPost?: FragmentTypes[FragmentTypeName], // GetCrosspostResponse['document']
   combinedPost?: Post & FragmentTypes[FragmentTypeName],
 } => {
   // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
@@ -61,28 +61,26 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   }
 
   const apolloClient = useForeignApolloClient();
-  // console.log({ fetchProps, documentId: localPost.fmCrosspost.foreignPostId });
 
-  const getCrosspostQuery = gql`
-    query GetCrosspostQuery($args: JSON) {
-      getCrosspost(args: $args)
-    }
-  `;
+  // const getCrosspostQuery = gql`
+  //   query GetCrosspostQuery($args: JSON) {
+  //     getCrosspost(args: $args)
+  //   }
+  // `;
 
-  const args = {
-    ...fetchProps,
-    documentId: localPost.fmCrosspost.foreignPostId
-  };
-
-  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
-  // console.log({ foreignPost, loading, error });
-  // const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
+  // const args = {
   //   ...fetchProps,
-  //   documentId: localPost.fmCrosspost.foreignPostId,
-  //   apolloClient,
-  // });
+  //   documentId: localPost.fmCrosspost.foreignPostId
+  // };
 
-  const foreignPost: GetCrosspostResponse['document'] = data?.['getCrosspost'];
+  // const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
+  const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
+    ...fetchProps,
+    documentId: localPost.fmCrosspost.foreignPostId,
+    apolloClient,
+  });
+
+  // const foreignPost: GetCrosspostResponse['document'] = data?.['getCrosspost'];
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
