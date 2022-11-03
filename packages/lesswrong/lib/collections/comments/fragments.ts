@@ -144,3 +144,12 @@ registerFragment(`
     voteCount
   }
 `);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
+  }
+`);

@@ -1,9 +1,9 @@
 import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { createGenerateClassName } from '@material-ui/core/styles';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { ThemeContextProvider } from '../../components/themes/useTheme';
 import { AbstractThemeOptions } from '../../themes/themeNames';
+import { createGenerateClassName } from '@material-ui/core/styles';
 
 export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: SheetsRegistry}>(
   app: React.ReactNode,
@@ -24,4 +24,3 @@ export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: SheetsRegistr
     </JssProvider>
   );
 }
-

@@ -97,6 +97,17 @@ interface DbCollection extends DbObject {
   createdAt: Date
 }
 
+interface CommentModeratorActionsCollection extends CollectionBase<DbCommentModeratorAction, "CommentModeratorActions"> {
+}
+
+interface DbCommentModeratorAction extends DbObject {
+  __collectionName?: "CommentModeratorActions"
+  commentId: string
+  type: "downvotedCommentAlert"
+  endedAt: Date | null
+  createdAt: Date
+}
+
 interface CommentsCollection extends CollectionBase<DbComment, "Comments"> {
 }
 
@@ -143,6 +154,7 @@ interface DbComment extends DbObject {
   reviewedByUserId: string
   hideAuthor: boolean
   moderatorHat: boolean
+  hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   af: boolean
   afBaseScore: number
@@ -324,13 +336,26 @@ interface DbMigration extends DbObject {
   createdAt: Date
 }
 
+interface ModerationTemplatesCollection extends CollectionBase<DbModerationTemplate, "ModerationTemplates"> {
+}
+
+interface DbModerationTemplate extends DbObject {
+  __collectionName?: "ModerationTemplates"
+  name: string
+  collectionName: "Messages" | "Comments"
+  order: number
+  deleted: boolean
+  createdAt: Date
+  contents: EditableFieldContents
+}
+
 interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "ModeratorActions"> {
 }
 
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert"
+  type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag"
   endedAt: Date | null
   createdAt: Date
 }
@@ -1137,6 +1162,7 @@ interface CollectionsByName {
   Chapters: ChaptersCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
+  CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
   DatabaseMetadata: DatabaseMetadataCollection
@@ -1149,6 +1175,7 @@ interface CollectionsByName {
   Localgroups: LocalgroupsCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
+  ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
@@ -1179,6 +1206,7 @@ interface ObjectsByCollectionName {
   Chapters: DbChapter
   ClientIds: DbClientId
   Collections: DbCollection
+  CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
   DatabaseMetadata: DbDatabaseMetadata
@@ -1191,6 +1219,7 @@ interface ObjectsByCollectionName {
   Localgroups: DbLocalgroup
   Messages: DbMessage
   Migrations: DbMigration
+  ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PetrovDayLaunchs: DbPetrovDayLaunch
