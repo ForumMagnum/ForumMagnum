@@ -1,6 +1,7 @@
 import cheerio from 'cheerio';
 import { cheerioParse, cheerioParseAndMarkOffsets, tokenizeHtml } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
+import type { SideCommentsResolverResult } from '../lib/collections/posts/schema';
 import groupBy from 'lodash/groupBy';
 import some from 'lodash/some';
 
@@ -334,7 +335,6 @@ function findQuoteInPost(parsedPost, quoteShards: QuoteShard[]): QuoteInPost|nul
 interface CommentForSideComment {
   _id: string
   html: string
-  baseScore: number
 }
 
 /**
@@ -345,11 +345,9 @@ interface CommentForSideComment {
  * This function is potentially quite slow, if there are a lot of comments and/or
  * the post is very long. FIXME: Build caching for this.
  */
-export async function getSideComments(context: ResolverContext, postId: string, html: string): Promise<{
-  html: string,
-  commentsByBlock: Record<string,string[]>,
-  highKarmaCommentsByBlock: Record<string,string[]>,
-}> {
+export async function getSideComments(context: ResolverContext, postId: string, html: string): Promise<SideCommentsResolverResult> {
+  //const startTimeMs = new Date().getTime();
+  
   const comments = await Comments.find({
     ...Comments.defaultView({}).selector,
     postId,
@@ -360,7 +358,6 @@ export async function getSideComments(context: ResolverContext, postId: string, 
     comments: comments.map(comment => ({
       _id: comment._id,
       html: comment.contents?.html,
-      baseScore: comment.baseScore,
     }))
   });
   
@@ -376,6 +373,9 @@ export async function getSideComments(context: ResolverContext, postId: string, 
       highKarmaCommentsByBlock[blockID] = highKarmaCommentIdsHere;
     }
   }
+  
+  //const endTimeMs = new Date().getTime();
+  //console.log(`Matched ${comments.length} comments in ${endTimeMs-startTimeMs}ms`);
   
   return {
     html: annotatedHtml,

@@ -101,6 +101,19 @@ const frontpageDefault = isEAForum ?
   eaFrontpageDate :
   undefined
 
+export const sideCommentCacheVersion = 1;
+export interface SideCommentsCache {
+  version: number,
+  generatedAt: Date,
+  annotatedHtml: string
+  commentsByBlock: Record<string,string[]>
+}
+export interface SideCommentsResolverResult {
+  html: string,
+  commentsByBlock: Record<string,string[]>,
+  highKarmaCommentsByBlock: Record<string,string[]>,
+}
+
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
@@ -2117,41 +2130,37 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
-  tableOfContents: resolverOnlyField({
+  tableOfContents: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
-    graphQLtype: GraphQLJSON,
-    resolver: async (document: DbPost, args: void, context: ResolverContext) => {
-      try {
-        return await Utils.getToCforPost({document, version: null, context});
-      } catch(e) {
-        captureException(e);
-        return null;
-      }
-    },
-  }),
+    // Implementation in postResolvers.ts
+  },
 
-  tableOfContentsRevision: resolverOnlyField({
+  tableOfContentsRevision: {
     type: Object,
     viewableBy: ['guests'],
-    graphQLtype: GraphQLJSON,
-    graphqlArguments: 'version: String',
-    resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
-      const { version=null } = args;
-      try {
-        return await Utils.getToCforPost({document, version, context});
-      } catch(e) {
-        captureException(e);
-        return null;
-      }
-    },
-  }),
+    // Implementation in postResolvers.ts
+  },
   
   sideComments: {
     type: Object,
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  
+  // sideCommentsCache: Stores the matching between comments on a post,
+  // and paragraph IDs within the post. Invalid if the cache-generation
+  // time is older than when the post was last modified (modifiedAt) or
+  // commented on (lastCommentedAt).
+  // SideCommentsCache
+  sideCommentsCache: {
+    type: Object,
+    viewableBy: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
+    optional: true, nullable: true, hidden: true,
   },
   
   sideCommentVisibility: {

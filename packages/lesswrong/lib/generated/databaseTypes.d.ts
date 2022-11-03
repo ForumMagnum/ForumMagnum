@@ -542,6 +542,7 @@ interface DbPost extends DbObject {
   linkSharingKeyUsedBy: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
+  sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string
   moderationStyle: string
   hideCommentKarma: boolean
