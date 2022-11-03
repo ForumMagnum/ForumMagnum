@@ -59,18 +59,18 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
           <Link to={tagGetDiscussionUrl(tag)} className={classes.randomTagLink}>
             Wiki discussion
           </Link>
+          <TableOfContentsRow href="#" divider={true} />
         </>
       )}
+      <Link to="/tags/random" className={classes.randomTagLink}>
+        Random {taggingNameCapitalSetting.get()}
+      </Link>
       {"contributors" in tag && (
         <>
           <TableOfContentsRow href="#" divider={true} />
           <TagContributorsList onHoverUser={onHoverContributor} tag={tag} />
         </>
       )}
-      <TableOfContentsRow href="#" divider={true} />
-      <Link to="/tags/random" className={classes.randomTagLink}>
-        Random {taggingNameCapitalSetting.get()}
-      </Link>
     </span>
   );
 }
