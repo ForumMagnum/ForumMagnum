@@ -122,7 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '8px 16px',
     outline: 'none',
     '& > .Typography-root': {
-      color: theme.palette.text.dim4,
+      color: theme.palette.grey[500],
       fontSize: 20,
       [theme.breakpoints.down("xs")]: {
         fontSize: 16,
