@@ -12,6 +12,7 @@ import htmlToText from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
 import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
+import { createHash } from "crypto";
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -22,7 +23,6 @@ function domBuilder(html: string) {
   const bodyEl = document.body; // implicitly created
   return bodyEl
 }
-
 
 export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
@@ -49,7 +49,21 @@ export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   // Draft.Model.ImmutableData.ContentState. AFAICT this is the DefinitelyTyped
   // people not being careful with the const plague, not a real issue.
   // @ts-ignore
-  return convertToRaw(result)
+  const raw = convertToRaw(result);
+
+  // draft-convert adds randomly generated ids to each block which means that any time this is used
+  // inside a graphql resolver the result will be unstable between refetches. This totally destroys
+  // Apollo's ability to cache things and in some cases can lead to infinite refetch loops. Here, we
+  // overwrite these ids with stable md5 hashes (sliced to 5 characters since this is what draftjs
+  // likes).
+  for (const block of raw?.blocks ?? []) {
+    if (block.key) {
+      const hash = createHash("md5").update(block.text ?? "").digest("hex");
+      block.key = hash.slice(0, 5);
+    }
+  }
+
+  return raw;
 }
 
 export function dataToDraftJS(data: any, type: string) {
