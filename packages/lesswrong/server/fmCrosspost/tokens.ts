@@ -5,7 +5,7 @@ import { InvalidPayloadError, MissingSecretError } from "./errors";
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
 
 const getSecret = () => {
-  const secret = crosspostSigningKeySetting.get() ?? '5a316ceb6373a392e2212de824d9c7e7fc75295a1c7ccc4930a8bdd853373bb0';
+  const secret = crosspostSigningKeySetting.get();
   if (!secret) {
     throw new MissingSecretError();
   }
