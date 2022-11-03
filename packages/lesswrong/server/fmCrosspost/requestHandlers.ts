@@ -3,7 +3,8 @@ import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import { getGraphQLQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
 import { getCollection, Utils } from "../../lib/vulcan-lib";
-import { createAnonymousContext, createClient } from "../vulcan-lib";
+import { createAnonymousContext } from "../vulcan-lib/query";
+import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient"
 import { extractDenormalizedData } from "./denormalizedFields";
 import {
   ApiError, InvalidUserError, MissingParametersError, UnauthorizedError
