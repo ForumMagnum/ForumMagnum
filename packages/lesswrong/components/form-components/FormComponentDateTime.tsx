@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0',
-    background: theme.palette.panelBackground.default,
+    background: 'transparent',
   },
   label: {
     position:"relative",
