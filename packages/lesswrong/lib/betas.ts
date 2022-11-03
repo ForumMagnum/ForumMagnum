@@ -34,7 +34,7 @@ export const userHasDefaultProfilePhotos = disabled
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
-export const usaerHasSideComments = optInOnly;
+export const userHasSideComments = optInOnly;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

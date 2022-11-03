@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { useCurrentUser } from '../../common/withUser';
-import { useHasSideComments } from '../../../lib/betas';
+import { userHasSideComments } from '../../../lib/betas';
 import mapValues from 'lodash/mapValues';
 import type { SideCommentMode } from '../PostActions/SetSideCommentVisibility';
 
@@ -14,7 +14,7 @@ const PostBody = ({post, html, sideCommentMode}: {
   sideCommentMode?: SideCommentMode
 }) => {
   const currentUser = useCurrentUser();
-  const includeSideComments = useHasSideComments(currentUser) && sideCommentMode && sideCommentMode!=="hidden";
+  const includeSideComments = userHasSideComments(currentUser) && sideCommentMode && sideCommentMode!=="hidden";
   
   const { document, loading } = useSingle({
     documentId: post._id,
