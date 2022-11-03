@@ -141,4 +141,10 @@ export interface CommentTreeOptions {
    * in side-comments, to replace Reply with See In Context.
    */
   replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,)=>ReactNode
+  
+  /**
+   * Which comment in the tree is moderated, if any.
+   * For custom styling in the comment moderation tab.
+   */
+  moderatedCommentId?: string
 }

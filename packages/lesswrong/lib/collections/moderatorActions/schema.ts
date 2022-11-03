@@ -6,13 +6,19 @@ export const RECENTLY_DOWNVOTED_CONTENT_ALERT = 'recentlyDownvotedContentAlert';
 export const LOW_AVERAGE_KARMA_COMMENT_ALERT = 'lowAverageKarmaCommentAlert';
 export const LOW_AVERAGE_KARMA_POST_ALERT = 'lowAverageKarmaPostAlert';
 export const NEGATIVE_KARMA_USER_ALERT = 'negativeUserKarmaAlert';
+export const MOVED_POST_TO_DRAFT = 'movedPostToDraft';
+export const SENT_MODERATOR_MESSAGE = 'sentModeratorMessage';
+export const MANUAL_FLAG_ALERT = 'manualFlag';
 
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 / day)',
   [RECENTLY_DOWNVOTED_CONTENT_ALERT]: 'Recently Downvoted Content',
   [LOW_AVERAGE_KARMA_COMMENT_ALERT]: 'Low Average Karma Comments',
   [LOW_AVERAGE_KARMA_POST_ALERT]: 'Low Average Karma Posts',
-  [NEGATIVE_KARMA_USER_ALERT]: 'Negative Karma User'
+  [NEGATIVE_KARMA_USER_ALERT]: 'Negative Karma User',
+  [MOVED_POST_TO_DRAFT]: 'Moved Post to Draft',
+  [SENT_MODERATOR_MESSAGE]: 'Sent Moderator Message',
+  [MANUAL_FLAG_ALERT]: 'Manually Flagged'
 };
 
 /**
