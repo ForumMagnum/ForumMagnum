@@ -107,7 +107,7 @@ export const GetCrosspostRequestValidator = t.intersection([
     extraVariables: t.strict({
       sequenceId: t.literal('String')
     }),
-    extraVariableValues: t.strict({
+    extraVariablesValues: t.strict({
       sequenceId: t.union([t.string, t.null])
     }),
   }),
@@ -115,7 +115,7 @@ export const GetCrosspostRequestValidator = t.intersection([
     extraVariables: t.partial({
       version: t.literal('String')
     }),
-    extraVariableValues: t.partial({
+    extraVariablesValues: t.partial({
       version: t.string
     })
   })
@@ -123,8 +123,232 @@ export const GetCrosspostRequestValidator = t.intersection([
 
 export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
 
+interface PartialWithNullC<P extends t.Props>
+  extends t.PartialType<
+    P,
+    {
+      [K in keyof P]?: t.TypeOf<P[K]> | null
+    },
+    {
+      [K in keyof P]?: t.OutputOf<P[K]> | null
+    },
+    unknown
+  > {}
+
+const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
+  return t.partial(Object.fromEntries(
+    Object.entries(props).map(([key, validator]: [string, t.Type<any> | t.PartialType<any>]) => {
+      if ('props' in validator) {
+        return [key, t.union([t.null, partialWithNull(validator.props)])] as const;
+      } else {
+        return [key, t.union([t.null, validator])] as const;
+      }
+    })
+  )) as unknown as PartialWithNullC<P>;
+};
+
+const CrosspostValidator = t.intersection([
+  t.strict({
+    _id: t.string,
+    slug: t.string,  
+  }),
+  t.partial({
+    isEvent: t.boolean,
+  }),
+  partialWithNull({
+    __typename: t.literal('Post'),
+    // tableOfContents: null,
+    version: t.string,
+    contents: t.partial({
+      __typename: t.literal('Revision'),
+      _id: t.string,
+      version: t.string,
+      updateType: t.keyof({ patch: null, minor: null, major: null, initial: null }),
+      editedAt: t.string,
+      userId: t.string,
+      html: t.string,
+      wordCount: t.number,
+      htmlHighlight: t.string,
+      plaintextDescription: t.string
+    }),
+    myEditorAccess: t.keyof({ none: null, read: null, comment: null, edit: null }),
+    // linkSharingKey: null,
+    // sequence: null,
+    // prevPost: null,
+    // nextPost: null,
+    // canonicalSource: null,
+    noIndex: t.boolean,
+    // viewCount: null,
+    socialPreviewImageUrl: t.string,
+    // tagRelevance: {},
+    // commentSortOrder: null,
+    // collectionTitle: null,
+    // canonicalPrevPostSlug: null,
+    // canonicalNextPostSlug: null,
+    // canonicalSequenceId: null,
+    // canonicalBookId: null,
+    // canonicalSequence: null,
+    // canonicalBook: null,
+    // canonicalCollection: null,
+    // podcastEpisode: null,
+    showModerationGuidelines: t.boolean,
+    // bannedUserIds: null,
+    // moderationStyle: null,
+    // currentUserVote: null,
+    // currentUserExtendedVote: null,
+    // feedLink: null,
+    // feed: null,
+    // sourcePostRelations: [],
+    // targetPostRelations: [],
+    // rsvps: null,
+    activateRSVPs: t.boolean,
+    fmCrosspost: t.partial({
+      isCrosspost: t.boolean,
+      hostedHere: t.boolean,
+      foreignPostId: t.string
+    }),
+    // podcastEpisodeId: null,
+    readTimeMinutes: t.number,
+    moderationGuidelines: t.partial({
+      __typename: t.literal('Revision'),
+      _id: t.string,
+      html: t.string
+    }),
+    customHighlight: t.partial({
+      __typename: t.literal('Revision'),
+      _id: t.string,
+      html: t.string
+    }),
+    // lastPromotedComment: null,
+    // bestAnswer: null,
+    // tags: [],
+    // url: null,
+    postedAt: t.string,
+    // createdAt: null,
+    sticky: t.boolean,
+    metaSticky: t.boolean,
+    stickyPriority: t.number,
+    status: t.number,
+    frontpageDate: t.string,
+    meta: t.boolean,
+    deletedDraft: t.boolean,
+    // shareWithUsers: null,
+    // sharingSettings: null,
+    // coauthorStatuses: null,
+    hasCoauthorPermission: t.boolean,
+    commentCount: t.number,
+    voteCount: t.number,
+    baseScore: t.number,
+    // extendedScore: null,
+    unlisted: t.boolean,
+    score: t.number,
+    // lastVisitedAt: null,
+    isFuture: t.boolean,
+    isRead: t.boolean,
+    lastCommentedAt: t.string,
+    // lastCommentPromotedAt: null,
+    // canonicalCollectionSlug: null,
+    // curatedDate: null,
+    // commentsLocked: null,
+    // commentsLockedToAccountsCreatedAfter: null,
+    question: t.boolean,
+    hiddenRelatedQuestion: t.boolean,
+    // originalPostRelationSourceId: null,
+    userId: t.string,
+    // location: null,
+    // googleLocation: null,
+    // onlineEvent: t.boolean,
+    // globalEvent: t.boolean,
+    // startTime: null,
+    // endTime: null,
+    // localStartTime: null,
+    // localEndTime: null,
+    // eventRegistrationLink: null,
+    // joinEventLink: null,
+    // facebookLink: null,
+    // meetupLink: null,
+    // website: null,
+    // contactInfo: null,
+    // eventImageId: null,
+    // eventType: null,
+    // types: [],
+    // groupId: null,
+    // reviewedByUserId: null,
+    // suggestForCuratedUserIds: null,
+    // suggestForCuratedUsernames: null,
+    // reviewForCuratedUserId: null,
+    authorIsUnreviewed: t.boolean,
+    // afDate: null,
+    // suggestForAlignmentUserIds: null,
+    // reviewForAlignmentUserId: null,
+    // afBaseScore: 1,
+    // afExtendedScore: null,
+    // afCommentCount: null,
+    afLastCommentedAt: t.string,
+    afSticky: t.boolean,
+    hideAuthor: t.boolean,
+    submitToFrontpage: t.boolean,
+    shortform: t.boolean,
+    onlyVisibleToLoggedIn: t.boolean,
+    // reviewCount: null,
+    // reviewVoteCount: null,
+    // positiveReviewVoteCount: null,
+    // reviewVoteScoreAllKarma: null,
+    // reviewVotesAllKarma: null,
+    // reviewVoteScoreHighKarma: null,
+    // reviewVotesHighKarma: null,
+    // reviewVoteScoreAF: null,
+    // reviewVotesAF: null,
+    // finalReviewVoteScoreHighKarma: null,
+    // finalReviewVotesHighKarma: null,
+    // finalReviewVoteScoreAllKarma: null,
+    // finalReviewVotesAllKarma: null,
+    // finalReviewVoteScoreAF: null,
+    // finalReviewVotesAF: null,
+    // group: null,
+    // nominationCount2018: null,
+    // reviewCount2018: null,
+    // nominationCount2019: null,
+    // reviewCount2019: null,
+    user: t.partial({
+      __typename: t.literal('User'),
+      // biography: null,
+      // profileImageId: null,
+      // moderationStyle: null,
+      // bannedUserIds: null,
+      // moderatorAssistance: null,
+      _id: t.string,
+      slug: t.string,
+      createdAt: t.string,
+      username: t.string,
+      displayName: t.string,
+      // previousDisplayName: null,
+      // fullName: null,
+      // karma: null,
+      // afKarma: null,
+      // deleted: null,
+      isAdmin: t.boolean,
+      htmlBio: t.string,
+      postCount: t.number,
+      // commentCount: null,
+      // sequenceCount: null,
+      // afPostCount: null,
+      afCommentCount: t.number,
+      spamRiskScore: t.number,
+      // tagRevisionCount: null
+    }),
+    coauthors: t.array(t.string),
+    title: t.string,
+    draft: t.boolean,
+    hideCommentKarma: t.boolean,
+    af: t.boolean,
+    // currentUserReviewVote: null
+  })
+]);
+
 export const GetCrosspostResponseValidator = t.strict({
-  document: t.UnknownRecord,
+  document: CrosspostValidator,
 });
+
 
 export type GetCrosspostResponse = t.TypeOf<typeof GetCrosspostResponseValidator>;

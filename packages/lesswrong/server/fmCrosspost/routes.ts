@@ -78,12 +78,14 @@ export const addCrosspostRoutes = (app: Application) => {
       try {
         response = await callback(req);
       } catch (e) {
+        console.error({ error: e });
         return res
           .status(e instanceof ApiError ? e.code : 501)
           .send({error: e.message ?? "An unknown error occurred"})
       }
 
       if (isLeft(route.responseValidator.decode(response))) {
+        console.error('Invalid response body', { response });
         return res.status(501).send({ error: 'An unknown error occurred' });
       }
 
@@ -96,18 +98,23 @@ export const addCrosspostRoutes = (app: Application) => {
     app.post(route.path, async (req, res) => {
       const validatedRequestBody = route.requestValidator.decode(req.body);
       if (isLeft(validatedRequestBody)) {
+        console.error('Invalid request body in cross-site request', { body: req.body });
         return res.status(400).send({ error: 'Invalid request body' });
       }
       let response: ValidatedPostRoutes[RouteName]['responseValidator']['_A'];
       try {
         response = await callback(validatedRequestBody.right);
       } catch (e) {
+        console.error({ error: e });
         return res
           .status(e instanceof ApiError ? e.code : 501)
           .send({error: e.message ?? "An unknown error occurred"})
       }
 
-      if (isLeft(route.responseValidator.decode(response))) {
+      const decodedResponse = route.responseValidator.decode(response);
+
+      if (isLeft(decodedResponse)) {
+        console.error('Invalid response body', { response, errors: decodedResponse.left.flatMap(e => e.context) });
         return res.status(501).send({ error: 'An unknown error occurred' });
       }
 

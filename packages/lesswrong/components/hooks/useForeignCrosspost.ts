@@ -1,7 +1,8 @@
-import type { ApolloError } from "@apollo/client";
+import { ApolloError, gql, useQuery } from "@apollo/client";
 import { useForeignApolloClient } from "./useForeignApolloClient";
 import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
+import type { GetCrosspostResponse } from "../../server/fmCrosspost/types";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -38,17 +39,18 @@ const overrideFields = [
   "readTimeMinutes",
 ] as const;
 
+type PostFragments = 'PostsWithNavigation' | 'PostsWithNavigationAndRevision' | 'PostsList';
 /**
  * Load foreign crosspost data from the foreign site
  */
-export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends keyof FragmentTypes>(
+export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends PostFragments>(
   localPost: Post,
   fetchProps: Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">,
 ): {
   loading: boolean,
   error?: ApolloError,
   localPost: Post,
-  foreignPost?: FragmentTypes[FragmentTypeName],
+  foreignPost?: GetCrosspostResponse['document'], // FragmentTypes[FragmentTypeName],
   combinedPost?: Post & FragmentTypes[FragmentTypeName],
 } => {
   // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
@@ -59,18 +61,35 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   }
 
   const apolloClient = useForeignApolloClient();
-  console.log({ fetchProps, documentId: localPost.fmCrosspost.foreignPostId });
-  const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
+  // console.log({ fetchProps, documentId: localPost.fmCrosspost.foreignPostId });
+
+  const getCrosspostQuery = gql`
+    query GetCrosspostQuery($args: JSON) {
+      getCrosspost(args: $args)
+    }
+  `;
+
+  const args = {
     ...fetchProps,
-    documentId: localPost.fmCrosspost.foreignPostId,
-    apolloClient,
-  });
+    documentId: localPost.fmCrosspost.foreignPostId
+  };
+
+  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
+  // console.log({ foreignPost, loading, error });
+  // const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
+  //   ...fetchProps,
+  //   documentId: localPost.fmCrosspost.foreignPostId,
+  //   apolloClient,
+  // });
+
+  const foreignPost: GetCrosspostResponse['document'] = data?.['getCrosspost'];
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
-    combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
+    combinedPost = {...foreignPost, ...localPost} as unknown as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
-      combinedPost[field] = foreignPost?.[field] ?? localPost[field];
+      Object.assign(combinedPost, { [field]: foreignPost?.[field] ?? localPost[field] });
+      // combinedPost[field] = foreignPost?.[field] ?? localPost[field];
     }
     // We just took the table of contents from the foreign version, but we want to use the local comment count
     if (hasTableOfContents(combinedPost)) {

@@ -2,6 +2,7 @@ import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
 import Users from "../../lib/collections/users/collection";
+import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
 import { ApiError, UnauthorizedError } from "./errors";
 import { makeApiUrl, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
@@ -22,7 +23,8 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   onErrorMessage: string,
 ): Promise<ValidatedPostRoutes[RouteName]['responseValidator']['_A']> => {
   const route: ValidatedPostRoutes[RouteName] = validatedPostRoutes[routeName];
-  const result = await fetch(makeApiUrl(route.path), {
+  const apiUrl = makeApiUrl(route.path);
+  const result = await fetch(apiUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -77,7 +79,7 @@ const crosspostResolvers = {
     },
   },
   Query: {
-    getCrosspost: async (_root: void, args: GetCrosspostRequest) => {
+    getCrosspost: async (_root: void, { args }: { args: GetCrosspostRequest }) => {
       const crosspostData = await makeCrossSiteRequest(
         'getCrosspost',
         args,

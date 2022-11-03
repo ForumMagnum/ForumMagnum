@@ -3,13 +3,14 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
+import type { GetCrosspostResponse } from "../../../server/fmCrosspost/types";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
 export type CrosspostContext = {
   hostedHere: boolean,
   localPost: PostType,
-  foreignPost?: PostType,
+  foreignPost?: GetCrosspostResponse['document'],
   combinedPost?: PostType,
 }
 

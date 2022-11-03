@@ -114,7 +114,7 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 };
 
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
-  const { collectionName, extraVariables, extraVariableValues, fragmentName, documentId } = req;
+  const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
   const collection = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({
@@ -132,7 +132,7 @@ export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) =>
       input: {
         selector: { documentId }
       },
-      ...extraVariableValues
+      ...extraVariablesValues
     },
   });
 

@@ -67,7 +67,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
     return (
       <div className={classes.root}>
-        {forumTypeSetting.get() === 'EAForum' ? <>
+        {forumTypeSetting.get() === 'AlignmentForum' ? <>
           <Button href={`/auth/auth0?returnTo=${pathname}`}>
             <span className={classes.userButton}>
               Login

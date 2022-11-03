@@ -128,9 +128,9 @@ type WrappedLoginFormProps = {
 }
 
 const WrappedLoginForm = (props: WrappedLoginFormProps) => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return <WrappedLoginFormEA {...props} />
-  }
+  // if (forumTypeSetting.get() === 'EAForum') {
+  //   return <WrappedLoginFormEA {...props} />
+  // }
   return <WrappedLoginFormDefault {...props} />
 }
 
