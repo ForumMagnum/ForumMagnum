@@ -5,6 +5,10 @@ const WebSocket = require('ws');
 const crypto = require('crypto');
 const { zlib } = require("mz");
 
+/**
+ * This is used for clean exiting in Github workflows by the dev
+ * only route /api/quit
+ */
 process.on("SIGQUIT", () => process.exit(0));
 
 const defaultServerPort = 3000;
