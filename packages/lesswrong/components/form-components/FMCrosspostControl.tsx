@@ -19,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     margin: 8,
+    "& .MuiTypography-root": {
+      color: theme.palette.text.normal,
+    },
   },
   link: {
     color: theme.palette.primary.main,
