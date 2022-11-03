@@ -64,6 +64,9 @@ const DenormalizedCrosspostValidator = t.strict({
   isEvent: t.boolean
 });
 
+/**
+ * Intersesction creates an intersection of types (i.e. type A & type B)
+ */
 export const UpdateCrosspostPayloadValidator = t.intersection([
   t.strict({
     postId: t.string,
@@ -85,6 +88,9 @@ export const CrosspostResponseValidator = t.strict({
   status: t.literal('posted')
 });
 
+/**
+ * Intersesction creates an intersection of types (i.e. type A & type B)
+ */
 export const CrosspostPayloadValidator = t.intersection([
   t.strict({
     localUserId: t.string,
@@ -99,6 +105,9 @@ export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
 
 export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | typeof denormalizedFieldKeys[number]>;
 
+/**
+ * Intersesction creates an intersection of types (i.e. type A & type B)
+ */
 export const GetCrosspostRequestValidator = t.intersection([
   t.strict({
     documentId: t.string,
@@ -123,6 +132,10 @@ export const GetCrosspostRequestValidator = t.intersection([
 
 export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
 
+/**
+ * Nearly all ields returned from the other forum's internal GraphQL request can be `null`
+ * That's different from them being missing in the response body
+ */
 interface PartialWithNullC<P extends t.Props>
   extends t.PartialType<
     P,
@@ -147,7 +160,13 @@ const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
   )) as unknown as PartialWithNullC<P>;
 };
 
+/**
+ * Partial, in addition to treating all of the specified fields as optional, is permissive with respect to fields not specified
+ * This means that all of the other fields not included in this validator but part of the requested fragment will still come back
+ * i.e. tableOfContents, etc.  They simply won't be typed in the type extracted from the validator.
+ */
 const CrosspostValidator = t.intersection([
+  // _id, slug, and isEvent are specified separately because `postGetPageUrl` requires those 3 fields to not have `null` as a possible value
   t.strict({
     _id: t.string,
     slug: t.string,  
@@ -157,7 +176,6 @@ const CrosspostValidator = t.intersection([
   }),
   partialWithNull({
     __typename: t.literal('Post'),
-    // tableOfContents: null,
     version: t.string,
     contents: t.partial({
       __typename: t.literal('Revision'),
@@ -172,42 +190,15 @@ const CrosspostValidator = t.intersection([
       plaintextDescription: t.string
     }),
     myEditorAccess: t.keyof({ none: null, read: null, comment: null, edit: null }),
-    // linkSharingKey: null,
-    // sequence: null,
-    // prevPost: null,
-    // nextPost: null,
-    // canonicalSource: null,
     noIndex: t.boolean,
-    // viewCount: null,
     socialPreviewImageUrl: t.string,
-    // tagRelevance: {},
-    // commentSortOrder: null,
-    // collectionTitle: null,
-    // canonicalPrevPostSlug: null,
-    // canonicalNextPostSlug: null,
-    // canonicalSequenceId: null,
-    // canonicalBookId: null,
-    // canonicalSequence: null,
-    // canonicalBook: null,
-    // canonicalCollection: null,
-    // podcastEpisode: null,
     showModerationGuidelines: t.boolean,
-    // bannedUserIds: null,
-    // moderationStyle: null,
-    // currentUserVote: null,
-    // currentUserExtendedVote: null,
-    // feedLink: null,
-    // feed: null,
-    // sourcePostRelations: [],
-    // targetPostRelations: [],
-    // rsvps: null,
     activateRSVPs: t.boolean,
     fmCrosspost: t.partial({
       isCrosspost: t.boolean,
       hostedHere: t.boolean,
       foreignPostId: t.string
     }),
-    // podcastEpisodeId: null,
     readTimeMinutes: t.number,
     moderationGuidelines: t.partial({
       __typename: t.literal('Revision'),
@@ -219,12 +210,7 @@ const CrosspostValidator = t.intersection([
       _id: t.string,
       html: t.string
     }),
-    // lastPromotedComment: null,
-    // bestAnswer: null,
-    // tags: [],
-    // url: null,
     postedAt: t.string,
-    // createdAt: null,
     sticky: t.boolean,
     metaSticky: t.boolean,
     stickyPriority: t.number,
@@ -232,117 +218,43 @@ const CrosspostValidator = t.intersection([
     frontpageDate: t.string,
     meta: t.boolean,
     deletedDraft: t.boolean,
-    // shareWithUsers: null,
-    // sharingSettings: null,
-    // coauthorStatuses: null,
     hasCoauthorPermission: t.boolean,
     commentCount: t.number,
     voteCount: t.number,
     baseScore: t.number,
-    // extendedScore: null,
     unlisted: t.boolean,
     score: t.number,
-    // lastVisitedAt: null,
     isFuture: t.boolean,
     isRead: t.boolean,
     lastCommentedAt: t.string,
-    // lastCommentPromotedAt: null,
-    // canonicalCollectionSlug: null,
-    // curatedDate: null,
-    // commentsLocked: null,
-    // commentsLockedToAccountsCreatedAfter: null,
     question: t.boolean,
     hiddenRelatedQuestion: t.boolean,
-    // originalPostRelationSourceId: null,
     userId: t.string,
-    // location: null,
-    // googleLocation: null,
-    // onlineEvent: t.boolean,
-    // globalEvent: t.boolean,
-    // startTime: null,
-    // endTime: null,
-    // localStartTime: null,
-    // localEndTime: null,
-    // eventRegistrationLink: null,
-    // joinEventLink: null,
-    // facebookLink: null,
-    // meetupLink: null,
-    // website: null,
-    // contactInfo: null,
-    // eventImageId: null,
-    // eventType: null,
-    // types: [],
-    // groupId: null,
-    // reviewedByUserId: null,
-    // suggestForCuratedUserIds: null,
-    // suggestForCuratedUsernames: null,
-    // reviewForCuratedUserId: null,
     authorIsUnreviewed: t.boolean,
-    // afDate: null,
-    // suggestForAlignmentUserIds: null,
-    // reviewForAlignmentUserId: null,
-    // afBaseScore: 1,
-    // afExtendedScore: null,
-    // afCommentCount: null,
     afLastCommentedAt: t.string,
     afSticky: t.boolean,
     hideAuthor: t.boolean,
     submitToFrontpage: t.boolean,
     shortform: t.boolean,
     onlyVisibleToLoggedIn: t.boolean,
-    // reviewCount: null,
-    // reviewVoteCount: null,
-    // positiveReviewVoteCount: null,
-    // reviewVoteScoreAllKarma: null,
-    // reviewVotesAllKarma: null,
-    // reviewVoteScoreHighKarma: null,
-    // reviewVotesHighKarma: null,
-    // reviewVoteScoreAF: null,
-    // reviewVotesAF: null,
-    // finalReviewVoteScoreHighKarma: null,
-    // finalReviewVotesHighKarma: null,
-    // finalReviewVoteScoreAllKarma: null,
-    // finalReviewVotesAllKarma: null,
-    // finalReviewVoteScoreAF: null,
-    // finalReviewVotesAF: null,
-    // group: null,
-    // nominationCount2018: null,
-    // reviewCount2018: null,
-    // nominationCount2019: null,
-    // reviewCount2019: null,
     user: t.partial({
       __typename: t.literal('User'),
-      // biography: null,
-      // profileImageId: null,
-      // moderationStyle: null,
-      // bannedUserIds: null,
-      // moderatorAssistance: null,
       _id: t.string,
       slug: t.string,
       createdAt: t.string,
       username: t.string,
       displayName: t.string,
-      // previousDisplayName: null,
-      // fullName: null,
-      // karma: null,
-      // afKarma: null,
-      // deleted: null,
       isAdmin: t.boolean,
       htmlBio: t.string,
       postCount: t.number,
-      // commentCount: null,
-      // sequenceCount: null,
-      // afPostCount: null,
       afCommentCount: t.number,
       spamRiskScore: t.number,
-      // tagRevisionCount: null
     }),
     coauthors: t.array(t.string),
     title: t.string,
     draft: t.boolean,
     hideCommentKarma: t.boolean,
     af: t.boolean,
-    // currentUserReviewVote: null
   })
 ]);
 
