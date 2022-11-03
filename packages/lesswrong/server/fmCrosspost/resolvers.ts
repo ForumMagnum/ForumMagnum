@@ -2,7 +2,6 @@ import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
 import Users from "../../lib/collections/users/collection";
-import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
 import { ApiError, UnauthorizedError } from "./errors";
 import { makeApiUrl, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
