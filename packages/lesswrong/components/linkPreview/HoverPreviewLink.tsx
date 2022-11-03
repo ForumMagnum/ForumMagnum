@@ -101,7 +101,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel, 
         return <Components.ManifoldPreview href={href} innerHTML={innerHTML} id={id} />
       }
       if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
-        return <Components.ManifoldPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.MetaforecastPreview href={href} innerHTML={innerHTML} id={id} />
       }
       if (linkTargetAbsolute.host === "ourworldindata.org") {
         return <Components.OWIDPreview href={href} innerHTML={innerHTML} id={id} />
