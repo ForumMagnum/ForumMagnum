@@ -31,6 +31,7 @@ export default {
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "/migrations/",
+    "/manualMigrations/",
   ],
 
   // Indicates which provider should be used to instrument code for coverage
