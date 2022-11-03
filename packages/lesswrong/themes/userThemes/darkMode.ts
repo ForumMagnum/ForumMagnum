@@ -201,6 +201,10 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
+    blockquoteHighlight: {
+      commentHovered: "#114411",
+      individualQuoteHovered: "#114411",
+    },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {

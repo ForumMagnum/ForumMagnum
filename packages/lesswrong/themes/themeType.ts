@@ -369,6 +369,10 @@ declare global {
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
     },
+    blockquoteHighlight: {
+      commentHovered: ColorString,
+      individualQuoteHovered: ColorString,
+    },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,
     },

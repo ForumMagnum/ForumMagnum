@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
 import { useSingle } from '../../lib/crud/withSingle';
+import { useTheme } from '../themes/useTheme';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import classNames from 'classnames';
@@ -45,12 +46,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.link.dim,
   },
 });
-
-const blockquoteHighlightColor = "#ccffcc"; //TODO migrate this into the theme
-const blockquoteHighlightColor2 = "#ccffcc"; //TODO migrate this into the theme
-const blockquoteHighlightMode = "hoverComment";
-//const blockquoteHighlightMode = "hoverBlockquote";
-
 
 const SideCommentIcon = ({commentIds, post, classes}: {
   commentIds: string[]
@@ -115,6 +110,9 @@ const SideCommentSingle = ({commentId, post, classes}: {
   post: PostsDetails,
   classes: ClassesType,
 }) => {
+  const theme = useTheme();
+  const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
+  
   const { CommentWithReplies, Loading } = Components;
   const { document: comment, data, loading, error } = useSingle({
     documentId: commentId,
@@ -157,13 +155,6 @@ const SideCommentSingle = ({commentId, post, classes}: {
   
   if (loading) return <Loading/>
   if (!comment) return null;
-  
-  let hoverColor: string|null = null;
-  if (hoveredBlockquoteId) {
-    hoverColor = blockquoteHighlightColor2;
-  } else if (blockquoteHighlightMode==="hoverComment") {
-    hoverColor = blockquoteHighlightColor;
-  }
   
   return <div ref={rootDivRef}>
     {hoverColor && <style>
