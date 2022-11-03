@@ -15,6 +15,7 @@ import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../th
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
+import { minify } from 'csso';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -51,8 +52,9 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
     jssStylesheet,
     ...theme.rawCSS,
   ].join("\n");
-  
-  return Buffer.from(mergedCSS, "utf8");
+
+  const minifiedCSS = minify(mergedCSS).css;
+  return Buffer.from(minifiedCSS, "utf8");
 }
 
 type StylesheetAndHash = {

@@ -138,7 +138,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: 'transparent',
     borderTop: `4px solid ${theme.palette.grey[200]}`,
     '& .Typography-root': {
-      color: 'unset',
+      color: theme.palette.text.maxIntensity,
       borderBottom: `solid 2px ${theme.palette.primary.main}`,
     },
   }

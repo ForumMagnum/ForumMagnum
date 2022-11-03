@@ -529,6 +529,11 @@ registerFragment(`
         _id
         html
       }
+
+      needsReview
+      moderatorActions {
+        ...ModeratorActionDisplay
+      }
     }
   }
 `)

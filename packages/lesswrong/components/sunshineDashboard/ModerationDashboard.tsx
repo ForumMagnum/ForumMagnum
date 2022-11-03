@@ -85,16 +85,18 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
   );
 };
 
+type DashboardTabs = 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
+
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, LoadMore, Loading } = Components;
+  const { UsersReviewInfoCard, CommentsReviewTab, LoadMore, Loading } = Components;
     
   const currentUser = useCurrentUser();
 
-  const [view, setView] = useState<'sunshineNewUsers' | 'allUsers'>('sunshineNewUsers');
-
-  const { results: usersToReview=[], count, loadMoreProps, refetch, loading } = useMulti({
+  const [view, setView] = useState<DashboardTabs>('sunshineNewUsers');
+  
+  const { results: usersToReview = [], count, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: "sunshineNewUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -102,7 +104,7 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 50
   });
 
-  const { results: allUsers=[], loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
+  const { results: allUsers = [], loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
     terms: {view: "allUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -117,7 +119,7 @@ const ModerationDashboard = ({ classes }: {
   return (
     <div className={classes.page}>
       <div className={classes.row}>
-        <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+        <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
           <div className={classes.toc}>
             {usersToReview.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -131,7 +133,7 @@ const ModerationDashboard = ({ classes }: {
             </div>
           </div>
         </div>
-        <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+        <div className={classNames({ [classes.hidden]: view !== 'allUsers' })}>
           <div className={classes.toc}>
             {allUsers.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -142,6 +144,9 @@ const ModerationDashboard = ({ classes }: {
               <LoadMore {...allUsersLoadMoreProps}/>
             </div>
           </div>
+        </div>
+        <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
+          <div className={classes.toc}></div>
         </div>
         <div className={classes.main}>
           <div className={classes.topBar}>
@@ -157,26 +162,30 @@ const ModerationDashboard = ({ classes }: {
             >
               Reviewed Users
             </div>
+            <div
+              onClick={() => setView("moderatedComments")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'moderatedComments' })} 
+            >
+              Moderated Comments
+            </div>
           </div>
-          <div className={classNames({ [classes.hidden]: view === 'allUsers' })}>
+          <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
             {usersToReview.map(user =>
               <div key={user._id} id={user._id}>
                 <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
               </div>
             )}
-            <div className={classes.loadMore}>
-              <LoadMore {...loadMoreProps}/>
-            </div>
           </div>
-          <div className={classNames({ [classes.hidden]: view === 'sunshineNewUsers' })}>
+          <div className={classNames({ [classes.hidden]: view !== 'allUsers' })}>
             {allUsers.map(user =>
+              // TODO: we probably want to display something different for already-reviewed users, since a bunch of the actions we can take only make sense for unreviewed users
               <div key={user._id}>
                 <UsersReviewInfoCard user={user} refetch={refetchAllUsers} currentUser={currentUser}/>
               </div>
             )}
-            <div className={classes.loadMore}>
-              <LoadMore {...allUsersLoadMoreProps}/>
-            </div>
+          </div>
+          <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
+            <CommentsReviewTab />
           </div>
         </div>
       </div>
