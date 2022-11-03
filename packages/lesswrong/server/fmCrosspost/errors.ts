@@ -27,3 +27,9 @@ export class InvalidUserError extends ApiError {
     super(400, "Invalid user");
   }
 }
+
+export class InvalidPayloadError extends ApiError {
+  constructor() {
+    super(400, "Invalid payload");
+  }
+}

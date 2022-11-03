@@ -59,6 +59,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   }
 
   const apolloClient = useForeignApolloClient();
+  console.log({ fetchProps, documentId: localPost.fmCrosspost.foreignPostId });
   const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
     ...fetchProps,
     documentId: localPost.fmCrosspost.foreignPostId,
