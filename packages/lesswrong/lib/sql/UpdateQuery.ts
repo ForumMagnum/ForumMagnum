@@ -27,6 +27,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     this.nameSubqueries = false;
 
     const set: Partial<Record<keyof T, any>> = modifier.$set ?? {};
+    const push: Partial<Record<keyof T, any>> = modifier.$push ?? {};
     for (const operation of Object.keys(modifier)) {
       switch (operation) {
         case "$set":
@@ -41,12 +42,19 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
             set[field] = {$add: [`$${field}`, 1]};
           }
           break;
+        case "$push":
+          break;
         default:
           throw new Error(`Unimplemented update operation: ${operation}`);
       }
     }
 
-    this.atoms = this.atoms.concat(this.compileSetFields(set));
+    const compiledUpdates = [
+      ...this.compileSetFields(set),
+      ...this.compilePushFields(push),
+    ];
+
+    this.atoms = this.atoms.concat(compiledUpdates.slice(1));
 
     if (typeof selector === "string") {
       selector = {_id: selector};
@@ -80,23 +88,41 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private compileSetFields(updates: Partial<Record<keyof T, any>>): Atom<T>[] {
-    return Object.keys(updates).flatMap((field) => this.compileSetField(field, updates[field])).slice(1);
+  private compileSetFields(sets: Partial<Record<keyof T, any>>): Atom<T>[] {
+    const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
+      [",", resolvedField, "=", ...updateValue];
+    return this.compileUpdateFields(sets, format);
   }
 
-  private compileSetField(field: string, value: any): Atom<T>[] {
-    const result: Atom<T>[] = [","];
+  private compilePushFields(pushes: Partial<Record<keyof T, any>>): Atom<T>[] {
+    const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
+      [",", resolvedField, "= ARRAY_APPEND(", resolvedField, ",",  ...updateValue, ")"];
+    return this.compileUpdateFields(pushes, format);
+  }
+
+  private compileUpdateFields(
+    updates: Partial<Record<keyof T, any>>,
+    format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
+  ): Atom<T>[] {
+    return Object.keys(updates).flatMap((field) => this.compileUpdateField(field, updates[field], format));
+  }
+
+  private compileUpdateField(
+    field: string,
+    value: any,
+    format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
+  ): Atom<T>[] {
     try {
-      result.push(this.resolveFieldName(field));
+      const resolvedField = this.resolveFieldName(field);
+      const updateValue = typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
+        ? this.compileExpression(value)
+        : [this.createArg(value)];
+      return format(resolvedField, updateValue);
     } catch {
       // eslint-disable-next-line no-console
       console.warn(`Field "${field}" is not recognized - is it missing from the schema?`);
       return [];
     }
-    const setValue = typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
-      ? this.compileExpression(value)
-      : [this.createArg(value)];
-    return [...result, "=", ...setValue];
   }
 }
 

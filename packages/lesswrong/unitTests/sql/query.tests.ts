@@ -422,6 +422,12 @@ describe("Query", () => {
       expectedArgs: [{d: {e: "test"}}, 3],
     },
     {
+      name: "can build update with $push",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$push: {b: 2}}),
+      expectedSql: 'UPDATE "TestCollection" SET "b" = ARRAY_APPEND( "b" , $1 ) WHERE "a" = $2',
+      expectedArgs: [2, 3],
+    },
+    {
       name: "can build delete with selector",
       getQuery: () => new DeleteQuery<DbTestObject>(testTable, {a: 3, b: "test"}),
       expectedSql: 'DELETE FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
