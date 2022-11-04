@@ -1199,7 +1199,6 @@ interface CommentsList { // fragment on Comments
   readonly shortform: boolean,
   readonly lastSubthreadActivity: Date,
   readonly moderatorHat: boolean,
-  readonly hideModeratorHat: boolean | null,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly promoted: boolean,
@@ -2043,6 +2042,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags

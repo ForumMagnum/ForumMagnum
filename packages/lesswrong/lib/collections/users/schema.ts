@@ -2049,7 +2049,6 @@ const schema: SchemaType<DbUser> = {
     viewableBy: ['guests'],
     editableBy: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    tooltip: "This will only be shown on your profile page",
     control: "ImageUpload"
   },
   

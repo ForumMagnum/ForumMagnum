@@ -1,6 +1,7 @@
 import type { PartialDeep } from 'type-fest'
 import { invertHexColor, invertColor } from '../colorUtil';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import deepmerge from 'deepmerge';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey
@@ -70,9 +71,20 @@ const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
 //   }
 // (Not real color values, but real syntax.)
 //
-const safeColorFallbacks = `
-.content td[style*="background-color:"], .content table[style*="background-color:"] {
+const safeColorFallbacks = (palette: ThemePalette) => `
+.content td[style*="background-color:"] {
   background-color: black !important;
+}
+.content th[style*="background-color:"] {
+  background-color: ${palette.panelBackground.tableHeading} !important;
+}
+.content table[style*="background-color:"] {
+  background-color: black !important;
+}
+.content td[style*="border:"], .content th[style*="border:"] {
+  border: ${palette.border.tableCell} !important;
+}
+.content table[style*="border:"] {
   border-color: #333 !important;
 }
 `;
@@ -147,7 +159,7 @@ export const darkModeTheme: UserThemeSpecification = {
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     type: "dark",
   },
-  componentPalette: (shadePalette: ThemeShadePalette) => ({
+  componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
       alwaysWhite: '#fff',
       aprilFools: {
@@ -189,8 +201,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
-    ...forumComponentPalette(shadePalette),
-  }),
+  }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
@@ -200,7 +211,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     overrides: forumOverrides(palette),
     rawCSS: [
-      safeColorFallbacks,
+      safeColorFallbacks(palette),
       generateColorOverrides()
     ]
   }),

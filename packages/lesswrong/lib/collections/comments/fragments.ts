@@ -47,7 +47,6 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
-    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted
