@@ -201,8 +201,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
-  const legacyReviewTrigger = getReasonForReview(user)
-  const showLegacyReviewTrigger = legacyReviewTrigger !== 'noReview' && legacyReviewTrigger !== 'alreadyApproved';
+  const reviewTrigger = getReasonForReview(user)
+  const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
@@ -212,7 +212,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <UsersName user={user}/>
         {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showLegacyReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{legacyReviewTrigger}</MetaInfo>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
       <MetaInfo className={classes.referrerLandingPage}>
         {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
