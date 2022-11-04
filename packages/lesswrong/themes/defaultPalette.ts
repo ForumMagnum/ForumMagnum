@@ -429,8 +429,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentMarkerActive: "#fdf05d",
   },
   blockquoteHighlight: {
-    commentHovered: "#ccffcc",
-    individualQuoteHovered: "#ccffcc",
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
   },
   
   commentParentScrollerHover: shades.greyAlpha(.075),

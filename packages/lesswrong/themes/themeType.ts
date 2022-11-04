@@ -372,6 +372,11 @@ declare global {
     blockquoteHighlight: {
       commentHovered: ColorString,
       individualQuoteHovered: ColorString,
+      
+      //CSS added to the <style> node of hovered blockquotes. Used for adding
+      //extra top/bottom padding to extend the highlighted region a few pixels,
+      //which is needed with EA Forum's font but not needed with LW's font.
+      addedBlockquoteHighlightStyles: string,
     },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,

@@ -165,7 +165,10 @@ const SideCommentSingle = ({commentId, post, classes}: {
   
   return <div ref={rootDivRef}>
     {hoverColor && <style>
-      {`.blockquote_${commentId}_1 { background: ${hoverColor}; }`}
+      {`.blockquote_${commentId}_1 {
+          background: ${hoverColor};
+          ${theme.palette.blockquoteHighlight.addedBlockquoteHighlightStyles}
+      }`}
     </style>}
     <CommentWithReplies
       comment={comment} post={post}
