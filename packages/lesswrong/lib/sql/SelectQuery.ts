@@ -62,7 +62,13 @@ export type SelectSqlOptions = Partial<{
   group: any, // TODO typing
 }>
 
-const isAggregate = (value: any) => {
+/**
+ * Grouping with aggregation expressions is a little unintuative in Postgres as we need
+ * to _exclude_ the aggregated field from the GROUP BY clause (for example, `SELECT id,
+ * SUM(amount) AS amount FROM yourtable GROUP BY id`). This function decides which fields
+ * are to be excluded.
+ */
+const isGroupByAggregateExpression = (value: any) => {
   switch (typeof value) {
     case "string":
       return false;
@@ -140,7 +146,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   private appendGroup<U extends {}>(group: U) {
     this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group, false));
     this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
-    const keys = Object.keys(group).filter((key: string) => !isAggregate(group[key]));
+    const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression(group[key]));
     const fields = keys.map((key) =>
       `"${typeof group[key] === "string" && group[key][0] === "$" ? group[key].slice(1) : key}"`
     );
