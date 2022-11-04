@@ -125,6 +125,17 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     }
     setCollaborationMode(mode);
   }
+  const addPasteListener = (editor: any) => {
+    editor.plugins.get( 'ClipboardPipeline' ).on(
+      'inputTransformation',
+      ( _, data ) => {
+        const editorRef = editor;
+        const pasteItems = Array.from(editor.editing.view.createRangeIn( data.content ) )
+        console.log('inputTransformation', data)
+      },
+      { priority: 'high' }
+    );
+  }
 
   return <div>
     {isCollaborative && <EditorTopBar
@@ -155,6 +166,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
         }
+        addPasteListener(editor);
         if (onInit) onInit(editor)
       }}
       config={{

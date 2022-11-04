@@ -96,7 +96,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
               this.props.onChange( event, editor );
             }
           } );
-          
+
           viewDocument.on( 'focus', event => {
             /* istanbul ignore else */
             if ( this.props.onFocus ) {
