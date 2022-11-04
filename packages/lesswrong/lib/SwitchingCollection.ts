@@ -5,6 +5,8 @@ import { getCollectionLockType, setCollectionLockType } from "./mongo2PgLock";
 export type ReadTarget = "mongo" | "pg";
 export type WriteTarget = ReadTarget | "both";
 
+const POLL_RATE_SECONDS = 5;
+
 /**
  * SwitchingCollection is a temporary utility class used to enable zero
  * downtime migrations from Mongo to Postgres by allowing us to switch
@@ -213,6 +215,24 @@ class SwitchingCollection<T extends DbObject> {
     }
     const {collectionName} = this.mongoCollection.options as any;
     await setCollectionLockType(collectionName, this.readTarget);
+  }
+
+  startPolling(): void {
+    const poll = async () => {
+      if (this.readTarget === "pg" && this.writeTarget === "pg") {
+        return;
+      }
+      const {collectionName} = this.mongoCollection.options as any;
+      const newTarget = await getCollectionLockType(collectionName);
+      if (newTarget !== "pg") {
+        setTimeout(poll, POLL_RATE_SECONDS * 1000);
+      } else {
+        this.readTarget = newTarget;
+        this.writeTarget = newTarget;
+      }
+    }
+
+    setTimeout(poll, POLL_RATE_SECONDS * 1000);
   }
 }
 

@@ -95,6 +95,7 @@ async function serverStartup() {
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
       await collection.readFromLock();
+      collection.startPolling();
     }
   }
 

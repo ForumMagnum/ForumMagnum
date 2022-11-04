@@ -139,17 +139,21 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
   const sql = getSqlClientOrThrow();
   try {
     await sql.tx(async (transaction) => {
+      // Create the tables
       await createTables(transaction, collections);
       await createIndexes(transaction, collections);
       await setLogged(transaction, collections, false);
 
+      // Copy the initial data - this can take a *long* time depending on the collection
       const copyStart = new Date();
       await copyData(transaction, collections, 1);
       await setLogged(transaction, collections, true);
 
+      // Copy anything that was inserted during the first copy - this should be ~instant
       const copyStart2 = new Date();
       await copyData(transaction, collections, 2, copyStart);
 
+      // Start writing to Postgres
       for (const collection of collections) {
         collection.setTargets("mongo", "pg");
       }
@@ -157,9 +161,11 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
       // Once more for luck...
       await copyData(transaction, collections, 3, copyStart2);
 
-      for (const collection of collections) {
+      // Fully move to Postgres and write the lock in case the server restarts at some point
+      await Promise.all(collections.map((collection) => {
         collection.setTargets("pg", "pg");
-      }
+        return collection.writeToLock();
+      }));
 
       console.log("\ud83c\udfc1 Done!");
     });
