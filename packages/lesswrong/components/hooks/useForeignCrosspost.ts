@@ -1,8 +1,7 @@
-import { ApolloError, gql, useQuery } from "@apollo/client";
-import { useForeignApolloClient } from "./useForeignApolloClient";
-import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
+import { ApolloError } from "@apollo/client";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
-import type { GetCrosspostResponse } from "../../server/fmCrosspost/types";
+import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
+import { useForeignApolloClient } from "./useForeignApolloClient";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -50,7 +49,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   loading: boolean,
   error?: ApolloError,
   localPost: Post,
-  foreignPost?: FragmentTypes[FragmentTypeName], // GetCrosspostResponse['document']
+  foreignPost?: FragmentTypes[FragmentTypeName],
   combinedPost?: Post & FragmentTypes[FragmentTypeName],
 } => {
   // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
@@ -80,7 +79,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     apolloClient,
   });
 
-  // const foreignPost: GetCrosspostResponse['document'] = data?.['getCrosspost'];
+  // const foreignPost: FragmentTypes[FragmentTypeName] = data?.['getCrosspost'];
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
