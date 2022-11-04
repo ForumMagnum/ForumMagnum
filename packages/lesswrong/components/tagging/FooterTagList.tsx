@@ -11,7 +11,7 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { filter } from 'underscore';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,14 +33,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallText: {
     ...smallTagTextStyle(theme),
-  }
+  },
+  jobLinkRow: {
+    textAlign: 'right',
+    marginTop: 10,
+  },
+  jobLink: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: 8,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.main,
+    fontSize: 14
+  },
+  jobLinkTagName: {
+    textTransform: 'lowercase'
+  },
+  jobLinkIcon: {
+    fontSize: 15,
+  },
 });
 
 export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true, showJobLink}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
@@ -48,7 +66,8 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
-  link?: boolean
+  link?: boolean,
+  showJobLink?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -149,7 +168,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     </span>;
   }
 
-  
+  const firstCoreTag = results?.find(tagRel => tagRel.tag?.core)
  
   return <span className={classes.root}>
     {showCoreTags && <div><CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
@@ -166,6 +185,13 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     { !hidePostTypeTag && postType }
     {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
+    
+    {showJobLink && firstCoreTag?.tag && <div className={classes.jobLinkRow}>
+      <a href={`https://jobs.80000hours.org/?refinementList%5Btags_area%5D%5B0%5D=Biosecurity%20%26%20pandemic%20preparedness`} target="_blank" rel="noopener noreferrer" className={classes.jobLink}>
+        <div>See jobs related to <span className={classes.jobLinkTagName}>{firstCoreTag.tag.name}</span></div>
+        <OpenInNewIcon className={classes.jobLinkIcon} />
+      </a>
+    </div>}
   </span>
 };
 

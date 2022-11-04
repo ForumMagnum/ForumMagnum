@@ -191,7 +191,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    CommentOnSelectionContentWrapper
+    CommentOnSelectionContentWrapper, PostPagePostFooterJobLink
   } = Components
 
   useEffect(() => {
@@ -292,6 +292,7 @@ const PostsPage = ({post, refetch, classes}: {
         </ContentStyles>
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+        {forumTypeSetting.get() === 'EAForum' && <PostPagePostFooterJobLink post={post} />}
       </div>
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
