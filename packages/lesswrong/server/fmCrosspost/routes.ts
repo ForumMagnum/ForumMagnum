@@ -76,9 +76,11 @@ export const addCrosspostRoutes = (app: Application) => {
           .send({error: e.message ?? "An unknown error occurred"})
       }
 
-      if (isLeft(route.responseValidator.decode(response))) {
+      const decodedResponse = route.responseValidator.decode(response);
+
+      if (isLeft(decodedResponse)) {
           // eslint-disable-next-line no-console
-        console.error('Invalid response body when making cross-site GET request', { response });
+        console.error('Invalid response body when making cross-site GET request', { response, errors: decodedResponse.left.flatMap(e => e.context) });
         return res.status(501).send({ error: 'An unknown error occurred' });
       }
 
@@ -92,7 +94,7 @@ export const addCrosspostRoutes = (app: Application) => {
       const validatedRequestBody = route.requestValidator.decode(req.body);
       if (isLeft(validatedRequestBody)) {
         // eslint-disable-next-line no-console
-        console.error('Invalid request body in cross-site request', { body: req.body });
+        console.error('Invalid request body in cross-site POST request', { body: req.body });
         return res.status(400).send({ error: 'Invalid request body' });
       }
       let response: ValidatedPostRoutes[RouteName]['responseValidator']['_A'];
@@ -109,6 +111,7 @@ export const addCrosspostRoutes = (app: Application) => {
       const decodedResponse = route.responseValidator.decode(response);
 
       if (isLeft(decodedResponse)) {
+        // eslint-disable-next-line no-console
         console.error('Invalid response body when making cross-site GET request', { response, errors: decodedResponse.left.flatMap(e => e.context) });
         return res.status(501).send({ error: 'An unknown error occurred' });
       }

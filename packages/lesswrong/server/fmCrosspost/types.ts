@@ -133,133 +133,134 @@ export const GetCrosspostRequestValidator = t.intersection([
 export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
 
 /**
- * Nearly all ields returned from the other forum's internal GraphQL request can be `null`
+ * Nearly all fields returned from the other forum's internal GraphQL request can be `null`
  * That's different from them being missing in the response body
  */
-interface PartialWithNullC<P extends t.Props>
-  extends t.PartialType<
-    P,
-    {
-      [K in keyof P]?: t.TypeOf<P[K]> | null
-    },
-    {
-      [K in keyof P]?: t.OutputOf<P[K]> | null
-    },
-    unknown
-  > {}
+// interface PartialWithNullC<P extends t.Props>
+//   extends t.PartialType<
+//     P,
+//     {
+//       [K in keyof P]?: t.TypeOf<P[K]> | null
+//     },
+//     {
+//       [K in keyof P]?: t.OutputOf<P[K]> | null
+//     },
+//     unknown
+//   > {}
 
-const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
-  return t.partial(Object.fromEntries(
-    Object.entries(props).map(([key, validator]: [string, t.Type<any> | t.PartialType<any>]) => {
-      if ('props' in validator) {
-        return [key, t.union([t.null, partialWithNull(validator.props)])] as const;
-      } else {
-        return [key, t.union([t.null, validator])] as const;
-      }
-    })
-  )) as unknown as PartialWithNullC<P>;
-};
+// const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
+//   return t.partial(Object.fromEntries(
+//     Object.entries(props).map(([key, validator]: [string, t.Type<any> | t.PartialType<any>]) => {
+//       if ('props' in validator) {
+//         return [key, t.union([t.null, partialWithNull(validator.props)])] as const;
+//       } else {
+//         return [key, t.union([t.null, validator])] as const;
+//       }
+//     })
+//   )) as unknown as PartialWithNullC<P>;
+// };
 
 /**
  * Partial, in addition to treating all of the specified fields as optional, is permissive with respect to fields not specified
  * This means that all of the other fields not included in this validator but part of the requested fragment will still come back
  * i.e. tableOfContents, etc.  They simply won't be typed in the type extracted from the validator.
  */
-const CrosspostValidator = t.intersection([
-  // _id, slug, and isEvent are specified separately because `postGetPageUrl` requires those 3 fields to not have `null` as a possible value
-  t.strict({
-    _id: t.string,
-    slug: t.string,  
-  }),
-  t.partial({
-    isEvent: t.boolean,
-  }),
-  partialWithNull({
-    __typename: t.literal('Post'),
-    version: t.string,
-    contents: t.partial({
-      __typename: t.literal('Revision'),
-      _id: t.string,
-      version: t.string,
-      updateType: t.keyof({ patch: null, minor: null, major: null, initial: null }),
-      editedAt: t.string,
-      userId: t.string,
-      html: t.string,
-      wordCount: t.number,
-      htmlHighlight: t.string,
-      plaintextDescription: t.string
-    }),
-    myEditorAccess: t.keyof({ none: null, read: null, comment: null, edit: null }),
-    noIndex: t.boolean,
-    socialPreviewImageUrl: t.string,
-    showModerationGuidelines: t.boolean,
-    activateRSVPs: t.boolean,
-    fmCrosspost: t.partial({
-      isCrosspost: t.boolean,
-      hostedHere: t.boolean,
-      foreignPostId: t.string
-    }),
-    readTimeMinutes: t.number,
-    moderationGuidelines: t.partial({
-      __typename: t.literal('Revision'),
-      _id: t.string,
-      html: t.string
-    }),
-    customHighlight: t.partial({
-      __typename: t.literal('Revision'),
-      _id: t.string,
-      html: t.string
-    }),
-    postedAt: t.string,
-    sticky: t.boolean,
-    metaSticky: t.boolean,
-    stickyPriority: t.number,
-    status: t.number,
-    frontpageDate: t.string,
-    meta: t.boolean,
-    deletedDraft: t.boolean,
-    hasCoauthorPermission: t.boolean,
-    commentCount: t.number,
-    voteCount: t.number,
-    baseScore: t.number,
-    unlisted: t.boolean,
-    score: t.number,
-    isFuture: t.boolean,
-    isRead: t.boolean,
-    lastCommentedAt: t.string,
-    question: t.boolean,
-    hiddenRelatedQuestion: t.boolean,
-    userId: t.string,
-    authorIsUnreviewed: t.boolean,
-    afLastCommentedAt: t.string,
-    afSticky: t.boolean,
-    hideAuthor: t.boolean,
-    submitToFrontpage: t.boolean,
-    shortform: t.boolean,
-    onlyVisibleToLoggedIn: t.boolean,
-    user: t.partial({
-      __typename: t.literal('User'),
-      _id: t.string,
-      slug: t.string,
-      createdAt: t.string,
-      username: t.string,
-      displayName: t.string,
-      isAdmin: t.boolean,
-      htmlBio: t.string,
-      postCount: t.number,
-      afCommentCount: t.number,
-      spamRiskScore: t.number,
-    }),
-    coauthors: t.array(t.string),
-    title: t.string,
-    draft: t.boolean,
-    hideCommentKarma: t.boolean,
-    af: t.boolean,
-  })
-]);
+// const CrosspostValidator = t.intersection([
+//   // _id, slug, and isEvent are specified separately because `postGetPageUrl` requires those 3 fields to not have `null` as a possible value
+//   t.strict({
+//     _id: t.string,
+//     slug: t.string,  
+//   }),
+//   t.partial({
+//     isEvent: t.boolean,
+//   }),
+//   partialWithNull({
+//     __typename: t.literal('Post'),
+//     version: t.string,
+//     contents: t.partial({
+//       __typename: t.literal('Revision'),
+//       _id: t.string,
+//       version: t.string,
+//       updateType: t.keyof({ patch: null, minor: null, major: null, initial: null }),
+//       editedAt: t.string,
+//       userId: t.string,
+//       html: t.string,
+//       wordCount: t.number,
+//       htmlHighlight: t.string,
+//       plaintextDescription: t.string
+//     }),
+//     myEditorAccess: t.keyof({ none: null, read: null, comment: null, edit: null }),
+//     noIndex: t.boolean,
+//     socialPreviewImageUrl: t.string,
+//     showModerationGuidelines: t.boolean,
+//     activateRSVPs: t.boolean,
+//     fmCrosspost: t.partial({
+//       isCrosspost: t.boolean,
+//       hostedHere: t.boolean,
+//       foreignPostId: t.string
+//     }),
+//     readTimeMinutes: t.number,
+//     moderationGuidelines: t.partial({
+//       __typename: t.literal('Revision'),
+//       _id: t.string,
+//       html: t.string
+//     }),
+//     customHighlight: t.partial({
+//       __typename: t.literal('Revision'),
+//       _id: t.string,
+//       html: t.string
+//     }),
+//     postedAt: t.string,
+//     sticky: t.boolean,
+//     metaSticky: t.boolean,
+//     stickyPriority: t.number,
+//     status: t.number,
+//     frontpageDate: t.string,
+//     meta: t.boolean,
+//     deletedDraft: t.boolean,
+//     hasCoauthorPermission: t.boolean,
+//     commentCount: t.number,
+//     voteCount: t.number,
+//     baseScore: t.number,
+//     unlisted: t.boolean,
+//     score: t.number,
+//     isFuture: t.boolean,
+//     isRead: t.boolean,
+//     lastCommentedAt: t.string,
+//     question: t.boolean,
+//     hiddenRelatedQuestion: t.boolean,
+//     userId: t.string,
+//     authorIsUnreviewed: t.boolean,
+//     afLastCommentedAt: t.string,
+//     afSticky: t.boolean,
+//     hideAuthor: t.boolean,
+//     submitToFrontpage: t.boolean,
+//     shortform: t.boolean,
+//     onlyVisibleToLoggedIn: t.boolean,
+//     user: t.partial({
+//       __typename: t.literal('User'),
+//       _id: t.string,
+//       slug: t.string,
+//       createdAt: t.string,
+//       username: t.string,
+//       displayName: t.string,
+//       isAdmin: t.boolean,
+//       htmlBio: t.string,
+//       postCount: t.number,
+//       afCommentCount: t.number,
+//       spamRiskScore: t.number,
+//     }),
+//     coauthors: t.array(t.string),
+//     title: t.string,
+//     draft: t.boolean,
+//     hideCommentKarma: t.boolean,
+//     af: t.boolean,
+//   })
+// ]);
 
 export const GetCrosspostResponseValidator = t.strict({
-  document: CrosspostValidator,
+  // document: CrosspostValidator,
+  document: t.UnknownRecord
 });
 
 

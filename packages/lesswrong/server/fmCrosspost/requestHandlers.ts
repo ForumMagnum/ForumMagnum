@@ -1,40 +1,19 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import { getGraphQLQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
 import { getCollection, Utils } from "../../lib/vulcan-lib";
+import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
 import { createAnonymousContext } from "../vulcan-lib/query";
-import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient"
 import { extractDenormalizedData } from "./denormalizedFields";
-import {
-  ApiError, InvalidUserError, MissingParametersError, UnauthorizedError
-} from "./errors";
-import { PostRouteOf } from "./routes";
+import { InvalidUserError, UnauthorizedError } from "./errors";
+import type { GetRouteOf, PostRouteOf } from "./routes";
 import { signToken, verifyToken } from "./tokens";
 import {
   ConnectCrossposterPayload, ConnectCrossposterPayloadValidator, CrosspostPayloadValidator, UnlinkCrossposterPayloadValidator, UpdateCrosspostPayloadValidator
 } from "./types";
 
-const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
-  async (req: Request, res: Response) => {
-    try {
-      await callback(req, res);
-    } catch (e) {
-      res
-        .status(e instanceof ApiError ? e.code : 501)
-        .send({error: e.message ?? "An unknown error occurred"})
-    }
-  }
-
-const getPostParams = (req: Request, paramNames: string[]): string[] => {
-  const params = paramNames.map((name) => req.body[name]);
-  if (params.some((param) => !param)) {
-    throw new MissingParametersError(paramNames, req.body);
-  }
-  return params;
-}
-
-export const onCrosspostTokenRequest = async (req: Request) => {
+export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
   if (!user) {
     throw new UnauthorizedError();
