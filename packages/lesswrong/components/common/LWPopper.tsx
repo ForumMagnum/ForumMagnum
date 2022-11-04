@@ -65,7 +65,12 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
     createPortal(
       <div
         ref={setPopperElement}
-        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable}, className)}
+        className={classNames({
+          [classes.tooltip]: tooltip,
+          [classes.default]: !tooltip,
+          [classes.noMouseEvents]: !clickable},
+          className
+        )}
         style={styles.popper}
         {...attributes.popper}
       >

@@ -47,6 +47,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const BadgeWrapper = ({commentCount, children}: {
+  commentCount: number,
+  children: React.ReactNode
+}) => {
+  if (commentCount>1) {
+    return <Badge badgeContent={commentCount}>{children}</Badge>
+  } else {
+    return <>{children}</>
+  }
+}
+
 const SideCommentIcon = ({commentIds, post, classes}: {
   commentIds: string[]
   post: PostsDetails
@@ -54,7 +65,6 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 }) => {
   const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
-  const wrapperRef = useRef<HTMLDivElement|null>(null);
   
   const [pinned, setPinned] = useState(false)
   
@@ -62,18 +72,15 @@ const SideCommentIcon = ({commentIds, post, classes}: {
     setPinned(!pinned)
   }
   
-  const commentCount = commentIds.length;
-  const BadgeWrapper = (commentCount>1)
-    ? ({children}) => <Badge badgeContent={commentCount}>{children}</Badge>
-    : ({children}) => <>{children}</>
-  
-  return <div ref={wrapperRef} className={classes.sideCommentIconWrapper}>
+  return <div className={classes.sideCommentIconWrapper}>
     <span {...eventHandlers} onClick={pinOpen} className={classes.sideCommentIcon}>
-      <BadgeWrapper>
+      <BadgeWrapper commentCount={commentIds.length}>
         <CommentIcon className={classNames({[classes.pinned]: pinned})} />
       </BadgeWrapper>
     </span>
-    {(hover || pinned) && <ClickAwayListener onClickAway={() => setPinned(false)}>
+    {(hover || pinned) && <ClickAwayListener onClickAway={() => {
+      setPinned(false)
+    }}>
       <LWPopper
         open={hover || pinned} anchorEl={anchorEl}
         className={classes.popper}
