@@ -27,7 +27,7 @@
     "compounds": [
         {
             "name": "Attach to chrome and server",
-            "configurations": ["Server attach", "Chrome attach"]
+            "configurations": ["Server: attach", "Chrome: attach"]
         }
     ]
 }
