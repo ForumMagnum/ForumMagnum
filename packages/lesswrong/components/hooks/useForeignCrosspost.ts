@@ -1,4 +1,4 @@
-import { ApolloError } from "@apollo/client";
+import { ApolloError, useQuery, gql } from "@apollo/client";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
 import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
 import { useForeignApolloClient } from "./useForeignApolloClient";
