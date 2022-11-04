@@ -4,6 +4,7 @@ import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
 import { setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
+import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
 import { forumTypeSetting } from "../lib/instanceSettings";
@@ -84,8 +85,16 @@ async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Building postgres tables");
   for (const collection of Collections) {
-    if (collection instanceof PgCollection) {
+    if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
       collection.buildPostgresTable();
+    }
+  }
+
+  // eslint-disable-next-line no-console
+  console.log("Initializing switching collections from lock table");
+  for (const collection of Collections) {
+    if (collection instanceof SwitchingCollection) {
+      await collection.readFromLock();
     }
   }
 

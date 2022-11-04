@@ -1,5 +1,6 @@
 import { MongoCollection } from "./mongoCollection";
 import PgCollection from "./sql/PgCollection";
+import { getCollectionLockType, setCollectionLockType } from "./mongo2PgLock";
 
 export type ReadTarget = "mongo" | "pg";
 export type WriteTarget = ReadTarget | "both";
@@ -190,9 +191,28 @@ class SwitchingCollection<T extends DbObject> {
     this.pgCollection = pgCollection;
   }
 
+  buildPostgresTable() {
+    this.pgCollection.buildPostgresTable();
+  }
+
   getName() {
     const base = this.mongoCollection as unknown as CollectionBase<DbObject>;
     return base.collectionName;
+  }
+
+  async readFromLock(): Promise<void> {
+    const {collectionName} = this.mongoCollection.options as any;
+    const type = await getCollectionLockType(collectionName);
+    this.readTarget = type;
+    this.writeTarget = type;
+  }
+
+  async writeToLock(): Promise<void> {
+    if (this.readTarget !== this.writeTarget) {
+      throw new Error("Make sure the read and write target are the same before writing to the lock table");
+    }
+    const {collectionName} = this.mongoCollection.options as any;
+    await setCollectionLockType(collectionName, this.readTarget);
   }
 }
 
