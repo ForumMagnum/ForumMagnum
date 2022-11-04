@@ -11,7 +11,10 @@ import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { Posts } from '../../lib/collections/posts';
+import { useCreate } from '../../lib/crud/withCreate';
+import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -29,13 +32,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   moderation: {
     marginBottom: 12
   },
+  metaInfoRow: {
+    marginBottom: 8,
+    display: "flex",
+    alignItems: "center"
+  },
   vote: {
-    marginBottom: 8
+    marginRight: 8
   }
 })
 
-const SunshineNewPostsItem = ({post, classes}: {
+const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
+  refetch: () => void,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -44,6 +53,11 @@ const SunshineNewPostsItem = ({post, classes}: {
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
+  });
+
+  const { create: createModeratorAction } = useCreate({
+    collectionName: 'ModeratorActions',
+    fragmentName: 'ModeratorActionsDefaultFragment'
   });
   
   const handlePersonal = () => {
@@ -80,7 +94,25 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const lastManualUserFlag = post.user?.moderatorActions.find(action => action.type === MANUAL_FLAG_ALERT);
+  const isUserAlreadyFlagged = post.user?.needsReview || lastManualUserFlag?.active;
+
+  const handleFlagUser = async () => {
+    if (isUserAlreadyFlagged) return;
+
+    await createModeratorAction({
+      data: {
+        type: MANUAL_FLAG_ALERT,
+        userId: post.userId,
+      }
+    });
+    
+    // We need to refetch to make sure the "Flag User" button gets disabled
+    // The backend state only gets changed in a moderator action callback, so apollo doesn't handle it for us by updating the cache
+    refetch();
+  }
+
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -91,7 +123,7 @@ const SunshineNewPostsItem = ({post, classes}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <FooterTagList post={post} showCoreTags/>
-          <div className={classes.buttonRow}>
+            <div className={classes.buttonRow}>
               <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal
               </Button>
@@ -101,13 +133,28 @@ const SunshineNewPostsItem = ({post, classes}: {
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
+              <Button onClick={handleFlagUser} disabled={isUserAlreadyFlagged}>
+                <VisibilityOutlinedIcon className={classes.icon} /> Flag User
+              </Button>
             </div>
             <Typography variant="title" className={classes.title}>
               <Link to={postGetPageUrl(post)}>
                 { post.title }
               </Link>
             </Typography>
-            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
+            <div className={classes.metaInfoRow}>
+              <span className={classes.vote}>
+                <SmallSideVote document={post} collection={Posts}/>
+              </span>
+              <MetaInfo>
+                <FormatDate date={post.postedAt}/>
+              </MetaInfo>
+              {post.commentCount && <MetaInfo>
+                <Link to={`${postGetPageUrl(post)}#comments`}>
+                  {post.commentCount} comments
+                </Link>
+              </MetaInfo>}
+            </div>
             {moderationSection && <div className={classes.moderation}>
               {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>

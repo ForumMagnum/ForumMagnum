@@ -9,6 +9,7 @@ import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { hideScrollBars } from '../../themes/styleUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -89,7 +90,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sortButton: {
     marginLeft: 6,
-    cursor: "pointer"
+    cursor: "pointer",
+    color: theme.palette.grey[600]
   },
   sortSelected: {
     color: theme.palette.grey[900]
@@ -145,7 +147,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentCollapsed: {
     maxHeight: 300,
     overflowY: "scroll",
-    cursor: "pointer"
+    cursor: "pointer",
+    ...hideScrollBars
   },
   contentSummaryRow: {
     display: "flex",
@@ -164,7 +167,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
     
-  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
+  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
   
@@ -208,7 +211,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
-      <div>{user.email}</div>
+      <MetaInfo>
+        {user.email}
+      </MetaInfo>
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
@@ -256,7 +261,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         </span>
     </LWTooltip>
     {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-    { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+    { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null}
   </div>
 
   const commentSummaryRow = <div className={classes.contentSummaryRow}>
@@ -267,6 +272,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
     { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
   </div>
+
+  const renderExpand = posts?.length || comments?.length
   
   return (
     <div className={classes.root}>
@@ -294,11 +301,14 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {(commentsLoading || postsLoading) && <Loading/>}
           {commentSummaryRow}
           <div 
-            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(!contentExpanded)}
+            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </div>
+          {renderExpand && <a className={classes.expandButton} onClick={() => setContentExpanded(!contentExpanded)}>
+            <MetaInfo>Expand</MetaInfo>
+          </a>}
         </div>
         <div className={classes.messagesColumn}>
           <SunshineUserMessages user={user} currentUser={currentUser}/>

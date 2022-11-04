@@ -12,8 +12,10 @@ import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
+import { usedMuiStyles } from './usedMuiStyles';
+import { minify } from 'csso';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -29,6 +31,10 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
+    {Object.keys(usedMuiStyles).map((componentName: string) => {
+      const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
+      return <StyledComponent key={componentName}/>
+    })}
     {componentsWithStylesByPriority.map((componentName: string) => {
       const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
@@ -46,8 +52,9 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
     jssStylesheet,
     ...theme.rawCSS,
   ].join("\n");
-  
-  return Buffer.from(mergedCSS, "utf8");
+
+  const minifiedCSS = minify(mergedCSS).css;
+  return Buffer.from(minifiedCSS, "utf8");
 }
 
 type StylesheetAndHash = {
@@ -67,12 +74,19 @@ const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash
 // Serialized ThemeOptions (string) -> StylesheetAndHash
 const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
 
-export const getMergedStylesheet = (theme: ThemeOptions): {css: Buffer, url: string, hash: string} => {
-  const actualForumType = forumTypeSetting.get();
-  const themeKey = JSON.stringify({
+type ThemeKey = {
+  name: UserThemeName,
+  forumTheme: ForumTypeString,
+}
+
+type MergedStylesheet = {css: Buffer, url: string, hash: string};
+
+export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
+  const themeKeyData: ThemeKey = {
     name: theme.name,
     forumTheme: getForumType(theme),
-  });
+  };
+  const themeKey = JSON.stringify(themeKeyData);
   
   if (!mergedStylesheets[themeKey]) {
     mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);

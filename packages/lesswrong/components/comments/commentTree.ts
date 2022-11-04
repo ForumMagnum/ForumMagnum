@@ -15,5 +15,10 @@ export interface CommentTreeOptions {
   singleLinePostTitle?: boolean,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
-  hideReviewVoteButtons?: boolean
+  hideReviewVoteButtons?: boolean,
+  /**
+   * Which comment in the tree is moderated, if any.
+   * For custom styling in the comment moderation tab.
+   */
+  moderatedCommentId?: string
 }
