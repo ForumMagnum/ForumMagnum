@@ -148,7 +148,9 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   }
 
   private getStarSelector() {
-    return this.table instanceof Table && !this.hasLateralJoin ? `"${this.table.getName()}".*` : "*";
+    return this.table instanceof Table && !this.hasLateralJoin
+      ? `"${this.table.getName()}".*`
+      : "*";
   }
 
   private appendLateralJoin(lookup: Lookup): void {
