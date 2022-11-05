@@ -164,6 +164,9 @@ function initShell()
 }
 
 const compileWithGlobals = (code: string) => {
+  // This is basically just eval() but done in a way that:
+  //   1) Allows us to define our own global scope
+  //   2) Doesn't upset esbuild
   const callable = (async function () {}).constructor(`with(this) { await ${code} }`);
   const scope = {Globals, Vulcan};
   return () => {
