@@ -1,13 +1,7 @@
 import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import InsertQuery from "../../lib/sql/InsertQuery";
 import SelectQuery from "../../lib/sql/SelectQuery";
-import UpdateQuery from "../../lib/sql/UpdateQuery";
-import DeleteQuery from "../../lib/sql/DeleteQuery";
-import CreateTableQuery from "../../lib/sql/CreateTableQuery";
-import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
-import DropIndexQuery from "../../lib/sql/DropIndexQuery";
 
-describe("Query", () => {
+describe("SelectQuery", () => {
   runTestCases([
     {
       name: "can build simple select query",
@@ -190,65 +184,6 @@ describe("Query", () => {
       expectedArgs: [3],
     },
     {
-      name: "can build insert query",
-      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", c: {d: {e: "a" }}, schemaVersion: 1}),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
-      expectedArgs: ["abc", 3, "test", {d: {e: "a" }}, 1],
-    },
-    {
-      name: "can build insert query returning the result",
-      getQuery: () => new InsertQuery<DbTestObject>(
-        testTable,
-        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
-        {},
-        {returnInserted: true},
-      ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) RETURNING *',
-      expectedArgs: ["abc", 3, "test", null, 1],
-    },
-    {
-      name: "can build insert query ignoring conflicts",
-      getQuery: () => new InsertQuery<DbTestObject>(
-        testTable,
-        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
-        {},
-        {conflictStrategy: "ignore"},
-      ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT DO NOTHING',
-      expectedArgs: ["abc", 3, "test", null, 1],
-    },
-    {
-      name: "can build insert query updating on conflicts without selector",
-      getQuery: () => new InsertQuery<DbTestObject>(
-        testTable,
-        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
-        {},
-        {conflictStrategy: "upsert"},
-      ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( _id ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8',
-      expectedArgs: ["abc", 3, "test", null, 1, 3, "test", 1],
-    },
-    {
-      name: "can build insert query updating on conflicts with selector",
-      getQuery: () => new InsertQuery<DbTestObject>(
-        testTable,
-        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
-        {},
-        {conflictStrategy: "upsert", upsertSelector: {b: "test2"}},
-      ),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) ON CONFLICT ( COALESCE("b", \'\') ) DO UPDATE SET "a" = $6 , "b" = $7 , "schemaVersion" = $8',
-      expectedArgs: ["abc", 3, "test2", null, 1, 3, "test2", 1],
-    },
-    {
-      name: "can build insert query with multiple items",
-      getQuery: () => new InsertQuery<DbTestObject>(testTable, [
-        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
-        {_id: "def", a: 4, b: "test2", c: {d: {e: "value"}}, schemaVersion: 1},
-      ]),
-      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) , ( $6 , $7 , $8 , $9 , $10 )',
-      expectedArgs: ["abc", 3, "test", null, 1, "def", 4, "test2", {d: {e: "value"}}, 1],
-    },
-    {
       name: "can build select from a subquery",
       getQuery: () => new SelectQuery(new SelectQuery(testTable, {a: 3}), {b: "test"}),
       expectedSql: 'SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ) A WHERE "b" = $2',
@@ -372,132 +307,6 @@ describe("Query", () => {
       }),
       expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) * 0.000621371) < $3`,
       expectedArgs: [123, 456, 789],
-    },
-    {
-      name: "can build update with $set",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test", c: "another-test"}}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 , "c" = $2 WHERE "a" = $3',
-      expectedArgs: ["test", "another-test", 3],
-    },
-    {
-      name: "can build update with $unset",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE "a" = $2',
-      expectedArgs: [null, 3],
-    },
-    {
-      name: "can build update with $set and $unset",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}, $set: {c: "test"}}),
-      expectedSql: 'UPDATE "TestCollection" SET "c" = $1 , "b" = $2 WHERE "a" = $3',
-      expectedArgs: ["test", null, 3],
-    },
-    {
-      name: "can build update with string selector",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, "some-id", {$set: {b: "test"}}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE "_id" = $2',
-      expectedArgs: ["test", "some-id"],
-    },
-    {
-      name: "can build update with limit and no selector",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {}, {$set: {b: "test"}}, {}, {limit: 1}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" LIMIT $2 FOR UPDATE)',
-      expectedArgs: ["test", 1],
-    },
-    {
-      name: "can build update with limit and selector",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test"}}, {}, {limit: 1}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $2 LIMIT $3 FOR UPDATE )',
-      expectedArgs: ["test", 3, 1],
-    },
-    {
-      name: "can build update that returns the result",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test"}}, {}, {returnUpdated: true}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1 WHERE "a" = $2 RETURNING *',
-      expectedArgs: ["test", 3],
-    },
-    {
-      name: "can build update with $set on a json field",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {c: {d: {e: "test"}}}}),
-      expectedSql: 'UPDATE "TestCollection" SET "c" = $1 WHERE "a" = $2',
-      expectedArgs: [{d: {e: "test"}}, 3],
-    },
-    {
-      name: "can build update with $push",
-      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$push: {b: 2}}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = ARRAY_APPEND( "b" , $1 ) WHERE "a" = $2',
-      expectedArgs: [2, 3],
-    },
-    {
-      name: "can build delete with selector",
-      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {a: 3, b: "test"}),
-      expectedSql: 'DELETE FROM "TestCollection" WHERE ( "a" = $1 AND "b" = $2 )',
-      expectedArgs: [3, "test"],
-    },
-    {
-      name: "can build delete with ID",
-      getQuery: () => new DeleteQuery<DbTestObject>(testTable, "some-id"),
-      expectedSql: 'DELETE FROM "TestCollection" WHERE "_id" = $1',
-      expectedArgs: ["some-id"],
-    },
-    {
-      name: "can build delete with no selector",
-      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {}, {}, {noSafetyHarness: true}),
-      expectedSql: 'DELETE FROM "TestCollection"',
-      expectedArgs: [],
-    },
-    {
-      name: "can build delete with limit",
-      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {a: 3}, {}, {limit: 1}),
-      expectedSql: 'DELETE FROM "TestCollection" WHERE _id IN ( SELECT "_id" FROM "TestCollection" WHERE "a" = $1 LIMIT $2 )',
-      expectedArgs: [3, 1],
-    },
-    {
-      name: "can build create table query",
-      getQuery: () => new CreateTableQuery(testTable),
-      expectedSql: 'CREATE TABLE "TestCollection" (_id VARCHAR(27) PRIMARY KEY , "a" REAL , "b" TEXT , "c" JSONB , "schemaVersion" REAL )',
-      expectedArgs: [],
-    },
-    {
-      name: "can build create table query with 'if not exists'",
-      getQuery: () => new CreateTableQuery(testTable, true),
-      expectedSql: 'CREATE TABLE IF NOT EXISTS "TestCollection" (_id VARCHAR(27) PRIMARY KEY , "a" REAL , "b" TEXT , "c" JSONB , "schemaVersion" REAL )',
-      expectedArgs: [],
-    },
-    {
-      name: "can build create index query",
-      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[0]),
-      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_b" ON "TestCollection" USING btree ( "a" , "b" )',
-      expectedArgs: [],
-    },
-    {
-      name: "can build create index query with json field",
-      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[1]),
-      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_c" ON "TestCollection" USING gin ( "a" , "c" )',
-      expectedArgs: [],
-    },
-    {
-      name: "can build create index query with unique constraint",
-      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[2]),
-      expectedSql: 'CREATE UNIQUE INDEX IF NOT EXISTS "idx_TestCollection_a_b" ON "TestCollection" USING btree ( "a" , COALESCE("b", \'\') )',
-      expectedArgs: [],
-    },
-    {
-      name: "can build create index query with partial filter expression",
-      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[3]),
-      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_b_filtered" ON "TestCollection" USING btree ( "a" , "b" ) WHERE ( "a" > $1 AND "b" = $2 )',
-      expectedArgs: [3, "test"],
-    },
-    {
-      name: "can build drop index query from TableIndex",
-      getQuery: () => new DropIndexQuery(testTable, testTable.getIndexes()[0]),
-      expectedSql: 'DROP INDEX "idx_TestCollection_a_b"',
-      expectedArgs: [],
-    },
-    {
-      name: "can build drop index query from index name",
-      getQuery: () => new DropIndexQuery(testTable, "myIndex"),
-      expectedSql: 'DROP INDEX "myIndex"',
-      expectedArgs: [],
     },
   ]);
 });
