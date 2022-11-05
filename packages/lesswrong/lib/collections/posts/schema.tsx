@@ -1642,6 +1642,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded2Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 2 ? new Date() : null
   },
@@ -1649,6 +1650,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded30Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 30 ? new Date() : null
   },
@@ -1656,6 +1658,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded45Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 45 ? new Date() : null
   },
@@ -1663,6 +1666,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded75Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
@@ -1670,6 +1674,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded125Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 125 ? new Date() : null
   },
@@ -1677,6 +1682,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded200Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 200 ? new Date() : null
   },

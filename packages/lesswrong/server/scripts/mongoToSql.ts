@@ -11,8 +11,12 @@ import util from "util";
 // A place for nasty hacks to live...
 const formatters = {
   Posts: (document: DbPost): DbPost => {
-    if (typeof document.scoreExceeded75Date === "boolean") {
-      document.scoreExceeded75Date = new Date(Date.now());
+    const scoreThresholds = [2, 30, 45, 75, 125, 200];
+    for (const threshold of scoreThresholds) {
+      const prop = `scoreExceeded${threshold}Date`;
+      if (typeof document[prop] === "boolean") {
+        document[prop] = null;
+      }
     }
     if (!document.title) {
       document.title = "";

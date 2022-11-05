@@ -115,6 +115,7 @@ interface DbCommentModeratorAction extends DbObject {
   type: "downvotedCommentAlert"
   endedAt: Date | null
   createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface CommentsCollection extends CollectionBase<DbComment, "Comments"> {
@@ -372,7 +373,9 @@ interface DbModerationTemplate extends DbObject {
   order: number
   deleted: boolean
   createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
+  contents_latest: string
 }
 
 interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "ModeratorActions"> {
@@ -560,12 +563,12 @@ interface DbPost extends DbObject {
   meta: boolean
   hideFrontpageComments: boolean
   maxBaseScore: number
-  scoreExceeded2Date: Date
-  scoreExceeded30Date: Date
-  scoreExceeded45Date: Date
-  scoreExceeded75Date: Date
-  scoreExceeded125Date: Date
-  scoreExceeded200Date: Date
+  scoreExceeded2Date: Date | null
+  scoreExceeded30Date: Date | null
+  scoreExceeded45Date: Date | null
+  scoreExceeded75Date: Date | null
+  scoreExceeded125Date: Date | null
+  scoreExceeded200Date: Date | null
   bannedUserIds: Array<string>
   commentsLocked: boolean
   commentsLockedToAccountsCreatedAfter: Date
