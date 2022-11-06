@@ -11,4 +11,8 @@ export default {
     `<rootDir>/${base}/unitTestSetup.ts`,
   ],
   coverageDirectory: "<rootDir>/unit-coverage/",
+  coveragePathIgnorePatterns: [
+    ...config.coveragePathIgnorePatterns,
+    "/integrationTests/",
+  ],
 };

@@ -11,6 +11,10 @@ export default {
     `<rootDir>/${base}/integrationTestSetup.ts`,
   ],
   coverageDirectory: "<rootDir>/integration-coverage/",
+  coveragePathIgnorePatterns: [
+    ...config.coveragePathIgnorePatterns,
+    "/unitTests/",
+  ],
   maxWorkers: "50%",
   preset: "@shelf/jest-mongodb",
 };

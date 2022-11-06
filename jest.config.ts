@@ -32,6 +32,7 @@ export default {
     "/node_modules/",
     "/migrations/",
     "/manualMigrations/",
+    "/vendor/",
   ],
 
   // Indicates which provider should be used to instrument code for coverage
