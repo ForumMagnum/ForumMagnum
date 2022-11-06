@@ -96,4 +96,16 @@ describe("htmlToDraft", () => {
     const draft2 = htmlToDraftServer(html);
     expect(draft1).toEqual(draft2);
   });
+
+  it("Server-side stable ids are unique", async () => {
+    const html = `
+      <p>This is some sample text.</p>
+      <p>This is some sample text.</p>
+    `;
+    const draft1 = htmlToDraftServer(html);
+    const draft2 = htmlToDraftServer(html);
+    expect(draft1.blocks).toHaveLength(2);
+    expect(typeof draft1.blocks[0].key).toBe("string");
+    expect(draft1.blocks[0].key).not.toBe(draft2.blocks[1].key);
+  });
 });

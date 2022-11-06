@@ -56,10 +56,15 @@ export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   // Apollo's ability to cache things and in some cases can lead to infinite refetch loops. Here, we
   // overwrite these ids with stable md5 hashes (sliced to 5 characters since this is what draftjs
   // likes).
+  const usedIds = new Set<string>();
   for (const block of raw?.blocks ?? []) {
     if (block.key) {
-      const hash = createHash("md5").update(block.text ?? "").digest("hex");
-      block.key = hash.slice(0, 5);
+      let hash = block.text ?? "";
+      do {
+        hash = createHash("md5").update(hash).digest("hex").slice(0, 5);
+      } while (usedIds.has(hash));
+      usedIds.add(hash);
+      block.key = hash;
     }
   }
 
