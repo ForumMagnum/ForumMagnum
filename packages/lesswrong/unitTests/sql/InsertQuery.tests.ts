@@ -1,6 +1,10 @@
 import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
 import InsertQuery from "../../lib/sql/InsertQuery";
 
+jest.mock('../../lib/random', () => ({
+  randomId: () => "some-random-id",
+}));
+
 describe("InsertQuery", () => {
   runTestCases([
     {
@@ -8,6 +12,12 @@ describe("InsertQuery", () => {
       getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "abc", a: 3, b: "test", c: {d: {e: "a" }}, schemaVersion: 1}),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
       expectedArgs: ["abc", 3, "test", {d: {e: "a" }}, 1],
+    },
+    {
+      name: "generates a random insertion ID if _id is missing",
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, {_id: "", a: 3, b: "test", c: {d: {e: "a" }}, schemaVersion: 1}),
+      expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 )',
+      expectedArgs: ["some-random-id", 3, "test", {d: {e: "a" }}, 1],
     },
     {
       name: "can build insert query returning the result",
@@ -61,6 +71,19 @@ describe("InsertQuery", () => {
       ]),
       expectedSql: 'INSERT INTO "TestCollection" ( "_id" , "a" , "b" , "c" , "schemaVersion" ) VALUES ( $1 , $2 , $3 , $4 , $5 ) , ( $6 , $7 , $8 , $9 , $10 )',
       expectedArgs: ["abc", 3, "test", null, 1, "def", 4, "test2", {d: {e: "value"}}, 1],
+    },
+    {
+      name: "insert data must not be empty",
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, []),
+      expectedError: "Empty insert data",
+    },
+    {
+      name: "cannot upsert with multiple items",
+      getQuery: () => new InsertQuery<DbTestObject>(testTable, [
+        {_id: "abc", a: 3, b: "test", schemaVersion: 1},
+        {_id: "def", a: 4, b: "test2", c: {d: {e: "value"}}, schemaVersion: 1},
+      ], {}, {conflictStrategy: "upsert"}),
+      expectedError: "Cannot use conflictStrategy 'upsert' when inserting multiple rows",
     },
   ]);
 });
