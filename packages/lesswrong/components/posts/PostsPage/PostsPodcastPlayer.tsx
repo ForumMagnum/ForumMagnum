@@ -4,14 +4,11 @@ import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { requireCssVar } from '../../../themes/cssVars';
 
-const playerOpacity = requireCssVar("palette", "embeddedPlayer", "opacity");
-
-const styles = (): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   embeddedPlayer: {
     marginBottom: '2px',
-    opacity: playerOpacity,
+    opacity: theme.palette.embeddedPlayer.opacity,
   },
   podcastIconList: {
     paddingLeft: '0px',
