@@ -249,11 +249,3 @@ declare global {
     PostsAnalyticsPage: typeof PostsAnalyticsPageComponent
   }
 }
-
-function useCssVar(arg0: string, arg1: string, arg2: string) {
-  throw new Error('Function not implemented.')
-}
-function useCssVar(arg0: string, arg1: string, arg2: string) {
-  throw new Error('Function not implemented.')
-}
-
