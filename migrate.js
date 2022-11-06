@@ -3,8 +3,8 @@ const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnecti
 const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 
 (async () => {
+  const db = await createSqlConnection();
   try {
-    const db = await createSqlConnection();
     await db.tx(async (transaction) => {
       const migrator = await createMigrator(transaction);
       await migrator.runAsCLI();
@@ -13,7 +13,6 @@ const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta
     console.error("An error occurred while running migrations:", e);
     process.exit(1);
   } finally {
-    // Call exit manually as the Postgres thread pool can stall the exit for ~10 seconds
-    process.exit(0);
+    await db.$pool.end();
   }
 })();
