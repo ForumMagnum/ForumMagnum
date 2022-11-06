@@ -7,14 +7,13 @@ import classNames from 'classnames'
 import React from 'react'
 import { useSingle } from '../../lib/crud/withSingle'
 import { forumTypeSetting } from '../../lib/instanceSettings'
-import { Link } from '../../lib/reactRouterWrapper'
 import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { useTheme } from '../themes/useTheme'
+import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
 
 const isEAForum = forumTypeSetting.get()
@@ -71,11 +70,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const lineStroke = requireCssVar("palette", "primary", "main");
+
 function PostsAnalyticsGraphs (
   { classes, uniqueClientViewsSeries }: { classes: ClassesType, uniqueClientViewsSeries: { date: string, uniqueClientViews: number }[] | undefined }
 ) {
   const { Typography } = Components
-  const theme = useTheme();
   
   if (!uniqueClientViewsSeries?.length || uniqueClientViewsSeries.length === 1) {
     return (<Typography variant="body1" className={classes.notEnoughDataMessage}>
@@ -93,7 +93,7 @@ function PostsAnalyticsGraphs (
       type="monotone"
       dataKey="uniqueClientViews"
       name="Views by unique devices"
-      stroke={theme.palette.primary.main}
+      stroke={lineStroke}
       dot={false}
       activeDot={{ r: 8 }}
     />
@@ -249,3 +249,11 @@ declare global {
     PostsAnalyticsPage: typeof PostsAnalyticsPageComponent
   }
 }
+
+function useCssVar(arg0: string, arg1: string, arg2: string) {
+  throw new Error('Function not implemented.')
+}
+function useCssVar(arg0: string, arg1: string, arg2: string) {
+  throw new Error('Function not implemented.')
+}
+

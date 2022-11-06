@@ -11,6 +11,7 @@ import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
+import { requireCssVar } from '../../themes/cssVars';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
@@ -116,6 +117,8 @@ const formPreviewSizeByImageType = {
     height: 234
   }
 }
+
+const primaryMain = requireCssVar("palette", "primary", "main");
 
 const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
