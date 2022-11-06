@@ -16,7 +16,12 @@ describe("DeleteQuery", () => {
       expectedArgs: ["some-id"],
     },
     {
-      name: "can build delete with no selector",
+      name: "cannot build delete with no selector without 'noSafetyHarness'",
+      getQuery: () => new DeleteQuery<DbTestObject>(testTable, {}, {}),
+      expectedError: "You're trying to delete every record in a table - this is probably incorrect",
+    },
+    {
+      name: "can build delete with no selector with 'noSafetyHarness'",
       getQuery: () => new DeleteQuery<DbTestObject>(testTable, {}, {}, {noSafetyHarness: true}),
       expectedSql: 'DELETE FROM "TestCollection"',
       expectedArgs: [],
