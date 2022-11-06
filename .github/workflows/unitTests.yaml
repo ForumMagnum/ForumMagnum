@@ -23,8 +23,5 @@ jobs:
     - name: yarn install
       run: yarn install
 
-    - name: yarn run lint
-      run: yarn run lint
-
     - name: yarn run test-ci
       run: yarn run test-ci

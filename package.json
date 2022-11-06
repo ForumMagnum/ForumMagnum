@@ -19,7 +19,7 @@
     "start-af-dev-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-af-devdb.json",
     "start-af-prod-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-af-proddb.json",
     "test": "jest --forceExit",
-    "test-ci": "jest --forceExit --ci",
+    "test-ci": "./scripts/test_ci.js",
     "test-watch": "jest --watchAll",
     "ci-cypress-run": "yarn wait-on tcp:3000 && yarn ea-cypress-run",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
