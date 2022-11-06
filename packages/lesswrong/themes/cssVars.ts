@@ -1,13 +1,21 @@
 import type { Theme as MuiThemeType } from '@material-ui/core/styles';
 
+type ThemePathItem = string | number;
+type ThemePath = ThemePathItem[];
+
 const requestedCssVars = new Set<string>();
 
+const parsePathItem = (item: string): ThemePathItem => {
+  const parsed = parseInt(item);
+  return Number.isNaN(parsed) ? item : parsed;
+}
+
 const separator = ":";
-const pathToKey = (path: string[]) => path.join(separator);
-const keyToPath = (key: string) => key.split(separator);
-const keyToVar = (key: string) => "--" + key.replace(new RegExp(separator, "g"), "-");
-const keyToVarRef = (key: string) => `var(${keyToVar(key)})`;
-const getAtPath = <T extends {}>(data: T, path: string[]) => path.length < 2
+const pathToKey = (path: ThemePath): string => path.join(separator);
+const keyToPath = (key: string): ThemePath => key.split(separator).map(parsePathItem);
+const keyToVar = (key: string): string => "--" + key.replace(new RegExp(separator, "g"), "-");
+const keyToVarRef = (key: string): string => `var(${keyToVar(key)})`;
+const getAtPath = <T extends {}>(data: T, path: ThemePath) => path.length < 2
   ? data[path[0]]
   : getAtPath(data[path[0]], path.slice(1));
 
@@ -25,7 +33,7 @@ const getAtPath = <T extends {}>(data: T, path: string[]) => path.length < 2
  * NOTE: `requireCssVar` MUST be called at the top level of a file and not inside a component. It's
  * not a React hook!
  */
-export const requireCssVar = (...path: string[]): string => {
+export const requireCssVar = (...path: ThemePath): string => {
   const key = pathToKey(path);
   requestedCssVars.add(key);
   return keyToVarRef(key);
