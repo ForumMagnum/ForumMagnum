@@ -5,7 +5,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { useTheme } from '../themes/useTheme';
+import { requireCssVar } from '../../themes/cssVars';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -56,15 +56,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
+const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
+const greyBackground = requireCssVar("palette", "grey", 0);
+
 const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const theme = useTheme()
   const tag = hit as AlgoliaTag
-  
+
   const style = tag.bannerImageId ? {
-    background: `linear-gradient(to left, transparent, ${theme.palette.panelBackground.translucent3} 70px, ${theme.palette.grey[0]} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`
+    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`
   } : {}
 
   return <div className={classes.root} style={style}>

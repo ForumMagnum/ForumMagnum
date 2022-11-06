@@ -6,7 +6,7 @@ import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { useNavigation } from '../../lib/routeUtil';
-import { useTheme } from '../themes/useTheme';
+import { requireCssVar } from '../../themes/cssVars';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -66,12 +66,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
+const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
+const greyBackground = requireCssVar("palette", "grey", 0);
+
 const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
   const { history } = useNavigation()
-  const theme = useTheme()
 
   const { FormatDate, UserNameDeleted } = Components
   const sequence: AlgoliaSequence = hit
@@ -81,7 +83,7 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
   }
   
   const style = sequence.bannerImageId ? {
-    background: `linear-gradient(to left, transparent, ${theme.palette.panelBackground.translucent3} 70px, ${theme.palette.grey[0]} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId})`
+    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId})`
   } : {}
 
   return <div className={classes.root} style={style}>

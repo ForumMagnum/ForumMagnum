@@ -10,6 +10,7 @@ import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
+import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,6 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
     position: "relative",
     top: 3
+  },
+  legacyReviewTrigger: {
+    marginLeft: 6
+  },
+  referrerLandingPage: {
+    display: 'flex'
   },
   hoverPostIcon: {
     height: 16,
@@ -166,7 +173,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-    
+  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
@@ -190,13 +198,13 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
   
-  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
-  
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
+
+  const reviewTrigger = getReasonForReview(user)
+  const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
 
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
@@ -204,7 +212,12 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <UsersName user={user}/>
         {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
+      <MetaInfo className={classes.referrerLandingPage}>
+        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+      </MetaInfo>
     </div>
 
     <div className={classes.row}>

@@ -428,6 +428,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentMarker: "#fef7a9",
     commentMarkerActive: "#fdf05d",
   },
+  embeddedPlayer: {
+    opacity: 1,
+  },
   
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,

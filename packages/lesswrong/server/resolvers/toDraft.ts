@@ -3,6 +3,7 @@ import { sanitize } from '../vulcan-lib/utils';
 import { markdownToHtmlNoLaTeX } from '../editor/conversionUtils';
 import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
+import { createHash } from "crypto";
 
 function domBuilder(html: string) {
   const jsdom = new JSDOM(html)
@@ -36,7 +37,26 @@ export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   // Draft.Model.ImmutableData.ContentState. AFAICT this is the DefinitelyTyped
   // people not being careful with the const plague, not a real issue.
   // @ts-ignore
-  return convertToRaw(result)
+  const raw = convertToRaw(result);
+
+  // draft-convert adds randomly generated ids to each block which means that any time this is used
+  // inside a graphql resolver the result will be unstable between refetches. This totally destroys
+  // Apollo's ability to cache things and in some cases can lead to infinite refetch loops. Here, we
+  // overwrite these ids with stable md5 hashes (sliced to 5 characters since this is what draftjs
+  // likes).
+  const usedIds = new Set<string>();
+  for (const block of raw?.blocks ?? []) {
+    if (block.key) {
+      let hash = block.text ?? "";
+      do {
+        hash = createHash("md5").update(hash).digest("hex").slice(0, 5);
+      } while (usedIds.has(hash));
+      usedIds.add(hash);
+      block.key = hash;
+    }
+  }
+
+  return raw;
 }
 
 export function dataToDraftJS(data: any, type: string) {

@@ -2393,6 +2393,8 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly reviewedByUserId: string,
   readonly reviewedAt: Date,
   readonly signUpReCaptchaRating: number,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly profileImageId: string,
   readonly needsReview: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
