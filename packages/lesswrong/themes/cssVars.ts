@@ -29,6 +29,8 @@ const getAtPath = <T extends {}>(data: T, path: ThemePath) => path.length < 2
  * For instance, if we want to use the theme value `theme.palette.panelBackground.dim`, we can do:
  * const background = requireCssVar("palette", "panelBackground", "dim");
  * const MyComponent = () => <div style={{background}} />;
+ * This will set the style to `{background: var(--palette-panelBackground-dim)}` which will be
+ * read from a theme-dependant stylesheet.
  *
  * NOTE: `requireCssVar` MUST be called at the top level of a file and not inside a component. It's
  * not a React hook!
