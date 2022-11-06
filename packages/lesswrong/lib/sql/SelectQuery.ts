@@ -2,6 +2,7 @@ import Query, { Atom } from "./Query";
 import Table from "./Table";
 import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
+import { inspect } from "util";
 
 export type SimpleLookup = {
   from: string,
@@ -58,8 +59,12 @@ export type SelectSqlOptions = Partial<{
   forUpdate: boolean,
   /**
    * Perform a Mongo aggregation $group, which is translated to a Postgres `GROUP BY`.
+   * Because this emulates Mongo's behaviour, the fields defined here also act as an
+   * implicit projection. It will also overwrite the selectors - to use a selector use
+   * a combination of $match and $group stages in a pipeline rather than using this
+   * directly.
    */
-  group: any, // TODO typing
+  group: Record<string, any>, // TODO Better typing
 }>
 
 /**
@@ -68,7 +73,7 @@ export type SelectSqlOptions = Partial<{
  * SUM(amount) AS amount FROM yourtable GROUP BY id`). This function decides which fields
  * are to be excluded.
  */
-const isGroupByAggregateExpression = (value: any) => {
+export const isGroupByAggregateExpression = (value: any) => {
   switch (typeof value) {
     case "string":
       return false;
@@ -78,7 +83,7 @@ const isGroupByAggregateExpression = (value: any) => {
       }
       return true;
     default:
-      return true;
+      throw new Error(`Invalid group-by value: ${inspect(value)}`);
   }
 }
 
@@ -133,7 +138,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
 
     if (options) {
       if (options.collation) {
-        throw new Error("Collation not yet implemented")
+        throw new Error("Collation not implemented")
       }
       this.appendOptions(options);
     }
@@ -172,7 +177,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
       this.syntheticFields[as] = new UnknownType();
     } else if ("let" in lookup && "pipeline" in lookup) {
-      throw new Error("Pipeline joins are not being implemented - write raw SQL");
+      throw new Error("Pipeline joins are not implemented - write raw SQL");
     } else {
       throw new Error("Invalid $lookup");
     }

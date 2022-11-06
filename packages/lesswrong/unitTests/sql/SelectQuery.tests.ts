@@ -1,5 +1,5 @@
 import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import SelectQuery from "../../lib/sql/SelectQuery";
+import SelectQuery, { isGroupByAggregateExpression } from "../../lib/sql/SelectQuery";
 
 describe("SelectQuery", () => {
   runTestCases([
@@ -154,9 +154,15 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
-      name: "can build select query with sort",
+      name: "can build select query with descending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select query with ascending sort",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: 1}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC',
       expectedArgs: [3],
     },
     {
@@ -308,5 +314,59 @@ describe("SelectQuery", () => {
       expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) * 0.000621371) < $3`,
       expectedArgs: [123, 456, 789],
     },
+    {
+      name: "can build select with group by",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {}, {}, {group: {b: "$b"}}),
+      expectedSql: 'SELECT "b" AS "b" FROM "TestCollection" GROUP BY "b"',
+      expectedArgs: [],
+    },
+    {
+      name: "can build select with group by using aggregate function",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {}, {}, {group: {a1: "$a", bSum: {$sum: "$b"}}}),
+      expectedSql: 'SELECT "a" AS "a1" , SUM( "b" ) AS "bSum" FROM "TestCollection" GROUP BY "a"',
+      expectedArgs: [],
+    },
+    {
+      name: "can build select using a custom join hook",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {joinHook: 'JOIN "TestCollection2" on "b" = "c"'}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" JOIN "TestCollection2" on "b" = "c" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "collation is not implemented",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple"}}),
+      expectedError: "Collation not implemented",
+    },
+    {
+      name: "pipeline lookups are not implemented",
+      getQuery: () => new SelectQuery(testTable, {}, {}, {lookup: {
+        from: "SomeCollection",
+        let: {k: "$a"},
+        pipeline: [],
+        as: "a",
+      }}),
+      expectedError: "Pipeline joins are not implemented",
+    },
   ]);
+
+  describe("isGroupByAggregateExpression", () => {
+    it("Null is not a group-by aggregates", () => {
+      expect(isGroupByAggregateExpression(null)).toBe(false);
+    });
+    it("Strings are never group-by aggregates", () => {
+      expect(isGroupByAggregateExpression("a")).toBe(false);
+      expect(isGroupByAggregateExpression("$a")).toBe(false);
+    });
+    it("$first is not a group-by aggregates", () => {
+      expect(isGroupByAggregateExpression({$first: "$a"})).toBe(false);
+    });
+    it("Objects are group-by aggregates", () => {
+      expect(isGroupByAggregateExpression({$sum: "$a"})).toBe(true);
+      expect(isGroupByAggregateExpression({$avg: "$a"})).toBe(true);
+      expect(isGroupByAggregateExpression({$count: "$a"})).toBe(true);
+    });
+    it("Other values throw an error", () => {
+      expect(() => isGroupByAggregateExpression(false)).toThrowError();
+    });
+  });
 });

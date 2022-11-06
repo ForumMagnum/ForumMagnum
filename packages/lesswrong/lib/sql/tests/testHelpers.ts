@@ -70,21 +70,32 @@ registerCollection(TestCollection2);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 
+export type SuccessResult = {
+  expectedSql: string,
+  expectedArgs: any[],
+}
+
+export type ErrorResult = {
+  expectedError: string,
+}
+
 export type TestCase = {
   name: string,
   getQuery: () => Query<DbTestObject>,
-  expectedSql: string,
-  expectedArgs: any[],
-};
+} & (SuccessResult | ErrorResult);
 
 export const runTestCases = (tests: TestCase[]) => {
   for (const test of tests) {
     it(test.name, () => {
-      const query = test.getQuery();
-      const {sql, args} = query.compile();
-      const normalizedSql = normalizeWhitespace(sql);
-      expect(normalizedSql).toBe(test.expectedSql);
-      expect(args).toStrictEqual(test.expectedArgs);
+      if ("expectedError" in test) {
+        expect(test.getQuery).toThrowError(test.expectedError);
+      } else {
+        const query = test.getQuery();
+        const {sql, args} = query.compile();
+        const normalizedSql = normalizeWhitespace(sql);
+        expect(normalizedSql).toBe(test.expectedSql);
+        expect(args).toStrictEqual(test.expectedArgs);
+      }
     });
   }
 }
