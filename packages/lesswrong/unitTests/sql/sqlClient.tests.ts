@@ -15,7 +15,7 @@ const createMockClient = (): SqlClient => {
 }
 
 describe("sqlClient", () => {
-  it("can get, set and close client", () => {
+  it("can get, set and close client", async () => {
     const client = createMockClient();
 
     expect(getSqlClient()).toBe(null);
@@ -26,7 +26,7 @@ describe("sqlClient", () => {
     expect(getSqlClientOrThrow()).toBe(client);
 
     expect(client.$pool.end).not.toHaveBeenCalled();
-    closeSqlClient(client);
+    await closeSqlClient(client);
     expect(client.$pool.end).toHaveBeenCalled();
     expect(getSqlClient()).toBe(null);
     expect(getSqlClientOrThrow).toThrowError();
