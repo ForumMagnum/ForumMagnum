@@ -21,7 +21,7 @@ export type BulkWriterResult = {
 class BulkWriter<T extends DbObject> {
   private queries: Query<T>[] = [];
 
-  constructor(table: Table, operations: MongoBulkWriteOperations<T>, _options: MongoBulkWriteOptions) {
+  constructor(table: Table, operations: MongoBulkWriteOperations<T>, _options?: MongoBulkWriteOptions) {
     const inserts: MongoBulkInsert<T>[] = [];
     const updateOnes: MongoBulkUpdate<T>[] = [];
     const updateManys: MongoBulkUpdate<T>[] = [];
@@ -76,13 +76,17 @@ class BulkWriter<T extends DbObject> {
     if (deleteOnes.length) {
       this.queries = this.queries.concat(deleteOnes.map(({filter}) => new DeleteQuery(table, filter, {}, {limit: 1})));
     }
-    if (!deleteManys.length) {
+    if (deleteManys.length) {
       this.queries = this.queries.concat(deleteManys.map(({filter}) => new DeleteQuery(table, filter, {})));
     }
     if (replaces.length) {
       // Currently not used in our code base and it's complicated to implement...
       throw new Error("replaceOne in bulkWrite not implemented");
     }
+  }
+
+  getQueries() {
+    return this.queries;
   }
 
   async execute(client: SqlClient): Promise<BulkWriterResult> {
