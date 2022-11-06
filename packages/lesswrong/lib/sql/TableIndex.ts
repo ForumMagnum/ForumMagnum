@@ -67,6 +67,10 @@ class TableIndex {
     }
     return true;
   }
+
+  equalsTableIndex(other: TableIndex) {
+    return this.equals(other.fields, other.options);
+  }
 }
 
 export default TableIndex;
