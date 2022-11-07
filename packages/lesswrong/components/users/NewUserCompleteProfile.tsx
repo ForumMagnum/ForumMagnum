@@ -9,6 +9,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
 
+// TODO Get the correct links
+const tosUrl = "https://www.google.com/";
+const ccByUrl = "https://creativecommons.org/licenses/by/2.0/";
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.default,
@@ -21,6 +25,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 6,
     "& .MuiTypography-body1": {
       color: theme.palette.text.normal,
+      "& a": {
+        color: theme.palette.primary.main,
+      },
     },
   },
   sectionHelperText: {
@@ -49,6 +56,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
+  const [acceptedTos, setAcceptedTos] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
     mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String) {
@@ -145,22 +153,42 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
           inputRef={emailInput}
         />
       </div>}
-      
-      {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
-        </Typography>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={subscribeToDigest}
-              onChange={event => setSubscribeToDigest(event.target.checked)}
+
+      {forumTypeSetting.get() === 'EAForum' &&
+        <>
+          <div className={classes.section}>
+            <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
+            <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+              The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={subscribeToDigest}
+                  onChange={event => setSubscribeToDigest(event.target.checked)}
+                />
+              }
+              label='Yes, subscribe me to EA Forum digest emails'
             />
-          }
-          label='Yes, subscribe me to EA Forum digest emails'
-        />
-      </div>}
+          </div>
+          <div className={classes.section}>
+            <Typography variant='display1' gutterBottom>Terms of Use</Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={acceptedTos}
+                  onChange={event => setAcceptedTos(event.target.checked)}
+                />
+              }
+              label={<>
+                I agree to the <a href={tosUrl} target="_blank">terms of use</a>, including my content
+                being available under a <a href={ccByUrl} target="_blank">CC-BY</a> license
+              </>}
+            />
+          </div>
+        </>
+      }
+
       {/* TODO: Something about bio? */}
       <div className={classes.submitButtonSection}>
         <Button
