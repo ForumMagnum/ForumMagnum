@@ -1,9 +1,18 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { forumTypeSetting, tosUrlSetting, licenseUrlSetting } from "../../lib/instanceSettings";
+import { forumTypeSetting } from "../../lib/instanceSettings";
 import Button from "@material-ui/core/Button";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
+import { Link } from "react-router-dom";
+
+export const TosLink: FC = ({children}) =>
+  <Link to="/termsOfUse">{children ?? "terms of use"}</Link>
+
+export const LicenseLink: FC = ({children}) =>
+  <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer">
+    {children ?? "CC-BY"}
+  </a>
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -51,10 +60,8 @@ const PostsAcceptTos = ({currentUser, classes}: {
   return (
     <div className={classes.root}>
       <Components.Typography variant="body2">
-        Before you can publish this post you must agree to the{" "}
-        <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,
-        including your content being available under a{" "}
-        <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license
+        Before you can publish this post you must agree to the <TosLink /> including
+        your content being available under a <LicenseLink /> license
       </Components.Typography>
       <Button variant="contained" color="primary" className={classes.button} onClick={onAccept} disabled={loading}>
         {loading ? <Components.Loading /> : "I agree"}

@@ -141,10 +141,6 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
-// ToS and license
-export const tosUrlSetting = new PublicInstanceSetting<string>('tosUrl', '/#', "optional");
-export const licenseUrlSetting = new PublicInstanceSetting<string>('licenseUrl', '/#', "optional");
-
 // FM Crossposting
 export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
 export const fmCrosspostBaseUrlSetting = new PublicInstanceSetting<string|null>("fmCrosspost.baseUrl", null, "optional");

@@ -4,10 +4,11 @@ import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 import React, { useState, useRef } from "react";
-import { forumTypeSetting, siteNameWithArticleSetting, tosUrlSetting, licenseUrlSetting } from "../../lib/instanceSettings";
+import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
+import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -172,9 +173,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       <div className={classes.submitButtonSection}>
         {forumTypeSetting.get() === "EAForum" &&
           <Typography variant="body1" className={classes.sectionHelperText} gutterBottom>
-            I agree to the <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,{" "}
-            including my content being available under a{" "}
-            <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license
+            I agree to the <TosLink />, including my content being available
+            under a <LicenseLink /> license
           </Typography>
         }
         <Button
