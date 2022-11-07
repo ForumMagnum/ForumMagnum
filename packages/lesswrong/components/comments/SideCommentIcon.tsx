@@ -39,6 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   popper: {
     width: 350,
+    zIndex: theme.zIndexes.sideCommentBox,
   },
   sideCommentHover: {
   },

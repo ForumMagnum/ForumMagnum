@@ -42,6 +42,7 @@ export const zIndexes = {
   footerNav: 4,
   textbox: 5,
   styledMapPopup: 6,
+  sideCommentBox: 900,
   nextUnread: 999,
   sunshineSidebar: 1000,
   postItemMenu: 1001,
