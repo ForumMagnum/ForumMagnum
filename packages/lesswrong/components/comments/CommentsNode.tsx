@@ -115,6 +115,8 @@ const CommentsNode = ({
 
     if (forceSingleLine)
       return true;
+    if (treeOptions.isSideComment && nestingLevel>1)
+      return true;
 
     return (
       !expandAllThreads &&
