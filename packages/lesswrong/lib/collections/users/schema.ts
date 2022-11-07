@@ -749,6 +749,17 @@ const schema: SchemaType<DbUser> = {
     // public settings aren't been loaded yet.
   },
 
+  acceptedTos: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    defaultValue: false,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
