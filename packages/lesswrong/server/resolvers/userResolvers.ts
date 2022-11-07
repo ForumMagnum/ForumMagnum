@@ -109,7 +109,7 @@ addGraphQLResolvers({
     },
     async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
       if (!currentUser) {
-        throw new Error('Cannot accept terms of use');
+        throw new Error('Cannot accept terms of use while not logged in');
       }
       const updatedUser = (await updateMutator({
         collection: Users,
