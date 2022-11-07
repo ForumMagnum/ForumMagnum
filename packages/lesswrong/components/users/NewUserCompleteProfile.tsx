@@ -4,11 +4,10 @@ import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 import React, { useState, useRef } from "react";
-import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { forumTypeSetting, siteNameWithArticleSetting, tosUrlSetting, licenseUrlSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
-import { tosUrlSetting, licenseUrlSetting } from "../../lib/instanceSettings";
 import classnames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
