@@ -38,6 +38,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly petrovOptOut: boolean | null,
+  readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
