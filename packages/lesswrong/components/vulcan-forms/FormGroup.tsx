@@ -5,7 +5,7 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
-import { useLocation, withLocation } from '../../lib/routeUtil';
+import { withLocation } from '../../lib/routeUtil';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
