@@ -2046,6 +2046,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
@@ -2396,6 +2397,8 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly reviewedByUserId: string,
   readonly reviewedAt: Date,
   readonly signUpReCaptchaRating: number,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly profileImageId: string,
   readonly needsReview: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,

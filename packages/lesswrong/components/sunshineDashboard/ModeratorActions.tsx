@@ -14,7 +14,7 @@ import moment from 'moment';
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
-import { isLowAverageKarmaContent } from '../../lib/collections/moderatorActions/helpers';
+import { getCurrentContentCount, isLowAverageKarmaContent, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { sortBy } from 'underscore';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
@@ -69,17 +69,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 });
-
-interface UserContentCountPartial {
-  postCount?: number,
-  commentCount?: number
-}
-
-export function getCurrentContentCount(user: UserContentCountPartial) {
-  const postCount = user.postCount ?? 0
-  const commentCount = user.commentCount ?? 0
-  return postCount + commentCount
-}
 
 export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: number) {
   return getCurrentContentCount(user) + contentCount

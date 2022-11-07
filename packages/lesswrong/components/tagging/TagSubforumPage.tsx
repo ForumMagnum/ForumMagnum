@@ -14,6 +14,7 @@ import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instan
 import { useDialog } from "../common/withDialog";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
+import { SECTION_WIDTH } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,10 +69,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   aside: {
-    width: 380,
+    maxWidth: 380,
+    flexBasis: 0,
+    flexGrow: 1,
     [theme.breakpoints.down("md")]: {
       display: "none",
     },
+  },
+  fullWidth: {
+    width: `min(${SECTION_WIDTH}px, 100%)`,
   },
   welcomeBox: {
     padding: 16,

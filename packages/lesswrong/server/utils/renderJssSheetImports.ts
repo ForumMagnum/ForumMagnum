@@ -31,10 +31,14 @@ const renderLinkMainSheet = (url: string): string =>
 const renderImportForColorScheme = (url: string, colorScheme: string): string =>
   `@import url("${url}") screen and (prefers-color-scheme: ${colorScheme});\n`;
 
+const renderImportForPrint = (url: string): string =>
+  `@import url("${url}") print;\n`;
+
 export const renderAutoStyleImport = () => {
   const light = renderImportForColorScheme(stylesheetUrls.light, "light");
   const dark = renderImportForColorScheme(stylesheetUrls.dark, "dark");
-  return `<style id="${stylesId}">${light}${dark}</style>`;
+  const print = renderImportForPrint(stylesheetUrls.light);
+  return `<style id="${stylesId}">${light}${dark}${print}</style>`;
 }
 
 export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): string => {
