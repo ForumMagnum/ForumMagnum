@@ -51,7 +51,7 @@ const PostsAcceptTos = ({currentUser, classes}: {
   return (
     <div className={classes.root}>
       <Components.Typography variant="body2">
-        To continue you must agree to the{" "}
+        Before you can publish this post you must agree to the{" "}
         <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,
         including your content being available under a{" "}
         <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license

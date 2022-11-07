@@ -23,7 +23,7 @@ const MINIMUM_APPROVAL_KARMA = 5
 if (forumTypeSetting.get() === "EAForum") {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
     if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
-      throw new Error("You must accept the terms of use before you can publish posts");
+      throw new Error("You must accept the terms of use before you can publish this post");
     }
     return post;
   }
