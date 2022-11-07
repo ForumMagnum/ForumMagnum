@@ -29,6 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
         color: theme.palette.primary.main,
       },
     },
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.grey[600],
+    },
   },
   sectionHelperText: {
     color: theme.palette.grey[600],
@@ -37,7 +40,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   submitButtonSection: {
     marginTop: theme.spacing.unit * 3
-  }
+  },
+  error: {
+    color: theme.palette.text.error,
+    fontFamily: theme.typography.fontFamily,
+  },
 });
 
 type NewUserCompleteProfileProps = {
@@ -57,10 +64,11 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [acceptedTos, setAcceptedTos] = useState(false)
+  const [tosError, setTosError] = useState('')
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
-    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String) {
-      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email) {
+    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
+      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email, acceptedTos: $acceptedTos) {
         username
         slug
         displayName
@@ -86,11 +94,20 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
     // if (usernameIsUnique) ...
     setValidationError('')
   }
-  
+
   async function handleSave() {
     try {
+      if (forumTypeSetting.get() === "EAForum") {
+        if (acceptedTos) {
+          setTosError("");
+        } else {
+          setTosError("You must accept the terms of use to continue");
+          return;
+        }
+      }
+
       if (validationError) return
-      
+
       // TODO: loading spinner while running
       await updateUser({variables: {
         username,
@@ -98,7 +115,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         // We do this fancy spread so we avoid setting the email to an empty
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
-        ...(!getUserEmail(currentUser) && {email: emailInput.current?.value})
+        ...(!getUserEmail(currentUser) && {email: emailInput.current?.value}),
+        acceptedTos,
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
@@ -185,17 +203,23 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
                 being available under a <a href={ccByUrl} target="_blank">CC-BY</a> license
               </>}
             />
+            {tosError &&
+              <Typography variant='body1' gutterBottom className={classes.error}>
+                {tosError}
+              </Typography>
+            }
           </div>
         </>
       }
 
       {/* TODO: Something about bio? */}
+
       <div className={classes.submitButtonSection}>
         <Button
           onClick={handleSave}
           color='primary'
           variant='outlined'
-          disabled={!!validationError}
+          disabled={!!validationError || (forumTypeSetting.get() === "EAForum" && !acceptedTos)}
         >
           Save
         </Button>
