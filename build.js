@@ -118,6 +118,8 @@ build({
 let serverCli = ["node", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
+if (!isProduction)
+  serverCli.splice(1, 0, "--inspect");
 
 build({
   entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
