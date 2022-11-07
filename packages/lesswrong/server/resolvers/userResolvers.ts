@@ -63,6 +63,10 @@ addGraphQLResolvers({
       if (!currentUser) {
         throw new Error('Cannot change username without being logged in')
       }
+      // Check they accepted the terms of use
+      if (forumTypeSetting.get() === "EAForum" && !acceptedTos) {
+        throw new Error("You must accept the terms of use to continue");
+      }
       // Only for new users. Existing users should need to contact support to
       // change their usernames
       if (!currentUser.usernameUnset) {
@@ -84,10 +88,6 @@ addGraphQLResolvers({
       // Check for valid email
       if (email && !SimpleSchema.RegEx.Email.test(email)) {
         throw new Error('Invalid email')
-      }
-      // Check they accepted the terms of use
-      if (forumTypeSetting.get() === "EAForum" && !acceptedTos) {
-        throw new Error("You must accept the terms of use to continue");
       }
       const updatedUser = (await updateMutator({
         collection: Users,

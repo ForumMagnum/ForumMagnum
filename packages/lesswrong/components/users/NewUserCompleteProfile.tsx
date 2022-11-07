@@ -8,7 +8,6 @@ import { forumTypeSetting, siteNameWithArticleSetting, tosUrlSetting, licenseUrl
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
-import classnames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,9 +21,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 6,
     "& .MuiTypography-body1": {
       color: theme.palette.text.normal,
-      "& a": {
-        color: theme.palette.primary.main,
-      },
     },
     "& .MuiFormHelperText-root": {
       color: theme.palette.grey[600],
@@ -33,14 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   sectionHelperText: {
     color: theme.palette.grey[600],
     fontStyle: 'italic',
-    fontSize: '1rem'
+    fontSize: '1rem',
+    "& a": {
+      color: theme.palette.primary.main,
+    },
   },
   submitButtonSection: {
     marginTop: theme.spacing.unit * 3
-  },
-  error: {
-    color: theme.palette.text.error,
-    fontFamily: theme.typography.fontFamily,
   },
 });
 
@@ -60,8 +55,6 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
-  const [acceptedTos, setAcceptedTos] = useState(false)
-  const [tosError, setTosError] = useState('')
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
     mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
@@ -94,15 +87,6 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
 
   async function handleSave() {
     try {
-      if (forumTypeSetting.get() === "EAForum") {
-        if (acceptedTos) {
-          setTosError("");
-        } else {
-          setTosError("You must accept the terms of use to continue");
-          return;
-        }
-      }
-
       if (validationError) return
 
       // TODO: loading spinner while running
@@ -113,7 +97,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
         ...(!getUserEmail(currentUser) && {email: emailInput.current?.value}),
-        acceptedTos,
+        acceptedTos: forumTypeSetting.get() === "EAForum",
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
@@ -169,55 +153,35 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         />
       </div>}
 
-      {forumTypeSetting.get() === 'EAForum' &&
-        <>
-          <div className={classes.section}>
-            <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
-            <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-              The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
-            </Typography>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={subscribeToDigest}
-                  onChange={event => setSubscribeToDigest(event.target.checked)}
-                />
-              }
-              label='Yes, subscribe me to EA Forum digest emails'
+      {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
+        <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
+        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+          The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
+        </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={subscribeToDigest}
+              onChange={event => setSubscribeToDigest(event.target.checked)}
             />
-          </div>
-          <div className={classnames(classes.section, "new-user-accept-tos")}> {/* Extra class used by Cypress */}
-            <Typography variant='display1' gutterBottom>Terms of Use</Typography>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={acceptedTos}
-                  onChange={event => setAcceptedTos(event.target.checked)}
-                />
-              }
-              label={<>
-                I agree to the <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,{" "}
-                including my content being available under a{" "}
-                <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license
-              </>}
-            />
-            {tosError &&
-              <Typography variant='body1' gutterBottom className={classes.error}>
-                {tosError}
-              </Typography>
-            }
-          </div>
-        </>
-      }
-
+          }
+          label='Yes, subscribe me to EA Forum digest emails'
+        />
+      </div>}
       {/* TODO: Something about bio? */}
-
       <div className={classes.submitButtonSection}>
+        {forumTypeSetting.get() === "EAForum" &&
+          <Typography variant="body1" className={classes.sectionHelperText} gutterBottom>
+            I agree to the <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,{" "}
+            including my content being available under a{" "}
+            <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license
+          </Typography>
+        }
         <Button
           onClick={handleSave}
           color='primary'
           variant='outlined'
-          disabled={!!validationError || (forumTypeSetting.get() === "EAForum" && !acceptedTos)}
+          disabled={!!validationError}
         >
           Save
         </Button>
