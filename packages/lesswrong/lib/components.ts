@@ -259,6 +259,7 @@ importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBl
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
+importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));

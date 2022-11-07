@@ -8,10 +8,7 @@ import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instance
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
-
-// TODO Get the correct links
-const tosUrl = "https://www.google.com/";
-const ccByUrl = "https://creativecommons.org/licenses/by/2.0/";
+import { tosUrlSetting, licenseUrlSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -199,8 +196,9 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
                 />
               }
               label={<>
-                I agree to the <a href={tosUrl} target="_blank">terms of use</a>, including my content
-                being available under a <a href={ccByUrl} target="_blank">CC-BY</a> license
+                I agree to the <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,
+                including my content being available under a
+                <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license
               </>}
             />
             {tosError &&

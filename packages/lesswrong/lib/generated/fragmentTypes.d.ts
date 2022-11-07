@@ -2237,6 +2237,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly beta: boolean,
   readonly email: string,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly acceptedTos: boolean | null,
   readonly pageUrl: string,
   readonly voteBanned: boolean,
   readonly banned: Date,

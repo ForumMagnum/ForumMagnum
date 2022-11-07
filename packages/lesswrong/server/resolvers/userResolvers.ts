@@ -106,10 +106,27 @@ addGraphQLResolvers({
       })).data
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
-    }
-  }
+    },
+    async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
+      if (!currentUser) {
+        throw new Error('Cannot accept terms of use');
+      }
+      const updatedUser = (await updateMutator({
+        collection: Users,
+        documentId: currentUser._id,
+        set: {
+          acceptedTos: true,
+        },
+        validate: false,
+      })).data;
+      return updatedUser.acceptedTos;
+    },
+  },
 })
 
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
+)
+addGraphQLMutation(
+  'UserAcceptTos: Boolean'
 )
