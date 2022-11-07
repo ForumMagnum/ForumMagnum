@@ -7,7 +7,6 @@ import React, { useState, useRef } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
-import { useCurrentUser } from "../common/withUser";
 import { getUserEmail } from "../../lib/collections/users/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -19,7 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0
   },
   section: {
-    marginTop: theme.spacing.unit * 6
+    marginTop: theme.spacing.unit * 6,
+    "& .MuiTypography-body1": {
+      color: theme.palette.text.normal,
+    },
   },
   sectionHelperText: {
     color: theme.palette.grey[600],
