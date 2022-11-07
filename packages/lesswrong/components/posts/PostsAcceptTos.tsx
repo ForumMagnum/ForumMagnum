@@ -4,7 +4,7 @@ import { forumTypeSetting } from "../../lib/instanceSettings";
 import Button from "@material-ui/core/Button";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
-import { Link } from "react-router-dom";
+import { Link } from "../../lib/reactRouterWrapper";
 
 export const TosLink: FC = ({children}) =>
   <Link to="/termsOfUse">{children ?? "terms of use"}</Link>
