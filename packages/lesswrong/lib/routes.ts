@@ -708,12 +708,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'AdvisorsPage',
       title: 'Book a 1:1'
     },
-    // {
-    //   name: 'advisorRequest',
-    //   path: '/advisor-request',
-    //   componentName: 'AdvisorsRequestPage',
-    //   title: 'My 1:1 Request'
-    // },
     {
       name: 'wikiTopisRedirect',
       path: '/wiki',
