@@ -1,3 +1,4 @@
+import moment from "moment";
 import { CommentModeratorActions } from "../../lib/collections/commentModeratorActions/collection";
 import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorActions/schema";
 import { Comments } from "../../lib/collections/comments";
@@ -29,14 +30,20 @@ function isNetDownvoted(comment: DbComment) {
   return comment.baseScore <= 0 && comment.voteCount > 0;
 }
 
-export function areRecentlyDownvotedComments(comments: DbVoteableType[]) {
-  if (comments.length < 5) return false;
+export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]) {
+  // Not enough engagement to make a judgment
+  if (voteableItems.length < 5) return false;
 
-  const lastFiveComments = comments.slice(0, 5);
-  const badCommentCountThreshold = 2;
-  const downvotedCommentCount = lastFiveComments.filter(isNetDownvoted).length;
+  const oneWeekAgo = moment().subtract(7, 'days').toDate();
 
-  return downvotedCommentCount >= badCommentCountThreshold;
+  // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
+  if (voteableItems.every(item => item.createdAt < oneWeekAgo)) return false;
+
+  const lastFiveVoteableItems = voteableItems.slice(0, 5);
+  const downvotedItemCountThreshold = 2;
+  const downvotedItemCount = lastFiveVoteableItems.filter(isNetDownvoted).length;
+
+  return downvotedItemCount >= downvotedItemCountThreshold;
 }
 
 async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
@@ -107,17 +114,17 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
 
   const [latestComments, latestPosts] = await Promise.all([
     Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
-    Posts.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch()
+    Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20 }).fetch()
   ]);
 
   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
   
   // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
-  const lowQualityComments = areRecentlyDownvotedComments(voteableContent);
+  const lowQualityContent = isRecentlyDownvotedContent(voteableContent);
   const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(latestComments, 'comment');
   const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(latestPosts, 'post');
 
-  handleAutomodAction(lowQualityComments, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
+  handleAutomodAction(lowQualityContent, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
   handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
   handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT);
 }

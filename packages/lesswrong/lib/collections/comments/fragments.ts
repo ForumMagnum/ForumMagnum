@@ -15,6 +15,7 @@ registerFragment(`
       plaintextMainText
       wordCount
     }
+    createdAt
     postedAt
     repliesBlockedUntil
     userId
