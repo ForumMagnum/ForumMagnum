@@ -9,6 +9,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { tosUrlSetting, licenseUrlSetting } from "../../lib/instanceSettings";
+import classnames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -186,7 +187,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
               label='Yes, subscribe me to EA Forum digest emails'
             />
           </div>
-          <div className={classes.section}>
+          <div className={classnames(classes.section, "new-user-accept-tos")}> {/* Extra class used by Cypress */}
             <Typography variant='display1' gutterBottom>Terms of Use</Typography>
             <FormControlLabel
               control={
@@ -196,8 +197,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
                 />
               }
               label={<>
-                I agree to the <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,
-                including my content being available under a
+                I agree to the <a href={tosUrlSetting.get()} target="_blank" rel="noreferrer">terms of use</a>,{" "}
+                including my content being available under a{" "}
                 <a href={licenseUrlSetting.get()} target="_blank" rel="noreferrer">CC-BY</a> license
               </>}
             />

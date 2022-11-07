@@ -13,6 +13,7 @@ describe('Basic Login and Signup', function() {
     cy.visit('/');
     cy.contains('Please choose a username').should('exist');
     cy.get('input[type="text"]').type(newDisplayname);
+    cy.get('.new-user-accept-tos input').click();
     cy.get('.NewUserCompleteProfile-submitButtonSection > button').click();
     cy.contains(`a[href="/users/${newUsername}"]`, newDisplayname).should('exist');
   });
