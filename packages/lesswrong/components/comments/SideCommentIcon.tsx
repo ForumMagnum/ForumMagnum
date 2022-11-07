@@ -7,6 +7,7 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import classNames from 'classnames';
 import Badge from '@material-ui/core/Badge';
+import some from 'lodash/some';
 
 const styles = (theme: ThemeType): JssStyles => ({
   sideCommentIconWrapper: {
@@ -65,24 +66,48 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 }) => {
   const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
+  const iconRef = useRef<HTMLSpanElement|null>(null);
   
-  const [pinned, setPinned] = useState(false)
+  // Three-state pinning: open, closed, or auto ("auto" means visible
+  // if the mouse is over the icon.) This is so that if you click on the
+  // icon again when it's pinned open, it closes, and stays closed until
+  // you move the mouse away and re-hover the same elmeent.
+  const [pinned, setPinned] = useState<"open"|"closed"|"auto">("auto")
   
-  const pinOpen = () => {
-    setPinned(!pinned)
+  const onClick = () => {
+    if (pinned==="open") {
+      setPinned("closed");
+    } else {
+      setPinned("open");
+    }
+  }
+  const onMouseLeave = () => {
+    if (pinned==="closed")
+      setPinned("auto");
+  }
+  const onClickAway = (ev) => {
+    const isClickOnIcon = some(ev.path, e=>e===iconRef.current);
+    if (!isClickOnIcon)
+      setPinned("auto")
   }
   
-  return <div className={classes.sideCommentIconWrapper}>
-    <span {...eventHandlers} onClick={pinOpen} className={classes.sideCommentIcon}>
+  const isOpen = (pinned==="open" || (pinned==="auto" && hover));
+  
+  return <div className={classes.sideCommentIconWrapper}
+    onMouseLeave={onMouseLeave}
+  >
+    <span {...eventHandlers}
+      onClick={onClick}
+      ref={iconRef}
+      className={classes.sideCommentIcon}
+    >
       <BadgeWrapper commentCount={commentIds.length}>
-        <CommentIcon className={classNames({[classes.pinned]: pinned})} />
+        <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
       </BadgeWrapper>
     </span>
-    {(hover || pinned) && <ClickAwayListener onClickAway={() => {
-      setPinned(false)
-    }}>
+    {isOpen && <ClickAwayListener onClickAway={onClickAway}>
       <LWPopper
-        open={hover || pinned} anchorEl={anchorEl}
+        open={isOpen} anchorEl={anchorEl}
         className={classes.popper}
         clickable={true}
         placement={"bottom-start"}
