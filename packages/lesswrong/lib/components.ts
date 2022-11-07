@@ -17,6 +17,7 @@ if(forumTypeSetting.get() === 'AlignmentForum') {
 
 if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+  importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
