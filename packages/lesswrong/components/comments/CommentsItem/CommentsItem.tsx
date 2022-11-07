@@ -399,7 +399,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               hideKarma={post?.hideCommentKarma}
             />
 
-            {!isParentComment && renderMenu()}
+            {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
             
             {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>

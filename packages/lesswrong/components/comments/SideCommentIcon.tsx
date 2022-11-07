@@ -38,13 +38,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim,
   },
   popper: {
-    width: 550,
+    width: 350,
   },
   sideCommentHover: {
-    border: theme.palette.border.normal,
   },
   seeInContext: {
     color: theme.palette.link.dim,
+    paddingBottom:8,
+    paddingTop: 4,
   },
 });
 
@@ -201,7 +202,9 @@ const SideCommentSingle = ({commentId, post, classes}: {
         treeOptions: {
           showPostTitle: false,
           showCollapseButtons: true,
-          replaceReplyButtonsWith: (comment) => <a href={"#"+comment._id} className={classes.seeInContext}>See in context</a>
+          replaceReplyButtonsWith: (comment) =>
+            <a href={"#"+comment._id} className={classes.seeInContext}>See in context</a>,
+          hideActionsMenu: true,
         },
       }}
     />

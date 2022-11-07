@@ -147,4 +147,11 @@ export interface CommentTreeOptions {
    * For custom styling in the comment moderation tab.
    */
   moderatedCommentId?: string
+  
+  /**
+   * If set, remove the actions menu (the triple-dot icon in the
+   * top-right corner) from each comment. Used for side-comments where
+   * space is tight.
+   */
+  hideActionsMenu?: boolean,
 }
