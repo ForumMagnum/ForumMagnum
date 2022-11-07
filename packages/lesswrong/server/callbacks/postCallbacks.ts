@@ -16,8 +16,24 @@ import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const MINIMUM_APPROVAL_KARMA = 5
+
+if (forumTypeSetting.get() === "EAForum") {
+  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
+    if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+      throw new Error("You must accept the terms of use before you can publish posts");
+    }
+    return post;
+  }
+  getCollectionHooks("Posts").newSync.add(
+    (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
+  );
+  getCollectionHooks("Posts").updateBefore.add(
+    (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
+  );
+}
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
