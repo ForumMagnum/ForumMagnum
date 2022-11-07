@@ -39,7 +39,7 @@ const CommentWithReplies = ({
   const { hash: focusCommentId } = useLocation();
 
   const commentId = focusCommentId.slice(1) || null;
-  const startExpanded = !!comment.latestChildren.find(c => c._id === commentId)
+  const startExpanded = comment.latestChildren.some(c => c._id === commentId)
   
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
