@@ -266,6 +266,8 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
     
     needsReview
     sunshineNotes
@@ -335,6 +337,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
+    theme
 
     # Emails
     email

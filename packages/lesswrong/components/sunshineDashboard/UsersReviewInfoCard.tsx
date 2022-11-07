@@ -9,6 +9,8 @@ import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { hideScrollBars } from '../../themes/styleUtils';
+import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,6 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
     position: "relative",
     top: 3
+  },
+  legacyReviewTrigger: {
+    marginLeft: 6
+  },
+  referrerLandingPage: {
+    display: 'flex'
   },
   hoverPostIcon: {
     height: 16,
@@ -89,7 +97,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sortButton: {
     marginLeft: 6,
-    cursor: "pointer"
+    cursor: "pointer",
+    color: theme.palette.grey[600]
   },
   sortSelected: {
     color: theme.palette.grey[900]
@@ -145,7 +154,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentCollapsed: {
     maxHeight: 300,
     overflowY: "scroll",
-    cursor: "pointer"
+    cursor: "pointer",
+    ...hideScrollBars
   },
   contentSummaryRow: {
     display: "flex",
@@ -163,8 +173,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-    
-  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
+  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+
+  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
   
@@ -187,13 +198,13 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
   
-  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
-  
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
+
+  const reviewTrigger = getReasonForReview(user)
+  const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
 
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
@@ -201,14 +212,21 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <UsersName user={user}/>
         {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
+      <MetaInfo className={classes.referrerLandingPage}>
+        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+      </MetaInfo>
     </div>
 
     <div className={classes.row}>
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
-      <div>{user.email}</div>
+      <MetaInfo>
+        {user.email}
+      </MetaInfo>
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
@@ -256,7 +274,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         </span>
     </LWTooltip>
     {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-    { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+    { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null}
   </div>
 
   const commentSummaryRow = <div className={classes.contentSummaryRow}>
@@ -267,6 +285,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
     { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
   </div>
+
+  const renderExpand = posts?.length || comments?.length
   
   return (
     <div className={classes.root}>
@@ -294,11 +314,14 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           {(commentsLoading || postsLoading) && <Loading/>}
           {commentSummaryRow}
           <div 
-            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(!contentExpanded)}
+            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </div>
+          {renderExpand && <a className={classes.expandButton} onClick={() => setContentExpanded(!contentExpanded)}>
+            <MetaInfo>Expand</MetaInfo>
+          </a>}
         </div>
         <div className={classes.messagesColumn}>
           <SunshineUserMessages user={user} currentUser={currentUser}/>

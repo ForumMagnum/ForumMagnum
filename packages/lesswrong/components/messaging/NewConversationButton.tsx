@@ -9,7 +9,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 
 export interface TemplateQueryStrings {
-  templateCommentId: string;
+  templateId: string;
   displayName: string;
 }
 
@@ -31,7 +31,6 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
     collectionName: 'Conversations',
     fragmentName: 'newConversationFragment',
   });
-  
   
   // Checks if unnamed conversation between the two users exists
   const terms: ConversationsViewTerms = {

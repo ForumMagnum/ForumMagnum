@@ -115,9 +115,19 @@ const VirtualProgramCard = ({program, classes}: {
       break
     }
   }
+  // this Dec, the dates are different
+  // TODO: remove once 2023 arrives
+  const dec11 = moment("12-11-2022", "MM-DD-YYYY") // deadline for Jan-Feb cohort (start date is Jan 9)
+  const jan1 = moment("01-01-2023", "MM-DD-YYYY")
+  const jan29 = moment("01-29-2023", "MM-DD-YYYY") // deadline for Feb-Mar cohort? (should be normal start date logic)
+  if (moment().isSameOrBefore(dec11)) {
+    deadline = dec11
+  } else if (moment().isSameOrBefore(jan1)) {
+    deadline = jan29
+  }
   
   // VP starts 8 days after the deadline, on a Monday
-  const startOfVp = moment(deadline).add(8, 'days')
+  const startOfVp = moment().isSameOrBefore(dec11) ? moment("01-09-2023", "MM-DD-YYYY") : moment(deadline).add(8, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 

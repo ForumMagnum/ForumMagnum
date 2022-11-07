@@ -10,12 +10,13 @@ export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl',
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 
 
-const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, noIndex}: {
+const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, useSmallImage=false, noIndex}: {
   ogUrl?: string,
   canonicalUrl?: string,
   description?: string|null,
   title?: string,
   image?: string|null,
+  useSmallImage?: boolean,
   noIndex?: boolean,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
@@ -49,7 +50,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
           {/* twitter */}
-          <meta name='twitter:card' content='summary_large_image'/>
+          <meta name='twitter:card' content={useSmallImage ? 'summary' : 'summary_large_image'}/>
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>

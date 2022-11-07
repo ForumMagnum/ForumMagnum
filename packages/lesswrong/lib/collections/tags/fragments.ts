@@ -201,6 +201,7 @@ registerFragment(`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    subforumUnreadMessagesCount
   }
 `);
 

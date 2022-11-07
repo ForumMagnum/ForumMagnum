@@ -1268,7 +1268,13 @@ addRoute(
     name: 'moderatorActions',
     path: '/admin/moderation',
     componentName: 'ModerationDashboard',
-    title: "Moderator Actions"
+    title: "Moderation Dashboard"
+  },
+  {
+    name: 'moderationTemplates',
+    path: '/admin/moderationTemplates',
+    componentName: 'ModerationTemplatesPage',
+    title: "Moderation Message Templates"
   },
   {
     name: 'moderation',

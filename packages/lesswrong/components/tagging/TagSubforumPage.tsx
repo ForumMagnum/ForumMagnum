@@ -15,6 +15,7 @@ import { useDialog } from "../common/withDialog";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 import qs from "qs";
+import { SECTION_WIDTH } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -69,10 +70,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   aside: {
-    width: 380,
+    maxWidth: 380,
+    flexBasis: 0,
+    flexGrow: 1,
     [theme.breakpoints.down("md")]: {
       display: "none",
     },
+  },
+  fullWidth: {
+    width: `min(${SECTION_WIDTH}px, 100%)`,
   },
   welcomeBox: {
     padding: 16,
@@ -139,7 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: 'transparent',
     borderTop: `4px solid ${theme.palette.grey[200]}`,
     '& .Typography-root': {
-      color: 'unset',
+      color: theme.palette.text.maxIntensity,
       borderBottom: `solid 2px ${theme.palette.primary.main}`,
     },
   }
@@ -173,17 +179,8 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   
-  // hashContents used to contain the tab, now we put that in the query. But it needs to be backwards compatible with that case.
-  const hashContents = hash?.slice(1)
-  
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
-  const getTab = (query, hashContents): SubforumTab => {
-    if (isTab(query.tab)) return query.tab
-    if (isTab(hashContents)) return hashContents
-    return defaultTab
-  }
-
-  const tab = getTab(query, hashContents)
+  const tab = isTab(query.tab) ? query.tab : defaultTab
 
   const handleChangeTab = (value: SubforumTab) => {
     const newQuery = {...query, tab: value}
