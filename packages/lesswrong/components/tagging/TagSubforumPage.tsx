@@ -14,6 +14,7 @@ import { taggingNameSetting, siteNameWithArticleSetting } from "../../lib/instan
 import { useDialog } from "../common/withDialog";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
+import qs from "qs";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -150,6 +151,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const subforumTabs = ["discussion", "posts"] as const
+type SubforumTab = typeof subforumTabs[number]
+const defaultTab: SubforumTab = "discussion"
+
 export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
   const {
     Error404,
@@ -159,7 +164,6 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
     SingleColumnSection,
     Typography,
     ContentStyles,
-    ContentItemBody,
     LWTooltip,
     HeadTags,
     TagSubforumPostsSection,
@@ -175,12 +179,12 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
 
   const { tag, loading, error } = useTagBySlug(slug, "TagSubforumFragment");
   
-  const hashContents = hash?.slice(1)
-  const [tab, setTab] = useState<"discussion" | "posts">(hashContents === "posts" ? hashContents : 'discussion')
-  
-  const handleChangeTab = (value) => {
-    setTab(value)
-    history.replace({...location, hash: value})
+  const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
+  const tab = isTab(query.tab) ? query.tab : defaultTab
+
+  const handleChangeTab = (value: SubforumTab) => {
+    const newQuery = {...query, tab: value}
+    history.push({...location, search: `?${qs.stringify(newQuery)}`})
   }
 
   const { openDialog } = useDialog();
@@ -253,7 +257,7 @@ export const TagSubforumPage = ({ classes }: { classes: ClassesType}) => {
             </SectionTitle>
             {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
           </div>
-          <div onChange={handleChangeTab} className={classes.tabSection} aria-label='view subforum discussion or posts'>
+          <div className={classes.tabSection} aria-label='view subforum discussion or posts'>
             <button onClick={() => handleChangeTab('discussion')} className={classNames(classes.tab, {[classes.tabSelected]: tab === 'discussion'})}>
               <Typography variant="headline">Discussion</Typography>
             </button>
