@@ -149,6 +149,12 @@ export interface CommentTreeOptions {
   moderatedCommentId?: string
   
   /**
+   * If set, this is a side-comment (ie, is being shown in the right
+   * margin).
+   */
+  isSideComment?: boolean,
+  
+  /**
    * If set, remove the actions menu (the triple-dot icon in the
    * top-right corner) from each comment. Used for side-comments where
    * space is tight.

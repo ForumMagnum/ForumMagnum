@@ -205,6 +205,7 @@ const SideCommentSingle = ({commentId, post, classes}: {
           replaceReplyButtonsWith: (comment) =>
             <a href={"#"+comment._id} className={classes.seeInContext}>See in context</a>,
           hideActionsMenu: true,
+          isSideComment: true,
         },
       }}
     />

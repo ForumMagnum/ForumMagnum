@@ -35,6 +35,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
     ...theme.typography.commentStyle,
   },
+  sideComment: {
+    "& blockquote": {
+      paddingRight: 0,
+      marginLeft: 4,
+      paddingLeft: 12,
+    },
+  },
   menu: {
     opacity:.35,
     marginRight:-5,
@@ -333,6 +340,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
+          [classes.sideComment]: treeOptions.isSideComment,
         },
       )}>
         { comment.parentCommentId && showParentState && (
@@ -362,28 +370,26 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
           </Link>}
         </div>
-          <div className={classes.body}>
-            <div className={classes.meta}>
-              { !parentCommentId && !comment.parentCommentId && isParentComment &&
-                <div className={classes.usernameSpacing}>○</div>
-              }
-              {post && <CommentShortformIcon comment={comment} post={post} />}
-              { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-                <ShowParentComment
-                  comment={comment}
-                  active={showParentState}
-                  onClick={toggleShowParent}
-              />
+        <div className={classes.body}>
+          <div className={classes.meta}>
+            {!parentCommentId && !comment.parentCommentId && isParentComment &&
+              <div className={classes.usernameSpacing}>○</div>
             }
-            { (showCollapseButtons || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
+            {post && <CommentShortformIcon comment={comment} post={post} />}
+            {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+              <ShowParentComment
+                comment={comment}
+                active={showParentState}
+                onClick={toggleShowParent}
+            />}
+            {(showCollapseButtons || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
               [<span>{collapsed ? "+" : "-"}</span>]
-            </a>
-            }
+            </a>}
             {singleLineCollapse && <a className={classes.collapse} onClick={() =>
-              setSingleLine && setSingleLine(true)}>
+              setSingleLine && setSingleLine(true)
+            }>
               [<span>{collapsed ? "+" : "-"}</span>]
-            </a>
-            }
+            </a>}
             <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
@@ -409,9 +415,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
-            
           </div>
-          { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
+          {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}
           </div>}
           {renderBodyOrEditor()}
