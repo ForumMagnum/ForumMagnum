@@ -1,6 +1,7 @@
 import React, { FC } from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CENTRAL_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const PADDING = 15;
 
@@ -72,7 +73,7 @@ const EATermsOfUsePage = ({classes}: {classes: ClassesType}) => {
         <span className={classes.bullet}>1.</span>  General Access Terms
       </Typography>
       <Typography variant="body1" id="rulesOfUseOrGuides">
-        <span className={classes.subbullet}>1.1</span> <span className={classes.subheading}>Rules of Use or Guides</span>. Where the Terms refer to rules of use or guides, such reference includes the Guides to the Norms on the Forum (the “<span className={classes.bold}>Guide</span>”). Please take a few moments to review the Guide (<ExternalLink href="https://forum.effectivealtruism.org/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum">https://forum.effectivealtruism.org/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum</ExternalLink>). If there is a conflict between the Guide, and the Terms, the Terms will apply.
+        <span className={classes.subbullet}>1.1</span> <span className={classes.subheading}>Rules of Use or Guides</span>. Where the Terms refer to rules of use or guides, such reference includes the Guides to the Norms on the Forum (the “<span className={classes.bold}>Guide</span>”). Please take a few moments to review the Guide (<Link to="/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum">https://forum.effectivealtruism.org/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum</Link>). If there is a conflict between the Guide, and the Terms, the Terms will apply.
       </Typography>
       <Typography variant="body1" className={classes.heading} id="yourContent">
         <span className={classes.bullet}>2.</span> Your Content
