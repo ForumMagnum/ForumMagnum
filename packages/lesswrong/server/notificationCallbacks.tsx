@@ -448,7 +448,7 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
   }
   
   // 3. If this comment is in a subforum, notify members with email notifications enabled
-  if (comment.tagId && comment.tagCommentType === "SUBFORUM") {
+  if (comment.tagId && comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId) {
     const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId }))
       .map((u) => u._id)
     const subforumSubscriberIdsMaybeNotify = (
