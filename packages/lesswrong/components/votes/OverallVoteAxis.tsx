@@ -67,8 +67,8 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const { OverallVoteButton, LWTooltip } = Components
 
   const collection = getCollection(voteProps.collectionName);
-  const agreementVoteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
-  const approvalVoteCount = (voteProps.voteCount || 0) - agreementVoteCount
+  const agreementVoteCount = voteProps.document?.extendedScore?.agreementVoteCount ?? 0;
+  const approvalVoteCount = (voteProps.voteCount ?? 0) - agreementVoteCount
   const karma = voteProps.baseScore;
 
   let moveToAlignnmentUserId = ""
