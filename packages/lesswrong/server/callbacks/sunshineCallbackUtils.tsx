@@ -37,7 +37,7 @@ export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]
   const oneWeekAgo = moment().subtract(7, 'days').toDate();
 
   // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
-  if (voteableItems.every(item => item.createdAt < oneWeekAgo)) return false;
+  if (voteableItems.every(item => item.postedAt < oneWeekAgo)) return false;
 
   const lastFiveVoteableItems = voteableItems.slice(0, 5);
   const downvotedItemCountThreshold = 2;
