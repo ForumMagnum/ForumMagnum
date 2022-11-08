@@ -215,10 +215,10 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
       <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId.firstSeenReferrer}</div>}
       </MetaInfo>
       <MetaInfo className={classes.referrerLandingPage}>
-        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={user.associatedClientId.firstSeenLandingPage}>{user.associatedClientId.firstSeenLandingPage}</a></div>}
       </MetaInfo>
     </div>
 
