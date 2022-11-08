@@ -71,10 +71,12 @@ describe("BulkWriter", () => {
     ])).toThrowError("Invalid bulk write operation: anInvalidOperation");
   });
   it("can execute writer queries", async () => {
-    const client = {
-      multi: jest.fn(),
-    } as unknown as SqlClient;
+    const concat = jest.fn();
+    const multi = jest.fn();
+    const mockSql = "some-mock-sql";
+    concat.mockReturnValueOnce(mockSql);
 
+    const client = {concat, multi} as unknown as SqlClient;
     const writer = new BulkWriter(testTable, [
       {insertOne: {document: {_id: "some-id"} as DbObject}},
       {deleteOne: {filter: {a: 3}}},
@@ -83,7 +85,8 @@ describe("BulkWriter", () => {
     const result = await writer.execute(client);
     expect(result).toStrictEqual({ok: 1});
 
+    expect(client.concat).toHaveBeenCalledTimes(1);
     expect(client.multi).toHaveBeenCalledTimes(1);
-    expect(client.multi).toHaveBeenCalledWith("INSERT INTO \"TestCollection\" ( \"_id\" , \"a\" , \"b\" , \"c\" , \"schemaVersion\" ) VALUES  ( 'some-id' ,  null ,  null ,  null ,  null );DELETE FROM \"TestCollection\" WHERE _id IN ( SELECT \"_id\" FROM \"TestCollection\" WHERE \"a\" =  3 LIMIT 1 )");
+    expect(client.multi).toHaveBeenCalledWith(mockSql);
   });
 });

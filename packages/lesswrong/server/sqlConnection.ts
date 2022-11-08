@@ -1,4 +1,5 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
+import Query from "../lib/sql/Query";
 
 const pgPromiseLib = pgp({
   // Uncomment to log executed queries for debugging, etc.
@@ -25,7 +26,9 @@ const pgPromiseLib = pgp({
 const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
 declare global {
-  type SqlClient = IDatabase<{}>;
+  type SqlClient = IDatabase<{}> & {
+    concat: <T extends DbObject>(queries: Query<T>[]) => string;
+  };
 }
 
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
@@ -45,5 +48,13 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     // eslint-disable-next-line
     console.error("Failed to create Postgres extensions:", e);
   }
-  return db;
+  const sql = db as unknown as SqlClient;
+  sql.concat = <T extends DbObject>(queries: Query<T>[]): string => {
+    const compiled = queries.map((query) => {
+      const {sql, args} = query.compile();
+      return {query: sql, values: args};
+    });
+    return pgPromiseLib.helpers.concat(compiled);
+  }
+  return sql;
 }

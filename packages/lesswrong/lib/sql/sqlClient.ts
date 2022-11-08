@@ -1,3 +1,5 @@
+import Query from "./Query";
+
 let sql: SqlClient | null = null;
 
 export const setSqlClient = (sql_: SqlClient) => sql = sql_;
