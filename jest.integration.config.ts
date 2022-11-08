@@ -15,6 +15,5 @@ export default {
     ...config.coveragePathIgnorePatterns,
     "/unitTests/",
   ],
-  maxWorkers: "50%",
   preset: "@shelf/jest-mongodb",
 };
