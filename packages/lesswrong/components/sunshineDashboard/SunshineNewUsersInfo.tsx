@@ -8,6 +8,7 @@ import MessageIcon from '@material-ui/icons/Message'
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { userCanDo } from '../../lib/vulcan-users';
+import { UserReviewStatus } from './ModeratorUserInfo/UserReviewStatus';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -163,7 +164,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   currentUser: UsersCurrent
 }) => {
 
-  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
+  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
 
   const { results: posts, loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
@@ -184,7 +185,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
 
-  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper, ModeratorMessageCount, ModeratorActions } = Components
+  const { MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, ModeratorActions } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -198,8 +199,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
             <div className={classes.info}>
               <div className={classes.topRow}>
                 <div>
-                  {user.reviewedAt && <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p>}
-                  {user.banned && <p><em>Banned until <FormatDate date={user.banned}/></em></p>}
+                  <UserReviewStatus user={user}/>
               
                   {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
                   {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}

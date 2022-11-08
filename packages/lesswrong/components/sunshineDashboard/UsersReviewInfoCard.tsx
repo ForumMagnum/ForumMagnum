@@ -160,10 +160,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap"
-  },
-  reviewedAt: {
-    marginTop: 16,
-    fontStyle: "italic"
   }
 })
 
@@ -173,7 +169,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UserReviewStatus, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
 
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
@@ -295,14 +291,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            {user.reviewedAt
-              ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></div>
-              : null 
-            }
-            {user.banned
-              ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
-              : null 
-            }
+            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>
