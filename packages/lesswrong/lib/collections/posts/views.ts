@@ -1138,8 +1138,9 @@ ensureIndex(Posts,
 Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
+      userId: viewFieldAllowAny,
       status: null, // allow sunshines to see posts marked as spam
-      userId: terms.userId,
+      $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
       authorIsUnreviewed: null,
       groupId: null,
       draft: viewFieldAllowAny
@@ -1152,7 +1153,7 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ status:1, userId:1, hideAuthor: 1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
+  augmentForDefaultView({ status:1, userId:1, coauthorStatuses:1, hideAuthor: 1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
   { name: "posts.sunshineNewUsersPosts" }
 );
 
