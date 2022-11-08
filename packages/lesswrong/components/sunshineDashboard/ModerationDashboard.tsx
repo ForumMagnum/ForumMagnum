@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import uniqBy from 'lodash/uniqBy';
-import React, { useState } from 'react';
+import qs from 'qs';
+import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { TupleOf, TupleSet } from '../../lib/utils/typeGuardUtils';
-import qs from 'qs';
+import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -90,8 +90,6 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
   );
 };
 
-// type DashboardTabs = 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
-
 const reduceCommentModeratorActions = (commentModeratorActions: CommentModeratorActionDisplay[]): CommentWithModeratorActions[] => {
   const allComments = commentModeratorActions.map(action => action.comment);
   const uniqueComments = uniqBy(allComments, comment => comment._id);
@@ -104,7 +102,7 @@ const reduceCommentModeratorActions = (commentModeratorActions: CommentModerator
 };
 
 const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments'] as const);
-type DashboardTabs = TupleOf<typeof tabs>[number]; // typeof tabs[number];// 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
+type DashboardTabs = UnionOf<typeof tabs>;
 
 const getCurrentView = (query: Record<string, string>): DashboardTabs => {
   const currentViewParam = query.view;
@@ -126,14 +124,13 @@ const ModerationDashboard = ({ classes }: {
   const { query, location } = useLocation();
   const currentView = getCurrentView(query);
 
-  // const [view, setView] = useState<DashboardTabs>(currentView);
-
   const changeView = (newView: DashboardTabs) => {
-    history.replace({
+    history.push({
       ...location,
       search: qs.stringify({
         view: newView
-      })
+      }),
+      hash: ''
     });
   };
   
@@ -172,7 +169,7 @@ const ModerationDashboard = ({ classes }: {
           <div className={classes.toc}>
             {usersToReview.map(user => {
               return <div key={user._id} className={classes.tocListing}>
-                <a href={`/admin/moderation#${user._id}`}>
+                <a href={`${location.pathname}${location.search ?? ''}#${user._id}`}>
                   {user.displayName}
                 </a>
               </div>
@@ -198,7 +195,7 @@ const ModerationDashboard = ({ classes }: {
           <div className={classes.toc}>
             {commentsWithActions.map(({ comment }) => {
               return <div key={comment._id} className={classes.tocListing}>
-                <a href={`/admin/moderation#${comment._id}`}>
+                <a href={`${location.pathname}${location.search ?? ''}#${comment._id}`}>
                   {`${comment.user?.displayName} on "${comment.post?.title}"`}
                 </a>
               </div>;
