@@ -464,7 +464,10 @@ importComponent("ReportForm", () => require('../components/sunshineDashboard/Rep
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
-importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
+importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
+
+importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
+importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
 importComponent("AFSuggestUsersItem", () => require('../components/sunshineDashboard/AFSuggestUsersItem'));
 importComponent("AFSuggestUsersList", () => require('../components/sunshineDashboard/AFSuggestUsersList'));
