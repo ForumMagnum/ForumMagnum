@@ -2,8 +2,9 @@ import classNames from 'classnames';
 import uniqBy from 'lodash/uniqBy';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { TupleOf, TupleSet } from '../../lib/utils/typeGuardUtils';
+import qs from 'qs';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -105,7 +106,7 @@ const reduceCommentModeratorActions = (commentModeratorActions: CommentModerator
 const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments'] as const);
 type DashboardTabs = TupleOf<typeof tabs>[number]; // typeof tabs[number];// 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
 
-const getCurrentTab = (query: Record<string, string>): DashboardTabs => {
+const getCurrentView = (query: Record<string, string>): DashboardTabs => {
   const currentViewParam = query.view;
 
   // Can't use `.includes` or `.indexOf` since it's a readonly tuple with known values, so `string` isn't a type you can pass in to those!
@@ -121,12 +122,22 @@ const ModerationDashboard = ({ classes }: {
     
   const currentUser = useCurrentUser();
 
-  const { query } = useLocation();
-  const currentView = query.view ?? 'sunshineNewUsers';
+  const { history } = useNavigation();
+  const { query, location } = useLocation();
+  const currentView = getCurrentView(query);
 
-  const [view, setView] = useState<DashboardTabs>('sunshineNewUsers');
+  // const [view, setView] = useState<DashboardTabs>(currentView);
+
+  const changeView = (newView: DashboardTabs) => {
+    history.replace({
+      ...location,
+      search: qs.stringify({
+        view: newView
+      })
+    });
+  };
   
-  const { results: usersToReview = [], count, loadMoreProps, refetch, loading } = useMulti({
+  const { results: usersToReview = [], totalCount: totalUsersToReviewCount, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: "sunshineNewUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -138,7 +149,6 @@ const ModerationDashboard = ({ classes }: {
     terms: {view: "allUsers", limit: 10},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
-    enableTotal: true,
     itemsPerPage: 50,
   });
 
@@ -158,7 +168,7 @@ const ModerationDashboard = ({ classes }: {
   return (
     <div className={classes.page}>
       <div className={classes.row}>
-        <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
+        <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
           <div className={classes.toc}>
             {usersToReview.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -172,7 +182,7 @@ const ModerationDashboard = ({ classes }: {
             </div>
           </div>
         </div>
-        <div className={classNames({ [classes.hidden]: view !== 'allUsers' })}>
+        <div className={classNames({ [classes.hidden]: currentView !== 'allUsers' })}>
           <div className={classes.toc}>
             {allUsers.map(user => {
               return <div key={user._id} className={classes.tocListing}>
@@ -184,7 +194,7 @@ const ModerationDashboard = ({ classes }: {
             </div>
           </div>
         </div>
-        <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
+        <div className={classNames({ [classes.hidden]: currentView !== 'moderatedComments' })}>
           <div className={classes.toc}>
             {commentsWithActions.map(({ comment }) => {
               return <div key={comment._id} className={classes.tocListing}>
@@ -201,32 +211,32 @@ const ModerationDashboard = ({ classes }: {
         <div className={classes.main}>
           <div className={classes.topBar}>
             <div 
-              onClick={() => setView("sunshineNewUsers")}
-              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'sunshineNewUsers' })} 
+              onClick={() => changeView("sunshineNewUsers")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'sunshineNewUsers' })} 
             >
-              Unreviewed Users {loading ? <Loading/> : <>({count})</>}
+              Unreviewed Users {loading ? <Loading/> : <>({totalUsersToReviewCount})</>}
             </div>
             <div 
-              onClick={() => setView("allUsers")}
-              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'allUsers' })} 
+              onClick={() => changeView("allUsers")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'allUsers' })} 
             >
               Reviewed Users
             </div>
             <div
-              onClick={() => setView("moderatedComments")}
-              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'moderatedComments' })} 
+              onClick={() => changeView("moderatedComments")}
+              className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'moderatedComments' })} 
             >
               Moderated Comments {loadingCommentActions ? <Loading/> : <>({totalCommentActionCount})</>}
             </div>
           </div>
-          <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
+          <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
             {usersToReview.map(user =>
               <div key={user._id} id={user._id}>
                 <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
               </div>
             )}
           </div>
-          <div className={classNames({ [classes.hidden]: view !== 'allUsers' })}>
+          <div className={classNames({ [classes.hidden]: currentView !== 'allUsers' })}>
             {allUsers.map(user =>
               // TODO: we probably want to display something different for already-reviewed users, since a bunch of the actions we can take only make sense for unreviewed users
               <div key={user._id}>
@@ -234,7 +244,7 @@ const ModerationDashboard = ({ classes }: {
               </div>
             )}
           </div>
-          <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
+          <div className={classNames({ [classes.hidden]: currentView !== 'moderatedComments' })}>
             <CommentsReviewTab commentsWithActions={commentsWithActions} />
           </div>
         </div>
