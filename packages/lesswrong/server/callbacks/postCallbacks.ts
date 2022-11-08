@@ -12,7 +12,7 @@ import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties 
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
