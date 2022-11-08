@@ -218,6 +218,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey800: shades.grey[800],
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
+    primaryDim: "#5caab7"
   },
   linkHover: {
     dim: shades.greyAlpha(.3),
