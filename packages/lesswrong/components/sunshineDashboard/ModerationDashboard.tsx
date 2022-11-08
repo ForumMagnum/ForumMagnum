@@ -1,10 +1,14 @@
 import classNames from 'classnames';
+import uniqBy from 'lodash/uniqBy';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useLocation } from '../../lib/routeUtil';
+import { TupleOf, TupleSet } from '../../lib/utils/typeGuardUtils';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 
 const styles = (theme: ThemeType): JssStyles => ({
   page: {
@@ -85,7 +89,30 @@ const ModeratorActionItem = ({ moderatorAction, classes }: {
   );
 };
 
-type DashboardTabs = 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
+// type DashboardTabs = 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
+
+const reduceCommentModeratorActions = (commentModeratorActions: CommentModeratorActionDisplay[]): CommentWithModeratorActions[] => {
+  const allComments = commentModeratorActions.map(action => action.comment);
+  const uniqueComments = uniqBy(allComments, comment => comment._id);
+  const commentsWithActions = uniqueComments.map(comment => {
+    const actionsWithoutComment = commentModeratorActions.filter(result => result.comment._id === comment._id).map(({ comment, ...remainingAction }) => remainingAction);
+    return { comment, actions: actionsWithoutComment };
+  });
+
+  return commentsWithActions;
+};
+
+const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments'] as const);
+type DashboardTabs = TupleOf<typeof tabs>[number]; // typeof tabs[number];// 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
+
+const getCurrentTab = (query: Record<string, string>): DashboardTabs => {
+  const currentViewParam = query.view;
+
+  // Can't use `.includes` or `.indexOf` since it's a readonly tuple with known values, so `string` isn't a type you can pass in to those!
+  if (!currentViewParam || !tabs.has(currentViewParam)) return 'sunshineNewUsers';
+
+  return currentViewParam;
+};
 
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
@@ -93,6 +120,9 @@ const ModerationDashboard = ({ classes }: {
   const { UsersReviewInfoCard, CommentsReviewTab, LoadMore, Loading } = Components;
     
   const currentUser = useCurrentUser();
+
+  const { query } = useLocation();
+  const currentView = query.view ?? 'sunshineNewUsers';
 
   const [view, setView] = useState<DashboardTabs>('sunshineNewUsers');
   
@@ -111,6 +141,15 @@ const ModerationDashboard = ({ classes }: {
     enableTotal: true,
     itemsPerPage: 50,
   });
+
+  const { results: commentModeratorActions = [], loading: loadingCommentActions, totalCount: totalCommentActionCount, loadMoreProps: loadMoreCommentActionsProps } = useMulti({
+    collectionName: 'CommentModeratorActions',
+    fragmentName: 'CommentModeratorActionDisplay',
+    terms: { view: 'activeCommentModeratorActions', limit: 10 },
+    enableTotal: true
+  });
+
+  const commentsWithActions = reduceCommentModeratorActions(commentModeratorActions);
 
   if (!userIsAdmin(currentUser)) {
     return null;
@@ -146,7 +185,18 @@ const ModerationDashboard = ({ classes }: {
           </div>
         </div>
         <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
-          <div className={classes.toc}></div>
+          <div className={classes.toc}>
+            {commentsWithActions.map(({ comment }) => {
+              return <div key={comment._id} className={classes.tocListing}>
+                <a href={`/admin/moderation#${comment._id}`}>
+                  {`${comment.user?.displayName} on "${comment.post?.title}"`}
+                </a>
+              </div>;
+            })}
+            <div className={classes.loadMore}>
+              <LoadMore {...loadMoreCommentActionsProps}/>
+            </div>
+          </div>
         </div>
         <div className={classes.main}>
           <div className={classes.topBar}>
@@ -154,7 +204,7 @@ const ModerationDashboard = ({ classes }: {
               onClick={() => setView("sunshineNewUsers")}
               className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'sunshineNewUsers' })} 
             >
-              Unreviewed Users {view === "sunshineNewUsers" && (loading ? <Loading/> : <>({count} to Review)</>)}
+              Unreviewed Users {loading ? <Loading/> : <>({count})</>}
             </div>
             <div 
               onClick={() => setView("allUsers")}
@@ -166,7 +216,7 @@ const ModerationDashboard = ({ classes }: {
               onClick={() => setView("moderatedComments")}
               className={classNames(classes.tabButton, { [classes.tabButtonSelected]: view === 'moderatedComments' })} 
             >
-              Moderated Comments
+              Moderated Comments {loadingCommentActions ? <Loading/> : <>({totalCommentActionCount})</>}
             </div>
           </div>
           <div className={classNames({ [classes.hidden]: view !== 'sunshineNewUsers' })}>
@@ -185,7 +235,7 @@ const ModerationDashboard = ({ classes }: {
             )}
           </div>
           <div className={classNames({ [classes.hidden]: view !== 'moderatedComments' })}>
-            <CommentsReviewTab />
+            <CommentsReviewTab commentsWithActions={commentsWithActions} />
           </div>
         </div>
       </div>

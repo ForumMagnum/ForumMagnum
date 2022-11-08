@@ -109,7 +109,7 @@ const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] })
   }, voteCounts);
 }
 
-interface CommentWithModeratorActions {
+export interface CommentWithModeratorActions {
   comment: CommentsListWithModerationMetadata;
   actions: Omit<CommentModeratorActionDisplay, 'comment'>[];
 }
