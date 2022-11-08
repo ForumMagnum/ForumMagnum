@@ -4,7 +4,7 @@ import { crosspostUserAgent } from "../../lib/apollo/links";
 import Users from "../../lib/collections/users/collection";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
 import { ApiError, UnauthorizedError } from "./errors";
-import { makeApiUrl, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
+import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { signToken } from "./tokens";
 import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
 
@@ -18,9 +18,9 @@ const getUserId = (req?: Request) => {
 
 export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
   routeName: RouteName,
-  body: ValidatedPostRoutes[RouteName]['requestValidator']['_A'],
+  body: PostRequestTypes<RouteName>,
   onErrorMessage: string,
-): Promise<ValidatedPostRoutes[RouteName]['responseValidator']['_A']> => {
+): Promise<PostResponseTypes<RouteName>> => {
   const route: ValidatedPostRoutes[RouteName] = validatedPostRoutes[routeName];
   const apiUrl = makeApiUrl(route.path);
   const result = await fetch(apiUrl, {

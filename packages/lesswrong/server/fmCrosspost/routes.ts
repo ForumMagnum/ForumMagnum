@@ -57,15 +57,20 @@ type ValidatedGetRoutes = typeof validatedGetRoutes;
 export type ValidatedPostRouteName = keyof typeof validatedPostRoutes;
 export type ValidatedPostRoutes = typeof validatedPostRoutes;
 
-export type GetRouteOf<T extends ValidatedGetRouteName> = (req: Request) => Promise<ValidatedGetRoutes[T]['responseValidator']['_A']>;
-export type PostRouteOf<T extends ValidatedPostRouteName> = (req: ValidatedPostRoutes[T]['requestValidator']['_A']) => Promise<ValidatedPostRoutes[T]['responseValidator']['_A']>;
+// In io-ts, _A is the type validated by a successful decoding/type guarding operation (`.decode`/`.is`)
+export type GetResponseTypes<T extends ValidatedGetRouteName> = ValidatedGetRoutes[T]['responseValidator']['_A'];
+export type PostRequestTypes<T extends ValidatedPostRouteName> = ValidatedPostRoutes[T]['requestValidator']['_A'];
+export type PostResponseTypes<T extends ValidatedPostRouteName> = ValidatedPostRoutes[T]['responseValidator']['_A'];
+
+export type GetRouteOf<T extends ValidatedGetRouteName> = (req: Request) => Promise<GetResponseTypes<T>>;
+export type PostRouteOf<T extends ValidatedPostRouteName> = (req: PostRequestTypes<T>) => Promise<PostResponseTypes<T>>;
 
 export type ApiRoute = ValidatedGetRoutes[ValidatedGetRouteName]['path'] | ValidatedPostRoutes[ValidatedPostRouteName]['path'];
 
 export const addCrosspostRoutes = (app: Application) => {
   const addGetRoute = <RouteName extends ValidatedGetRouteName>(route: ValidatedGetRoutes[RouteName], callback: GetRouteOf<RouteName>) => {
     app.get(route.path, async (req, res) => {
-      let response: ValidatedGetRoutes[RouteName]['responseValidator']['_A'];
+      let response: GetResponseTypes<RouteName>;
       try {
         response = await callback(req);
       } catch (e) {
@@ -97,7 +102,7 @@ export const addCrosspostRoutes = (app: Application) => {
         console.error('Invalid request body in cross-site POST request', { body: req.body });
         return res.status(400).send({ error: 'Invalid request body' });
       }
-      let response: ValidatedPostRoutes[RouteName]['responseValidator']['_A'];
+      let response: PostResponseTypes<RouteName>;
       try {
         response = await callback(validatedRequestBody.right);
       } catch (e) {
