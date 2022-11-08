@@ -47,7 +47,7 @@ export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, colle
   return query
 }
 
-function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
+export function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
   const typeName = collection.options.typeName;
   return camelCaseify(typeName);
 }

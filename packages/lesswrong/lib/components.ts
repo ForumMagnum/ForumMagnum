@@ -30,7 +30,6 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
   importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
   importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
-  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/advice/AdvisorsRequestPage'))
   importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
   importComponent("CommunityMemberCard", () => require('../components/ea-forum/advice/CommunityMemberCard'))
 }
