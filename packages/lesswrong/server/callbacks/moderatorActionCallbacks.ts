@@ -13,9 +13,10 @@ getCollectionHooks('ModeratorActions').createAfter.add(async function triggerRev
 getCollectionHooks('ModeratorActions').createAsync.add(async function updateNotes({ newDocument, currentUser, context }) {
   const moderatedUserId = newDocument.userId;
   const moderatedUser = await context.loaders.Users.load(moderatedUserId);
-  const responsibleAdminName = currentUser?.displayName ?? 'probably automod';
+  // In the case where there isn't a currentUser, that means that the moderator action was created using automod (via callback) rather than being manually applied
+  const responsibleAdminName = currentUser?.displayName ?? 'Automod';
   const modActionDescription = MODERATOR_ACTION_TYPES[newDocument.type];
-  const newNote = getSignatureWithNote(responsibleAdminName, ` applied mod action "${modActionDescription}"`);
+  const newNote = getSignatureWithNote(responsibleAdminName, ` "${modActionDescription}"`);
   const oldNotes = moderatedUser.sunshineNotes ?? '';
   const updatedNotes = `${newNote}${oldNotes}`;
 

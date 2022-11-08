@@ -139,7 +139,8 @@ import './server/resolvers/analyticsResolvers';
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
 
-import './server/fmCrosspost';
+import './server/fmCrosspost/crosspost';
+import './server/fmCrosspost/routes';
 
 import './server/spotlightCron';
 

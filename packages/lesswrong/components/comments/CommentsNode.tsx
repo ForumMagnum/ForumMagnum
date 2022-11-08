@@ -153,7 +153,7 @@ const CommentsNode = ({
 
   const {hash: commentHash} = useLocation();
   useEffect(() => {
-    if (comment && commentHash === ("#" + comment._id) && post && postPage) {
+    if (comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         scrollIntoView()
       }, 0);

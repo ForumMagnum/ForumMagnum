@@ -19,11 +19,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   popout: {
     padding: "1px 0px 4px 0px",
+    maxWidth: 250,
+    '& .form-input': {
+      marginTop: 12,
+    },
+    '& .form-input:last-child': {
+      marginBottom: 4,
+    }
   },
   accountLink: {
-    marginTop: -6,
-    padding: "0px 8px",
-    fontStyle: "italic",
+    borderTop: "solid 1px",
+    borderColor: theme.palette.grey[300],
+    margin: "0px 4px",
+    padding: "4px 4px 0px 4px",
+    fontSize: 13,
+    color: theme.palette.primary.main
   },
 });
 
@@ -90,8 +100,8 @@ const SubforumNotificationSettings = ({
                     mutationFragment={getFragment("UserTagRelNotifications")}
                     autoSubmit
                   />
-                  <Typography variant="subheading" className={classes.accountLink}>
-                    <Link to={"/account"}>Change batching in user settings</Link>
+                  <Typography variant="body2" className={classes.accountLink}>
+                    <Link to={"/account?highlightField=notificationSubforumUnread"}>Change batching and email vs on-site in account settings</Link>
                   </Typography>
                 </>
               )}
