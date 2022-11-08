@@ -3,11 +3,12 @@ import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/mak
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
 import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
 import { URL } from 'url';
+import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -40,41 +41,51 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
   return result.url;
 }
 
-// Images on domains not in this list will be mirrored on Cloudinary and have
-// their lines updated. (If you run the script. This doesn't (yet) auto-apply
-// to all posts.)
-const imageUrlWhitelist = [
-  "cloudinary.com",
-  "res.cloudinary.com",
-  "www.lesswrong.com",
-  "www.alignmentforum.org",
-];
+/**
+ * Images on domains not in this list will be mirrored on Cloudinary and have
+ * their lines updated.
+ */
+function getImageUrlWhitelist() {
+  const localUploadUrl = ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get()
+  return [
+    "cloudinary.com",
+    "res.cloudinary.com",
+    "www.lesswrong.com",
+    "www.alignmentforum.org",
+  ].concat(localUploadUrl ? [new URL(localUploadUrl).host] : []);
+}
 
 function urlNeedsMirroring(url: string) {
   const parsedUrl = new URL(url);
-  if (imageUrlWhitelist.indexOf(parsedUrl.hostname) !== -1)
+  if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1)
     return false;
   return true;
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string): Promise<string> {
   const parsedHtml = cheerio.load(html);
-  const imgTags = parsedHtml("img");
+  const imgTags = parsedHtml("img").toArray();
+
+  // Upload all the images to Cloudinary (slow)
+  const mirrorUrls = await Promise.all(imgTags.map(async tag => {
+    const src = cheerio(tag).attr("src")
+    if (!(src && urlNeedsMirroring(src))) return null
+
+    const newUrl = await moveImageToCloudinary(src, originDocumentId)
+    return newUrl
+  }));
   
   for (let i=0; i<imgTags.length; i++) {
-    const src = cheerio(imgTags[i]).attr("src");
-    if (src && urlNeedsMirroring(src)) {
-      const newUrl = await moveImageToCloudinary(src, originDocumentId);
-      if (newUrl) {
-        cheerio(imgTags[i]).attr("src", newUrl);
-      }
+    const mirrorUrl = mirrorUrls[i];
+    if (mirrorUrl) {
+      cheerio(imgTags[i]).attr("src", mirrorUrl);
     }
   }
   
   return parsedHtml.html();
 }
 
-async function convertImagesInPost(postId: string) {
+export async function convertImagesInPost(postId: string) {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     // eslint-disable-next-line no-console
@@ -91,9 +102,11 @@ async function convertImagesInPost(postId: string) {
   
   const newVersion = await getNextVersion(postId, "patch", "contents", false);
   const now = new Date();
-  const oldHtml = latestRev.html;
+  // NOTE: we use the post contents rather than the revision contents because we don't
+  // create a revision for no-op edits (this is arguably a bug)
+  const oldHtml = post.contents.html;
   const newHtml = await convertImagesInHTML(oldHtml, postId);
-  if (newHtml === latestRev.html) {
+  if (newHtml === oldHtml) {
     // eslint-disable-next-line no-console
     console.log("No images to convert.");
     return;
