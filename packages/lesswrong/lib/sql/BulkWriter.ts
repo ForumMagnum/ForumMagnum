@@ -90,7 +90,9 @@ class BulkWriter<T extends DbObject> {
   }
 
   async execute(client: SqlClient): Promise<BulkWriterResult> {
-    await client.multi(client.concat(this.queries));
+    if (this.queries.length) {
+      await client.multi(client.concat(this.queries));
+    }
     return {
       ok: 1,
     };

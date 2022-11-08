@@ -36,6 +36,7 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   if (!url) {
     throw new Error("PG_URL not configured");
   }
+
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
@@ -48,13 +49,16 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     // eslint-disable-next-line
     console.error("Failed to create Postgres extensions:", e);
   }
-  const sql = db as unknown as SqlClient;
-  sql.concat = <T extends DbObject>(queries: Query<T>[]): string => {
-    const compiled = queries.map((query) => {
-      const {sql, args} = query.compile();
-      return {query: sql, values: args};
-    });
-    return pgPromiseLib.helpers.concat(compiled);
-  }
-  return sql;
+
+  return {
+    ...db,
+    $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
+    concat: <T extends DbObject>(queries: Query<T>[]): string => {
+      const compiled = queries.map((query) => {
+        const {sql, args} = query.compile();
+        return {query: sql, values: args};
+      });
+      return pgPromiseLib.helpers.concat(compiled);
+    },
+  };
 }
