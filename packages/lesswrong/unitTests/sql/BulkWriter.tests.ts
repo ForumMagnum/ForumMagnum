@@ -72,20 +72,18 @@ describe("BulkWriter", () => {
   });
   it("can execute writer queries", async () => {
     const client = {
-      any: jest.fn(),
+      multi: jest.fn(),
     } as unknown as SqlClient;
 
     const writer = new BulkWriter(testTable, [
-      {insertOne: {document: {} as DbObject}},
-      {updateOne: {filter: {}, update: {}}},
-      {updateMany: {filter: {}, update: {}}},
+      {insertOne: {document: {_id: "some-id"} as DbObject}},
       {deleteOne: {filter: {a: 3}}},
-      {deleteMany: {filter: {a: 3}}},
     ]);
 
     const result = await writer.execute(client);
     expect(result).toStrictEqual({ok: 1});
 
-    expect(client.any).toHaveBeenCalledTimes(5);
+    expect(client.multi).toHaveBeenCalledTimes(1);
+    expect(client.multi).toHaveBeenCalledWith("INSERT INTO \"TestCollection\" ( \"_id\" , \"a\" , \"b\" , \"c\" , \"schemaVersion\" ) VALUES  ( 'some-id' ,  null ,  null ,  null ,  null );DELETE FROM \"TestCollection\" WHERE _id IN ( SELECT \"_id\" FROM \"TestCollection\" WHERE \"a\" =  3 LIMIT 1 )");
   });
 });

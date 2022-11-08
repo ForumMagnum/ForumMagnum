@@ -1,5 +1,8 @@
 import Table from "./Table";
 import { Type, JsonType, ArrayType } from "./Type";
+import pgp from "pg-promise";
+
+const pgPromiseLib = pgp({});
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -509,6 +512,14 @@ abstract class Query<T extends DbObject> {
     }
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
+  }
+
+  static concat<T extends DbObject>(queries: Query<T>[]): string {
+    const compiled = queries.map((query) => {
+      const {sql, args} = query.compile();
+      return {query: sql, values: args};
+    });
+    return pgPromiseLib.helpers.concat(compiled);
   }
 }
 
