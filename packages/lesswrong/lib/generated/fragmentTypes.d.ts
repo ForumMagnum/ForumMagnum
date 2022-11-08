@@ -1173,7 +1173,6 @@ interface CommentsList { // fragment on Comments
   readonly topLevelCommentId: string,
   readonly descendentCount: number,
   readonly contents: CommentsList_contents|null,
-  readonly createdAt: Date,
   readonly postedAt: Date,
   readonly repliesBlockedUntil: Date,
   readonly userId: string,

@@ -7,7 +7,7 @@ export function getAverageContentKarma(content: VoteableType[]) {
 }
 
 interface ModeratableContent extends VoteableType {
-  createdAt: Date;
+  postedAt: Date;
 }
 
 type KarmaContentJudgment = {
@@ -24,7 +24,8 @@ export function isLowAverageKarmaContent(content: ModeratableContent[], contentT
   const oneWeekAgo = moment().subtract(7, 'days').toDate();
 
   // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
-  if (content.every(item => item.createdAt < oneWeekAgo)) return { lowAverage: false };
+  // Also, using postedAt rather than createdAt to avoid posts that have remained as drafts for a while not getting evaluated
+  if (content.every(item => item.postedAt < oneWeekAgo)) return { lowAverage: false };
   
   const lastNContent = contentType === 'comment' ? 10 : 5;
   const karmaThreshold = contentType === 'comment' ? 1.5 : 5;
