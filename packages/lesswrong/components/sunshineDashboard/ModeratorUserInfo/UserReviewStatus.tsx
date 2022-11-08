@@ -35,4 +35,3 @@ declare global {
     UserReviewStatus: typeof UserReviewStatusComponent
   }
 }
-
