@@ -79,7 +79,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     apolloClient,
   });
 
-  // const foreignPost: FragmentTypes[FragmentTypeName] = data?.['getCrosspost'];
+  // const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
