@@ -64,16 +64,17 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
-  const parsedHtml = cheerio.load(html);
+  // @ts-ignore
+  const parsedHtml = cheerio.load(html, null, false);
   const imgTags = parsedHtml("img").toArray();
 
   // Upload all the images to Cloudinary (slow)
-  const mirrorUrls = await Promise.all(imgTags.map(async tag => {
+  const mirrorUrls = await Promise.all(imgTags.map(tag => {
     const src = cheerio(tag).attr("src")
     if (!src || !(src && urlNeedsMirroring(src, urlFilterFn))) return null
 
-    const newUrl = await moveImageToCloudinary(src, originDocumentId)
-    return newUrl
+    // resolve to the url of the image on cloudinary
+    return moveImageToCloudinary(src, originDocumentId)
   }));
 
   // cheerio is not guarantueed to return the same html so explicitly count
