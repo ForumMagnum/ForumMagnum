@@ -55,26 +55,29 @@ function getImageUrlWhitelist() {
   ].concat(localUploadUrl ? [new URL(localUploadUrl).host] : []);
 }
 
-function urlNeedsMirroring(url: string) {
+function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   const parsedUrl = new URL(url);
-  if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1)
+  if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1) {
     return false;
-  return true;
+  }
+  return filterFn(url);
 }
 
-async function convertImagesInHTML(html: string, originDocumentId: string): Promise<{count: number, html: string}> {
+async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
   const parsedHtml = cheerio.load(html);
   const imgTags = parsedHtml("img").toArray();
 
   // Upload all the images to Cloudinary (slow)
   const mirrorUrls = await Promise.all(imgTags.map(async tag => {
     const src = cheerio(tag).attr("src")
-    if (!(src && urlNeedsMirroring(src))) return null
+    if (!src || !(src && urlNeedsMirroring(src, urlFilterFn))) return null
 
     const newUrl = await moveImageToCloudinary(src, originDocumentId)
     return newUrl
   }));
-  
+
+  // cheerio is not guarantueed to return the same html so explicitly count
+  // the number of images that were converted
   let count = 0
   for (let i=0; i<imgTags.length; i++) {
     const mirrorUrl = mirrorUrls[i];
@@ -87,20 +90,26 @@ async function convertImagesInHTML(html: string, originDocumentId: string): Prom
   return {count, html: parsedHtml.html()};
 }
 
-export async function convertImagesInPost(postId: string) {
+/**
+ * Reupload all images in a post to Cloudinary, and create a new revision with the updated html
+ * @param postId - The post to reupload images for
+ * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
+ * @returns The number of images that were mirrored
+ */
+export async function convertImagesInPost(postId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<number> {
   try {
     const post = await Posts.findOne({_id: postId});
     if (!post) {
       // eslint-disable-next-line no-console
       console.error(`Cannot convert images in post ${postId}: invalid post ID`);
-      return;
+      return 0;
     }
     
     const latestRev = await getLatestRev(postId, "contents");
     if (!latestRev) {
       // eslint-disable-next-line no-console
       console.error(`Could not find a latest-revision for post ID: ${postId}`);
-      return;
+      return 0;
     }
     
     const newVersion = await getNextVersion(postId, "patch", "contents", false);
@@ -108,11 +117,11 @@ export async function convertImagesInPost(postId: string) {
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)
     const oldHtml = post.contents.html;
-    const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, postId);
+    const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, postId, urlFilterFn);
     if (!uploadCount) {
       // eslint-disable-next-line no-console
       console.log("No images to convert.");
-      return;
+      return 0;
     } else {
       // eslint-disable-next-line no-console
       console.log(`Converted ${uploadCount} images`)
@@ -141,9 +150,12 @@ export async function convertImagesInPost(postId: string) {
         },
       }
     });
+    return uploadCount;
   } catch (e) {
     // Always catch the error because the post should mostly load fine without rehosting the images
+    // eslint-disable-next-line no-console
     console.error("Error in convertImagesInPost", e)
+    return 0
   }
 }
 

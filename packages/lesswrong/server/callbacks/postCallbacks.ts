@@ -244,8 +244,8 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
  * are automatically reuploaded on paste rather than on submit (see https://app.asana.com/0/628521446211730/1203311932993130/f).
  * It's fine to leave it here just in case though
  */
-getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => await convertImagesInPost(post._id))
-getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => await convertImagesInPost(post._id))
+getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
+getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
 
 // For posts without comments, update lastCommentedAt to match postedAt
 //
