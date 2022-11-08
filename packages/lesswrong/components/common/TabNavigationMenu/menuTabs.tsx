@@ -316,12 +316,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
-      id: 'advice',
-      title: 'Book a 1:1 [BETA]',
-      link: `/advice`,
-      tooltip: "Chat with community members in career paths you're interested in exploring",
-      subItem: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
