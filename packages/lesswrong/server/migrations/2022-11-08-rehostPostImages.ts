@@ -20,6 +20,7 @@ registerMigration({
         postCount += posts.length;
         uploadCount += uploadCounts.reduce((a, b) => a + b, 0);
 
+        // eslint-disable-next-line no-console
         console.log(`Converted ${uploadCount} images in ${postCount} posts`);
       }
     });
