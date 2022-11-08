@@ -9,6 +9,7 @@ import * as _ from 'underscore';
 import classNames from 'classnames';
 import { userCanDo } from '../../lib/vulcan-users';
 import { UserReviewStatus } from './ModeratorUserInfo/UserReviewStatus';
+import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -164,31 +165,23 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   currentUser: UsersCurrent
 }) => {
 
-  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
-
-  const { results: posts, loading: postsLoading } = useMulti({
+  const { results: posts = [], loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 40
   });
 
-  const { results: comments, loading: commentsLoading } = useMulti({
+  const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 40
   });
 
-  const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
-
-  const { MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, ModeratorActions } = Components
-
-  const hiddenPostCount = user.maxPostCount - user.postCount
-  const hiddenCommentCount = user.maxCommentCount - user.commentCount
+  const { MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, ModeratorActions } = Components
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
@@ -241,33 +234,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                 </span>
               </LWTooltip>
             </div>
-            <div>
-              Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
-                karma
-              </span>
-              <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
-                postedAt
-              </span>
-            </div>
-            <div>
-              <LWTooltip title="Post count">
-                <span>
-                  { user.postCount || 0 }
-                  <DescriptionIcon className={classes.hoverPostIcon}/>
-                </span> 
-              </LWTooltip>
-              {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-              { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null} 
-            </div>
-            {(commentsLoading || postsLoading) && <Loading/>}
-            <div>
-              <LWTooltip title="Comment count">
-                { user.commentCount || 0 }
-              </LWTooltip>
-              <MessageIcon className={classes.icon}/> 
-              {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
-              { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
-            </div>
+            <ContentSummaryRows user={user} posts={posts} comments={comments} loading={postsLoading || commentsLoading}/>
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </MetaInfo>
