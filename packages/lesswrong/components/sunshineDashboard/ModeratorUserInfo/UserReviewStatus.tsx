@@ -14,7 +14,9 @@ export const UserReviewStatus = ({classes, user}: {
 }) => {
   const { FormatDate, UsersNameWrapper } = Components
 
-  const approvalStatus = (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
+  const approvalStatus = user.banned 
+    ? "Banned"
+    : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
 
   return <div className={classes.root}>
     {user.reviewedAt
