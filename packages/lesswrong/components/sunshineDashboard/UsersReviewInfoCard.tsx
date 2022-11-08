@@ -216,6 +216,8 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
       </div>
       <MetaInfo className={classes.referrerLandingPage}>
         {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+      </MetaInfo>
+      <MetaInfo className={classes.referrerLandingPage}>
         {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
       </MetaInfo>
     </div>
