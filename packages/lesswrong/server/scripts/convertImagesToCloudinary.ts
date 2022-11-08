@@ -43,7 +43,7 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
 
 /**
  * Images on domains not in this list will be mirrored on Cloudinary and have
- * their lines updated.
+ * their src updated.
  */
 function getImageUrlWhitelist() {
   const localUploadUrl = ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get()
@@ -62,7 +62,7 @@ function urlNeedsMirroring(url: string) {
   return true;
 }
 
-async function convertImagesInHTML(html: string, originDocumentId: string): Promise<string> {
+async function convertImagesInHTML(html: string, originDocumentId: string): Promise<{count: number, html: string}> {
   const parsedHtml = cheerio.load(html);
   const imgTags = parsedHtml("img").toArray();
 
@@ -75,66 +75,76 @@ async function convertImagesInHTML(html: string, originDocumentId: string): Prom
     return newUrl
   }));
   
+  let count = 0
   for (let i=0; i<imgTags.length; i++) {
     const mirrorUrl = mirrorUrls[i];
     if (mirrorUrl) {
+      count++
       cheerio(imgTags[i]).attr("src", mirrorUrl);
     }
   }
   
-  return parsedHtml.html();
+  return {count, html: parsedHtml.html()};
 }
 
 export async function convertImagesInPost(postId: string) {
-  const post = await Posts.findOne({_id: postId});
-  if (!post) {
-    // eslint-disable-next-line no-console
-    console.error(`Cannot convert images in post ${postId}: invalid post ID`);
-    return;
-  }
-  
-  const latestRev = await getLatestRev(postId, "contents");
-  if (!latestRev) {
-    // eslint-disable-next-line no-console
-    console.error(`Could not find a latest-revision for post ID: ${postId}`);
-    return;
-  }
-  
-  const newVersion = await getNextVersion(postId, "patch", "contents", false);
-  const now = new Date();
-  // NOTE: we use the post contents rather than the revision contents because we don't
-  // create a revision for no-op edits (this is arguably a bug)
-  const oldHtml = post.contents.html;
-  const newHtml = await convertImagesInHTML(oldHtml, postId);
-  if (newHtml === oldHtml) {
-    // eslint-disable-next-line no-console
-    console.log("No images to convert.");
-    return;
-  }
-  
-  const newRevision = {
-    ...latestRev,
-    _id: randomId(),
-    html: newHtml,
-    editedAt: now,
-    updateType: "patch",
-    version: newVersion,
-    commitMessage: "Move images to CDN",
-    changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
-  };
-  const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
-  await Posts.rawUpdateOne({_id: postId}, {
-    $set: {
-      contents_latest: insertedRevisionId,
-      contents: {
-        ...post.contents,
-        html: newHtml,
-        version: newVersion,
-        editedAt: now,
-        updateType: "patch",
-      },
+  try {
+    const post = await Posts.findOne({_id: postId});
+    if (!post) {
+      // eslint-disable-next-line no-console
+      console.error(`Cannot convert images in post ${postId}: invalid post ID`);
+      return;
     }
-  });
+    
+    const latestRev = await getLatestRev(postId, "contents");
+    if (!latestRev) {
+      // eslint-disable-next-line no-console
+      console.error(`Could not find a latest-revision for post ID: ${postId}`);
+      return;
+    }
+    
+    const newVersion = await getNextVersion(postId, "patch", "contents", false);
+    const now = new Date();
+    // NOTE: we use the post contents rather than the revision contents because we don't
+    // create a revision for no-op edits (this is arguably a bug)
+    const oldHtml = post.contents.html;
+    const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, postId);
+    if (!uploadCount) {
+      // eslint-disable-next-line no-console
+      console.log("No images to convert.");
+      return;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Converted ${uploadCount} images`)
+    }
+    
+    const newRevision = {
+      ...latestRev,
+      _id: randomId(),
+      html: newHtml,
+      editedAt: now,
+      updateType: "patch",
+      version: newVersion,
+      commitMessage: "Move images to CDN",
+      changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
+    };
+    const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
+    await Posts.rawUpdateOne({_id: postId}, {
+      $set: {
+        contents_latest: insertedRevisionId,
+        contents: {
+          ...post.contents,
+          html: newHtml,
+          version: newVersion,
+          editedAt: now,
+          updateType: "patch",
+        },
+      }
+    });
+  } catch (e) {
+    // Always catch the error because the post should mostly load fine without rehosting the images
+    console.error("Error in convertImagesInPost", e)
+  }
 }
 
 Globals.moveImageToCloudinary = moveImageToCloudinary;
