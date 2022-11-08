@@ -1,3 +1,4 @@
+import moment from "moment";
 import { forumTypeSetting } from "../../instanceSettings";
 
 export function getAverageContentKarma(content: VoteableType[]) {
@@ -5,8 +6,26 @@ export function getAverageContentKarma(content: VoteableType[]) {
   return runningContentKarma / content.length;
 }
 
-export function isLowAverageKarmaContent(content: VoteableType[], contentType: 'post' | 'comment') {
+interface ModeratableContent extends VoteableType {
+  postedAt: Date;
+}
+
+type KarmaContentJudgment = {
+  lowAverage: false;
+  averageContentKarma?: undefined;
+} | {
+  lowAverage: boolean;
+  averageContentKarma: number;
+};
+
+export function isLowAverageKarmaContent(content: ModeratableContent[], contentType: 'post' | 'comment'): KarmaContentJudgment {
   if (!content.length) return { lowAverage: false };
+
+  const oneWeekAgo = moment().subtract(7, 'days').toDate();
+
+  // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
+  // Also, using postedAt rather than createdAt to avoid posts that have remained as drafts for a while not getting evaluated
+  if (content.every(item => item.postedAt < oneWeekAgo)) return { lowAverage: false };
   
   const lastNContent = contentType === 'comment' ? 10 : 5;
   const karmaThreshold = contentType === 'comment' ? 1.5 : 5;
