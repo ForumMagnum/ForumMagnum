@@ -37,6 +37,9 @@ adminsGroup.can(adminActions);
 // LessWrong Permissions
 
 Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null, outReasonDenied: {reason?: string}): Promise<boolean> => {
+  const canonicalLinkSharingKey = post.linkSharingKey;
+  const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
+
   if (post.onlyVisibleToLoggedIn && !currentUser) {
     if (outReasonDenied)
       outReasonDenied.reason = "This post is only visible to logged-in users.";
@@ -46,7 +49,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
     return true
   } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
     return true;
-  } else if (!currentUser && constantTimeCompare(getSharingKeyFromContext(context), post.linkSharingKey)) {
+  } else if (!currentUser && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

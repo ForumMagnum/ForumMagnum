@@ -11,14 +11,20 @@ export const messageGetLink = (message: DbMessage): string => {
   return `/inbox/${message.conversationId}`;
 };
 
-
-export function constantTimeCompare(a: string, b: string) {
+export function constantTimeCompare({ correctValue, unknownValue }: { correctValue: string, unknownValue: string }) {
   try {
-    const firstArr = a.split('');
-    const secondArr = b.split('');
+    const correctValueChars = correctValue.split('');
+    const unknownValueChars = unknownValue.split('');
 
-    const allCharsEqual = firstArr.every((firstArrChar, idx) => secondArr[idx] === firstArrChar);
-    const sameLength = firstArr.length === secondArr.length;
+    let allCharsEqual = true;
+
+    // Iterate over the array of correct characters, which has a known (constant) length, to mitigate certain timing attacks
+    for (const [idx, char] of Object.entries(correctValueChars)) {
+      const matchedIndexCharsEqual = char === unknownValueChars[idx];
+      allCharsEqual = matchedIndexCharsEqual && allCharsEqual;
+    }
+
+    const sameLength = correctValueChars.length === unknownValueChars.length;
 
     return allCharsEqual && sameLength;
   } catch {

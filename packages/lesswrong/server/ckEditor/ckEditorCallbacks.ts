@@ -83,6 +83,9 @@ defineQuery({
     if (!post) {
       throw new Error("Invalid postId or not shared with you");
     }
+
+    const canonicalLinkSharingKey = post.linkSharingKey;
+    const keysMatch = constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });  
     
     // Either:
     //  * The logged-in user is explicitly shared on this post
@@ -95,7 +98,7 @@ defineQuery({
     if (
       (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser?._id))
       || (linkSharingEnabled(post)
-          && (!post.linkSharingKey || constantTimeCompare(post.linkSharingKey, linkSharingKey)))
+          && (!canonicalLinkSharingKey || keysMatch))
       || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser?._id))
       || currentUser?._id === post.userId
       || userCanDo(currentUser, 'posts.edit.all')
