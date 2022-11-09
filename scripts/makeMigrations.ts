@@ -23,7 +23,7 @@ const run = async () => {
   
   const runExec = promisify(exec)
   console.log("Checking that a local server is running...");
-  await runExec("./scripts/serverShellCommand.sh --wait \"Vulcan.makeMigrations({})\"")
+  await runExec("./scripts/serverShellCommand.sh --wait \"Vulcan.makeMigrations({forumType: 'EAForum'})\"")
   
   const migrationFilesAfter = (
     (await readdir(migrationsPath(rootPath), { withFileTypes: true }))

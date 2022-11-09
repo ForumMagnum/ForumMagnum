@@ -44,13 +44,7 @@ export const runStartupFunctions = async () => {
 let instanceSettings: any = null;
 export const getInstanceSettings = (): any => {
   if (!instanceSettings) {
-    if (isAnyTest) {
-      instanceSettings = {
-        public: {
-          forumType: "EAForum",
-        },
-      };
-    } else if (bundleIsServer) {
+    if (bundleIsServer) {
       const { loadInstanceSettings } = require('../server/commandLine.ts');
       instanceSettings = loadInstanceSettings();
     } else {

@@ -6,7 +6,6 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';

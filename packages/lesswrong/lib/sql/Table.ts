@@ -1,6 +1,7 @@
 import { Type, IdType, isResolverOnly } from "./Type";
 import TableIndex from "./TableIndex";
 import { expectedIndexes } from "../collectionIndexUtils";
+import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
 
 /**
  * Table represents the collection schema as it exists in Postgres,
@@ -56,8 +57,9 @@ class Table {
     return this.indexes;
   }
 
-  static fromCollection<T extends DbObject>(collection: CollectionBase<T>) {
+  static fromCollection<T extends DbObject>(collection: CollectionBase<T>, forumType?: ForumTypeString) {
     const table = new Table(collection.collectionName);
+    forumType ??= forumTypeSetting.get() ?? "EAForum";
 
     const schema = collection._schemaFields;
     for (const field of Object.keys(schema)) {
@@ -67,7 +69,7 @@ class Table {
         const fieldSchema = schema[field];
         if (!isResolverOnly(field, fieldSchema)) {
           const indexSchema = schema[`${field}.$`];
-          table.addField(field, Type.fromSchema(field, fieldSchema, indexSchema));
+          table.addField(field, Type.fromSchema(field, fieldSchema, indexSchema, forumType));
         }
       }
     }

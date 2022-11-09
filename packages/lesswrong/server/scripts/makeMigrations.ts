@@ -10,6 +10,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
+import { forumTypeSetting, ForumTypeString } from '../../lib/instanceSettings';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -48,8 +49,13 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 `
 
 const generateMigration = async ({
-  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath
-}: {acceptedSchemaFile: string, toAcceptSchemaFile: string, toAcceptHash: string, rootPath: string
+  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath, forumType,
+}: {
+  acceptedSchemaFile: string,
+  toAcceptSchemaFile: string,
+  toAcceptHash: string,
+  rootPath: string,
+  forumType?: ForumTypeString,
 }) => {
   const execRun = (cmd) => {
     return new Promise((resolve, reject) => {
@@ -57,7 +63,7 @@ const generateMigration = async ({
       exec(cmd, (error, stdout, stderr) => resolve(stdout))
     })
   }
-  
+
   // bit of a hack but using `git diff` for everything makes the changes easy to read
   const diff: string = await execRun(`git diff --no-index ${acceptedSchemaFile} ${toAcceptSchemaFile} --unified=1`) as string;
   const paddedDiff = diff.replace(/^/gm, ' * ');
@@ -66,10 +72,10 @@ const generateMigration = async ({
   contents += migrationTemplateHeader.replace("%TIMESTAMP%", new Date().toISOString());
   contents += paddedDiff.length < 1500 ? paddedDiff : ` * ***Diff too large to display***`;
   contents += migrationTemplateFooter.replace("%HASH%", toAcceptHash);
-  
+
   const fileTimestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
   const fileName = `${fileTimestamp}.auto.ts`;
-  
+
   await writeFile(path.join(migrationsPath(rootPath), fileName), contents);
 }
 
@@ -78,11 +84,11 @@ const generateMigration = async ({
  * @param collectionName
  * @returns {string} The SQL required to create the table for this collection
  */
-const getCreateTableQueryForCollection = (collectionName: string): string => {
+const getCreateTableQueryForCollection = (collectionName: string, forumType?: ForumTypeString): string => {
   const collection = getCollection(collectionName as any);
   if (!collection) throw new Error(`Invalid collection: ${collectionName}`);
   
-  const table = Table.fromCollection(collection);
+  const table = Table.fromCollection(collection, forumType);
   const createTableQuery = new CreateTableQuery(table);
   const compiled = createTableQuery.compile();
 
@@ -110,10 +116,21 @@ const getCreateTableQueryForCollection = (collectionName: string): string => {
  * @param {boolean} writeAcceptedSchema - If true, update the `accepted_schema.sql` and `schema_to_accept.sql`
  * @param {boolean} generateMigrations - If true, generate a template migration file if the schema has changed
  * @param {boolean} rootPath - The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test.
+ * @param {boolean} forumType - The optional forumType to switch to
  */
 export const makeMigrations = async ({
-  writeSchemaChangelog=true, writeAcceptedSchema=true, generateMigrations=true, rootPath=ROOT_PATH
-}: {writeSchemaChangelog: boolean, writeAcceptedSchema: boolean, generateMigrations: boolean, rootPath: string}) => {
+  writeSchemaChangelog=true,
+  writeAcceptedSchema=true,
+  generateMigrations=true,
+  rootPath=ROOT_PATH,
+  forumType,
+}: {
+  writeSchemaChangelog: boolean,
+  writeAcceptedSchema: boolean,
+  generateMigrations: boolean,
+  rootPath: string,
+  forumType?: ForumTypeString,
+}) => {
   console.log(`=== Checking for schema changes ===`);
   // Get the most recent accepted schema hash from `schema_changelog.json`
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
@@ -128,7 +145,7 @@ export const makeMigrations = async ({
 
   for (const collectionName of collectionNames) {
     try {
-      const sql = getCreateTableQueryForCollection(collectionName);
+      const sql = getCreateTableQueryForCollection(collectionName, forumType);
 
       const hash = md5(sql);
       currentHashes[collectionName] = hash;
@@ -156,7 +173,7 @@ export const makeMigrations = async ({
       await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
     }
     if (generateMigrations) {
-      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
+      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath, forumType});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }

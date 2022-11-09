@@ -2,6 +2,8 @@ import { getCollection } from "../vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "../random";
+import { DeferredForumSelect } from "../forumTypeUtils";
+import { ForumTypeString } from "../instanceSettings";
 
 const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents"];
 
@@ -41,7 +43,8 @@ export abstract class Type {
   static fromSchema<T extends DbObject>(
     fieldName: string,
     schema: CollectionFieldSpecification<T>,
-    indexSchema?: CollectionFieldSpecification<T>,
+    indexSchema: CollectionFieldSpecification<T> | undefined,
+    forumType: ForumTypeString,
   ) {
     if (isResolverOnly(fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
@@ -49,12 +52,15 @@ export abstract class Type {
 
     if (schema.defaultValue !== undefined && schema.defaultValue !== null) {
       const {defaultValue, ...rest} = schema;
-      return new DefaultValueType(Type.fromSchema(fieldName, rest, indexSchema), defaultValue);
+      const value = defaultValue instanceof DeferredForumSelect
+        ? defaultValue.get(forumType)
+        : defaultValue;
+      return new DefaultValueType(Type.fromSchema(fieldName, rest, indexSchema, forumType), value);
     }
 
     if (schema.optional === false || schema.nullable === false) {
       const newSchema = {...schema, optional: true, nullable: true};
-      return new NotNullType(Type.fromSchema(fieldName, newSchema, indexSchema));
+      return new NotNullType(Type.fromSchema(fieldName, newSchema, indexSchema, forumType));
     }
 
     switch (schema.type) {
@@ -76,7 +82,7 @@ export abstract class Type {
         if (!indexSchema) {
           throw new Error("No schema type provided for array member");
         }
-        return new ArrayType(Type.fromSchema(fieldName + ".$", indexSchema));
+        return new ArrayType(Type.fromSchema(fieldName + ".$", indexSchema, undefined, forumType));
     }
 
     if (schema.type instanceof SimpleSchema) {

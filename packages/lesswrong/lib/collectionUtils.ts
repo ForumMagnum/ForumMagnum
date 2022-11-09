@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { ensureIndex } from './collectionIndexUtils';
+import { DeferredForumSelect } from './forumTypeUtils';
 import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
@@ -52,7 +53,7 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
     fieldName: string,
   }) => {
     if (newDocument[fieldName] === undefined) {
-      return defaultValue;
+      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
     }
