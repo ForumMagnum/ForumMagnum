@@ -1,19 +1,22 @@
 import { Application, Request, Response, json } from "express";
 import { testServerSetting } from "../lib/instanceSettings";
-import { Globals, Vulcan } from "./vulcan-lib";
+
+let serverShellCommandScope: Record<string, any> = {};
+
+export const setServerShellCommandScope = (scope: Record<string, any>) =>
+  serverShellCommandScope = scope;
 
 const compileWithGlobals = (code: string) => {
   // This is basically just eval() but done in a way that:
   //   1) Allows us to define our own global scope
   //   2) Doesn't upset esbuild
   const callable = (async function () {}).constructor(`with(this) { return ${code} }`);
-  const scope = {Globals, Vulcan};
   return () => {
     return callable.call(new Proxy({}, {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key] ?? scope[key];
+          return global[key] ?? serverShellCommandScope[key];
         }
       }
     }));

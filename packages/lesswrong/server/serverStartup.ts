@@ -12,13 +12,16 @@ import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
-import { Globals } from '../lib/vulcan-lib/config';
+import { setServerShellCommandScope } from './serverShellCommand';
+import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import process from 'process';
 
 async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Starting server");
-  
+
+  setServerShellCommandScope({Vulcan, Globals});
+
   const isTTY = process.stdout.isTTY;
   const CSI = "\x1b[";
   const blue = isTTY ? `${CSI}34m` : "";
