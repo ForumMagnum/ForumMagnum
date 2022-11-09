@@ -27,7 +27,9 @@ const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
 declare global {
   type SqlClient = IDatabase<{}> & {
-    concat: <T extends DbObject>(queries: Query<T>[]) => string;
+    // We can't use `T extends DbObject` here because DbObject isn't available to the
+    // migration bootstrapping code - `any` will do for now
+    concat: (queries: Query<any>[]) => string;
   };
 }
 
@@ -53,7 +55,7 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   return {
     ...db,
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
-    concat: <T extends DbObject>(queries: Query<T>[]): string => {
+    concat: (queries: Query<any>[]): string => {
       const compiled = queries.map((query) => {
         const {sql, args} = query.compile();
         return {query: sql, values: args};
