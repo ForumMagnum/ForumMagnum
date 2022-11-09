@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import Button from '@material-ui/core/Button'
@@ -13,6 +13,7 @@ import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -164,17 +165,30 @@ const TargetedJobAd = ({
   const [expanded, setExpanded] = useState(false)
   
   // the AdvisorRequests collection is set to be deleted anyway, so reuse it for this job ad test,
-  // as a way to track which users have registered interest in the Metaculus job
-  const { create: registerInterest } = useCreate({
+  // as a way to track which users have seen and/or registered interest in the Metaculus job
+  const { create: createJobAdView } = useCreate({
     collectionName: 'AdvisorRequests',
     fragmentName: 'AdvisorRequestsMinimumInfo',
   })
-  const { count, loading } = useMulti({
+  const { mutate: registerInterest } = useUpdate({
+    collectionName: 'AdvisorRequests',
+    fragmentName: 'AdvisorRequestsMinimumInfo',
+  })
+  const { results, count, loading } = useMulti({
     terms: {view: 'requestsByUser', userId: currentUser?._id, limit: 1},
     collectionName: 'AdvisorRequests',
     fragmentName: 'AdvisorRequestsMinimumInfo',
     skip: !currentUser
   })
+  
+  // track which users have seen the ad
+  useEffect(() => {
+    if (!loading && !count && currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
+      void createJobAdView({
+        data: {userId: currentUser._id, interestedInMetaculus: false}
+      })
+    }
+  }, [loading, count, currentUser])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
@@ -191,16 +205,18 @@ const TargetedJobAd = ({
   }
   
   const handleRegisterInterest = async () => {
-    if (!currentUser) return
+    if (!currentUser || !results?.length) return
+    // track which users have registered interest
     await registerInterest({
-      data: {userId: currentUser._id, interestedInMetaculus: true}
+      selector: {_id: results[0]._id},
+      data: {interestedInMetaculus: true}
     })
     flash({messageString: "Thanks for registering interest!", type: "success"})
   }
   
   const { HoverPreviewLink, LWTooltip } = Components
   
-  if (loading || count || cookies[HIDE_JOB_AD_COOKIE] || !currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
+  if (loading || (results?.length && results[0].interestedInMetaculus) || cookies[HIDE_JOB_AD_COOKIE] || !currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
     return null
   }
 
@@ -212,12 +228,14 @@ const TargetedJobAd = ({
             <div className={classes.labelText}>
               Job  recommendation
             </div>
-            <LWTooltip title="We think you should consider this role because it's probably more impactful than your current job.">
+            <LWTooltip title="You’re seeing this recommendation because of your interest in software engineering. We encourage you to consider jobs like this which might increase your impact significantly.">
               <InfoIcon className={classes.infoIcon} />
             </LWTooltip>
           </div>
           <div className={classes.feedbackLink}>
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdGyKmZRZHqdhEc70QNIzOTKy_j1aMEByGhE_HtciSNMUSJTA/viewform" target="_blank" rel="noopener noreferrer">Give us feedback</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdGyKmZRZHqdhEc70QNIzOTKy_j1aMEByGhE_HtciSNMUSJTA/viewform" target="_blank" rel="noopener noreferrer">
+              Give us feedback on this experiment
+            </a>
           </div>
           <Tooltip title="Dismiss">
             <Button className={classes.closeButton} onClick={dismissJobAd}>
@@ -226,8 +244,8 @@ const TargetedJobAd = ({
           </Tooltip>
         </div>
         <h2 className={classes.header}>
-          {/* TODO: replace with bitly link */}
-          <a href="https://apply.workable.com/metaculus/j/409AECAA94/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          {/* Direct link to job description: https://apply.workable.com/metaculus/j/409AECAA94/ */}
+          <a href="https://efctv.org/3A16UNq" target="_blank" rel="noopener noreferrer" className={classes.link}>
             Full-stack engineer
           </a> at <span className={classes.link}>
             <HoverPreviewLink href="/topics/metaculus" innerHTML="Metaculus" />
