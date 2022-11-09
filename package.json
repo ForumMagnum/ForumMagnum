@@ -8,7 +8,7 @@
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "./build.js",
-    "start": "NODE_OPTIONS=--max_old_space_size=8192 ./build.js --no-clear -run -watch --settings settings.json",
+    "start": "NODE_OPTIONS=--max_old_space_size=8192 ./build.js --no-clear -run -watch --mongoUrl mongodb://127.0.0.1:27017/?directConnection=true --settings settings.json",
     "start-dev-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
     "start-local-db": "PORT=4000 ./build.js --no-clear -run --watch --mongoUrl mongodb://127.0.0.1:27017/?directConnection=true --settings ./settings-test.json",
