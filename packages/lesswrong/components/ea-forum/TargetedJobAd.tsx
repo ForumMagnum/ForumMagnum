@@ -11,6 +11,8 @@ import { useCookies } from 'react-cookie';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
+import { useCreate } from '../../lib/crud/withCreate';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: '6px 10px',
     }
   },
-  jobAdLogo: {
+  logo: {
     flex: 'none',
     width: 54,
     marginTop: 20,
@@ -34,37 +36,37 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: 40,
     }
   },
-  jobAdBodyCol: {
+  bodyCol: {
     flexGrow: 1,
     marginBottom: 6,
     [theme.breakpoints.down('xs')]: {
       marginBottom: 4
     }
   },
-  jobAdTopRow: {
+  topRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     columnGap: 10,
   },
-  jobAdLabel: {
+  label: {
     alignSelf: 'flex-start',
     flexGrow: 1,
     display: 'flex',
     columnGap: 8,
     color: theme.palette.grey[500],
   },
-  jobAdLabelText: {
+  labelText: {
     whiteSpace: 'pre',
     letterSpacing: 0.5,
     fontSize: 11,
     fontStyle: 'italic'
   },
-  jobAdInfoIcon: {
+  infoIcon: {
     fontSize: 14,
     color: theme.palette.grey[400],
   },
-  jobAdFeedbackLink: {
+  feedbackLink: {
     fontSize: 12,
     color: theme.palette.link.primaryDim,
     [theme.breakpoints.down('xs')]: {
@@ -80,32 +82,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     color: theme.palette.grey[400],
   },
-  jobAdHeader: {
+  header: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 18,
     color: theme.palette.grey[700],
     margin: '0 0 3px'
   },
-  jobAdLink: {
+  link: {
     color: theme.palette.primary.main
   },
-  jobAdMetadataRow: {
+  metadataRow: {
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 30,
     rowGap: '3px'
   },
-  jobAdMetadata: {
+  metadata: {
     display: 'flex',
     alignItems: 'center',
     columnGap: 4,
     fontSize: 13,
     color: theme.palette.grey[600],
   },
-  jobAdMetadataIcon: {
+  metadataIcon: {
     fontSize: 12,
   },
-  jobAdReadMore: {
+  readMore: {
     fontFamily: theme.typography.fontFamily,
     background: 'none',
     color: theme.palette.primary.main,
@@ -115,7 +117,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     },
   },
-  jobAdOrgDescription: {
+  orgDescription: {
     maxWidth: 600,
     fontSize: 13,
     lineHeight: '20px',
@@ -125,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0
     }
   },
-  jobAdPrompt: {
+  prompt: {
     maxWidth: 600,
     fontSize: 13,
     lineHeight: '20px',
@@ -134,16 +136,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 14,
     marginBottom: 10
   },
-  jobAdBtn: {
+  btnRow: {
+    marginBottom: 4
+  },
+  btn: {
     // color: theme.palette.text.alwaysWhite,
     textTransform: 'none',
     boxShadow: 'none',
-    marginBottom: 4
   }
 });
 
 const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
-const SOFTWARE_ENG_TAG_ID = 'FHE3J3E8qd6oqGZ8a'//'CGameg7coDgLbtgdH'
+// const SOFTWARE_ENG_TAG_ID = 'FHE3J3E8qd6oqGZ8a'
+
+// for testing purposes, this points to the "Forecasting" topic on the dev db
+const SOFTWARE_ENG_TAG_ID = 'CGameg7coDgLbtgdH'
 
 const TargetedJobAd = ({
   classes,
@@ -155,6 +162,19 @@ const TargetedJobAd = ({
   const { flash } = useMessages()
   const [cookies, setCookie] = useCookies([HIDE_JOB_AD_COOKIE])
   const [expanded, setExpanded] = useState(false)
+  
+  // the AdvisorRequests collection is set to be deleted anyway, so reuse it for this job ad test,
+  // as a way to track which users have registered interest in the Metaculus job
+  const { create: registerInterest } = useCreate({
+    collectionName: 'AdvisorRequests',
+    fragmentName: 'AdvisorRequestsMinimumInfo',
+  })
+  const { count, loading } = useMulti({
+    terms: {view: 'requestsByUser', userId: currentUser?._id, limit: 1},
+    collectionName: 'AdvisorRequests',
+    fragmentName: 'AdvisorRequestsMinimumInfo',
+    skip: !currentUser
+  })
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
@@ -170,30 +190,33 @@ const TargetedJobAd = ({
     setExpanded(true)
   }
   
-  const registerInterest = () => {
-    // TODO
+  const handleRegisterInterest = async () => {
+    if (!currentUser) return
+    await registerInterest({
+      data: {userId: currentUser._id, interestedInMetaculus: true}
+    })
     flash({messageString: "Thanks for registering interest!", type: "success"})
   }
   
   const { HoverPreviewLink, LWTooltip } = Components
   
-  if (cookies[HIDE_JOB_AD_COOKIE] || !currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
+  if (loading || count || cookies[HIDE_JOB_AD_COOKIE] || !currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
     return null
   }
 
   return <div className={classes.root}>
-      <img src="https://80000hours.org/wp-content/uploads/2019/07/Metaculus-160x160.jpeg" className={classes.jobAdLogo} />
-      <div className={classes.jobAdBodyCol}>
-        <div className={classes.jobAdTopRow}>
-          <div className={classes.jobAdLabel}>
-            <div className={classes.jobAdLabelText}>
+      <img src="https://80000hours.org/wp-content/uploads/2019/07/Metaculus-160x160.jpeg" className={classes.logo} />
+      <div className={classes.bodyCol}>
+        <div className={classes.topRow}>
+          <div className={classes.label}>
+            <div className={classes.labelText}>
               Job  recommendation
             </div>
             <LWTooltip title="We think you should consider this role because it's probably more impactful than your current job.">
-              <InfoIcon className={classes.jobAdInfoIcon} />
+              <InfoIcon className={classes.infoIcon} />
             </LWTooltip>
           </div>
-          <div className={classes.jobAdFeedbackLink}>
+          <div className={classes.feedbackLink}>
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSdGyKmZRZHqdhEc70QNIzOTKy_j1aMEByGhE_HtciSNMUSJTA/viewform" target="_blank" rel="noopener noreferrer">Give us feedback</a>
           </div>
           <Tooltip title="Dismiss">
@@ -202,43 +225,46 @@ const TargetedJobAd = ({
             </Button>
           </Tooltip>
         </div>
-        <h2 className={classes.jobAdHeader}>
+        <h2 className={classes.header}>
           {/* TODO: replace with bitly link */}
-          <a href="https://apply.workable.com/metaculus/j/409AECAA94/" target="_blank" rel="noopener noreferrer" className={classes.jobAdLink}>
+          <a href="https://apply.workable.com/metaculus/j/409AECAA94/" target="_blank" rel="noopener noreferrer" className={classes.link}>
             Full-stack engineer
-          </a> at <span className={classes.jobAdLink}>
+          </a> at <span className={classes.link}>
             <HoverPreviewLink href="/topics/metaculus" innerHTML="Metaculus" />
           </span>
         </h2>
-        <div className={classes.jobAdMetadataRow}>
-          <div className={classes.jobAdMetadata}>
+        <div className={classes.metadataRow}>
+          <div className={classes.metadata}>
             $70k - $120k
           </div>
-          <div className={classes.jobAdMetadata}>
-            <LocationIcon className={classes.jobAdMetadataIcon} />
+          <div className={classes.metadata}>
+            <LocationIcon className={classes.metadataIcon} />
             Remote
           </div>
         </div>
-        {!expanded && <button onClick={handleReadMore} className={classes.jobAdReadMore}>Read more</button>}
+        {!expanded && <button onClick={handleReadMore} className={classes.readMore}>Read more</button>}
         
         {expanded && <>
-          <div className={classes.jobAdOrgDescription}>
+          <div className={classes.orgDescription}>
             Metaculus is an online forecasting platform and aggregation engine working to improve human reasoning and coordination on topics of global importance.
           </div>
-          <div className={classes.jobAdOrgDescription}>
+          <div className={classes.orgDescription}>
             Ideal candidates:
             <ul>
-              <li>Have experience shipping features end-to-end (CSS, angular/react, API, & Python/Django)</li>
+              <li>Have experience shipping features end-to-end (CSS, Angular/React, API, & Python/Django)</li>
               <li>Can quickly prototype and deploy functionality</li>
               <li>Are interested in forecasting the future of humanity</li>
             </ul>
           </div>
-          <div className={classes.jobAdPrompt}>
+          <div className={classes.prompt}>
             If you're interested in this role, would you like us to pass along your EA Forum profile to the hiring manager?
           </div>
-          <Button variant="contained" color="primary" onClick={registerInterest} className={classes.jobAdBtn}>
-            Yes, I'm interested
-          </Button>
+          <div className={classes.btnRow}>
+            <Button variant="contained" color="primary" onClick={handleRegisterInterest} className={classes.btn}>
+              Yes, I'm interested
+            </Button>
+          </div>
+          <button onClick={() => setExpanded(false)} className={classes.readMore}>Show less</button>
         </>}
       </div>
     </div>

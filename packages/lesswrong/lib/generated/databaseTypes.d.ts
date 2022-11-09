@@ -13,13 +13,7 @@ interface AdvisorRequestsCollection extends CollectionBase<DbAdvisorRequest, "Ad
 interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   userId: string
-  timezone: string
-  availability: string
-  questions: string
-  linkedinProfile: string
-  previousExperience: string
-  selectedAdvisors: Array<string>
-  referrer: string
+  interestedInMetaculus: boolean
   createdAt: Date
 }
 
