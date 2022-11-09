@@ -1,8 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
 import { useSingle } from '../../lib/crud/withSingle';
 import { useTheme } from '../themes/useTheme';
+import { SidebarsContext } from '../common/SidebarsWrapper';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import classNames from 'classnames';
@@ -69,6 +70,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
   const iconRef = useRef<HTMLSpanElement|null>(null);
+  const {sideCommentsActive, setSideCommentsActive} = useContext(SidebarsContext)!;
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
   // if the mouse is over the icon.) This is so that if you click on the
@@ -81,6 +83,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       setPinned("closed");
     } else {
       setPinned("open");
+      setSideCommentsActive(true);
     }
   }
   const onMouseLeave = () => {
@@ -112,6 +115,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
         open={isOpen} anchorEl={anchorEl}
         className={classes.popper}
         clickable={true}
+        allowOverflow={true}
         placement={"bottom-start"}
       >
         <SideCommentHover post={post} commentIds={commentIds}/>

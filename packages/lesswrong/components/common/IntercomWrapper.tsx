@@ -16,6 +16,9 @@ const styles = (theme: ThemeType): JssStyles => ({
         backgroundColor: theme.palette.intercom.buttonBackground
       }
     } : null),
+    ".intercom-lightweight-app": {
+      zIndex: theme.zIndexes.intercomButton,
+    },
   },
 });
 
@@ -30,7 +33,7 @@ const IntercomWrapper = ({classes}: {
   }
   
   if (currentUser && !currentUser.hideIntercom) {
-    return <div id="intercome-outer-frame">
+    return <div className={classes.intercomFrame} id="intercom-outer-frame">
       <Intercom
         appID={intercomAppIdSetting.get()}
         user_id={currentUser._id}
@@ -39,7 +42,7 @@ const IntercomWrapper = ({classes}: {
       />
     </div>
   } else if (!currentUser) {
-    return <div id="intercome-outer-frame">
+    return <div className={classes.intercomFrame} id="intercom-outer-frame">
       <Intercom appID={intercomAppIdSetting.get()}/>
     </div>
   } else {

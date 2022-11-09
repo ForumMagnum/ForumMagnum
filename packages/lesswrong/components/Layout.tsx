@@ -10,7 +10,6 @@ import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
-import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
@@ -78,12 +77,12 @@ const styles = (theme: ThemeType): JssStyles => ({
         "navSidebar ... main ... sunshine"
       `,
       gridTemplateColumns: `
-      minmax(0, min-content)
-      minmax(0, 1fr)
-      minmax(0, min-content)
-      minmax(0, 1.4fr)
-      minmax(0, min-content)
-    `,
+        minmax(0, min-content)
+        minmax(0, 1fr)
+        minmax(0, min-content)
+        minmax(0, 1.4fr)
+        minmax(0, min-content)
+      `,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -118,7 +117,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   searchResultsArea: {
     position: "absolute",
-    zIndex: theme.zIndexes.layout,
+    zIndex: theme.zIndexes.searchResults,
     top: 0,
     width: "100%",
   },
@@ -130,7 +129,7 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [toc,setToCState] = useState<{title: string|null, sections?: ToCSection[]}|null>(null);
+  const [sideCommentsActive,setSideCommentsActive] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
   const location = useLocation();
@@ -139,17 +138,6 @@ const Layout = ({currentUser, children, classes}: {
     fragmentName: 'UsersCurrent',
   });
   
-  const setToC = useCallback((title: string|null, sectionData: ToCData|null) => {
-    if (title) {
-      setToCState({
-        title: title,
-        sections: sectionData?.sections
-      });
-    } else {
-      setToCState(null);
-    }
-  }, []);
-
   const toggleStandaloneNavigation = useCallback(() => {
     if (currentUser) {
       void updateUser({
@@ -163,7 +151,7 @@ const Layout = ({currentUser, children, classes}: {
   }, [updateUser, currentUser, hideNavigationSidebar]);
 
   const render = () => {
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, IntercomWrapper } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
 
     // Check whether the current route is one which should have standalone
     // navigation on the side. If there is no current route (ie, a 404 page),
@@ -196,7 +184,7 @@ const Layout = ({currentUser, children, classes}: {
       <UserContext.Provider value={currentUser}>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
-      <TableOfContentsContext.Provider value={setToC}>
+      <SidebarsWrapper>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
@@ -220,7 +208,6 @@ const Layout = ({currentUser, children, classes}: {
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
               
               {!currentRoute?.standalone && <Header
-                toc={toc}
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
@@ -257,7 +244,7 @@ const Layout = ({currentUser, children, classes}: {
           </DialogManager>
         </div>
       </CommentOnSelectionPageWrapper>
-      </TableOfContentsContext.Provider>
+      </SidebarsWrapper>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UserContext.Provider>
