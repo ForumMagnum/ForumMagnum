@@ -202,6 +202,12 @@ class SwitchingCollection<T extends DbObject> {
     return base.collectionName;
   }
 
+  /**
+   * For the sake of integrity, we maintain a single-source-of-truth for which
+   * collections are using which database which is managed by server/mongo2PgLock.
+   * This funciton updates the read/write state of the collection from the values
+   * currently stored in the lock.
+   */
   async readFromLock(): Promise<void> {
     const {collectionName} = this.mongoCollection.options as any;
     const type = await getCollectionLockType(collectionName);
@@ -209,6 +215,9 @@ class SwitchingCollection<T extends DbObject> {
     this.writeTarget = type;
   }
 
+  /**
+   * Save the current read/write state to the lock table after successfully migrating.
+   */
   async writeToLock(): Promise<void> {
     if (this.readTarget !== this.writeTarget) {
       throw new Error("Make sure the read and write target are the same before writing to the lock table");
@@ -217,6 +226,17 @@ class SwitchingCollection<T extends DbObject> {
     await setCollectionLockType(collectionName, this.readTarget);
   }
 
+  /**
+   * The production sites use multiple server instances. The Mongo to Postgres
+   * migrations are run on remote dev machines, so we need a way to switch the
+   * prod instances from Mongo to Postgres after migrations are complete. The
+   * simplest way to do this is to regularly poll the lock table until we've
+   * switched, then we can stop.
+   *
+   * The overhead from this is very small as the lock is a very small table which
+   * we are searching by primary key, and the network overhead is minimal as the
+   * database and server instances are both in the same AWS region.
+   */
   startPolling(): void {
     const poll = async () => {
       if (this.readTarget === "pg" && this.writeTarget === "pg") {
