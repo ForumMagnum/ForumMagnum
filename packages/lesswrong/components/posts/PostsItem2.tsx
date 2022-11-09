@@ -41,6 +41,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     background: theme.palette.panelBackground.default,
   },
+  checkboxWidth: {
+    width: "calc(100% - 24px)"
+  },
   translucentBackground: {
     width: "100%",
     background: theme.palette.panelBackground.translucent,
@@ -491,6 +494,7 @@ const PostsItem2 = ({
           classes.root,
           {
             [classes.background]: !translucentBackground,
+            [classes.checkboxWidth]: showReadCheckbox,
             [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
