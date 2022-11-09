@@ -197,7 +197,7 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
     />
   </div>;
 
-  return <div className={classes.root}>
+  return <div className={classes.root} id={comment._id}>
     <div className={classes.columns}>
       {headerColumn}
       {seeInContextColumn}
