@@ -118,7 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     },
   },
-  orgDescription: {
+  description: {
     maxWidth: 600,
     fontSize: 13,
     lineHeight: '20px',
@@ -188,7 +188,7 @@ const TargetedJobAd = ({
         data: {userId: currentUser._id, interestedInMetaculus: false}
       })
     }
-  }, [loading, count, currentUser])
+  }, [loading, count, currentUser, createJobAdView])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
@@ -263,10 +263,13 @@ const TargetedJobAd = ({
         {!expanded && <button onClick={handleReadMore} className={classes.readMore}>Read more</button>}
         
         {expanded && <>
-          <div className={classes.orgDescription}>
-            Metaculus is an online forecasting platform and aggregation engine working to improve human reasoning and coordination on topics of global importance.
+          <div className={classes.description}>
+            <a href="https://www.metaculus.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
+              Metaculus
+            </a> is an online forecasting platform and aggregation engine working to improve human
+            reasoning and coordination on topics of global importance.
           </div>
-          <div className={classes.orgDescription}>
+          <div className={classes.description}>
             Ideal candidates:
             <ul>
               <li>Have experience shipping features end-to-end (CSS, Angular/React, API, & Python/Django)</li>
