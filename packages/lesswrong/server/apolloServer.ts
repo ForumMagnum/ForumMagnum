@@ -35,11 +35,12 @@ import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './createTestingPgDb';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
+import { addServerShellCommandRoutes } from './serverShellCommand';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
@@ -245,8 +246,9 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
+  addServerShellCommandRoutes(app);
 
-  if (isDevelopment) {
+  if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
       process.kill(estrellaPid, 'SIGQUIT');
