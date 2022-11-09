@@ -12,10 +12,11 @@ import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties 
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -234,6 +235,17 @@ async function extractSocialPreviewImage (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
+
+/**
+ * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
+ * they have fairly strict rate limits that often result in them failing to load.
+ *
+ * NOTE: This will soon become obsolete because we are going to make it so images
+ * are automatically reuploaded on paste rather than on submit (see https://app.asana.com/0/628521446211730/1203311932993130/f).
+ * It's fine to leave it here just in case though
+ */
+getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
+getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
 
 // For posts without comments, update lastCommentedAt to match postedAt
 //
