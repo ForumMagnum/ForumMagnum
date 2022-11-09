@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -18,7 +18,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   contentNotice: {
     ...theme.typography.contentNotice,
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    maxWidth: 600,
   },
   infoIcon: {
     width: 16,
@@ -62,15 +63,18 @@ const PostBodyPrefix = ({post, query, classes}: {
 
     <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
-    
+
     {post.shortform && post.draft && <div className={classes.contentNotice}>
       This is a special post that holds your short-form writing. Because it's
       marked as a draft, your short-form posts will not be displayed. To un-draft
       it, pick Edit from the menu above, then click Publish.
     </div>}
-    
+
     {post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
-      Because this is your first post, this post is awaiting moderator approval.
+      {currentUser?._id === post.userId
+        ? "Because this is your first post, this post is awaiting moderator approval."
+        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to go through moderation."
+      }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
         Most posts will be approved within 24 hours; posts that are spam or that don't meet site

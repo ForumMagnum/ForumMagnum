@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -65,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit * 4,
     position: 'relative',
     backgroundColor: theme.palette.panelBackground.default,
-    marginTop: -200,
+    marginTop: -127,
     zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {
       marginTop: -100,
@@ -167,7 +168,7 @@ const SequencesPage = ({ documentId, classes }: {
         </SectionFooter>
         
         <ContentStyles contentType="post" className={classes.description}>
-          {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`}/>}
+          {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>}
         </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>

@@ -10,6 +10,7 @@ import './server/startupSanityChecks';
 import './server/database-import/database_import_new';
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
+import './server/karmaInflation/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
@@ -62,7 +63,9 @@ import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
 import './server/rsvpToEvent';
+import './server/acceptCoauthorRequest';
 import './server/bookmarkMutation';
+import './server/hidePostMutation';
 import './server/rss';
 import './server/akismet';
 import './server/votingCron';
@@ -88,7 +91,7 @@ import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
-import './lib/collections/posts/validate';
+import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
 import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
@@ -96,11 +99,13 @@ import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
+import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
+import './server/callbacks/moderatorActionCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
@@ -128,6 +133,11 @@ import './server/resolvers/analyticsResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
+
+import './server/fmCrosspost/crosspost';
+import './server/fmCrosspost/routes';
+
+import './server/spotlightCron';
 
 import './server/codegen/generateTypes';
 

@@ -224,7 +224,13 @@ export class MongoCollection<T extends DbObject> {
   
   aggregate = (pipeline, options) => {
     const table = this.getTable();
-    return table.aggregate(pipeline, options);
+    return {
+      toArray: async () => {
+        return await wrapQuery(`${this.tableName}.aggregate(...).toArray`, () => {
+          return table.aggregate(pipeline, options).toArray();
+        });
+      }
+    };
   }
   rawCollection = () => ({
     bulkWrite: async (operations, options) => {

@@ -64,6 +64,8 @@ export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('clo
 
 export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10) // Number of days to display in the timeframe view
 
+export const nofollowKarmaThreshold = new DatabasePublicSetting<number>('nofollowKarmaThreshold', 10) // Users with less than this much karma have their links marked as nofollow
+
 export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US')
 export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw') // Because the EA Forum was identical except for the change from /lw/ to /ea/
 
@@ -99,3 +101,5 @@ export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "20
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
+
+export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")

@@ -9,29 +9,28 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const AFSuggestPostsList = ({ terms, classes }: {
-  terms: PostsViewTerms,
+const AFSuggestPostsList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
-    terms,
+  const { results, loadMoreProps } = useMulti({
+    terms: {view:"alignmentSuggestedPosts"},
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
     fetchPolicy: 'cache-and-network',
   });
+  const { SunshineListTitle, OmegaIcon, AFSuggestPostsItem, LoadMore } = Components;
   if (results && results.length) {
-    return (
-      <div>
-        <Components.SunshineListTitle>
-          <div><Components.OmegaIcon className={classes.icon}/> Suggested Posts</div>
-        </Components.SunshineListTitle>
-        {results.map(post =>
-          <div key={post._id} >
-            <Components.AFSuggestPostsItem post={post}/>
-          </div>
-        )}
-      </div>
-    )
+    return <div>
+      <SunshineListTitle>
+        <div><OmegaIcon className={classes.icon}/> Suggested Posts</div>
+      </SunshineListTitle>
+      {results.map(post =>
+        <div key={post._id} >
+          <AFSuggestPostsItem post={post}/>
+        </div>
+      )}
+      <LoadMore {...loadMoreProps}/>
+    </div>
   } else {
     return null
   }

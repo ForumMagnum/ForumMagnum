@@ -1,11 +1,9 @@
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
-import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { eligibleToNominate, REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 

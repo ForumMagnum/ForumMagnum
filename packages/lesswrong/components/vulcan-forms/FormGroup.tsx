@@ -5,6 +5,7 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { withLocation } from '../../lib/routeUtil';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -43,7 +44,7 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
+export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey400,
@@ -73,7 +74,7 @@ const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, classes }) => {
+const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, classes }) => {
   return <div className={classNames(
     { [classes.formSectionPadding]: paddingStyling,
       [classes.formSection]: groupStyling},
@@ -92,13 +93,15 @@ const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, group
     >
       {children}
     </div>
+    {footer}
   </div>
 };
 FormGroupLayout.propTypes = {
   hasErrors: PropTypes.bool,
   collapsed: PropTypes.bool,
   heading: PropTypes.node,
-  children: PropTypes.node
+  footer: PropTypes.node,
+  children: PropTypes.node,
 };
 const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles: groupLayoutStyles});
 
@@ -107,8 +110,15 @@ class FormGroup extends PureComponent<any,any> {
     super(props);
     this.toggle = this.toggle.bind(this);
     this.renderHeading = this.renderHeading.bind(this);
+    this.setFooterContent = this.setFooterContent.bind(this);
+
+    const { query } = this.props.location;
+    const highlightInFields = query.highlightField && props.fields.map(f => f.name).includes(query.highlightField)
+    const collapsed = (props.startCollapsed && !highlightInFields) || false
+
     this.state = {
-      collapsed: props.startCollapsed || false
+      collapsed,
+      footerContent: null,
     };
   }
 
@@ -116,6 +126,10 @@ class FormGroup extends PureComponent<any,any> {
     this.setState({
       collapsed: !this.state.collapsed
     });
+  }
+
+  setFooterContent(footerContent) {
+    this.setState({ footerContent });
   }
 
   renderHeading(FormComponents) {
@@ -153,6 +167,7 @@ class FormGroup extends PureComponent<any,any> {
         toggle={this.toggle}
         collapsed={collapsed}
         heading={groupStyling ? this.renderHeading(FormComponents) : null}
+        footer={this.state.footerContent}
         groupStyling={groupStyling}
         paddingStyling={paddingStyle}
         hasErrors={this.hasErrors()}
@@ -174,6 +189,7 @@ class FormGroup extends PureComponent<any,any> {
             currentUser={this.props.currentUser}
             formProps={formProps}
             formComponents={FormComponents}
+            setFooterContent={this.setFooterContent}
           />
         ))}
       </FormComponents.FormGroupLayout>
@@ -194,10 +210,10 @@ class FormGroup extends PureComponent<any,any> {
   addToDeletedValues: PropTypes.func.isRequired,
   clearFieldErrors: PropTypes.func.isRequired,
   formType: PropTypes.string.isRequired,
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
 };
 
-const FormGroupComponent = registerComponent('FormGroup', FormGroup);
+const FormGroupComponent = registerComponent('FormGroup', FormGroup, {hocs: [withLocation]});
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg

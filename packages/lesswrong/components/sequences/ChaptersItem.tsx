@@ -5,20 +5,22 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginLeft: 10,
-    marginBottom: 8,
+    marginBottom: 24,
     marginTop: 16
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: "1.16em",
     lineHeight: 1.1,
     fontStyle: "italic",
-    marginTop: 20,
+    marginTop: 12,
   },
   posts: {
-    [theme.breakpoints.down('sm')]: {
       paddingLeft: 8,
       paddingRight: 8
-    }
+  },
+  title: {
+    display: "flex",
+    justifyContent: "space-between"
   }
 });
 
@@ -36,8 +38,8 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
     setEdit(false);
   }, []);
 
-  const { ChaptersEditForm, SectionTitle, SectionFooter,
-    SectionButton, SequencesPostsList, ContentItemBody, ContentStyles } = Components
+  const { ChaptersEditForm, ChapterTitle, SectionFooter,
+    SectionButton, ContentItemBody, ContentStyles, PostsItem2 } = Components
   const html = chapter.contents?.html || ""
   if (edit) return (
     <ChaptersEditForm
@@ -51,10 +53,10 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   </SectionButton>
 
   return (
-    <div>
-      {chapter.title && <SectionTitle title={chapter.title}>
-        {canEdit && editButton}
-      </SectionTitle>}
+  <div>
+    <div className={classes.title}>
+      {chapter.title && <ChapterTitle title={chapter.title} large/>}
+    </div>
       {html && <ContentStyles contentType="post" className={classes.description}>
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: html}}
@@ -63,7 +65,11 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
       </ContentStyles>}
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
-          <SequencesPostsList posts={chapter.posts} chapter={chapter} />
+          {chapter.posts.map(post => { 
+            return <div key={chapter._id + post._id}>
+              <PostsItem2 sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+            </div>
+          })}
         </AnalyticsContext>
       </div>
       {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}

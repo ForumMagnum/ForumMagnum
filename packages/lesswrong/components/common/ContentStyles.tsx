@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   commentBody: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
   },
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)
@@ -79,7 +79,7 @@ const ContentStyles = ({contentType, className, children, classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classNames(
-    className, classes.base, {
+    className, classes.base, "content", {
       [classes.postBody]: contentType==="post",
       [classes.postHighlight]: contentType==="postHighlight",
       [classes.commentBody]: contentType==="comment",

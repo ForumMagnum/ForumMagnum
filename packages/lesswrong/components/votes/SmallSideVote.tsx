@@ -1,6 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, CommentVotingComponent, getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { registerComponent } from '../../lib/vulcan-lib';
+import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 
 const SmallSideVote = ({document, hideKarma=false, collection}: {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,

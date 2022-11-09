@@ -5,6 +5,7 @@ registerFragment(`
     _id
     user {
       ...UsersMinimumInfo
+      profileImageId
     }
     contents {
       html

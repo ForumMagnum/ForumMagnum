@@ -17,6 +17,8 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
+import { truncatise } from '../../lib/truncatise';
+import moment from 'moment';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
@@ -44,7 +46,9 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
+    publicDateMs: moment(comment.postedAt).valueOf(),
     af: comment.af,
+    tags: comment.tagId ? [comment.tagId] : [],
     body: "",
   };
   const commentAuthor = await Users.findOne({_id: comment.userId});
@@ -53,12 +57,30 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
   }
-  const parentPost = await Posts.findOne({_id: comment.postId});
-  if (parentPost) {
-    algoliaComment.postId = comment.postId;
-    algoliaComment.postTitle = parentPost.title;
-    algoliaComment.postSlug = parentPost.slug;
+  if (comment.postId) {
+    const parentPost = await Posts.findOne({_id: comment.postId});
+    if (parentPost) {
+      algoliaComment.postId = comment.postId;
+      algoliaComment.postTitle = parentPost.title;
+      algoliaComment.postSlug = parentPost.slug;
+      algoliaComment.postIsEvent = parentPost.isEvent;
+      algoliaComment.postGroupId = parentPost.groupId;
+      const tags = parentPost.tagRelevance ?
+        Object.entries(parentPost.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+        : []
+      algoliaComment.tags = tags
+    }
   }
+  if (comment.tagId) {
+    const tag = await Tags.findOne({_id: comment.tagId});
+    if (tag) {
+      algoliaComment.tagId = comment.tagId;
+      algoliaComment.tagCommentType = comment.tagCommentType;
+      algoliaComment.tagName = tag.name;
+      algoliaComment.tagSlug = tag.slug;
+    }
+  }
+
   let body = ""
   if (comment.contents?.originalContents?.type) {
     const { data, type } = comment.contents.originalContents
@@ -80,8 +102,10 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
     title: sequence.title,
     userId: sequence.userId,
     createdAt: sequence.createdAt,
+    publicDateMs: moment(sequence.createdAt).valueOf(),
     af: sequence.af,
     plaintextDescription: "",
+    bannerImageId: sequence.bannerImageId,
   };
   const sequenceAuthor = await Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
@@ -101,20 +125,46 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
   if (user.deleted) return null;
   if (user.deleteContent) return null;
   
+  let howOthersCanHelpMe = ""
+  if (user.howOthersCanHelpMe?.originalContents?.type) {
+    const { data, type } = user.howOthersCanHelpMe.originalContents
+    howOthersCanHelpMe = dataToMarkdown(data, type)
+  }
+  let howICanHelpOthers = ""
+  if (user.howICanHelpOthers?.originalContents?.type) {
+    const { data, type } = user.howICanHelpOthers.originalContents
+    howICanHelpOthers = dataToMarkdown(data, type)
+  }
+  
+  const bioOriginalContents = user.biography?.originalContents;
+  const bio = bioOriginalContents ? dataToMarkdown(bioOriginalContents.data, bioOriginalContents.type) : "";
+  const htmlBio = user.biography?.html || "";
+  
   const algoliaUser: AlgoliaUser = {
     _id: user._id,
     objectID: user._id,
     username: user.username,
     displayName: user.displayName,
     createdAt: user.createdAt,
+    publicDateMs: moment(user.createdAt).valueOf(),
     isAdmin: user.isAdmin,
-    bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
-    htmlBio: user.htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    profileImageId: user.profileImageId,
+    bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    htmlBio: truncatise(htmlBio, {
+      TruncateBy: 'characters',
+      TruncateLength: USER_BIO_MAX_SEARCH_CHARACTERS - 500 // some buffer for HTML tags
+    }),
+    howOthersCanHelpMe: howOthersCanHelpMe.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    howICanHelpOthers: howICanHelpOthers.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
+    jobTitle: user.jobTitle,
+    organization: user.organization,
+    careerStage: user.careerStage,
     website: user.website,
     groups: user.groups,
     af: user.groups && user.groups.includes('alignmentForum'),
+    tags: user.profileTagIds,
     ...(user.mapLocation?.geometry?.location?.lat && {_geoloc: {
       lat: user.mapLocation.geometry.location.lat,
       lng: user.mapLocation.geometry.location.lng,
@@ -142,18 +192,22 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     slug: post.slug,
     baseScore: post.baseScore,
     status: post.status,
+    curated: !!post.curatedDate,
     legacy: post.legacy,
     commentCount: post.commentCount,
     userIP: post.userIP,
     createdAt: post.createdAt,
     postedAt: post.postedAt,
+    publicDateMs: moment(post.postedAt).valueOf(),
     isFuture: post.isFuture,
+    isEvent: post.isEvent,
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
     af: post.af,
     tags,
     body: "",
+    order: 0,
   };
   const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
@@ -182,16 +236,18 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
         // Some random tests seem to imply that they use UTF-8, which means between 1 and 4 bytes per character.
         // So limit to 18,000 characters under the assumption that we have ~1.1 bytes/character.
         body: paragraph.slice(0, 18000),
+        order: paragraphCounter
       }));
     })
   } else {
     postBatch.push(_.clone({
       ...algoliaMetaInfo,
       objectID: post._id + "_0",
-      body: ""
+      body: "",
+      order: 0
     }));
   }
-  return postBatch;
+  return postBatch
 }
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
@@ -217,9 +273,11 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
     wikiOnly: tag.wikiOnly,
+    isSubforum: tag.isSubforum,
     description,
+    bannerImageId: tag.bannerImageId
   }];
-} 
+}
 
 
 // Do algoliaIndex.waitTask as an async function rather than a
@@ -388,22 +446,6 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   }
 }
 
-// Given an objectID from an Algolia record, figure out whether this record is
-// part of a group of records merged by `distinct`, and if so, return the set
-// of objectIDs of records in that group. Otherwise return the given ID.
-async function algoliaObjectIDtoIDgroup(algoliaIndex: algoliasearch.Index, id: string): Promise<Array<string>> {
-  // Does the ID have an underscore in it? If so, it's (_id)_(group index)
-  if (id.indexOf('_') >= 0) {
-    const [mongoId, groupIndexStr] = id.split('_');
-    const groupIndex = parseInt(groupIndexStr);
-    const largestIndex = await getHighestGroupIndexInGroup(algoliaIndex, mongoId, groupIndex);
-    
-    return _.map(_.range(largestIndex+1), index=>`${mongoId}_${index}`);
-  } else {
-    return [id];
-  }
-}
-
 // Find the largest ID in this group. Unfortunately the only way to do this is
 // to try retrieving different IDs, and see what does and doesn't come back.
 async function getHighestGroupIndexInGroup(algoliaIndex: algoliasearch.Index, mongoId: string, lowerBound: number): Promise<number> {
@@ -414,10 +456,16 @@ async function getHighestGroupIndexInGroup(algoliaIndex: algoliasearch.Index, mo
   return largestIndex;
 }
 
-// Given a set of objectIDs, some of which are of the form (mongoId)_(groupIndex)
-// and some of which aren't, some of which share mongoIds but not groupIndexes,
-// return all objectIDs in the algolia index which share a mongoId with one of
-// the provided objectIDs, but have a higher groupIndex than any in the input.
+ /**
+  * TODO-FIXME: Seems to be broken, based on bugged behavior. Fix with distinct
+  * search instead.
+  *
+  * Given a set of objectIDs, some of which are of the form
+  * (mongoId)_(groupIndex) and some of which aren't, some of which share
+  * mongoIds but not groupIndexes, return all objectIDs in the algolia index
+  * which share a mongoId with one of the provided objectIDs, but have a higher
+  * groupIndex than any in the input.
+  */
 async function algoliaObjectIDsToHigherIDSet(algoliaIndex: algoliasearch.Index, ids: Array<string>): Promise<Array<string>> {
   const highestGroupIndexes: Record<string,number> = {};
   for (let id of ids) {
@@ -459,11 +507,10 @@ async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids: Array<str
       query: mongoId,
       restrictSearchableAttributes: ["_id"],
       attributesToRetrieve: ['objectID','_id'],
+      distinct: false,
     });
     for (const hit of results) {
-      const idGroup = await algoliaObjectIDtoIDgroup(algoliaIndex, hit.objectID)
-      for (const id of idGroup)
-        algoliaIdsToDelete.push(id);
+      algoliaIdsToDelete.push(hit.objectID);
     }
   }
   
@@ -502,9 +549,6 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
     return;
   }
-  // if (isDevelopment) {  // Only run document export in production environment
-  //   return null
-  // }
   let client = getAlgoliaAdminClient();
   if (!client) {
     return;

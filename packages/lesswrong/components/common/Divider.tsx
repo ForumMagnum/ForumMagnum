@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,6 +38,9 @@ const Divider = ({ classes, wings=true }: {
   classes: ClassesType,
   wings?: boolean
 }) => {
+  if (forumTypeSetting.get() === "EAForum") {
+    return null;
+  }
   return <div className={classes.root}>
     {wings && <div className={classes.divider}>
       { divider }

@@ -1,28 +1,15 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { useEffect, useState } from 'react';
-import moment from 'moment';
-import { useCurrentUser } from '../common/withUser';
+import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import DoneIcon from '@material-ui/icons/Done';
-import FlagIcon from '@material-ui/icons/Flag';
-import SnoozeIcon from '@material-ui/icons/Snooze';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
-import Button from '@material-ui/core/Button';
 import * as _ from 'underscore';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-import Input from '@material-ui/core/Input';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
-
-const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
-
-export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
+import classNames from 'classnames';
+import { userCanDo } from '../../lib/vulcan-users';
+import { UserReviewStatus } from './ModeratorUserInfo/UserReviewStatus';
+import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -40,10 +27,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  topRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+  },
+  qualitySignalRow: {
+  },
+  permissionsRow: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 8,
+    marginTop: 8
   },
   disabled: {
     opacity: .2,
@@ -57,7 +57,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    border: `solid 2px ${theme.palette.error.dark}`
   },
   downvotes: {
     color: theme.palette.error.dark,
@@ -67,7 +66,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
     color: theme.palette.primary.dark,
@@ -77,7 +75,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 3,
     marginRight:8,
     borderRadius: "50%",
-    border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
     color: theme.palette.primary.dark,
@@ -87,7 +84,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight:8,
     borderRadius: "50%",
     fontWeight: 600,
-    border: `solid 2px ${theme.palette.primary.dark}`
   },
   votesRow: {
     marginTop: 12,
@@ -97,10 +93,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 0,
     borderTop: "none",
     borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
-  },
-  editIcon: {
-    width: 20,
-    color: theme.palette.grey[400]
   },
   notes: {
     border: theme.palette.border.normal,
@@ -117,228 +109,110 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     padding:12,
     boxShadow: theme.palette.boxShadow.sunshineSendMessage,
+  },
+  sortButton: {
+    marginLeft: 6,
+    cursor: "pointer"
+  },
+  sortSelected: {
+    color: theme.palette.grey[900]
+  },
+  bio: {
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
+  website: {
+    color: theme.palette.primary.main,
+  },
+  info: {
+    '& > * + *': {
+      marginTop: 8,
+    },
+  },
+  modButton:{
+    marginTop: 6,
+    marginRight: 16,
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
+  },
+  snooze10: {
+    color: theme.palette.primary.main,
+    fontSize: 34,
+    marginTop: 4
+  },
+  permissionsButton: {
+    fontSize: 10,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    border: theme.palette.border.normal,
+    borderRadius: 2,
+    marginRight: 10,
+    cursor: "pointer"
+  },
+  permissionDisabled: {
+    border: "none"
   }
 })
-const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
+
+const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any
+  refetch: () => void,
+  currentUser: UsersCurrent
 }) => {
-  const currentUser = useCurrentUser();
 
-  const [notes, setNotes] = useState(user.sunshineNotes || "")
-
-  const canReview = !!(user.maxCommentCount || user.maxPostCount)
-
-  const handleNotes = () => {
-    if (notes != user.sunshineNotes) {
-      updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineNotes: notes
-        }
-      })
-    }
-  }
-
-  useEffect(() => {
-    return () => {
-      handleNotes();
-    }
-  });
-
-  const handleReview = () => {
-    if (canReview) {
-      updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser!._id,
-          reviewedAt: new Date(),
-          sunshineSnoozed: false,
-          needsReview: false,
-          sunshineNotes: notes
-        }
-      })
-    }
-  }
-
-  const handleSnooze = () => {
-    updateUser({
-      selector: {_id: user._id},
-      data: {
-        needsReview: false,
-        reviewedAt: new Date(),
-        reviewedByUserId: currentUser!._id,
-        sunshineSnoozed: true,
-        sunshineNotes: notes
-      }
-    })
-
-    setNotes( signatureWithNote("Snooze")+notes )
-  }
-
-  const banMonths = 3
-
-  const handleBan = async () => {
-    if (confirm(`Ban this user for ${banMonths} months?`)) {
-      await updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser!._id,
-          voteBanned: true,
-          needsReview: false,
-          reviewedAt: new Date(),
-          banned: moment().add(banMonths, 'months').toDate(),
-          sunshineNotes: notes
-        }
-      })
-      setNotes( signatureWithNote("Ban")+notes )
-    }
-  }
-
-  const handlePurge = async () => {
-    if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
-      await updateUser({
-        selector: {_id: user._id},
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser!._id,
-          nullifyVotes: true,
-          voteBanned: true,
-          deleteContent: true,
-          needsReview: false,
-          reviewedAt: new Date(),
-          banned: moment().add(1000, 'years').toDate(),
-          sunshineNotes: notes
-        }
-      })
-      setNotes( signatureWithNote("Purge")+notes )
-    }
-  }
-
-  const handleFlag = () => {
-    updateUser({
-      selector: {_id: user._id},
-      data: {
-        sunshineFlagged: !user.sunshineFlagged,
-        sunshineNotes: notes
-      }
-    })
-
-    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    setNotes( signatureWithNote(flagStatus)+notes )
-  }
-
-  const { results: posts, loading: postsLoading } = useMulti({
+  const { results: posts = [], loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 40
   });
 
-  const { results: comments, loading: commentsLoading } = useMulti({
+  const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 40
   });
 
-
-  const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
-
-  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults } = Components
-
-  const hiddenPostCount = user.maxPostCount - user.postCount
-  const hiddenCommentCount = user.maxCommentCount - user.commentCount
+  const { MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, ModeratorActions } = Components
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
-  const getTodayString = () => {
-    const today = new Date();
-    return today.toLocaleString('default', { month: 'short', day: 'numeric'});
-  }
-
-  const signature = `${currentUser?.displayName}, ${getTodayString()}`
-  const signatureWithNote = (note:string) => {
-    return `${signature}: ${note}\n`
-  }
-
-  const signAndDate = (sunshineNotes:string) => {
-    if (!sunshineNotes.match(signature)) {
-      const padding = !sunshineNotes ? ": " : ": \n\n"
-      return signature + padding + sunshineNotes
-    } 
-    return sunshineNotes
-  }
-
-  const handleClick = () => {
-    const signedNotes = signAndDate(notes)
-    if (signedNotes != notes) {
-      setNotes(signedNotes)
-    }
-  }
 
   return (
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
-            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
-            {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-            <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-            <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-            <div className={classes.notes}>
-              <Input 
-                value={notes} 
-                fullWidth
-                onChange={e => setNotes(e.target.value)}
-                onClick={e => handleClick()}
-                disableUnderline 
-                placeholder="Notes for other moderators"
-                multiline
-              />
+            <div className={classes.info}>
+              <div className={classes.topRow}>
+                <div>
+                  <UserReviewStatus user={user}/>
+              
+                  {user.associatedClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: {user.associatedClientId?.firstSeenReferrer}</div>}
+                  {user.associatedClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: {user.associatedClientId?.firstSeenLandingPage}</div>}
+                  {(user.associatedClientId?.userIds?.length??0) > 1 && <div className={classes.qualitySignalRow}>
+                    <em>Alternate accounts detected</em>
+                  </div>}
+                  <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+                </div>
+                <div className={classes.row}>
+                  <ModeratorMessageCount userId={user._id} />
+                  <SunshineSendMessageWithDefaults user={user}/>
+                </div>
+              </div>              
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
             </div>
-            <div className={classes.row}>
-              <div className={classes.row}>
-                <LWTooltip title="Approve">
-                  <Button onClick={handleReview} className={canReview ? null : classes.disabled }>
-                    <DoneIcon/>
-                  </Button>
-                </LWTooltip>
-                <LWTooltip title="Snooze (approve all posts)">
-                  <Button title="Snooze" onClick={handleSnooze}>
-                    <SnoozeIcon />
-                  </Button>
-                </LWTooltip>
-                <LWTooltip title="Ban for 3 months">
-                  <Button onClick={handleBan}>
-                    <RemoveCircleOutlineIcon />
-                  </Button>
-                </LWTooltip>
-                <LWTooltip title="Purge (delete and ban)">
-                  <Button onClick={handlePurge}>
-                    <DeleteForeverIcon />
-                  </Button>
-                </LWTooltip>
-                <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
-                  <div>Flag this user for more review</div>
-                  <div><em>(This will not remove them from sidebar)</em></div>
-                </div>}>
-                  <Button onClick={handleFlag}>
-                    {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
-                  </Button>
-                </LWTooltip>
-              </div>
-              <div className={classes.row}>
-                <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
-              </div>
-            </div>
+            <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts} refetch={refetch}/>
             <hr className={classes.hr}/>
             <div className={classes.votesRow}>
+              <span>Votes: </span>
               <LWTooltip title="Big Upvotes">
                 <span className={classes.bigUpvotes}>
                   { user.bigUpvoteCount || 0 }
@@ -360,25 +234,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                 </span>
               </LWTooltip>
             </div>
-            <div>
-              <LWTooltip title="Post count">
-                <span>
-                  { user.postCount || 0 }
-                  <DescriptionIcon className={classes.hoverPostIcon}/>
-                </span> 
-              </LWTooltip>
-              {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-              { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null} 
-            </div>
-            {(commentsLoading || postsLoading) && <Loading/>}
-            <div>
-              <LWTooltip title="Comment count">
-                { user.commentCount || 0 }
-              </LWTooltip>
-              <MessageIcon className={classes.icon}/> 
-              {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
-              { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
-            </div>
+            <ContentSummaryRows user={user} posts={posts} comments={comments} loading={postsLoading || commentsLoading}/>
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </MetaInfo>
@@ -390,10 +246,6 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 const SunshineNewUsersInfoComponent = registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
   styles,
   hocs: [
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'SunshineUsersList',
-    }),
     withErrorBoundary,
   ]
 });
@@ -403,3 +255,5 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
+
+

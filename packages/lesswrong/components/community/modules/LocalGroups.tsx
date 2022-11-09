@@ -1,11 +1,11 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
+import { requireCssVar } from '../../../themes/cssVars';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -33,8 +33,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   localGroupsList: {
@@ -48,7 +48,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 116,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: theme.palette.border.faint,
+    borderColor: theme.palette.greyAlpha(.1),
     '&:last-of-type': {
       borderBottom: 'none'
     },
@@ -59,7 +59,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.eaForumGroupsMobileImg,
+    backgroundColor: theme.palette.background.primaryDim2,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -150,6 +150,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
 }
 
+const defaultBackground = requireCssVar("palette", "panelBackground", "default");
+const dimBackground = requireCssVar("palette", "background", "primaryDim2");
+
 const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
@@ -210,9 +213,9 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
       </div> : <div className={classes.localGroupsList}>
         {localGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
-            backgroundImage: `linear-gradient(to right, transparent, white 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
+            backgroundImage: `linear-gradient(to right, transparent, ${defaultBackground} 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
           } : {
-            backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 140px)'
+            backgroundImage: `url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, ${dimBackground}, ${defaultBackground} 140px)`
           }
           // the distance from the user's location to the group's location
           let distanceToGroup;
@@ -255,7 +258,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
           mapOptions={userLocation.known ? {center: userLocation, zoom: 5} : {zoom: 1}}
           keywordSearch={keywordSearch}
           hideLegend
-          showUsers={false}
+          showUsersByDefault={false}
         />
       </div>
     </div>

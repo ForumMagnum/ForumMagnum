@@ -3,7 +3,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { afterCreateRevisionCallback } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
-import { updateDenormalizedHtmlAttributions } from '../resolvers/tagResolvers';
+import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after

@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
+// Adds selected MUI components to global styles.
+// import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
@@ -10,10 +12,13 @@ import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
+import { usedMuiStyles } from './usedMuiStyles';
+import { minify } from 'csso';
+import { requestedCssVarsToString } from '../themes/cssVars';
 
-const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
+const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
   
   const context: any = {};
@@ -27,6 +32,10 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
+    {Object.keys(usedMuiStyles).map((componentName: string) => {
+      const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
+      return <StyledComponent key={componentName}/>
+    })}
     {componentsWithStylesByPriority.map((componentName: string) => {
       const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
@@ -37,22 +46,28 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
   const theme = getForumTheme(themeOptions);
+  const cssVars = requestedCssVarsToString(theme);
   
-  return [
+  const mergedCSS = [
     draftjsStyles(theme),
     miscStyles(theme),
-    jssStylesheet
+    jssStylesheet,
+    ...theme.rawCSS,
+    cssVars,
   ].join("\n");
+
+  const minifiedCSS = minify(mergedCSS).css;
+  return Buffer.from(minifiedCSS, "utf8");
 }
 
 type StylesheetAndHash = {
-  css: string
+  css: Buffer
   hash: string
 }
 
 const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
   const stylesheet = generateMergedStylesheet(theme);
-  const hash = crypto.createHash('sha256').update(stylesheet, 'utf8').digest('hex');
+  const hash = crypto.createHash('sha256').update(stylesheet).digest('hex');
   return {
     css: stylesheet,
     hash: hash,
@@ -62,12 +77,19 @@ const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash
 // Serialized ThemeOptions (string) -> StylesheetAndHash
 const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
 
-export const getMergedStylesheet = (theme: ThemeOptions): {css: string, url: string, hash: string} => {
-  const actualForumType = forumTypeSetting.get();
-  const themeKey = JSON.stringify({
+type ThemeKey = {
+  name: UserThemeName,
+  forumTheme: ForumTypeString,
+}
+
+type MergedStylesheet = {css: Buffer, url: string, hash: string};
+
+export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
+  const themeKeyData: ThemeKey = {
     name: theme.name,
     forumTheme: getForumType(theme),
-  });
+  };
+  const themeKey = JSON.stringify(themeKeyData);
   
   if (!mergedStylesheets[themeKey]) {
     mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);

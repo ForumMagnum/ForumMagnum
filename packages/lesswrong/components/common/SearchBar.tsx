@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { routerOnUpdate } from './NavigationEventSender';
+import { routerOnUpdate } from '../hooks/useOnNavigate';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
@@ -126,7 +126,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   handleSubmit = () => {
     const { history } = this.props
     const { currentQuery } = this.state
-    history.push({pathname: `/search`, search: `?${qs.stringify({terms: currentQuery})}`});
+    history.push({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
     this.closeSearch()
   }
   

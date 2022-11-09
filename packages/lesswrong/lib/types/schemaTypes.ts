@@ -1,5 +1,6 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
+import { formProperties } from '../vulcan-forms/schema_utils';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -12,13 +13,27 @@ type PermissionGroups = 'guests' |
   'sunshineRegiment' |
   'alignmentForumAdmins' |
   'alignmentForum' |
-  'alignmentVoters'
+  'alignmentVoters' |
+  'podcasters' |
+  'canBypassPostRateLimit' |
+  'trustLevel1' |
+  'canModeratePersonal' |
+  'canSuggestCuration';
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
-interface CollectionFieldSpecification<T extends DbObject> {
+interface CollectionFieldPermissions {
+  viewableBy?: FieldPermissions,
+  insertableBy?: FieldCreatePermissions,
+  editableBy?: FieldPermissions,
+  canRead?: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
+}
+
+interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
   optional?: boolean,
@@ -49,13 +64,38 @@ interface CollectionFieldSpecification<T extends DbObject> {
   max?: number,
   regEx?: any,
   minCount?: number,
+  /** NOTE: not in use or tested as of 2022-05 */
+  maxCount?: number,
   options?: any,
   allowedValues?: any,
-  query?: any,
   
   form?: any,
   input?: any,
+  /**
+   * Custom props that will be passed to the input component. Can pass in
+   * values or functions. All functions will be called before being passed into
+   * the input component. Example:
+   *
+   * {
+   *   emphasis: 'bold',
+   *   defaultValue: () => new Date(),
+   * }
+   *
+   * Note that if you want to put a component as one of the input values (you're
+   * doing something crazy aren't you), components are functions and so would be
+   * called. To get your intended behavior, wrap it in a callback:
+   *
+   * {
+   *   decorativeComponent: () => MyDecorativeComponent
+   * }
+   *
+   * NOTE: this is unused and untested as of 2022-05
+   */
+  inputProperties?: any,
+  
   beforeComponent?: keyof ComponentTypes,
+  /** NOTE: not in use or tested as of 2022-05 */
+  afterComponent?: keyof ComponentTypes,
   order?: number,
   label?: string,
   tooltip?: string,
@@ -74,7 +114,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
     keyof ComponentTypes,
   placeholder?: string,
   hidden?: boolean|((formProps: any)=>boolean),
-  group?: FormGroup,
+  group?: FormGroup<T>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -92,17 +132,31 @@ interface CollectionFieldSpecification<T extends DbObject> {
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
-  
-  
-  viewableBy?: FieldPermissions,
-  insertableBy?: FieldCreatePermissions,
-  editableBy?: FieldPermissions,
-  canRead?: FieldPermissions,
-  canUpdate?: FieldPermissions,
-  canCreate?: FieldCreatePermissions,
 }
 
-type FormGroup = {
+/** Field specification for a Form field, created from the collection schema */
+type FormField<T extends DbObject> = Pick<
+  CollectionFieldSpecification<T>,
+  typeof formProperties[number]
+> & {
+  document: any
+  name: string
+  datatype: any
+  layout: string
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  label: string
+  help: string
+  path: string
+  parentFieldName?: string
+  disabled?: boolean
+  arrayField: any
+  arrayFieldSchema: any
+  nestedInput: any
+  nestedSchema: any
+  nestedFields: any
+}
+
+type FormGroup<T extends DbObject = DbObject> = {
   name?: string,
   order: number,
   label?: string,
@@ -111,6 +165,7 @@ type FormGroup = {
   defaultStyle?: boolean,
   helpText?: string,
   flexStyle?: boolean,
+  fields?: FormField<T>[]
 }
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>

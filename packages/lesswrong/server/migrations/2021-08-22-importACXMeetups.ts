@@ -3,9 +3,8 @@ import Users from '../../lib/collections/users/collection';
 import { createMutator, Utils } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
-import fetch from 'node-fetch';
 import { getLocalTime } from '../mapsUtils';
-import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 
 const what3WordsAPIKey = "FM5HBWEL"
 
@@ -41,7 +40,7 @@ registerMigration({
     for (const row of acxData) {
       let eventOrganizer
       // Figure out whether user with email address already exists
-      const existingUser = await userFindByEmail(row["Email address"])
+      const existingUser = await userFindOneByEmail(row["Email address"])
       // If not, create them (and send them an email, maybe?)
       if (existingUser) {
         eventOrganizer = existingUser

@@ -1,7 +1,6 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { getUserEmail , userGetProfileUrl} from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 
 import { useHover } from '../common/withHover'
@@ -28,10 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
-const SunshineNewUsersItem = ({ user, classes }: {
+const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any
+  refetch: () => void,
+  currentUser: UsersCurrent,
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 
@@ -41,7 +41,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <SunshineNewUsersInfo user={user} />
+          <SunshineNewUsersInfo user={user} refetch={refetch} currentUser={currentUser}/>
         </SidebarHoverOver>
         <div>
           <MetaInfo className={classes.info}>
@@ -58,7 +58,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
           {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
           {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
-            { user.email || "This user has no email" }
+            { getUserEmail(user) || "This user has no email" }
           </MetaInfo>}
         </div>
       </SunshineListItem>

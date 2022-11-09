@@ -10,25 +10,28 @@ import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
+import { getCommentAncestorIds, getCommentSubtree } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { newDocumentMaybeTriggerReview } from './postCallbacks';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ensureIndex } from '../../lib/collectionUtils';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
+// This should get refactored someday to be more forum-neutral
+const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
   {
     username: "AdminTeam",
     email: "forum@effectivealtruism.org"
   } :
   {
-    username: "LessWrong",
-    email: "lesswrong@lesswrong.com"
+    username: forumTypeSetting.get(),
+    email: "team@lesswrong.com"
   }
 
-const getLessWrongAccount = async () => {
+export const getAdminTeamAccount = async () => {
   let account = await Users.findOne({username: adminTeamUserData.username});
   if (!account) {
     const newAccount = await createMutator({
@@ -40,45 +43,6 @@ const getLessWrongAccount = async () => {
   }
   return account;
 }
-
-// Return the IDs of all ancestors of the given comment (not including the provided
-// comment itself).
-const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
-  const ancestorIds: string[] = [];
-  
-  let currentComment: DbComment|null = comment;
-  while (currentComment?.parentCommentId) {
-    currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
-    if (currentComment)
-      ancestorIds.push(currentComment._id);
-  }
-  
-  return ancestorIds;
-}
-
-// Return all comments in a subtree, given its root.
-export const getCommentSubtree = async (rootComment: DbComment, projection: any): Promise<any[]> => {
-  const comments: DbComment[] = [rootComment];
-  let visited = new Set<string>();
-  let unvisited: string[] = [rootComment._id];
-  
-  while(unvisited.length > 0) {
-    const childComments = await Comments.find({parentCommentId: {$in: unvisited}}, projection).fetch();
-    for (let commentId of unvisited)
-      visited.add(commentId);
-    unvisited = [];
-    
-    for (let childComment of childComments) {
-      if (!visited.has(childComment._id)) {
-        comments.push(childComment);
-        unvisited.push(childComment._id);
-      }
-    }
-  }
-  
-  return comments;
-}
-Globals.getCommentSubtree = getCommentSubtree;
 
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
@@ -126,8 +90,9 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
       $set: {lastCommentedAt: new Date()},
     });
   } else if (comment.tagId) {
+    const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {
-      $set: {lastCommentedAt: new Date()},
+      $set: {[fieldToSet]: new Date()},
     });
   }
 
@@ -184,21 +149,8 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
   }
 });
 
-
-const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
-getCollectionHooks("Comments").newValidate.add(async function CommentsNewRateLimit (comment: DbComment, user: DbUser) {
-  if (!userIsAdmin(user)) {
-    const timeSinceLastComment = await userTimeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
-
-    // check that user waits more than 15 seconds between comments
-    if((timeSinceLastComment < commentInterval)) {
-      throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
-    }
-  }
-  return comment;
-});
-
+// TODO: move this to views?
+ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////
 // LessWrong callbacks                              //
@@ -250,7 +202,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         : null
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
-    const lwAccount = await getLessWrongAccount();
+    const lwAccount = await getAdminTeamAccount();
 
     const conversationData = {
       participantIds: [comment.userId, lwAccount._id],
@@ -321,24 +273,12 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   return {...comment, ...votedComment} as DbComment;
 });
 
-getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview (comment: DbComment) {
-  const user = await Users.findOne({_id:comment.userId})
-  const karma = user?.karma || 0
-  if (karma < 100) {
-    await Comments.rawUpdateOne({_id:comment._id}, {$set: {needsReview: true}});
-  }
-});
-
 getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
   if (modifier.$set) {
     const { deleted, deletedPublic, deletedReason } = modifier.$set
     if (deleted || deletedPublic || deletedReason) {
       if (deletedPublic && !deleted) {
         throw new Error("You cannot publicly delete a comment without also deleting it")
-      }
-
-      if (deletedPublic && !deletedReason) {
-        throw new Error("Publicly deleted comments need to have a deletion reason");
       }
 
       if (
@@ -394,6 +334,7 @@ getCollectionHooks("Comments").createBefore.add(async function HandleReplyToAnsw
       }
       if (parentComment.tagId) {
         modifiedComment.tagId = parentComment.tagId;
+        modifiedComment.tagCommentType = parentComment.tagCommentType;
       }
       if (parentComment.topLevelCommentId) {
         modifiedComment.topLevelCommentId = parentComment.topLevelCommentId;
@@ -431,7 +372,7 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
 getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
   const ancestorIds: string[] = await getCommentAncestorIds(comment);
   
-  await Comments.rawUpdateOne({ _id: {$in: ancestorIds} }, {
+  await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
     $set: {lastSubthreadActivity: new Date()},
     $inc: {descendentCount:1},
   });
@@ -443,12 +384,20 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = context.oldDocument.deleted ? 1 : -1;
-    await Comments.rawUpdateOne({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
+    await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
-  await newDocumentMaybeTriggerReview(document);
-  return document;
+// This function and the latter function seem redundant. TODO decide whether/where the karma < 100 clause should live
+// getCollectionHooks("Comments").createAsync.add(async function NewCommentNeedsReview ({document}: CreateCallbackProperties<DbComment>) {
+//   const user = await Users.findOne({_id:document.userId})
+//   const karma = user?.karma || 0
+//   if (karma < 100) {
+//     await triggerReviewIfNeeded(document.userId);
+//   }
+// });
+
+getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
+  await triggerReviewIfNeeded(document.userId);
 })

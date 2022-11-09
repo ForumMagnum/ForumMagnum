@@ -1,12 +1,49 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
-import { styles } from '../admin/AdminHome';
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
+import { isMod } from '../../lib/collections/users/helpers';
+import { forumSelect } from '../../lib/forumTypeUtils';
+
+const shouldShowEndUserModerationToNonMods = forumSelect({
+  EAForum: false,
+  LessWrong: true,
+  AlignmentForum: true,
+  default: true,
+})
+
+const styles = theme => ({
+  root: {
+    fontFamily: theme.typography.fontFamily,
+  
+    "& h1": {
+      ...theme.typography.display3,
+    },
+  
+    "& h2": {
+      ...theme.typography.display2,
+    },
+  
+    "& h3": {
+      ...theme.typography.display1,
+      marginTop: 0,
+      marginBottom: "0.5em",
+    },
+  },
+  section: {
+    border: theme.palette.border.normal,
+    padding: 10,
+    marginBottom: 16,
+    borderRadius: 2,
+    background: theme.palette.background.pageActiveAreaBackground
+  }
+})
+
 
 const DateDisplay = ({column, document}) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
@@ -26,14 +63,14 @@ const UserDisplay = ({column, document}) => {
 
 const DeletedByUserDisplay = ({column, document}) => {
   const user = document.deletedByUser || document.user || document
-  return <div>
+  return <span>
     <Components.UsersName user={user} nofollow />
-  </div>
+  </span>
 }
 
 
 const BannedUsersDisplay = ({column, document}) => {
-  const bannedUsers = document[column.name]
+  const bannedUsers = document[column.name] ?? []
   return <div>
     { bannedUsers.map((userId) => <div key={userId}>
       <Components.UsersNameWrapper documentId={userId} nofollow />
@@ -99,32 +136,30 @@ const usersBannedFromUsersColumns = [
   },
 ]
 
-class ModerationLog extends PureComponent<any> {
-
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const { classes } = this.props;
-    const { SingleColumnSection } = Components;
-    return (
-      <SingleColumnSection className={classes.adminHomeOrModerationLogPage}>
-        <h2>Moderation Log</h2>
-        <div className={classes.adminLogGroup}>
-          <h3>Deleted Comments</h3>
-          <Components.Datatable
-            collection={Comments}
-            columns={deletedCommentColumns}
-            options={{
-              fragmentName: 'DeletedCommentsModerationLog',
-              terms: {view: "allCommentsDeleted"},
-              limit: 10,
-            }}
-            showEdit={false}
-          />
-        </div>
-        <div className={classNames(classes.adminLogGroup, classes.floatLeft)}>
+const ModerationLog = ({classes}) => {
+  const currentUser = useCurrentUser()
+  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
+    shouldShowEndUserModerationToNonMods
+  const { SingleColumnSection } = Components;
+  return (
+    <SingleColumnSection className={classes.root}>
+      <h2>Moderation Log</h2>
+      <div className={classes.section}>
+        <h3>Deleted Comments</h3>
+        <Components.Datatable
+          collection={Comments}
+          columns={deletedCommentColumns}
+          options={{
+            fragmentName: 'DeletedCommentsModerationLog',
+            terms: {view: "allCommentsDeleted"},
+            limit: 10,
+            enableTotal: true
+          }}
+          showEdit={false}
+        />
+      </div>
+      {shouldShowEndUserModeration && <>
+        <div className={classNames(classes.section, classes.floatLeft)}>
           <h3>Users Banned From Posts</h3>
           <Components.Datatable
             collection={Posts}
@@ -133,12 +168,13 @@ class ModerationLog extends PureComponent<any> {
               fragmentName: 'UsersBannedFromPostsModerationLog',
               terms: {view: "postsWithBannedUsers"},
               limit: 10,
+              enableTotal: true
             }}
             showEdit={false}
             showNew={false}
           />
         </div>
-        <div className={classNames(classes.adminLogGroup, classes.floatLeft)}>
+        <div className={classNames(classes.section, classes.floatLeft)}>
           <h3>Users Banned From Users</h3>
           <Components.Datatable
             collection={Users}
@@ -147,14 +183,15 @@ class ModerationLog extends PureComponent<any> {
               fragmentName: 'UsersBannedFromUsersModerationLog',
               terms: {view: "usersWithBannedUsers"},
               limit: 10,
+              enableTotal: true
             }}
             showEdit={false}
             showNew={false}
           />
         </div>
-      </SingleColumnSection>
-    )
-  }
+      </>}
+    </SingleColumnSection>
+  )
 }
 
 const ModerationLogComponent = registerComponent('ModerationLog', ModerationLog, {styles});

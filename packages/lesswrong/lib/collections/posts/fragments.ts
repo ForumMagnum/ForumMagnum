@@ -36,7 +36,9 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    
+    coauthorStatuses
+    hasCoauthorPermission
+
     commentCount
     voteCount
     baseScore
@@ -51,6 +53,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    commentsLockedToAccountsCreatedAfter
 
     # questions
     question
@@ -164,6 +167,10 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle
@@ -180,6 +187,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    readTimeMinutes
     moderationGuidelines {
       _id
       html
@@ -212,6 +220,7 @@ registerFragment(`
       wordCount
       version
     }
+    fmCrosspost
   }
 `);
 
@@ -259,6 +268,18 @@ registerFragment(`
       title
     }
 
+    # Podcast
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+
     # Moderation stuff
     showModerationGuidelines
     bannedUserIds
@@ -290,6 +311,10 @@ registerFragment(`
     }
     rsvps
     activateRSVPs
+
+    # Crossposting
+    fmCrosspost
+    podcastEpisodeId
   }
 `);
 
@@ -368,10 +393,7 @@ registerFragment(`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
-      _id
-      title
-      draft
-      userId
+      ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
       _id
@@ -379,7 +401,7 @@ registerFragment(`
       slug
       commentCount
       baseScore
-      sequence(sequenceId: $sequenceId) {
+      sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
@@ -389,7 +411,7 @@ registerFragment(`
       slug
       commentCount
       baseScore
-      sequence(sequenceId: $sequenceId) {
+      sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
     }
@@ -414,7 +436,9 @@ registerFragment(`
     myEditorAccess
     linkSharingKey
     version
-    coauthorUserIds
+    coauthorStatuses
+    readTimeMinutesOverride
+    fmCrosspost
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -422,6 +446,7 @@ registerFragment(`
       ...RevisionEdit
     }
     tableOfContents
+    subforumTagId
   }
 `);
 
@@ -478,6 +503,7 @@ registerFragment(`
 
     currentUserVote
     currentUserExtendedVote
+    fmCrosspost
 
     contents {
       _id
@@ -489,6 +515,10 @@ registerFragment(`
     
     user {
       ...UsersMinimumInfo
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle
@@ -498,6 +528,11 @@ registerFragment(`
       moderationGuidelines {
         _id
         html
+      }
+
+      needsReview
+      moderatorActions {
+        ...ModeratorActionDisplay
       }
     }
   }

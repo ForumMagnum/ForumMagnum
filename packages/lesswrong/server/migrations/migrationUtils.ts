@@ -2,6 +2,7 @@ import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
+import { sleep } from '../../lib/helpers';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -17,7 +18,14 @@ export const migrationRunners: Record<string,any> = {};
 // things non-relatively there.
 Vulcan.migrations = migrationRunners;
 
-export function registerMigration({ name, dateWritten, idempotent, action })
+interface RegisterMigrationProps {
+  name: string;
+  dateWritten: string;
+  idempotent: boolean;
+  action: () => Promise<void>;
+}
+
+export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps)
 {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)
@@ -76,11 +84,6 @@ export async function runMigration(name: string)
       finished: true, succeeded: false,
     }});
   }
-}
-
-function sleep(ms: number)
-{
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Run a function, timing how long it took, then sleep for an amount of time
@@ -290,11 +293,11 @@ export async function dropUnusedField(collection, fieldName) {
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
-  collection: any,
+export async function forEachDocumentBatchInCollection<T extends DbObject>({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+  collection: CollectionBase<T>,
   batchSize?: number,
   filter?: MongoSelector<DbObject> | null,
-  callback: Function,
+  callback: (batch: T[]) => void,
   loadFactor?: number
 })
 {

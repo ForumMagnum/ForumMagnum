@@ -1,24 +1,20 @@
 import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
-import { IClient } from "pg-promise/typescript/pg-subset";
+import type { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 
 export const pgPromiseLib = pgp({});
 
 export const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null);
+export const mirrorConnectionSettingString = new DatabaseServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
-let analyticsConnectionPool: AnalyticsConnectionPool | null = null;
+let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
 
-// Return the Analytics database connection pool, if configured. If no
-// analytics DB is specified in the server config, returns null instead. The
-// first time this is called, it will block briefly.
-export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
-  // We make sure that the settingsCache is initialized before we access the connection strings
-  const connectionString = connectionStringSetting.get();
 
+function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null{
   if (isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     return null;
   }
@@ -26,10 +22,25 @@ export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
     if (!missingConnectionStringWarned) {
       missingConnectionStringWarned = true;
       //eslint-disable-next-line no-console
-      console.log("Analytics logging disabled: analytics.connectionString is not configured");
+      console.log("Analytics logging disabled: no analytics connectionString passed in");
     }
     return null;
   }
-  if (!analyticsConnectionPool) analyticsConnectionPool = pgPromiseLib(connectionString);
-  return analyticsConnectionPool;
+  if (!analyticsConnectionPools.get(connectionString)) analyticsConnectionPools.set(connectionString, pgPromiseLib(connectionString))
+  return analyticsConnectionPools.get(connectionString)!
+}
+
+// Return the Analytics database connection pool, if configured. If no
+// analytics DB is specified in the server config, returns null instead. The
+// first time this is called, it will block briefly.
+export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
+  // We make sure that the settingsCache is initialized before we access the connection strings
+  const connectionString = connectionStringSetting.get();
+  return getAnalyticsConnectionFromString(connectionString);
+};
+
+export const getMirrorAnalyticsConnection = (): AnalyticsConnectionPool | null => {
+  // We make sure that the settingsCache is initialized before we access the connection strings
+  const connectionString = mirrorConnectionSettingString.get();
+  return getAnalyticsConnectionFromString(connectionString);
 };

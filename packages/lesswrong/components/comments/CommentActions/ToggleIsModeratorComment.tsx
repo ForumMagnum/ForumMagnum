@@ -18,10 +18,10 @@ const ToggleIsModeratorComment = ({comment}: {
     return null;
   }
   
-  const handleMarkAsModeratorComment = (event: React.MouseEvent) => {
+  const handleMarkAsModeratorComment = (modHatVisibility?: { hideModeratorHat: boolean }) => (event: React.MouseEvent) => {
     void updateComment({
       selector: { _id: comment._id },
-      data: { moderatorHat: true }
+      data: { moderatorHat: true, ...modHatVisibility }
     });
   }
   const handleUnmarkAsModeratorComment = (event: React.MouseEvent) => {
@@ -39,9 +39,14 @@ const ToggleIsModeratorComment = ({comment}: {
     );
   } else {
     return (
-      <MenuItem onClick={handleMarkAsModeratorComment}>
-        Mark as Moderator Comment
-      </MenuItem>
+      <>
+        <MenuItem onClick={handleMarkAsModeratorComment()}>
+          Mark as Moderator Comment (visible)
+        </MenuItem>
+        <MenuItem onClick={handleMarkAsModeratorComment({ hideModeratorHat: true })}>
+          Mark as Moderator Comment (invisible)
+        </MenuItem>
+      </>
     );
   }
 }

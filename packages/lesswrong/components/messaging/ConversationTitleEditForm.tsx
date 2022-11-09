@@ -11,7 +11,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 const ConversationTitleEditForm = ({onClose, documentId}: {
-  onClose: ()=>void,
+  onClose?: ()=>void,
   documentId: string,
 }) =>{
   return <Components.LWDialog open onClose={onClose}>
@@ -24,7 +24,8 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
           queryFragment={getFragment('conversationsListFragment')}
           mutationFragment={getFragment('conversationsListFragment')}
           successCallback={document => {
-            onClose();
+            if (onClose)
+              onClose();
           }}
         />
       </DialogContent>

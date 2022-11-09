@@ -18,9 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2
   },
   overallSectionBox: {
+    marginLeft: 8,
     outline: theme.palette.border.commentBorder,
+    borderRadius: 2,
     textAlign: 'center',
-    minWidth: 70
+    minWidth: 60
   },
   vote: {
     fontSize: 25,
@@ -65,7 +67,8 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const { OverallVoteButton, LWTooltip } = Components
 
   const collection = getCollection(voteProps.collectionName);
-  const voteCount = voteProps.voteCount;
+  const agreementVoteCount = voteProps.document?.extendedScore?.agreementVoteCount ?? 0;
+  const approvalVoteCount = (voteProps.voteCount ?? 0) - agreementVoteCount
   const karma = voteProps.baseScore;
 
   let moveToAlignnmentUserId = ""
@@ -115,7 +118,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
           <LWTooltip
-            title={<div><b>Overall Karma: downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
             <OverallVoteButton
@@ -129,14 +132,14 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({approvalVoteCount} {approvalVoteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
             </LWTooltip>
           }
           <LWTooltip
-            title={<div><b>Overall Karma: upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
             <OverallVoteButton

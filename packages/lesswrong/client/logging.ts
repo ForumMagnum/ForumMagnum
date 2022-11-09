@@ -1,10 +1,12 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { routerOnUpdate } from '../components/common/NavigationEventSender';
+import { routerOnUpdate } from '../components/hooks/useOnNavigate';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil, userIdentifiedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
+import { getUserEmail } from "../lib/collections/users/helpers";
+import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -40,7 +42,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 userIdentifiedCallback.add(function identifyUserToSentry(user: UsersCurrent) {
   // Set user in sentry scope
   Sentry.configureScope((scope) => {
-    scope.setUser({id: user._id, email: user.email, username: user.username});
+    scope.setUser({id: user._id, email: getUserEmail(user), username: user.username});
   });
 });
 
@@ -59,6 +61,7 @@ window.addEventListener('load', ev => {
     url: document.location?.href,
     referrer: document.referrer,
     browserProps: browserProperties(),
+    prefersDarkMode: devicePrefersDarkMode(),
     performance: {
       memory: (window as any).performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,

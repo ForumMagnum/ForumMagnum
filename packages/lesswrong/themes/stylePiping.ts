@@ -1,15 +1,13 @@
-import deepmerge from 'deepmerge';
-import isPlainObject from 'is-plain-object';
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after': {
+  '& a, & a:hover, & a:focus, & a::after, & li': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
-  }
+  },
 });
 
 const spoilerStyles = (theme: ThemeType): JssStyles => ({
@@ -66,6 +64,26 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
     }
   }
 })
+
+const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.manifold-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
+const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.metaforecast-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
 
 const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.owid-preview': {
@@ -211,7 +229,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     fontWeight:600,
   },
   '& img': {
-    maxWidth: "100%"
+    maxWidth: "100%",
+    ...theme.postImageStyles,
   },
   '& sup': {
     verticalAlign: 'baseline',
@@ -252,7 +271,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& figcaption': {
     ...theme.typography.caption,
     ...theme.typography.postStyle
-  }
+  },
+  '& ol > li > ol': {
+    listStyle: 'lower-alpha',
+  },
+  '& ol > li > ol > li > ol': {
+    listStyle: 'lower-roman',
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
@@ -260,6 +285,8 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
+    ...manifoldPreviewStyles(theme),
+    ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
@@ -306,7 +333,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     {
       pointerEvents: 'none',
       '& *': {
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
       },
     }
 
@@ -344,7 +371,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     '& hr': {
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*1.5
-    }
+    },
   }
   return commentBodyStyles;
 }
@@ -442,6 +469,12 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& hr': {
           ...hrStyles(theme)
         },
+        '& ol, & ul': {
+          listStyleType: "revert !important",
+        },
+      },
+      '& .ck-placeholder:before': {
+        whiteSpace: 'break-spaces'
       },
       '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
@@ -495,7 +528,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main
+        '--ck-color-comment-count': theme.palette.primary.main,
       },
       
       "--ck-color-base-background": theme.palette.editor.commentPanelBackground,

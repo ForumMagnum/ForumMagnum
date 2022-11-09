@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
@@ -39,10 +38,6 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
     return null;
   } else if (post.frontpageDate) {
     return null;
-  } else if (post.meta) {
-    return (<span className={classes.subtitle}>
-      <Link to="/meta">Meta</Link>
-    </span>);
   } else if (post.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
     // attempt to do this in a previous implementation, which didn't work.

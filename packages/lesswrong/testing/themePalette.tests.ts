@@ -2,6 +2,7 @@ import { testStartup } from '../testing/testMain';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
+import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
 
 testStartup();
 
@@ -12,7 +13,13 @@ describe('JSS', () => {
     const fakeTheme = replacePaletteWithStubs(realTheme);
     let nonPaletteColors: string[] = [];
     
-    for (let componentName of _.sortBy(Object.keys(ComponentsTable), x=>x)) {
+    // Some components get a pass, such as the ones who's styles are directly stolen from MUI
+    const componentsToTest = Object.keys(ComponentsTable)
+      .filter(
+        cName => !themePaletteTestExcludedComponents.includes(cName)
+      ) as (keyof typeof ComponentsTable)[];
+    
+    for (let componentName of _.sortBy(componentsToTest, x=>x)) {
       const styleGetter = ComponentsTable[componentName].options?.styles;
       const styles = (typeof styleGetter === 'function') ? styleGetter(fakeTheme) : styleGetter;
       if (styles && !ComponentsTable[componentName].options?.allowNonThemeColors) {

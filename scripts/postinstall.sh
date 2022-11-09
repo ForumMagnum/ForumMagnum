@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Check presence and versions of outside-of-node dependencies, including the
 # version of nodejs, and warn about system issues that would cause problems.
 # This is run as a postinstall script from package.json.

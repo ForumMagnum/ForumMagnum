@@ -6,6 +6,7 @@ import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
+import { userHasNewTagSubscriptions } from './betas';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -16,12 +17,32 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Default"|"Required"|"Subscribed"|"Reduced"|number
+/** TagDefault relies on there being a FilterMode on the tag */
+export const FILTER_MODE_CHOICES = [
+  'Hidden', 'Default', 'Required', 'Subscribed', 'Reduced'
+] as const;
+export type FilterMode = typeof FILTER_MODE_CHOICES[number]|"TagDefault"|number
 
-export const getDefaultFilterSettings = (): FilterSettings => ({
-  personalBlog: "Hidden",
-  tags: defaultVisibilityTags.get(),
-})
+export const getStandardFilterModes = (user: UsersCurrent|DbUser|null): FilterMode[] => {
+  const standardModes = [...FILTER_MODE_CHOICES, 0, 0.5, 25];
+  return userHasNewTagSubscriptions(user)
+    ? standardModes
+    : standardModes.concat([-25, -10, 10]);
+}
+
+export const isCustomFilterMode = (user: UsersCurrent|DbUser|null, mode: string|number) =>
+  !getStandardFilterModes(user).includes(mode as FilterMode);
+
+export const getDefaultFilterSettings = (): FilterSettings => {
+  return {
+    personalBlog: "Hidden",
+    // Default visibility tags are always set with "TagDefault" until the user
+    // changes them. But the filter mode in default visibility tags is used as
+    // that default. That way, if it gets updated, we don't need to run a
+    // migration to update the users.
+    tags: defaultVisibilityTags.get().map(tf => ({...tf, filterMode: "TagDefault"})),
+  }
+}
 
 const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};
@@ -150,6 +171,8 @@ export const useFilterSettings = () => {
   }
 }
 
+export const filterModeIsSubscribed = (filterMode: FilterMode) => filterMode === "Subscribed" || filterMode >= 25
+
 /**
  * A simple wrapper on top of useFilterSettings focused on a single tag
  * subscription
@@ -158,7 +181,7 @@ export const useSubscribeUserToTag = (tag: TagBasicInfo) => {
   const { filterSettings, setTagFilter } = useFilterSettings()
   
   const filterSetting = filterSettings.tags.find(ft => ft.tagId === tag._id)
-  const isSubscribed = filterSetting && (filterSetting.filterMode === "Subscribed" || filterSetting.filterMode >= 25)
+  const isSubscribed = filterSetting && (filterModeIsSubscribed(filterSetting.filterMode))
   
   const subscribeUserToTag = useCallback((tag: TagBasicInfo, filterMode: FilterMode) => {
     setTagFilter({

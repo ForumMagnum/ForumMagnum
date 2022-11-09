@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { getString } from '../vulcan-lib';
 import { camelToSpaces } from '../vulcan-lib/utils';
 import { intlShape } from './shape';

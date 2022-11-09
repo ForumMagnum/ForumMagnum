@@ -4,7 +4,7 @@ import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
-import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
+import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection} from './analytics/postgresConnection'
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -76,7 +76,8 @@ const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'e
 // use captureEvent.
 // Writes an event to the analytics database.
 async function writeEventsToAnalyticsDB(events: {type, timestamp, props}[]) {
-  const connection = getAnalyticsConnection();
+  const connection = getAnalyticsConnection()
+  const mirrorConnection = getMirrorAnalyticsConnection()
   
   if (connection) {
     try {
@@ -98,7 +99,10 @@ async function writeEventsToAnalyticsDB(events: {type, timestamp, props}[]) {
       
       inFlightRequestCounter.inFlightRequests++;
       try {
-        await connection.none(query);
+        await Promise.all([
+          connection?.none(query),
+          mirrorConnection?.none(query)
+        ])
       } finally {
         inFlightRequestCounter.inFlightRequests--;
       }

@@ -27,11 +27,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+        min-content
+        10px
         1.5fr
       `,
       gridTemplateAreas: `
-        "... ... .... title   .... ..."
-        "... toc gap1 content gap2 ..."
+        "... ... .... title   .... ....... .... ..."
+        "... toc gap1 content gap2 welcome gap3 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -97,16 +99,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
+  welcomeBox: {
+    gridArea: 'welcome',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  },
+  gap3: { gridArea: 'gap3' }
 });
 
-export const ToCColumn = ({tableOfContents, header, children, classes}: {
+export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
   tableOfContents: React.ReactNode|null,
   header: React.ReactNode,
   children: React.ReactNode,
-  classes: ClassesType
+  classes: ClassesType,
+  welcomeBox?: React.ReactNode,
 }) => {
   return (
-    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents})}>
+    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents || !!welcomeBox})}>
       <div className={classes.header}>
         {header}
       </div>
@@ -122,6 +132,10 @@ export const ToCColumn = ({tableOfContents, header, children, classes}: {
         {children}
       </div>
       <div className={classes.gap2}/>
+      {welcomeBox && <div className={classes.welcomeBox}>
+        {welcomeBox}
+      </div>}
+      <div className={classes.gap3}/>
     </div>
   );
 }

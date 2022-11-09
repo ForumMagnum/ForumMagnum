@@ -18,7 +18,8 @@ export interface RecommendationsAlgorithm {
   minimumBaseScore?: number
   excludeDefaultRecommendations?: boolean
   onlyUnread?: boolean
-  
+  lwRationalityOnly?: boolean,
+
   curatedModifier?: number
   frontpageModifier?: number
   personalBlogpostModifier?: number

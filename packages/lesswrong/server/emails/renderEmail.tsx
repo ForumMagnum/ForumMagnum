@@ -11,9 +11,8 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
-import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
+import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import moment from '../../lib/moment-timezone';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
@@ -22,7 +21,6 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
@@ -240,7 +238,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   body: React.ReactNode}
 ): Promise<boolean> => {
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
-  const destinationAddress = to || userGetEmail(user!);
+  const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");
   
   try {
@@ -279,7 +277,7 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
-    return sendEmailSmtp(renderedEmail); // From meteor's 'email' package
+    return sendEmailSmtp(renderedEmail);
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line

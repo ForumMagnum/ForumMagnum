@@ -16,7 +16,7 @@ const ShortformPage = ({classes}: {
   return (
     <SingleColumnSection>
       <div className={classes.column}>
-        <SectionTitle title="Shortform Content [Beta]"/>
+        <SectionTitle title="Shortform Content"/>
         <ShortformThreadList />
       </div>
     </SingleColumnSection>
@@ -30,4 +30,3 @@ declare global {
     ShortformPage: typeof ShortformPageComponent
   }
 }
-

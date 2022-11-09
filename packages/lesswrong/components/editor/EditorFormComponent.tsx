@@ -2,9 +2,9 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
-import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
+import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
@@ -15,8 +15,8 @@ export function isCollaborative(post, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
-  if (post?.shareWithUsers) return true;
-  if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+  if (post.shareWithUsers) return true;
+  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   return false;
 }
@@ -24,7 +24,7 @@ export function isCollaborative(post, fieldName: string): boolean {
 export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
   form: any,
   formType: "edit"|"new",
-  formProps: any,
+  formProps: FormProps,
   document: any,
   name: any,
   fieldName: any,
@@ -56,8 +56,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const [initialEditorType] = useState(contents.type);
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
-  const currentEditorType = contents?.type || defaultEditorType;
-  const showEditorWarning = (formType !== "new") && (initialEditorType !== 'ckEditorMarkup') && (currentEditorType !== defaultEditorType)
+  const currentEditorType = contents.type || defaultEditorType;
+  const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
   
   const saveBackup = useCallback((newContents: EditorContents) => {
     if (isBlank(newContents)) {
@@ -66,7 +66,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     } else {
       const serialized = serializeEditorContents(newContents);
       const success = getLocalStorageHandlers(newContents.type).set(serialized);
-  
+      
       if (success) {
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
@@ -85,7 +85,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     
     // Only save to localStorage if not using collaborative editing, since with
     // collaborative editing stuff is getting constantly sent through a
-    // websocket and saved taht way.
+    // websocket and saved that way.
     if (!isCollabEditor) {
       if (!isBlank(contents)) {
         hasUnsavedDataRef.current.hasUnsavedData = true;
@@ -122,17 +122,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
     wrappedSetContents({contents: newState, autosave: false});
-    if (editorRef.current)
-      editorRef.current.focusOnEditor();
-  }, [editorRef, wrappedSetContents]);
+    // TODO: Focus editor
+  }, [wrappedSetContents]);
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm((submission) => {
+      const cleanupSubmitForm = context.addToSubmitForm(async (submission) => {
         if (editorRef.current)
           return {
             ...submission,
-            [fieldName]: editorRef.current.submitData(submission)
+            [fieldName]: await editorRef.current.submitData(submission)
           };
         else
           return submission;
@@ -152,7 +151,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         cleanupSuccessForm();
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
@@ -160,18 +159,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
   
-  const actualPlaceholder = (editorHintText || hintText || placeholder || label);
+  const actualPlaceholder = (editorHintText || hintText || placeholder);
   
   if (!document) return null;
-
+  
   return <div>
     {showEditorWarning &&
-      <Components.LastEditedInWarning
-        initialType={initialEditorType}
-        currentType={contents.type}
-        defaultType={defaultEditorType}
-        value={contents} setValue={wrappedSetContents}
-      />
+    <Components.LastEditedInWarning
+      initialType={initialEditorType}
+      currentType={contents.type}
+      defaultType={defaultEditorType}
+      value={contents} setValue={wrappedSetContents}
+    />
     }
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
@@ -181,19 +180,21 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
+      label={label}
       formType={formType}
-      documentId={document?._id}
+      documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
       initialEditorType={initialEditorType}
+      formProps={formProps}
       isCollaborative={isCollabEditor}
-      accessLevel={document?.myEditorAccess}
+      accessLevel={document.myEditorAccess}
       value={contents}
       onChange={wrappedSetContents}
       placeholder={actualPlaceholder}
       commentStyles={commentStyles}
-      answerStyles={document?.answer}
-      questionStyles={document?.question}
+      answerStyles={document.answer}
+      questionStyles={document.question}
       commentEditor={commentEditor}
       hideControls={hideControls}
       maxHeight={maxHeight}
@@ -201,9 +202,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-      <Components.PostVersionHistoryButton
-        postId={document?._id}
-      />
+    <Components.PostVersionHistoryButton
+      postId={document._id}
+    />
     }
   </div>
 }

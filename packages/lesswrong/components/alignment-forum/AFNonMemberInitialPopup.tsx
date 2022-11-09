@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
 const AFNonMemberInitialPopup = ({onClose, classes}: {
-  onClose: ()=>void,
+  onClose?: ()=>void,
   classes: ClassesType,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
@@ -39,7 +39,8 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
   
   const handleClose = () => {
     setOpen(false)
-    onClose()
+    if (onClose)
+      onClose();
   };
 
   return (

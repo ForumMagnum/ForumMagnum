@@ -7,7 +7,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
-import { commentsNodeRootMarginBottom } from '../../themes/globalStyles/globalStyles';
+import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -35,6 +35,9 @@ const highlightStyles = (theme: ThemeType) => ({
   '& h3': {
     fontSize: "1.1rem"
   },
+  '& li': {
+    fontSize: "1.1rem"
+  },
   ...highlightSimplifiedStyles
 })
 
@@ -42,8 +45,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
-    padding: theme.spacing.unit*1.5,
-    paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
     },
@@ -58,11 +59,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postPreview: {
     maxHeight: 450,
+    padding: theme.spacing.unit*1.5,
+    paddingBottom: 0,
+    paddingTop: 0
   },
   header: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    padding: theme.spacing.unit*1.5,
+    paddingBottom: 0,
   },
   title: {
     marginBottom: -6,
@@ -80,9 +86,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   comment: {
     marginTop: theme.spacing.unit,
-    marginLeft: -13,
-    marginRight: -13,
-    marginBottom: -commentsNodeRootMarginBottom
   },
   bookmark: {
     marginTop: -4,
@@ -113,7 +116,6 @@ const getPostCategory = (post: PostsBase) => {
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.meta) categories.push(`Meta Post`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)
@@ -136,14 +138,17 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false)
 
+  const foreignApolloClient = useForeignApolloClient();
+  const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
   const {document: postWithHighlight, loading} = useSingle({
     collectionName: "Posts",
     fragmentName: "HighlightWithHash",
-    documentId: post?._id,
+    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
     extraVariables: { hash: "String" },
-    extraVariablesValues: {hash}
+    extraVariablesValues: {hash},
+    apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
   if (!post) return null

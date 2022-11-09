@@ -97,6 +97,12 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel, 
       if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
         return <Components.MetaculusPreview href={href} innerHTML={innerHTML} id={id} />
       }
+      if (linkTargetAbsolute.host === "manifold.markets" || linkTargetAbsolute.host === "www.manifold.markets") {
+        return <Components.ManifoldPreview href={href} innerHTML={innerHTML} id={id} />
+      }
+      if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
+        return <Components.MetaforecastPreview href={href} innerHTML={innerHTML} id={id} />
+      }
       if (linkTargetAbsolute.host === "ourworldindata.org") {
         return <Components.OWIDPreview href={href} innerHTML={innerHTML} id={id} />
       }

@@ -8,9 +8,15 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
-import { getCollectionHooks } from '../mutationCallbacks';
+import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
+import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -80,6 +86,19 @@ getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
   if (!post.authorIsUnreviewed && !post.draft) {
     void postPublishedCallback.runCallbacksAsync([post]);
   }
+});
+
+/**
+ * For posts created in a subforum, add the appropriate tag
+ */
+getCollectionHooks("Posts").createAfter.add(async function subforumAddTag(post: DbPost, properties: CreateCallbackProperties<DbPost>) {
+  const { context } = properties
+
+  if (post.subforumTagId && context.currentUser?._id) {
+    const currentUser = context.currentUser
+    await addOrUpvoteTag({tagId: post.subforumTagId, postId: post._id, currentUser, context})
+  }
+  return post
 });
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
@@ -152,35 +171,41 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
-  const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    await Users.rawUpdateOne({_id:author._id}, {$set:{needsReview: true}})
-  }
-  return document
-}
-
-getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
   if (!document.draft) {
-    await newDocumentMaybeTriggerReview(document);
+    await triggerReviewIfNeeded(document.userId)
   }
-  return document;
 });
 
-getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
-  // ignore draft posts
-  if (newPost.draft) return
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+  if (document.draft) return
 
-  // Is this a post being undrafted?
-  if (oldPost.draft) {
-    await newDocumentMaybeTriggerReview(newPost)
-  }
+  await triggerReviewIfNeeded(oldDocument.userId)
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
   // then we consider this "publishing" the post
-  if ((oldPost.draft && !newPost.authorIsUnreviewed) || (oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([newPost]);
+  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+    await postPublishedCallback.runCallbacksAsync([document]);
+  }
+});
+
+/**
+ * Creates a moderator action when an admin sets one of the user's posts back to draft
+ * This also adds a note to a user's sunshineNotes
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
   }
 });
 
@@ -210,6 +235,17 @@ async function extractSocialPreviewImage (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
+
+/**
+ * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
+ * they have fairly strict rate limits that often result in them failing to load.
+ *
+ * NOTE: This will soon become obsolete because we are going to make it so images
+ * are automatically reuploaded on paste rather than on submit (see https://app.asana.com/0/628521446211730/1203311932993130/f).
+ * It's fine to leave it here just in case though
+ */
+getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
+getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
 
 // For posts without comments, update lastCommentedAt to match postedAt
 //
@@ -266,3 +302,56 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   
   return modifier
 })
+
+const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
+  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+
+const scheduleCoauthoredPost = (post: DbPost): DbPost => {
+  const now = new Date();
+  post.postedAt = new Date(now.setDate(now.getDate() + 1));
+  post.isFuture = true;
+  return post;
+}
+
+getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
+  if (postHasUnconfirmedCoauthors(post) && !post.draft) {
+    post = scheduleCoauthoredPost(post);
+  }
+  return post;
+});
+
+getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
+  // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
+  // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
+  if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
+    post = scheduleCoauthoredPost(post);
+  }
+  return post;
+});
+
+getCollectionHooks("Posts").newSync.add((post: DbPost) => performCrosspost(post));
+getCollectionHooks("Posts").updateBefore.add((
+  data: Partial<DbPost>,
+  {document}: UpdateCallbackProperties<DbPost>,
+) => handleCrosspostUpdate(document, data));
+
+getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  const {currentUser, context} = props;
+  
+  if (post.tagRelevance) {
+    // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
+    const tagsToApply = Object.keys(post.tagRelevance);
+    post = {...post, tagRelevance: undefined};
+    
+    for (let tagId of tagsToApply) {
+      await addOrUpvoteTag({
+        tagId, postId: post._id,
+        currentUser: currentUser!,
+        context
+      });
+    }
+  }
+  
+  return post;
+});
+

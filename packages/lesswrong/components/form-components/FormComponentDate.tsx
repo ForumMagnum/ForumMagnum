@@ -4,7 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 class FormComponentDate extends Component {
   render() {
     return <Components.MuiTextField
-      {...this.props}
+      {...this.props as any}
       InputLabelProps={{
         shrink: true,
       }}
@@ -20,4 +20,3 @@ declare global {
     FormComponentDate: typeof FormComponentDateComponent
   }
 }
-

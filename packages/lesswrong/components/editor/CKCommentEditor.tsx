@@ -5,17 +5,20 @@ import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
+import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, onInit }: {
+const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, onInit, placeholder }: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
   onSave?: any,
   onChange?: any,
   onInit?: any,
+  placeholder?: string,
 }) => {
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
@@ -48,7 +51,9 @@ const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, on
             return onSave && onSave( editor.getData() )
           }
         },
-        initialData: data || ""
+        initialData: data || "",
+        placeholder: placeholder ?? defaultEditorPlaceholder,
+        mention: mentionPluginConfiguration
       }}
       data={data}
     />

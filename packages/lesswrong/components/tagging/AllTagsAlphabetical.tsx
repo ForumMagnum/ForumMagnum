@@ -6,7 +6,8 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,13 +42,18 @@ const AllTagsAlphabetical = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}>
-        {userCanCreateTags(currentUser) && <SectionButton>
-          <AddBoxIcon/>
-          <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
-            New {taggingNameCapitalSetting.get()}
-          </Link>
-        </SectionButton>}
+      <SectionTitle
+        title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}
+        anchor={`all-${taggingNamePluralSetting.get()}`}
+      >
+        {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
+          <SectionButton>
+            <AddBoxIcon/>
+            <Link to={tagCreateUrl}>
+              New {taggingNameCapitalSetting.get()}
+            </Link>
+          </SectionButton>
+        }
       </SectionTitle>
       {loading && <Loading/>}
       <div className={classes.alphabetical}>

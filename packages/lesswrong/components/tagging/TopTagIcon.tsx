@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import PeopleIcon from '@material-ui/icons/People';
 import EarthIcon from '@material-ui/icons/Public';
+import GavelIcon from '@material-ui/icons/Gavel';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
 import { GlobeIcon } from '../icons/globeIcon';
@@ -26,6 +27,7 @@ const topTagIconMap = forumSelect<Record<string, any>>({
     'career-choice': ChoiceIcon,
     'ai-risk': ChipIcon,
     'global-health-and-development': EarthIcon,
+    'policy': GavelIcon
   },
   default: {}
 })

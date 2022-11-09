@@ -36,7 +36,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   button: {
     border: "none",
     boxShadow: "none",
-    cursor: "pointer",
+    cursor: "pointer"
   },
   
   figure: {
@@ -89,6 +89,12 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
 });
 
 const commentsStyle = (theme: ThemeType): JssStyles => ({
+  ".comments-node-even": {
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
+  },
+  ".comments-node-odd": {
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
+  },
   ".comments-node-root": {
     marginBottom: commentsNodeRootMarginBottom,
   
@@ -122,12 +128,6 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
     marginLeft: 10,
   },
   
-  ".comments-node-even": {
-    backgroundColor: theme.palette.panelBackground.commentNodeEven,
-  },
-  ".comments-node-odd": {
-    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
-  },
   ".comments-node-its-getting-nested-here": {
     marginLeft: "7px !important",
     marginBottom: "7px !important",

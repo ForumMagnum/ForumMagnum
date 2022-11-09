@@ -1,4 +1,3 @@
-import type { PartialDeep } from 'type-fest'
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -30,9 +29,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
-      main: "#3f51b5",
-      dark: "#303f9f",
-      light: "#7986cb",
+      main: shadePalette.type === "dark" ? "#7581d1": "#3f51b5",
+      dark: shadePalette.type === "dark" ? "#7986cb": "#303f9f",
+      light: shadePalette.type === "dark" ? "#5968c9": "#7986cb",
       contrastText: shadePalette.grey[0],
     },
     secondary: {
@@ -42,8 +41,8 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       contrastText: shadePalette.grey[0],
     },
     lwTertiary: {
-      main: "#607e88",
-      dark: "#607e88",
+      main:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
+      dark:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
     },
     error: {
       main: '#bf360c',

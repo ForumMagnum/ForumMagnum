@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
+  const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
@@ -26,12 +26,9 @@ const AlignmentForumHome = ({classes}: {
     <div className="alignment-forum-home">
       <SingleColumnSection>
         <SectionTitle title="Recommended Sequences"/>
-        <SequencesGridWrapper
-            terms={{view:"curatedSequences", limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-            className={classes.frontpageSequencesGridList}
-          />
+        <div className={classes.frontpageSequencesGridList}>
+          <CuratedSequences />
+        </div>
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">

@@ -1,13 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import Messages from "../../lib/collections/messages/collection";
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { userCanDo } from '../../lib/vulcan-users';
+import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -20,11 +22,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     marginTop: theme.spacing.unit*4,
-    ...theme.typography.commentStyle,
     position:"relative",
   },
   backButton: {
     color: theme.palette.lwTertiary.main
+  },
+  row: {
+    display: "flex",
+    justifyContent: "space-between"
   }
 })
 
@@ -53,12 +58,6 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   const { query } = useLocation()
   const { captureEvent } = useTracking()
 
-  const { document: template, loading: loadingTemplate } = useSingle({
-    documentId: query.templateCommentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
-  
   // Scroll to bottom when loading finishes. Note that this overlaps with the
   // initialScroll:"bottom" setting in the route, which is handled by the
   // ScrollToTop component, except that the ScrollToTop component does its thing
@@ -74,8 +73,22 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
     }
   }, [loadingMessages,scrolledToBottom]);
+  
+  // try to attribute this sent message to where the user came from
+  const profileViewedFrom = useRef('')
+  useEffect(() => {
+    const ls = getBrowserLocalStorage()
+    if (query.from) {
+      profileViewedFrom.current = query.from
+    } else if (conversation && conversation.participantIds.length === 2 && ls) {
+      // if this is a conversation with one other person, see if we have info on where the current user found them
+      const otherUserId = conversation.participantIds.find(id => id !== currentUser._id)
+      const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles'))
+      profileViewedFrom.current = lastViewedProfiles?.find(profile => profile.userId === otherUserId)?.from
+    }
+  }, [query.from, conversation, currentUser._id])
 
-  const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
+  const { SingleColumnSection, ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
     if (loading) return <Loading />
@@ -86,42 +99,37 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     </div>
   }
 
-  if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
+  if (loading) return <Loading />
   if (!conversation) return <Error404 />
+
+  const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
 
   return (
     <SingleColumnSection>
       <div className={classes.conversationSection}>
-        <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+        <div className={classes.row}>
+          <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+          {showModInboxLink && <Typography variant="body2" className={classes.backButton}>
+            <Link to="/moderatorInbox"> Moderator Inbox </Link>
+          </Typography>}
+        </div>
         <Typography variant="display2" className={classes.conversationTitle}>
           { conversationGetTitle(conversation, currentUser)}
         </Typography>
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}
         <div className={classes.editor}>
-          <WrappedSmartForm
-            collection={Messages}
-            prefilledProps={{
-              conversationId: conversation._id,
-              contents: {
-                originalContents: {
-                  type: "ckEditorMarkup",
-                  data: template?.contents?.html,
-                }
-              }
-            }}
-            mutationFragment={getFragment("messageListFragment")}
-            successCallback={() => {
+          <NewMessageForm  
+            conversationId={conversation._id}
+            templateQueries={{templateId: query.templateId, displayName: query.displayName}}
+            successEvent={() => {
               captureEvent('messageSent', {
                 conversationId: conversation._id,
                 sender: currentUser._id,
                 participantIds: conversation.participantIds,
-                messageCount: (conversation.messageCount || 0) + 1
+                messageCount: (conversation.messageCount || 0) + 1,
+                ...(profileViewedFrom?.current && {from: profileViewedFrom.current})
               })
-            }}
-            errorCallback={(message: any) => {
-              //eslint-disable-next-line no-console
-              console.error("Failed to send", message)
             }}
           />
         </div>

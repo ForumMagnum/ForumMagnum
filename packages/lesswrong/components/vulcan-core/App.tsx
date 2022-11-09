@@ -13,7 +13,7 @@ import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
+const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
   apolloClient: any
@@ -27,6 +27,7 @@ interface AppProps extends ExternalProps {
   
   // From withCurrentUser HoC
   currentUser: UsersCurrent
+  currentUserLoading: boolean
 }
 
 class App extends PureComponent<AppProps,any> {
@@ -99,7 +100,7 @@ class App extends PureComponent<AppProps,any> {
   render() {
     const { flash } = this;
     const { messages } = this.state;
-    const { currentUser, serverRequestStatus, timeOverride } = this.props;
+    const { currentUser, currentUserLoading, serverRequestStatus, timeOverride } = this.props;
 
     // Parse the location into a route/params/query/etc.
     const location = parseRoute({location: this.props.location});
@@ -133,6 +134,15 @@ class App extends PureComponent<AppProps,any> {
     }
 
     const { RouteComponent } = location;
+    
+    // If logged in but waiting for currentUser to load, don't render stuff.
+    // (Otherwise the logged-in SSR winds up doing the queries for, and sending
+    // an Apollo cache containing the results of, the union of both logged-in
+    // and logged-out views.)
+    if (currentUserLoading && !currentUser) {
+      return <Components.Loading/>
+    }
+    
     return (
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>

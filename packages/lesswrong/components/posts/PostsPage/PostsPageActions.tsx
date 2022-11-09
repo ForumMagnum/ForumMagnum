@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,40 +24,33 @@ const PostsPageActions = ({post, vertical, classes}: {
   vertical?: boolean,
   classes: ClassesType,
 }) => {
-  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const anchorEl = useRef<HTMLDivElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
 
-  const handleClick = (e) => {
-    captureEvent("tripleDotClick", {open: true, itemType: "post", postId: post._id})
-    setAnchorEl(anchorEl ? null : e.target);
-  }
-
-  const handleClose = () => {
-    captureEvent("tripleDotClick", {open: false, itemType: "post"})
-    setAnchorEl(null);
+  const handleSetOpen = (open: boolean) => {
+    captureEvent("tripleDotClick", {open, itemType: "post", postId: post._id})
+    setIsOpen(open);
   }
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-  const { PopperCard, PostActions } = Components
+  const { PopperCard, PostActions, LWClickAwayListener } = Components
   if (!currentUser) return null;
 
   return <div className={classes.root}>
-    <Icon className={classes.icon} onClick={handleClick}/> 
+    <div ref={anchorEl}>
+      <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
+    </div>
     <PopperCard
-      open={Boolean(anchorEl)}
-      anchorEl={anchorEl}
+      open={isOpen}
+      anchorEl={anchorEl.current}
       placement="right-start"
-      modifiers={{
-        flip: {
-          boundariesElement: 'viewport',
-          behavior: ['right-start', 'bottom']
-        }
-      }}
+      allowOverflow
     >
-      <ClickawayListener onClickAway={handleClose}>
-        <PostActions post={post} closeMenu={handleClose}/>
-      </ClickawayListener>
+      <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
+        <PostActions post={post} closeMenu={() => handleSetOpen(false)}/>
+      </LWClickAwayListener>
     </PopperCard>
   </div>
 }

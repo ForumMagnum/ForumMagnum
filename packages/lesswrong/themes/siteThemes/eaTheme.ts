@@ -1,6 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import type { PartialDeep } from 'type-fest'
-import { themeMetadata } from '../themeNames';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -45,7 +43,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
     secondary: {
       main: '#0c869b',
-      light: '#00b2be',
+      light: '#3c9eaf',
       dark: '#085d6c'
     },
     lwTertiary: {
@@ -53,10 +51,12 @@ export const eaForumTheme: SiteThemeSpecification = {
       dark: "#137283",
     },
     error: {
-      main: "bf360c",
+      main: "#bf360c",
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
+      primaryDim: '#d3edf2',
+      primaryDim2: '#e2f1f4',
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
@@ -65,6 +65,15 @@ export const eaForumTheme: SiteThemeSpecification = {
     event: '#0C869B',
     group: '#538747',
     individual: '#BF577D',
+    icon: {
+      navigationSidebarIcon: shadePalette.greyAlpha(0.5),
+    },
+    border: {
+      primaryHighlight: '#88c9d4',
+      primaryHighlight2: '#bae2e8',
+      secondaryHighlight: '#aedba3',
+      secondaryHighlight2: '#d8edd3',
+    }
   }),
   make: (palette: ThemePalette) => {
     const basicText = {
@@ -153,6 +162,17 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         uiSecondary: {
           sansSerifStack
+        },
+        chapterTitle: {
+          fontSize: "1.25em",
+          fontStyle: "unset",
+          textTransform: "unset",
+          color: palette.grey[800],
+          lineHeight: "1.75em",
+          fontFamily: serifStack
+        },
+        largeChapterTitle: {
+          fontSize: "2.2rem"
         }
       },
       overrides: {
@@ -160,17 +180,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           tooltip: {
             fontSize: "1rem",
             padding: ".7rem",
-          }
-        },
-        MuiMenuItem: {
-          root: {
-            '&.MuiMenuItem-selected': {
-              backgroundColor: palette.primary.main,
-              color: 'white',
-              '&:hover': {
-                backgroundColor: "#679299"
-              }
-            }
           }
         },
         Header: {
@@ -217,8 +226,8 @@ export const eaForumTheme: SiteThemeSpecification = {
             marginBottom: -8,
           },
           title: {
-            marginTop: -5,
-            textTransform: 'lowercase',
+            textTransform: 'uppercase',
+            fontSize: 18,
             color: 'rgba(0,0,0,.7)',
             fontWeight: 500,
           }
@@ -288,12 +297,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           },
         },
         AllTagsPage: {
-          root: {
-            maxWidth: 900,
-          },
-          topSection: {
-            maxWidth: 900,
-          },
           portal: {
             background: palette.grey[0],
             marginTop: 'unset',

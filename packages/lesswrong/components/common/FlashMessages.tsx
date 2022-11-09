@@ -1,10 +1,21 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMessages } from './withMessages';
+import classnames from 'classnames';
 import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 
-const FlashMessages = () => {
+const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    '& .MuiSnackbarContent-message': {
+      color: theme.palette.text.maxIntensity,
+    },
+  },
+});
+
+const FlashMessages = ({classes}: {
+  classes: ClassesType,
+}) => {
   const getProperties = (message) => {
     if (typeof message === 'string') {
       // if error is a string, use it as message
@@ -25,7 +36,7 @@ const FlashMessages = () => {
   const { messages, clear } = useMessages();
   let messageObject = messages.length > 0 && getProperties(messages[0]);
   return (
-    <div className="flash-messages">
+    <div className={classnames("flash-messages", classes.root)}>
       <Snackbar
         open={messageObject && !messageObject.hide}
         message={messageObject && messageObject.message}
@@ -37,7 +48,7 @@ const FlashMessages = () => {
   );
 }
 
-const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages);
+const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -11,12 +11,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 8,
+    marginLeft: 10,
     lineHeight: 0.6,
     height: 24,
-    minWidth: 70,
+    minWidth: 60,
     paddingTop: 2,
     outline: theme.palette.border.commentBorder,
+    borderRadius: 2,
     textAlign: 'center'
   },
   agreementScore: {
@@ -53,7 +54,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   return <>
     <span className={classes.agreementSection}>
       <LWTooltip
-        title={<div><b>Agreement: downvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+        title={<div><b>Agreement: Downvote</b><br />How much do you <b>disagree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong downvote, click-and-hold.<br />(Click twice on mobile)</em></div>}
         placement="bottom"
       >
         <AxisVoteButton
@@ -73,7 +74,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
       </span>
       
       <LWTooltip
-        title={<div><b>Agreement: upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+        title={<div><b>Agreement: Upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
         placement="bottom"
       >
         <AxisVoteButton

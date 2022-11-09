@@ -24,6 +24,7 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { userCanPost } from '../../lib/collections/posts';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -43,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '16px',
     fontWeight: 400,
     color: theme.palette.header.text,
+    wordBreak: 'break-word',
   },
   notAMember: {
     marginLeft: 5,
@@ -81,8 +83,7 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  
-  
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
   
   return (
       <div className={classes.root} {...eventHandlers}>
@@ -114,18 +115,18 @@ const UsersMenu = ({classes}: {
                 ev.preventDefault()
               }
             }}>
-              <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
+             {userCanPost(currentUser) && <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question
-              </MenuItem>
-              <Link to={`/newPost`}>
+              </MenuItem>}
+              {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
-              </Link>
+              </Link>}
             </div>
-            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
+            {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                New Shortform
             </MenuItem> }
             {showNewButtons && <Divider/>}
-            {showNewButtons &&
+            {showNewButtons && userCanPost(currentUser) && 
               <Link to={`/newPost?eventForm=true`}>
                 <MenuItem>New Event</MenuItem>
               </Link>
@@ -139,14 +140,14 @@ const UsersMenu = ({classes}: {
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
-            <Link to={'/drafts'}>
+            {!isEAForum && <Link to={'/drafts'}>
               <MenuItem>
                 <ListItemIcon>
                   <EditIcon className={classes.icon}/>
                 </ListItemIcon>
                 My Drafts
               </MenuItem>
-            </Link>
+            </Link>}
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
               <MenuItem>
                 <ListItemIcon>
@@ -168,7 +169,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Edit Account
+                Account Settings
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>

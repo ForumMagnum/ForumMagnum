@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -20,11 +20,15 @@ import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import DoneIcon from '@material-ui/icons/Done';
+import { NotificationChannelOption } from './collections/users/schema';
+import startCase from 'lodash/startCase';
 
 interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
-  mustBeEnabled?: boolean,
+  allowedChannels?: NotificationChannelOption[],
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
@@ -51,7 +55,9 @@ export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): Not
   return result;
 }
 
-const registerNotificationType = (notificationTypeClass: NotificationType) => {
+const registerNotificationType = ({allowedChannels = ["none", "onsite", "email", "both"], ...otherArgs}: NotificationType) => {
+  const notificationTypeClass = {allowedChannels, ...otherArgs};
+
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
   if (notificationTypeClass.userSettingField)
@@ -178,6 +184,21 @@ export const NewCommentNotification = registerNotificationType({
   },
 });
 
+// New comment on a subforum you're subscribed to.
+export const NewSubforumCommentNotification = registerNotificationType({
+  name: "newSubforumComment",
+  userSettingField: "notificationSubforumUnread",
+  allowedChannels: ["none", "onsite", "email", "both"],
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    // e.g. "Forecasting Subforum: Will Howard left a new comment"
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await `${startCase(await getCommentParentTitle(document))} Subforum: ${await commentGetAuthorName(document)} left a new comment`;
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
 export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
@@ -257,7 +278,7 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  mustBeEnabled: true,
+  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
@@ -284,10 +305,11 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
-  mustBeEnabled: true,
+  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost;
-    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+    const name = await postGetAuthorName(document);
+    return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -297,7 +319,10 @@ export const PostSharedWithUserNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/collaborateOnPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("PostSharedWithUserNotification documentId is missing")
+    }
+    return getPostCollaborateUrl(documentId, false)
   }
 });
 
@@ -357,6 +382,18 @@ export const NewRSVPNotification = registerNotificationType({
   }
 })
 
+export const CancelledRSVPNotification = registerNotificationType({
+  name: "cancelledRSVP",
+  userSettingField: "notificationRSVPs",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost
+    return `Someone cancelled their RSVP to your event ${document.title}`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})
+
 export const NewGroupOrganizerNotification = registerNotificationType({
   name: "newGroupOrganizer",
   userSettingField: "notificationGroupAdministration",
@@ -365,6 +402,20 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
+export const NewSubforumMemberNotification = registerNotificationType({
+  name: "newSubforumMember",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'user') throw new Error("documentType must be user")
+    const newUser = await Users.findOne(documentId)
+    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
+    return `A new user has joined your subforum: ${newUser.displayName}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />
@@ -395,3 +446,28 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     return `/editPost?postId=${documentId}`;
   },
 });
+
+export const CoauthorRequestNotification = registerNotificationType({
+  name: 'coauthorRequestNotification',
+  userSettingField: 'notificationSharedWithMe',
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost;
+    const name = await postGetAuthorName(document);
+    return `${name} requested that you co-author their post: ${document.title}`;
+  },
+  getIcon() {
+    return <GroupAddIcon style={iconStyles} />
+  },
+})
+
+export const CoauthorAcceptNotification = registerNotificationType({
+  name: 'coauthorAcceptNotification',
+  userSettingField: 'notificationSharedWithMe',
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost;
+    return `Your co-author request for '${document.title}' was accepted`;
+  },
+  getIcon() {
+    return <DoneIcon style={iconStyles} />
+  },
+})

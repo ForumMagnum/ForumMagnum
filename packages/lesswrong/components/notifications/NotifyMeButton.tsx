@@ -3,7 +3,6 @@ import { Components, registerComponent, getCollectionName } from '../../lib/vulc
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -23,7 +22,10 @@ import { useDialog } from '../common/withDialog';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    '&:hover': {
+      opacity: 0.5
+    }
   },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
@@ -47,6 +49,7 @@ const NotifyMeButton = ({
   hideLabel = false,
   hideLabelOnMobile = false,
   hideIfNotificationsDisabled = false,
+  asButton = false,
   componentIfSubscribed,
 }: {
   document: any,
@@ -61,6 +64,8 @@ const NotifyMeButton = ({
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
   hideIfNotificationsDisabled?: boolean,
+  // uses <a> by default, set this to use <button>
+  asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: JSX.Element,
 }) => {
@@ -68,7 +73,7 @@ const NotifyMeButton = ({
   const { openDialog } = useDialog()
   const { flash } = useMessages();
   const { create: createSubscription } = useCreate({
-    collection: Subscriptions,
+    collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',
   });
   
@@ -126,7 +131,8 @@ const NotifyMeButton = ({
         documentId: document._id,
         collectionName,
         type: subscriptionType,
-      }
+      } as const;
+      
       await createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed
@@ -167,13 +173,16 @@ const NotifyMeButton = ({
     {icon}
     {message}
   </>
-  
+    
   const maybeMenuItemButton = asMenuItem ?
     <MenuItem onClick={onSubscribe}>
       <a className={classNames(classes.root, className)}>
         {button}
       </a>
-    </MenuItem> :
+    </MenuItem> : asButton ?
+    <button onClick={onSubscribe} className={classNames(className, classes.root)}>
+      {button}
+    </button> :
     <a onClick={onSubscribe} className={classNames(className, classes.root)}>
       {button}
     </a>

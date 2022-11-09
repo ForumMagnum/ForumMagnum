@@ -89,15 +89,6 @@ describe('updateUser – ', () => {
 })
 
 describe('updateUser succeeds – ', () => {
-  it("succeeds when user updates their bio", async () => {
-    const user = await createDummyUser()
-    return userUpdateFieldSucceeds({
-      user: user,
-      document: user,
-      fieldName: 'bio',
-      collectionType: 'User',
-    })
-  });
   it("succeeds when sunshineRegiment user updates their displayName", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
     return userUpdateFieldSucceeds({

@@ -26,12 +26,6 @@ const Pingback = ({classes, post}: {
         open={hover} 
         anchorEl={anchorEl} 
         placement="bottom-end"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-end", "top", "bottom-end"],
-            boundariesElement: 'viewport'
-          } 
-        }}
       >
         <PostsPreviewTooltip post={post}/>
       </LWPopper>

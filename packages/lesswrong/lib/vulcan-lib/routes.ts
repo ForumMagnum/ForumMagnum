@@ -13,7 +13,7 @@ export type RouterLocation = {
   url: string,
   hash: string,
   params: Record<string,string>,
-  query: Record<string,string>,
+  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
   redirected?: boolean,
 };
 
@@ -42,6 +42,21 @@ export type Route = {
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
   standalone?: boolean // if true, this page has no header / intercom
+  fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
+  
+  // enablePrefetch: Start loading stylesheet and JS bundle before the page is
+  // rendered. This requires sending headers before rendering, which means
+  // that the page can't return an HTTP error status or an HTTP redirect. In
+  // exchange, loading time is significantly improved for users who don't have
+  // the stylesheet and JS bundle already in their cache.
+  //
+  // This should only be set for routes which are guaranteed to be valid, ie,
+  // they don't have a post-ID or anything variable in them.
+  //
+  // Currently used for / and for /allPosts which is where this matters most.
+  // Not used for post-pages because we don't know whether a post page is going
+  // to be a 404 until we render it.
+  enableResourcePrefetch?: boolean
 };
 
 /** Populated by calls to addRoute */

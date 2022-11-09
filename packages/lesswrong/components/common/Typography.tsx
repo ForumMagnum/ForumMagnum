@@ -37,7 +37,7 @@ const variantToDefaultComponent: Record<VariantString, string> = {
   body1: 'p',
 };
 
-const Typography = ({children, variant, component, className, onClick, gutterBottom=false, classes}: {
+const Typography = ({children, variant, component, className, onClick, gutterBottom=false, classes, id}: {
   children: React.ReactNode,
   variant: VariantString,
   component?: "div"|"span"|"label"|"aside",
@@ -45,12 +45,19 @@ const Typography = ({children, variant, component, className, onClick, gutterBot
   onClick?: any,
   gutterBottom?: boolean,
   classes: ClassesType,
+  id?: string,
 }) => {
   const Component: any = component || variantToDefaultComponent[variant] || "span";
-  
-  return <Component className={classNames(classes.root, classes[variant], className, {[classes.gutterBottom]: gutterBottom})} onClick={onClick}>
-    {children}
-  </Component>
+
+  return (
+    <Component
+      id={id}
+      className={classNames(classes.root, classes[variant], className, {[classes.gutterBottom]: gutterBottom})}
+      onClick={onClick}
+    >
+      {children}
+    </Component>
+  );
 }
 
 const TypographyComponent = registerComponent("Typography", Typography, {

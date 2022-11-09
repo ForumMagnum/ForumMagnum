@@ -1,7 +1,8 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
+import { Posts, userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -98,9 +99,40 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const prefillFromTemplate = (template: PostsEdit) => {
+  return pick(
+    template,
+    [
+      "contents",
+      "activateRSVPs",
+      "location",
+      "googleLocation",
+      "onlineEvent",
+      "globalEvent",
+      "startTime",
+      "endTime",
+      "localStartTime",
+      "localEndTime",
+      "eventRegistrationLink",
+      "joinEventLink",
+      "website",
+      "contactInfo",
+      "isEvent",
+      "eventImageId",
+      "eventType",
+      "types",
+      "groupId",
+      "group",
+      "title",
+      "coauthorStatuses",
+      "hasCoauthorPermission",
+    ]
+  )
+}
+
 const PostsNewForm = ({classes}: {
-  classes: ClassesType,
-}) => {
+    classes: ClassesType,
+  }) => {
   const { query } = useLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
@@ -110,6 +142,7 @@ const PostsNewForm = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+  const templateId = query && query.templateId;
   
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -119,11 +152,17 @@ const PostsNewForm = ({classes}: {
     documentId: query && query.groupId,
     skip: !query || !query.groupId
   });
+  const { document: templateDocument, loading: templateLoading } = useSingle({
+    documentId: templateId,
+    collectionName: "Posts",
+    fragmentName: 'PostsEdit',
+    skip: !templateId,
+  });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
-  const prefilledProps = {
+  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
@@ -136,10 +175,30 @@ const PostsNewForm = ({classes}: {
     moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
   }
   const eventForm = query && query.eventForm
+  
+  if (query.subforumTagId) {
+    prefilledProps = {
+      subforumTagId: query.subforumTagId,
+      submitToFrontpage: false,
+    }
+  }
 
-  if (!Posts.options.mutations.new.check(currentUser)) {
+  if (!currentUser) {
     return (<WrappedLoginForm />);
   }
+
+  if (!userCanPost(currentUser)) {
+    return (<SingleColumnSection>
+      <Typography variant="display1">
+        You don't have permission to post
+      </Typography>
+    </SingleColumnSection>);
+  }
+
+  if (templateId && templateLoading) {
+    return <Loading />
+  }
+
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}

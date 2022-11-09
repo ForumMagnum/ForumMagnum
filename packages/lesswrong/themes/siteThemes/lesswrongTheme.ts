@@ -1,4 +1,3 @@
-import type { PartialDeep } from 'type-fest'
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently

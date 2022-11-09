@@ -3,28 +3,35 @@ import { registerFragment } from '../../vulcan-lib';
 registerFragment(`
   fragment TagBasicInfo on Tag {
     _id
+    userId
     name
     slug
     core
     postCount
     adminOnly
+    canEditUserIds
     suggestedAsFilter
     needsReview
     descriptionTruncationCount
     createdAt
     wikiOnly
+    deleted
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
-    deleted
     oldSlugs
     isRead
     defaultOrder
     reviewedByUserId
     wikiGrade
+    isSubforum
+    subforumModeratorIds
+    subforumModerators {
+      ...UsersMinimumInfo
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -37,6 +44,14 @@ registerFragment(`
 registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     
     description {
       _id
@@ -72,6 +87,14 @@ registerFragment(`
 registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     isRead
     description(version: $version) {
       _id
@@ -90,10 +113,37 @@ registerFragment(`
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
+    parentTag {
+      name
+      slug
+    }
+    subTags {
+      name
+      slug
+    }
     description {
       _id
       htmlHighlight
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumFragment on Tag {
+    ...TagPreviewFragment
+    isSubforum
+    tableOfContents
+    subforumWelcomeText {
+      _id
+      html
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
+    subforumUnreadMessagesCount
   }
 `);
 
@@ -131,6 +181,8 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -146,9 +198,19 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment AllTagsPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
+    subforumUnreadMessagesCount
+  }
+`);
+
+registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    postsDefaultSortOrder
+    subforumUnreadMessagesCount
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -181,9 +243,18 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    ...TagBasicInfo
+    ...TagDetailsFragment
+    parentTag {
+      _id
+      name
+      slug
+    }
     tagFlagsIds
+    postsDefaultSortOrder
     description {
+      ...RevisionEdit
+    }
+    subforumWelcomeText {
       ...RevisionEdit
     }
   }
@@ -194,6 +265,16 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRecentSubforumComments on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }

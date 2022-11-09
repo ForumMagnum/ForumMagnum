@@ -5,12 +5,15 @@ registerFragment(`
     _id
     postId
     tagId
+    tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
     contents {
+      _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -52,6 +55,7 @@ registerFragment(`
     }
     directChildrenCount
     votingSystem
+    isPinnedOnProfile
   }
 `);
 
@@ -138,5 +142,14 @@ registerFragment(`
     afBaseScore
     afExtendedScore
     voteCount
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
   }
 `);

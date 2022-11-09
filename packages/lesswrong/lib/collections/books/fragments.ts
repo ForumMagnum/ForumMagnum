@@ -12,13 +12,16 @@ registerFragment(`
     }
     sequenceIds
     sequences {
-      ...SequencesPageFragment
+      ...SequencesPageWithChaptersFragment
     }
     postIds
     posts {
       ...PostsList
     }
     collectionId
+    displaySequencesAsGrid
+    hideProgressBar
+    showChapters
   }
 `);
 

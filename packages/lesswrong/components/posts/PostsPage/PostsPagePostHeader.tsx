@@ -6,6 +6,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 
 const SECONDARY_SPACING = 20
 
@@ -42,6 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "no-wrap",
     display: "inline-block",
     fontSize: theme.typography.body2.fontSize,
+    "@media print": { display: "none" },
   },
   wordCount: {
     display: 'inline-block',
@@ -49,10 +51,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
+    "@media print": { display: "none" },
+  },
+  togglePodcastIcon: {
+    marginRight: SECONDARY_SPACING,
+    verticalAlign: 'middle',
+    color: theme.palette.primary.main,
+    height: '24px'
   },
   actions: {
     display: 'inline-block',
     color: theme.palette.icon.dim600,
+    "@media print": { display: "none" },
   },
   authors: {
     display: 'inline-block',
@@ -106,22 +116,28 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
+
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, classes}: {
+const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  toggleEmbeddedPlayer?: () => void,
+  hideMenu?: boolean,
+  hideTags?: boolean,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
+
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
-  
+  const readTime = post.readTimeMinutes ?? 1
+
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
   
@@ -146,9 +162,9 @@ const PostsPagePostHeader = ({post, classes}: {
               </a>
             </LWTooltip>
           }
-          {/* NB: Currently display:none'd */}
-          {!!wordCount && !post.isEvent && <LWTooltip title={`${wordCount} words`}>
-            <span className={classes.wordCount}>{Math.floor(wordCount/200) || 1 } min read</span>
+          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
+          {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
+            <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}
           {!post.isEvent && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
@@ -157,22 +173,28 @@ const PostsPagePostHeader = ({post, classes}: {
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
+          {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+            <a href="#" onClick={toggleEmbeddedPlayer}>
+              <VolumeUpIcon />
+            </a>
+          </LWTooltip>}
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
-          <span className={classes.actions}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostsPageActions post={post} />
-            </AnalyticsContext>
-          </span>
+          {!hideMenu &&
+            <span className={classes.actions}>
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostsPageActions post={post} />
+              </AnalyticsContext>
+            </span>
+          }
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
       </div>}
     </div>
-    
-    {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}

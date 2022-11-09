@@ -2,12 +2,6 @@ import SimpleSchema from 'simpl-schema';
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbBan> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   expirationDate: {
     type: Date,
     optional: true,

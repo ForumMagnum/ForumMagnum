@@ -4,12 +4,11 @@ import React from 'react';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     borderTop: theme.palette.border.normal,
-    padding: theme.spacing.unit*1.5,
+    padding: 12,
     fontWeight: 600,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    width: 210
   }
 })
 

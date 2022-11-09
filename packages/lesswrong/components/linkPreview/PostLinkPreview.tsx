@@ -205,12 +205,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post} hash={hash} />
       </LWPopper>
@@ -245,12 +240,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post} comment={comment} />
       </LWPopper>
@@ -262,83 +252,40 @@ const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPre
   styles,
 });
 
-const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
-  hovercard: {
-    padding: `${theme.spacing.unit*3}px ${theme.spacing.unit*2}px ${theme.spacing.unit*2}px`,
-    ...theme.typography.body2,
-    fontSize: "1.1rem",
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[800],
-    maxWidth: 500,
-    '& a': {
-      color: theme.palette.primary.main,
-    },
-  },
-})
-
-const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+const SequencePreview = ({classes, targetLocation, href, innerHTML}: {
   classes: ClassesType,
+  targetLocation: any,
   href: string,
-  innerHTML: string,
-  onsite?: boolean,
-  id?: string,
-  rel?: string
+  innerHTML: string
 }) => {
-  const { LWPopper } = Components
-  const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "linkPreview",
-    hoverPreviewType: "DefaultPreview",
-    href,
-    onsite
+  const { LWPopper, SequencesHoverOver } = Components
+  const sequenceId = targetLocation.params._id;
+  const { eventHandlers, anchorEl, hover } = useHover();
+
+  const { document: sequence } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+    fetchPolicy: 'cache-then-network' as any,
   });
-  
-  let footnoteContentsNonempty = false;
-  let footnoteMinusBacklink = "";
-  
-  // Get the contents of the linked footnote.
-  // This has a try-catch-ignore around it because the link doesn't necessarily
-  // make a valid CSS selector; eg there are some posts in the DB with internal
-  // links to anchors like "#fn:1" which will crash this because it has a ':' in
-  // it.
-  try {
-    // Grab contents of linked footnote if it exists
-    const footnoteHTML = document.querySelector(href)?.innerHTML;
-    // Remove the backlink anchor tag. Note that this regex is deliberately very narrow;
-    // a more permissive regex would introduce risk of XSS, since we're not re-validating
-    // after this transform.
-    footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">^<\/a>/g, '') || "";
-    // Check whether the footnotehas nonempty contents
-    footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
-  // eslint-disable-next-line no-empty
-  } catch(e) { }
-  
+
   return (
     <span {...eventHandlers}>
-      {footnoteContentsNonempty && <LWPopper
+      <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
-        <Card>
-          <div className={classes.hovercard}>
-            <div dangerouslySetInnerHTML={{__html: footnoteMinusBacklink || ""}} />
-          </div>
-        </Card>
-      </LWPopper>}
-
-      <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+        <SequencesHoverOver sequence={sequence || null} />
+      </LWPopper>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={sequenceId}/>
     </span>
-  );
+  )
 }
 
-const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
-  styles: footnotePreviewStyles,
+const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
+  styles,
 });
 
 const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
@@ -590,6 +537,106 @@ const MetaculusPreviewComponent = registerComponent('MetaculusPreview', Metaculu
   styles: metaculusStyles
 })
 
+const manifoldStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const ManifoldPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType;
+  href: string;
+  innerHTML: string;
+  id?: string;
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://manifold.markets/embed/[...]
+  const isEmbed = /^https?:\/\/manifold\.markets\/embed\/.+$/.test(href);
+
+  // if it fits  https://manifold.markets/[username]/[market-slug] instead, get the (username and market slug)
+  const [, userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
+
+  if (!isEmbed && !userAndSlug) {
+    return (
+      <a href={href}>
+        <span dangerouslySetInnerHTML={{ __html: innerHTML }} />
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://manifold.markets/embed/${userAndSlug}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{ __html: innerHTML }} />
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
+
+const metaforecastStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const MetaforecastPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType;
+  href: string;
+  innerHTML: string;
+  id?: string;
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://metaforecast.org/questions/embed/[...]
+  const isEmbed = /^https?:\/\/metaforecast\.org\/questions\/embed\/.+$/.test(href);
+
+  // test if it fits https://manifold.markets/questions/[...] instead
+  const [, questionId] = href.match(/^https?:\/\/metaforecast\.org\/questions\/([\w-]+)/) || [];
+
+  if (!isEmbed && !questionId) {
+    return (
+      <a href={href}>
+        <span dangerouslySetInnerHTML={{ __html: innerHTML }} />
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://metaforecast.org/questions/embed/${questionId}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{ __html: innerHTML }} />
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const MetaforecastPreviewComponent = registerComponent('MetaforecastPreview', MetaforecastPreview, { styles: metaforecastStyles })
+
 const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 23.333">
   <g>
     <path d="M19.166,20.979v-0.772c-1.035,0.404-2.159,0.626-3.334,0.626c-0.789,0-1.559-0.1-2.291-0.288
@@ -711,9 +758,11 @@ declare global {
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
+    ManifoldPreview: typeof ManifoldPreviewComponent,
+    MetaforecastPreview: typeof MetaforecastPreviewComponent,
     OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
-    FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
+    SequencePreview: typeof SequencePreviewComponent
   }
 }

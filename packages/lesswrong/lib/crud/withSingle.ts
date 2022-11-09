@@ -1,4 +1,4 @@
-import { ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
@@ -28,7 +28,7 @@ const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVaria
   ${extraQueries ? extraQueries : ''}
 }`;
 
-function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
+export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
   const collectionName = collection.collectionName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
   const typeName = collection.options.typeName;
@@ -47,7 +47,7 @@ function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, 
   return query
 }
 
-function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
+export function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
   const typeName = collection.options.typeName;
   return camelCaseify(typeName);
 }
@@ -130,9 +130,25 @@ type TLoadingReturn = {loading: true, error: undefined, document: undefined};
 
 type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<FragmentTypeName> | TErrorReturn | TLoadingReturn) & {
   refetch: any,
+  networkStatus?: number,
   data?: {
     refetch: any,
   }
+}
+
+export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = {
+  collectionName: CollectionNameString,
+  fragmentName?: FragmentTypeName,
+  fragment?: any,
+  extraVariables?: Record<string,any>,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
+  propertyName?: string,
+  extraQueries?: any,
+  documentId: string|undefined,
+  extraVariablesValues?: any,
+  skip?: boolean,
+  apolloClient?: ApolloClient<NormalizedCacheObject>,
 }
 
 export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
@@ -140,23 +156,14 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   fragmentName, fragment,
   extraVariables,
   fetchPolicy,
+  notifyOnNetworkStatusChange,
   propertyName,
   extraQueries,
   documentId,
   extraVariablesValues,
-  skip=false
-}: {
-  collectionName: CollectionNameString,
-  fragmentName?: FragmentTypeName,
-  fragment?: any,
-  extraVariables?: Record<string,any>,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  propertyName?: string,
-  extraQueries?: any,
-  documentId: string|undefined,
-  extraVariablesValues?: any,
-  skip?: boolean,
-}): TReturn<FragmentTypeName> {
+  skip=false,
+  apolloClient,
+}: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
   const collection = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
@@ -169,8 +176,10 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
       ...extraVariablesValues
     },
     fetchPolicy,
+    notifyOnNetworkStatusChange,
     ssr: true,
     skip: skip || !documentId,
+    client: apolloClient,
   })
   if (error) {
     // This error was already caught by the apollo middleware, but the

@@ -46,7 +46,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
     fragmentName: 'CommentWithRepliesFragment',
   });
   const refetch = data?.refetch;
-  const { Loading, Divider, CommentWithReplies, HeadTags } = Components;
+  const { Loading, Divider, CommentOnPostWithReplies, HeadTags } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
   
@@ -67,7 +67,13 @@ const CommentPermalink = ({ documentId, post, classes }: {
       <div>
         <HeadTags ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl} 
         description={getCommentDescription(comment)} noIndex={true} />
-        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} expandByDefault showTitle={false}/>
+        <CommentOnPostWithReplies key={comment._id} post={post} comment={comment} commentNodeProps={{
+          treeOptions: {
+            refetch,
+            showPostTitle: false,
+          },
+          expandByDefault: true,
+        }}/>
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>
       {forumTypeSetting.get() !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}

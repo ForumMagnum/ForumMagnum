@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTypeSetting} from "../../lib/instanceSettings";
+import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -48,6 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 interface PostSubmitProps {
   submitLabel?: string,
@@ -60,6 +62,10 @@ interface PostSubmitProps {
   classes: ClassesType
 }
 
+const requestFeedbackKarmaLevel = forumSelect({
+  EAForum: 200,
+  default: 100,
+})
 
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
@@ -68,7 +74,9 @@ const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
-  
+
+  const { LWTooltip } = Components;
+
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -85,24 +93,28 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {/* TODO: Re-enable on the EA Forum once we hire Bbron */}
-        {forumTypeSetting.get() !== "EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
-          className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
-          onClick={() => {
-            captureEvent("feedbackRequestButtonClicked")
-            if (!!document.title) {
-              updateCurrentValues({draft: true});
-              // eslint-disable-next-line
-              (window as any).Intercom(
-                'trackEvent',
-                'requested-feedback',
-                {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
-              )
-            }
-          }}
+        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+          // EA Forum title is Effective Altruism Forum, which is unecessarily long
+          title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
         >
-          {feedbackLabel}
-        </Button>}
+          <Button type="submit"//treat as draft when draft is null
+            className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+            onClick={() => {
+              captureEvent("feedbackRequestButtonClicked")
+              if (!!document.title) {
+                updateCurrentValues({draft: true});
+                // eslint-disable-next-line
+                window.Intercom(
+                  'trackEvent',
+                  'requested-feedback',
+                  {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
+                )
+              }
+            }}
+          >
+            {feedbackLabel}
+          </Button>
+        </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
           onClick={() => updateCurrentValues({draft: true})}

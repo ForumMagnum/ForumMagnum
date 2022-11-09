@@ -55,6 +55,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           orientation="left"
           color="error"
           upOrDown="Downvote"
+          enabled={tagRel.currentUserCanVote}
           {...voteProps}
         />
       </div>
@@ -66,6 +67,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           orientation="right"
           color="secondary"
           upOrDown="Upvote"
+          enabled={tagRel.currentUserCanVote}
           {...voteProps}
         />
       </div>

@@ -57,15 +57,16 @@ type ABTestGroup = {
   weight: number,
 }
 
-export class ABTest {
+// The generic permits type-safe checks for group assignment with `useABTest`
+export class ABTest<T extends string = string> {
   name: string;
   description: string;
-  groups: Record<string, ABTestGroup>;
+  groups: Record<T, ABTestGroup>;
   
   constructor({name, description, groups}: {
     name: string,
     description: string,
-    groups: Record<string, ABTestGroup>
+    groups: Record<T, ABTestGroup>
   }) {
     const totalWeight = _.reduce(
       Object.keys(groups),
@@ -124,12 +125,14 @@ export function getUserABTestKey(user: UsersCurrent|DbUser|null, clientId: strin
   }
 }
 
-export function getUserABTestGroup(user: UsersCurrent|DbUser|null, clientId: string, abTest: ABTest): string {
+export function getUserABTestGroup<Groups extends string>(user: UsersCurrent|DbUser|null, clientId: string, abTest: ABTest<Groups>): Groups {
   const abTestKey = getUserABTestKey(user, clientId);
-  let groupWeights: Record<string,number> = {};
-  for (let group of Object.keys(abTest.groups))
-    groupWeights[group] = abTest.groups[group].weight;
-  
+  const groupWeights = Object.fromEntries(
+    Object
+      .entries(abTest.groups)
+      .map(([groupName, group]: [Groups, ABTestGroup]) => [groupName, group.weight] as const)
+  ) as Record<Groups, number>;
+
   if (user?.abTestOverrides && user.abTestOverrides[abTest.name]) {
     return user.abTestOverrides[abTest.name];
   } else {
@@ -145,7 +148,7 @@ export function getAllUserABTestGroups(user: UsersCurrent|DbUser|null, clientId:
 }
 
 // Given a weighted set of strings and a seed, return a random element of that set.
-function weightedRandomPick(options: Record<string,number>, seed: string): string {
+function weightedRandomPick<T extends string>(options: Record<T,number>, seed: string): T {
   const weights = _.values(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");
@@ -163,10 +166,10 @@ function weightedRandomPick(options: Record<string,number>, seed: string): strin
 
 
 // Returns the name of the A/B test group that the current user/client is in.
-export function useABTest(abtest: ABTest): string {
+export function useABTest<Groups extends string>(abtest: ABTest<Groups>): Groups {
   const currentUser = useCurrentUser();
   const clientId = useClientId();
-  const abTestGroupsUsed: RelevantTestGroupAllocation = useContext(ABTestGroupsUsedContext);
+  const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   const group = getUserABTestGroup(currentUser, clientId, abtest);
   
   abTestGroupsUsed[abtest.name] = group;

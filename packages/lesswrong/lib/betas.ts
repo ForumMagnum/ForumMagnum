@@ -22,14 +22,15 @@ const isEAForum = forumTypeSetting.get() === 'EAForum'
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
+export const userHasCommentOnSelection = isEAForum ? disabled : shippedFeature;
 export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
-export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userHasRedesignedSettingsPage = disabled;
-export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => (moderatorOnly(user) || karmaGated(1)(user))
+export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || karmaGated(1)(user)
 export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
+export const userHasDefaultProfilePhotos = disabled
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 

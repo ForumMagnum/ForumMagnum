@@ -20,7 +20,7 @@ Forum Magnum is built on top of a number major open-source libraries.
 
 5. [Apollo](https://www.apollographql.com/docs/) is a client-side ORM which we use for managing data on the client. We interact with it primarily via the React hooks API.
 
-6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative text editor, which is no longer the default but which we still support.
+6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative rich text editor, which is no longer the default but which we still support.
 
 ## Running locally
 
@@ -35,16 +35,11 @@ Forum Magnum is built on top of a number major open-source libraries.
 
 ### Installation
 
-Prerequisites:
-- Install MongoDB: https://docs.mongodb.com/manual/installation/
-
 Clone our repo:
 
 ```
-git clone git@github.com:ForumMagnum/ForumMagnum.git
+git clone https://github.com/ForumMagnum/ForumMagnum.git
 ```
-
-(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
@@ -53,16 +48,25 @@ cd ForumMagnum
 yarn install
 ```
 
-Start the development server:
+### If you want to run a local database
+
+CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
+
+Prerequisites:
+- Install MongoDB: https://docs.mongodb.com/manual/installation/
 
 ```
 mkdir myLocalDatabase
 mongod --dbpath ./myLocalDatabase
+```
 
+### Start the development server
+
+```
 yarn [start|ea-start]
 ```
 
-You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
+You should now have a local version running at [http://localhost:3000](http://localhost:3000/). Only use ea-start if you have access to the ForumCredentials repository.
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
 
@@ -76,7 +80,7 @@ Some relevant pieces of documentation that will help you understand aspects of t
 2. JSS styles: [intro](https://cssinjs.org/)
 3. GraphQL: [tutorial](https://graphql.org/learn/)
 4. Apollo: [introduction](https://www.apollographql.com/docs/react/) and [hooks API reference](https://www.apollographql.com/docs/react/api/react/hooks/)
-5. Underscore: [reference](https://underscorejs.org/)
+5. Lodash: [reference](https://lodash.com/docs/4.17.15)
 6. MongoDB: [manual](https://docs.mongodb.com/manual/introduction/)
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
@@ -177,4 +181,3 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
-

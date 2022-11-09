@@ -9,7 +9,7 @@ import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import PersonIcon from '@material-ui/icons/PersonPin';
+import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -24,6 +24,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
+    
+    "& .mapboxgl-popup-content": {
+      background: theme.palette.panelBackground.default,
+    },
+    "& .StyledMapPopup-markerPageLink": {
+      color: theme.palette.text.normal,
+    },
   },
   communityMap: {},
   mapButton: {
@@ -63,8 +70,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
-const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
+export const defaultCenter = {lat: 39.5, lng: -43.636047}
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
@@ -73,7 +80,8 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   zoom: number,
   classes: ClassesType,
   className?: string,
-  showUsers?: boolean,
+  showUsersByDefault?: boolean,
+  showGroupsByDefault?: boolean,
   showHideMap?: boolean,
   hideLegend?: boolean,
   petrovButton?: boolean,
@@ -92,8 +100,8 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   )
 
   const [ showEvents, setShowEvents ] = useState(true)
-  const [ showGroups, setShowGroups ] = useState(true)
-  const [ showIndividuals, setShowIndividuals ] = useState(!!showUsers)
+  const [ showGroups, setShowGroups ] = useState(!!showGroupsByDefault)
+  const [ showUsers, setShowUsers ] = useState(!!showUsersByDefault)
   const [ showMap, setShowMap ] = useState(true)
 
   const [ viewport, setViewport ] = useState({
@@ -124,6 +132,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     collectionName: "Localgroups",
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
+    skip: !showGroups
   })
   // filter the list of groups if the user has typed in a keyword
   let visibleGroups = groups
@@ -147,19 +156,19 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showGroups && <LocalGroupsMapMarkers groups={visibleGroups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showUsers && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {!hideLegend && <div className={classes.mapButtons}>
         <Components.CommunityMapFilter 
           showHideMap={showHideMap} 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
           toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
-          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} 
-          showIndividuals={showIndividuals}
+          toggleIndividuals={() => setShowUsers(!showUsers)} 
+          showIndividuals={showUsers}
           setShowMap={setShowMap}
         />
       </div>}
     </React.Fragment>
-  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, visibleGroups, showIndividuals, users, classes.mapButtons, showHideMap, hideLegend])
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, visibleGroups, showUsers, users, classes.mapButtons, showHideMap, hideLegend])
 
   if (!showMap) return null
 

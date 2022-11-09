@@ -18,6 +18,7 @@ registerFragment(`
     books {
       ...BookPageFragment
     }
+    hideStartReadingButton
   }
 `);
 

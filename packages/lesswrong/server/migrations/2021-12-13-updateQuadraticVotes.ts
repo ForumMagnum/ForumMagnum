@@ -1,5 +1,4 @@
-import { forEachBucketRangeInCollection, registerMigration } from './migrationUtils';
-import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
+import { registerMigration } from './migrationUtils';
 import ReviewVotes from '../../lib/collections/reviewVotes/collection';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';

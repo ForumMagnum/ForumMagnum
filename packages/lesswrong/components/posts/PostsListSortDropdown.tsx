@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { sortings } from './AllPostsPage';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,38 +32,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsListSortDropdown = ({classes, value}:{
+const PostsListSortDropdown = ({classes, value, sortingParam="sortedBy"}:{
   classes: ClassesType,
   value: string
+  sortingParam?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  
-  const newSortings = {
-    ...sortings,
-    relevance: "Most Relevant"
-  }
 
   return <div className={classes.root}>
     <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
-      {newSortings[value]} <ArrowDropDownIcon className={classes.icon}/>
+      {TAG_POSTS_SORT_ORDER_OPTIONS[value].label} <ArrowDropDownIcon className={classes.icon}/>
     </span>
     <Menu
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
       onClose={()=>setAnchorEl(null)}
     >
-        <QueryLink query={{sortedBy: undefined}} merge className={classes.menuItem}>
-          <MenuItem value={"relevance"} onClick={()=>setAnchorEl(null)}>
-            {newSortings["relevance"]}
+      {Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS).map(sorting => (
+        <QueryLink key={sorting} query={{[sortingParam]:sorting}} merge>
+          <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
+            {TAG_POSTS_SORT_ORDER_OPTIONS[sorting].label}
           </MenuItem>
         </QueryLink>
-        {Object.keys(sortings).map(sorting => (
-          <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
-            <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
-              {newSortings[sorting]}
-            </MenuItem>
-          </QueryLink>
-        ))}
+      ))}
     </Menu>
   </div>
 }

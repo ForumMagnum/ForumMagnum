@@ -129,7 +129,7 @@ const SearchPage = ({classes}:{
         {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
           * null is the only option that actually suppresses the extra X button.
          // @ts-ignore */}
-        <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
+        <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
       </div>
       <CurrentRefinements />
       <div className={classes.columns}>

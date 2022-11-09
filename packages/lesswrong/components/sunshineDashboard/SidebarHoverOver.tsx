@@ -24,7 +24,7 @@ const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
   width?: number,
 }) => {
   const { LWPopper } = Components;
-  return <LWPopper className={classes.root} open={hover} anchorEl={anchorEl} placement="left-start">
+  return <LWPopper className={classes.root} open={hover} anchorEl={anchorEl} placement="left-start" allowOverflow>
     <div className={classes.hoverInfo} style={{width:width}}>
       { children }
     </div>

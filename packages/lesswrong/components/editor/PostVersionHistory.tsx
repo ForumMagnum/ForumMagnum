@@ -24,8 +24,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   leftColumn: {
     ...commentBodyStyles(theme),
   },
-  // closeButton: {
-  // },
   revisionRow: {
     padding: 12,
     cursor: "pointer",

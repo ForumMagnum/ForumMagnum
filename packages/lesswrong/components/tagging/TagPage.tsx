@@ -4,17 +4,19 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -57,10 +59,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
-  },
-  tableOfContentsWrapper: {
-    position: "relative",
-    top: 12,
   },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
@@ -105,6 +103,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
   },
+  subHeading: {
+    paddingLeft: 42,
+    paddingRight: 42,
+    marginTop: -2,
+    background: theme.palette.panelBackground.default,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+  },
+  subHeadingInner: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    borderTop: theme.palette.border.extraFaint,
+    borderBottom: theme.palette.border.extraFaint,
+  },
+  relatedTagLink : {
+    color: theme.palette.lwTertiary.dark
+  },
   tagHeader: {
     display: "flex",
     justifyContent: "space-between",
@@ -121,14 +136,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   nextLink: {
     ...theme.typography.commentStyle
-  },
-  randomTagLink: {
-    ...theme.typography.commentStyle,
-    fontSize: "1.16rem",
-    color: theme.palette.grey[600],
-    display: "inline-block",
-    marginTop: 8,
-    marginBottom: 8,
   },
 });
 
@@ -148,12 +155,16 @@ const TagPage = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
-   } = Components;
+    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    SectionTitle, TagTableOfContents, ContentStyles
+  } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { revision } = query;
+  
+  // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
+  const { version: queryVersion, revision: queryRevision } = query;
+  const revision = queryVersion ?? queryRevision ?? null;
+  
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
@@ -190,6 +201,7 @@ const TagPage = ({classes}: {
     skip: !query.flagId
   })
   
+  useOnSearchHotkey(() => setTruncated(false));
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -227,6 +239,14 @@ const TagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+  }
+
+  // if no sort order was selected, try to use the tag page's default sort order for posts
+  if (query.sortedBy || tag.postsDefaultSortOrder) {
+    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+  }
 
   const terms = {
     ...tagPostTerms(tag, query),
@@ -238,10 +258,18 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly && !isEAForum)
+  const readMoreHtml = "<span>...<p><a>(Read More)</a></p></span>"
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+  } else {
+    description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
+  }
+
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -272,20 +300,10 @@ const TagPage = ({classes}: {
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       <ToCColumn
         tableOfContents={
-          tag.tableOfContents
-            ? <span className={classes.tableOfContentsWrapper}>
-                <TableOfContents
-                  sectionData={tag.tableOfContents}
-                  title={tag.name}
-                  onClickSection={expandAll}
-                />
-                <Link to="/tags/random" className={classes.randomTagLink}>
-                  Random {taggingNameCapitalSetting.get()}
-                </Link>
-                <TableOfContentsRow href="#" divider={true}/>
-                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-              </span>
-            : null
+          <TagTableOfContents
+            tag={tag} expandAll={expandAll} showContributors={true}
+            onHoverContributor={onHoverContributor}
+          />
         }
         header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>
@@ -318,7 +336,24 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
+        welcomeBox={null}
       >
+        {(tag.parentTag || tag.subTags.length) ?
+        <div className={classNames(classes.subHeading,classes.centralColumn)}>
+          <div className={classes.subHeadingInner}>
+            {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+            {/* For subtags it would be better to:
+                 - put them at the bottom of the page
+                 - truncate the list
+                for our first use case we only need a small number of subtags though, so I'm leaving it for now
+             */}
+            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+                tag.subTags.map((subTag, idx) => {
+                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+              })}</span>
+            </div> : <></>}
+          </div>
+        </div>: <></>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>

@@ -1,5 +1,5 @@
 import schema from './schema';
-import { userCanDo } from '../../vulcan-users/permissions';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
@@ -23,5 +23,9 @@ export const Subscriptions: SubscriptionsCollection = createCollection({
   mutations: getDefaultMutations('Subscriptions', options),
 });
 
-addUniversalFields({collection: Subscriptions})
+addUniversalFields({
+  collection: Subscriptions,
+  createdAtOptions: {canRead: [userOwns]},
+});
+
 export default Subscriptions

@@ -3,7 +3,9 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
-import { schema } from './schema';
+import schema from './schema';
+import { tagUserHasSufficientKarma } from './helpers';
+import { formGroups } from './formGroups';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -21,9 +23,24 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
+      if (!user) return false;
+      if (user.deleted) return false;
+
+      if (!user.isAdmin) {  // skip further checks for admins
+        if (!tagUserHasSufficientKarma(user, "new")) return false
+      }
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
+      if (!user) return false;
+      if (user.deleted) return false;
+
+      if (!user.isAdmin) {  // skip further checks for admins
+        // If canEditUserIds is set only those users can edit the tag
+        const restricted = tag && tag.canEditUserIds
+        if (restricted && !tag.canEditUserIds.includes(user._id)) return false;
+        if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
+      }
       return userCanCreateTags(user);
     },
     removeCheck: (user: DbUser|null, tag: DbTag|null) => {
@@ -60,6 +77,19 @@ makeEditable({
       insertableBy: ['members']
     },
     order: 10
+  }
+});
+
+makeEditable({
+  collection: Tags,
+  options: {
+    formGroup: formGroups.subforumWelcomeMessage,
+    fieldName: "subforumWelcomeText",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
   }
 });
 

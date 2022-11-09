@@ -5,6 +5,7 @@ import GraphQLJSON from 'graphql-type-json';
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
+  userCanVoteOn?: (user: DbUser, document: DbVoteableType) => boolean|Promise<boolean>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];

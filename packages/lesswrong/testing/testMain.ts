@@ -1,7 +1,7 @@
 import '../server';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { onStartupFunctions } from '../lib/executionEnvironment';
+import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection, closeDatabaseConnection } from '../lib/mongoCollection';
@@ -52,8 +52,7 @@ async function oneTimeSetup() {
   setPublicSettings({});
   
   await ensureDbConnection();
-  for (let startupFunction of onStartupFunctions)
-    await startupFunction();
+  await runStartupFunctions();
   
   // define executableSchema
   createVoteableUnionType();

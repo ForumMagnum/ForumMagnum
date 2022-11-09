@@ -8,6 +8,8 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useLocation } from '../../lib/routeUtil';
+import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -55,7 +57,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel }: {
+const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel, placeholder }: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
@@ -70,6 +72,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   // If this is the contents field of a collaboratively-edited post, the access level the
   // logged in user has. Otherwise undefined.
   accessLevel?: CollaborativeEditingAccessLevel,
+  placeholder?: string,
   classes: ClassesType,
 }) => {
   const { EditorTopBar } = Components;
@@ -81,7 +84,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     else if (accessLevelCan(accessLevel, "comment"))
       return "Commenting";
     else
-        return "Viewing";
+      return "Viewing";
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
@@ -144,7 +147,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       data={data}
       onInit={editor => {
         if (isCollaborative) {
-          // Uncomment this line and the import above to activate the CKEDItor debugger
+          // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
 
           // We listen to the current window size to determine how to show comments
@@ -180,7 +183,9 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
         presenceList: {
           container: presenceListRef.current
         },
-        initialData: initData
+        initialData: initData,
+        placeholder: placeholder ?? defaultEditorPlaceholder,
+        mention: mentionPluginConfiguration
       }}
     />}
   </div>

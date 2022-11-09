@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const NominatePostDialog = ({classes, post, onClose}: {
   classes: ClassesType,
   post: PostsBase,
-  onClose: ()=>void,
+  onClose?: ()=>void,
 }) => {
   const { CommentsNewForm, Typography, LWDialog } = Components;
 

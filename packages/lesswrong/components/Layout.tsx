@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
@@ -22,10 +21,12 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { userCanDo } from '../lib/vulcan-users/permissions';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
+export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -33,11 +34,11 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 // like to include
 const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
-    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
+    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Codex', 'bestoflesswrong',
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
-  'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary'],
+  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -48,13 +49,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
+    // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
+    // but almost all pages are bigger than this anyway so it's not that important
+    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
+      paddingLeft: 8,
+      paddingRight: 8,
     },
+  },
+  mainFullscreen: {
+    height: "100%",
+    padding: 0,
+  },
+  fullscreen: {
+    // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
+    // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
+    // for this. Here is one site with a good list from 2018: https://mediag.com/blog/popular-screen-resolutions-designing-for-all/
+    height: "max(100vh, 600px)",
+    display: "flex",
+    flexDirection: "column",
+  },
+  fullscreenBodyWrapper: {
+    flexBasis: 0,
+    flexGrow: 1,
+    overflow: "auto",
   },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -100,6 +120,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
+    ...(theme.palette.intercom ? {
+      '.intercom-launcher': {
+        backgroundColor: theme.palette.intercom.buttonBackground
+      }
+    } : null),
   },
   searchResultsArea: {
     position: "absolute",
@@ -200,7 +225,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -209,7 +234,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
             <Intercom
               appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
-              email={currentUser.email}
+              email={getUserEmail(currentUser)}
               name={currentUser.displayName}/>
           </ErrorBoundary>
         </div>
@@ -234,17 +259,21 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
+    
+    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
         
     const shouldUseGridLayout = standaloneNavigation
 
-    const currentTime = new Date()
-    const beforeTime = petrovBeforeTime.get()
-    const afterTime = petrovAfterTime.get()
-
-    const renderPetrovDay = 
-      currentRoute?.name === "home"
-      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
-      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+    const renderPetrovDay = () => {
+      const currentTime = (new Date()).valueOf()
+      const beforeTime = petrovBeforeTime.get()
+      const afterTime = petrovAfterTime.get()
+    
+      return currentRoute?.name === "home"
+        && ('LessWrong' === forumTypeSetting.get())
+        && beforeTime < currentTime 
+        && currentTime < afterTime
+    }
       
     return (
       <AnalyticsContext path={location.pathname}>
@@ -265,20 +294,17 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+      <CommentOnSelectionPageWrapper>
+        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
-                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-                { theme.typography.fontDownloads &&
-                    theme.typography.fontDownloads.map(
-                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                    )
+                {theme.typography.fontDownloads &&
+                  theme.typography.fontDownloads.map(
+                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                  )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-                <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
               <AnalyticsClient/>
@@ -295,35 +321,37 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
-              {renderPetrovDay && <PetrovDayWrapper/>}
-              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
+              {renderPetrovDay() && <PetrovDayWrapper/>}
+              <div className={classNames({[classes.gridActivated]: shouldUseGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white"
+                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.mainFullscreen]: currentRoute?.fullscreen,
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {currentUser?.usernameUnset
-                      ? <NewUserCompleteProfile />
+                      ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
-                  <Footer />
+                  {!currentRoute?.fullscreen && <Footer />}
                 </div>
-                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
-                    <SunshineSidebar/>
-                  </div>
-                  }
+                {renderSunshineSidebar && <div className={classes.sunshine}>
+                  <Components.SunshineSidebar/>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </CommentOnSelectionPageWrapper>
       </TableOfContentsContext.Provider>
       </ItemsReadContext.Provider>
       </TimezoneContext.Provider>

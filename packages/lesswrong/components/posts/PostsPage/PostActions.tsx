@@ -2,11 +2,11 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useNamedMutation } from '../../../lib/crud/withMutation';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
+import { userCanDo, userIsPodcaster } from '../../../lib/vulcan-users/permissions';
+import { userGetDisplayName, userIsSharedOn } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
-import { postCanEdit } from '../../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { useItemsRead } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -22,6 +22,9 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+
+// We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
+export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -48,12 +51,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostActions = ({post, closeMenu, classes}: {
   post: PostsList,
-  closeMenu: ()=>void
-  classes: ClassesType
+  closeMenu: ()=>void,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
   const {openDialog} = useDialog();
+  const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -167,17 +171,18 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton} = Components
   if (!post) return null;
   const postAuthor = post.user;
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
   
   let editLink: React.ReactNode|null = null;
-  const isAuthor = postCanEdit(currentUser,post);
-  const isShared = userCanCollaborate(currentUser, post);
-  if (isAuthor || isShared) {
-    const link = isAuthor ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
+  const isEditor = canUserEditPostMetadata(currentUser,post);
+  const isPodcaster = userIsPodcaster(currentUser);
+  const isShared = userIsSharedOn(currentUser, post);
+  if (isEditor || isPodcaster || isShared) {
+    const link = (isEditor || isPodcaster) ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
     editLink = <Link to={link}>
       <MenuItem>
         <ListItemIcon>
@@ -203,11 +208,18 @@ const PostActions = ({post, closeMenu, classes}: {
   // selected the thing, and closes the menu, but doesn't do the
   // thing.
   
-  
   return (
       <div className={classes.actions}>
+        { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
+          <MenuItem>
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            Duplicate Event
+          </MenuItem>
+        </Link>}
         {editLink}
-        { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
+        { forumTypeSetting.get() === 'EAForum' && canUserEditPostMetadata(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
           <MenuItem>
@@ -247,6 +259,8 @@ const PostActions = ({post, closeMenu, classes}: {
         />}
 
         <BookmarkButton post={post} menuItem/>
+        
+        {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 
         <ReportPostMenuItem post={post}/>
         <div onClick={handleOpenTagDialog}>
@@ -274,13 +288,6 @@ const PostActions = ({post, closeMenu, classes}: {
         <DeleteDraft post={post}/>
         { userCanDo(currentUser, "posts.edit.all") &&
           <span>
-            { !post.meta &&
-              <div onClick={handleMoveToMeta}>
-                <MenuItem>
-                  Move to Meta
-                </MenuItem>
-              </div>
-            }
             { !post.frontpageDate &&
               <div onClick={handleMoveToFrontpage}>
                 <Tooltip placement="left" title={

@@ -6,7 +6,7 @@ import { Vulcan } from '../vulcan-lib';
 async function runVoteMigration(collectionName) {
   try {
     //Abort early if votes collection is not empty
-    if (Votes.findOneArbitrary()) {
+    if (await Votes.findOneArbitrary()) {
       //eslint-disable-next-line no-console
       console.error("Votes collection non-empty, aborting migration")
       return

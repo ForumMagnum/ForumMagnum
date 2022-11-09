@@ -65,6 +65,7 @@ export default {
     bundleIsTest: true,
     bundleIsProduction: false,
     defaultSiteAbsoluteUrl: "",
+    serverPort: 3000,
   },
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
@@ -180,7 +181,12 @@ export default {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": "esbuild-jest"
+    "^.+\\.(js|jsx|ts|tsx)$": [
+      "esbuild-jest",
+      {
+        sourcemap: true,
+      },
+    ],
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation

@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

@@ -4,7 +4,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { useTheme } from '../themes/useTheme';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -15,11 +14,10 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
 
-const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
-const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
+export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
+export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 
-// Shared with HeaderWIthBackButton
-export const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
@@ -39,8 +37,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       height: 56,
     },
-    
-    flexGrow: 1,
     "@media print": {
       display: "none"
     }
@@ -136,9 +132,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
+  stayAtTop?: boolean,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
@@ -151,7 +148,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
-  const theme = useTheme();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -268,6 +264,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           )}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={stayAtTop}
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
@@ -299,7 +296,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                     </AnalyticsContext>
                   </div>}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
+                {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
                   toggle={handleNotificationToggle}
                   open={notificationOpen}

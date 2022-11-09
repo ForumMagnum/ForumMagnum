@@ -50,15 +50,19 @@ import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } f
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
-import { inspect }  from "util";
 
+
+
+
+/** FormField in the process of being created */
+type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   'prefilledProps' // TODO: prefilledProps should be merged instead?
-];
+] as const;
 
 const compactParent = (object, path) => {
   const parentPath = getParentPath(path);
@@ -113,6 +117,7 @@ const getInitialStateFromProps = nextProps => {
     deletedValues: [],
     currentValues: {},
     // convert SimpleSchema schema into JSON object
+    // TODO: type convertedSchema
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
     flatSchema: convertSchema(schema as any, true),
@@ -137,7 +142,7 @@ const getInitialStateFromProps = nextProps => {
 /**
  * Note: Only use this through WrappedSmartForm
  */
-class Form extends Component<any,any> {
+class Form<T extends DbObject> extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -215,7 +220,7 @@ class Form extends Component<any,any> {
   Also remove any deleted values.
 
   */
-  getData = customArgs => {
+  getData = async customArgs => {
     // we want to keep prefilled data even for hidden/removed fields
     const args = {
       excludeRemovedFields: false,
@@ -245,7 +250,7 @@ class Form extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacksList({
+    data = await runCallbacksList({
       callbacks: this.submitFormCallbacks,
       iterator: data,
       properties: [this],
@@ -271,7 +276,7 @@ class Form extends Component<any,any> {
   getFieldGroups = () => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
-    let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
+    let fields = this.getFieldNames(this.props).map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema, mutableFields);
     });
@@ -279,29 +284,27 @@ class Form extends Component<any,any> {
     fields = _.sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g:any) => g && g.name));
+    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g) => g && g.name));
 
     // for each group, add relevant fields
     groups = groups.map(group => {
       group.label =
         group.label || this.context.intl.formatMessage({ id: group.name });
-      group.fields = _.filter(fields, field => {
+      group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
-      });
+      })
       return group;
     });
-
+    
     // add default group
-    groups = [
-      {
-        name: 'default',
-        label: 'default',
-        order: 0,
-        fields: _.filter(fields, field => {
-          return !field.group;
-        })
-      }
-    ].concat(groups);
+    groups.unshift({
+      name: 'default',
+      label: 'default',
+      order: 0,
+      fields: _.filter(fields, field => {
+        return !field.group;
+      })
+    });
 
     // sort by order
     groups = _.sortBy(groups, 'order');
@@ -309,13 +312,11 @@ class Form extends Component<any,any> {
     return groups;
   };
 
-  /*
-
-  Get a list of the fields to be included in the current form
-
-  Note: when submitting the form (getData()), do not include any extra fields.
-
-  */
+  /**
+   * Get a list of the fields to be included in the current form
+   *
+   * Note: when submitting the form (getData()), do not include any extra fields
+   */
   getFieldNames = (args?: any) => {
     // we do this to avoid having default values in arrow functions, which breaks MS Edge support. See https://github.com/meteor/meteor/issues/10171
     let args0 = args || {};
@@ -371,10 +372,13 @@ class Form extends Component<any,any> {
     return relevantFields;
   };
 
-  initField = (fieldName, fieldSchema) => {
+  // TODO: fieldSchema is actually a slightly added-to version of
+  // CollectionFieldSpecification, see convertSchema in schema_utils, but in
+  // this function, it acts like CollectionFieldSpecification
+  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
     // intialize properties
-    let field: any = {
-      ..._.pick(fieldSchema, formProperties),
+    let field: FormFieldUnfinished<T> = {
+      ...pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
@@ -382,15 +386,6 @@ class Form extends Component<any,any> {
       input: fieldSchema.input || fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
-    // // replace value by prefilled value if value is empty
-    // const prefill = fieldSchema.prefill || (fieldSchema.form && fieldSchema.form.prefill);
-    // if (prefill) {
-    //   const prefilledValue = typeof prefill === 'function' ? prefill.call(fieldSchema) : prefill;
-    //   if (!!prefilledValue && !field.value) {
-    //     field.prefilledValue = prefilledValue;
-    //     field.value = prefilledValue;
-    //   }
-    // }
 
     // if options are a function, call it
     if (typeof field.options === 'function') {
@@ -415,7 +410,7 @@ class Form extends Component<any,any> {
     }
     return field;
   };
-  handleFieldPath = (field, fieldName, parentPath?: any) => {
+  handleFieldPath = (field: FormFieldUnfinished<T>, fieldName: string, parentPath?: string): FormFieldUnfinished<T> => {
     const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
     field.path = fieldPath;
     if (field.defaultValue) {
@@ -423,7 +418,7 @@ class Form extends Component<any,any> {
     }
     return field;
   };
-  handleFieldParent = (field, parentFieldName) => {
+  handleFieldParent = (field: FormFieldUnfinished<T>, parentFieldName?: string) => {
     // if field has a parent field, pass it on
     if (parentFieldName) {
       field.parentFieldName = parentFieldName;
@@ -431,14 +426,14 @@ class Form extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field, fieldName, mutableFields) => {
+  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, mutableFields: any) => {
     // if field is not creatable/updatable, disable it
     if (!mutableFields.includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field, fieldName, fieldSchema, mutableFields) => {
+  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, mutableFields: any, schema: any) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -473,19 +468,19 @@ class Form extends Component<any,any> {
     return field;
   };
 
-  /*
-  Given a field's name, the containing schema, and parent, create the
-  complete field object to be passed to the component
-
-  */
-  createField = (fieldName, schema, mutableFields, parentFieldName?: any, parentPath?: any) => {
+  /**
+   * Given a field's name, the containing schema, and parent, create the
+   * complete form-field object to be passed to the component
+   */
+  createField = (fieldName: string, schema: any, mutableFields: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
-    let field = this.initField(fieldName, fieldSchema);
+    let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, mutableFields);
-    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields);
-    return field;
+    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields, schema);
+    // Now that it's done being constructed, all the required fields will be set
+    return field as FormField<T>;
   };
   createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
     const subFieldName = `${fieldName}.$`;
@@ -495,7 +490,7 @@ class Form extends Component<any,any> {
     subField = this.handleFieldPath(subField, fieldName);
     subField = this.handlePermissions(subField, fieldName, mutableFields);
     // we do not allow nesting yet
-    //subField = this.handleFieldChildren(field, fieldSchema)
+    //subField = this.handleFieldChildren(field, fieldSchema, mutableFields, schema)
     return subField;
   };
 
@@ -504,7 +499,7 @@ class Form extends Component<any,any> {
    Get a field's label
 
    */
-  getLabel = (fieldName, fieldLocale?: any) => {
+  getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
     const label = this.context.intl.formatLabel({
       fieldName: fieldName,
@@ -657,7 +652,7 @@ class Form extends Component<any,any> {
   updateCurrentValues = async (newValues, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
-    const { changeCallback } = this.props;
+    const { autoSubmit, changeCallback } = this.props;
 
     // keep the previous ones and extend (with possible replacement) with new ones
     return new Promise<void>((resolve, reject) => {
@@ -698,7 +693,10 @@ class Form extends Component<any,any> {
         });
         if (changeCallback) changeCallback(newState.currentDocument);
         return newState;
-      }, resolve)
+      }, () => {
+        if (autoSubmit) void this.submitForm();
+        return resolve()
+      })
     });
   };
 
@@ -968,7 +966,7 @@ class Form extends Component<any,any> {
 
     // complete the data with values from custom components
     // note: it follows the same logic as SmartForm's getDocument method
-    let data = this.getData({ addExtraFields: false });
+    let data = await this.getData({ addExtraFields: false });
 
     // if there's a submit callback, run it
     if (this.props.submitCallback) {
@@ -1045,7 +1043,7 @@ class Form extends Component<any,any> {
     errors: this.state.errors
   });
 
-  getFormGroupProps = group => ({
+  getFormGroupProps = (group: FormGroup<T>) => ({
     key: group.name,
     ...group,
     errors: this.state.errors,
@@ -1068,6 +1066,7 @@ class Form extends Component<any,any> {
     revertLabel: this.props.revertLabel,
     cancelCallback: this.props.cancelCallback,
     revertCallback: this.props.revertCallback,
+    submitForm: this.submitForm,
     updateCurrentValues: this.updateCurrentValues,
     formType: this.getFormType(),
     document: this.getDocument(),
@@ -1099,7 +1098,7 @@ class Form extends Component<any,any> {
 
         {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}
 
-        <FormComponents.FormSubmit {...this.getFormSubmitProps()} />
+        {!this.props.autoSubmit && <FormComponents.FormSubmit {...this.getFormSubmitProps()} />}
       </FormComponents.FormElement>
     );
   }

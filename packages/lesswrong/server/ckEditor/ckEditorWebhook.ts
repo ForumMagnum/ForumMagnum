@@ -1,6 +1,6 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
-import { getCkEditorApiPrefix, getCkEditorEnvironmentId, getCkEditorSecretKey, getCkEditorApiSecretKey } from './ckEditorServerConfig';
+import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
 import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
@@ -8,7 +8,6 @@ import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { createMutator } from '../vulcan-lib/mutators';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import fetch from 'node-fetch';
 import crypto from 'crypto';
 import fs from 'fs';
 import * as _ from 'underscore';
@@ -163,6 +162,9 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
     type: "ckEditorMarkup",
   }
   
+  if (!user) {
+    throw Error("no user found for userId in saveDocumentRevision")
+  }
   if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
     const newRevision: Partial<DbRevision> = {
       ...await buildRevision({
@@ -321,8 +323,10 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   // Notify the main author of the post, the coauthors if any, and everyone
   // who's commented in the thread. Then filter out the person who wrote the
   // comment themself.
+  const coauthorUserIds = _.filter(post.coauthorStatuses, status=>status.confirmed).map(status => status.userId)
+
   const usersToNotify = _.uniq(_.filter(
-    [post.userId, ...(post.coauthorUserIds||[]), ...commentersInThread],
+    [post.userId, ...(coauthorUserIds), ...commentersInThread],
     u=>(!!u && u!==commenterUserId)
   ));
   

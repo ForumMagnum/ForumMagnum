@@ -41,7 +41,7 @@ async function maybeFixAccount(user: DbUser): Promise<void> {
   // Move services.<oauthprovider>.id to services.<oauthprovider>
   // This would have been created by an OAuth bug where OAuth profiles merge
   // into the wrong field.
-  for (let oauthProvider of ['google', 'facebook', 'github']) {
+  for (let oauthProvider of ['google', 'facebook', 'github', 'auth0']) {
     if (user.services?.[oauthProvider]?.id?.id) {
       const realId = user.services[oauthProvider].id.id;
       if (typeof realId !== 'number' && typeof realId !== 'string') {

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useOnNavigate } from '../hooks/useOnNavigate';
+import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import classNames from 'classnames';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -40,18 +41,24 @@ const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
+  const { results, refetch } = useMulti({
     terms: {
       view: 'userNotifications',
       userId: currentUser._id
     },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
-    pollInterval: 0,
     limit: 20,
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
   });
+  
+  useOnNavigate(useCallback(() => {
+    refetch();
+  }, [refetch]));
+  useOnFocusTab(useCallback(() => {
+    refetch();
+  }, [refetch]));
   
   let filteredResults: Array<NotificationsList> | undefined = results && _.filter(results,
     (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
@@ -74,7 +81,10 @@ const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
   )
 }
 
-const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {styles});
+const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {
+  styles,
+  areEqual: "auto",
+});
 
 declare global {
   interface ComponentTypes {

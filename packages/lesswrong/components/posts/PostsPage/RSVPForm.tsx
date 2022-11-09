@@ -18,10 +18,9 @@ export const responseToText = {
 }
 
 const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
-  userId: string,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
-  onClose: ()=>void,
+  onClose?: ()=>void,
 }) => {
   const [registerRSVP] = useMutation(gql`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {
@@ -34,7 +33,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
   const { history } = useNavigation()
   const currentUser = useCurrentUser()
   const [name, setName] = useState(currentUser?.displayName || "")
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState(currentUser?.email ?? "")
   const [response, setResponse] = useState(initialResponse)
   const [error, setError] = useState("")
 
@@ -44,7 +43,8 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
       open={true}
       onClose={() => {
         history.push({...location, search: ``})
-        onClose()
+        if (onClose)
+          onClose()
       }}
     >
       <DialogTitle>
@@ -85,7 +85,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
               const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}})
               if (errors) {
                 setError(`Oops, something went wrong: ${errors[0].message}`)
-              } else {
+              } else if (onClose) {
                 onClose()
               }
             } else {

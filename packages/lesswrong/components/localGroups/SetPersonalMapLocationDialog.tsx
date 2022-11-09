@@ -25,13 +25,15 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
+  const { mapLocation, googleLocation, } = currentUser || {}
   const { Loading, Typography, LWDialog } = Components
   
   const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
-  const [ mapText, setMapText ] = useState(mapMarkerText || bio)
+  
+  const defaultMapMarkerText = currentUser?.mapMarkerText || currentUser?.biography?.markdown || "";
+  const [ mapText, setMapText ] = useState(defaultMapMarkerText)
   
   const updateCurrentUser = useUpdateCurrentUser()
   

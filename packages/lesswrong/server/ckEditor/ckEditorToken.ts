@@ -4,9 +4,7 @@ import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '.
 import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServerConfig';
-import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import jwt from 'jsonwebtoken'
-import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {

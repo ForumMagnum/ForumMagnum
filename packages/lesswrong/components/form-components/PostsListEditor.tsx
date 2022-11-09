@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { makeSortableListComponent } from '../forms/sortableList';
+import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   editor: {

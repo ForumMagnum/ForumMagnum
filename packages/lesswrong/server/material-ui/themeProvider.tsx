@@ -1,17 +1,20 @@
 import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { createGenerateClassName } from '@material-ui/core/styles';
-import { getForumTheme } from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { ThemeContextProvider } from '../../components/themes/useTheme';
+import { AbstractThemeOptions } from '../../themes/themeNames';
+import { createGenerateClassName } from '@material-ui/core/styles';
 
-export function wrapWithMuiTheme (app: React.ReactNode, context, themeOptions) {
+export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: SheetsRegistry}>(
+  app: React.ReactNode,
+  context: Context,
+  themeOptions: AbstractThemeOptions,
+): React.ReactElement => {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
-  const theme: any = getForumTheme(themeOptions);
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
@@ -21,4 +24,3 @@ export function wrapWithMuiTheme (app: React.ReactNode, context, themeOptions) {
     </JssProvider>
   );
 }
-

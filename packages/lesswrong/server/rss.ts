@@ -29,12 +29,16 @@ export const getMeta = (url: string) => {
   };
 };
 
+type KarmaThreshold = 2 | 30 | 45 | 75 | 125 | 200;
+
 // LESSWRONG - this was added to handle karmaThresholds
-const roundKarmaThreshold = (threshold: number) =>
+const roundKarmaThreshold = (threshold: number): KarmaThreshold =>
     (threshold < 16 || !threshold) ? 2
   : (threshold < 37) ? 30
   : (threshold < 60) ? 45
-  : 75;
+  : (threshold < 100) ? 75
+  : (threshold < 162) ? 125
+  : 200;
 
 export const servePostRSS = async (terms: RSSTerms, url?: string) => {
   // LESSWRONG - this was added to handle karmaThresholds

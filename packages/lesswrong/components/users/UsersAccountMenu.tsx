@@ -1,6 +1,5 @@
 import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';

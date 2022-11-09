@@ -62,7 +62,7 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };
 
-  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
+  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, permalink})
 
   const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>

@@ -1,5 +1,5 @@
 import compose from 'lodash/flowRight';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
@@ -27,7 +27,7 @@ interface ComponentOptions {
   
   // Array of higher-order components that this component should be wrapped
   // with.
-  hocs?: Array<any>,
+  hocs?: Array<any>
   
   // Determines what changes to props are considered relevant, for rerendering.
   // Takes either "auto" (meaning a shallow comparison of all props), a function
@@ -78,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,()=>void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -102,15 +102,15 @@ const classNameProxy = (componentName: string) => {
 
 const addClassnames = (componentName: string, styles: any) => {
   const classesProxy = classNameProxy(componentName);
-  return (WrappedComponent: any) => (props: any) => {
+  return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
       const withStylesHoc = withStyles(styles, {name: componentName})
       const StylesWrappedComponent = withStylesHoc(WrappedComponent)
       return <StylesWrappedComponent {...props}/>
     }
-    return <WrappedComponent {...props} classes={classesProxy}/>
-  }
+    return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
+  })
 }
 
 export const useStyles = (styles: (theme: ThemeType)=>JssStyles, componentName: keyof ComponentTypes) => {
@@ -131,7 +131,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window as any).missingMainStylesheet) {
+    if (isClient && window?.missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));

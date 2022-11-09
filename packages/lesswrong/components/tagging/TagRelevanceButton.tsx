@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

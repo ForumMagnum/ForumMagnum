@@ -1,8 +1,10 @@
 import { testStartup } from './testMain';
+import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, createDummyComment } from './utils'
+import { createDummyUser, createDummyPost, createDummyComment, createDummyVote } from './utils'
+import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
@@ -180,9 +182,88 @@ describe('Voting', function() {
         (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
       });
     });
+    it('gives karma to author and co-authors', async () => {
+      const author = await createDummyUser();
+      const coauthor = await createDummyUser();
+      const voter = await createDummyUser();
+      const yesterday = new Date().getTime() - (1 * 24 * 60 * 60 * 1000);
+      const post = await createDummyPost(author, {
+        postedAt: yesterday,
+        coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
+      });
+
+      expect(author.karma).toBe(undefined);
+      expect(coauthor.karma).toBe(undefined);
+
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await waitUntilCallbacksFinished();
+
+      const updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
+      const updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
+      (updatedAuthor.karma as any).should.be.equal(1);
+      (updatedCoauthor.karma as any).should.be.equal(1);
+    });
+    it('cancelling an old vote after a new co-author is added doesn\'t affect their karma', async () => {
+      const author = await createDummyUser({ karma: 0 });
+      const coauthor = await createDummyUser({ karma: 0 });
+      const voter = await createDummyUser();
+      const yesterday = new Date().getTime() - (1 * 24 * 60 * 60 * 1000);
+      const post = await createDummyPost(author, {
+        postedAt: yesterday,
+      });
+
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await waitUntilCallbacksFinished();
+
+      let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
+      let updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
+      expect(updatedAuthor.karma).toBe(1);
+      expect(updatedCoauthor.karma).toBe(0);
+
+      await updateMutator({
+        collection: Posts,
+        documentId: post._id,
+        set: { coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ] },
+        unset: {},
+        validate: false,
+      });
+
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await waitUntilCallbacksFinished();
+
+      updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
+      updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
+      expect(updatedAuthor.karma).toBe(0);
+      expect(updatedCoauthor.karma).toBe(0);
+    });
+  })
+  describe('checkRateLimit', () => {
+    it('limits votes on posts', async () => {
+      const voter = await createDummyUser();
+      const author = await createDummyUser();
+      const post = await createDummyPost(author);
+      const maxVotesPerHour = 100;
+      const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
+      for (let i = 0; i < maxVotesPerHour; i++) {
+        await createDummyVote(voter, { votedAt: new Date(thirtyMinsAgo + i) });
+      }
+      await expect(async () => {
+        await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      }).rejects.toThrow("Voting rate limit exceeded: too many votes in one hour");
+    });
+    it('self-votes don\'t count towards rate limit', async () => {
+      const voter = await createDummyUser();
+      const post = await createDummyPost(voter);
+      const maxVotesPerHour = 100;
+      const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
+      for (let i = 0; i < maxVotesPerHour; i++) {
+        await createDummyVote(voter, { votedAt: new Date(thirtyMinsAgo + i) });
+      }
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+    });
   })
   describe('getKarmaChanges', () => {
-    it('includes posts in the selected date range', async () => {
+    it('includes authored posts in the selected date range', async () => {
       let clock = lolex.install({
         now: new Date("1980-01-01"),
         shouldAdvanceTime: true,
@@ -219,6 +300,48 @@ describe('Voting', function() {
       });
       
       // TODO
+      await waitUntilCallbacksFinished();
+      clock.uninstall();
+    });
+    it('includes co-authored posts in the selected date range', async () => {
+      const clock = lolex.install({
+        now: new Date("1980-01-01"),
+        shouldAdvanceTime: true,
+      });
+
+      const author = await createDummyUser();
+      const coauthor = await createDummyUser();
+      const voter = await createDummyUser();
+
+      clock.setSystemTime(new Date("1980-01-01T13:00:00Z"));
+      const post = await createDummyPost(author, {
+        coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
+      });
+
+      clock.setSystemTime(new Date("1980-01-01T13:30:00Z"));
+      await performVoteServer({
+        document: post,
+        voteType: "smallUpvote",
+        collection: Posts,
+        user: voter,
+      });
+
+      let karmaChanges = await getKarmaChanges({
+        user: coauthor,
+        startDate: new Date("1980-01-01T13:20:00Z"),
+        endDate: new Date("1980-01-01T13:40:00Z"),
+      });
+
+      (karmaChanges.totalChange as any).should.equal(1);
+
+      karmaChanges.posts.length.should.equal(1);
+      karmaChanges.posts[0].should.deep.equal({
+        _id: post._id,
+        scoreChange: 1,
+        title: post.title,
+        slug: slugify(post.title),
+      });
+
       await waitUntilCallbacksFinished();
       clock.uninstall();
     });

@@ -48,6 +48,24 @@ const embedConfig = {
 		  `
 		},
 		{
+			name: "Manifold",
+			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
+			html: ([match, longslug]) => `
+				<div data-manifold-id="${longslug}" class="manifold-preview">
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}"/>
+				</div>
+			`
+		},
+		{
+			name: "Metaforecast",
+			url: /^metaforecast\.org\/questions\/([\w-]+)$/,
+			html: ([match, slug]) => `
+				<div data-metaforecast-id="${slug}" class="metaforecast-preview">
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}"/>
+				</div>
+			`
+		},
+		{
 			name: 'OWID',
 			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
 			html: ([match, slug]) => {

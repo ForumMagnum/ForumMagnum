@@ -26,7 +26,7 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from './graphqlTemplates';
-import type { GraphQLScalarType } from 'graphql';
+import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -304,7 +304,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     : `Type for ${collectionName}`;
 
   const { mainType, create, update, selector, selectorUnique, orderBy } = fields;
-  
+
   let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
   let addedMutations: Array<any> = [];
@@ -331,7 +331,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
     }
 
-    schemaFragments.push(selectorInputTemplate({ typeName, fields: selector }));
+    schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
 
     schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
 
@@ -453,7 +453,7 @@ export const initGraphQL = () => {
   return executableSchema;
 };
 
-let executableSchema: any = null;
+let executableSchema: GraphQLSchema | null = null;
 export const getExecutableSchema = () => {
   if (!executableSchema) {
     throw new Error('Warning: trying to access executable schema before it has been created by the server.');

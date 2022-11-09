@@ -8,18 +8,14 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    margin: "auto",
-    maxWidth: 1000
   },
   topSection: {
-    maxWidth: 800,
-    marginLeft: "auto",
-    marginRight: "auto",
     marginBottom: theme.spacing.unit*8
   },
   alphabetical: {
@@ -57,10 +53,10 @@ const AllTagsPage = ({classes}: {
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
-  const { tag } = useTagBySlug("portal", "TagFragment");
+  const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles } = Components;
+  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, ToCColumn, TagTableOfContents, Loading } = Components;
 
   let sectionTitle = forumSelect({
     EAForum: 'EA Forum Wiki',
@@ -72,50 +68,76 @@ const AllTagsPage = ({classes}: {
       default: `${taggingNamePluralCapitalSetting.get()} Portal`
     })
   }
+  
+  const htmlWithAnchors = tag?.tableOfContents?.html || tag?.description?.html || "";
 
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title={sectionTitle}>
-              <SectionButton>
-                {currentUser
-                  ? <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
-                      <AddBoxIcon className={classes.addTagButton}/>
-                      New {taggingNameCapitalSetting.get()}
-                    </Link>
-                  : <a onClick={(ev) => {
-                      openDialog({
-                        componentName: "LoginPopup",
-                        componentProps: {}
-                      });
-                      ev.preventDefault();
-                    }}>
-                      <AddBoxIcon className={classes.addTagButton}/>
-                      New {taggingNameCapitalSetting.get()}
-                    </a>
+            <ToCColumn
+              tableOfContents={tag ? <TagTableOfContents
+                tag={tag} showContributors={false}
+                displayOptions={{
+                  addedRows: [
+                    {
+                      title: `All ${taggingNamePluralCapitalSetting.get()}`,
+                      anchor: `all-${taggingNamePluralSetting.get()}`,
+                      level: 0,
+                    },
+                  ],
+                  ...forumSelect({
+                    // Changes to ToC presentation that're specific to the content on LW's version of the Concepts page
+                    LessWrong: {
+                      downcaseAllCapsHeadings: true,
+                      maxHeadingDepth: 1,
+                    },
+                    default: undefined,
+                  })
+                }}
+              /> : <div/>}
+              header={<SectionTitle title={sectionTitle}>
+                <SectionButton>
+                  {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
+                    to={tagCreateUrl}
+                  >
+                    <AddBoxIcon className={classes.addTagButton}/>
+                    New {taggingNameCapitalSetting.get()}
+                  </Link>}
+                  {!currentUser && <a onClick={(ev) => {
+                    openDialog({
+                      componentName: "LoginPopup",
+                      componentProps: {}
+                    });
+                    ev.preventDefault();
+                  }}>
+                    <AddBoxIcon className={classes.addTagButton}/>
+                    New {taggingNameCapitalSetting.get()}
+                  </a>}
+                </SectionButton>
+              </SectionTitle>}
+            >
+              <ContentStyles contentType="comment" className={classes.portal}>
+                {!tag && <Loading/>}
+                {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
+                  Edit
+                </a>}
+                {editing && tag ?
+                  <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+                  :
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: htmlWithAnchors}}
+                    description={`tag ${tag?.name}`} noHoverPreviewPrefetch
+                  />
                 }
-              </SectionButton>
-            </SectionTitle>
-            <ContentStyles contentType="comment" className={classes.portal}>
-              {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
-                Edit
-              </a>}
-              {editing && tag ?
-                <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
-                :
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
-                  description={`tag ${tag?.name}`} noHoverPreviewPrefetch
-                />
-              }
-            </ContentStyles>
+              </ContentStyles>
+              <AnalyticsContext pageSectionContext="allTagsAlphabetical">
+                <AllTagsAlphabetical />
+              </AnalyticsContext>
+            </ToCColumn>
           </AnalyticsContext>
         </div>
-        <AnalyticsContext pageSectionContext="allTagsAlphabetical">
-          <AllTagsAlphabetical />
-        </AnalyticsContext>
       </div>
     </AnalyticsContext>
   );

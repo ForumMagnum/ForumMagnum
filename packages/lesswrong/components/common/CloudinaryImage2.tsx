@@ -24,7 +24,7 @@ function cloudinaryPropsToStr(props) {
 }
 
 function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: CloudinaryPropsType) {
-  return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`
+  return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`
 }
 
 // Cloudinary image without using cloudinary-react. Allows SSR.
@@ -43,7 +43,8 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, fullWid
     c: "fill",
     dpr: "auto",
     q: "auto",
-    f: "auto"
+    f: "auto",
+    g: "auto:faces"
   };
   let imageStyle: CSSProperties = {};
 

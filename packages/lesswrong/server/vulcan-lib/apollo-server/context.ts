@@ -20,6 +20,7 @@ import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
+import {getUserEmail} from "../../../lib/collections/users/helpers";
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -129,7 +130,7 @@ export function configureSentryScope(context: ResolverContext) {
     configureScope(scope => {
       scope.setUser({
         id: user._id,
-        email: user.email,
+        email: getUserEmail(user),
         username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username,
       });
     });
@@ -150,7 +151,7 @@ export const getCollectionsByName = (): CollectionsByName => {
   return result as CollectionsByName;
 }
 
-export const getUserFromReq = async (req) => {
+export const getUserFromReq = async (req): Promise<DbUser|null> => {
   return req.user
   // return getUser(getAuthToken(req));
 }

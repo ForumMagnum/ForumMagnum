@@ -188,6 +188,14 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
   };
 })
 
+Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+  return {
+    selector: {deletedPublic: false},
+    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+  };
+})
+ensureIndex(Comments, augmentForDefaultView({ isPinnedOnProfile: -1, postedAt: -1 }))
+
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
@@ -271,11 +279,16 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   };
 });
 
-export const questionAnswersSort = {promoted: -1, baseScore: -1, postedAt: -1}
+export const questionAnswersSortings = {
+  "top": {promoted: -1, baseScore: -1, postedAt: -1},
+  "newest": {postedAt: -1},
+  "oldest": {postedAt: 1},
+} as const;
+
 Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
   return {
     selector: {postId: terms.postId, answer: true},
-    options: {sort: questionAnswersSort}
+    options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
 });
 
@@ -471,16 +484,37 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
-
-Comments.addView('commentsOnTag', (terms: CommentsViewTerms) => ({
-  selector: {
-    tagId: terms.tagId,
-  },
-}));
 ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
 );
+
+export const subforumSorting = {
+  new: { postedAt: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 },
+}
+export const subforumDiscussionDefaultSorting = "recentDiscussion"
+
+Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    tagId: terms.tagId,
+    tagCommentType: "DISCUSSION"
+  },
+}));
+
+Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
+  const sorting = subforumSorting[sortBy] || subforumSorting.new
+  return {
+  selector: {
+    tagId: tagId,
+    tagCommentType: "SUBFORUM",
+    topLevelCommentId: viewFieldNullOrMissing,
+  },
+  options: {
+    sort: sorting,
+  },
+}});
+
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

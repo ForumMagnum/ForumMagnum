@@ -26,12 +26,6 @@ export const getLSHandlers = (getLocalStorageId: any, doc: any, name: string, pr
       try {
         const savedState = JSON.parse(ls.getItem(prefixedId))
         return savedState;
-        /*if (verify && savedState && isClient && window) {
-          const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
-          return result ? savedState : null
-        } else {
-          return savedState
-        }*/
       } catch(e) {
         // eslint-disable-next-line no-console
         console.warn("Failed reading from localStorage:");

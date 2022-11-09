@@ -41,6 +41,9 @@ registerFragment(`
         ...RevisionDisplay
       }
     }
+    reportedUser {
+      ...SunshineUsersList
+    }
     closedAt
     createdAt
     claimedUserId

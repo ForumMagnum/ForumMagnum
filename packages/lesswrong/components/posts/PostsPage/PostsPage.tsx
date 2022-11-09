@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -6,11 +6,17 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import { welcomeBoxes } from './WelcomeBox';
+import { useABTest } from '../../../lib/abTestImpl';
+import { welcomeBoxABTest } from '../../../lib/abTests';
+import { useCookies } from 'react-cookie';
+import { useDialog } from '../../common/withDialog';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -100,8 +106,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('sm')]: {
       marginTop: -12,
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     },
     [theme.breakpoints.down('xs')]: {
       marginTop: -10,
@@ -123,8 +129,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
   headerImage: {
     width: '100vw',
     maxWidth: 682,
-  }
+  },
+  embeddedPlayer: {
+    marginBottom: "30px"
+  },
+  hideEmbeddedPlayer: {
+    display: "none"
+  },
 })
+
+const SHOW_PODCAST_PLAYER_COOKIE = 'show_post_podcast_player';
 
 const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
@@ -133,7 +147,30 @@ const PostsPage = ({post, refetch, classes}: {
 }) => {
   const location = useLocation();
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
+
+  const { captureEvent } = useTracking();
+  const [cookies, setCookie] = useCookies();
+
+  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
+
+  // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+
+  const toggleEmbeddedPlayer = post.podcastEpisode ? () => {
+    const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    captureEvent("toggleAudioPlayer", { action });
+    setCookie(
+      SHOW_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
+    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+  } : undefined;
+
+  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
   
   const getSequenceId = () => {
     const { params } = location;
@@ -151,9 +188,11 @@ const PostsPage = ({post, refetch, classes}: {
 
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
+    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
+    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
+    CommentOnSelectionContentWrapper
+  } = Components
 
   useEffect(() => {
     recordPostView({
@@ -188,42 +227,67 @@ const PostsPage = ({post, refetch, classes}: {
   if (post.isEvent && post.eventImageId) {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
+  
+  const onClickCommentOnSelection = useCallback((html: string) => {
+    openDialog({
+      componentName:"ReplyCommentDialog",
+      componentProps: {
+        post, initialHtml: html
+      },
+      noClickawayCancel: true,
+    })
+  }, [openDialog, post]);
+
+  const tableOfContents = sectionData
+    ? <TableOfContents sectionData={sectionData} title={post.title} />
+    : null;
+  
+  const header = <>
+    {!commentId && <HeadTags
+      ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+      title={post.title} description={description} noIndex={post.noIndex}
+    />}
+    {/* Header/Title */}
+    <AnalyticsContext pageSectionContext="postHeader">
+      <div className={classes.title}>
+        <div className={classes.centralColumn}>
+          {commentId && <CommentPermalink documentId={commentId} post={post} />}
+          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
+            <CloudinaryImage2
+              publicId={post.eventImageId}
+              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              className={classes.headerImage}
+            />
+          </div>}
+        <PostCoauthorRequest post={post} currentUser={currentUser} />
+        <PostsPagePostHeader post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        </div>
+      </div>
+    </AnalyticsContext>
+  </>;
+
+  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
+  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
+  const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
-      tableOfContents={
-        sectionData
-          ? <TableOfContents sectionData={sectionData} title={post.title} />
-          : null
-      }
-      header={<>
-        {!commentId && <HeadTags
-          ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-          title={post.title} description={description} noIndex={post.noIndex}
-        />}
-        {/* Header/Title */}
-        <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-          <div className={classes.centralColumn}>
-            {commentId && <CommentPermalink documentId={commentId} post={post} />}
-            {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
-              <CloudinaryImage2
-                publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682'}}
-                className={classes.headerImage}
-              />
-            </div>}
-            <PostsPagePostHeader post={post}/>
-          </div>
-        </div></AnalyticsContext>
-      </>}
+      tableOfContents={tableOfContents}
+      header={header}
+      welcomeBox={welcomeBox}
     >
       <div className={classes.centralColumn}>
         {/* Body */}
+        {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
+        </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         <ContentStyles contentType="post" className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
-            { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+            <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+              { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`} nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}/> }
+            </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>
 

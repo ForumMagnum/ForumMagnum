@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
-import { useRecordPostView } from '../common/withRecordPostView';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { CommentsNodeProps } from './CommentsNode';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   showChildren: {
@@ -16,68 +17,81 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentWithReplies = ({comment, post, refetch, showTitle=true, expandByDefault, classes}: {
-  comment: CommentWithRepliesFragment,
-  post: PostsBase,
-  refetch?: any,
-  showTitle?: boolean,
-  expandByDefault?: boolean,
-  classes: ClassesType,
-}) => {
-  const [markedAsVisitedAt,setMarkedAsVisitedAt] = useState<Date|null>(null);
-  const [maxChildren,setMaxChildren] = useState(3);
-  const { recordPostView } = useRecordPostView(post);
+export interface CommentWithRepliesProps {
+  comment: CommentWithRepliesFragment;
+  post?: PostsBase;
+  lastRead?: Date;
+  markAsRead?: any;
+  initialMaxChildren?: number;
+  commentNodeProps?: Partial<CommentsNodeProps>;
+  classes: ClassesType;
+}
 
-  const markAsRead = useCallback(async () => {
-    setMarkedAsVisitedAt(new Date());
-    recordPostView({post})
-  }, [setMarkedAsVisitedAt, recordPostView, post]);
+const CommentWithReplies = ({
+  comment,
+  post,
+  lastRead,
+  markAsRead = () => {},
+  initialMaxChildren = 3,
+  commentNodeProps,
+  classes,
+}: CommentWithRepliesProps) => {
+  const { hash: focusCommentId } = useLocation();
 
-  const { CommentsNode } = Components
+  const commentId = focusCommentId.slice(1) || null;
+  const startExpanded = comment.latestChildren.some(c => c._id === commentId)
+  
+  const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
-  if (!comment || !post)
-    return null;
-
-  const lastCommentId = comment.latestChildren[0]?._id
-
-  const renderedChildren = comment.latestChildren.slice(0, maxChildren)
-  const extraChildrenCount = (comment.latestChildren.length > renderedChildren.length) && (comment.latestChildren.length - renderedChildren.length)
-
-  let nestedComments = unflattenComments(renderedChildren)
-  if (extraChildrenCount > 0) {
-    nestedComments = addGapIndicators(nestedComments)
-  }
-
-  const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
-
-  const showExtraChildrenButton = (extraChildrenCount>0) ? 
-    <a className={classes.showChildren} onClick={()=>setMaxChildren(500)}>
-      Showing 3 of {comment.latestChildren.length } replies (Click to show all)
-    </a> : null
-
+  if (!comment) return null;
+  
+  const lastCommentId = comment.latestChildren[0]?._id;
+  
   const treeOptions: CommentTreeOptions = {
     lastCommentId,
     markAsRead: markAsRead,
-    highlightDate: lastVisitedAt,
+    highlightDate: lastRead,
     condensed: true,
-    showPostTitle: showTitle,
-    refetch,
+    showPostTitle: true,
     post,
+    ...(commentNodeProps?.treeOptions || {}),
   };
-  
-  return <CommentsNode
-    treeOptions={treeOptions}
-    noHash
-    startThreadTruncated={true}
-    nestingLevel={1}
-    comment={comment}
-    childComments={nestedComments}
-    key={comment._id}
-    shortform
-    expandByDefault={expandByDefault}
-    showExtraChildrenButton={showExtraChildrenButton}
-  />
-}
+
+  const { CommentsNode } = Components;
+
+  const renderedChildren = comment.latestChildren.slice(0, maxChildren);
+  const extraChildrenCount =
+    comment.latestChildren.length > renderedChildren.length && comment.latestChildren.length - renderedChildren.length;
+
+  let nestedComments = unflattenComments(renderedChildren);
+  if (extraChildrenCount > 0) {
+    nestedComments = addGapIndicators(nestedComments);
+  }
+
+  const showExtraChildrenButton =
+    extraChildrenCount > 0 ? (
+      <a className={classes.showChildren} onClick={() => setMaxChildren(maxChildren + 500)}>
+        Showing {maxChildren} of {comment.latestChildren.length} replies (Click to show all)
+      </a>
+    ) : null;
+
+  return (
+    <CommentsNode
+      noHash
+      startThreadTruncated={true}
+      nestingLevel={1}
+      comment={comment}
+      childComments={nestedComments}
+      key={comment._id}
+      shortform
+      showExtraChildrenButton={showExtraChildrenButton}
+      {...commentNodeProps}
+      treeOptions={treeOptions}
+      expandAllThreads={startExpanded}
+      expandByDefault={startExpanded}
+    />
+  );
+};
 
 const CommentWithRepliesComponent = registerComponent(
   'CommentWithReplies', CommentWithReplies, {
@@ -88,7 +102,7 @@ const CommentWithRepliesComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    CommentWithReplies: typeof CommentWithRepliesComponent,
+    CommentWithReplies: typeof CommentWithRepliesComponent;
   }
 }
 

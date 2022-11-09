@@ -7,7 +7,6 @@ import { createStyles } from '@material-ui/core/styles';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
@@ -169,7 +168,7 @@ const CommunityHome = ({classes}: {
           <Components.CommunityMapWrapper
             terms={mapEventTerms}
             mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
-            showUsers
+            showUsersByDefault
           />
             <SingleColumnSection>
               <SectionTitle title={title} />

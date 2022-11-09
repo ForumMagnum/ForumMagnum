@@ -69,6 +69,11 @@ async function conflictingIndexExists<T extends DbObject>(collection: Collection
       if (!_.isEqual(existingIndex.key, index)
          || !_.isEqual(existingIndex.partialFilterExpression, options.partialFilterExpression))
       {
+        //eslint-disable-next-line no-console
+        console.log(`Expected index: ${JSON.stringify({index, partialFilterExpression: options.partialFilterExpression})}`);
+        //eslint-disable-next-line no-console
+        console.log(`Found in DB: ${JSON.stringify({index: existingIndex.key, partialFilterExpression: existingIndex.partialFilterExpression})}`);
+        
         return true;
       }
     }
@@ -92,6 +97,7 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
         if (options.name && await conflictingIndexExists(collection, index, options)) {
           //eslint-disable-next-line no-console
           console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
+          
           collection.rawCollection().dropIndex(options.name);
         }
         
@@ -192,9 +198,14 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
   }
 }
 
-export function addUniversalFields<T extends DbObject>({ collection, schemaVersion=1 }: {
+export function addUniversalFields<T extends DbObject>({
+  collection,
+  schemaVersion = 1,
+  createdAtOptions = {},
+}: {
   collection: CollectionBase<T>,
   schemaVersion?: number
+  createdAtOptions?: Partial<CollectionFieldPermissions>,
 }): void {
   addFieldsDict(collection, {
     _id: {
@@ -208,7 +219,15 @@ export function addUniversalFields<T extends DbObject>({ collection, schemaVersi
       optional: true,
       ...schemaDefaultValue(schemaVersion),
       onUpdate: () => schemaVersion
-    }
+    },
+    createdAt: {
+      type: Date,
+      optional: true,
+      hidden: true,
+      viewableBy: ['guests'],
+      onInsert: () => new Date(),
+      ...createdAtOptions,
+    },
   })
   ensureIndex(collection, {schemaVersion: 1});
 }

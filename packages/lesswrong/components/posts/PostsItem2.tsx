@@ -15,10 +15,16 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import qs from "qs";
+import { PopperPlacementType } from '@material-ui/core/Popper';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  row: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
   root: {
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -34,6 +40,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   background: {
     width: "100%",
     background: theme.palette.panelBackground.default,
+  },
+  checkboxWidth: {
+    width: "calc(100% - 24px)"
   },
   translucentBackground: {
     width: "100%",
@@ -86,8 +95,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     minHeight: 26,
-    flexGrow: 1,
-    flexShrink: 1,
+    flex: 1500,
+    maxWidth: "fit-content",
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
@@ -100,11 +109,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
       height: "unset",
       maxWidth: "unset",
       width: "100%",
-      paddingRight: theme.spacing.unit
+      paddingRight: theme.spacing.unit,
+      flex: "unset",
     },
     '&:hover': {
       opacity: 1,
     }
+  },
+  spacer: {
+    flex: 1,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
   },
   author: {
     justifyContent: "flex",
@@ -113,6 +129,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     zIndex: theme.zIndexes.postItemAuthor,
+    flex: 1000,
+    maxWidth: "fit-content",
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -286,6 +304,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   isRead: {
     // this is just a placeholder, enabling easier theming.
+  },
+  checkbox: {
+    marginRight: 10
   }
 })
 
@@ -306,32 +327,14 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) => {
 }
 
 const PostsItem2 = ({
-  // post: The post displayed.
   post,
-  // tagRel: (Optional) The relationship between this post and a tag. If
-  // provided, UI will be shown with the score and voting on this post's
-  // relevance to that tag.
   tagRel=null,
-  // defaultToShowComments: (bool) If set, comments will be expanded by default.
   defaultToShowComments=false,
-  // sequenceId, chapter: If set, these will be used for making a nicer URL.
-  sequenceId, chapter,
-  // index: If this is part of a list of PostsItems, its index (starting from
-  // zero) into that list. Used for special casing some styling at start of
-  // the list.
-  index,
-  // terms: If this is part of a list generated from a query, the terms of that
-  // query. Used for figuring out which sticky icons to apply, if any.
+  sequenceId, 
+  chapter,
   terms,
-  // resumeReading: If this is a Resume Reading suggestion, the corresponding
-  // partiallyReadSequenceItem (see schema in users/custom_fields). Used for
-  // the sequence-image background.
   resumeReading,
-  // dismissRecommendation: If this is a Resume Reading suggestion, a callback
-  // to dismiss it.
   dismissRecommendation,
-  draft,
-  // toggleDeleteDraft, if this a draft, a callback to archive/unarchive it
   toggleDeleteDraft, 
   showBottomBorder=true,
   showQuestionTag=true,
@@ -340,32 +343,47 @@ const PostsItem2 = ({
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
-  // dense: (bool) Slightly reduce margins to make this denser. Used on the
-  // All Posts page.
   dense=false,
-  // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
-  // icon.
   bookmark=false,
-  // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
   hideAuthor=false,
+  hideTrailingButtons=false,
+  tooltipPlacement="bottom-end",
   classes,
   curatedIconLeft=false,
   strikethroughTitle=false,
   translucentBackground=false,
-  forceSticky=false
+  forceSticky=false,
+  showReadCheckbox=false
 }: {
+  /** post: The post displayed.*/
   post: PostsList,
+  /** tagRel: (Optional) The relationship between this post and a tag. If
+  /* provided, UI will be shown with the score and voting on this post's
+  /* relevance to that tag.*/
   tagRel?: WithVoteTagRel|null,
+  /** defaultToShowComments: (bool) If set, comments will be expanded by default.*/
   defaultToShowComments?: boolean,
+  /** sequenceId, chapter: If set, these will be used for making a nicer URL.*/
   sequenceId?: string,
   chapter?: any,
+  /** index: If this is part of a list of PostsItems, its index (starting from
+  /* zero) into that list. Used for special casing some styling at start of
+  /* the list.*/
   index?: number,
+  /**
+   * terms: If this is part of a list generated from a query, the terms of that
+   * query. Used for figuring out which sticky icons to apply, if any.
+   */
   terms?: any,
+  /** resumeReading: If this is a Resume Reading suggestion, the corresponding
+  /* partiallyReadSequenceItem (see schema in users/schema). Used for
+  /* the sequence-image background.*/
   resumeReading?: any,
+  /** dismissRecommendation: If this is a Resume Reading suggestion, a callback to dismiss it.*/
   dismissRecommendation?: any,
-  draft?: boolean
+  /** if this a draft, a callback to archive/unarchive it */
   toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
@@ -374,16 +392,22 @@ const PostsItem2 = ({
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
+  /** dense: (bool) Slightly reduce margins to make this denser. Used on the AllPosts page.*/
   dense?: boolean,
+  /** bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark icon.*/
   bookmark?: boolean,
+  /** showNominationCount: (bool) whether this should display it's number of Review nominations*/
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
+  hideTrailingButtons?: boolean,
+  tooltipPlacement?: PopperPlacementType,
   classes: ClassesType,
   curatedIconLeft?: boolean,
   strikethroughTitle?: boolean
   translucentBackground?: boolean,
-  forceSticky?: boolean
+  forceSticky?: boolean,
+  showReadCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -431,7 +455,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
+    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
   const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
@@ -445,7 +469,7 @@ const PostsItem2 = ({
     </LWTooltip>
   )
   
-  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) && 
+  const archiveButton = (currentUser && post.draft && postCanDelete(currentUser, post) && 
     <LWTooltip title={archiveDraftTooltip} placement="right">
       <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
     </LWTooltip>
@@ -461,19 +485,25 @@ const PostsItem2 = ({
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   return (
-      <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
+    <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
+      <div className={classes.row}>
+        {showReadCheckbox && <div className={classes.checkbox}>
+          <PostReadCheckbox post={post} width={14} />
+        </div>}
         <div className={classNames(
           classes.root,
           {
             [classes.background]: !translucentBackground,
+            [classes.checkboxWidth]: showReadCheckbox,
             [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
-            [classes.isRead]: isRead
+            [classes.isRead]: isRead && !showReadCheckbox  // readCheckbox and post-title read-status don't aesthetically match
           })}
         >
           <PostsItemTooltipWrapper
             post={post}
+            placement={tooltipPlacement}
             className={classNames(
               classes.postsItem,
               classes.withGrayHover, {
@@ -494,9 +524,9 @@ const PostsItem2 = ({
                       captureOnClick={false}
                   >
                     <PostsTitle
-                      postLink={draft ? postEditLink : postLink}
+                      postLink={post.draft ? postEditLink : postLink}
                       post={post}
-                      read={isRead}
+                      read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
                       sticky={isSticky(post, terms) || forceSticky}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
@@ -506,7 +536,6 @@ const PostsItem2 = ({
                     />
                   </AnalyticsTracker>
                 </span>
-
 
                 {(resumeReading?.sequence || resumeReading?.collection) &&
                   <div className={classes.subtitle}>
@@ -526,6 +555,9 @@ const PostsItem2 = ({
                 { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
+
+                {/* space in-between title and author if there is width remaining */}
+                <span className={classes.spacer} />
 
                 { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
@@ -586,13 +618,15 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {<div className={classes.actions}>
-            {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical />}
-          </div>}
-          {<div className={classes.archiveButton}>
-            {archiveButton}
-          </div>}
+          {!hideTrailingButtons && <>
+            <div className={classes.actions}>
+              {dismissButton}
+              {!resumeReading && <PostsPageActions post={post} vertical />}
+            </div>
+            <div className={classes.archiveButton}>
+              {archiveButton}
+            </div>
+          </>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}
@@ -605,12 +639,14 @@ const PostsItem2 = ({
             />
           </div>}
         </div>
-      </AnalyticsContext>
+      </div>
+    </AnalyticsContext>
   )
 };
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
+  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",

@@ -5,8 +5,7 @@
 
 // to run a migration, first start a server, 
 // then execute the following in a terminal for each migration you wish to run:
-// scripts/serverShellCommand.sh Global.migrations.nameOfMigration()
-// note that if you're using Windows or WSL, you'll need to wrap the second part in quotes.
+// scripts/serverShellCommand.sh "Globals.migrations.nameOfMigration()"
 
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';
@@ -90,3 +89,22 @@ import './2022-01-30-updateFinal2020ReviewVotes'
 import './2022-02-21-populateLinkSharingKeys'
 import './2022-03-10-oauthCleanup'
 import './2022-03-31-defaultGroupAdminNotificationFill'
+import './2022-05-20-ckEditorBioField'
+import './2022-05-26-karmaInflationInit'
+import './2022-06-02-updateCoauthorsSchema'
+import './2022-06-30-migrateCommunityFilterSettings'
+import './2022-07-07-allowMultipleVoteAuthors'
+import './2022-07-07-removeVoteAuthorId'
+import './2022-07-19-makeRelativeUrlsAbsolute'
+import './2022-08-11-snoozeUntilContentCount'
+import './2022-08-19-createPodcastsForPosts'
+import './2022-08-22-defaultCommentIsPinnedOnProfileFill'
+import './2022-08-31-recomputeWordCounts'
+import './2022-09-08-defaultTagCommentType'
+import './2022-09-08-giveAllCollectionsCreatedAt'
+import './2022-09-21-petrov-button-reset'
+import './2022-10-12-fillHasCoauthorPermission'
+import './2022-10-18-fillSubforumNotificationsSettings'
+import './2022-10-19-hydrateModeratorActions'
+import './2022-10-25-fillUserTheme'
+import './2022-11-08-rehostPostImages'

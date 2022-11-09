@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight: 8,
-    wordBreak: "break-word"
+    whiteSpace: "nowrap"
   },
   draft: {
     color: theme.palette.grey[400]
@@ -33,17 +33,11 @@ const PostKarmaWithPreview = ({ post, classes }: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
       >
-        <div>
-          <PostsPreviewTooltip post={post}/>
-        </div>
-      </LWPopper>
+      <div>
+        <PostsPreviewTooltip post={post}/>
+      </div>
+    </LWPopper>
   </span>
 }
 

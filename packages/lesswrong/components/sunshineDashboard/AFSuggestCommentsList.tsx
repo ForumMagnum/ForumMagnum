@@ -9,29 +9,30 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const AFSuggestCommentsList = ({ terms, classes }: {
-  terms: CommentsViewTerms,
+const AFSuggestCommentsList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
-    terms,
+  const { results, loadMoreProps } = useMulti({
+    terms: {view:"alignmentSuggestedComments"},
+    enableTotal: true, itemsPerPage: 30,
     collectionName: "Comments",
     fragmentName: 'SuggestAlignmentComment',
     fetchPolicy: 'cache-and-network',
   });
+  const { SunshineListTitle, OmegaIcon, AFSuggestCommentsItem, LoadMore } = Components;
+  
   if (results && results.length) {
-    return (
-      <div>
-        <Components.SunshineListTitle>
-          <div><Components.OmegaIcon className={classes.icon}/> Suggested Comments</div>
-        </Components.SunshineListTitle>
-        {results.map(comment =>
-          <div key={comment._id} >
-            <Components.AFSuggestCommentsItem comment={comment}/>
-          </div>
-        )}
-      </div>
-    )
+    return <div>
+      <SunshineListTitle>
+        <div><OmegaIcon className={classes.icon}/> Suggested Comments</div>
+      </SunshineListTitle>
+      {results.map(comment =>
+        <div key={comment._id} >
+          <AFSuggestCommentsItem comment={comment}/>
+        </div>
+      )}
+      <LoadMore {...loadMoreProps}/>
+    </div>
   } else {
     return null
   }

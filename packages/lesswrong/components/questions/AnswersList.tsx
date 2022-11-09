@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,13 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*5,
     paddingBottom: theme.spacing.unit*2,
   },
-  answerCount: {
-    ...theme.typography.postStyle,
-    marginBottom: theme.spacing.unit*2,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: "auto",
-      marginRight: "auto"
-    }
+  answersSorting:{
+    ...theme.typography.body1,
+    color: theme.palette.text.secondary,
   },
   loading: {
     opacity: .5,
@@ -33,22 +30,29 @@ const AnswersList = ({post, classes}: {
   post: PostsList,
   classes: ClassesType,
 }) => {
+  const location = useLocation();
+  const { query } = location;
+  const sortBy = query.answersSorting || "top";
   const { results } = useMulti({
     terms: {
       view: "questionAnswers",
       postId: post._id,
-      limit: MAX_ANSWERS_QUERIED
+      limit: MAX_ANSWERS_QUERIED,
+      sortBy
     },
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
-  const { Answer, SectionTitle } = Components
+  const { Answer, SectionTitle, AnswersSorting } = Components
 
   if (results && results.length) {
     return <div className={classes.root}>
-      <SectionTitle title={<span>{ results.length } Answers</span>}/>
+      <SectionTitle title={
+        <div><span>{ results.length } Answers </span>
+        <span className={classes.answersSorting}>sorted by <AnswersSorting post={post}/></span>
+      </div>}/>
 
       <div className={classes.answersList}>
         { results.map((comment, i) => {

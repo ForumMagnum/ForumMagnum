@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
 export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
@@ -31,18 +31,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SectionTitle = ({children, classes, className, title, noTopMargin }: {
+const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
+  if (anchor) {
+    return anchor;
+  }
+  if (typeof title === 'string') {
+    return slugify(title);
+  }
+}
+
+// This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
+const SectionTitle = ({children, classes, className, title, noTopMargin, anchor}: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
   title: React.ReactNode,
-  noTopMargin?: Boolean
+  noTopMargin?: boolean,
+  anchor?: string,
 }) => {
-
-  
   return (
     <div className={noTopMargin ? classNames(classes.root, classes.noTopMargin) : classes.root}>
-      <Components.Typography variant='display1' className={classNames(classes.title, className)}>
+      <Components.Typography
+        id={getAnchorId(anchor, title)}
+        variant='display1'
+        className={classNames(classes.title, className)}
+      >
         {title}
       </Components.Typography>
       <div className={classes.children}>{ children }</div>

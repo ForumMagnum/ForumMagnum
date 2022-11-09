@@ -41,14 +41,15 @@ import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
+import { loggerConstructor } from '../../lib/utils/logging';
 
-//
-// Create mutation
-// Inserts an entry in a collection, and runs a bunch of callback functions to
-// fill in its denormalized fields etc. Input is a Partial<T>, because some
-// fields will be filled in by those callbacks; result is a T, but nothing
-// in the type system ensures that everything actually gets filled in.
-//
+/**
+ * Create mutation
+ * Inserts an entry in a collection, and runs a bunch of callback functions to
+ * fill in its denormalized fields etc. Input is a Partial<T>, because some
+ * fields will be filled in by those callbacks; result is a T, but nothing
+ * in the type system ensures that everything actually gets filled in. 
+ */
 export const createMutator = async <T extends DbObject>({
   collection,
   document,
@@ -237,13 +238,13 @@ export const createMutator = async <T extends DbObject>({
   return { data: completedDocument };
 };
 
-//
-// Update mutation
-// Updates a single database entry, and runs callbacks/etc to update its
-// denormalized fields. The preferred way to do this is with a documentId;
-// in theory you can use a selector, but you should only do this if you're sure
-// there's only one matching document (eg, slug). Returns the modified document.
-//
+/**
+ * Update mutation
+ * Updates a single database entry, and runs callbacks/etc to update its
+ * denormalized fields. The preferred way to do this is with a documentId;
+ * in theory you can use a selector, but you should only do this if you're sure
+ * there's only one matching document (eg, slug). Returns the modified document.
+ */
 export const updateMutator = async <T extends DbObject>({
   collection,
   documentId,
@@ -271,6 +272,8 @@ export const updateMutator = async <T extends DbObject>({
 }> => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
+  const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}-update`);
+  logger('updateMutator() begin')
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
@@ -326,6 +329,7 @@ export const updateMutator = async <T extends DbObject>({
 
   */
   if (validate) {
+    logger('validating')
     let validationErrors: any = [];
 
     validationErrors = validationErrors.concat(validateData(data, document, collection, context));
@@ -362,11 +366,9 @@ export const updateMutator = async <T extends DbObject>({
     let autoValue;
     const schemaField = schema[fieldName];
     if (schemaField.onUpdate) {
-      // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onUpdate({...properties, fieldName});
     } else if (schemaField.onEdit) {
       // OpenCRUD backwards compatibility
-      // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onEdit(
         dataToModifier(clone(data)),
         oldDocument,
@@ -375,6 +377,7 @@ export const updateMutator = async <T extends DbObject>({
       );
     }
     if (typeof autoValue !== 'undefined') {
+      logger(`onUpdate returned a value to update for ${fieldName}: ${autoValue}`)
       data![fieldName] = autoValue;
     }
   }

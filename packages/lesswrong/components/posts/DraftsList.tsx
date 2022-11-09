@@ -1,5 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, {useCallback, useState} from 'react';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";
@@ -28,10 +29,12 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}: {
-  terms: PostsViewTerms,
+const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
+  limit: number,
   title?: string,
+  userId?: string,
   showAllDraftsLink?: boolean,
+  hideHeaderRow?: boolean,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -52,6 +55,15 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
     })
   }, [updatePost])
   
+  const terms: PostsViewTerms = {
+    view: "drafts",
+    userId: userId ?? currentUser?._id,
+    limit,
+    sortDraftsBy: query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified",
+    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
+    includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
+  }
+  
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
@@ -66,14 +78,14 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
   
   
   return <>
-    <Components.SectionTitle title={title}>
+    {!hideHeaderRow && <Components.SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
-          <Link to={"/newPost"}>
+          {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
             <Components.SectionButton>
               <DescriptionIcon /> New Post
             </Components.SectionButton>
-          </Link>
+          </Link>}
         </div>
         {showAllDraftsLink && <div className={classes.draftsPageButton}>
           <Link to={"/drafts"}>
@@ -86,7 +98,7 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
           <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>
-    </Components.SectionTitle>
+    </Components.SectionTitle>}
     {showSettings && <Components.DraftsListSettings
       hidden={false}
       persistentSettings={true}
@@ -98,9 +110,8 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
     {(!results && loading) ? <Loading /> : <>
       {results && results.map((post: PostsList, i: number) =>
         <PostsItem2
-          key={post._id} 
+          key={post._id}
           post={post}
-          draft
           toggleDeleteDraft={toggleDelete}
           hideAuthor
           showDraftTag={false}

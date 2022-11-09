@@ -9,6 +9,7 @@ import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { truncate } from '../../../lib/editor/ellipsize';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -41,6 +42,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     marginRight: 6
   },
+  locationFilter: {
+    flexGrow: 1
+  },
+  fullMapLink: {
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    margin: '0 5px'
+  },
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -56,8 +66,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
-      marginLeft: -4,
-      marginRight: -4,
+      marginLeft: -8,
+      marginRight: -8,
     }
   },
   peopleList: {
@@ -71,13 +81,27 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: theme.palette.grey[300],
+    borderColor: theme.palette.greyAlpha(.1),
   },
   content: {
     padding: 20,
     [theme.breakpoints.down('xs')]: {
       paddingBottom: 30
     },
+  },
+  photoRow: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center',
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+  },
+  photoRowText: {
+    flex: '1 1 0'
   },
   nameRow: {
     display: 'flex',
@@ -109,14 +133,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 4,
   },
   description: {
-    ...theme.typography.commentStyle,
     color: theme.palette.grey[800],
-    fontSize: 14,
-    lineHeight: '1.8em',
-    display: '-webkit-box',
-    "-webkit-line-clamp": 3,
-    "-webkit-box-orient": 'vertical',
-    overflow: 'hidden',
     marginTop: 12,
   },
   buttonRow: {
@@ -127,10 +144,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   messageBtn: {
     boxShadow: 'none'
   },
-  map: {
+  mapContainer: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  map: {
+    height: 440,
   },
   pagination: {
     ...theme.typography.commentStyle,
@@ -170,7 +190,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)
 
-  const { NewConversationButton, SearchResultsMap } = Components
+  const { NewConversationButton, SearchResultsMap, ContentStyles } = Components
   
   const SearchBox = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
@@ -213,16 +233,31 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
     
     return <div className={classes.person}>
       <div className={classes.content}>
-        <div className={classes.nameRow}>
-          <Link to={`/users/${hit.slug}`} className={classes.displayName}>{hit.displayName}</Link>
-          <div className={classes.distance}>
-            {distanceToPerson}
+        <div className={classes.photoRow}>
+          {hit.profileImageId && <Components.CloudinaryImage2
+            height={50}
+            width={50}
+            imgProps={{q: '100'}}
+            publicId={hit.profileImageId}
+            className={classes.profileImage}
+          />}
+          <div className={classes.photoRowText}>
+            <div className={classes.nameRow}>
+              <Link to={`/users/${hit.slug}?from=community_members_tab`} className={classes.displayName}>
+                {hit.displayName}
+              </Link>
+              <div className={classes.distance}>
+                {distanceToPerson}
+              </div>
+            </div>
+            <div className={classes.location}>{hit.mapLocationAddress}</div>
           </div>
         </div>
-        <div className={classes.location}>{hit.mapLocationAddress}</div>
-        {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
+        {hit.htmlBio && <ContentStyles contentType="comment" className={classes.description}>
+          <div dangerouslySetInnerHTML={{__html: truncate(hit.htmlBio, 220)}} />
+        </ContentStyles>}
         {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
-          <NewConversationButton user={hit} currentUser={currentUser}>
+          <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">
             <Button variant="contained" color="primary" className={classes.messageBtn}>Message</Button>
           </NewConversationButton>
         </div>}
@@ -241,7 +276,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   >
     <div className={classes.filters}>
       <CustomSearchBox />
-      {locationFilterNode}
+      <div className={classes.locationFilter}>{locationFilterNode}</div>
+      <Link to="/community/map" className={classes.fullMapLink}>View full map</Link>
     </div>
     <div className={classes.people}>
       <div className={classes.peopleList}>
@@ -249,12 +285,12 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         <Hits hitComponent={CommunityMember} />
         <Pagination className={classes.pagination} />
       </div>
-      <div className={classes.map}>
+      <div className={classes.mapContainer}>
         {/* search result hits are provided by InstantSearch, which is probably a provider */}
-        <SearchResultsMap {...mapOptions} />
+        <SearchResultsMap {...mapOptions} className={classes.map} />
       </div>
     </div>
-    <Configure hitsPerPage={100} {...searchOptions} />
+    <Configure hitsPerPage={200} aroundRadius="all" {...searchOptions} />
   </InstantSearch>
 }
 

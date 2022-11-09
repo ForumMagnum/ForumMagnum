@@ -12,7 +12,7 @@ addStrings('en', {
   'users.profile': 'Profile',
   'users.complete_profile': 'Complete your Profile',
   'users.profile_completed': 'Profile completed.',
-  'users.edit_account': 'Edit Account',
+  'users.edit_account': 'Account Settings',
   'users.edit_success': 'User “{name}” edited',
   'users.log_in': 'Log In',
   'users.sign_up': 'Sign Up',
@@ -49,7 +49,7 @@ addStrings('en', {
 
   'settings': 'Settings',
   'settings.json_message': 'Note: settings already provided in your <code>settings.json</code> file will be disabled.',
-  'settings.edit': 'Edit Account',
+  'settings.edit': 'Account Settings',
   'settings.edited': 'Settings edited (please reload).',
   'settings.title': 'Title',
   'settings.siteUrl': 'Site URL',

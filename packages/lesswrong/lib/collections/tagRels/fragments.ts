@@ -26,6 +26,7 @@ registerFragment(`
     }
     currentUserVote
     currentUserExtendedVote
+    currentUserCanVote
   }
 `);
 
@@ -68,6 +69,7 @@ registerFragment(`
     }
     currentUserVote
     currentUserExtendedVote
+    currentUserCanVote
   }
 `);
 

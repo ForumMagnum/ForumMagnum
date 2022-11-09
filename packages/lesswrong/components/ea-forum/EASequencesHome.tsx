@@ -10,22 +10,22 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const EASequencesHome = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, CoreReading, ContentStyles } = Components
+  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
   
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
       <SectionTitle title="Core Reading" />
-      <CoreReading />
+      <EACoreReading />
       <SectionTitle  title="Sequences" >
         <SequencesNewButton />
       </SectionTitle>
-      <ContentStyles contentType="post">
-        <Typography variant='body1' className={classes.description} gutterBottom>
+      <Typography variant='body1' className={classes.description} gutterBottom>
+        <ContentStyles contentType="post">
           Sequences are collections of posts on a common theme, or that build on each other. They
           help authors to develop ideas in ways that would be difficult in a single post. You can also
           add posts written by other people to a sequence if you think they should be read together.
-        </Typography>
-      </ContentStyles>
+        </ContentStyles>
+      </Typography>
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
           terms={{'view': 'communitySequences', limit: 12}}

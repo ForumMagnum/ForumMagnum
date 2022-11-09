@@ -3,12 +3,6 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbConversation> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['members'],
-    onInsert: (document) => new Date(),
-  },
   title: {
     type: String,
     viewableBy: ['members'],
@@ -62,6 +56,14 @@ const schema: SchemaType<DbConversation> = {
       foreignFieldName: "conversationId"
     }),
     viewableBy: ['guests'],
+  },
+  moderator: {
+    type: Boolean,
+    viewableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true
   },
   archivedByIds: {
     ...arrayOfForeignKeysField({

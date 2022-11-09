@@ -2,15 +2,24 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const WebSocket = require('ws');
-const fetch = require("node-fetch");
 const crypto = require('crypto');
+const { zlib } = require("mz");
+
+const defaultServerPort = 3000;
+
+const getServerPort = () => {
+  const port = parseInt(process.env.PORT ?? "");
+  return Number.isNaN(port) ? defaultServerPort : port;
+}
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
 let clientRebuildInProgress = false;
 let serverRebuildInProgress = false;
-const serverPort = 3000;
-const websocketPort = 3001;
+const serverPort = getServerPort();
+const websocketPort = serverPort + 1;
+
+const outputDir = `build${serverPort === defaultServerPort ? "" : serverPort}`;
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
@@ -46,11 +55,11 @@ if (opts.mongoUrl) {
 
 const clientBundleBanner = `/*
  * LessWrong 2.0 (client JS bundle)
- * Copyright (c) 2020 the LessWrong development team. See http://github.com/LessWrong2/Lesswrong2
+ * Copyright (c) 2022 the LessWrong development team. See https://github.com/ForumMagnum/ForumMagnum
  * for source and license details.
  *
  * Includes CkEditor.
- * Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * Copyright (c) 2003-2022, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see https://github.com/ckeditor/ckeditor5/blob/master/LICENSE.md
  */`
 
@@ -60,14 +69,16 @@ const bundleDefinitions = {
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
+  "serverPort": getServerPort(),
 };
 
+const clientOutfilePath = `./${outputDir}/client/js/bundle.js`;
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
   sourcemap: true,
-  outfile: "./build/client/js/bundle.js",
+  outfile: clientOutfilePath,
   minify: isProduction,
   banner: clientBundleBanner,
   treeShaking: "ignore-annotations",
@@ -82,6 +93,16 @@ build({
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
+      // Creating brotli compressed version of bundle.js to save on client download size:
+      const brotliOutfilePath = `${clientOutfilePath}.br`;
+      // Always delete compressed version if it exists, to avoid stale files
+      if (fs.existsSync(brotliOutfilePath)) {
+        fs.unlinkSync(brotliOutfilePath);
+      }
+      if (isProduction) {
+        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(clientOutfilePath, 'utf8')));
+      }
+
       latestCompletedBuildId = inProgressBuildId;
       initiateRefresh();
     }
@@ -94,14 +115,16 @@ build({
   },
 });
 
-let serverCli = ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile]
+let serverCli = ["node", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
+if (!isProduction)
+  serverCli.splice(1, 0, "--inspect");
 
 build({
   entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
   bundle: true,
-  outfile: './build/server/js/serverBundle.js',
+  outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",
   sourcemap: true,
   minify: false,
@@ -120,9 +143,9 @@ build({
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
-    "apollo-server", "apollo-server-express", "graphql",
+    "apollo-server", "apollo-server-express", "graphql", "csso",
     "bcrypt", "node-pre-gyp", "intercom-client",
-    "fsevents", "chokidar",
+    "fsevents", "chokidar", "auth0", "dd-trace"
   ],
 })
 
@@ -149,6 +172,11 @@ async function asyncSleep(durationMs) {
   });
 }
 
+function getClientBundleTimestamp() {
+  const stats = fs.statSync(`./${outputDir}/client/js/bundle.js`);
+  return stats.mtime.toISOString();
+}
+
 function generateBuildId() {
   return crypto.randomBytes(12).toString('base64');
 }
@@ -168,7 +196,7 @@ async function initiateRefresh() {
     await waitForServerReady();
     console.log("Notifying connected browser windows to refresh");
     for (let connection of openWebsocketConnections) {
-      connection.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
+      connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
     }
     refreshIsPending = false;
   }
@@ -189,7 +217,7 @@ function startWebsocketServer() {
         openWebsocketConnections.splice(connectionIndex, 1);
       }
     });
-    ws.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
+    ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
   });
 }
 

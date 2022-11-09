@@ -55,12 +55,10 @@ export const getEditableFields = function<T extends DbObject>(schema: SchemaType
   return fields;
 };
 
-/*
-
-Convert a nested SimpleSchema schema into a JSON object
-If flatten = true, will create a flat object instead of nested tree
-
-*/
+/**
+ * Convert a nested SimpleSchema schema into a JSON object
+ * If flatten = true, will create a flat object instead of nested tree
+ */
 export const convertSchema = <T extends DbObject>(schema: SimpleSchemaType<T>, flatten = false) => {
   if (schema._schema) {
     let jsonSchema = {};
@@ -121,8 +119,9 @@ export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: Si
 // right now we support only fields with one type
 export const getSchemaType = schema => schema.type.definitions[0].type;
 
-const getArrayNestedSchema = <T extends DbObject>(fieldName: keyof T, schema: SchemaType<T>) => {
+const getArrayNestedSchema = <T extends DbObject>(fieldName: string&keyof T, schema: SimpleSchemaType<T>) => {
   const arrayItemSchema = schema._schema[`${fieldName}.$`];
+  
   const nestedSchema = arrayItemSchema && getSchemaType(arrayItemSchema);
   return nestedSchema;
 };
@@ -160,20 +159,14 @@ export const schemaProperties = [
   'type',
   'label',
   'optional',
-  'required',
   'min',
   'max',
-  'exclusiveMin',
-  'exclusiveMax',
   'minCount',
   'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  'trim',
-  'custom',
   'defaultValue',
-  'autoValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder
   'inputProperties', // form placeholder
@@ -199,27 +192,19 @@ export const schemaProperties = [
   'afterComponent',
   'placeholder',
   'options',
-  'query',
-  'fieldProperties',
   'tooltip'
-];
+] as const;
 
 export const formProperties = [
   'optional',
-  'required',
   'min',
   'max',
-  'exclusiveMin',
-  'exclusiveMax',
   'minCount',
   'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  'trim',
-  'custom',
   'defaultValue',
-  'autoValue',
   'form', // form placeholder
   'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
@@ -231,7 +216,5 @@ export const formProperties = [
   'afterComponent',
   'placeholder',
   'options',
-  'query',
-  'fieldProperties',
   'tooltip'
-];
+] as const;

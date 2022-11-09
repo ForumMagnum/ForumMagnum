@@ -26,15 +26,11 @@ const Home2 = () => {
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
 
-          <AnalyticsContext pageSectionContext="recentDiscussion">
-            <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
-              <RecentDiscussionFeed
-                af={false}  
-                commentsLimit={4}
-                maxAgeHours={18}
-              />
-            </AnalyticsInViewTracker>
-          </AnalyticsContext>
+          <RecentDiscussionFeed
+            af={false}
+            commentsLimit={4}
+            maxAgeHours={18}
+          />
         </React.Fragment>
       </AnalyticsContext>
   )

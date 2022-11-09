@@ -11,12 +11,12 @@ export const communityPath = '/community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
+const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
-const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
-const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
+
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
@@ -24,7 +24,6 @@ const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
-const eaHandbookPostIdSetting = new PublicInstanceSetting<string | null>('eaHandbookPostId', null, "optional")
 
 async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
@@ -141,6 +140,7 @@ addRoute(
     name:'users.account',
     path:'/account',
     componentName: 'UsersAccount',
+    title: "Account Settings",
     background: "white"
   },
   {
@@ -161,12 +161,14 @@ addRoute(
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount',
-    background: "white"
+    title: "Account Settings",
+    background: "white",
   },
   {
     name:'users.abTestGroups',
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
+    title: "A/B Test Groups",
   },
   {
     name: "users.banNotice",
@@ -183,9 +185,17 @@ addRoute(
     background: "white"
   },
   {
+    name: 'crosspostLogin',
+    path: '/crosspostLogin',
+    componentName: 'CrosspostLoginPage',
+    title: 'Crosspost Login',
+    standalone: true,
+  },
+  {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     componentName: 'ResendVerificationEmailPage',
+    title: "Email Verification",
     background: "white"
   },
   {
@@ -193,6 +203,12 @@ addRoute(
     path: '/inbox',
     componentName: 'InboxWrapper',
     title: "Inbox"
+  },
+  {
+    name: 'moderatorInbox',
+    path: '/moderatorInbox',
+    componentName: 'ModeratorInboxWrapper',
+    title: "Moderator Inbox"
   },
   {
     name: 'conversation',
@@ -254,6 +270,7 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequences.single',
@@ -261,6 +278,7 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequencesEdit',
@@ -301,6 +319,21 @@ addRoute(
     componentName: 'CollectionsSingle'
   },
   {
+    name: 'highlights',
+    path: '/highlights',
+    title: "Sequences Highlights",
+    componentName: 'SequencesHighlightsCollection'
+  },
+  {
+    name: 'highlights.posts.single',
+    path: '/highlights/:slug',
+    componentName: 'PostsSingleSlug',
+    previewComponentName: 'PostLinkPreviewSlug',
+    ...highlightsSubtitle,
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    background: postBackground
+  },
+  {
     name: 'bookmarks',
     path: '/bookmarks',
     componentName: 'BookmarksPage',
@@ -327,7 +360,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: 'SearchPage',
+    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
     title: 'Search',
     background: "white"
   },
@@ -460,6 +493,11 @@ if (taggingNameIsSet.get()) {
       path: '/tags/dashboard',
       redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
     },
+    {
+      name: 'taggingAllCustomNameRedirect',
+      path: `/${taggingNamePluralSetting.get()}/`,
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
+    },
   )
 } else {
   addRoute(
@@ -564,6 +602,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'EAHome',
+      enableResourcePrefetch: true,
       sunshineSidebar: true
     },
     {
@@ -575,12 +614,10 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name:'handbook',
-      path:'/handbook',
-      componentName: 'PostsSingleRoute',
-      _id: eaHandbookPostIdSetting.get(),
-      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, eaHandbookPostIdSetting.get()),
-      background: postBackground
+      name: 'handbook',
+      path: '/handbook',
+      componentName: 'EAIntroCurriculum',
+      title: 'The Effective Altruism Handbook',
     },
     {
       name: 'intro',
@@ -632,6 +669,55 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'Community',
       title: 'Community',
       ...communitySubtitle
+    },
+    {
+      name: 'CommunityMembersFullMap',
+      path: '/community/map',
+      componentName: 'CommunityMembersFullMap',
+      title: 'Community Members',
+      ...communitySubtitle
+    },
+    {
+      name: 'EditMyProfile',
+      path: '/profile/edit',
+      componentName: 'EditProfileForm',
+      title: 'Edit Profile',
+      background: 'white',
+    },
+    {
+      name: 'EditProfile',
+      path: '/profile/:slug/edit',
+      componentName: 'EditProfileForm',
+      title: 'Edit Profile',
+      background: 'white',
+    },
+    {
+      name: 'ImportProfile',
+      path: '/profile/import',
+      componentName: 'EAGApplicationImportForm',
+      title: 'Import Profile',
+      background: 'white',
+    },
+    {
+      name: 'EAGApplicationData',
+      path: '/api/eag-application-data'
+    },
+    {
+      name: 'advice',
+      path: '/advice',
+      componentName: 'AdvisorsPage',
+      title: 'Book a 1:1'
+    },
+    {
+      name: 'wikiTopisRedirect',
+      path: '/wiki',
+      redirect: () => '/topics/all'
+    },
+    {
+      name: 'subforum',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      fullscreen: true,
     }
   ],
   LessWrong: [
@@ -639,6 +725,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'Home2',
+      enableResourcePrefetch: true,
       sunshineSidebar: true
     },
     {
@@ -676,8 +763,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Meta',
       path: '/meta',
-      componentName: 'Meta',
-      title: "Meta"
+      redirect: () => `/tag/site-meta`,
     },
     {
       name: 'bestoflesswrong',
@@ -694,6 +780,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       ...hpmorSubtitle,
     },
     {
+      name: 'Curated',
+      path: '/curated',
+      redirect: () => `/recommendations`,
+    },
+    {
       name: 'Walled Garden',
       path: '/walledGarden',
       componentName: 'WalledGardenHome',
@@ -702,10 +793,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Walled Garden Portal',
       path: '/walledGardenPortal',
-      componentName: 'WalledGardenPortal',
-      title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle,
-      disableAutoRefresh: true,
+      redirect: () => `/walledGarden`,
     },
     {
       name: 'HPMOR.posts.single',
@@ -823,9 +911,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'SequencesHome',
+      componentName: 'LibraryPage',
       title: "The Library"
     },
     {
@@ -850,12 +938,19 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'SpotlightsPage',
+      path: '/spotlights',
+      componentName: 'SpotlightsPage',
+      title: 'Spotlights Page'
+    }
   ],
   AlignmentForum: [
     {
       name:'alignment.home',
       path:'/',
       componentName: 'AlignmentForumHome',
+      enableResourcePrefetch: true,
       sunshineSidebar: true //TODO: remove this in production?
     },
     {
@@ -875,9 +970,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Meta',
       path: '/meta',
-      componentName: 'Meta',
-      title: "Meta",
-      ...metaSubtitle
+      redirect: () => `/tag/site-meta`,
     },
     // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
     {
@@ -936,14 +1029,16 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'SequencesHome',
+      componentName: 'AFLibraryPage',
+      enableResourcePrefetch: true,
       title: "The Library"
     },
     {
       name: 'Sequences',
       path: '/sequences',
+      enableResourcePrefetch: true,
       componentName: 'CoreSequences',
       title: "Rationality: A-Z"
     },
@@ -969,6 +1064,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name:'home',
       path:'/',
       componentName: 'Home2',
+      enableResourcePrefetch: true,
       sunshineSidebar: true //TODO: remove this in production?
     },
     {
@@ -1003,6 +1099,7 @@ addRoute(
     name: 'AllComments',
     path: '/allComments',
     componentName: 'AllComments',
+    enableResourcePrefetch: true,
     title: "All Comments"
   },
   {
@@ -1162,6 +1259,18 @@ addRoute(
     title: "Migrations"
   },
   {
+    name: 'moderatorActions',
+    path: '/admin/moderation',
+    componentName: 'ModerationDashboard',
+    title: "Moderation Dashboard"
+  },
+  {
+    name: 'moderationTemplates',
+    path: '/admin/moderationTemplates',
+    componentName: 'ModerationTemplatesPage',
+    title: "Moderation Message Templates"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
@@ -1203,12 +1312,14 @@ addRoute(
     name: 'home2',
     path: '/home2',
     componentName: 'Home2',
+    enableResourcePrefetch: true,
     title: "Home2 Beta",
   },
   {
     name: 'allPosts',
     path: '/allPosts',
     componentName: 'AllPostsPage',
+    enableResourcePrefetch: true,
     title: "All Posts",
   },
   {

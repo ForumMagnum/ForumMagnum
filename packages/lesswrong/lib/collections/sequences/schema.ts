@@ -2,13 +2,6 @@ import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../..
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbSequence> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: () => new Date(),
-  },
-
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -133,6 +126,7 @@ const schema: SchemaType<DbSequence> = {
     control: "text",
     order: 30,
     label: "Collection Slug",
+    tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
     resolveAs: {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
@@ -163,8 +157,20 @@ const schema: SchemaType<DbSequence> = {
     editableBy: ['members'],
     insertableBy: ['members'],
     ...schemaDefaultValue(false),
-  }
-}
+  },
+};
 
+/* Alignment Forum fields */
+Object.assign(schema, {
+  af: {
+    type: Boolean,
+    optional: true,
+    label: "Alignment Forum",
+    defaultValue: false,
+    viewableBy: ['guests'],
+    editableBy: ['alignmentVoters'],
+    insertableBy: ['alignmentVoters'],
+  },
+});
 
 export default schema;

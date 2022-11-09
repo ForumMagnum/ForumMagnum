@@ -9,7 +9,8 @@ import FormControl from '@material-ui/core/FormControl';
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
-    padding: '6px 0 7px 0'
+    padding: '6px 0 7px 0',
+    background: 'transparent',
   },
   label: {
     position:"relative",
@@ -183,7 +184,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "& .rdtCounterSeparator": {
-      lineHeight: 100,
+      lineHeight: '100px',
     },
     
     "& .rdtCounter .rdtBtn": {

@@ -5,6 +5,7 @@ import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { useCurrentUser } from '../common/withUser';
+import { getUserEmail } from "../../lib/collections/users/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -42,7 +43,7 @@ export const AdminPaymentsPage = ({classes}: {
         {results?.map(user => {
           return <TableRow key={user._id}>
               <TableCell><UsersNameDisplay user={user}/></TableCell>
-              <TableCell>{user.email}</TableCell>
+              <TableCell>{getUserEmail(user)}</TableCell>
               <TableCell>{user.paymentEmail}</TableCell>
               <TableCell>{user.paymentInfo}</TableCell>
           </TableRow>

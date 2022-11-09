@@ -6,7 +6,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const EditTagsDialog = ({post, onClose }: {
   post: PostsList,
-  onClose: ()=>void
+  onClose?: ()=>void
 }) => {
   const { FooterTagList, LWDialog } = Components
   return <LWDialog open={true} onClose={onClose} fullWidth maxWidth="sm">

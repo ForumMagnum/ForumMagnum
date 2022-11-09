@@ -14,12 +14,13 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
+import VoiceChatIcon from '@material-ui/icons/VoiceChat';
 import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../../lib/instanceSettings';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -86,6 +87,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      icon: allPostsIcon,
+      tooltip: 'See all posts, filtered and sorted however you like.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'concepts',
       title: 'Concepts',
       mobileTitle: 'Concepts',
@@ -105,6 +114,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     // next 3 are subItems
+    }, {
+      id: 'highlights',
+      title: 'Sequence Highlights',
+      link: '/highlights',
+      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong community (50 posts, approx. 7 hour read)",
+      subItem: true,
     }, {
       id: 'r-az',
       title: 'Rationality: A-Z',
@@ -149,36 +164,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'eventsList',
       customComponentName: "EventsList",
     }, {
-      id: 'allPosts',
-      title: 'All Posts',
-      link: '/allPosts',
-      icon: allPostsIcon,
-      tooltip: 'See all posts, filtered and sorted however you like.',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
     }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
-    }, {
-      id: 'questions',
-      title: 'Open Questions',
-      mobileTitle: 'Questions',
-      link: '/questions',
-      tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
-      </div>,
-      subItem: true
-    }, {
-      id: 'contact',
-      title: 'Contact Us',
-      link: '/contact',
-      subItem: true,
     }, {
       id: 'about',
       title: 'About',
@@ -191,11 +182,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
-    }, {
-      id: 'donate',
-      title: "Donate",
-      link: '/donate',
-      subItem: true
     }
   ],
   AlignmentForum: [
@@ -266,13 +252,17 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
-      title: taggingNamePluralCapitalSetting.get(),
+      title: taggingNamePluralCapitalSetting.get() + " Wiki",
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
-      tooltip: `EA concepts directory that anyone can edit. Each ${taggingNameSetting.get()} also has a list of posts that have been tagged with it.`,
+      tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
+      ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
+    },{
+      id: 'subforumsList',
+      customComponentName: "SubforumsList",
     }, {
       id: 'library',
       title: 'Library',
@@ -326,21 +316,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
-      id: 'local-groups',
-      title: 'Local Groups',
-      link: '/community',
-      subItem: true,
-    }, {
-      id: 'online-groups',
-      title: 'Online Groups',
-      link: '/community#online',
-      subItem: true,
-    }, {
-      id: 'community-members',
-      title: 'Community Members',
-      link: '/community#individuals',
-      subItem: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
@@ -359,7 +334,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'about',
-      title: 'About the Forum',
+      title: 'How to use the Forum',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,

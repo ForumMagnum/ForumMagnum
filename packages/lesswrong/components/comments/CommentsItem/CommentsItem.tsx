@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
@@ -14,6 +14,10 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { StickyIcon } from '../../posts/PostsTitle';
+import type { CommentFormDisplayMode } from '../CommentsNewForm';
+import startCase from 'lodash/startCase';
+import FlagIcon from '@material-ui/icons/Flag';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -86,6 +90,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     border: theme.palette.border.normal,
   },
+  replyFormMinimalist: {
+    borderRadius: 3,
+  },
   deleted: {
     backgroundColor: theme.palette.panelBackground.deletedComment,
   },
@@ -101,6 +108,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1rem",
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit/2
+  },
+  pinnedIcon: {
+    color: theme.palette.grey[400],
+    paddingTop: 10,
+    marginBottom: '-3px'
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -119,10 +131,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
-  }
+  },
+  titleRow: {
+    display: 'flex',
+    columnGap: 8,
+    alignItems: 'center'
+  },
+  flagIcon: {
+    height: 13,
+    color: theme.palette.error.main,
+    position: "relative",
+    top: 3
+  },
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, showParentDefault=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -132,19 +155,24 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentCommentId?: string,
   scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
-  setSingleLine?: (boolean)=>void,
+  setSingleLine?: (singleLine: boolean)=>void,
   truncated: boolean,
+  showPinnedOnProfile?: boolean,
   parentAnswerId?: string|undefined,
+  enableGuidelines?: boolean,
+  displayMode?: CommentFormDisplayMode,
+  showParentDefault?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
-  const [showParentState, setShowParentState] = useState(false);
+  const [showParentState, setShowParentState] = useState(showParentDefault);
+  const isMinimalist = displayMode === "minimalist"
   const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -230,23 +258,24 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
     )
 
+    const showInlineCancel = showReplyState && isMinimalist
     return (
       <div className={classes.bottom}>
-        <CommentBottomCaveats comment={comment}/>
-        { showReplyButton &&
-          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showReply}>
-            Reply
+        <CommentBottomCaveats comment={comment} />
+        {showReplyButton && (
+          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+            {showInlineCancel ? "Cancel" : "Reply"}
           </a>
-        }
+        )}
       </div>
-    )
+    );
   }
 
   const renderReply = () => {
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
-      <div className={classNames(classes.replyForm, levelClass)}>
+      <div className={classNames(classes.replyForm, levelClass, {[classes.replyFormMinimalist]: isMinimalist})}>
         <Components.CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
@@ -256,6 +285,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"
+          enableGuidelines={enableGuidelines}
+          displayMode={displayMode}
         />
       </div>
     )
@@ -274,6 +305,21 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     post &&
     currentUser?._id !== post.userId &&
     eligibleToNominate(currentUser)
+
+  /**
+   * Show the moderator comment annotation if:
+   * 1) it has the moderatorHat
+   * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
+   */
+  // const showModeratorCommentAnnotation = comment.moderatorHat && (
+  //   userIsAdmin(currentUser)
+  //     ? true
+  //     : !comment.hideModeratorHat
+  //   );
+  
+  // const moderatorCommentAnnotation = comment.hideModeratorHat
+  //   ? 'Moderator Comment (Invisible)'
+  //   : 'Moderator Comment';
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -290,38 +336,45 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               post={post} tag={tag}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
-              truncated={false}
+              truncated={showParentDefault}
               key={comment.parentCommentId}
             />
           </div>
         )}
-
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-              {comment.post.draft && "[Draft] "}
-              {comment.post.title}
-            </Link>
-          </LWTooltip>}
-        {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
-
-        <div className={classes.body}>
-          <div className={classes.meta}>
-            { !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            {post && <CommentShortformIcon comment={comment} post={post} />}
-            { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment}
-                active={showParentState}
-                onClick={toggleShowParent}
+        
+        <div className={classes.titleRow}>
+          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
+            <StickyIcon />
+          </div>}
+          {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
+          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                {comment.post.draft && "[Draft] "}
+                {comment.post.title}
+              </Link>
+            </LWTooltip>}
+          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
+            {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
+          </Link>}
+        </div>
+          <div className={classes.body}>
+            <div className={classes.meta}>
+              { !parentCommentId && !comment.parentCommentId && isParentComment &&
+                <div className={classes.usernameSpacing}>○</div>
+              }
+              {post && <CommentShortformIcon comment={comment} post={post} />}
+              { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
+                <ShowParentComment
+                  comment={comment}
+                  active={showParentState}
+                  onClick={toggleShowParent}
               />
             }
             { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            {singleLineCollapse && <a className={classes.collapse} onClick={() => 
+            {singleLineCollapse && <a className={classes.collapse} onClick={() =>
               setSingleLine && setSingleLine(true)}>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>

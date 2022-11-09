@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [15.x]
+        node-version: [18.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -25,7 +25,7 @@ jobs:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} 
       with:
           start: yarn ea-start-testing-db
-          command: yarn ea-cypress-run
+          command: yarn ci-cypress-run
       
     - uses: actions/upload-artifact@v1
       if: failure()

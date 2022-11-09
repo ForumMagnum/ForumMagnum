@@ -1,15 +1,13 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { sectionTitleStyle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto",
-    [theme.breakpoints.down("sm")]: {
-      marginTop: theme.spacing.unit*3,
-    },
+  root: {
+    marginBottom: 24,
+    [theme.breakpoints.down("md")]: {
+      marginTop: 12,
+      marginBottom: 8,
+    }
   },
 });
 
@@ -18,12 +16,11 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2, SectionTitle } = Components;
+  const { SingleColumnSection, PostsList2 } = Components;
 
-  return <SingleColumnSection>
-    <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
+  return <SingleColumnSection className={classes.root}>
     <PostsList2
-      terms={{view:"stickied", limit:100}}
+      terms={{view:"stickied", limit:100, forum: true}}
       showNoResults={false}
       showLoadMore={false}
       hideLastUnread={false}

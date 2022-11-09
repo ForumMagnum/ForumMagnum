@@ -2,13 +2,13 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ ea-deploy, master, review-2020 ]
+    branches: [ ea-deploy, master, widerMobileMargins ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [15.x]
+        node-version: [18.x]
         environment: [EAForum-Staging-2]
     steps:
     - uses: actions/checkout@v2

@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
@@ -12,8 +12,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isCollaborative } from '../editor/EditorFormComponent';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsPodcaster } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -31,12 +30,12 @@ const PostsEditForm = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
     if (!post.draft) return "Move to Drafts"
-    if (isCollaborative(post, "contents")) return "Preview"
     return "Save Draft"
   })(document)
   
@@ -51,19 +50,14 @@ const PostsEditForm = ({ documentId, classes }: {
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document
-    && document.userId!==currentUser?._id
-    && document.sharingSettings
-    && !userIsAdmin(currentUser)
-    && !currentUser?.groups?.includes('sunshineRegiment')
-  ) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}${query.key ? "&key="+query.key : ""}`} status={302}/>
+  if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
+    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
   if (!document && !loading && query?.key) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}&key=${query.key}`} status={302}/>
+    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -80,11 +74,9 @@ const PostsEditForm = ({ documentId, classes }: {
   if (!document) {
     return <Components.Error404/>
   }
-  
-  // If we have access to the post but only readonly access and only because
-  // it's published, don't show the edit form.
-  if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document) && !userIsAdmin(currentUser)) {
-    return <Components.ErrorAccessDenied/>
+
+  if (isNotHostedHere(document)) {
+    return <ForeignCrosspostEditForm post={document} />;
   }
   
   const EditPostsSubmit = (props) => {
@@ -100,7 +92,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   return (
     <div className={classes.postForm}>
-      <HeadTags title={document?.title} />
+      <HeadTags title={document.title} />
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
@@ -138,6 +130,14 @@ const PostsEditForm = ({ documentId, classes }: {
           version="draft"
           noSubmitOnCmdEnter
           repeatErrors
+          
+          /*
+           * addFields includes tagRelevance because the field permissions on
+           * the schema say the user can't edit this field, but the widget
+           * "edits" the tag list via indirect operations (upvoting/downvoting
+           * relevance scores).
+           */
+          addFields={document.isEvent ? [] : ['tagRelevance']}
         />
       </NoSsr>
     </div>

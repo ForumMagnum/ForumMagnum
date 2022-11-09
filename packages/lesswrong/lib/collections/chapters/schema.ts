@@ -10,13 +10,6 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
 }
 
 const schema: SchemaType<DbChapter> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: () => new Date(),
-  },
-
   // Custom Properties
 
   title: {

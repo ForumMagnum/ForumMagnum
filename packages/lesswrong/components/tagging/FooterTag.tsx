@@ -5,8 +5,7 @@ import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
-import Public from '@material-ui/icons/Public'
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -97,13 +96,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=false}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, link=true, isTopTag=false}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
   classes: ClassesType,
   isTopTag?: boolean
+  link?: boolean
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tagItem",
@@ -117,17 +117,18 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
 
   if (tag.adminOnly) { return null }
 
+  const renderedTag = <>
+    {!!isTopTag && <TopTagIcon tag={tag} />}
+    <span className={classes.name}>{tag.name}</span>
+    {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
+  </>
+
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
-      <Link
-        to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`}
-        className={!!isTopTag ? classes.flexContainer : null}
-      >
-        {!!isTopTag && <TopTagIcon tag={tag} />}
-        <span className={classes.name}>{tag.name}</span>
-        {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
-      </Link>
-      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
+      {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>
+        {renderedTag}
+      </Link> : renderedTag}
+      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />
         </div>

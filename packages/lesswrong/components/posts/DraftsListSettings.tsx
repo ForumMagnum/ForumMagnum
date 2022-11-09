@@ -24,44 +24,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "none", // Uses CSS to show/hide
     overflow: "hidden",
   },
-  menuItem: {
-    '&&': {
-      // Increase specifity to remove import-order conflict with MetaInfo
-      display: "block",
-      cursor: "pointer",
-      color: theme.palette.grey[500],
-      marginLeft: theme.spacing.unit*1.5,
-      whiteSpace: "nowrap",
-      '&:hover': {
-        color: theme.palette.grey[600],
-      },
-    },
-  },
-  selectionList: {
-    marginRight: theme.spacing.unit*2,
-    [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing.unit,
-      flex: `1 0 calc(50% - ${theme.spacing.unit*4}px)`,
-      order: 1
-    }
-  },
-  selectionTitle: {
-    '&&': {
-      // Increase specifity to remove import-order conflict with MetaInfo
-      display: "block",
-      fontStyle: "italic",
-      marginBottom: theme.spacing.unit/2
-    },
-  },
-  selected: {
-    // Increase specifity to remove import-order conflict with MetaInfo
-    '&&': {
-      color: theme.palette.grey[900],
-      '&:hover': {
-        color: theme.palette.grey[900],
-      },
-    }
-  },
   checkbox: {
     padding: "1px 12px 0 0"
   },
@@ -75,38 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 })
-
-const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
-  const { MetaInfo } = Components
-  
-  return <div className={classes.selectionList}>
-    <MetaInfo className={classes.selectionTitle}>
-      {title}
-    </MetaInfo>
-    {Object.entries(options).map(([name, optionValue]: any) => {
-      const label = _.isString(optionValue) ? optionValue : optionValue.label
-      return (
-        <QueryLink
-          key={name}
-          onClick={() => setSetting(type, name)}
-          // TODO: Can the query have an ordering that matches the column ordering?
-          query={{ [type]: name }}
-          merge
-          rel="nofollow"
-        >
-          <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
-            {optionValue.tooltip ?
-              <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
-                <span>{ label }</span>
-              </Tooltip> :
-              <span>{ label }</span>
-            }
-          </MetaInfo>
-        </QueryLink>
-      )
-    })}
-  </div>
-}
 
 const USER_SETTING_NAMES = {
   sortDraftsBy: 'draftsListSorting',
@@ -131,7 +61,7 @@ const DraftsListSettings = ({
   sortings?: any,
   classes: ClassesType,
 }) => {
-  const { MetaInfo } = Components
+  const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -151,7 +81,7 @@ const DraftsListSettings = ({
         options={sortings}
         currentOption={currentSorting}
         setSetting={setSetting}
-        classes={classes}
+        nofollow
       />
       <div>
         

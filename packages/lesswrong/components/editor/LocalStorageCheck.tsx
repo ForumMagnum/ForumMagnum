@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { SerializedEditorContents, EditorChangeEvent, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
-    paddingBottom: 12,
+    
+    border: theme.palette.border.normal,
+    padding: 8,
+    borderRadius: 4,
+    backgroundColor: theme.palette.panelBackground.restoreSavedContentNotice,
+    marginTop: 10,
+    marginBottom: 10,
+    
+    "& a": {
+      textDecoration: "underline",
+    }
   },
   restoreLink: {
     color: theme.palette.lwTertiary.main,
@@ -23,7 +33,7 @@ const restorableStateHasMetadata = (savedState) => {
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
-  for (let editorType of editors) {
+  for (const editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();
     if (savedState) {
       if (restorableStateHasMetadata(savedState)) {
@@ -38,39 +48,6 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   }
   return null;
 };
-
-/*export const getContentsFromLocalStorage = (editorType: string): EditorContents|null => {
-  const savedState = this.getLocalStorageHandlers(editorType).get();
-  if (!savedState) return null;
-
-  if (editorType === "draftJS") {
-    try {
-      // eslint-disable-next-line no-console
-      console.log("Restoring saved document state: ", savedState);
-      const contentState = convertFromRaw(savedState)
-      if (contentState.hasText()) {
-        return {
-          draftJSValue: EditorState.createWithContent(contentState)
-        };
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("Not restoring empty document state: ", contentState)
-      }
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-    }
-    return null;
-  } else {
-    return {
-      draftJSValue:  editorType === "draftJS"        ? savedState : null,
-      markdownValue: editorType === "markdown"       ? savedState : null,
-      htmlValue:     editorType === "html"           ? savedState : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? savedState : null
-    }
-  }
-}*/
-
 
 const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   getLocalStorageHandlers: (editorType?: string) => any,

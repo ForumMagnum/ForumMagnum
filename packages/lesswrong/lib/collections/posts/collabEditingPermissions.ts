@@ -1,6 +1,7 @@
-import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import * as _ from 'underscore';
 import { constantTimeCompare } from '../../helpers';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userIsPostGroupOrganizer } from './helpers';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
 
@@ -45,17 +46,23 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   // powers.
   useAdminPowers: boolean,
 }): Promise<CollaborativeEditingAccessLevel> {
-  const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
-  const canEdit = post && (userOwns(user, post) || canEditAsAdmin)
-  let accessLevel: CollaborativeEditingAccessLevel = "none";
+  // FIXME: There's a lot of redundancy between this function and
+  // canUserEditPostMetadata in lib/collections/posts/helpers.ts, but they are
+  // tricky to merge because of the `useAdminPowers` flag and because
+  // `canUserEditPostMetadata` can't check for group-organizer status because it
+  // isn't async. This function is used for controlling access to the body
+  // (getting a ckEditor token).
   
   if (formType === "new" && user && !post) {
-    accessLevel = strongerAccessLevel(accessLevel, "edit");
     return "edit";
   }
   if (!post) {
     return "none";
   }
+  
+  const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
+  const canEdit = userOwns(user, post) || canEditAsAdmin || await userIsPostGroupOrganizer(user, post);
+  let accessLevel: CollaborativeEditingAccessLevel = "none";
   
   if (canEdit) {
     accessLevel = strongerAccessLevel(accessLevel, "edit");

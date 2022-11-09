@@ -29,8 +29,32 @@ registerFragment(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    bio
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionDisplay
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    profileTagIds
+    profileTags {
+      ...TagBasicInfo
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
     frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
@@ -39,6 +63,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
+    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -53,6 +78,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
+    petrovOptOut
     sortDraftsBy
     ...SunshineUsersList
     ...SharedUserBooleans
@@ -60,6 +86,10 @@ registerFragment(`
     paymentEmail
     paymentInfo
     goodHeartTokens
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
   }
 `);
 
@@ -91,7 +121,9 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    bio
+    biography {
+      ...RevisionEdit
+    }
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -128,12 +160,11 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
+    theme
 
     bookmarkedPostsMetadata
-    bookmarkedPosts {
-      ...PostsList
-    }
 
+    hiddenPostsMetadata
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -152,8 +183,21 @@ registerFragment(`
 
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
+    notificationSubforumUnread
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarkedPosts on User {
+    _id
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 
@@ -178,6 +222,7 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
       }
       tagRevisions {
         _id
@@ -203,10 +248,11 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
-    bio
     htmlBio
+    website
     createdAt
     email
+    emails
     commentCount
     maxCommentCount
     postCount
@@ -220,10 +266,25 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
+    
     needsReview
-    sunshineSnoozed
     sunshineNotes
     sunshineFlagged
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
+    snoozedUntilContentCount
+    moderatorActions {
+      ...ModeratorActionDisplay
+    }
+    associatedClientId {
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
   }
 `);
 
@@ -257,7 +318,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
-    beta
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -274,6 +337,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
+    theme
 
     # Emails
     email
@@ -281,6 +345,7 @@ registerFragment(`
     emailSubscribedToCurated
     subscribedToDigest
     unsubscribeFromAll
+    hasAuth0Id
 
     # Moderation
     moderatorAssistance
@@ -336,6 +401,7 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -366,5 +432,46 @@ registerFragment(`
     ...UsersMinimumInfo
     reviewVoteCount
     email
+  }
+`)
+
+registerFragment(`
+  fragment UsersProfileEdit on User {
+    _id
+    slug
+    jobTitle
+    organization
+    careerStage
+    profileImageId
+    biography {
+      ...RevisionEdit
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    profileTagIds
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
+    mapLocation
+    website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
+  }
+`)
+
+registerFragment(`
+  fragment UsersCrosspostInfo on User {
+    _id
+    username
+    slug
+    fmCrosspostUserId
   }
 `)

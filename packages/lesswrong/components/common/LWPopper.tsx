@@ -1,7 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useState} from 'react';
-import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
+import { usePopper } from 'react-popper';
+import { createPortal } from 'react-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
@@ -28,39 +30,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-// This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
-const LWPopper = ({classes, children, tooltip=false, modifiers, open, clickable = true, ...props}: {
+// This is a wrapper around the Popper library so we can easily replace it with different versions and
+// implementations
+const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, open, anchorEl, placement, clickable = true}: {
   classes: ClassesType,
   children: any,
   tooltip?: boolean,
-  modifiers?: any,
+  allowOverflow?: boolean,
   open: boolean,
-  
-  // Arguments destructured into ...props
   placement?: PopperPlacementType,
   anchorEl: any,
   className?: string,
   clickable?: boolean
 }) => {
-  const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
-  const [everOpened, setEverOpened] = useState(open);
-  
-  if (open && !everOpened)
-    setEverOpened(true);
-  if (!open && !everOpened)
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
+
+  const preventOverflowModifier = allowOverflow ? [{
+    name: 'preventOverflow',
+    enabled: false, 
+  }] : undefined
+
+  const { styles, attributes } = usePopper(anchorEl, popperElement, {
+    placement,
+    modifiers: preventOverflowModifier
+  });
+
+  if (!open)
     return null;
   
   return (
-    <Popper 
-      className={classNames(classes.popper, {[classes.noMouseEvents]: !clickable})} 
-      modifiers={newModifiers} 
-      open={open}
-      {...props}
-    >
-      <div className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip})}>
+    // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+    // context, by placing the Popper element directly into the document root
+    // Rest of usage from https://popper.js.org/react-popper/v2/
+    createPortal(
+      <div
+        ref={setPopperElement}
+        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable}, className)}
+        style={styles.popper}
+        {...attributes.popper}
+      >
         { children }
-      </div>
-    </Popper>
+      </div>,
+      document.body
+    )
   )
 };
 

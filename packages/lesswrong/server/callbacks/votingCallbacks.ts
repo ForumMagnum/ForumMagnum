@@ -3,6 +3,8 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
+import { triggerAutomodIfNeeded, triggerCommentAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 /**
  * @summary Update the karma of the item's owner
@@ -15,14 +17,14 @@ const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
+    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
+    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
   }
 });
 
@@ -44,10 +46,13 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
 });
 
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
-  const voter = await Users.findOne(document.vote.userId);
-  // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
-  if (voter && voter.voteCount >= 20 && !voter.reviewedByUserId) {
-    void Users.rawUpdateOne({_id:voter._id}, {$set:{needsReview: true}})
+  return triggerReviewIfNeeded(document.vote.userId)
+});
+
+voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
+  if (vote.collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
+    void triggerAutomodIfNeeded(newDocument.userId)
+    void triggerCommentAutomodIfNeeded(newDocument._id, vote);
   }
 });
 

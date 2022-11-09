@@ -1,17 +1,12 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
+import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
 import GraphQLJSON from 'graphql-type-json';
 
 const schema: SchemaType<DbTagRel> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
-  },
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",
@@ -66,6 +61,16 @@ const schema: SchemaType<DbTagRel> = {
     optional: true,
     viewableBy: ['guests'],
   },
+
+  currentUserCanVote: resolverOnlyField({
+    type: Boolean,
+    graphQLtype: 'Boolean',
+    viewableBy: ['guests'],
+    resolver: (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+      // Return true for a null user so we can show them a login/signup prompt
+      return currentUser ? userCanVoteOnTag(currentUser, document.tagId) : true;
+    },
+  }),
 };
 
 export const TagRels: TagRelsCollection = createCollection({
@@ -98,6 +103,7 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
+  userCanVoteOn: (user: DbUser, document: DbTagRel) => userCanVoteOnTag(user, document.tagId),
 });
 
 export default TagRels;

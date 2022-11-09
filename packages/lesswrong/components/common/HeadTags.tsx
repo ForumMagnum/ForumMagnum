@@ -10,12 +10,13 @@ export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl',
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 
 
-const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, noIndex}: {
+const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, useSmallImage=false, noIndex}: {
   ogUrl?: string,
   canonicalUrl?: string,
   description?: string|null,
   title?: string,
   image?: string|null,
+  useSmallImage?: boolean,
   noIndex?: boolean,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
@@ -26,12 +27,12 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
     const canonicalUrl = canonicalUrlProp || url
     const description = descriptionProp || taglineSetting.get()
     const siteName = tabTitleSetting.get()
-    
+
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
-    
+
     const rssUrl = `${getSiteUrl()}feed.xml`
-    
+
     return (
       <React.Fragment>
         { TitleComponent
@@ -48,18 +49,18 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
+          {/* twitter */}
+          <meta name='twitter:card' content={useSmallImage ? 'summary' : 'summary_large_image'}/>
+          {image && <meta name='twitter:image:src' content={image}/>}
+          { /* <meta name='twitter:title' content={title}/> */ }
+          <meta name='twitter:description' content={description}/>
+
           {/* facebook */}
           <meta property='og:type' content='article'/>
           <meta property='og:url' content={ogUrl}/>
           {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
-
-          {/* twitter */}
-          <meta name='twitter:card' content='summary'/>
-          {image && <meta name='twitter:image:src' content={image}/>}
-          { /* <meta name='twitter:title' content={title}/> */ }
-          <meta name='twitter:description' content={description}/>
 
           {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>

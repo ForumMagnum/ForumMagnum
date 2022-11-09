@@ -47,7 +47,7 @@ Note 3: if an attribute/class isn't showing up on an element, two places to look
 The plugin defines the following `Element` types (definitions in `schema.js`, conversion behavior in `converters.js`):
 
 1. `footnoteSection` -a drag-and-droppable widget container that lives at the bottom of the page, housing all footnotes.
-2. `footnoteItem` - a footnote itself, displayed as an `li` element that wraps its editable contents. Footnote items have an unchanging alphanumeric id, as well as an index. The index is the only one that's public facing, but the id is necessary for things like reordering and undoing certain batched operations.
+2. `footnoteItem` - a footnote itself, displayed as an `li` element that wraps its editable contents. Footnote items have an unchanging alphanumeric id, as well as an index. The index is the only one that's public facing, but the id is necessary for things like reordering and undoing certain batched operations. It also prevents link collisions among multiple documents on the same page, as in the case of posts and comments.
 3. `footnoteContent` - an editable section within `footnoteItem`; included because editable `li` tags cause problems, so an extra layer was needed below `footnoteItem`. This element houses 1 or more paragraphs which house the footnote text.
 4. `footnoteReference` - an inline citation in the form of a superscript link that navigates to the footnote itself. Has an unchanging alphanumeric id to match its `footnoteItem`, as well as an index that can change from e.g. reorderings.
 5. `footnoteBackLink` - a superscript link that lives within each footnote, and takes you back to the first matching `footnoteReference` in the text.

@@ -22,6 +22,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
       email
+      emails
     }
     post {
       ...PostsMinimumInfo

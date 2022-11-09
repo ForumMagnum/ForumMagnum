@@ -82,7 +82,6 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 // may not be relevant to the request).
 export const cachedPageRender = async (req: Request, abTestGroups, renderFn: (req:Request)=>Promise<RenderResult>) => {
   const path = getPathFromReq(req);
-  //eslint-disable-next-line no-console
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
   

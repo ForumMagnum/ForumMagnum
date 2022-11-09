@@ -10,11 +10,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       paddingTop: 70,
       marginTop: -50,
-      marginLeft: -4,
-      marginRight: -4
+      marginLeft: -8,
+      marginRight: -8
     }
   },
   header: {
@@ -67,7 +67,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -87,10 +87,10 @@ const CollectionsPage = ({ documentId, classes }: {
     // props
     const ButtonUntyped = Button as any;
     
-    return (<div className={classes.root}>
+    return (<ErrorBoundary><div className={classes.root}>
       <SingleColumnSection>
         <div className={classes.header}>
-          <Typography variant="display3" className={classes.title}>{collection.title}</Typography>
+          {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
 
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
 
@@ -98,16 +98,17 @@ const CollectionsPage = ({ documentId, classes }: {
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
           </ContentStyles>
 
-          <ButtonUntyped
-            className={classes.startReadingButton}
-            component={Link} to={document.firstPageLink}
-          >
-            {startedReading ? "Continue Reading" : "Start Reading"}
-          </ButtonUntyped>
+          {!collection.hideStartReadingButton &&
+            <ButtonUntyped
+              className={classes.startReadingButton}
+              component={Link} to={document.firstPageLink}
+            >
+              {startedReading ? "Continue Reading" : "Start Reading"}
+            </ButtonUntyped>
+          }
         </div>
       </SingleColumnSection>
       <div>
-        {/* For each book, print a section with a grid of sequences */}
         {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
       </div>
       
@@ -119,7 +120,7 @@ const CollectionsPage = ({ documentId, classes }: {
       {addingBook && <SingleColumnSection>
         <BooksNewForm prefilledProps={{collectionId: collection._id}} />
       </SingleColumnSection>}
-    </div>);
+    </div></ErrorBoundary>);
   }
 }
 

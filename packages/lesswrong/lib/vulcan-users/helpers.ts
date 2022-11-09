@@ -37,18 +37,6 @@ export const userGetGitHubName = function(user: DbUser): string|null {
   return null;
 };
 
-// Get a user's email
-export const userGetEmail = function(user: DbUser|null): string|null {
-  if (!user) {
-    return null;
-  }
-  if (user.email) {
-    return user.email;
-  } else {
-    return null;
-  }
-};
-
 export const userFindLast = async function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): Promise<T|null> {
   return await collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
@@ -72,9 +60,3 @@ export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>
   return await items.count();
 };
 
-export const userFindByEmail = async function(email: string): Promise<DbUser|null> {
-  const userByPlainEmail = await mongoFindOne("Users", { email: email });
-  if (userByPlainEmail) return userByPlainEmail;
-  const userByEmailsArray = await mongoFindOne("Users", { 'emails.address': email });
-  return userByEmailsArray;
-};

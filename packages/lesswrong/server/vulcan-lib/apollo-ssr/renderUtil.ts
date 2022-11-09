@@ -6,6 +6,6 @@ const toEmbeddableJson = (serializable: any): string => {
     .replace(/<\//g, "<\\/")
 }
 
-export const embedAsGlobalVar = (name: string, value: any): string => {
+export const embedAsGlobalVar = (name: keyof Window, value: any): string => {
   return `<script>window.${name} = ${toEmbeddableJson(value)}</script>`;
 };

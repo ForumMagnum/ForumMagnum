@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     display:"none",
     background: theme.palette.panelBackground.default,
+    width: 210,
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
@@ -56,15 +57,15 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
       {showInitialSidebar && <div className={classes.background}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
-        <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>
+        <SunshineReportedContentList currentUser={currentUser}/>
         <SunshineNewTagsList />
         
         {/* alignmentForumAdmins see AF content above the fold */}
         { currentUser.groups?.includes('alignmentForumAdmins') && <div>
-          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
-          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
+          <AFSuggestPostsList />
+          <AFSuggestCommentsList />
+          <AFSuggestUsersList />
         </div>}
       </div>}
 
@@ -87,9 +88,9 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
 
         {/* regular admins (but not sunshines) see AF content below the fold */}
         { userIsAdmin(currentUser) && <div>
-          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
-          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+          <AFSuggestUsersList />
+          <AFSuggestPostsList />
+          <AFSuggestCommentsList />
         </div>}
       </div>}
 
@@ -104,10 +105,9 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
+          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} currentUser={currentUser} />
         </div>}
       </div>}
-
     </div>
   )
 }

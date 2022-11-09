@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -36,8 +37,8 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { SingleColumnSection, SectionTitle, SectionButton, SequencesGrid,
-    SequencesPostsList, Divider, ContentItemBody, ContentStyles } = Components
+  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
+    SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -58,7 +59,12 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
-        <div className={classes.subtitle}>{book.subtitle}</div>
+        {book.subtitle && <div className={classes.subtitle}>{book.subtitle}</div>}
+
+        <AnalyticsContext pageElementContext="booksProgressBar">
+          <BooksProgressBar book={book} />
+        </AnalyticsContext>
+
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: html}}
@@ -70,7 +76,10 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        <SequencesGrid sequences={book.sequences} bookItemStyle/>
+        {book.displaySequencesAsGrid && <SequencesGrid sequences={book.sequences}/>}
+        {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
+          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
+        )}
       </SingleColumnSection>
       <Divider />
     </div>

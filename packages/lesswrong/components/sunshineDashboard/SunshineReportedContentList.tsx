@@ -9,14 +9,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineReportedContentList = ({ terms, classes }: {
-  terms: ReportsViewTerms,
+const SunshineReportedContentList = ({ classes, currentUser }: {
   classes: ClassesType,
+  currentUser: UsersCurrent,
 }) => {
-  const { SunshineListTitle, SunshineReportedItem, SunshineListCount } = Components
+  const { SunshineListTitle, SunshineReportedItem, SunshineListCount, LoadMore } = Components
   
-  const { results, totalCount } = useMulti({
-    terms,
+  const { results, totalCount, loadMoreProps, refetch } = useMulti({
+    terms: {view:"sunshineSidebarReports", limit: 30},
     collectionName: "Reports",
     fragmentName: 'unclaimedReportsList',
     enableTotal: true,
@@ -36,10 +36,13 @@ const SunshineReportedContentList = ({ terms, classes }: {
           <div key={report._id} >
             <SunshineReportedItem
               report={report}
+              currentUser={currentUser}
               updateReport={updateReport}
+              refetch={refetch}
             />
           </div>
         )}
+        <LoadMore {...loadMoreProps} />
       </div>
     )
   } else {
