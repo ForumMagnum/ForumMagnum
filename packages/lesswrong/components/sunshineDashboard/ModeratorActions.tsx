@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RateLimitType, rateLimits } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, isLowAverageKarmaContent, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
@@ -20,6 +20,10 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { useDialog } from '../common/withDialog';
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -293,9 +297,9 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
-  const mostRecentRateLimit = user.moderatorActions.find(modAction => modAction.type === RATE_LIMIT_ONE_PER_DAY);
+  const mostRecentRateLimit = user.moderatorActions.find(modAction => rateLimits.includes(modAction.type));
 
-  const createRateLimit = async (endDate?: Date) => {
+  const createRateLimit = async (type: RateLimitType, endDate?: Date) => {
     const newNotes = getModSignatureWithNote(`rate limit added`) + notes;
     void updateUser({
       selector: { _id: user._id },
@@ -306,7 +310,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     // Otherwise, we want to create a new one
     await createModeratorAction({
       data: {
-        type: RATE_LIMIT_ONE_PER_DAY,
+        type,
         userId: user._id,
         ...maybeEndedAt
       }
@@ -334,7 +338,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     refetch();
   };
 
-  const handleRateLimit = async () => {
+  const handleRateLimit = async (type: RateLimitType) => {
     // If we have an active rate limit, we want to disable it
     if (mostRecentRateLimit?.active) {
       await endRateLimit(mostRecentRateLimit._id);
@@ -342,7 +346,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       // Otherwise, we want to create a new one
       openDialog({
         componentName: 'RateLimitDialog',
-        componentProps: { createRateLimit },
+        componentProps: { createRateLimit, type },
       });
     }
   };
@@ -424,16 +428,29 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       })
     }
   </div>
-
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  
   return <div>
     {actionRow}
     {permissionsRow}
     <div>
-      <LWTooltip title={`${mostRecentRateLimit?.active ? "Un-rate-limit" : "Rate-limit"} this user's ability to post and comment`}>
-        <div className={classNames(classes.permissionsButton, { [classes.permissionDisabled]: mostRecentRateLimit?.active })} onClick={handleRateLimit}>
-          {MODERATOR_ACTION_TYPES[RATE_LIMIT_ONE_PER_DAY]}
-        </div>
-      </LWTooltip>
+      <span onClick={(ev) => setAnchorEl(ev.currentTarget)}>
+        <MenuItem>
+          Rate Limit
+          <ListItemIcon>
+            <ArrowDropDownIcon />
+          </ListItemIcon>
+        </MenuItem>
+      </span>
+      <Menu 
+        onClick={() => setAnchorEl(null)}
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+      >
+        {rateLimits.map(rateLimit => <MenuItem key={rateLimit} onClick={() => handleRateLimit(rateLimit)}>
+          {MODERATOR_ACTION_TYPES[rateLimit]}
+        </MenuItem>)}
+      </Menu>
     </div>
     <div className={classes.notes}>
       <Input

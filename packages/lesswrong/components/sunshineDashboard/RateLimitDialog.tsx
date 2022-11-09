@@ -4,6 +4,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Input from '@material-ui/core/Input';
 import React, { useState } from 'react';
+import { RateLimitType } from '../../lib/collections/moderatorActions/schema';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -13,8 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const RateLimitDialog = ({ createRateLimit, onClose, classes }: {
-  createRateLimit: (endDate?: Date) => Promise<void>,
+export const RateLimitDialog = ({ createRateLimit, type, onClose, classes }: {
+  createRateLimit: (type: RateLimitType, endDate?: Date) => Promise<void>,
+  type: RateLimitType,
   onClose: () => void,
   classes: ClassesType,
 }) => {
@@ -34,11 +36,11 @@ export const RateLimitDialog = ({ createRateLimit, onClose, classes }: {
 
   const applyRateLimit = async () => {
     if (endAfterDays === undefined) {
-      await createRateLimit();
+      await createRateLimit(type);
     } else {
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + endAfterDays);
-      await createRateLimit(endDate);
+      await createRateLimit(type, endDate);
     }
     onClose();
   };
