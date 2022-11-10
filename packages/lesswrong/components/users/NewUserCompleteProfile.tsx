@@ -174,7 +174,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         {forumTypeSetting.get() === "EAForum" &&
           <Typography variant="body1" className={classes.sectionHelperText} gutterBottom>
             I agree to the <TosLink />, including my content being available
-            under a <LicenseLink /> license
+            under a <LicenseLink /> license.
           </Typography>
         }
         <Button
