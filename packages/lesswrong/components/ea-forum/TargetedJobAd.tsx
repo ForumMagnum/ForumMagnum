@@ -118,7 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   description: {
-    maxWidth: 600,
+    maxWidth: 570,
     fontSize: 13,
     lineHeight: '20px',
     color: theme.palette.grey[700],
@@ -128,7 +128,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   prompt: {
-    maxWidth: 600,
+    maxWidth: 570,
     fontSize: 13,
     lineHeight: '20px',
     color: theme.palette.grey[900],
@@ -305,7 +305,7 @@ const TargetedJobAd = ({
             <div className={classes.labelText}>
               Job  recommendation
             </div>
-            <LWTooltip title="You’re seeing this recommendation because of your interest in software engineering. We encourage you to consider jobs like this which might increase your impact significantly.">
+            <LWTooltip title="You're seeing this recommendation because of your interest in software engineering. We encourage you to consider jobs like this which might increase your impact significantly.">
               <InfoIcon className={classes.infoIcon} />
             </LWTooltip>
           </div>
@@ -343,8 +343,8 @@ const TargetedJobAd = ({
           <div className={classes.description}>
             <a href="https://www.metaculus.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
               Metaculus
-            </a> is an online forecasting platform and aggregation engine working to improve human
-            reasoning and coordination on topics of global importance.
+            </a> is an online forecasting platform working to improve human reasoning and coordination on topics
+            of global importance.
           </div>
           <div className={classes.description}>
             Ideal candidates:
