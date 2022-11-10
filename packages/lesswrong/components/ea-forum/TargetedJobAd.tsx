@@ -256,7 +256,7 @@ const TargetedJobAd = ({
   })
   
   // show the ad to any users interested in software engineering
-  const showJobAd = currentUser && (userIds.includes(currentUser._id) || currentUser.profileTagIds.includes(SOFTWARE_ENG_TAG_ID))
+  const showJobAd = currentUser && (userIds.includes(currentUser._id) || currentUser.profileTagIds?.includes(SOFTWARE_ENG_TAG_ID))
   
   // track which users have seen the ad
   useEffect(() => {
