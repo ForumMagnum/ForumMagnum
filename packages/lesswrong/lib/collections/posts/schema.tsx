@@ -2143,6 +2143,8 @@ const schema: SchemaType<DbPost> = {
 
   tableOfContentsRevision: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
     // Implementation in postResolvers.ts
   },
