@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
@@ -117,6 +117,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       })
     }
   }
+
+  useEffect(() => {
+    return () => {
+      handleNotes();
+    }
+  });
 
   const signAndDate = (sunshineNotes:string) => {
     if (!sunshineNotes.match(signature)) {
