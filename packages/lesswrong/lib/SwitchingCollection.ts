@@ -5,7 +5,7 @@ import { getCollectionLockType, setCollectionLockType } from "./mongo2PgLock";
 export type ReadTarget = "mongo" | "pg";
 export type WriteTarget = ReadTarget | "both";
 
-const POLL_RATE_SECONDS = 5;
+const POLL_RATE_SECONDS = 1;
 
 /**
  * SwitchingCollection is a temporary utility class used to enable zero
