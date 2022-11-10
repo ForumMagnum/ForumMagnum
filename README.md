@@ -170,10 +170,12 @@ All migrations should be designed to be idempotent and should represent a
 one-off operation (such as updating a table schema). Operations that need to be
 run multiple times should instead be implemented as a server script.
 
-* Run pending migrations with `yarn migrate up`
+* Run pending migrations with `yarn migrate up [dev|staging|prod]`
 * Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
-* View pending migrations with `yarn migrate pending`
-* View executed migrations with `yarn migrate executed`
+* View pending migrations with `yarn migrate pending [dev|staging|prod]`
+* View executed migrations with `yarn migrate executed [dev|staging|prod]`
+
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environement variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
 
 ### Schema changing migrations
 
