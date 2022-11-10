@@ -59,9 +59,14 @@ async function serverStartup() {
   }
 
   try {
+    const connectionString = commandLineArguments.postgresUrl;
+    if (!connectionString) {
+      throw new Error("No postgres connection string provided");
+    }
+    const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
     // eslint-disable-next-line no-console
-    console.log("Connecting to postgres");
-    const sql = await createSqlConnection(commandLineArguments.postgresUrl);
+    console.log(`Connecting to postgres (${dbName})`);
+    const sql = await createSqlConnection(connectionString);
     setSqlClient(sql);
   } catch(err) {
     // eslint-disable-next-line no-console
