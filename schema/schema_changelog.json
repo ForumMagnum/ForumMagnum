@@ -1,7 +1,7 @@
 [
   {
     "acceptsSchemaHash": "f53cd3ea6892d347ab969d1af8f4c835",
-    "acceptedByMigration": "20221021T091915.auto.ts",
+    "acceptedByMigration": "20221021T091915.schema_hash.ts",
     "timestamp": "2022-10-21T09:19:15.000Z"
   }
 ]
