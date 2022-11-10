@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import CloseIcon from '@material-ui/icons/Close'
 import InfoIcon from '@material-ui/icons/Info'
-import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCookies } from 'react-cookie';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -266,7 +265,7 @@ const TargetedJobAd = ({
         data: {userId: currentUser._id, interestedInMetaculus: false}
       })
     }
-  }, [loading, count, currentUser, createJobAdView])
+  }, [loading, count, currentUser, showJobAd, createJobAdView])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
