@@ -60,6 +60,7 @@
     "ea-load-staging-db": "mongo $(< ../ForumCredentials/staging-db-conn.txt) ../ForumCredentials/loadStagingDbSettings.js",
     "ea-load-prod-db": "cd ../ForumCredentials && node loadProdDbSettingsIfSafe.js",
     "ea-load-testing-db": "mongo $(< ../ForumCredentials/testing-db-conn.txt) ../ForumCredentials/loadTestingDbSettings.js",
+    "ea-replicate-dev-db": "./scripts/eaReplicateDevDb.sh",
     "local-cypress-run": "yarn cypress run --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true",
     "local-cypress-open": "yarn cypress open --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true"
   },
