@@ -141,17 +141,92 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 4
   },
   btn: {
-    // color: theme.palette.text.alwaysWhite,
     textTransform: 'none',
     boxShadow: 'none',
   }
-});
+})
+
+const userIds = [
+  'x5oAfR2s7u7QQAcu9',
+  'MBWHkLnTJfucapMAv',
+  'b2y7Wxxy5yCBTvSb2',
+  'y8u6T8x8AuwaALnvp',
+  'AmvvR3NBptw9sG4Wz',
+  'BsBmXSBCowLEgbMF7',
+  'k5XQzhXavJ9znc9xz',
+  'v8rNsv3ikRNkHPpgb',
+  'hscQMoXRYYuohpDjQ',
+  'DxLYwv85b6LygmrcH',
+  'XKqe79YQ3ZLYZQ27g',
+  'hDJcKLCRtfTcdJTHK',
+  'L3QTbM748q6Yo8inS',
+  'y5bHoExxwJgw7xETZ',
+  '4wAekSYZg9TrMfAie',
+  'SWLyaijJT5EeETAzx',
+  'JSS8znCfXpeQXJ7st',
+  'Bat5BhKh6cAFX828m',
+  'sRyjHb6PCbngQCdHs',
+  '2gakomRpkKq6u8AQp',
+  'wsPpzDk9HWdzMkiYB',
+  'b8BMMJDNSDYjWxmcH',
+  'dzqbFGQfB5EqSDHhS',
+  '6Yoc2zzo72NtyF2kD',
+  'rc9j5wwBbjC2wmrCG',
+  'Skn47TSkw7iZhb6je',
+  'a4ZC7NRrRxKRbMraw',
+  'XcDgww3wsYWrurZ3f',
+  '9fDFtFjvwPZYLZ6Q3',
+  'WAQ2erjnAKEqMzoGt',
+  '3dPkS8raEby3tAxS5',
+  'cYquaC57rqB8X4vLd',
+  'KvePwEBy3QLotPpDe',
+  'spbxDEGv9p9jz2H6o',
+  'XyrusMo92PGRgojj7',
+  'JjnSCEfQJ4GmsmDF7',
+  'yTo7K5aXxoHErrSs9',
+  'hZfr42yvEN884Guhm',
+  'rjuLzkMxqGtFzwsND',
+  'gvbu2BnpkydBThMim',
+  'cmJXGnm8opuWRLkww',
+  'WyYYodGBA57YQfRnL',
+  'kDm2xdZLzGuPyjPk5',
+  'NcSdv5aSwBWjkosDG',
+  'dKFqFARgHEy6YLar3',
+  'bo2zvrtGstBcZtmpv',
+  'dNeZDuEXYwyBnbJgC',
+  'WsgirGdscTB5xiCE5',
+  'cvYZYHPqsB8jvkPhK',
+  'tsi5zhoKPgXqFLAks',
+  'FFqJNNZRYrrLmJNHy',
+  'v7tsqZwoTtmW6jYuS',
+  'CiCXehL23mttDXebd',
+  'FTWoNJRgbddfLwH4i',
+  'PzkDiiE6KvxLnh6ZG',
+  'TTmDckuBuxCDPv2Pz',
+  '5GFDfGgQAQWdRJeDq',
+  'dqykdfp8Y5jjuJehW',
+  'sG2u2YArDBcDsrq4q',
+  'ygeWNYCbW3PzmtJji',
+  'Wjzj5vmP67ByKXJAN',
+  's3xtrF8KpFhYp87mn',
+  'TYiJTxqx7HBzCu7G9',
+  'tbL5EzRnqZxPkg9hk',
+  'yepy6hRRGA6vRi3iF',
+  'DNdtNvtNATTaZxjZ9',
+  'kBZFawXLNrKz7mo4m',
+  'zyH8vjpizW2eyuhgc',
+  'cBTkQHqfXbMxyfobD',
+  '6hqM6eAKtBuWycoGB',
+  'FhNCmYdoNYC5MDXGW',
+  '5vm5r89xJivfHEcAG',
+  'hzazdsgEjCesdZfyK',
+]
 
 const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
-// const SOFTWARE_ENG_TAG_ID = 'FHE3J3E8qd6oqGZ8a'
+const SOFTWARE_ENG_TAG_ID = 'FHE3J3E8qd6oqGZ8a'
 
 // for testing purposes, this points to the "Forecasting" topic on the dev db
-const SOFTWARE_ENG_TAG_ID = 'CGameg7coDgLbtgdH'
+// const SOFTWARE_ENG_TAG_ID = 'CGameg7coDgLbtgdH'
 
 const TargetedJobAd = ({
   classes,
@@ -181,9 +256,12 @@ const TargetedJobAd = ({
     skip: !currentUser
   })
   
+  // show the ad to any users interested in software engineering
+  const showJobAd = currentUser && (userIds.includes(currentUser._id) || currentUser.profileTagIds.includes(SOFTWARE_ENG_TAG_ID))
+  
   // track which users have seen the ad
   useEffect(() => {
-    if (!loading && !count && currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
+    if (!loading && !count && showJobAd) {
       void createJobAdView({
         data: {userId: currentUser._id, interestedInMetaculus: false}
       })
@@ -216,7 +294,7 @@ const TargetedJobAd = ({
   
   const { HoverPreviewLink, LWTooltip } = Components
   
-  if (loading || (results?.length && results[0].interestedInMetaculus) || cookies[HIDE_JOB_AD_COOKIE] || !currentUser?.profileTagIds.includes(SOFTWARE_ENG_TAG_ID)) {
+  if (loading || (results?.length && results[0].interestedInMetaculus) || cookies[HIDE_JOB_AD_COOKIE] || !showJobAd) {
     return null
   }
 
