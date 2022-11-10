@@ -7,7 +7,7 @@ import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 
 export const TosLink: FC = ({children}) =>
-  <Link to="/termsOfUse">{children ?? "terms of use"}</Link>
+  <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
 
 export const LicenseLink: FC = ({children}) =>
   <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer">
