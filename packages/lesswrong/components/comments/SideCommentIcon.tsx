@@ -83,7 +83,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       setPinned("closed");
     } else {
       setPinned("open");
-      setSideCommentsActive(true);
+      //setSideCommentsActive(true);
     }
   }
   const onMouseLeave = () => {
