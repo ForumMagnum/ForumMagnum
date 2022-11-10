@@ -1,11 +1,9 @@
 import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
-import { Crosspost, UpdateCrosspostPayload, CrosspostPayload } from "./types";
-import { signToken } from "./tokens";
-import { apiRoutes, makeApiUrl } from "./routes";
+import { DenormalizedCrosspostData, denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
-import { crosspostUserAgent } from "../../lib/apollo/links";
-import { denormalizedFieldKeys, DenormalizedCrosspostData, extractDenormalizedData } from "./denormalizedFields";
+import { signToken } from "./tokens";
+import { Crosspost, CrosspostPayload, UpdateCrosspostPayload } from "./types";
 
 export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T> => {
   if (!post.fmCrosspost || !post.userId || post.draft) {
@@ -38,21 +36,13 @@ export const performCrosspost = async <T extends Crosspost>(post: T): Promise<T>
     ...extractDenormalizedData(post),
   });
 
-  const apiUrl = makeApiUrl(apiRoutes.crosspost);
-  const result = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": crosspostUserAgent,
-    },
-    body: JSON.stringify({token}),
-  });
-  const json = await result.json();
-  if (json.status !== "posted" || !json.postId) {
-    throw new Error(`Failed to create crosspost: ${JSON.stringify(json)}`);
-  }
+  const { postId } = await makeCrossSiteRequest(
+    'crosspost',
+    { token },
+    'Failed to create crosspost'
+  );
 
-  post.fmCrosspost.foreignPostId = json.postId;
+  post.fmCrosspost.foreignPostId = postId;
   return post;
 }
 
@@ -62,9 +52,8 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
     postId,
   });
   await makeCrossSiteRequest(
-    apiRoutes.updateCrosspost,
-    {token},
-    "updated",
+    'updateCrosspost',
+    { token },
     "Failed to update crosspost draft status",
   );
 }

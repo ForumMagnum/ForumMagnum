@@ -14,10 +14,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .ais-SearchBox": {
       padding: 8,
     },
+    '& .ais-SearchBox-input': {
+      background: "transparent",
+    },
     '& .ais-SearchBox-submit': {
       position: "absolute",
       right: 11
-    }
+    },
+    '& .ais-SearchBox-submitIcon path': {
+      fill: theme.palette.grey[900],
+    },
   },
   newTag: {
     display: "block",

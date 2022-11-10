@@ -38,7 +38,7 @@ import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCrosspostRoutes } from './fmCrosspost';
+import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 

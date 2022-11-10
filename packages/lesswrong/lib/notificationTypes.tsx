@@ -188,13 +188,11 @@ export const NewCommentNotification = registerNotificationType({
 export const NewSubforumCommentNotification = registerNotificationType({
   name: "newSubforumComment",
   userSettingField: "notificationSubforumUnread",
-  allowedChannels: ["none", "email"],
+  allowedChannels: ["none", "onsite", "email", "both"],
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
-    // NOTE: Currently we only allow notifications by email to avoid double notifying (with both the sidebar unread count
-    // and the notification), if we ever want to allow notifications in the sidebar we'll probably want to update this message
-    // and double check the links work
+    // e.g. "Forecasting Subforum: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new comment on the "' + startCase(await getCommentParentTitle(document)) + '" Subforum';
+    return await `${startCase(await getCommentParentTitle(document))} Subforum: ${await commentGetAuthorName(document)} left a new comment`;
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
