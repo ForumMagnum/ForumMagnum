@@ -17,16 +17,8 @@ const exec = promisify(execSync);
 
 const paths = {
   cachePath: "./.branchdbcache",
-  pgUrlPath: "../ForumCredentials/dev-pg-conn.txt",
+  pgUrlPath: "../ForumCredentials/dev-staging-admin-pg-conn.txt",
 } as const;
-
-const pgUrlToDbName = (pgUrl: string): string => {
-  const matches = /.*\/(.*)/.exec(pgUrl);
-  if (!matches?.[1]) {
-    throw new Error(`Invalid Postgres URL: '${pgUrl}'`);
-  }
-  return matches[1];
-}
 
 const getGitBranchName = async (): Promise<string> => {
   const {stdout, stderr} = await exec("git branch --show-current");
@@ -107,6 +99,7 @@ class BranchDbBuilder {
   private silent: boolean;
   private cache: BranchDbCache;
   private pgUrl: string;
+  private templateDbName: string;
 
   constructor() {
     this.silent = false;
@@ -115,6 +108,9 @@ class BranchDbBuilder {
     if (!this.pgUrl) {
       throw new Error("Missing Postgres URL");
     }
+    // TODO: For now this is hard coded for the EA forum - work out a nice
+    // way to make this generic (read from settings-dev.json maybe?).
+    this.templateDbName = "eaforum_dev_replica";
   }
 
   private log(...args: any[]): void {
@@ -129,8 +125,7 @@ class BranchDbBuilder {
   }
 
   private buildCreateSql(branchDbName: string): string {
-    const templateDbName = pgUrlToDbName(this.pgUrl);
-    return `CREATE DATABASE "${branchDbName}" TEMPLATE "${templateDbName}";`;
+    return `CREATE DATABASE "${branchDbName}" TEMPLATE "${this.templateDbName}";`;
   }
 
   private buildDropSql(branchDbName: string): string {
