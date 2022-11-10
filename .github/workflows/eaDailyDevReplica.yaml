@@ -1,7 +1,8 @@
 name: EA Daily Dev Replica
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '16 7 * * *'
+    - cron: '16 7 * * 1-5'
 jobs:
   replicate:
     runs-on: ubuntu-latest
