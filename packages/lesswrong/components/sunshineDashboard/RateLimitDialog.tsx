@@ -4,13 +4,16 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Input from '@material-ui/core/Input';
 import React, { useState } from 'react';
-import { RateLimitType } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, RateLimitType } from '../../lib/collections/moderatorActions/schema';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   daysInput: {
-    marginLeft: 'auto',
-    width: 'fit-content'
+    marginBottom: 8,
+    '& input': {
+      width: 40,
+      textAlign: "center"
+    }
   }
 });
 
@@ -20,7 +23,7 @@ export const RateLimitDialog = ({ createRateLimit, type, onClose, classes }: {
   onClose: () => void,
   classes: ClassesType,
 }) => {
-  const { LWDialog } = Components;
+  const { LWDialog, MetaInfo } = Components;
 
   const [endAfterDays, setEndAfterDays] = useState<number | undefined>(30);
 
@@ -48,18 +51,23 @@ export const RateLimitDialog = ({ createRateLimit, type, onClose, classes }: {
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>
-        Rate limit this user?
+        {MODERATOR_ACTION_TYPES[type]}
       </DialogTitle>
       <DialogContent>
-        Delete the "days" value to set a rate limit with no fixed end date.
-        <br />
         <div className={classes.daysInput}>
+          Expires in
+          {" "} 
           <Input
             type='number'
             value={endAfterDays}
             onChange={changeEndAfterDays}
           />
           days.
+        </div>
+        <div>
+          <MetaInfo>
+            (Delete the "days" value to set a rate limit with no fixed end date)
+          </MetaInfo>
         </div>
       </DialogContent>
       <DialogActions>

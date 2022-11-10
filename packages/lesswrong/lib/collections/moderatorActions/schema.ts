@@ -21,11 +21,11 @@ export const rateLimits = [RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS
 export type RateLimitType = typeof rateLimits[number]
 
 export const MODERATOR_ACTION_TYPES = {
-  [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 / day)',
-  [RATE_LIMIT_ONE_PER_THREE_DAYS]: 'Rate Limit (1 / 3 days)',
-  [RATE_LIMIT_ONE_PER_WEEK]: 'Rate Limit (1 / week)',
-  [RATE_LIMIT_ONE_PER_FORTNIGHT]: 'Rate Limit (1 / fortnight)',
-  [RATE_LIMIT_ONE_PER_MONTH]: 'Rate Limit (1 / month)',
+  [RATE_LIMIT_ONE_PER_DAY]: 'Rate Limit (1 per day)',
+  [RATE_LIMIT_ONE_PER_THREE_DAYS]: 'Rate Limit (1 per 3 days)',
+  [RATE_LIMIT_ONE_PER_WEEK]: 'Rate Limit (1 per week)',
+  [RATE_LIMIT_ONE_PER_FORTNIGHT]: 'Rate Limit (1 per fortnight)',
+  [RATE_LIMIT_ONE_PER_MONTH]: 'Rate Limit (1 per month)',
   [RECENTLY_DOWNVOTED_CONTENT_ALERT]: 'Recently Downvoted Content',
   [LOW_AVERAGE_KARMA_COMMENT_ALERT]: 'Low Average Karma Comments',
   [LOW_AVERAGE_KARMA_POST_ALERT]: 'Low Average Karma Posts',

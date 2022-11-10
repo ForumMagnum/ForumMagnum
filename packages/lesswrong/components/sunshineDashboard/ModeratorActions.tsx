@@ -86,9 +86,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip } = Components
+  const { LWTooltip, ModeratorActionItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
-  const { openDialog } = useDialog()
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -297,59 +296,39 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
-  const mostRecentRateLimit = user.moderatorActions.find(modAction => rateLimits.includes(modAction.type));
 
-  const createRateLimit = async (type: RateLimitType, endDate?: Date) => {
-    const newNotes = getModSignatureWithNote(`rate limit added`) + notes;
-    void updateUser({
-      selector: { _id: user._id },
-      data: { sunshineNotes: newNotes }
-    });
+  const createRateLimit = async (type: RateLimitType) => {
 
-    const maybeEndedAt = endDate ? { endedAt: endDate } : {};
-    // Otherwise, we want to create a new one
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 60);
+    
     await createModeratorAction({
       data: {
         type,
         userId: user._id,
-        ...maybeEndedAt
+        endedAt: endDate
       }
     });
 
-    setNotes(newNotes);
+    const existingRateLimits = user.moderatorActions.filter(modAction => rateLimits.includes(modAction.type as RateLimitType)) ?? [];
+    for (const rateLimit of existingRateLimits) {
+      endRateLimit(rateLimit._id)
+    }
     // We have a refetch to ensure the button displays (toggled on/off) properly 
     refetch();
   };
 
   const endRateLimit = async (rateLimitId: string) => {
-    const newNotes = getModSignatureWithNote(`rate limit removed`) + notes;
-    void updateUser({
-      selector: { _id: user._id },
-      data: { sunshineNotes: newNotes }
-    });
 
     await updateModeratorAction({
       selector: { _id: rateLimitId },
       data: { endedAt: new Date() }
     });
 
-    setNotes(newNotes);
     // We have a refetch to ensure the button displays (toggled on/off) properly 
     refetch();
   };
 
-  const handleRateLimit = async (type: RateLimitType) => {
-    // If we have an active rate limit, we want to disable it
-    if (mostRecentRateLimit?.active) {
-      await endRateLimit(mostRecentRateLimit._id);
-    } else {
-      // Otherwise, we want to create a new one
-      openDialog({
-        componentName: 'RateLimitDialog',
-        componentProps: { createRateLimit, type },
-      });
-    }
-  };
 
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
@@ -406,28 +385,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
   </div>
 
-  const moderatorActionLog = <div>
-    {user.moderatorActions
-      .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => {
-        let averageContentKarma: number | undefined;
-        if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
-          const mostRecentComments = sortBy(comments ?? [], 'postedAt').reverse();
-          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
-        } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
-          const mostRecentPosts = sortBy(posts ?? [], 'postedAt').reverse();
-          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
-        }
-
-        const suffix = typeof averageContentKarma === 'number' ? ` (${averageContentKarma})` : '';
-        const endedAt = moderatorAction.endedAt ? `, ends on ${moment(moderatorAction.endedAt).format('YYYY-MM-DD').toString()}` : '';
-
-        return <div key={`${user._id}_${moderatorAction.type}`}>
-          {`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}${endedAt}`}
-        </div>;
-      })
-    }
-  </div>
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
   return <div>
@@ -447,7 +404,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         open={!!anchorEl}
         anchorEl={anchorEl}
       >
-        {rateLimits.map(rateLimit => <MenuItem key={rateLimit} onClick={() => handleRateLimit(rateLimit)}>
+        {rateLimits.map(rateLimit => <MenuItem key={rateLimit} onClick={() => createRateLimit(rateLimit)}>
           {MODERATOR_ACTION_TYPES[rateLimit]}
         </MenuItem>)}
       </Menu>
@@ -465,7 +422,19 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         rows={5}
       />
     </div>
-    {moderatorActionLog}
+      <div>
+      {user.moderatorActions
+        .filter(moderatorAction => moderatorAction.active)
+        .map(moderatorAction => <ModeratorActionItem 
+            key={moderatorAction._id} 
+            moderatorAction={moderatorAction}
+            user={user} 
+            posts={posts} 
+            comments={comments}
+          />
+        )
+      }
+    </div>
   </div>
 }
 

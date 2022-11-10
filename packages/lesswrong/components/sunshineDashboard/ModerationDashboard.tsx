@@ -63,28 +63,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const actionItemStyles = (theme: ThemeType): JssStyles => ({
-  cell: {
-    textAlign: 'center'
-  }
-});
-
-const ModeratorActionItem = ({ moderatorAction, classes }: {
-  moderatorAction: ModeratorActionDisplay,
-  classes: ClassesType
-}) => {
-  const { UsersName } = Components;
-  return (
-    <tr>
-      <td className={classes.cell}><UsersName user={moderatorAction.user} />{` (${moderatorAction.userId})`}</td>
-      <td className={classes.cell}>{moderatorAction.type}</td>
-      <td className={classes.cell}>{`${moderatorAction.active}`}</td>
-      <td className={classes.cell}>{moderatorAction.createdAt}</td>
-      <td className={classes.cell}>{moderatorAction.endedAt}</td>
-    </tr>
-  );
-};
-
 type DashboardTabs = 'sunshineNewUsers' | 'allUsers' | 'moderatedComments';
 
 const ModerationDashboard = ({ classes }: {
@@ -193,12 +171,10 @@ const ModerationDashboard = ({ classes }: {
   );
 };
 
-const ModeratorActionItemComponent = registerComponent('ModeratorActionItem', ModeratorActionItem, { styles: actionItemStyles });
 const ModerationDashboardComponent = registerComponent('ModerationDashboard', ModerationDashboard, { styles });
 
 declare global {
   interface ComponentTypes {
-    ModeratorActionItem: typeof ModeratorActionItemComponent
     ModerationDashboard: typeof ModerationDashboardComponent
   }
 }

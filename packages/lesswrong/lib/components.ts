@@ -456,7 +456,7 @@ importComponent("MigrationsDashboard", () => require('../components/admin/migrat
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
 importComponent("AdminHome", () => require('../components/admin/AdminHome'));
 importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
-importComponent(["ModeratorActionItem", "ModerationDashboard"], () => require('../components/sunshineDashboard/ModerationDashboard'));
+importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("ModerationTemplatesPage", () => require('../components/moderationTemplates/ModerationTemplatesPage'));
 importComponent("ModerationTemplateItem", () => require('../components/moderationTemplates/ModerationTemplateItem'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
@@ -468,6 +468,7 @@ importComponent("AFSuggestCommentsList", () => require('../components/sunshineDa
 
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
+importComponent("ModeratorActionItem", () => require('../components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
 importComponent("AFSuggestUsersItem", () => require('../components/sunshineDashboard/AFSuggestUsersItem'));
 importComponent("AFSuggestUsersList", () => require('../components/sunshineDashboard/AFSuggestUsersList'));

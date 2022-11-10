@@ -2,10 +2,11 @@ import { Posts } from '../../lib/collections/posts'
 import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { userTimeSinceLast, userNumberOfItemsInPast24Hours } from '../../lib/vulcan-users/helpers';
+import { userTimeSinceLast, userNumberOfItemsInPast24Hours, userNumberOfItemsInPastTimeframe } from '../../lib/vulcan-users/helpers';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import Comments from '../../lib/collections/comments/collection';
-import { RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from '../../lib/collections/moderatorActions/schema';
+import { getModeratorRateLimit, getTimeframeForRateLimit } from '../../lib/collections/moderatorActions/helpers';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -51,6 +52,16 @@ async function enforcePostRateLimit (user: DbUser) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
     return;
   
+  const moderatorRateLimit = await getModeratorRateLimit(user)
+
+  const hours = getTimeframeForRateLimit(moderatorRateLimit?.type as RateLimitType)
+
+  const postsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Posts, hours)
+
+  if (postsInPastTimeframe > 0 && moderatorRateLimit) {
+    throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+  }
+
   const timeSinceLastPost = await userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
   const numberOfPostsInPast24Hours = await userNumberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
   
@@ -63,21 +74,24 @@ async function enforcePostRateLimit (user: DbUser) {
     throw new Error(`Please wait ${postIntervalSetting.get()-timeSinceLastPost} seconds before posting again.`);
   }
 
-  const moderatorRateLimit = await ModeratorActions.findOne({
-    userId: user._id,
-    type: RATE_LIMIT_ONE_PER_DAY,
-    endedAt: null
-  });
 
-  if (numberOfPostsInPast24Hours > 0 && moderatorRateLimit) {
-    throw new Error(`You have been rate limited to 1 post per day.`);
-  }
 }
 
 async function enforceCommentRateLimit(user: DbUser) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return;
   }
+
+  const moderatorRateLimit = await getModeratorRateLimit(user)
+
+  const hours = getTimeframeForRateLimit(moderatorRateLimit?.type as RateLimitType)
+
+  const commentsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Comments, hours)
+
+  if (commentsInPastTimeframe > 0 && moderatorRateLimit) {
+    throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+  }
+
   const timeSinceLastComment = await userTimeSinceLast(user, Comments);
   const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
@@ -86,16 +100,4 @@ async function enforceCommentRateLimit(user: DbUser) {
     throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
   }
 
-  const [numberOfCommentsInPast24Hours, moderatorRateLimit] = await Promise.all([
-    userNumberOfItemsInPast24Hours(user, Comments),
-    ModeratorActions.findOne({
-      userId: user._id,
-      type: RATE_LIMIT_ONE_PER_DAY,
-      endedAt: null
-    })
-  ]);
-
-  if (numberOfCommentsInPast24Hours > 0 && moderatorRateLimit) {
-    throw new Error(`You have been rate limited to 1 comment per day.`);
-  }
 }
