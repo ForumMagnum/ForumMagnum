@@ -16,6 +16,7 @@ import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
+import { requestedCssVarsToString } from '../themes/cssVars';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -45,12 +46,14 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
   const theme = getForumTheme(themeOptions);
+  const cssVars = requestedCssVarsToString(theme);
   
   const mergedCSS = [
     draftjsStyles(theme),
     miscStyles(theme),
     jssStylesheet,
     ...theme.rawCSS,
+    cssVars,
   ].join("\n");
 
   const minifiedCSS = minify(mergedCSS).css;
