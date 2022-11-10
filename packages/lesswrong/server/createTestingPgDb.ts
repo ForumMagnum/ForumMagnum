@@ -1,4 +1,3 @@
-import { isDevelopment } from "../lib/executionEnvironment";
 import { Application, json, Request, Response } from "express";
 import { createTestingSqlClient } from "../lib/sql/tests/testingSqlClient";
 import { createSqlConnection } from "./sqlConnection";
@@ -13,6 +12,7 @@ import Comments from "../lib/collections/comments/collection";
 
 import seedPosts from "../../../cypress/fixtures/posts";
 import seedComments from "../../../cypress/fixtures/comments";
+import { testServerSetting } from "../lib/instanceSettings";
 // import seedUsers from "../../../cypress/fixtures/users";
 // import seedConversations from "../../../cypress/fixtures/conversations";
 // import seedMessages from "../../../cypress/fixtures/messages";
@@ -54,8 +54,8 @@ const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePg
 // In development mode, we need a clean way to reseed the test database for Cypress.
 // We definitely don't ever want this in prod though.
 export const addCypressRoutes = (app: Application) => {
-  if (isDevelopment) {
-    const route = "/api/dropAndCreatePg"
+  if (testServerSetting.get()) {
+    const route = "/api/dropAndCreatePg";
     app.use(route, json({ limit: "1mb" }));
     app.post(route, async (req: Request, res: Response) => {
       try {

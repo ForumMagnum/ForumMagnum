@@ -24,8 +24,3 @@ For each collection you wish to import:
 	  (replace `ReadStatuses` with the name of the collection you wish to import)
 	* Then go to the collection definition and add `postgres: true` to the call
 	  to `createCollection`.
-
-### Notes
-
-Be careful not to `import "postgres"` in the `/lib` directory as it will break
-the client build - only do that in `/server`.

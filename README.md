@@ -60,6 +60,18 @@ mkdir myLocalDatabase
 mongod --dbpath ./myLocalDatabase
 ```
 
+### Creating branch-specific development databases
+
+When developing features that require changing database schemas, it can be
+desirable to do this work without changing schemas in shared database instances
+that other developers are working on. To solve this problem, we have a script
+that can be used to create temporary clones of the dev database. The following
+commands are supported:
+ - `yarn branchdb create` clones a new dev database for the current git branch
+ - `yarn branchdb drop` drops the cloned database for the current git branch
+ - `yarn branchdb clean` drops all cloned dev databases created by this git clone
+ - `yarn branchdb list` lists all cloned dev databases created by this git clone
+
 ### Start the development server
 
 ```
@@ -158,11 +170,13 @@ All migrations should be designed to be idempotent and should represent a
 one-off operation (such as updating a table schema). Operations that need to be
 run multiple times should instead be implemented as a server script.
 
-* Run pending migrations with `yarn migrate up`
-* Revert migrations with `yarn migrate down`, but note that we treat down migrations as optionally so this may or may not work as expected
+* Run pending migrations with `yarn migrate up [dev|staging|prod]`
+* Revert migrations with `yarn migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
 * Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
-* View pending migrations with `yarn migrate pending`
-* View executed migrations with `yarn migrate executed`
+* View pending migrations with `yarn migrate pending [dev|staging|prod]`
+* View executed migrations with `yarn migrate executed [dev|staging|prod]`
+
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environement variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
 
 ### Schema changing migrations
 
