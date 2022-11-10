@@ -7,7 +7,7 @@ import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 
-const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
+export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
     throw `Incorrectly formatted connection string or unrecognized connection string format: ${connectionString}`;
   }

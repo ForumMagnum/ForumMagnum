@@ -14,6 +14,8 @@ import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
 import { setServerShellCommandScope } from './serverShellCommand';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
+import { getBranchDbName } from "./branchDb";
+import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
 import process from 'process';
 
 async function serverStartup() {
@@ -59,9 +61,13 @@ async function serverStartup() {
   }
 
   try {
-    const connectionString = commandLineArguments.postgresUrl;
+    let connectionString = commandLineArguments.postgresUrl;
     if (!connectionString) {
       throw new Error("No postgres connection string provided");
+    }
+    const branchDb = await getBranchDbName();
+    if (branchDb) {
+      connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
     }
     const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
     // eslint-disable-next-line no-console
