@@ -587,6 +587,56 @@ const ManifoldPreview = ({classes, href, innerHTML, id}: {
 
 const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
 
+const metaforecastStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const MetaforecastPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType;
+  href: string;
+  innerHTML: string;
+  id?: string;
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://metaforecast.org/questions/embed/[...]
+  const isEmbed = /^https?:\/\/metaforecast\.org\/questions\/embed\/.+$/.test(href);
+
+  // test if it fits https://manifold.markets/questions/[...] instead
+  const [, questionId] = href.match(/^https?:\/\/metaforecast\.org\/questions\/([\w-]+)/) || [];
+
+  if (!isEmbed && !questionId) {
+    return (
+      <a href={href}>
+        <span dangerouslySetInnerHTML={{ __html: innerHTML }} />
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://metaforecast.org/questions/embed/${questionId}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{ __html: innerHTML }} />
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const MetaforecastPreviewComponent = registerComponent('MetaforecastPreview', MetaforecastPreview, { styles: metaforecastStyles })
+
 const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 23.333">
   <g>
     <path d="M19.166,20.979v-0.772c-1.035,0.404-2.159,0.626-3.334,0.626c-0.789,0-1.559-0.1-2.291-0.288
@@ -709,6 +759,7 @@ declare global {
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ManifoldPreview: typeof ManifoldPreviewComponent,
+    MetaforecastPreview: typeof MetaforecastPreviewComponent,
     OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
