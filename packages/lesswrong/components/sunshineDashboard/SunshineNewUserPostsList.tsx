@@ -26,6 +26,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   meta: {
     display: 'inline-block'
+  },
+  vote: {
+    marginRight: 10
   }
 })
 

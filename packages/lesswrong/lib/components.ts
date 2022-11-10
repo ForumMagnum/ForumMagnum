@@ -31,7 +31,6 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
   importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
   importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
-  importComponent("AdvisorsRequestPage", () => require('../components/ea-forum/advice/AdvisorsRequestPage'))
   importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
   importComponent("CommunityMemberCard", () => require('../components/ea-forum/advice/CommunityMemberCard'))
 }
@@ -161,7 +160,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "ArbitalPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
@@ -468,7 +467,10 @@ importComponent("ReportForm", () => require('../components/sunshineDashboard/Rep
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
-importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
+importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
+
+importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
+importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
 importComponent("AFSuggestUsersItem", () => require('../components/sunshineDashboard/AFSuggestUsersItem'));
 importComponent("AFSuggestUsersList", () => require('../components/sunshineDashboard/AFSuggestUsersList'));
@@ -650,7 +652,7 @@ importComponent("LocationFormComponent", () => require('../components/form-compo
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
 importComponent("MultiSelectButtons", () => require('../components/form-components/MultiSelectButtons'));
 importComponent("FormComponentCheckbox", () => require('../components/form-components/FormComponentCheckbox'));
-importComponent("SubforumEmailNotifications", () => require('../components/form-components/SubforumEmailNotifications'));
+importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
 importComponent("FormComponentRadioGroup", () => require('../components/form-components/FormComponentRadioGroup'));
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));

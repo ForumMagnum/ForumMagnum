@@ -433,6 +433,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
     addedBlockquoteHighlightStyles: "",
   },
+  embeddedPlayer: {
+    opacity: 1,
+  },
   
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,

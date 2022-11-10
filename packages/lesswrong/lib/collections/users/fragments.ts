@@ -266,6 +266,8 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
     
     needsReview
     sunshineNotes

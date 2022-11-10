@@ -4,7 +4,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { useTheme } from '../themes/useTheme';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -150,7 +149,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
-  const theme = useTheme();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);

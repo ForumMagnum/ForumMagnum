@@ -482,7 +482,7 @@ export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
 export const getSignature = (name: string) => {
   const today = new Date();
   const todayString = today.toLocaleString('default', { month: 'short', day: 'numeric'});
-  return `${name}, ${todayString}`;
+  return `${todayString}, ${name}`;
 };
 
 export const getSignatureWithNote = (name: string, note: string) => {
