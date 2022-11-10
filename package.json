@@ -51,6 +51,7 @@
     "ea-mongo-staging": "mongo $(< ../ForumCredentials/staging-db-conn.txt)",
     "ea-mongo-testing": "mongo $(< ../ForumCredentials/testing-db-conn.txt)",
     "ea-mongo-prod": "mongo $(< ../ForumCredentials/prod-db-conn.txt)",
+    "ea-pg": "psql $(< ../ForumCredentials/dev-pg-conn.txt)",
     "ea-pg-xpost-dev": "psql $(< ../ForumCredentials/xpost-dev-pg-conn.txt)",
     "ea-pg-staging": "psql $(< ../ForumCredentials/staging-pg-conn.txt)",
     "ea-pg-testing": "psql $(< ../ForumCredentials/testing-pg-conn.txt)",
