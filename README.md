@@ -60,6 +60,18 @@ mkdir myLocalDatabase
 mongod --dbpath ./myLocalDatabase
 ```
 
+### Creating branch-specific development databases
+
+When developing features that require changing database schemas, it can be
+desirable to do this work without changing schemas in shared database instances
+that other developers are working on. To solve this problem, we have a script
+that can be used to create temporary clones of the dev database. The following
+commands are supported:
+ - `yarn branchdb create` clones a new dev database for the current git branch
+ - `yarn branchdb drop` drops the cloned database for the current git branch
+ - `yarn branchdb clean` drops all cloned dev databases created by this git clone
+ - `yarn branchdb list` lists all cloned dev databases created by this git clone
+
 ### Start the development server
 
 ```
