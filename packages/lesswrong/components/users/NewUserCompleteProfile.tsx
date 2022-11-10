@@ -1,9 +1,10 @@
+import React, { useState, useRef } from "react";
+import classnames from "classnames";
 import { gql, useMutation } from "@apollo/client";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
-import React, { useState, useRef } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
@@ -34,6 +35,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& a": {
       color: theme.palette.primary.main,
     },
+  },
+  tosText: {
+    marginBottom: 16,
   },
   submitButtonSection: {
     marginTop: theme.spacing.unit * 3
@@ -172,7 +176,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       {/* TODO: Something about bio? */}
       <div className={classes.submitButtonSection}>
         {forumTypeSetting.get() === "EAForum" &&
-          <Typography variant="body1" className={classes.sectionHelperText} gutterBottom>
+          <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
             I agree to the <TosLink />, including my content being available
             under a <LicenseLink /> license.
           </Typography>
