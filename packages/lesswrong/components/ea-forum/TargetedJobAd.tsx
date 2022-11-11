@@ -349,7 +349,7 @@ const TargetedJobAd = ({
           <div className={classes.description}>
             Ideal candidates:
             <ul>
-              <li>Have experience shipping features end-to-end (CSS, Angular/React, API, & Python/Django)</li>
+              <li>Have experience shipping features end-to-end (CSS, Angular/React, API & Python/Django)</li>
               <li>Can quickly prototype and deploy functionality</li>
               <li>Are interested in forecasting the future of humanity</li>
             </ul>
