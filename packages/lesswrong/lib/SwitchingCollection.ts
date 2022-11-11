@@ -1,11 +1,11 @@
 import { MongoCollection } from "./mongoCollection";
 import PgCollection from "./sql/PgCollection";
-import { getCollectionLockType, setCollectionLockType } from "./mongo2PgLock";
-
-export type ReadTarget = "mongo" | "pg";
-export type WriteTarget = ReadTarget | "both";
-
-const POLL_RATE_SECONDS = 1;
+import {
+  ReadTarget,
+  WriteTarget,
+  getCollectionLockType,
+  setCollectionLockType,
+} from "./mongo2PgLock";
 
 /**
  * SwitchingCollection is a temporary utility class used to enable zero
@@ -20,6 +20,7 @@ const POLL_RATE_SECONDS = 1;
  * as MongoCollection<T>`, for instance.
  */
 class SwitchingCollection<T extends DbObject> {
+  static readonly POLL_RATE_SECONDS = 1;
   static readonly readOperations = [
     "find",
     "findOne",
@@ -205,26 +206,12 @@ class SwitchingCollection<T extends DbObject> {
   /**
    * For the sake of integrity, we maintain a single-source-of-truth for which
    * collections are using which database which is managed by server/mongo2PgLock.
-   * This funciton updates the read/write state of the collection from the values
-   * currently stored in the lock.
-   */
-  async readFromLock(): Promise<ReadTarget> {
-    const {collectionName} = this.mongoCollection.options as any;
-    const type = await getCollectionLockType(collectionName);
-    this.readTarget = type;
-    this.writeTarget = type;
-    return type;
-  }
-
-  /**
-   * Save the current read/write state to the lock table after successfully migrating.
+   * This funciton saves the current read/write state to the lock table. The state
+   * is read back by polling (see `startPolling`).
    */
   async writeToLock(): Promise<void> {
-    if (this.readTarget !== this.writeTarget) {
-      throw new Error("Make sure the read and write target are the same before writing to the lock table");
-    }
     const {collectionName} = this.mongoCollection.options as any;
-    await setCollectionLockType(collectionName, this.readTarget);
+    await setCollectionLockType(collectionName, this.readTarget, this.writeTarget);
   }
 
   /**
@@ -237,21 +224,16 @@ class SwitchingCollection<T extends DbObject> {
    * are searching by primary key, and the network overhead is minimal as the
    * database and server instances are both in the same AWS region.
    */
-  async startPolling(): Promise<void> {
-    let lastTarget = await this.readFromLock();
-
+  startPolling(): void {
     const poll = async () => {
       const {collectionName} = this.mongoCollection.options as any;
-      const newTarget = await getCollectionLockType(collectionName);
-      if (newTarget !== lastTarget) {
-        this.readTarget = newTarget;
-        this.writeTarget = newTarget;
-        lastTarget = newTarget;
-      }
-      setTimeout(poll, POLL_RATE_SECONDS * 1000);
+      const {read, write} = await getCollectionLockType(collectionName);
+      this.readTarget = read;
+      this.writeTarget = write;
+      setTimeout(poll, SwitchingCollection.POLL_RATE_SECONDS * 1000);
     }
 
-    setTimeout(poll, POLL_RATE_SECONDS * 1000);
+    void poll();
   }
 }
 

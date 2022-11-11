@@ -1,7 +1,8 @@
-import SwitchingCollection, { ReadTarget, WriteTarget } from "../lib/SwitchingCollection";
+import SwitchingCollection from "../lib/SwitchingCollection";
 import { MongoCollection } from "../lib/mongoCollection";
 import PgCollection from "../lib/sql/PgCollection";
 import { createCollection } from '../lib/vulcan-lib';
+import type { ReadTarget, WriteTarget } from "../lib/mongo2PgLock";
 
 const createMockCollection = () => {
   const rawCollection = {

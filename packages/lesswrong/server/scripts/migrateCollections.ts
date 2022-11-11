@@ -8,6 +8,7 @@ import CreateTableQuery from "../../lib/sql/CreateTableQuery";
 import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
 import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
+import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 
 type Transaction = ITask<{}>;
 
@@ -75,7 +76,7 @@ const pickBatchSize = (collection: SwitchingCollection<DbObject>) => {
   // The Postgres protocol stores parameter indexes as a U16, so there can't be more than 65535
   // arguments in a single query. We use this to make the largest batch size possible based off
   // of the number of fields in the schema.
-  const max = 65535
+  const max = 65535;
   const numFields = collection.getTable().countFields();
   return Math.floor(max / numFields);
 }
@@ -96,6 +97,7 @@ const copyData = async (
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
 
+    const totalCount = await collection.getMongoCollection().find({}).count();
     const formatter = getCollectionFormatter(collection);
     const batchSize = pickBatchSize(collection);
     let count = 0;
@@ -104,7 +106,8 @@ const copyData = async (
       batchSize,
       filter: makeBatchFilter(createdSince),
       callback: async (documents: DbObject[]) => {
-        console.log(`.........Migrating ${collection.getName()} documents ${count}-${count + documents.length}`);
+        const end = count + documents.length;
+        console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
         count += batchSize;
         const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
         const compiled = query.compile();
@@ -118,6 +121,26 @@ const copyData = async (
   }
 }
 
+/**
+ * Write new collection targets to the lock and propogate to the live server instances.
+ * Note that this uses the global SQL client, not the migration transaction.
+ */
+const writeCollectionTargets = async (
+  collections: SwitchingCollection<DbObject>[],
+  readTarget: ReadTarget,
+  writeTarget: WriteTarget,
+): Promise<void> => {
+  await Promise.all(collections.map((collection) => {
+    collection.setTargets(readTarget, writeTarget);
+    return collection.writeToLock();
+  }));
+
+  // Wait for propogation
+  return new Promise((resolve) => {
+    setTimeout(resolve, 3 * SwitchingCollection.POLL_RATE_SECONDS);
+  });
+}
+
 export const migrateCollections = async (collectionNames: CollectionNameString[]) => {
   console.log(`=== Migrating collections '${collectionNames}' from Mongo to Postgres ===`);
 
@@ -127,13 +150,13 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
     if (!collection) {
       throw new Error(`Invalid collection name '${collectionNames[index]}'`);
     }
-
     if (!(collection instanceof SwitchingCollection)) {
       throw new Error(`Collection '${collectionNames[index]}' is not a SwitchingCollection`);
     }
-
-    collection.setTargets("mongo", "mongo");
   }
+
+  // This should already be the case, but make sure
+  await writeCollectionTargets(collections, "mongo", "mongo");
 
   console.log("...Beginning SQL transaction");
   const sql = getSqlClientOrThrow();
@@ -154,26 +177,19 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
       await copyData(transaction, collections, 2, copyStart);
 
       // Start writing to Postgres
-      for (const collection of collections) {
-        collection.setTargets("mongo", "pg");
-      }
+      await writeCollectionTargets(collections, "mongo", "pg");
 
       // Once more for luck...
       await copyData(transaction, collections, 3, copyStart2);
-
-      // Fully move to Postgres and write the lock in case the server restarts at some point
-      await Promise.all(collections.map((collection) => {
-        collection.setTargets("pg", "pg");
-        return collection.writeToLock();
-      }));
-
-      console.log("\ud83c\udfc1 Done!");
     });
+
+    // Fully move to Postgres and write the lock in case the server restarts at some point
+    await writeCollectionTargets(collections, "pg", "pg");
+
+    console.log("\ud83c\udfc1 Done!");
   } catch (e) {
-    for (const collection of collections) {
-      collection.setTargets("mongo", "mongo");
-    }
     console.error("Error:", e.message);
+    await writeCollectionTargets(collections, "mongo", "mongo");
     console.log("\ud83d\uded1 Migration aborted!");
   }
 }

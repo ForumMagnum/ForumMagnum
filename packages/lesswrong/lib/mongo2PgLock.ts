@@ -1,13 +1,18 @@
 import { getSqlClientOrThrow } from '../lib/sql/sqlClient';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 
-const collectionTypes = ["mongo", "pg"] as const;
+export type ReadTarget = "mongo" | "pg";
+export type WriteTarget = ReadTarget | "both";
 
-type CollectionType = typeof collectionTypes[number];
+export type ReadWriteTargets = {
+  read: ReadTarget,
+  write: WriteTarget,
+};
 
 const mongo2PgLock = new class {
   private readonly tableName = "mongo2pg_lock";
-  private readonly valuesConstraint = "collection_type_constraint";
+  private readonly readConstraint = "read_constraint";
+  private readonly writeConstraint = "write_constraint";
   private isEnsured = false;
 
   private async ensureTableExists(db: SqlClient): Promise<void> {
@@ -19,15 +24,23 @@ const mongo2PgLock = new class {
     await db.none(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
         collection_name TEXT PRIMARY KEY,
-        collection_type TEXT DEFAULT '${collectionTypes[0]}'
+        read_target TEXT DEFAULT 'mongo',
+        write_target TEXT DEFAULT 'mongo'
       );
     `);
     await db.none(`
-      ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.valuesConstraint};
+      ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.readConstraint};
     `);
     await db.none(`
-      ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.valuesConstraint}
-      CHECK (collection_type IN ('mongo', 'pg'));
+      ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.writeConstraint};
+    `);
+    await db.none(`
+      ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.readConstraint}
+      CHECK (read_target IN ('mongo', 'pg'));
+    `);
+    await db.none(`
+      ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.writeConstraint}
+      CHECK (write_target IN ('mongo', 'pg', 'both'));
     `);
 
     const collectionNames = Collections.map(({options: {collectionName}}) => `('${collectionName}')`);
@@ -38,29 +51,40 @@ const mongo2PgLock = new class {
     `);
   }
 
-  async getCollectionType(db: SqlClient, collectionName: CollectionNameString): Promise<CollectionType> {
+  async getCollectionType(
+    db: SqlClient,
+    collectionName: CollectionNameString,
+  ): Promise<ReadWriteTargets> {
     await this.ensureTableExists(db);
-    const result = await db.one(
-      `SELECT collection_type FROM ${this.tableName} WHERE collection_name = $1;`,
-      [collectionName],
-    );
-    return result.collection_type ?? collectionTypes[0];
+    const result = await db.one(`
+      SELECT read_target AS read, write_target AS write
+      FROM ${this.tableName}
+      WHERE collection_name = $1;
+    `, [collectionName]);
+    return result ?? {read: 'mongo', write: 'mongo'};
   }
 
-  async setCollectionType(db: SqlClient, collectionName: CollectionNameString, type: CollectionType): Promise<void> {
+  async setCollectionType(
+    db: SqlClient,
+    collectionName: CollectionNameString,
+    read: ReadTarget,
+    write: WriteTarget,
+  ): Promise<void> {
     await this.ensureTableExists(db);
-    await db.none(
-      `UPDATE ${this.tableName} SET collection_type = $1 WHERE collection_name= $2;`,
-      [type, collectionName],
-    );
+    await db.none(`
+      UPDATE ${this.tableName}
+      SET read_target = $1, write_target = $2
+      WHERE collection_name= $3;
+    `, [read, write, collectionName]);
   }
 }
 
-export const getCollectionLockType = async (collectionName: CollectionNameString): Promise<CollectionType> =>
+export const getCollectionLockType = async (collectionName: CollectionNameString): Promise<ReadWriteTargets> =>
   mongo2PgLock.getCollectionType(getSqlClientOrThrow(), collectionName);
 
 export const setCollectionLockType = async (
   collectionName: CollectionNameString,
-  collectionType: CollectionType,
+  read: ReadTarget,
+  write: WriteTarget,
 ): Promise<void> =>
-  mongo2PgLock.setCollectionType(getSqlClientOrThrow(), collectionName, collectionType);
+  mongo2PgLock.setCollectionType(getSqlClientOrThrow(), collectionName, read, write);

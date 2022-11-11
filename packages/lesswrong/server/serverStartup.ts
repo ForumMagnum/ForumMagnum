@@ -106,7 +106,7 @@ async function serverStartup() {
   console.log("Initializing switching collections from lock table");
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
-      await collection.startPolling();
+      collection.startPolling();
     }
   }
 
