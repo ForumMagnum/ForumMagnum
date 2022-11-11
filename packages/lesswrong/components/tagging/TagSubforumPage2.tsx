@@ -8,7 +8,7 @@ import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -17,13 +17,27 @@ import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import qs from "qs";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
-// Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%"
+  },
+  tabs: {
+    margin: '0 auto 0px',
+    '& .MuiTab-root': {
+      minWidth: 80,
+      [theme.breakpoints.down('xs')]: {
+        minWidth: 50
+      }
+    },
+    '& .MuiTab-labelContainer': {
+      fontSize: '1rem'
+    }
   },
   contentGivenImage: {
     marginTop: 185,
@@ -48,7 +62,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       },
       top: 77,
       left: -4,
-      right: -4,
     },
   },
   centralColumn: {
@@ -58,9 +71,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     paddingTop: 19,
-    paddingBottom: 5,
+    paddingBottom: 0,
     paddingLeft: 42,
     paddingRight: 42,
+    marginBottom: 24,
     background: theme.palette.panelBackground.default,
   },
   titleRow: {
@@ -81,17 +95,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 6,
     },
   },
-  nonMobileButtonRow: {
-    [theme.breakpoints.down('xs')]: {
-      // Ensure this takes priority over the properties in TagPageButtonRow
-      display: 'none !important',
-    },
-  },
-  mobileButtonRow: {
-    [theme.breakpoints.up('sm')]: {
-      display: 'none !important',
-    },
-  },
   editMenu: {
     [theme.breakpoints.down('xs')]: {
       marginTop: 16,
@@ -99,7 +102,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   wikiSection: {
-    paddingTop: 5,
+    paddingTop: 12,
     paddingLeft: 42,
     paddingRight: 42,
     paddingBottom: 12,
@@ -152,6 +155,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
   })
 }
 
+// TODO rename
 const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
@@ -166,10 +170,16 @@ const TagSubforumPage2 = ({classes}: {
     SectionTitle, TagTableOfContents, ContentStyles
   } = Components;
   const currentUser = useCurrentUser();
+  const { history } = useNavigation();
   const { query, params: { slug } } = useLocation();
   
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
+  
+  const handleChangeTab = (_, value: SubforumTab) => {
+    const newQuery = {...query, tab: value}
+    history.push({...location, search: `?${qs.stringify(newQuery)}`})
+  }
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
@@ -286,6 +296,107 @@ const TagSubforumPage2 = ({classes}: {
     myPages: "userPages"
   }
   
+  // TODO: put this in a separate file
+  const wikiComponent = (
+    <>
+      {tag.parentTag || tag.subTags.length ? (
+        <div className={classNames(classes.subHeading, classes.centralColumn)}>
+          <div className={classes.subHeadingInner}>
+            {tag.parentTag && (
+              <div className={classes.relatedTag}>
+                Parent {taggingNameCapitalSetting.get()}:{" "}
+                <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>
+                  {tag.parentTag.name}
+                </Link>
+              </div>
+            )}
+            {/* For subtags it would be better to:
+                - put them at the bottom of the page
+                - truncate the list
+                for our first use case we only need a small number of subtags though, so I'm leaving it for now
+            */}
+            {tag.subTags.length ? (
+              <div className={classes.relatedTag}>
+                <span>
+                  Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}
+                  :&nbsp;
+                  {tag.subTags.map((subTag, idx) => {
+                    return (
+                      <>
+                        <Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>
+                          {subTag.name}
+                        </Link>
+                        {idx < tag.subTags.length - 1 ? <>,&nbsp;</> : <></>}
+                      </>
+                    );
+                  })}
+                </span>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+      <div className={classNames(classes.wikiSection, classes.centralColumn)}>
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+        <AnalyticsContext pageSectionContext="wikiSection">
+          {revision && tag.description && (tag.description as TagRevisionFragment_description).user && (
+            <div className={classes.pastRevisionNotice}>
+              You are viewing revision {tag.description.version}, last edited by{" "}
+              <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user} />
+            </div>
+          )}
+          {editing ? (
+            <EditTagForm
+              tag={tag}
+              successCallback={async () => {
+                setEditing(false);
+                await client.resetStore();
+              }}
+              cancelCallback={() => setEditing(false)}
+            />
+          ) : (
+            <div onClick={clickReadMore}>
+              <ContentStyles contentType="tag">
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{ __html: description || "" }}
+                  description={`tag ${tag.name}`}
+                  className={classes.description}
+                />
+              </ContentStyles>
+            </div>
+          )}
+        </AnalyticsContext>
+      </div>
+      <div className={classes.centralColumn}>
+        {editing && <TagDiscussionSection key={tag._id} tag={tag} />}
+        {tag.sequence && <TagIntroSequence tag={tag} />}
+        {!tag.wikiOnly && (
+          <AnalyticsContext pageSectionContext="tagsSection">
+            {tag.sequence ? (
+              <SectionTitle title={`Posts tagged ${tag.name}`}>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+              </SectionTitle>
+            ) : (
+              <div className={classes.tagHeader}>
+                <div className={classes.postsTaggedTitle}>
+                  Posts tagged <em>{tag.name}</em>
+                </div>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+              </div>
+            )}
+            <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={200}>
+              <AddPostsToTag tag={tag} />
+            </PostsList2>
+          </AnalyticsContext>
+        )}
+      </div>
+    </>
+  );
+  
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
@@ -307,6 +418,7 @@ const TagSubforumPage2 = ({classes}: {
       />
     </div>}
     <div className={tag.bannerImageId ? classes.contentGivenImage : ''}>
+      {/* TODO don't use ToCColumn to allow switching to flex layout. The TagTableOfContents is only half a table of contents anyway, also we don't want to set it in the navigation drawer */}
       <ToCColumn
         tableOfContents={tab === "wiki" ?
           <TagTableOfContents
@@ -314,8 +426,6 @@ const TagSubforumPage2 = ({classes}: {
             onHoverContributor={onHoverContributor}
           /> : null
         }
-        // tableOfContents={null}
-        // TODO still use this header component
         header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>
             <Link to={`/tags/dashboard?focus=${query.flagId}`}>
@@ -335,7 +445,6 @@ const TagSubforumPage2 = ({classes}: {
               {tag.name}
             </Typography>
             {/* TODO but this below the main header */}
-            <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
             {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
               <SubscribeButton
                 tag={tag}
@@ -346,77 +455,22 @@ const TagSubforumPage2 = ({classes}: {
               />
             }
           </div>
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+          <Tabs
+            value={tab}
+            onChange={handleChangeTab}
+            className={classes.tabs}
+            textColor="primary"
+            // aria-label="select content type to search"
+            // scrollable
+            // scrollButtons="off"
+          >
+            <Tab label="Posts" value="posts" />
+            <Tab label="Wiki" value="wiki" />
+          </Tabs>
         </div>}
         welcomeBox={null}
       >
-        {/* TODO pull everything below this out into subcomponents */}
-        {(tag.parentTag || tag.subTags.length) ?
-        <div className={classNames(classes.subHeading,classes.centralColumn)}>
-          <div className={classes.subHeadingInner}>
-            {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-            {/* For subtags it would be better to:
-                - put them at the bottom of the page
-                - truncate the list
-                for our first use case we only need a small number of subtags though, so I'm leaving it for now
-            */}
-            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
-                tag.subTags.map((subTag, idx) => {
-                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
-              })}</span>
-            </div> : <></>}
-          </div>
-        </div>: <></>}
-        <div className={classNames(classes.wikiSection, classes.centralColumn)}>
-          <AnalyticsContext pageSectionContext="wikiSection">
-            { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
-            </div>}
-            {editing ? <EditTagForm
-              tag={tag}
-              successCallback={ async () => {
-                setEditing(false)
-                await client.resetStore()
-              }}
-              cancelCallback={() => setEditing(false)}
-            /> :
-            <div onClick={clickReadMore}>
-              <ContentStyles contentType="tag">
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: description||""}}
-                  description={`tag ${tag.name}`}
-                  className={classes.description}
-                />
-              </ContentStyles>
-            </div>}
-          </AnalyticsContext>
-        </div>
-        <div className={classes.centralColumn}>
-          {editing && <TagDiscussionSection
-            key={tag._id}
-            tag={tag}
-          />}
-          {tag.sequence && <TagIntroSequence tag={tag} />}
-          {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            {tag.sequence ?
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-              </SectionTitle> :
-              <div className={classes.tagHeader}>
-                <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-              </div>
-            }
-            <PostsList2
-              terms={terms}
-              enableTotal
-              tagId={tag._id}
-              itemsPerPage={200}
-            >
-              <AddPostsToTag tag={tag} />
-            </PostsList2>
-          </AnalyticsContext>}
-        </div>
+      {tab === "wiki" ? wikiComponent : <p>PLACEHOLDER FOR POSTS COMPONENT</p>}
       </ToCColumn>
     </div>
   </AnalyticsContext>

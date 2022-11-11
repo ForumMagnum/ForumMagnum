@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
-const MIN_TOC_WIDTH = 200
+const MIN_TOC_WIDTH = 270
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -116,7 +116,7 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
   welcomeBox?: React.ReactNode,
 }) => {
   return (
-    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents || !!welcomeBox})}>
+    <div className={classNames(classes.root, {[classes.tocActivated]: true})}>
       <div className={classes.header}>
         {header}
       </div>
