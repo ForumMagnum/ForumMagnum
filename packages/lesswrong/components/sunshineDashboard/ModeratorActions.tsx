@@ -312,7 +312,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 
     const existingRateLimits = user.moderatorActions.filter(modAction => rateLimits.includes(modAction.type as RateLimitType)) ?? [];
     for (const rateLimit of existingRateLimits) {
-      endRateLimit(rateLimit._id)
+      void endRateLimit(rateLimit._id)
     }
     // We have a refetch to ensure the button displays (toggled on/off) properly 
     refetch();

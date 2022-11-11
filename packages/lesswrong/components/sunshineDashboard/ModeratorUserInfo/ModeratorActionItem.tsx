@@ -6,17 +6,23 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { sortBy } from 'underscore';
 import Input from '@material-ui/core/Input';
 import DoneIcon from '@material-ui/icons/Done'
-import EditIcon from '@material-ui/icons/Edit'
 import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    '&:hover': {
+      '& $clearIcon': {
+        opacity: .5
+      }
+    }
   },
   icon: {
     width: 12,
+    height: 12,
     cursor: "pointer",
     opacity: .5,
     marginRight: 10,
@@ -33,8 +39,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       textAlign: "center"
     }
   },
+  clickToEdit: {
+    cursor: "pointer"
+  },
   margin: {
     marginRight: 10
+  },
+  clearIcon: {
+    opacity: .1
   }
 });
 
@@ -46,7 +58,7 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
   posts: Array<SunshinePostsList>|undefined
 }) => {
 
-  const { MetaInfo, FormatDate, LWTooltip } = Components
+  const { MetaInfo, LWTooltip } = Components
 
   const parseExistingEndsInDays = () => {
     const endedAtDate = moment(moderatorAction.endedAt)
@@ -117,17 +129,14 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
     </LWTooltip>
   </>
 
-  const endedAt = <>
-      {moderatorAction.endedAt && <span className={classes.margin}><FormatDate date={moderatorAction.endedAt}/></span>}
-      <LWTooltip title="Edit moderator action">
-        <EditIcon className={classes.icon} onClick={() => setEditing(true)}/>
-      </LWTooltip>
-    </>
+  const endedAt = <LWTooltip title="Edit duration">
+    <span className={classes.clickToEdit} onClick={() => setEditing(true)}>
+      {moderatorAction.endedAt && <MetaInfo>{endsAfterDays} days</MetaInfo>}
+    </span>
+  </LWTooltip>
+
 
   return <div key={`${user._id}_${moderatorAction.type}`} className={classes.root}>
-    {editing && <LWTooltip title="Remove this mod-action">
-      <ClearIcon className={classes.icon} onClick={handleEndModerationAction}/>
-    </LWTooltip>}
     {`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}`}{" "}
     <MetaInfo className={classes.date}>
       {editing 
@@ -135,6 +144,9 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
         : endedAt
       }
     </MetaInfo>
+    <LWTooltip title="Remove this mod-action">
+      <ClearIcon className={classNames(classes.icon, classes.clearIcon)} onClick={handleEndModerationAction}/>
+    </LWTooltip>
   </div>;
 }
 
