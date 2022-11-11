@@ -165,6 +165,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsAuthors on Post {
+    _id
     user {
       ...UsersMinimumInfo
       biography {
@@ -197,6 +198,7 @@ registerFragment(`
       html
     }
     lastPromotedComment {
+      _id
       user {
         ...UsersMinimumInfo
       }
@@ -270,8 +272,10 @@ registerFragment(`
 
     # Podcast
     podcastEpisode {
+      _id
       title
       podcast {
+        _id
         title
         applePodcastLink
         spotifyPodcastLink
@@ -391,6 +395,7 @@ registerFragment(`
 // This is a union of the fields needed by PostsTopNavigation and BottomNavigation.
 registerFragment(`
   fragment PostSequenceNavigation on Post {
+    _id
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
       ...SequencesPageFragment

@@ -45,10 +45,12 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -88,10 +90,12 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -114,10 +118,12 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -227,6 +233,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagFullContributorsList on Tag {
+    _id
     contributors {
       totalCount
       contributors {

@@ -291,6 +291,7 @@ registerFragment(`
 
 registerFragment(`
   fragment SharedUserBooleans on User {
+    _id
     walledGardenInvite
     hideWalledGardenUI
     walledGardenPortalOnboarded

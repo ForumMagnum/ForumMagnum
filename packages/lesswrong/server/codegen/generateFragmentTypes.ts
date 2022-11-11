@@ -56,7 +56,7 @@ function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const collection = getCollection(collectionName);
   assert(!!collection);
   try {
-    assertFragmentHasIds(parsedFragment);
+    assertFragmentHasIds(collection, parsedFragment);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(`Error: Fragment '${fragmentName}' is missing one or more _ids: ${e.message}`);
@@ -95,17 +95,29 @@ function generateCollectionNamesIndexType(): string {
   return 'type CollectionNameString = ' + getAllCollections().map(c => `"${c.collectionName}"`).join('|') + '\n\n';
 }
 
-function assertSelectionSetHasIds(name: string, selectionSet: SelectionSetNode): void {
+function assertSelectionSetHasIds(collection: CollectionBase<DbObject>, name: string, selectionSet: SelectionSetNode): void {
+  const excludedNames = ["originalContents", "contents", "biography"];
   let hasId = false;
 
   for (const selection of selectionSet.selections) {
     switch (selection.kind) {
       case "Field":
-        if (selection.name?.value === "_id") {
+        const fieldName = selection.name?.value;
+        if (fieldName === "_id") {
           hasId = true;
+        } else if (excludedNames.includes(fieldName)) {
+          continue;
         }
         if (selection.selectionSet) {
-          assertSelectionSetHasIds(selection.name?.value, selection.selectionSet);
+          const schema = getSchema(collection);
+          const fieldType = getFieldTypeFromSchema(fieldName, schema);
+          if (!fieldType) {
+            throw new Error(`Field '${fieldName}' has an invalid type`);
+          }
+          const {collection: subfieldCollection} = subfragmentTypeToCollection(fieldType);
+          if (subfieldCollection) {
+            assertSelectionSetHasIds(collection, selection.name?.value, selection.selectionSet);
+          }
         }
         break;
       case "FragmentSpread":
@@ -113,8 +125,10 @@ function assertSelectionSetHasIds(name: string, selectionSet: SelectionSetNode):
         if (!fragment) {
           continue;
         }
-        assertFragmentHasIds(fragment);
-        hasId = true;
+        try {
+          assertFragmentHasIds(collection, fragment);
+          hasId = true;
+        } catch {}
         break;
       default:
         break;
@@ -122,15 +136,12 @@ function assertSelectionSetHasIds(name: string, selectionSet: SelectionSetNode):
   }
 
   if (!hasId) {
-    const excludedNames = ["originalContents"];
-    if (!excludedNames.includes(name)) {
-      throw new Error(`'${name}' has no _id`);
-    }
+    throw new Error(`'${name}' has no _id`);
   }
 }
 
-function assertFragmentHasIds(parsedFragment: ParsedFragmentType): void {
-  assertSelectionSetHasIds(parsedFragment.name?.value ?? "<ANONYMOUS>", parsedFragment.selectionSet);
+function assertFragmentHasIds(collection: CollectionBase<DbObject>, parsedFragment: ParsedFragmentType): void {
+  assertSelectionSetHasIds(collection, parsedFragment.name?.value ?? "<ANONYMOUS>", parsedFragment.selectionSet);
 }
 
 function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection): string {
@@ -174,6 +185,30 @@ function getSpreadFragments(parsedFragment): Array<string> {
   return spreadFragmentNames;
 }
 
+function getFieldTypeFromSchema(fieldName: string, schema: SchemaType<DbObject>): string | null {
+  // Check for a field with a resolver by this name
+  for (let schemaFieldName of Object.keys(schema)) {
+    const fieldWithResolver = schema[schemaFieldName];
+    if (fieldWithResolver?.resolveAs?.fieldName == fieldName) {
+      assert(!!fieldWithResolver.resolveAs.type);
+      return graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+    }
+  }
+
+  // Check for regular presence in the schema
+  if (fieldName in schema) {
+    const fieldSchema = schema[fieldName];
+    assert(fieldSchema?.type);
+    if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
+      return graphqlTypeToTypescript(fieldSchema.resolveAs.type);
+    } else {
+      return simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
+    }
+  }
+
+  return null;
+}
+
 function getFragmentFieldType(fragmentName: string, parsedFragmentField, collection):
   { fieldType: string, subfragment: string|null }
 {
@@ -182,38 +217,15 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     return { fieldType: "string", subfragment: null };
   }
   const schema = getSchema(collection);
+
   
   // There are two ways a field name can appear in a schema. The first is as a
   // regular field with that name. The second is as a resolver with that name,
   // which may be attached to a field with the same name or a different name.
   // If there's a resolver, it takes precedence.
   
-  let fieldType: string|null = null;
-  
-  // Check for a field with a resolver by this name
-  for (let schemaFieldName of Object.keys(schema)) {
-    const fieldWithResolver = schema[schemaFieldName];
-    if (fieldWithResolver?.resolveAs?.fieldName == fieldName) {
-      assert(!!fieldWithResolver.resolveAs.type);
-      fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
-      break;
-    }
-  }
-  
-  // Check for regular presence in the schema
-  if (!fieldType) {
-    if (fieldName in schema) {
-      const fieldSchema = schema[fieldName];
-      assert(fieldSchema?.type);
-      if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
-        fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
-      } else {
-        fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
-      }
-    }
-  }
-  
-  // If neither found, error (fragment contains a field that isn't in the schema)
+  const fieldType = getFieldTypeFromSchema(fieldName, schema);
+  // If field type not found, error (fragment contains a field that isn't in the schema)
   if (!fieldType) {
     throw new Error(`Fragment ${fragmentName} contains field ${fieldName} on type ${collection.collectionName} which is not in the schema`);
   }
