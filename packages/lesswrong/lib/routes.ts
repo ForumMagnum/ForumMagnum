@@ -713,12 +713,22 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/wiki',
       redirect: () => '/topics/all'
     },
+    // TODO: use taggingNamePluralSetting for both of these
     {
       name: 'subforum',
       path: `/topics/:slug/subforum`,
       componentName: 'TagSubforumPage',
       fullscreen: true,
-    }
+    },
+    {
+      name: 'tagsSubforum',
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum2`,
+      componentName: 'TagSubforumPage2',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      unspacedGrid: true,
+    },
   ],
   LessWrong: [
     {
