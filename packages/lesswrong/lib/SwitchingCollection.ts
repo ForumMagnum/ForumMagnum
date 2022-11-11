@@ -208,11 +208,12 @@ class SwitchingCollection<T extends DbObject> {
    * This funciton updates the read/write state of the collection from the values
    * currently stored in the lock.
    */
-  async readFromLock(): Promise<void> {
+  async readFromLock(): Promise<ReadTarget> {
     const {collectionName} = this.mongoCollection.options as any;
     const type = await getCollectionLockType(collectionName);
     this.readTarget = type;
     this.writeTarget = type;
+    return type;
   }
 
   /**
@@ -230,26 +231,24 @@ class SwitchingCollection<T extends DbObject> {
    * The production sites use multiple server instances. The Mongo to Postgres
    * migrations are run on remote dev machines, so we need a way to switch the
    * prod instances from Mongo to Postgres after migrations are complete. The
-   * simplest way to do this is to regularly poll the lock table until we've
-   * switched, then we can stop.
+   * simplest way to do this is to regularly poll the lock table.
    *
-   * The overhead from this is very small as the lock is a very small table which
-   * we are searching by primary key, and the network overhead is minimal as the
+   * The overhead from this is very small as the lock is a tiny table which we
+   * are searching by primary key, and the network overhead is minimal as the
    * database and server instances are both in the same AWS region.
    */
-  startPolling(): void {
+  async startPolling(): Promise<void> {
+    let lastTarget = await this.readFromLock();
+
     const poll = async () => {
-      if (this.readTarget === "pg" && this.writeTarget === "pg") {
-        return;
-      }
       const {collectionName} = this.mongoCollection.options as any;
       const newTarget = await getCollectionLockType(collectionName);
-      if (newTarget !== "pg") {
-        setTimeout(poll, POLL_RATE_SECONDS * 1000);
-      } else {
+      if (newTarget !== lastTarget) {
         this.readTarget = newTarget;
         this.writeTarget = newTarget;
+        lastTarget = newTarget;
       }
+      setTimeout(poll, POLL_RATE_SECONDS * 1000);
     }
 
     setTimeout(poll, POLL_RATE_SECONDS * 1000);
