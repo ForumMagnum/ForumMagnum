@@ -7,14 +7,18 @@ import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    width: TAB_NAVIGATION_MENU_WIDTH
-  },
   sidebar: {
+    width: TAB_NAVIGATION_MENU_WIDTH,
     paddingTop: 15,
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
+  },
+  navSidebarTransparent: {
+    position: 'absolute',
+    zIndex: 10,
+    background: '#f6f8f9cf', // TODO;
+    backdropFilter: 'blur(6px)'
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {
@@ -35,14 +39,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NavigationStandalone = ({sidebarHidden, classes}) => {
+const NavigationStandalone = (
+  {sidebarHidden, unspacedGridLayout, className, classes}:
+  {sidebarHidden: boolean, unspacedGridLayout?: boolean, className: string, classes: ClassesType}
+) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;
 
-  return <div className={classes.root}>
-    <div className={classNames(classes.sidebar, {[classes.background]: background})}>
+  return <>
+    <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
       <Slide
         direction='right'
         in={!sidebarHidden}
@@ -53,10 +60,10 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
         <TabNavigationMenu />
       </Slide>
     </div>
-    <div className={classes.footerBar}>
+    <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
     </div>
-  </div>
+  </>
 }
 
 const NavigationStandaloneComponent = registerComponent(

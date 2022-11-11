@@ -101,10 +101,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         "navSidebar main sunshine"
       `,
       gridTemplateColumns: `
-      minmax(0, min-content)
-      minmax(0, 1fr)
-      minmax(0, min-content)
-    `,
+        0px
+        minmax(0, 1fr)
+        minmax(0, min-content)
+      `,
     },
     '& .Layout-main': {
       width: '100%',
@@ -346,9 +346,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               {renderPetrovDay() && <PetrovDayWrapper/>}
               {/* TODO cleanup */}
               <div className={classNames(classes.standaloneNavFlex, {[classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout, [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
-                {standaloneNavigation && <div className={classes.navSidebar}>
-                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
-                </div>}
+                {standaloneNavigation && <NavigationStandalone
+                  sidebarHidden={hideNavigationSidebar}
+                  unspacedGridLayout={unspacedGridLayout}
+                  className={classes.standaloneNav}
+                />}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white",
