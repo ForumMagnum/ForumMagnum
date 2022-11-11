@@ -2090,26 +2090,14 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
-  readonly timezone: string,
-  readonly availability: string,
-  readonly questions: string,
-  readonly linkedinProfile: string,
-  readonly previousExperience: string,
-  readonly selectedAdvisors: Array<string>,
-  readonly referrer: string,
+  readonly interestedInMetaculus: boolean,
 }
 
 interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly _id: string,
   readonly userId: string,
   readonly createdAt: Date,
-  readonly timezone: string,
-  readonly availability: string,
-  readonly questions: string,
-  readonly linkedinProfile: string,
-  readonly previousExperience: string,
-  readonly selectedAdvisors: Array<string>,
-  readonly referrer: string,
+  readonly interestedInMetaculus: boolean,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
