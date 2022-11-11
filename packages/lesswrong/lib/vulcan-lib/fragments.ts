@@ -78,6 +78,10 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
   });
 
   if (fieldNames.length) {
+    fieldNames.push("_id");
+  }
+
+  if (fieldNames.length) {
     const fragmentText = `
       fragment ${collection.options.collectionName}DefaultFragment on ${collection.typeName} {
         ${fieldNames.map(fieldName => {
