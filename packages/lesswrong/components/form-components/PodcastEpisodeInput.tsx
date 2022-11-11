@@ -8,6 +8,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import debounce from 'lodash/debounce';
+import { randomId } from '../../lib/random';
 
 const styles = (theme: ThemeType): JssStyles => ({
   podcastEpisodeName: {
@@ -124,6 +125,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   const createNewEpisode = useCallback(async () => {
     const episodeData: PodcastEpisodesDefaultFragment = {
+      _id: randomId(),
       podcastId,
       externalEpisodeId,
       episodeLink,
