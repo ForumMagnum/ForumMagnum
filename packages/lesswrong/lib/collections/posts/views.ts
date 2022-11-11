@@ -313,11 +313,15 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
   let tagsFilter = {};
+  const tagFilters: any[] = [];
   for (let tag of tagsRequired) {
-    tagsFilter[`tagRelevance.${tag.tagId}`] = {$gte: 1};
+    tagFilters.push({[`tagRelevance.${tag.tagId}`]: {$gte: 1}});
   }
   for (let tag of tagsExcluded) {
-    tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
+    tagFilters.push({$or: [
+      {[`tagRelevance.${tag.tagId}`]: {$lt: 1}},
+      {[`tagRelevance.${tag.tagId}`]: {$exists: false}},
+    ]});
   }
   
   const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
@@ -354,7 +358,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   return {
     selector: {
       ...frontpageFilter,
-      ...tagsFilter
+      ...(tagFilters.length ? {$and: tagFilters} : {}),
     },
     syntheticFields,
   };
