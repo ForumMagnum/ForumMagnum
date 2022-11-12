@@ -13,6 +13,7 @@ registerFragment(`
       _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -141,5 +142,14 @@ registerFragment(`
     afBaseScore
     afExtendedScore
     voteCount
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
   }
 `);

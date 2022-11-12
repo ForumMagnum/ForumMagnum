@@ -498,13 +498,6 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
-    {
-      name: 'taggingSubforumCustomName',
-      path: `/topics/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
-    }
   )
 } else {
   addRoute(
@@ -715,17 +708,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'AdvisorsPage',
       title: 'Book a 1:1'
     },
-    // {
-    //   name: 'advisorRequest',
-    //   path: '/advisor-request',
-    //   componentName: 'AdvisorsRequestPage',
-    //   title: 'My 1:1 Request'
-    // },
     {
       name: 'wikiTopisRedirect',
       path: '/wiki',
       redirect: () => '/topics/all'
     },
+    {
+      name: 'subforum',
+      path: `/topics/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      fullscreen: true,
+    }
   ],
   LessWrong: [
     {
@@ -1268,8 +1261,14 @@ addRoute(
   {
     name: 'moderatorActions',
     path: '/admin/moderation',
-    componentName: 'ModeratorActionsDashboard',
-    title: "Moderator Actions"
+    componentName: 'ModerationDashboard',
+    title: "Moderation Dashboard"
+  },
+  {
+    name: 'moderationTemplates',
+    path: '/admin/moderationTemplates',
+    componentName: 'ModerationTemplatesPage',
+    title: "Moderation Message Templates"
   },
   {
     name: 'moderation',

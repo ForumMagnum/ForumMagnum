@@ -4,7 +4,11 @@ import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing.unit,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   comment: {
     marginTop: 4,

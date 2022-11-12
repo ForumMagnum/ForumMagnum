@@ -1,6 +1,6 @@
-import { DatabaseServerSetting } from "../databaseSettings";
 import jwt, { VerifyErrors } from "jsonwebtoken";
-import { MissingSecretError } from "./errors";
+import { DatabaseServerSetting } from "../databaseSettings";
+import { InvalidPayloadError, MissingSecretError } from "./errors";
 
 const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
 
@@ -33,8 +33,11 @@ export const verifyToken = <T extends {}>(token: string, validator: (payload: un
     jwt.verify(token, getSecret(), (err: VerifyErrors | null, decoded?: T) => {
       if (decoded) {
         try {
-          validator(decoded);
-          resolve(decoded);
+          if (validator(decoded)) {
+            resolve(decoded);
+          } else {
+            reject(new InvalidPayloadError());
+          }
         } catch (e) {
           reject(e);
         }

@@ -446,6 +446,7 @@ registerFragment(`
       ...RevisionEdit
     }
     tableOfContents
+    subforumTagId
   }
 `);
 
@@ -527,6 +528,11 @@ registerFragment(`
       moderationGuidelines {
         _id
         html
+      }
+
+      needsReview
+      moderatorActions {
+        ...ModeratorActionDisplay
       }
     }
   }

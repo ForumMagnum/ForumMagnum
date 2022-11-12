@@ -29,6 +29,7 @@ import './collections/notifications/fragments';
 import './collections/messages/collection'
 import './collections/messages/views';
 import './collections/messages/permissions';
+import './collections/messages/helpers';
 import './collections/messages/fragments';
 
 import './collections/conversations/collection'
@@ -108,6 +109,8 @@ import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/userTagRels/collection';
+import './collections/userTagRels/views';
+import './collections/userTagRels/fragments';
 
 import './collections/tags/collection';
 import './collections/tags/views';
@@ -176,6 +179,12 @@ import './collections/spotlights/views';
 
 // Moderator actions
 import './collections/moderatorActions/index';
+
+// Comment moderator actions
+import './collections/commentModeratorActions/index';
+
+// ModerationTemplates
+import './collections/moderationTemplates/index';
 
 // Internationalization
 import './i18n-en-us/en_US';

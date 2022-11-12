@@ -13,6 +13,7 @@ import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
+import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -75,9 +76,12 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
+export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+
 export type NotificationTypeSettings = {
-  channel: "none"|"onsite"|"email"|"both",
-  batchingFrequency: "realtime"|"daily"|"weekly",
+  channel: NotificationChannelOption,
+  batchingFrequency: NotificationBatchingOption,
   timeOfDayGMT: number,
   dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
 };
@@ -137,7 +141,7 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
-const notificationTypeSettingsField = (overrideSettings?: any) => ({
+const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
@@ -176,6 +180,21 @@ const partiallyReadSequenceItem = new SimpleSchema({
   lastReadTime: {
     type: Date,
     optional: true,
+  },
+});
+
+const userTheme = new SimpleSchema({
+  name: {
+    type: String,
+    allowedValues: [...userThemeSettings],
+    optional: true,
+    nullable: true,
+  },
+  siteThemeOverride: {
+    type: Object,
+    optional: true,
+    nullable: true,
+    blackbox: true,
   },
 });
 
@@ -497,12 +516,17 @@ const schema: SchemaType<DbUser> = {
   },
   
   theme: {
-    type: String,
-    optional: true, 
+    type: userTheme,
+    optional: true,
+    nullable: true,
+    ...schemaDefaultValue(defaultThemeOptions),
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
-    hidden: true,
+    hidden: forumTypeSetting.get() !== "EAForum",
+    control: "ThemeSelect",
+    order: 1,
+    group: formGroups.siteCustomizations,
   },
   
   lastUsedTimezone: {
@@ -1204,6 +1228,10 @@ const schema: SchemaType<DbUser> = {
     // Hide this while review is inactive
     hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationSubforumUnread: {
+    label: `New messages in subforums I'm subscribed to`,
+    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings
@@ -2032,7 +2060,6 @@ const schema: SchemaType<DbUser> = {
     viewableBy: ['guests'],
     editableBy: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    tooltip: "This will only be shown on your profile page",
     control: "ImageUpload"
   },
   
@@ -2313,6 +2340,20 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
+
+  moderatorActions: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[ModeratorAction]',
+    canRead: ['sunshineRegiment', 'admins'],
+    resolver: async (doc, args, context) => {
+      const { ModeratorActions, loaders } = context;
+      return ModeratorActions.find({ userId: doc._id }).fetch();
+    }
+  }),
+
+  'moderatorActions.$': {
+    type: 'Object'
+  }
 };
 
 /* Alignment Forum fields */

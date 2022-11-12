@@ -316,27 +316,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
-      id: 'local-groups',
-      title: 'Local Groups',
-      link: '/community',
-      subItem: true,
-    }, {
-      id: 'online-groups',
-      title: 'Online Groups',
-      link: '/community#online',
-      subItem: true,
-    }, {
-      id: 'community-members',
-      title: 'Community Members',
-      link: '/community#individuals',
-      subItem: true,
-    }, {
-      id: 'advice',
-      title: 'Book a 1:1 [BETA]',
-      link: `/advice`,
-      tooltip: "Chat with community members in career paths you're interested in exploring",
-      subItem: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
@@ -355,7 +334,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'about',
-      title: 'About the Forum',
+      title: 'How to use the Forum',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,

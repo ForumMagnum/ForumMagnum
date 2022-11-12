@@ -12,7 +12,11 @@ import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties 
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost";
+import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
+import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -82,6 +86,19 @@ getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
   if (!post.authorIsUnreviewed && !post.draft) {
     void postPublishedCallback.runCallbacksAsync([post]);
   }
+});
+
+/**
+ * For posts created in a subforum, add the appropriate tag
+ */
+getCollectionHooks("Posts").createAfter.add(async function subforumAddTag(post: DbPost, properties: CreateCallbackProperties<DbPost>) {
+  const { context } = properties
+
+  if (post.subforumTagId && context.currentUser?._id) {
+    const currentUser = context.currentUser
+    await addOrUpvoteTag({tagId: post.subforumTagId, postId: post._id, currentUser, context})
+  }
+  return post
 });
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
@@ -173,6 +190,25 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
+/**
+ * Creates a moderator action when an admin sets one of the user's posts back to draft
+ * This also adds a note to a user's sunshineNotes
+ */
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: MOVED_POST_TO_DRAFT,
+        endedAt: new Date()
+      }
+    });
+  }
+});
+
 // Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
@@ -199,6 +235,17 @@ async function extractSocialPreviewImage (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
+
+/**
+ * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
+ * they have fairly strict rate limits that often result in them failing to load.
+ *
+ * NOTE: This will soon become obsolete because we are going to make it so images
+ * are automatically reuploaded on paste rather than on submit (see https://app.asana.com/0/628521446211730/1203311932993130/f).
+ * It's fine to leave it here just in case though
+ */
+getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
+getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
 
 // For posts without comments, update lastCommentedAt to match postedAt
 //
@@ -287,3 +334,24 @@ getCollectionHooks("Posts").updateBefore.add((
   data: Partial<DbPost>,
   {document}: UpdateCallbackProperties<DbPost>,
 ) => handleCrosspostUpdate(document, data));
+
+getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+  const {currentUser, context} = props;
+  
+  if (post.tagRelevance) {
+    // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
+    const tagsToApply = Object.keys(post.tagRelevance);
+    post = {...post, tagRelevance: undefined};
+    
+    for (let tagId of tagsToApply) {
+      await addOrUpvoteTag({
+        tagId, postId: post._id,
+        currentUser: currentUser!,
+        context
+      });
+    }
+  }
+  
+  return post;
+});
+

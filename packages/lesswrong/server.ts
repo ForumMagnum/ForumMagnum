@@ -91,7 +91,7 @@ import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
-import './lib/collections/posts/validate';
+import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
 import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
@@ -134,7 +134,8 @@ import './server/resolvers/analyticsResolvers';
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
 
-import './server/fmCrosspost';
+import './server/fmCrosspost/crosspost';
+import './server/fmCrosspost/routes';
 
 import './server/spotlightCron';
 

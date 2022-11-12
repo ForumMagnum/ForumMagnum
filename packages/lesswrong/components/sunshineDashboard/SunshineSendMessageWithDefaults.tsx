@@ -8,8 +8,11 @@ import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
+const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -25,6 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   defaultMessage: {
     maxWidth: 500,
+    ...commentBodyStyles(theme),
     backgroundColor: theme.palette.panelBackground.default,
     padding:12,
     boxShadow: theme.palette.boxShadow.sunshineSendMessage,
@@ -32,6 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sendMessageButton: {
     padding: 8,
     height: 32,
+    wordBreak: "keep-all",
     fontSize: "1rem",
     color: theme.palette.grey[500],
     '&:hover': {
@@ -40,30 +45,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
+const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
-  tagSlug: string,
+  embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType,
 }) => {
   
-  const { CommentBody, LWTooltip, NewConversationButton } = Components
+  const { ContentItemBody, LWTooltip, NewConversationButton } = Components
   
   
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
-  const { tag: defaultResponsesTag } = useTagBySlug(tagSlug, "TagBasicInfo")
   const { results: defaultResponses } = useMulti({
-    terms:{view:"defaultModeratorResponses", tagId: defaultResponsesTag?._id},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    fetchPolicy: 'cache-and-network',
+    terms:{view:"moderationTemplatesQuickview"},
+    collectionName: "ModerationTemplates",
+    fragmentName: 'ModerationTemplateFragment',
     limit: 50
   });
-  
-  
+
   if (!(user && currentUser)) return null
-  const firstName = user.displayName.split(" ")[0]
   
   return (
     <div className={classes.root}>
@@ -79,25 +80,25 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         anchorEl={anchorEl}
       >
         <MenuItem value={0}>
-          <NewConversationButton user={user} currentUser={currentUser} includeModerators>
+          <NewConversationButton user={user} currentUser={currentUser} includeModerators embedConversation={embedConversation}>
             New Message
           </NewConversationButton>
         </MenuItem>
-        {defaultResponses && defaultResponses.map((comment, i) =>
-          <div key={`template-${comment._id}`}>
+        {defaultResponses && defaultResponses.map((template, i) =>
+          <div key={`template-${template._id}`}>
             <LWTooltip tooltip={false} placement="left" title={
               <div className={classes.defaultMessage}>
-                <CommentBody comment={comment}/>
+                <ContentItemBody dangerouslySetInnerHTML={{__html:template.contents?.html || ""}}/>
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateCommentId: comment._id, firstName, displayName: user.displayName}} includeModerators>
-                  {getTitle(comment.contents?.plaintextMainText || null)}
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateId: template._id, displayName: user.displayName}} includeModerators embedConversation={embedConversation}>
+                  {template.name}
                 </NewConversationButton>
               </MenuItem>
             </LWTooltip>
           </div>)}
-          <Link to={tagGetDiscussionUrl({slug: tagSlug})}>
+          <Link to={MODERATION_TEMPLATES_URL}>
             <MenuItem>
               <ListItemIcon>
                 <EditIcon className={classes.editIcon}/>

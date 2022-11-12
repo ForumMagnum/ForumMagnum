@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata,  } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -13,7 +13,7 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
@@ -142,7 +142,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
     inputProperties: {
@@ -162,7 +162,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
@@ -211,7 +211,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     ...schemaDefaultValue(false),
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     hidden: true,
   },
 
@@ -485,7 +485,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
@@ -505,7 +505,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -830,12 +830,20 @@ const schema: SchemaType<DbPost> = {
     }
   }),
   
-  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
+  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie
+  // Record<string,number>. If submitted as part of a new-post submission, the
+  // submitter applies/upvotes relevance for any tags included as keys.
   tagRelevance: {
     type: Object,
     optional: true,
-    hidden: true,
+    insertableBy: ['members'],
+    editableBy: [],
     viewableBy: ['guests'],
+    
+    blackbox: true,
+    group: formGroups.tags,
+    control: "FormComponentPostEditorTagging",
+    hidden: (props) => props.eventForm,
   },
   
   "tagRelevance.$": {
@@ -907,7 +915,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: (props) => !props.eventForm,
     group: formGroups.event,
     control: 'checkbox',
@@ -1009,7 +1017,6 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins', 'podcasters'],
     control: 'PodcastEpisodeInput',
     group: formGroups.audio,
-    hidden: isEAForum,
     nullable: true
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -1218,7 +1225,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     label: "Co-Authors",
     control: "CoauthorsListEditor",
-    group: formGroups.advancedOptions,
+    group: formGroups.coauthors,
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
@@ -1232,7 +1239,7 @@ const schema: SchemaType<DbPost> = {
   hasCoauthorPermission: {
     type: Boolean,
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     insertableBy: ['members'],
     optional: true,
     hidden: true,
@@ -1249,6 +1256,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['sunshineRegiment', 'admins'],
     control: "ImageUpload",
     group: formGroups.advancedOptions,
+    order: 4,
   },
   
   // Autoset OpenGraph image, derived from the first post image in a callback
@@ -1275,7 +1283,11 @@ const schema: SchemaType<DbPost> = {
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     control: "FMCrosspostControl",
+    tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
+      "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it." :
+      undefined,
     group: formGroups.advancedOptions,
+    order: 3,
     hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
     ...schemaDefaultValue({
       isCrosspost: false,
@@ -1567,7 +1579,7 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: true,
   },
 
@@ -1577,7 +1589,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     label: "Publish to meta",
@@ -1693,7 +1705,7 @@ const schema: SchemaType<DbPost> = {
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
     control: "UsersListEditor",
@@ -1715,7 +1727,7 @@ const schema: SchemaType<DbPost> = {
       nullable: true,
     }),
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     order: 1,
@@ -1729,7 +1741,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     hidden: (props) => !props.eventForm,
     control: 'select',
     group: formGroups.event,
@@ -1796,7 +1808,7 @@ const schema: SchemaType<DbPost> = {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "Start Time",
@@ -1815,7 +1827,7 @@ const schema: SchemaType<DbPost> = {
     type: Date,
     hidden: (props) => !props.eventForm || props.document.eventType === 'course',
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
@@ -1834,7 +1846,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     label: "Event Registration Link",
     control: "MuiTextField",
     optional: true,
@@ -1848,7 +1860,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     label: "Join Online Event Link",
     control: "MuiTextField",
     optional: true,
@@ -1861,7 +1873,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
@@ -1873,7 +1885,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
@@ -1905,7 +1917,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Event Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1916,7 +1928,7 @@ const schema: SchemaType<DbPost> = {
   location: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     optional: true
@@ -1927,7 +1939,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     label: "Contact Info",
     control: "MuiTextField",
     optional: true,
@@ -1939,7 +1951,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
     control: "MuiTextField",
     optional: true,
@@ -1953,7 +1965,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Meetup.com Event",
     control: "MuiTextField",
     optional: true,
@@ -1967,7 +1979,7 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
@@ -1982,7 +1994,7 @@ const schema: SchemaType<DbPost> = {
     label: "Event Image",
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata],
+    editableBy: ['members'],
     control: "ImageUpload",
     group: formGroups.event,
     tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
@@ -1992,7 +2004,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: (props) => isEAForum || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
@@ -2049,7 +2061,7 @@ const schema: SchemaType<DbPost> = {
     order: 15,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true, 
   },
@@ -2176,7 +2188,7 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.moderationGroup,
     label: "Style",
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
@@ -2249,6 +2261,25 @@ const schema: SchemaType<DbPost> = {
     foreignKey: 'Comments',
   },
 };
+
+/* subforum-related fields */
+Object.assign(schema, {
+  // If this post is associated with a subforum, the _id of the tag
+  subforumTagId: {
+    ...foreignKeyField({
+      idFieldName: "subforumTagId",
+      resolverName: "subforumTag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'], // TODO: maybe use userOwns, or actually maybe limit to subforum members
+    canUpdate: ['admins'],
+    hidden: true,
+  },
+})
 
 /* Alignment Forum fields */
 Object.assign(schema, {
@@ -2343,7 +2374,7 @@ Object.assign(schema, {
     }),
     viewableBy: ['members'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
-    editableBy: [canUserEditPostMetadata, 'alignmentForum', 'alignmentForumAdmins'],
+    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",
