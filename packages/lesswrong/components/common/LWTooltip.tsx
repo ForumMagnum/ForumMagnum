@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
