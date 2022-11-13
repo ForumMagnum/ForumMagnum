@@ -88,6 +88,7 @@ importComponent("FlashMessages", () => require('../components/common/FlashMessag
 importComponent("Header", () => require('../components/common/Header'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle'));
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
+importComponent("CitationTags", () => require('../components/common/CitationTags'));
 importComponent("Home2", () => require('../components/common/Home2'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker'));
