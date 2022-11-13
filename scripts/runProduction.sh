@@ -14,7 +14,10 @@ if [ -n "$TRANSCRYPT_SECRET" ]; then
 fi
 
 # Run outstanding database migrations
-yes n | head | yarn migrate up
+# TODO: Remove the check for PG_URL once all sites have PG databases configured
+if [ -n "$PG_URL" ]; then
+	yes n | head | yarn migrate up $NODE_ENV
+fi
 
 export NODE_OPTIONS="--max_old_space_size=2560 --heapsnapshot-signal=SIGUSR2"
 ./build.js -run --settings ./Credentials/$SETTINGS_FILE_NAME --production
