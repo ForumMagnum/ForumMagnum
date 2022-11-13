@@ -2,17 +2,17 @@ import { Application, json, Request, Response } from "express";
 import { createTestingSqlClient } from "../lib/sql/tests/testingSqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { setSqlClient, getSqlClient } from "../lib/sql/sqlClient";
-import Posts from "../lib/collections/posts/collection";
-import Comments from "../lib/collections/comments/collection";
+import { testServerSetting } from "../lib/instanceSettings";
+// import Posts from "../lib/collections/posts/collection";
+// import Comments from "../lib/collections/comments/collection";
 // TODO: Import data for these collections when they're migrated to postgres
 // import Users from "../lib/collections/users/collection";
 // import Conversations from "../lib/collections/conversations/collection";
 // import Messages from "../lib/collections/messages/collection";
 // import LocalGroups from "../lib/collections/localgroups/collection";
 
-import seedPosts from "../../../cypress/fixtures/posts";
-import seedComments from "../../../cypress/fixtures/comments";
-import { testServerSetting } from "../lib/instanceSettings";
+// import seedPosts from "../../../cypress/fixtures/posts";
+// import seedComments from "../../../cypress/fixtures/comments";
 // import seedUsers from "../../../cypress/fixtures/users";
 // import seedConversations from "../../../cypress/fixtures/conversations";
 // import seedMessages from "../../../cypress/fixtures/messages";
@@ -41,8 +41,8 @@ const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePg
     // eslint-disable-next-line no-console
     console.log("Seeding PG database");
     await Promise.all([
-      importData(Posts, seedPosts),
-      importData(Comments, seedComments),
+      // importData(Posts, seedPosts),
+      // importData(Comments, seedComments),
       // importData(Users, seedUsers),
       // importData(Conversations, seedConversations),
       // importData(Messages, seedMessages),
