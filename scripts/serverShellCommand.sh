@@ -8,7 +8,7 @@ if [ "$1" = "--wait" ]; then
 	shift
 fi
 
-COMMAND="$1"
+COMMAND=`sed 's/"/\\\\"/g' <<< $1`
 echo "Checking that a local server is running..."
 scripts/waitForServer.sh
 
