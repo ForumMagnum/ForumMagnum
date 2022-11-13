@@ -306,7 +306,9 @@ export const createManyDummyVotes = async (count: number, user: DbUser, data?: P
     user,
     {...data, votedAt: new Date(thirtyMinsAgo + i)},
   ));
-  await Votes.rawInsert(votes);
+  await Votes.rawCollection().bulkWrite(votes.map((document) => ({
+    insertOne: {document},
+  })));
   return votes;
 }
 
