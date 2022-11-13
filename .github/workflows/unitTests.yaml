@@ -63,6 +63,6 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Setup database schema
-      run: yarn create-integration-db
+      run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
