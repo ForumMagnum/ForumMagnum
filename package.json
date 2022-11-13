@@ -58,6 +58,7 @@
     "ea-pg-testing": "psql $(< ../ForumCredentials/testing-pg-conn.txt)",
     "ea-pg-prod": "psql $(< ../ForumCredentials/prod-pg-conn.txt)",
     "ea-pg-dev-admin": "psql $(< ../ForumCredentials/dev-staging-admin-pg-conn.txt)",
+    "ea-pg-prod-admin": "psql $(< ../ForumCredentials/prod-admin-pg-conn.txt)",
     "ea-load-dev-db": "mongo $(< ../ForumCredentials/dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
     "ea-load-xpost-dev-db": "mongo $(< ../ForumCredentials/xpost-dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
     "ea-load-staging-db": "mongo $(< ../ForumCredentials/staging-db-conn.txt) ../ForumCredentials/loadStagingDbSettings.js",
