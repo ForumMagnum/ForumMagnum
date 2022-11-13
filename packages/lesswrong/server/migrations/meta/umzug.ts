@@ -33,6 +33,10 @@ const getLastMigration = async (storage: PgStorage, db: SqlClient): Promise<stri
 }
 
 const reportOutOfOrderRun = async (lastMigrationName: string, currentMigrationName: string) => {
+  if (process.env.FORUM_MAGNUM_MIGRATE_CI) {
+    throw new Error("Aborting due to out-of-order migration run");
+  }
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
