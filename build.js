@@ -67,8 +67,10 @@ if (opts.postgresUrl) {
   try {
     process.env.PG_URL = fs.readFileSync(opts.postgresUrlFile, 'utf8').trim();
   } catch(e) {
-    console.log(e);
-    process.exit(1);
+    // TODO: Make this an error once both sites have migrated
+    // console.log(e);
+    // process.exit(1);
+    console.warn("Warning: Can't read Postgres URL file");
   }
 }
 
