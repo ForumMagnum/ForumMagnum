@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -216,6 +216,12 @@ const PostsPage = ({post, refetch, classes}: {
   const sequenceId = getSequenceId();
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
+  let authors: UsersMinimumInfo[] = []
+  if (post.user) authors = [post.user]
+  if (post.coauthors) authors = [
+    ...authors,
+    ...post.coauthors.filter(({ _id }) => !postCoauthorIsPending(post, _id))
+  ]
 
   const commentId = query.commentId || params.commentId
 
@@ -246,6 +252,8 @@ const PostsPage = ({post, refetch, classes}: {
     {!commentId && <HeadTags
       ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
       title={post.title} description={description} noIndex={post.noIndex}
+      citationTitle={post.title} citationAuthors={authors}
+      citationPublicationDate={post.postedAt}
     />}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">

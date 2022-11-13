@@ -4,13 +4,25 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import moment from 'moment';
 
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 
 
-const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, useSmallImage=false, noIndex}: {
+const HeadTags = ({
+  ogUrl: ogUrlProp,
+  canonicalUrl: canonicalUrlProp,
+  description: descriptionProp,
+  title: titleProp,
+  image,
+  useSmallImage=false,
+  noIndex,
+  citationTitle,
+  citationAuthors,
+  citationPublicationDate,
+}: {
   ogUrl?: string,
   canonicalUrl?: string,
   description?: string|null,
@@ -18,6 +30,9 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
   image?: string|null,
   useSmallImage?: boolean,
   noIndex?: boolean,
+  citationTitle?: string,
+  citationAuthors?: UsersMinimumInfo[],
+  citationPublicationDate?: Date,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     // The default url we want to use for our cannonical and og:url tags uses
@@ -61,6 +76,16 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
+
+          {/* Academic SEO */}
+          {citationTitle && <meta property='citation_title' content={citationTitle} />}
+          {citationAuthors && citationAuthors.map(author =>
+            <meta key={author._id} property='citation_author' content={author.displayName} />
+          )}
+          {citationPublicationDate && <meta
+            property='citation_publication_date'
+            content={moment(citationPublicationDate).format('YYYY/MM/DD')}
+          />}
 
           {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
