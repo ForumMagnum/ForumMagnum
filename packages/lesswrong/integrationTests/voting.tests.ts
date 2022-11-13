@@ -170,7 +170,7 @@ describe('Voting', function() {
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
         await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
-      await waitUntilCallbacksFinished();
+        await waitUntilCallbacksFinished();
 
         (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
         (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
@@ -256,7 +256,7 @@ describe('Voting', function() {
         await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
       }).rejects.toThrow("Voting rate limit exceeded: too many votes in one hour");
     });
-    it('self-votes don\'t count towards rate limit', async () => {
+    it("self-votes don't count towards rate limit", async () => {
       const voter = await createDummyUser();
       const post = await createDummyPost(voter);
       const maxVotesPerHour = 100;
