@@ -1,5 +1,5 @@
+import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -17,6 +17,8 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import EditIcon from '@material-ui/icons/Edit'
 import ExtensionIcon from '@material-ui/icons/Extension';
+import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
+import EyeIcon from '@material-ui/icons/Visibility';
 
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -25,6 +27,7 @@ import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
+import { DisableNoKibitzContext } from './UsersNameDisplay';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -68,6 +71,7 @@ const UsersMenu = ({classes}: {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
+  const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const { LWPopper, LWTooltip, ThemePickerMenu } = Components
 
   if (!currentUser) return null;
@@ -140,6 +144,22 @@ const UsersMenu = ({classes}: {
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
+            {currentUser.noKibitz && <div>
+              <MenuItem onClick={() => {
+                setDisableNoKibitz(!disableNoKibitz);
+              }}>
+                <ListItemIcon>
+                  {disableNoKibitz
+                    ? <EyeIcon className={classes.icon}/>
+                    : <EyeIconCrossed className={classes.icon}/>
+                  }
+                </ListItemIcon>
+                {disableNoKibitz
+                  ? "Hide Names"
+                  : "Reveal Names"
+                }
+              </MenuItem>
+            </div>}
             {!isEAForum && <Link to={'/drafts'}>
               <MenuItem>
                 <ListItemIcon>

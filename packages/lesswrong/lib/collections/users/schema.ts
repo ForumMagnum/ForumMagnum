@@ -610,6 +610,18 @@ const schema: SchemaType<DbUser> = {
     },
   },
   
+  noKibitz: {
+    type: Boolean,
+    optional: true,
+    label: "Hide author names until I hover over them",
+    tooltip: "For if you want to not be biased. Adds an option to the user menu to temporarily disable. Does not work well on mobile",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    group: formGroups.siteCustomizations,
+    order: 68,
+  },
+  
   showHideKarmaOption: {
     type: Boolean,
     optional: true,
