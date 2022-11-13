@@ -78,12 +78,14 @@ const HeadTags = ({
           <meta property='og:description' content={description}/>
 
           {/* Academic SEO */}
+          {/* https://scholar.google.com/intl/en-us/scholar/inclusion.html#indexing */}
           {citationTitle && <meta property='citation_title' content={citationTitle} />}
           {citationAuthors && citationAuthors.map(author =>
             <meta key={author._id} property='citation_author' content={author.displayName} />
           )}
           {citationPublicationDate && <meta
             property='citation_publication_date'
+            // Yes, that's the date format
             content={moment(citationPublicationDate).format('YYYY/MM/DD')}
           />}
 
