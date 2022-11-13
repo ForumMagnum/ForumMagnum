@@ -22,7 +22,8 @@ PG_FILE=./Credentials/$MODE-pg-conn.txt
 if test -f "$PG_FILE"; then
     export PG_URL=`cat $PG_FILE`
     export FORUM_MAGNUM_MIGRATE_CI=1
-    yarn migrate up $MODE
+    # TODO FIXME
+    # yarn migrate up $MODE
 fi
 
 export NODE_OPTIONS="--max_old_space_size=2560 --heapsnapshot-signal=SIGUSR2"
