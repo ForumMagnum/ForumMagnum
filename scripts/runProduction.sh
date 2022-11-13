@@ -14,9 +14,14 @@ if [ -n "$TRANSCRYPT_SECRET" ]; then
 fi
 
 # Run outstanding database migrations
-# TODO: Remove the check for PG_URL once all sites have PG databases configured
-if [ -n "$PG_URL" ]; then
-	yes n | head | yarn migrate up $NODE_ENV
+MODE=$NODE_ENV
+if [ "$MODE" = "production" ]; then
+    MODE=prod
+fi
+PG_FILE=./Credentials/$MODE-pg-conn.txt
+if test -f "$PG_FILE"; then
+    export PG_URL=`cat $PG_FILE`
+    yes n | head | yarn migrate up $MODE
 fi
 
 export NODE_OPTIONS="--max_old_space_size=2560 --heapsnapshot-signal=SIGUSR2"

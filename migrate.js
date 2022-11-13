@@ -11,10 +11,7 @@ const { readFile } = require("fs").promises;
 (async () => {
   const mode = process.argv[3];
   let pgUrl = process.env["PG_URL"];
-  if (["dev", "staging", "prod", "production"].includes(mode)) {
-    if (mode === "production") {
-      mode = "prod";
-    }
+  if (["dev", "staging", "prod"].includes(mode)) {
     console.log('Running migrations in mode', mode);
     pgUrl = (await readFile(`../ForumCredentials/${mode}-pg-conn.txt`)).toString().trim();
     process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
