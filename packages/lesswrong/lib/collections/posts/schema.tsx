@@ -1038,7 +1038,6 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins', 'podcasters'],
     control: 'PodcastEpisodeInput',
     group: formGroups.audio,
-    hidden: isEAForum,
     nullable: true
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database

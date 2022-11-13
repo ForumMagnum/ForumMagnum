@@ -67,8 +67,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const { OverallVoteButton, LWTooltip } = Components
 
   const collection = getCollection(voteProps.collectionName);
-  const agreementVoteCount = voteProps.document?.extendedScore?.agreementVoteCount ?? 0;
-  const approvalVoteCount = (voteProps.voteCount ?? 0) - agreementVoteCount
+  const voteCount = voteProps.voteCount;
   const karma = voteProps.baseScore;
 
   let moveToAlignnmentUserId = ""
@@ -132,7 +131,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({approvalVoteCount} {approvalVoteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>

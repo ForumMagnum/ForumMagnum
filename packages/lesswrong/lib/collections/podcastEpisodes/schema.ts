@@ -2,7 +2,7 @@ import { foreignKeyField } from '../../utils/schemaUtils';
 
 const schema: SchemaType<DbPodcastEpisode> = {
   podcastId: {
-      ...foreignKeyField({
+    ...foreignKeyField({
       idFieldName: 'podcastId',
       resolverName: 'podcast',
       collectionName: 'Podcasts',
