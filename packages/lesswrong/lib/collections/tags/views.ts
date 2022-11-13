@@ -1,5 +1,5 @@
 import { Tags } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
 
 declare global {

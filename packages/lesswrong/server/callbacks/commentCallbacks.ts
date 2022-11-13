@@ -14,7 +14,7 @@ import { getCommentAncestorIds, getCommentSubtree } from '../utils/commentTreeUt
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { ensureIndex } from '../../lib/collectionUtils';
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 

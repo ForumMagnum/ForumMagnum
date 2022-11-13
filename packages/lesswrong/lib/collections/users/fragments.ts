@@ -128,6 +128,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    noKibitz
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
@@ -352,6 +353,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    noKibitz
     showHideKarmaOption
 
     # Ban & Purge

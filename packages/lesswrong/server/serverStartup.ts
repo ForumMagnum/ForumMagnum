@@ -1,21 +1,30 @@
 import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
+import { createSqlConnection } from './sqlConnection';
+import { setSqlClient } from '../lib/sql/sqlClient';
+import PgCollection from '../lib/sql/PgCollection';
+import SwitchingCollection from '../lib/SwitchingCollection';
+import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
+import { forumTypeSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
-import { Globals } from '../lib/vulcan-lib/config';
+import { setServerShellCommandScope } from './serverShellCommand';
+import { Globals, Vulcan } from '../lib/vulcan-lib/config';
+import { getBranchDbName } from "./branchDb";
+import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
 import process from 'process';
-import chokidar from 'chokidar';
-import fs from 'fs';
 
 async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Starting server");
-  
+
+  setServerShellCommandScope({Vulcan, Globals});
+
   const isTTY = process.stdout.isTTY;
   const CSI = "\x1b[";
   const blue = isTTY ? `${CSI}34m` : "";
@@ -50,9 +59,31 @@ async function serverStartup() {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to mongodb: ", err);
     process.exit(1);
-    return;
   }
-  
+
+  try {
+    let connectionString = commandLineArguments.postgresUrl;
+    if (!connectionString) {
+      throw new Error("No postgres connection string provided");
+    }
+    const branchDb = await getBranchDbName();
+    if (branchDb) {
+      connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
+    }
+    const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
+    // eslint-disable-next-line no-console
+    console.log(`Connecting to postgres (${dbName})`);
+    const sql = await createSqlConnection(connectionString);
+    setSqlClient(sql);
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to connect to postgres: ", err.message);
+    // TODO: Remove forum gating here when we expand Postgres usage
+    if (forumTypeSetting.get() === "EAForum") {
+      process.exit(1);
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.log("Loading settings");
   await refreshSettingsCaches();
@@ -62,7 +93,23 @@ async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
   await runStartupFunctions();
-  
+
+  // eslint-disable-next-line no-console
+  console.log("Building postgres tables");
+  for (const collection of Collections) {
+    if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
+      collection.buildPostgresTable();
+    }
+  }
+
+  // eslint-disable-next-line no-console
+  console.log("Initializing switching collections from lock table");
+  for (const collection of Collections) {
+    if (collection instanceof SwitchingCollection) {
+      collection.startPolling();
+    }
+  }
+
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
@@ -71,7 +118,6 @@ async function serverStartup() {
     initShell();
   } else {
     if (!isAnyTest) {
-      watchForShellCommands();
       // eslint-disable-next-line no-console
       console.log("Starting webserver");
       startWebserver();
@@ -135,30 +181,6 @@ function initShell()
   });
   r.context.Globals = Globals;
   r.context.Vulcan = Globals;
-}
-
-// Monitor ./tmp/pendingShellCommands for shell commands. If a JS file is
-// written there, run it then delete it. Security-wise this is okay because
-// write-access inside the repo directory is already equivalent to script
-// execution.
-const watchForShellCommands = () => {
-  const watcher = chokidar.watch('./tmp/pendingShellCommands');
-  watcher.on('add', async (path) => {
-    const fileContents = fs.readFileSync(path, 'utf8');
-    // eslint-disable-next-line no-console
-    console.log(`Running shell command: ${fileContents}`);
-    fs.unlinkSync(path);
-    try {
-      const result = await eval(fileContents);
-      // eslint-disable-next-line no-console
-      console.log("Finished. Result: ", result);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Failed.");
-      // eslint-disable-next-line no-console
-      console.log(e);
-    }
-  });
 }
 
 void serverStartup();

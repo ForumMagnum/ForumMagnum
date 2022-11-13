@@ -1,7 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import markdownIt from 'markdown-it'
 import markdownItMathjax from '../editor/markdown-mathjax'
-import { mjPagePromise } from '../editor/make_editable_callbacks';
+import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/utils';
 
 const ArbitalPageData = `type ArbitalPageData {
