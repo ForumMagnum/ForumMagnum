@@ -2,7 +2,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import Users from '../../lib/collections/users/collection';
-import { getUserEmail, userCanEdit, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
+import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
@@ -61,8 +61,13 @@ const UsersEditForm = ({terms, classes}: {
       </div>
     );
   }
-  if (!userCanEdit(currentUser,
-    terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
+  if (!userCanEditUser(currentUser,
+    terms.documentId ?
+      {_id: terms.documentId} :
+      // HasSlugType wants some fields we don't have (schemaVersion, _id), but
+      // userCanEdit won't use them
+      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
+  )) {
     return <span>Sorry, you do not have permission to do this at this time.</span>
   }
 
