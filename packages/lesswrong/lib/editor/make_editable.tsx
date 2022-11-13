@@ -1,4 +1,3 @@
-import React from 'react';
 import { userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
@@ -141,7 +140,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
+        resolver: async (doc: T, args: {version?: string}, context: ResolverContext): Promise<DbRevision|null> => {
           const { version } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
@@ -166,19 +165,19 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           if (!docField) return null
 
           const result: DbRevision = {
-            ...docField, 
+            ...docField,
             // we're specifying these fields manually because docField doesn't have them, 
-            // or becaause we need to control the permissions on them.
+            // or because we need to control the permissions on them.
             //
             // The reason we need to return documentId and collectionName is because this 
             // entire result gets recursively resolved by revision field resolvers, and those
             // resolvers depend on these fields existing.
             _id: `${doc._id}_${fieldName}`, //HACK
-            documentId: doc._id, 
+            documentId: doc._id,
             collectionName: collection.collectionName,
-            editedAt: (docField.editedAt) || new Date(),
+            editedAt: new Date(docField?.editedAt ?? Date.now()),
             originalContents: getOriginalContents(context.currentUser, doc, docField.originalContents),
-          } 
+          }
           return result
           //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
@@ -193,7 +192,13 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         hideControls,
       },
     },
-    
+
+    [`${fieldName || "contents"}_latest`]: {
+      type: String,
+      viewableBy: ['guests'],
+      optional: true,
+    },
+
     [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],

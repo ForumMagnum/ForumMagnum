@@ -49,18 +49,6 @@ const schema: SchemaType<DbTagRel> = {
     canRead: ['guests'],
     canCreate: ['members'],
   },
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
-  },
 
   currentUserCanVote: resolverOnlyField({
     type: Boolean,

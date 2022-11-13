@@ -23,6 +23,7 @@ import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../user
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
+import { getSqlClientOrThrow } from '../../sql/sqlClient';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -539,31 +540,51 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { Posts, currentUser } = context;
-      const postRelations = await Posts.aggregate([
-        { $match: { _id: post._id }},
-        { $graphLookup: { 
-            from: "postrelations", 
-            as: "relatedQuestions", 
-            startWith: post._id, 
-            connectFromField: "targetPostId", 
-            connectToField: "sourcePostId", 
-            maxDepth: 3 
-          } 
-        },
-        { 
-          $project: {
-            relatedQuestions: 1
+      let postRelations: DbPostRelation[] = [];
+      if (Posts.isPostgres()) {
+        const sql = getSqlClientOrThrow();
+        postRelations = await sql.any(`
+          WITH RECURSIVE search_tree(
+            "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
+          ) AS (
+            SELECT "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", 1 AS depth
+            FROM "PostRelations"
+            WHERE "sourcePostId" = $1
+            UNION
+            SELECT source."_id", source."createdAt", source."type", source."sourcePostId", source."targetPostId",
+              source."order", source."schemaVersion", target.depth + 1 AS depth
+            FROM "PostRelations" source
+            JOIN search_tree target ON source."sourcePostId" = target."targetPostId" AND target.depth < 3
+          )
+          SELECT * FROM search_tree;
+        `, [post._id]);
+      } else {
+        postRelations = await Posts.aggregate([
+          { $match: { _id: post._id }},
+          { $graphLookup: {
+            from: "postrelations",
+            as: "relatedQuestions",
+            startWith: post._id,
+            connectFromField: "targetPostId",
+            connectToField: "sourcePostId",
+            maxDepth: 3
           }
-        }, 
-        {
-          $unwind: "$relatedQuestions"
-        }, 
-        {
-          $replaceRoot: {
-            newRoot: "$relatedQuestions"
+          },
+          {
+            $project: {
+              relatedQuestions: 1
+            }
+          },
+          {
+            $unwind: "$relatedQuestions"
+          },
+          {
+            $replaceRoot: {
+              newRoot: "$relatedQuestions"
+            }
           }
-        }
-     ]).toArray()
+        ]).toArray()
+      }
      if (!postRelations || postRelations.length < 1) return []
      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
@@ -1620,6 +1641,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded2Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 2 ? new Date() : null
   },
@@ -1627,6 +1649,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded30Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 30 ? new Date() : null
   },
@@ -1634,6 +1657,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded45Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 45 ? new Date() : null
   },
@@ -1641,6 +1665,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded75Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
@@ -1648,6 +1673,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded125Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 125 ? new Date() : null
   },
@@ -1655,6 +1681,7 @@ const schema: SchemaType<DbPost> = {
   scoreExceeded200Date: {
     type: Date,
     optional: true,
+    nullable: true,
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 200 ? new Date() : null
   },
@@ -2308,18 +2335,6 @@ Object.assign(schema, {
     group: formGroups.options,
   },
 
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   afCommentCount: {
     ...denormalizedCountOfReferences({
       fieldName: "afCommentCount",
@@ -2395,6 +2410,15 @@ Object.assign(schema, {
     insertableBy: ['alignmentForumAdmins', 'admins'],
     group: formGroups.adminOptions,
     label: "AF Review UserId"
+  },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
 });
 
