@@ -85,6 +85,7 @@ function removeUndefinedFields(selector: any) {
 export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
+  options = {}
   
   constructor(tableName: string, options?: {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection
@@ -236,8 +237,6 @@ export class MongoCollection<T extends DbObject> {
   //TODO
   views: any
   defaultView: any
-  addView: any
-  addDefaultView: any
 
   aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
     const table = this.getTable();
@@ -280,4 +279,21 @@ export class MongoCollection<T extends DbObject> {
       return await table.updateMany(selector, update, options);
     },
   })
+
+  /**
+   * @summary Add a default view function.
+   * @param {Function} view
+   */
+  addDefaultView = (view: Function) => {
+    this.defaultView = view;
+  }
+
+  /**
+   * @summary Add a named view function.
+   * @param {String} viewName
+   * @param {Function} view
+   */
+  addView = (viewName: string, view: Function) => {
+    this.views[viewName] = view;
+  }
 }

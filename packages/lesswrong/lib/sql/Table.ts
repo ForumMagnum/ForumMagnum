@@ -39,6 +39,10 @@ class Table {
     return this.fields[name];
   }
 
+  countFields() {
+    return Object.keys(this.fields).length;
+  }
+
   addIndex(fields: string[], options?: MongoEnsureIndexOptions) {
     const index = new TableIndex(this.name, fields, options);
     this.indexes.push(index);

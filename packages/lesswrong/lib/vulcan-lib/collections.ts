@@ -1,5 +1,6 @@
 import { MongoCollection } from '../mongoCollection';
 import PgCollection from '../sql/PgCollection';
+import SwitchingCollection from '../SwitchingCollection';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
@@ -31,22 +32,18 @@ export const getCollectionName = (typeName): CollectionNameString => pluralize(t
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-/**
- * @summary Add a default view function.
- * @param {Function} view
- */
-MongoCollection.prototype.addDefaultView = function(view) {
-  this.defaultView = view;
-};
+export type CollectionType = "mongo" | "pg" | "switching";
 
-/**
- * @summary Add a named view function.
- * @param {String} viewName
- * @param {Function} view
- */
-MongoCollection.prototype.addView = function(viewName, view) {
-  this.views[viewName] = view;
-};
+const pickCollectionType = (collectionType?: CollectionType) => {
+  switch (collectionType) {
+  case "pg":
+    return PgCollection;
+  case "switching":
+    return SwitchingCollection;
+  default:
+    return MongoCollection;
+  }
+}
 
 export const createCollection = <
   N extends CollectionNameString,
@@ -54,7 +51,7 @@ export const createCollection = <
 >(options: {
   typeName: string,
   collectionName: N,
-  postgres?: boolean,
+  collectionType?: CollectionType,
   schema: SchemaType<T>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
@@ -66,13 +63,13 @@ export const createCollection = <
   const {
     typeName,
     collectionName,
-    postgres,
+    collectionType,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
   } = options;
 
-  const Collection = postgres ? PgCollection : MongoCollection;
+  const Collection = pickCollectionType(collectionType);
 
   // initialize new Mongo collection
   const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
