@@ -176,7 +176,7 @@ build({
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql", "csso", "io-ts", "fp-ts",
-    "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
+    "bcrypt", "node-pre-gyp", "intercom-client", "node:*", "tsyringe", "reflect-metadata",
     "fsevents", "auth0", "dd-trace", "pg-formatter"
   ],
 })
