@@ -1,7 +1,7 @@
-import AbstractRepo from "./AbstractRepo";
+import abstractRepo from "./AbstractRepo";
 
-@AbstractRepo.register()
-class PostRelationsRepo extends AbstractRepo<PostRelationsRepo>() {
+@abstractRepo.register()
+class PostRelationsRepo extends abstractRepo<PostRelationsRepo>() {
   getPostRelationsByPostId(postId: string, depth = 3): Promise<DbPostRelation[]> {
     return this.db.any(`
       WITH RECURSIVE search_tree(
