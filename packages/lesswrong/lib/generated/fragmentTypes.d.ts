@@ -28,6 +28,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly legacy: boolean,
   readonly commentSorting: string,
   readonly sortDraftsBy: string,
+  readonly noKibitz: boolean,
   readonly showHideKarmaOption: boolean,
   readonly showPostAuthorCard: boolean,
   readonly hideIntercom: boolean,
@@ -405,12 +406,11 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
   readonly af: boolean,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
+  readonly agentFoundationsId: string,
 }
 
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
@@ -462,8 +462,6 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly postId: string,
   readonly deleted: boolean,
   readonly userId: string,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -601,12 +599,12 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly meta: boolean,
   readonly hideFrontpageComments: boolean,
   readonly maxBaseScore: number,
-  readonly scoreExceeded2Date: Date,
-  readonly scoreExceeded30Date: Date,
-  readonly scoreExceeded45Date: Date,
-  readonly scoreExceeded75Date: Date,
-  readonly scoreExceeded125Date: Date,
-  readonly scoreExceeded200Date: Date,
+  readonly scoreExceeded2Date: Date | null,
+  readonly scoreExceeded30Date: Date | null,
+  readonly scoreExceeded45Date: Date | null,
+  readonly scoreExceeded75Date: Date | null,
+  readonly scoreExceeded125Date: Date | null,
+  readonly scoreExceeded200Date: Date | null,
   readonly bannedUserIds: Array<string>,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
@@ -646,13 +644,12 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
+  readonly agentFoundationsId: string,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -2090,26 +2087,14 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
-  readonly timezone: string,
-  readonly availability: string,
-  readonly questions: string,
-  readonly linkedinProfile: string,
-  readonly previousExperience: string,
-  readonly selectedAdvisors: Array<string>,
-  readonly referrer: string,
+  readonly interestedInMetaculus: boolean,
 }
 
 interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly _id: string,
   readonly userId: string,
   readonly createdAt: Date,
-  readonly timezone: string,
-  readonly availability: string,
-  readonly questions: string,
-  readonly linkedinProfile: string,
-  readonly previousExperience: string,
-  readonly selectedAdvisors: Array<string>,
-  readonly referrer: string,
+  readonly interestedInMetaculus: boolean,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -2260,6 +2245,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly biography: RevisionEdit|null,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
+  readonly noKibitz: boolean,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
   readonly hideElicitPredictions: boolean,
@@ -2698,7 +2684,7 @@ interface UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: "Sequence" | "Post",
   readonly position: number,
   readonly duration: number,
   readonly customTitle: string | null,
@@ -2711,7 +2697,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: any /*{"definitions":[{"type":{"type":{"definitions":[{"allowedValues":["Sequence","Post"]}]},"optional":false,"label":"Document type"}}]}*/,
+  readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
   readonly draft: boolean,
   readonly position: number,

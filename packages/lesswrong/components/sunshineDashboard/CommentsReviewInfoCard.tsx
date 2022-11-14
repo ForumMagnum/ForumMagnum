@@ -109,7 +109,7 @@ const getVoteDistribution = ({ allVotes }: { allVotes: { voteType: string }[] })
   }, voteCounts);
 }
 
-interface CommentWithModeratorActions {
+export interface CommentWithModeratorActions {
   comment: CommentsListWithModerationMetadata;
   actions: Omit<CommentModeratorActionDisplay, 'comment'>[];
 }
@@ -197,7 +197,7 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
     />
   </div>;
 
-  return <div className={classes.root}>
+  return <div className={classes.root} id={comment._id}>
     <div className={classes.columns}>
       {headerColumn}
       {seeInContextColumn}

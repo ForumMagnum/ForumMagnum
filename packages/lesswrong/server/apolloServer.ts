@@ -35,11 +35,14 @@ import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
+import { addCypressRoutes } from './createTestingPgDb';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
+import { addServerShellCommandRoutes } from './serverShellCommand';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 
 const loadClientBundle = () => {
@@ -145,8 +148,9 @@ export function startWebserver() {
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
+      const {message, ...properties} = e;
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
       // TODO: Replace sketchy apollo-errors package with something first-party
       // and that doesn't require a cast here
       return formatError(e) as any;
@@ -241,6 +245,15 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
+  addCypressRoutes(app);
+  addServerShellCommandRoutes(app);
+
+  if (testServerSetting.get()) {
+    app.post('/api/quit', (_req, res) => {
+      res.status(202).send('Quiting server');
+      process.kill(estrellaPid, 'SIGQUIT');
+    })
+  }
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
