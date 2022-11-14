@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
@@ -24,9 +25,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export type SideCommentMode = "hidden"|"highKarma"|"all";
-const sideCommentModes: {name: SideCommentMode, label: string}[] = [
+const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: string}[] = [
   {name: "hidden", label: "Hide All"},
-  {name: "highKarma", label: "Show Upvoted"},
+  {name: "highKarma", label: "Show Upvoted", detailedLabel: `Show Upvoted (${sideCommentFilterMinKarma}+ karma)`},
   {name: "all", label: "Show All"},
 ];
 export type SideCommentVisibilityContextType = {
@@ -61,7 +62,7 @@ const SetSideCommentVisibility = ({classes}: {
           ? <Check className={classes.check}/>
           : <div className={classes.notChecked}/>
         }
-        {mode.label}
+        {mode.detailedLabel || mode.label}
       </MenuItem>
     )}
   </Paper>
