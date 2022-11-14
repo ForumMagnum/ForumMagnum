@@ -2,11 +2,10 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import classNames from 'classnames';
-import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
-const MIN_TOC_WIDTH = 270
+const MIN_TOC_WIDTH = 200
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,17 +33,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
       `,
       gridTemplateAreas: `
         "... ... .... title   .... ....... .... ..."
-        "gap0 toc gap1 content gap2 welcome gap3 ..."
+        "... toc gap1 content gap2 welcome gap3 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
-  },
-  noGridOnTablet: {
-    [theme.breakpoints.down('md')]: {
-      display: 'block',
-    },
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -98,23 +92,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display:'none'
     }
   },
-  hideOnTablet: {
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  },
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
   },
   content: { gridArea: 'content' },
-  gap0: {
-    gridArea: 'gap0',
-    minWidth: TAB_NAVIGATION_MENU_WIDTH + 50,
-    [theme.breakpoints.down('md')]: {
-      minWidth: 0,
-    },
-  },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
   welcomeBox: {
@@ -133,15 +115,13 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
   classes: ClassesType,
   welcomeBox?: React.ReactNode,
 }) => {
-  const fooCond = true
   return (
-    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents || !!welcomeBox || fooCond, [classes.noGridOnTablet]: fooCond})}>
+    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents || !!welcomeBox})}>
       <div className={classes.header}>
         {header}
       </div>
-      {fooCond && <div className={classes.gap0}/>}
       {tableOfContents && <div className={classes.toc}>
-        <div className={classNames(classes.stickyBlockScroller, {[classes.hideOnTablet]: fooCond})}>
+        <div className={classes.stickyBlockScroller}>
           <div className={classes.stickyBlock}>
             {tableOfContents}
           </div>

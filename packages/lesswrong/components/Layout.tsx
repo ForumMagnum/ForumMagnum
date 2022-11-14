@@ -353,7 +353,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              {/* TODO cleanup */}
               <div className={classNames(classes.standaloneNavFlex, {[classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout, [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
                 {standaloneNavigation && <NavigationStandalone
                   sidebarHidden={hideNavigationSidebar}
