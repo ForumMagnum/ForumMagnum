@@ -9,15 +9,12 @@ import { communityPath } from '../../../lib/routes';
 const styles = (theme: ThemeType): JssStyles => ({
   sidebar: {
     width: TAB_NAVIGATION_MENU_WIDTH,
-    paddingTop: 15,
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
   },
   navSidebarTransparent: {
     zIndex: 10,
-    background: `${theme.palette.background.default}cf`,
-    backdropFilter: 'blur(6px)'
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {
@@ -56,7 +53,8 @@ const NavigationStandalone = (
         mountOnEnter
         unmountOnExit
       >
-        <TabNavigationMenu />
+        {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
+        <TabNavigationMenu transparentBackground={unspacedGridLayout}/>
       </Slide>
     </div>
     <div className={classNames(classes.footerBar, className)}>

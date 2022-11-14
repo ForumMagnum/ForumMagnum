@@ -18,7 +18,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateColumns: `
-        1fr
+        1.5fr
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(50px, 100px)
         ${SIDEBAR_WIDTH}px
