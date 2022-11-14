@@ -29,13 +29,13 @@ import { container, injectable } from "tsyringe";
  */
 const abstractRepo = <T>() => {
   abstract class Repo {
-    protected container = container;
     protected db: SqlClient;
 
     constructor() {
       this.db = container.resolve("db");
       if (!this.db) {
-        throw new Error("Couldn't resolve database connection");
+        const {name} = this.constructor;
+        throw new Error(`Couldn't resolve database connection for ${name}`);
       }
     }
 
