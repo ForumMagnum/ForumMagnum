@@ -10,6 +10,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
   },
+  displayTitles: {
+    display: "block",
+    marginTop: 8,
+    overflow: "hidden"
+  },
   sortButton: {
     marginLeft: 6,
     cursor: "pointer",
@@ -39,8 +44,9 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   user: SunshineUsersList,
   loading: boolean
 }) => {
-  const { LWTooltip, PostKarmaWithPreview, CommentKarmaWithPreview, Loading } = Components 
+  const { LWTooltip, PostKarmaWithPreview, CommentKarmaWithPreview, Loading, Row } = Components 
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
+  const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 
   const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
@@ -49,34 +55,46 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
   return <div>
-    <div>
-      Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
+    <Row>
+      <div>
+        Sort by: 
+        <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
           karma
         </span>
-      <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
+        <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
           postedAt
-      </span>
-    </div>
+        </span>
+      </div>
+      <div>
+        Display as
+        <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentDisplay === "karma"})} onClick={() => setContentDisplay("karma")}>
+          karma
+        </span>
+        <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentDisplay === "titles"})} onClick={() => setContentDisplay("titles")}>
+          titles
+        </span>
+      </div>
+    </Row>
 
     {loading && <Loading/>}
 
-    <div className={classes.contentSummaryRow}>
+    <div className={classNames(classes.contentSummaryRow, {[classes.displayTitles]:contentDisplay === "titles"})}>
       <LWTooltip title="Post count">
         <span>
           { user.postCount || 0 }
           <DescriptionIcon className={classes.hoverPostIcon}/>
         </span>
       </LWTooltip>
-      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
+      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenPostCount ? <span> ({hiddenPostCount} drafted)</span> : null}
     </div>
 
-    <div className={classes.contentSummaryRow}>
+    <div className={classNames(classes.contentSummaryRow, {[classes.displayTitles]:contentDisplay === "titles"})}>
       <LWTooltip title="Comment count">
         { user.commentCount || 0 }
       </LWTooltip>
       <MessageIcon className={classes.icon}/>
-      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
+      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
       </div>
   </div>;
