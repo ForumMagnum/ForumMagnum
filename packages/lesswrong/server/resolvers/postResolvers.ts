@@ -1,4 +1,5 @@
 import { Posts } from '../../lib/collections/posts/collection';
+import { sideCommentFilterMinKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
@@ -9,8 +10,6 @@ import { addBlockIDsToHTML, getSideComments, matchSideComments } from '../sideCo
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import GraphQLJSON from 'graphql-type-json';
-
-const sideCommentFilterMinKarma = 10;
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -104,10 +103,24 @@ augmentFieldsDict(Posts, {
           }
           
           await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache": newCacheEntry}});
-          unfilteredResult = {annotatedHtml: sideCommentMatches.html, commentsByBlock: sideCommentMatches.sideCommentsByBlock};
+          unfilteredResult = {
+            annotatedHtml: sideCommentMatches.html,
+            commentsByBlock: sideCommentMatches.sideCommentsByBlock
+          };
         }
 
-        const highKarmaComments: DbComment[] = comments.filter(comment => comment.baseScore >= sideCommentFilterMinKarma)
+        const alwaysShownIds = new Set<string>([]);
+        alwaysShownIds.add(post.userId);
+        if (post.coauthorStatuses) {
+          for (let {userId} of post.coauthorStatuses) {
+            alwaysShownIds.add(userId);
+          }
+        }
+
+        const highKarmaComments: DbComment[] = comments.filter(comment =>
+          comment.baseScore >= sideCommentFilterMinKarma
+          || alwaysShownIds.has(comment.userId)
+        );
         const highKarmaCommentIds: Set<string> = new Set(highKarmaComments.map(c => c._id));
         let highKarmaCommentsByBlock: Record<string,string[]> = {};
         for (let blockID of Object.keys(unfilteredResult.commentsByBlock)) {
