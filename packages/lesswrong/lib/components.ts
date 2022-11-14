@@ -575,6 +575,7 @@ importComponent("SubforumMember", () => require('../components/tagging/SubforumM
 importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
+importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
 importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor

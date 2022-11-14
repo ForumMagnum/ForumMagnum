@@ -15,9 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   navSidebarTransparent: {
-    position: 'absolute',
     zIndex: 10,
-    background: '#f6f8f9cf', // TODO;
+    background: `${theme.palette.background.default}cf`,
     backdropFilter: 'blur(6px)'
   },
   footerBar: {

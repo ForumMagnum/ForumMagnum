@@ -109,6 +109,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
   },
+  rightSidebar: {
+    width: 250,
+  },
   subHeading: {
     paddingLeft: 42,
     paddingRight: 42,
@@ -166,7 +169,7 @@ const TagSubforumPage2 = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     SectionTitle, TagTableOfContents, ContentStyles
   } = Components;
   const currentUser = useCurrentUser();
@@ -397,6 +400,8 @@ const TagSubforumPage2 = ({classes}: {
     </>
   );
   
+  const rightSidebarComponent = <div className={classes.rightSidebar}>PLACEHOLDER FOR RIGHT SIDEBAR</div>
+
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
@@ -418,14 +423,11 @@ const TagSubforumPage2 = ({classes}: {
       />
     </div>}
     <div className={tag.bannerImageId ? classes.contentGivenImage : ''}>
-      {/* TODO don't use ToCColumn to allow switching to flex layout. The TagTableOfContents is only half a table of contents anyway, also we don't want to set it in the navigation drawer */}
-      <ToCColumn
-        tableOfContents={tab === "wiki" ?
-          <TagTableOfContents
-            tag={tag} expandAll={expandAll} showContributors={true}
-            onHoverContributor={onHoverContributor}
-          /> : null
-        }
+      <RightSidebarColumn
+        sidebar={tab === "wiki" ? <TagTableOfContents
+          tag={tag} expandAll={expandAll} showContributors={true}
+          onHoverContributor={onHoverContributor}
+        /> : rightSidebarComponent}
         header={<div className={classNames(classes.header,classes.centralColumn)}>
           {query.flagId && <span>
             <Link to={`/tags/dashboard?focus=${query.flagId}`}>
@@ -460,18 +462,17 @@ const TagSubforumPage2 = ({classes}: {
             onChange={handleChangeTab}
             className={classes.tabs}
             textColor="primary"
-            // aria-label="select content type to search"
-            // scrollable
-            // scrollButtons="off"
+            aria-label="select tab"
+            scrollable
+            scrollButtons="off"
           >
             <Tab label="Posts" value="posts" />
             <Tab label="Wiki" value="wiki" />
           </Tabs>
         </div>}
-        welcomeBox={null}
       >
-      {tab === "wiki" ? wikiComponent : <p>PLACEHOLDER FOR POSTS COMPONENT</p>}
-      </ToCColumn>
+      {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}>PLACEHOLDER FOR POSTS COMPONENT</p>}
+      </RightSidebarColumn>
     </div>
   </AnalyticsContext>
 }
