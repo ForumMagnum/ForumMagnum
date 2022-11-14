@@ -168,6 +168,9 @@ export const darkModeTheme: UserThemeSpecification = {
         green: "#7ee486",
       },
     },
+    link: {
+      primaryDim: '#3a7883'
+    },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
       translucent2: "rgba(0,0,0,.8)",

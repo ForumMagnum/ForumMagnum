@@ -1,4 +1,6 @@
-import { MongoCollection } from '../../lib/mongoCollection';
+import { MongoCollection } from '../mongoCollection';
+import PgCollection from '../sql/PgCollection';
+import SwitchingCollection from '../SwitchingCollection';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
@@ -14,7 +16,7 @@ import { loggerConstructor } from '../utils/logging'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
 
 // When used in a view, set the query so that it returns rows where a field is
-// null or is missing. Equivalent to a searech with mongo's `field:null`, except
+// null or is missing. Equivalent to a search with mongo's `field:null`, except
 // that null can't be used this way within Vulcan views because it's ambiguous
 // between searching for null/missing, vs overriding the default view to allow
 // any value.
@@ -30,22 +32,18 @@ export const getCollectionName = (typeName): CollectionNameString => pluralize(t
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-/**
- * @summary Add a default view function.
- * @param {Function} view
- */
-MongoCollection.prototype.addDefaultView = function(view) {
-  this.defaultView = view;
-};
+export type CollectionType = "mongo" | "pg" | "switching";
 
-/**
- * @summary Add a named view function.
- * @param {String} viewName
- * @param {Function} view
- */
-MongoCollection.prototype.addView = function(viewName, view) {
-  this.views[viewName] = view;
-};
+const pickCollectionType = (collectionType?: CollectionType) => {
+  switch (collectionType) {
+  case "pg":
+    return PgCollection;
+  case "switching":
+    return SwitchingCollection;
+  default:
+    return MongoCollection;
+  }
+}
 
 export const createCollection = <
   N extends CollectionNameString,
@@ -53,6 +51,7 @@ export const createCollection = <
 >(options: {
   typeName: string,
   collectionName: N,
+  collectionType?: CollectionType,
   schema: SchemaType<T>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
@@ -64,13 +63,16 @@ export const createCollection = <
   const {
     typeName,
     collectionName,
+    collectionType,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
   } = options;
 
+  const Collection = pickCollectionType(collectionType);
+
   // initialize new Mongo collection
-  const collection = new MongoCollection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
+  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
 
   // decorate collection with options
   collection.options = options as any;

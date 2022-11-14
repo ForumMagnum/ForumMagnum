@@ -1,3 +1,4 @@
+import { getCollection, Vulcan } from "./vulcan-lib";
 import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR } from '../lib/scoring';
 import * as _ from 'underscore';
 
@@ -60,6 +61,23 @@ export const updateScore = async ({collection, item, forceUpdate}) => {
   return 0;
 };
 
+const getCollectionProjections = (collectionName: CollectionNameString) => {
+  const collectionProjections: Partial<Record<CollectionNameString, any>> = {
+    Posts: {
+      frontpageDate: 1,
+      curatedDate: 1,
+      scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
+      baseScore: { // Add optional bonuses to baseScore of posts
+        $add: [
+          "$baseScore",
+          ...defaultScoreModifiers(),
+        ],
+      },
+    },
+  };
+  return collectionProjections[collectionName] ?? {};
+}
+
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}) => {
   // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
   //      and posts can become inactive
@@ -67,35 +85,38 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
   const x = 1 / Math.pow((INACTIVITY_THRESHOLD_DAYS*24) + 2, TIME_DECAY_FACTOR.get());
 
+  const inactiveFilter = inactive
+    ? {inactive: true}
+    : {
+      $or: [
+        {inactive: false},
+        {inactive: {$exists: false}},
+      ],
+    };
+
   const itemsPromise = collection.aggregate([
     {
       $match: {
         $and: [
           {postedAt: {$exists: true}},
           {postedAt: {$lte: new Date()}},
-          {inactive: inactive ? true : {$in: [false,null]}}
+          inactiveFilter,
         ]
       }
     },
     {
       $project: {
         postedAt: 1,
-        scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
+        scoreDate: "$postedAt",
         score: 1,
-        frontpageDate: 1,
-        curatedDate: 1,
-        baseScore: { // Add optional bonuses to baseScore of posts
-          $add: [
-            "$baseScore",
-            ...defaultScoreModifiers()
-          ]
-        },
+        baseScore: 1,
+        ...(getCollectionProjections(collection.options.collectionName)),
       }
     },
     {
       $project: {
         postedAt: 1,
-        scoreDate: 1, 
+        scoreDate: 1,
         baseScore: 1,
         score: 1,
         newScore: {
@@ -162,3 +183,10 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   }
   return updatedDocumentsCounter;
 }
+
+export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}) => {
+  const collection = getCollection(collectionName);
+  return batchUpdateScore({collection, inactive, forceUpdate});
+}
+
+Vulcan.batchUpdateScoreByName = batchUpdateScoreByName;

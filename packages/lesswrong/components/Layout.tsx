@@ -23,6 +23,7 @@ import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -169,6 +170,7 @@ interface LayoutState {
   postsRead: Record<string,boolean>,
   tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
+  disableNoKibitz: boolean,
 }
 
 class Layout extends PureComponent<LayoutProps,LayoutState> {
@@ -185,6 +187,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       postsRead: {},
       tagsRead: {},
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
+      disableNoKibitz: false,
     };
 
     this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
@@ -243,7 +246,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
-    const {hideNavigationSidebar} = this.state
+    const { hideNavigationSidebar, disableNoKibitz } = this.state
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
@@ -299,6 +302,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <DisableNoKibitzContext.Provider value={{
+        disableNoKibitz,
+        setDisableNoKibitz: (disableNoKibitz: boolean) => {
+          this.setState({disableNoKibitz});
+        }
+      }}>
       <ItemsReadContext.Provider value={{
         postsRead: this.state.postsRead,
         setPostRead: (postId: string, isRead: boolean): void => {
@@ -377,6 +386,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       </CommentOnSelectionPageWrapper>
       </TableOfContentsContext.Provider>
       </ItemsReadContext.Provider>
+      </DisableNoKibitzContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
       </AnalyticsContext>
