@@ -1,5 +1,5 @@
 import { Posts } from '../../lib/collections/posts/collection';
-import { sideCommentFilterMinKarma } from '../../lib/collections/posts/constants';
+import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
@@ -9,6 +9,7 @@ import { getDefaultPostLocationFields } from '../posts/utils'
 import { addBlockIDsToHTML, getSideComments, matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
+import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 
 augmentFieldsDict(Posts, {
@@ -117,23 +118,46 @@ augmentFieldsDict(Posts, {
           }
         }
 
-        const highKarmaComments: DbComment[] = comments.filter(comment =>
-          comment.baseScore >= sideCommentFilterMinKarma
-          || alwaysShownIds.has(comment.userId)
-        );
-        const highKarmaCommentIds: Set<string> = new Set(highKarmaComments.map(c => c._id));
+        const commentsById = keyBy(comments, comment=>comment._id);
         let highKarmaCommentsByBlock: Record<string,string[]> = {};
+        let nonnegativeKarmaCommentsByBlock: Record<string,string[]> = {};
+        
         for (let blockID of Object.keys(unfilteredResult.commentsByBlock)) {
-          const commentsIdsHere = unfilteredResult.commentsByBlock[blockID];
-          const highKarmaCommentIdsHere = commentsIdsHere.filter(commentId => highKarmaCommentIds.has(commentId));
+          const commentIdsHere = unfilteredResult.commentsByBlock[blockID];
+          const highKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
+            const comment: DbComment = commentsById[commentId];
+            if (!comment)
+              return false;
+            else if (comment.baseScore >= sideCommentFilterMinKarma)
+              return true;
+            else if (alwaysShownIds.has(comment.userId))
+              return true;
+            else
+              return false;
+          });
           if (highKarmaCommentIdsHere.length > 0) {
             highKarmaCommentsByBlock[blockID] = highKarmaCommentIdsHere;
+          }
+          
+          const nonnegativeKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
+            const comment: DbComment = commentsById[commentId];
+            if (!comment)
+              return false;
+            else if (alwaysShownIds.has(comment.userId))
+              return true;
+            else if (comment.baseScore <= sideCommentAlwaysExcludeKarma)
+              return false;
+            else
+              return true;
+          });
+          if (nonnegativeKarmaCommentIdsHere.length > 0) {
+            nonnegativeKarmaCommentsByBlock[blockID] = nonnegativeKarmaCommentIdsHere;
           }
         }
         
         return {
           html: unfilteredResult.annotatedHtml,
-          commentsByBlock: unfilteredResult.commentsByBlock,
+          commentsByBlock: nonnegativeKarmaCommentsByBlock,
           highKarmaCommentsByBlock: highKarmaCommentsByBlock,
         }
       }
