@@ -1073,6 +1073,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   } | null,
+  readonly hideFromRecentDiscussions: boolean | null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
