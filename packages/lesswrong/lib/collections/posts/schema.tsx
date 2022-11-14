@@ -3,8 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { PostRelationsRepo } from "../../repos";
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -24,7 +23,6 @@ import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../user
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
-import { getSqlClientOrThrow } from '../../sql/sqlClient';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -535,47 +533,12 @@ const schema: SchemaType<DbPost> = {
     optional: true,
   },
 
-  targetPostRelations: resolverOnlyField({
+  targetPostRelations: {
     type: Array,
-    graphQLtype: '[PostRelation!]!',
+    optional: true,
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { Posts, currentUser } = context;
-      let postRelations: DbPostRelation[] = [];
-      if (Posts.isPostgres()) {
-        const repo = PostRelationsRepo.resolve();
-        postRelations = await repo.getPostRelationsByPostId(post._id);
-      } else {
-        postRelations = await Posts.aggregate([
-          { $match: { _id: post._id }},
-          { $graphLookup: {
-            from: "postrelations",
-            as: "relatedQuestions",
-            startWith: post._id,
-            connectFromField: "targetPostId",
-            connectToField: "sourcePostId",
-            maxDepth: 3
-          }
-          },
-          {
-            $project: {
-              relatedQuestions: 1
-            }
-          },
-          {
-            $unwind: "$relatedQuestions"
-          },
-          {
-            $replaceRoot: {
-              newRoot: "$relatedQuestions"
-            }
-          }
-        ]).toArray()
-      }
-     if (!postRelations || postRelations.length < 1) return []
-     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
-    }
-  }),
+    // resolver in postResolver.ts
+  },
   'targetPostRelations.$': {
     type: String,
     optional: true,

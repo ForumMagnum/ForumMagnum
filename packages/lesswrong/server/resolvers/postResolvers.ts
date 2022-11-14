@@ -1,5 +1,7 @@
+import { PostRelations } from '../../lib/collections/postRelations';
 import { Posts } from '../../lib/collections/posts/collection';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { PostRelationsRepo } from '../repos';
+import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { getDefaultPostLocationFields } from '../posts/utils'
 
@@ -30,5 +32,46 @@ augmentFieldsDict(Posts, {
         return await getLocalTime(post.endTime, googleLocation)
       }
     })
+  },
+  targetPostRelations: {
+    resolveAs: {
+      type: '[PostRelation!]!',
+      resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+        const { Posts, currentUser } = context;
+        let postRelations: DbPostRelation[] = [];
+        if (Posts.isPostgres()) {
+          const repo = PostRelationsRepo.resolve();
+          postRelations = await repo.getPostRelationsByPostId(post._id);
+        } else {
+          postRelations = await Posts.aggregate([
+            { $match: { _id: post._id }},
+            { $graphLookup: {
+              from: "postrelations",
+              as: "relatedQuestions",
+              startWith: post._id,
+              connectFromField: "targetPostId",
+              connectToField: "sourcePostId",
+              maxDepth: 3
+            }
+            },
+            {
+              $project: {
+                relatedQuestions: 1
+              }
+            },
+            {
+              $unwind: "$relatedQuestions"
+            },
+            {
+              $replaceRoot: {
+                newRoot: "$relatedQuestions"
+              }
+            }
+          ]).toArray()
+        }
+       if (!postRelations || postRelations.length < 1) return []
+       return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
+      }
+    },
   },
 })

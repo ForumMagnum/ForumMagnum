@@ -1,4 +1,7 @@
 import { container, injectable } from "tsyringe";
+import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+
+container.register<SqlClient>("db", {useFactory: getSqlClientOrThrow});
 
 /**
  * abstractRepo provides the superclass from which all of our collection

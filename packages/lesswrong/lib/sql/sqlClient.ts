@@ -1,5 +1,3 @@
-import { container } from "tsyringe";
-
 let sql: SqlClient | null = null;
 
 export const setSqlClient = (sql_: SqlClient) => sql = sql_;
@@ -19,5 +17,3 @@ export const closeSqlClient = async (client: SqlClient) => {
   }
   await client.$pool.end();
 }
-
-container.register<SqlClient>("db", {useFactory: getSqlClientOrThrow});

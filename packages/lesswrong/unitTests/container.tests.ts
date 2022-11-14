@@ -1,6 +1,6 @@
 import { container } from "tsyringe";
 import { setSqlClient } from "../lib/sql/sqlClient";
-import PostRelationsRepo from "../lib/repos/PostRelationsRepo";
+import { PostRelationsRepo } from "../server/repos";
 
 describe("container", () => {
   it("can resolve SQL connection", () => {
