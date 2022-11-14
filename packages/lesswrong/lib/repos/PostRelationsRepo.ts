@@ -1,8 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 
 @AbstractRepo.register()
-class PostRelationsRepo extends AbstractRepo {
-  async getPostRelationsByPostId(postId: string, depth = 3) {
+class PostRelationsRepo extends AbstractRepo<PostRelationsRepo>() {
+  getPostRelationsByPostId(postId: string, depth = 3): Promise<DbPostRelation[]> {
     return this.db.any(`
       WITH RECURSIVE search_tree(
         "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"

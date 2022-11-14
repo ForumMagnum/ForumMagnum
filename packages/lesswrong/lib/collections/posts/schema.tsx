@@ -3,6 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
+import { PostRelationsRepo } from "../../repos";
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
@@ -542,22 +543,8 @@ const schema: SchemaType<DbPost> = {
       const { Posts, currentUser } = context;
       let postRelations: DbPostRelation[] = [];
       if (Posts.isPostgres()) {
-        const sql = getSqlClientOrThrow();
-        postRelations = await sql.any(`
-          WITH RECURSIVE search_tree(
-            "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
-          ) AS (
-            SELECT "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", 1 AS depth
-            FROM "PostRelations"
-            WHERE "sourcePostId" = $1
-            UNION
-            SELECT source."_id", source."createdAt", source."type", source."sourcePostId", source."targetPostId",
-              source."order", source."schemaVersion", target.depth + 1 AS depth
-            FROM "PostRelations" source
-            JOIN search_tree target ON source."sourcePostId" = target."targetPostId" AND target.depth < 3
-          )
-          SELECT * FROM search_tree;
-        `, [post._id]);
+        const repo = PostRelationsRepo.resolve();
+        postRelations = await repo.getPostRelationsByPostId(post._id);
       } else {
         postRelations = await Posts.aggregate([
           { $match: { _id: post._id }},
