@@ -12,4 +12,6 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Replicate Script
+      env:
+        PG_URL: ${{ secrets.EA_DEV_REPLICA_PG_URL }}
       run: yarn ea-replicate-dev-db
