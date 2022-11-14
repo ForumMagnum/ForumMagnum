@@ -1,4 +1,5 @@
 import './datadog/tracer';
+import 'reflect-metadata';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';

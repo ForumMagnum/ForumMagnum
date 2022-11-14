@@ -1,4 +1,4 @@
-import Query from "./Query";
+import { container } from "tsyringe";
 
 let sql: SqlClient | null = null;
 
@@ -19,3 +19,5 @@ export const closeSqlClient = async (client: SqlClient) => {
   }
   await client.$pool.end();
 }
+
+container.register<SqlClient>("db", {useFactory: getSqlClientOrThrow});

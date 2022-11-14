@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
