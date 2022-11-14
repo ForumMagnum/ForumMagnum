@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euxo pipefail
 
-PG_URL=`cat ../ForumCredentials/dev-staging-admin-pg-conn.txt`
+if [ -z "${PG_URL}" ]; then
+  PG_URL=`cat ../ForumCredentials/dev-staging-admin-pg-conn.txt`
+fi
 
 MAIN_DB=eaforum_dev
 REPLICA_DB=eaforum_dev_replica
