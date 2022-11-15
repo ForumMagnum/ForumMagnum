@@ -154,7 +154,6 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const postAuthor = post?.user || null;
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
-      { totalComments ? renderTitleComponent() : null }
       <div id="comments"/>
 
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
@@ -176,6 +175,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
+      { totalComments ? renderTitleComponent() : null }
       <Components.CommentsList
         treeOptions={{
           highlightDate: highlightDate,

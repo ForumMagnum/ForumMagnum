@@ -446,6 +446,7 @@ registerFragment(`
     coauthorStatuses
     readTimeMinutesOverride
     fmCrosspost
+    hideFromRecentDiscussions
     moderationGuidelines {
       ...RevisionEdit
     }

@@ -18,6 +18,8 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
+import { getUserEmail } from "../lib/collections/users/helpers";
+import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -130,6 +132,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [sideCommentsActive,setSideCommentsActive] = useState(false);
+  const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
   const location = useLocation();
@@ -185,6 +188,7 @@ const Layout = ({currentUser, children, classes}: {
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
+      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
@@ -244,6 +248,7 @@ const Layout = ({currentUser, children, classes}: {
           </DialogManager>
         </div>
       </CommentOnSelectionPageWrapper>
+      </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>

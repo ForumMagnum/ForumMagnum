@@ -188,7 +188,7 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   const { query, params } = location;
-  const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+  const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
@@ -251,10 +251,18 @@ const PostsPage = ({post, refetch, classes}: {
     : null;
   
   const header = <>
-    {!commentId && <HeadTags
-      ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-      title={post.title} description={description} noIndex={post.noIndex}
-    />}
+    {!commentId && <>
+      <HeadTags
+        ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+        title={post.title} description={description} noIndex={post.noIndex}
+      />
+      <CitationTags
+        title={post.title}
+        author={post.user?.displayName}
+        coauthors={post.coauthors?.map(({displayName}) => displayName)}
+        date={post.createdAt}
+      />
+    </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>

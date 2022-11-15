@@ -5,12 +5,6 @@ registerFragment(`
     _id
     userId
     createdAt
-    timezone
-    availability
-    questions
-    linkedinProfile
-    previousExperience
-    selectedAdvisors
-    referrer
+    interestedInMetaculus
   }
 `);
