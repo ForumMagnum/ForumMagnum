@@ -977,6 +977,19 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
+  hideFromRecentDiscussions: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.adminOptions,
+    label: 'Hide this post from recent discussions',
+    ...schemaDefaultValue(false),
+  },
+
   currentUserReviewVote: resolverOnlyField({
     type: "ReviewVote",
     graphQLtype: "ReviewVote",
