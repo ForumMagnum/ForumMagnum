@@ -3,7 +3,9 @@ import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../common/TabNavigationMenu/TabNavigationMenu';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const SIDEBAR_WIDTH = 250
+const MIN_SIDEBAR_WIDTH = 250
+const MAX_SIDEBAR_WIDTH = 320
+const MIN_GAP = 20
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,12 +20,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateColumns: `
-        minmax(${TAB_NAVIGATION_MENU_WIDTH + 50}px, ${TAB_NAVIGATION_MENU_WIDTH + 100}px)
-        1fr
-        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-        minmax(50px, 100px)
-        ${SIDEBAR_WIDTH}px
-        10px
+        minmax(${TAB_NAVIGATION_MENU_WIDTH + MIN_GAP}px, ${TAB_NAVIGATION_MENU_WIDTH + 250}px)
+        0.7fr
+        ${MAX_COLUMN_WIDTH}px
+        minmax(${MIN_GAP}px, 70px)
+        minmax(${MIN_SIDEBAR_WIDTH}px, ${MAX_SIDEBAR_WIDTH}px)
+        minmax(${MIN_GAP}px, 50px)
         1fr
       `,
       gridTemplateAreas: `
@@ -82,7 +84,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
   },
-  content: { gridArea: 'content' },
+  content: {
+    gridArea: 'content',
+    marginTop: 24,
+  },
   gap1: { gridArea: 'gap1'},
   sidebar: {
     gridArea: 'sidebar',
@@ -93,12 +98,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   gap2: { gridArea: 'gap2' }
 });
 
-export const RightSidebarColumn = ({header, sidebar, children, classes}: {
+export const RightSidebarColumn = ({header, sidebarComponents = [], children, classes}: {
   header: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
-  sidebar?: React.ReactNode,
+  sidebarComponents?: React.ReactNode[],
 }) => {
+
+  
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -110,9 +117,9 @@ export const RightSidebarColumn = ({header, sidebar, children, classes}: {
         {children}
       </div>
       <div className={classes.gap1}/>
-      {sidebar && <div className={classes.sidebar}>
-        {sidebar}
-      </div>}
+      {sidebarComponents.length ? <div className={classes.sidebar}>
+        {sidebarComponents}
+      </div> : <></>}
       <div className={classes.gap2}/>
     </div>
   );

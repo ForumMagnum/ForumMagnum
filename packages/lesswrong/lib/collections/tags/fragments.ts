@@ -183,6 +183,10 @@ registerFragment(`
     tableOfContents
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -211,6 +215,10 @@ registerFragment(`
     tableOfContents(version: $version)
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {

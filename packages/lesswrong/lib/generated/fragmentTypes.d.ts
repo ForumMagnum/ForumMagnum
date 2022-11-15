@@ -2038,7 +2038,13 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
+}
+
+interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
@@ -2050,7 +2056,13 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
+}
+
+interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -2451,6 +2463,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
+  readonly noKibitz: boolean,
   readonly showHideKarmaOption: boolean,
   readonly voteBanned: boolean,
   readonly nullifyVotes: boolean,

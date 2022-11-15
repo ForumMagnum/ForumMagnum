@@ -74,8 +74,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 0,
     paddingLeft: 42,
     paddingRight: 42,
-    marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    width: "100%",
   },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
@@ -108,9 +108,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
-  },
-  rightSidebar: {
-    width: 250,
   },
   subHeading: {
     paddingLeft: 42,
@@ -146,6 +143,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  sidebarBoxWrapper: {
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
+    padding: "0em 1.5em",
+  },
+  tableOfContentsWrapper: {
+    padding: 24,
+  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -400,80 +405,99 @@ const TagSubforumPage2 = ({classes}: {
     </>
   );
   
-  const rightSidebarComponent = <div className={classes.rightSidebar}>PLACEHOLDER FOR RIGHT SIDEBAR</div>
-
-  return <AnalyticsContext
-    pageContext='tagPage'
-    tagName={tag.name}
-    tagId={tag._id}
-    sortedBy={query.sortedBy || "relevance"}
-    limit={terms.limit}
-  >
-    <HeadTags
-      description={headTagDescription}
-    />
-    {hoveredContributorId && <style>
-      {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
-    </style>}
-    {tag.bannerImageId && <div className={classes.imageContainer}>
-      <CloudinaryImage2
-        publicId={tag.bannerImageId}
-        fullWidthHeader
-      />
-    </div>}
-    <div className={tag.bannerImageId ? classes.contentGivenImage : ''}>
-      <RightSidebarColumn
-        sidebar={tab === "wiki" ? <TagTableOfContents
-          tag={tag} expandAll={expandAll} showContributors={true}
-          onHoverContributor={onHoverContributor}
-        /> : rightSidebarComponent}
-        header={<div className={classNames(classes.header,classes.centralColumn)}>
-          {query.flagId && <span>
-            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-              <TagFlagItem
-                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                documentId={query.flagId}
-              />
-            </Link>
-            {nextTag && <span onClick={() => setEditing(true)}><Link
-              className={classes.nextLink}
-              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+  const headerComponent = (
+    <div className={classNames(classes.header, classes.centralColumn)}>
+      {query.flagId && (
+        <span>
+          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+            <TagFlagItem
+              itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+              documentId={query.flagId}
+            />
+          </Link>
+          {nextTag && (
+            <span onClick={() => setEditing(true)}>
+              <Link className={classes.nextLink} to={tagGetUrl(nextTag, { flagId: query.flagId, edit: true })}>
                 Next Tag ({nextTag.name})
-            </Link></span>}
-          </span>}
-          <div className={classes.titleRow}>
-            <Typography variant="display3" className={classes.title}>
-              {tag.name}
-            </Typography>
-            {/* TODO but this below the main header */}
-            {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
-              <SubscribeButton
-                tag={tag}
-                className={classes.notifyMeButton}
-                subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
-                subscriptionType={subscriptionTypes.newTagPosts}
-              />
-            }
-          </div>
-          <Tabs
-            value={tab}
-            onChange={handleChangeTab}
-            className={classes.tabs}
-            textColor="primary"
-            aria-label="select tab"
-            scrollable
-            scrollButtons="off"
-          >
-            <Tab label="Posts" value="posts" />
-            <Tab label="Wiki" value="wiki" />
-          </Tabs>
-        </div>}
+              </Link>
+            </span>
+          )}
+        </span>
+      )}
+      <div className={classes.titleRow}>
+        <Typography variant="display3" className={classes.title}>
+          {tag.name}
+        </Typography>
+        {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) && (
+          <SubscribeButton
+            tag={tag}
+            className={classes.notifyMeButton}
+            subscribeMessage="Subscribe"
+            unsubscribeMessage="Unsubscribe"
+            subscriptionType={subscriptionTypes.newTagPosts}
+          />
+        )}
+      </div>
+      <Tabs
+        value={tab}
+        onChange={handleChangeTab}
+        className={classes.tabs}
+        textColor="primary"
+        aria-label="select tab"
+        scrollable
+        scrollButtons="off"
       >
-      {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}>PLACEHOLDER FOR POSTS COMPONENT</p>}
-      </RightSidebarColumn>
+        <Tab label="Posts" value="posts" />
+        <Tab label="Wiki" value="wiki" />
+      </Tabs>
     </div>
-  </AnalyticsContext>
+  );
+
+  const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
+    <ContentStyles contentType="tag">
+      <div className={classNames(classes.sidebarBoxWrapper, classes.welcomeBox)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+    </ContentStyles>
+  ) : <></>;
+  const rightSidebarComponents = [welcomeBoxComponent]
+
+  return (
+    <AnalyticsContext
+      pageContext="tagPage"
+      tagName={tag.name}
+      tagId={tag._id}
+      sortedBy={query.sortedBy || "relevance"}
+      limit={terms.limit}
+    >
+      <HeadTags description={headTagDescription} />
+      {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
+      {tag.bannerImageId && (
+        <div className={classes.imageContainer}>
+          <CloudinaryImage2 publicId={tag.bannerImageId} fullWidthHeader />
+        </div>
+      )}
+      <div className={tag.bannerImageId ? classes.contentGivenImage : ""}>
+        <RightSidebarColumn
+          sidebarComponents={
+            tab === "wiki"
+              ? [
+                  <div key={`toc_${tag._id}`} className={classes.tableOfContentsWrapper}>
+                    <TagTableOfContents
+                      tag={tag}
+                      expandAll={expandAll}
+                      showContributors={true}
+                      onHoverContributor={onHoverContributor}
+                    />
+                  </div>,
+                ]
+              : rightSidebarComponents
+          }
+          header={headerComponent}
+        >
+          {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}>PLACEHOLDER FOR POSTS COMPONENT</p>}
+        </RightSidebarColumn>
+      </div>
+    </AnalyticsContext>
+  );
 }
 
 const TagSubforumPage2Component = registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
