@@ -93,8 +93,8 @@ async function serverStartup() {
   console.log("Running onStartup functions");
   await runStartupFunctions();
 
-  // eslint-disable-next-line no-console
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    // eslint-disable-next-line no-console
     console.log("Building postgres tables");
     for (const collection of Collections) {
       if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
