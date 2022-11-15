@@ -61,7 +61,7 @@ const embedConfig = {
 			url: /^metaforecast\.org\/questions\/([\w-]+)$/,
 			html: ([match, slug]) => `
 				<div data-metaforecast-id="${slug}" class="metaforecast-preview">
-					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://metaforecast.org/questions/embed/${slug}"/>
+					<iframe style="height: 600px; width: 100%; border: 1px solid gray;" src="https://metaforecast.org/questions/embed/${slug}"/>
 				</div>
 			`
 		},

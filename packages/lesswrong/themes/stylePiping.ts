@@ -79,7 +79,7 @@ const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.metaforecast-preview": {
     "& iframe": {
       width: "100%",
-      height: 400,
+      height: 600,
       border: "none",
     },
   },

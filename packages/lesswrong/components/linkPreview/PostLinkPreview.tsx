@@ -589,8 +589,8 @@ const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPr
 
 const metaforecastStyles = (theme: ThemeType): JssStyles => ({
   iframeStyling: {
-    width: 560,
-    height: 405,
+    width: 600,
+    height: 600,
     border: "none",
     maxWidth: "100vw",
   },
