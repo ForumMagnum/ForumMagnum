@@ -57,7 +57,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   return <div>
     <Row>
       <div>
-        Sort by: 
+        Sort by:{" "}
         <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
           karma
         </span>
@@ -66,7 +66,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
         </span>
       </div>
       <div>
-        Display as
+        Display as{" "}
         <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentDisplay === "karma"})} onClick={() => setContentDisplay("karma")}>
           karma
         </span>
