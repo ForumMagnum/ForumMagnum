@@ -14,10 +14,11 @@ import { Tags } from '../../lib/collections/tags/collection';
 import Users from '../../lib/collections/users/collection';
 import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { dataToMarkdown } from '../editor/make_editable_callbacks';
+import { dataToMarkdown } from '../editor/conversionUtils';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 import { truncatise } from '../../lib/truncatise';
+import { subBatchArray } from './subBatchArray';
 import moment from 'moment';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
@@ -576,18 +577,6 @@ export async function algoliaExportById<T extends AlgoliaIndexedDbObject>(collec
   if (document) {
     await algoliaDocumentExport({ documents: [document], collection });
   }
-}
-
-// Sometimes 100 posts generate more index requests than algolia will willingly
-// handle - split them up in that case
-// Export for testing
-export function subBatchArray<T>(arr: Array<T>, maxSize: number): Array<Array<T>> {
-  const result: Array<Array<T>> = []
-  while (arr.length > 0) {
-    result.push(arr.slice(0, maxSize))
-    arr = arr.slice(maxSize, arr.length)
-  }
-  return result
 }
 
 export async function algoliaIndexDocumentBatch<T extends AlgoliaIndexedDbObject>({ documents, collection, algoliaIndex, errors, updateFunction }: {

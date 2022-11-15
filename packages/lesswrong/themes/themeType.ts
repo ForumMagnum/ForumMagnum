@@ -164,6 +164,7 @@ declare global {
       grey800: ColorString,
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
+      primaryDim: ColorString,
     },
     icon: {
       normal: ColorString,

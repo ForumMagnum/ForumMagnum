@@ -1,3 +1,4 @@
+import { DeferredForumSelect, forumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 export const userThemeNames = ["default", "dark"] as const;
@@ -93,8 +94,13 @@ export function getForumType(themeOptions: AbstractThemeOptions) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions: AbstractThemeOptions =
-  {name: forumTypeSetting.get() === "EAForum" ? "auto" : "default"};
+export const defaultThemeOptions = new DeferredForumSelect({
+  EAForum: {name: "auto"},
+  default: {name: "default"},
+} as const);
+
+export const getDefaultThemeOptions = (): AbstractThemeOptions =>
+  defaultThemeOptions.get();
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {
@@ -121,7 +127,7 @@ const getSerializedThemeOptions = (
   }
 
   // If we still don't have anything, use the default
-  return defaultThemeOptions;
+  return getDefaultThemeOptions();
 }
 
 export const getThemeOptions = (

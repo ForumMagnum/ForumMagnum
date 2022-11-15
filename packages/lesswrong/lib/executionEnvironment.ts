@@ -6,6 +6,7 @@ declare global {
   let bundleIsProduction: boolean;
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
+  let estrellaPid: number;
 }
 
 export const isClient = !bundleIsServer

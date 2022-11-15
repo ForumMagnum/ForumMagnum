@@ -5,6 +5,7 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 export const PostRelations: PostRelationsCollection = createCollection({
   collectionName: 'PostRelations',
   typeName: 'PostRelation',
+  collectionType: 'mongo',
   schema,
   resolvers: getDefaultResolvers('PostRelations'),
   logChanges: true,

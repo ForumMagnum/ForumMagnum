@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import AddAlarmIcon from '@material-ui/icons/AddAlarm';
+import AlarmOffIcon from '@material-ui/icons/AlarmOff';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
@@ -117,6 +118,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       })
     }
   }
+
+  useEffect(() => {
+    return () => {
+      handleNotes();
+    }
+  });
 
   const signAndDate = (sunshineNotes:string) => {
     if (!sunshineNotes.match(signature)) {
@@ -348,12 +355,15 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   };
 
   const actionRow = <div className={classes.row}>
-    <LWTooltip title="Snooze 10 (Appear in sidebar after 10 posts and/or comments)" placement="top">
+    <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
       <AddAlarmIcon className={classNames(classes.snooze10, classes.modButton)} onClick={() => handleSnooze(10)}/>
     </LWTooltip>
-    <LWTooltip title="Snooze 1 (Appear in sidebar on next post or comment)" placement="top">
+    <LWTooltip title="Snooze and Approve 1 (Appear in sidebar on next post or comment. User's future posts are autoapproved)" placement="top">
       <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
     </LWTooltip>
+    {user.needsReview && <LWTooltip title="Remove from queue (i.e. snooze without approving posts)">
+      <AlarmOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
+    </LWTooltip>}
     <LWTooltip title="Approve" placement="top">
       <DoneIcon onClick={handleReview} className={classNames(classes.modButton, {[classes.canReview]: !classes.disabled })}/>
     </LWTooltip>
@@ -373,9 +383,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
     {!user.needsReview && <LWTooltip title="Return this user to the review queue">
       <VisibilityOutlinedIcon className={classes.modButton} onClick={handleNeedsReview}/>
-    </LWTooltip>}
-    {user.needsReview && <LWTooltip title="Remove this user from the review queue">
-      <VisibilityOffIcon className={classes.modButton} onClick={handleRemoveNeedsReview}/>
     </LWTooltip>}
   </div>
 
