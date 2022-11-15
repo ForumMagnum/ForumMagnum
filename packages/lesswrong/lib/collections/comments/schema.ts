@@ -641,18 +641,6 @@ Object.assign(schema, {
     hidden: (props) => alignmentForum || !props.alignmentForumPost
   },
 
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   suggestForAlignmentUserIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "suggestForAlignmentUserIds",
@@ -688,7 +676,6 @@ Object.assign(schema, {
     type: Date,
     optional: true,
     label: "Alignment Forum",
-    defaultValue: false,
     hidden: true,
     viewableBy: ['guests'],
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
@@ -709,6 +696,15 @@ Object.assign(schema, {
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
+  },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
 });
 

@@ -1,7 +1,7 @@
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { Vulcan, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
+import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import * as _ from 'underscore';
 
 // Check that the denormalized contents field of objects with make_editable match

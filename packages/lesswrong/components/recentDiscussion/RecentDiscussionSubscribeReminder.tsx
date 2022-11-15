@@ -220,8 +220,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.messageDescription}>
         You'll get a weekly email with the best posts from the past week.
         The Forum team selects the posts to feature based on personal preference
-        and Forum popularity, and also adds some question posts that could use
-        more answers.
+        and Forum popularity, and also adds some announcements and a classic post.
       </div>
     </>
   );

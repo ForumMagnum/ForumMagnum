@@ -2,7 +2,8 @@ import { isServer } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
-import { isAnyQueryPending } from '../mongoCollection';
+import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
+import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 
 // TODO: It would be nice if callbacks could be enabled or disabled by collection
@@ -338,7 +339,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending() || isAnyQueryPending()) {
+      if (callbacksArePending() || isAnyMongoQueryPending() || isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();

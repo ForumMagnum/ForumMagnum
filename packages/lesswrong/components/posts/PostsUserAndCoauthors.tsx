@@ -4,6 +4,7 @@ import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postCoauthorIsPending } from '../../lib/collections/posts/helpers';
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   lengthLimited: {
@@ -36,11 +37,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, newPromotedComments}: {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, tooltipPlacement = "left", newPromotedComments}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   classes: ClassesType,
   simple?: boolean,
+  tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean
 }) => {
   const { UsersName, UserNameDeleted } = Components
@@ -51,15 +53,15 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   const renderTopCommentAuthor = (forumTypeSetting.get() && topCommentAuthor && topCommentAuthor._id != post.user._id)
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-    {<UsersName user={post.user} simple={simple} />}
+    {<UsersName user={post.user} simple={simple} tooltipPlacement={tooltipPlacement} />}
     {post.coauthors.filter(({ _id }) => !postCoauthorIsPending(post, _id)).map((coauthor) =>
       <React.Fragment key={coauthor._id}>
-        , <UsersName user={coauthor} simple={simple} />
+        {", "}<UsersName user={coauthor} simple={simple} tooltipPlacement={tooltipPlacement}/>
       </React.Fragment>
     )}
     {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
-      , <ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UsersName user={topCommentAuthor || undefined} simple={simple} />
+      {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
+      <UsersName user={topCommentAuthor || undefined} simple={simple} tooltipPlacement={tooltipPlacement} />
     </span>}
   </div>;
 };
