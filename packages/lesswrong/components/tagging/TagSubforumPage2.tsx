@@ -46,23 +46,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   imageContainer: {
-    // width: '100%',
-    '& > img': {
-      height: 300,
-      objectFit: 'cover',
-      width: '100%',
-    },
     position: 'absolute',
-    top: 90,
     [theme.breakpoints.down('sm')]: {
-      width: 'unset',
       '& > img': {
-        height: 200,
+        height: 270,
         width: '100%',
       },
       top: 77,
       left: -4,
     },
+    [theme.breakpoints.up('sm')]: {
+      top: 90,
+      '& > img': {
+        height: 300,
+        objectFit: 'cover',
+        width: '100%',
+      },
+    }
   },
   centralColumn: {
     marginLeft: "auto",
@@ -418,7 +418,6 @@ const TagSubforumPage2 = ({classes}: {
     {tag.bannerImageId && <div className={classes.imageContainer}>
       <CloudinaryImage2
         publicId={tag.bannerImageId}
-        height={300}
         fullWidthHeader
       />
     </div>}

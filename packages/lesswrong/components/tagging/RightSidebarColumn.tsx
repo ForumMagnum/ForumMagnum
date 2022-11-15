@@ -18,7 +18,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateColumns: `
-        1.5fr
+        minmax(${TAB_NAVIGATION_MENU_WIDTH + 50}px, ${TAB_NAVIGATION_MENU_WIDTH + 100}px)
+        1fr
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(50px, 100px)
         ${SIDEBAR_WIDTH}px
@@ -26,8 +27,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
         1fr
       `,
       gridTemplateAreas: `
-        "... title   .... ....... .... ..."
-        "gap1 content gap2 sidebar gap3 ..."
+        "... ... title   .... ....... .... ..."
+        "... ... content gap1 sidebar gap2 ..."
       `,
     },
   },
@@ -82,21 +83,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     direction: "ltr",
   },
   content: { gridArea: 'content' },
-  gap1: {
-    gridArea: 'gap1',
-    minWidth: TAB_NAVIGATION_MENU_WIDTH + 80,
-    [theme.breakpoints.down('md')]: {
-      minWidth: 0,
-    },
-  },
-  gap2: { gridArea: 'gap2'},
+  gap1: { gridArea: 'gap1'},
   sidebar: {
     gridArea: 'sidebar',
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
-  gap3: { gridArea: 'gap3' }
+  gap2: { gridArea: 'gap2' }
 });
 
 export const RightSidebarColumn = ({header, sidebar, children, classes}: {
@@ -110,15 +104,16 @@ export const RightSidebarColumn = ({header, sidebar, children, classes}: {
       <div className={classes.header}>
         {header}
       </div>
-      <div className={classes.gap1}/>
+      {/* padding div to stop page overlapping with nav sidebar */}
+      <div />
       <div className={classes.content}>
         {children}
       </div>
-      <div className={classes.gap2}/>
+      <div className={classes.gap1}/>
       {sidebar && <div className={classes.sidebar}>
         {sidebar}
       </div>}
-      <div className={classes.gap3}/>
+      <div className={classes.gap2}/>
     </div>
   );
 }
