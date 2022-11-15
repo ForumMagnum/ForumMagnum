@@ -36,6 +36,11 @@ import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 import './server/scripts/fillUserEmail';
+import './server/scripts/migrateCollections';
+import './server/scripts/deletePgIndexes';
+import './server/scripts/dropTestingDatabases';
+import './server/scripts/dropAndSeedJestPg';
+import './server/scripts/makeMigrations';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -48,8 +53,8 @@ import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
-import './server/migrations';
-import './server/migrations/migrationsDashboardGraphql';
+import './server/manualMigrations';
+import './server/manualMigrations/migrationsDashboardGraphql';
 
 import './server/legacy-redirects/routes';
 import './server/material-ui/themeProvider';

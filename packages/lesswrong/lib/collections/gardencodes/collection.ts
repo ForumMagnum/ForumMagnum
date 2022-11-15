@@ -83,7 +83,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "Start Time",
     optional: true,
-    defaultValue: new Date,
+    onInsert: () => new Date(),
     order: 20
   },
   endTime: {

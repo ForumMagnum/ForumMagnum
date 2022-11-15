@@ -32,6 +32,7 @@ const options: MutationOptions<DbChapter> = {
 export const Chapters: ChaptersCollection = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
+  collectionType: 'mongo',
   schema,
   resolvers: getDefaultResolvers('Chapters'),
   mutations: getDefaultMutations('Chapters', options),

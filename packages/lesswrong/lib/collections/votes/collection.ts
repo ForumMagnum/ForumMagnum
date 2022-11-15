@@ -5,6 +5,7 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 export const Votes: VotesCollection = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
+  collectionType: 'mongo',
   schema,
   resolvers: getDefaultResolvers('Votes'),
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { themeMetadata, defaultThemeOptions } from '../../themes/themeNames';
+import { themeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
 
 const getValue = (props: any) => {
@@ -12,7 +12,7 @@ const getValue = (props: any) => {
     return window.themeOptions.name;
   }
 
-  return defaultThemeOptions.name;
+  return getDefaultThemeOptions().name;
 }
 
 const ThemeSelect = (props: any) => {

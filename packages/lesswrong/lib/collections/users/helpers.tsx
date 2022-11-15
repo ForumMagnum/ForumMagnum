@@ -182,11 +182,11 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
-  if (user.commentingOnOtherUsersDisabled && post.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
 
   if (!post) return true
   if (post.commentsLocked) return false
-  if (post?.commentsLockedToAccountsCreatedAfter < user.createdAt) return false
+  if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
