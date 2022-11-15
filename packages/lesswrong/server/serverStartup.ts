@@ -63,18 +63,17 @@ async function serverStartup() {
 
   try {
     let connectionString = commandLineArguments.postgresUrl;
-    if (!connectionString) {
-      throw new Error("No postgres connection string provided");
+    if (connectionString) {
+      const branchDb = await getBranchDbName();
+      if (branchDb) {
+        connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
+      }
+      const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
+      // eslint-disable-next-line no-console
+      console.log(`Connecting to postgres (${dbName})`);
+      const sql = await createSqlConnection(connectionString);
+      setSqlClient(sql);
     }
-    const branchDb = await getBranchDbName();
-    if (branchDb) {
-      connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
-    }
-    const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
-    // eslint-disable-next-line no-console
-    console.log(`Connecting to postgres (${dbName})`);
-    const sql = await createSqlConnection(connectionString);
-    setSqlClient(sql);
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err.message);
@@ -95,10 +94,12 @@ async function serverStartup() {
   await runStartupFunctions();
 
   // eslint-disable-next-line no-console
-  console.log("Building postgres tables");
-  for (const collection of Collections) {
-    if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
-      collection.buildPostgresTable();
+  if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    console.log("Building postgres tables");
+    for (const collection of Collections) {
+      if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
+        collection.buildPostgresTable();
+      }
     }
   }
 
