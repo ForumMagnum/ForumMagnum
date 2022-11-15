@@ -3,7 +3,7 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/vulcan-users';
-import { userCanEdit, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -69,7 +69,13 @@ const EditProfileForm = ({classes}: {
     );
   }
   // current user doesn't have edit permission
-  if (!userCanEdit(currentUser, terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
+  if (!userCanEditUser(currentUser,
+    terms.documentId ?
+      {_id: terms.documentId} :
+      // HasSlugType wants a bunch of fields we don't have (schemaVersion, _id),
+      // but userCanEdit won't use them
+      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
+  )) {
     return <div className={classes.root}>
       Sorry, you do not have permission to do this at this time.
     </div>
