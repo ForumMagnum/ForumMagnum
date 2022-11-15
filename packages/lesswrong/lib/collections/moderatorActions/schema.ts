@@ -1,8 +1,6 @@
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { userOwns } from '../../vulcan-users/permissions';
-
-
-
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
 export const RATE_LIMIT_ONE_PER_THREE_DAYS = 'rateLimitOnePerThreeDays';
 export const RATE_LIMIT_ONE_PER_WEEK = 'rateLimitOnePerWeek';
@@ -17,6 +15,9 @@ export const SENT_MODERATOR_MESSAGE = 'sentModeratorMessage';
 export const MANUAL_FLAG_ALERT = 'manualFlag';
 
 export const rateLimits = [RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH] as const
+
+export const rateLimitSet = new TupleSet(rateLimits);
+export type RateLimitSet = UnionOf<typeof rateLimitSet>;
 
 export type RateLimitType = typeof rateLimits[number]
 

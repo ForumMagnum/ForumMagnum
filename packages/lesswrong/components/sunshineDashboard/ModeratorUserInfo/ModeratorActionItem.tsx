@@ -60,14 +60,12 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
 
   const { MetaInfo, LWTooltip } = Components
 
-  const parseExistingEndsInDays = () => {
-    const endedAtDate = moment(moderatorAction.endedAt)
-    const today = moment(new Date())
-    return endedAtDate.diff(today, "days")
-  }
+  const endedAtDate = moment(moderatorAction.endedAt)
+  const today = moment(new Date())
+  const existingEndedAtDays = endedAtDate.diff(today, "days")
 
   const [editing, setEditing] = useState<boolean>(false)
-  const [endsAfterDays, setEndsAfterDays] = useState<number | undefined>(parseExistingEndsInDays())
+  const [endsAfterDays, setEndsAfterDays] = useState<number | undefined>(existingEndedAtDays)
 
   const getNewEndsInDays = () => {
     if (endsAfterDays) {

@@ -11,15 +11,13 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RateLimitType, rateLimits } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
-import { getCurrentContentCount, isLowAverageKarmaContent, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
-import { sortBy } from 'underscore';
+import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
-import { useDialog } from '../common/withDialog';
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -316,7 +314,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
       }
     });
 
-    const existingRateLimits = user.moderatorActions.filter(modAction => rateLimits.includes(modAction.type as RateLimitType)) ?? [];
+    const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
     for (const rateLimit of existingRateLimits) {
       void endRateLimit(rateLimit._id)
     }
