@@ -125,7 +125,7 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
-        <SwipeableDrawer
+        {open && <SwipeableDrawer
           open={open}
           anchor="right"
           onClose={() => setIsOpen(false)}
@@ -170,7 +170,7 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
             <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />
             <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
           </div>}
-        </SwipeableDrawer>
+        </SwipeableDrawer>}
       </Components.ErrorBoundary>
     </div>
   )

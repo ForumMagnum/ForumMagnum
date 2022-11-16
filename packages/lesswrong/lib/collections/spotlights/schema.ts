@@ -59,13 +59,14 @@ const schema: SchemaType<DbSpotlight> = {
     },
   },
   documentType: {
-    type: SpotlightDocumentType.schema('documentType'),
+    type: String,
     typescriptType: 'SpotlightDocumentType',
     control: 'select',
     form: {
       options: () => DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
     },
     ...schemaDefaultValue(DOCUMENT_TYPES[0]),
+    allowedValues: DOCUMENT_TYPES,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
