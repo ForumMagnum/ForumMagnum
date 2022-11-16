@@ -1,10 +1,10 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import Button from "@material-ui/core/Button";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
+import Checkbox from '@material-ui/core/Checkbox';
 
 export const TosLink: FC = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
@@ -17,15 +17,19 @@ export const LicenseLink: FC = ({children}) =>
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     rowGap: "15px",
     padding: "30px 5px 20px 5px",
+    cursor: "pointer",
     "& a": {
       color: theme.palette.primary.main,
     },
   },
-  button: {
-    maxWidth: 100,
+  label: {
+    paddingTop: 4,
+  },
+  spinner: {
+    marginTop: 18,
   },
 });
 
@@ -41,11 +45,11 @@ const PostsAcceptTos = ({currentUser, classes}: {
   `, {refetchQueries: ['getCurrentUser']})
   const {flash} = useMessages();
 
-  if (forumTypeSetting.get() !== "EAForum" || currentUser.acceptedTos) {
-    return null;
-  }
+  const onAccept = useCallback(async () => {
+    if (loading) {
+      return;
+    }
 
-  const onAccept = async () => {
     setLoading(true);
     const result = await acceptTos();
     const accepted = result?.data?.UserAcceptTos;
@@ -55,17 +59,27 @@ const PostsAcceptTos = ({currentUser, classes}: {
       flash("Error: Something went wrong, please try again");
       setLoading(false);
     }
+  }, [loading, setLoading, flash, acceptTos]);
+
+  if (forumTypeSetting.get() !== "EAForum" || currentUser.acceptedTos) {
+    return null;
   }
 
   return (
-    <div className={classes.root}>
-      <Components.Typography variant="body2">
-        Before you can publish this post you must agree to the <TosLink /> including
-        your content being available under a <LicenseLink /> license
-      </Components.Typography>
-      <Button variant="contained" color="primary" className={classes.button} onClick={onAccept} disabled={loading}>
-        {loading ? <Components.Loading /> : "I agree"}
-      </Button>
+    <div className={classes.root} onClick={onAccept}>
+      <Checkbox
+        onChange={onAccept}
+        checked={loading}
+        disabled={loading}
+        disableRipple
+      />
+      {loading
+        ? <Components.Loading className={classes.spinner} />
+        : <Components.Typography variant="body2" className={classes.label}>
+          Before you can publish this post you must agree to the <TosLink /> including
+          your content being available under a <LicenseLink /> license
+        </Components.Typography>
+      }
     </div>
   );
 }
