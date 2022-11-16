@@ -49,7 +49,9 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
-  } else if (!foreignPost && !post.draft) {
+  // If we get a (functionally) 404 error, that should not stop us from
+  // rendering the post if we have it locally
+  } else if (!post.fmCrosspost.hostedHere && !foreignPost && !post.draft) {
     return <Error404/>
   }
 

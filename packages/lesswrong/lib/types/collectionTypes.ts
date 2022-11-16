@@ -7,6 +7,8 @@
  */
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
+import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
+import type PgCollection from "../sql/PgCollection";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -28,7 +30,10 @@ interface CollectionBase<
   
   _schemaFields: SchemaType<T>
   _simpleSchema: any
-  
+
+  isPostgres: () => this is PgCollection<T>
+  isConnected: () => boolean
+
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
@@ -57,7 +62,7 @@ interface CollectionBase<
   rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
   /** Inserts without running callbacks. Consider using createMutator, which
    * wraps this. */
-  rawInsert: (data: any, options?: any) => string
+  rawInsert: (data: any, options?: any) => Promise<string>
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
 }
@@ -108,16 +113,42 @@ interface MergedViewQueryAndOptions<
 }
 
 type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
+type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
-type MongoFindOptions<T extends DbObject> = any; //TODO
+type MongoFindOptions<T extends DbObject> = Partial<{
+  sort: MongoSort<T>,
+  limit: number,
+  skip: number,
+  projection: MongoProjection<T>,
+  collation: CollationDocument,
+}>;
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
+type MongoAggregationOptions = CollectionAggregationOptions;
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+type MongoIndexSpec = Record<string, number | string> | string;
+type MongoEnsureIndexOptions = Record<string, any>;
+type MongoDropIndexOptions = {};
+
+type MongoBulkInsert<T extends DbObject> = {document: T};
+type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier<T>, upsert?: boolean};
+type MongoBulkDelete<T extends DbObject> = {filter: MongoSelector<T>};
+type MongoBulkReplace<T extends DbObject> = {filter: MongoSelector<T>, replacement: T, upsert?: boolean};
+type MongoBulkWriteOperation<T extends DbObject> =
+  {insertOne: MongoBulkInsert<T>} |
+  {updateOne: MongoBulkUpdate<T>} |
+  {updateMany: MongoBulkUpdate<T>} |
+  {deleteOne: MongoBulkDelete<T>} |
+  {deleteMany: MongoBulkDelete<T>} |
+  {replaceOne: MongoBulkReplace<T>};
+type MongoBulkWriteOperations<T extends DbObject> = MongoBulkWriteOperation<T>[];
+type MongoBulkWriteOptions = Partial<{
+  ordered: boolean,
+}>
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 

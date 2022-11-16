@@ -8,7 +8,7 @@ addCronJob({
   interval: 'every 10 minutes',
   async job() {
     // fetch all posts tagged as future
-    const scheduledPosts = await Posts.find({isFuture: true}, {fields: {_id: 1, status: 1, postedAt: 1, userId: 1, title: 1}}).fetch();
+    const scheduledPosts = await Posts.find({isFuture: true}, {projection: {_id: 1, status: 1, postedAt: 1, userId: 1, title: 1}}).fetch();
 
     // filter the scheduled posts to retrieve only the one that should update, considering their schedule
     const postsToUpdate = scheduledPosts.filter(post => post.postedAt <= new Date());

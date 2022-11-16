@@ -6,7 +6,6 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
@@ -611,6 +610,18 @@ const schema: SchemaType<DbUser> = {
     },
   },
   
+  noKibitz: {
+    type: Boolean,
+    optional: true,
+    label: "Hide author names until I hover over them",
+    tooltip: "For if you want to not be biased. Adds an option to the user menu to temporarily disable. Does not work well on mobile",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    group: formGroups.siteCustomizations,
+    order: 68,
+  },
+  
   showHideKarmaOption: {
     type: Boolean,
     optional: true,
@@ -784,7 +795,8 @@ const schema: SchemaType<DbUser> = {
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: 'guests',
-    ...schemaDefaultValue(getDefaultFilterSettings),
+    // FIXME this isn't filling default values as intended
+    // ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,
@@ -1695,7 +1707,7 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     label: "Alignment Base Score",
-    defaultValue: false,
+    defaultValue: 0,
     canRead: ['guests'],
   },
 

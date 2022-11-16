@@ -25,6 +25,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+  importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJobAd'))
   importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
@@ -88,6 +89,7 @@ importComponent("FlashMessages", () => require('../components/common/FlashMessag
 importComponent("Header", () => require('../components/common/Header'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle'));
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
+importComponent("CitationTags", () => require('../components/common/CitationTags'));
 importComponent("Home2", () => require('../components/common/Home2'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker'));
@@ -470,6 +472,7 @@ importComponent("AFSuggestCommentsList", () => require('../components/sunshineDa
 
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
+importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
 importComponent("AFSuggestUsersItem", () => require('../components/sunshineDashboard/AFSuggestUsersItem'));
 importComponent("AFSuggestUsersList", () => require('../components/sunshineDashboard/AFSuggestUsersList'));
