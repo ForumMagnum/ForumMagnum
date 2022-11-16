@@ -19,8 +19,12 @@ const CitationTags = ({title, author, coauthors, date}: {
   coauthors?: string[],
   date?: string | Date,
 }) => {
-  if (date instanceof Date) {
+  if (date) {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
     date = date.toISOString();
+    date = date.slice(0, date.indexOf("T")).replace(/-/g, "/");
   }
   return (
     <Helmet>
