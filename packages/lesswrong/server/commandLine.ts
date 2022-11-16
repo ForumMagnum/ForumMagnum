@@ -11,7 +11,7 @@ interface CommandLineArguments {
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
-    mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
+    mongoUrl: process.env.MONGO_URL || "mongodb://127.0.0.1:27017/?directConnection=true",
     postgresUrl: process.env.PG_URL || "",
     settingsFileName: "settings.json",
     shellMode: false,
