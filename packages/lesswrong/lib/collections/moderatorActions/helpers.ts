@@ -10,15 +10,20 @@ export function getTimeframeForRateLimit(type: RateLimitType) {
   let hours 
   switch(type) {
     case RATE_LIMIT_ONE_PER_DAY:
-      hours = 24; break;
+      hours = 24; 
+      break;
     case RATE_LIMIT_ONE_PER_THREE_DAYS:
-      hours = 24 * 3; break;
+      hours = 24 * 3; 
+      break;
     case RATE_LIMIT_ONE_PER_WEEK:
-      hours = 24 * 7; break;
+      hours = 24 * 7; 
+      break;
     case RATE_LIMIT_ONE_PER_FORTNIGHT:
-      hours = 24 * 14; break;
+      hours = 24 * 14; 
+      break;
     case RATE_LIMIT_ONE_PER_MONTH:
-      hours = 24 * 30
+      hours = 24 * 30;
+      break;
   }
   return hours
 }
