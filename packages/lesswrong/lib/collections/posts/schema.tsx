@@ -533,12 +533,46 @@ const schema: SchemaType<DbPost> = {
     optional: true,
   },
 
-  targetPostRelations: {
+  targetPostRelations: resolverOnlyField({
     type: Array,
-    optional: true,
+    graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    // resolver in postResolver.ts
-  },
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { Posts, currentUser, repos } = context;
+      let postRelations: DbPostRelation[] = [];
+      if (Posts.isPostgres()) {
+        postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
+      } else {
+        postRelations = await Posts.aggregate([
+          { $match: { _id: post._id }},
+          { $graphLookup: {
+            from: "postrelations",
+            as: "relatedQuestions",
+            startWith: post._id,
+            connectFromField: "targetPostId",
+            connectToField: "sourcePostId",
+            maxDepth: 3
+          }
+          },
+          {
+            $project: {
+              relatedQuestions: 1
+            }
+          },
+          {
+            $unwind: "$relatedQuestions"
+          },
+          {
+            $replaceRoot: {
+              newRoot: "$relatedQuestions"
+            }
+          }
+        ]).toArray()
+      }
+     if (!postRelations || postRelations.length < 1) return []
+     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
+    }
+  }),
   'targetPostRelations.$': {
     type: String,
     optional: true,
@@ -924,6 +958,19 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     group: formGroups.adminOptions,
     label: "Hide this post from logged out users and newly created accounts",
+    ...schemaDefaultValue(false),
+  },
+
+  hideFromRecentDiscussions: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.adminOptions,
+    label: 'Hide this post from recent discussions',
     ...schemaDefaultValue(false),
   },
 
