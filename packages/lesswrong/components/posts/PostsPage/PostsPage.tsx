@@ -251,9 +251,9 @@ const PostsPage = ({post, refetch, classes}: {
       <CitationTags
         title={post.title}
         author={post.user?.displayName}
-        coauthors={post.coauthors?.
-          filter(({ _id }) => !postCoauthorIsPending(post, _id)).
-          map(({displayName}) => displayName)}
+        coauthors={post.coauthors
+          ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
+          .map(({displayName}) => displayName)}
         date={post.createdAt}
       />
     </>}
