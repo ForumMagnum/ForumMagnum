@@ -3,7 +3,7 @@ echo "Running Production Site"
 
 # Not setting bash strict flags because set -u makes the script abort if some
 # variables are undefined, but those variables are optional.
-#set -eux
+set -ex
 
 # lw-look here: you must define GITHUB_CREDENTIALS_REPO_USER in your AWS EBS config
 echo "Cloning credentials repo"
