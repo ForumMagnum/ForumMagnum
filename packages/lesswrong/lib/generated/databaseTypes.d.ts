@@ -520,6 +520,7 @@ interface DbPost extends DbObject {
   nextDayReminderSent: boolean
   onlyVisibleToLoggedIn: boolean
   onlyVisibleToEstablishedAccounts: boolean
+  hideFromRecentDiscussions: boolean | null
   votingSystem: string
   podcastEpisodeId: string | null
   legacy: boolean
