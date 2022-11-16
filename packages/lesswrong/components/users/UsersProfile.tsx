@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
@@ -266,7 +266,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
+              {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 Account Settings
               </Link>}
             </Typography>

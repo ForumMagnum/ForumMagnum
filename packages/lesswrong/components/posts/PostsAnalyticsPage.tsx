@@ -9,12 +9,12 @@ import { useSingle } from '../../lib/crud/withSingle'
 import { forumTypeSetting } from '../../lib/instanceSettings'
 import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
-import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
+import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers'
 
 const isEAForum = forumTypeSetting.get()
 
@@ -199,8 +199,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   }
 
   if (
-    !userOwns(currentUser, postReturn.document) &&
-    !currentUser.isAdmin &&
+    !canUserEditPostMetadata(currentUser, postReturn.document) &&
     !currentUser.groups?.includes('sunshineRegiment')
   ) {
     if (serverRequestStatus) serverRequestStatus.status = 403

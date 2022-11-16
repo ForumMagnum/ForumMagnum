@@ -6,7 +6,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
 import { separatorBulletStyles } from '../../common/SectionFooter';
 import { taglineSetting } from '../../common/HeadTags';
@@ -560,13 +560,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
                 </DialogGroup>
               </div>
             }
-            {userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+            {userCanEditUser(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
               Edit Profile
             </Link>}
             {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
               Manage Subscriptions
             </Link>}
-            {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
+            {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
               Account Settings
             </Link>}
             {currentUser && currentUser._id === user._id && <a href="/logout">

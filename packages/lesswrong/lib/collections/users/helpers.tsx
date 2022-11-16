@@ -300,8 +300,12 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   return user.markDownPostEditor
 }
 
-export const userCanEdit = (currentUser, user) => {
-  return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
+export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: HasIdType|HasSlugType|UsersMinimumInfo|DbUser) => {
+  // We allow users to call this function with basically "pretend" user objects
+  // as the second argument. We know from inspecting userOwns that those pretend
+  // user objects are safe, but if userOwns allowed them it would make the type
+  // checks much less safe.
+  return userOwns(currentUser, user as UsersMinimumInfo|DbUser) || userCanDo(currentUser, 'users.edit.all')
 }
 
 interface UserLocation {
