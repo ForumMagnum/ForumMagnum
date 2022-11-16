@@ -1,5 +1,6 @@
 import { container, injectable } from "tsyringe";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { isValidCollectionName } from "../vulcan-lib";
 
 container.register<SqlClient>("db", {useFactory: getSqlClientOrThrow});
 
@@ -29,6 +30,9 @@ container.register<SqlClient>("db", {useFactory: getSqlClientOrThrow});
  * const fooRepo = FooRepo.resolve();
  * const foos = await fooRepo.getFoos();
  * ```
+ *
+ * To make the repo available in GraphQL resolvers, add it to `getAllRepos`
+ * in index.ts
  */
 const abstractRepo = <T>() => {
   abstract class Repo {

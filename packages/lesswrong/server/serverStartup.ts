@@ -19,6 +19,7 @@ import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
 import process from 'process';
+import { PostRelationsRepo } from './repos';
 
 async function serverStartup() {
   // eslint-disable-next-line no-console
@@ -102,6 +103,8 @@ async function serverStartup() {
       collection.buildPostgresTable();
     }
   }
+
+  const repo = PostRelationsRepo.resolve();
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");
