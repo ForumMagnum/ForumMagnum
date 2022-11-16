@@ -1,6 +1,5 @@
 import { container, injectable } from "tsyringe";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-import { isValidCollectionName } from "../vulcan-lib";
 
 container.register<SqlClient>("db", {useFactory: getSqlClientOrThrow});
 
