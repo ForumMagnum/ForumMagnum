@@ -544,7 +544,7 @@ function getPostOrder(posts: Array<PostsList> | undefined, votes: Array<qualitat
   return result as Array<[number,number]>;
 }
 
-function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] {
+function applyOrdering<T>(array:T[], order:Map<number, number>):T[] {
   const newArray = array.map((value, i) => {
     const newIndex = order.get(i)
     if (typeof newIndex !== 'number') throw Error(`Can't find value for key: ${i}`)
