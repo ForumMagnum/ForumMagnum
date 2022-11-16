@@ -59,6 +59,8 @@ const getUsedMuiStyles = () => {
     MuiSnackbar: require("@material-ui/core/Snackbar/Snackbar").styles,
     MuiSvgIcon: require("@material-ui/core/SvgIcon/SvgIcon").styles,
     MuiSwipeableDrawer: require("@material-ui/core/SwipeableDrawer/SwipeableDrawer").styles,
+    MuiSwitchBase: require("@material-ui/core/internal/SwitchBase").styles,
+    MuiSwitch: require("@material-ui/core/Switch/Switch").styles,
     MuiTab: require("@material-ui/core/Tab/Tab").styles,
     MuiTable: require("@material-ui/core/Table/Table").styles,
     MuiTableBody: require("@material-ui/core/TableBody/TableBody").styles,
