@@ -44,8 +44,10 @@ function hasMultipleDownvotes<T extends DbVoteableType>({ votes }: VoteableAutom
 /**
  * Doesn't use `VoteableAutomodRuleProps` because we also use it in places where we don't have (or care) about the votes themselves
  */
-function isNetDownvoted<T extends DbVoteableType>({ voteableItem }: { voteableItem: T }) {
-  return voteableItem.baseScore <= 0 && voteableItem.voteCount > 0;
+function isDownvotedBelowBar<T extends DbVoteableType>(bar: number) {
+  return ({ voteableItem }: { voteableItem: T }) => {
+    return voteableItem.baseScore <= bar && voteableItem.voteCount > 0;
+  }
 }
 
 export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]) {
@@ -59,7 +61,7 @@ export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]
 
   const lastFiveVoteableItems = voteableItems.slice(0, 5);
   const downvotedItemCountThreshold = 2;
-  const downvotedItemCount = lastFiveVoteableItems.filter(item => isNetDownvoted({ voteableItem: item })).length;
+  const downvotedItemCount = lastFiveVoteableItems.filter(item => isDownvotedBelowBar(0)({ voteableItem: item })).length;
 
   return downvotedItemCount >= downvotedItemCountThreshold;
 }
@@ -167,7 +169,7 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
 
   const automodRule = forumSelect<VoteableAutomodRule>({
     LessWrong: hasMultipleDownvotes,
-    EAForum: isNetDownvoted,
+    EAForum: isDownvotedBelowBar(-15),
     default: () => false
   });
   
