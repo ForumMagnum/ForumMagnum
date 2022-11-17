@@ -99,7 +99,7 @@ export const addCrosspostRoutes = (app: Application) => {
       const validatedRequestBody = route.requestValidator.decode(req.body);
       if (isLeft(validatedRequestBody)) {
         // eslint-disable-next-line no-console
-        console.error('Invalid request body in cross-site POST request', { body: req.body });
+        console.error('Invalid request body in cross-site POST request', { body: req.body, path: route.path });
         return res.status(400).send({ error: 'Invalid request body' });
       }
       let response: PostResponseTypes<RouteName>;
