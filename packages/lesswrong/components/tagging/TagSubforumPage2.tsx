@@ -416,11 +416,11 @@ const TagSubforumPage2 = ({classes}: {
   );
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
-    <ContentStyles contentType="tag">
+    <ContentStyles contentType="tag" key={`welcome_box`}>
       <div className={classes.sidebarBoxWrapper} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
     </ContentStyles>
   ) : <></>;
-  const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} />];
+  const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} key={`subtags_box`}/>];
 
   return (
     <AnalyticsContext
