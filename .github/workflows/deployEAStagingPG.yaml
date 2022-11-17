@@ -2,7 +2,7 @@ name: Deploy EA Staging Postgres
 concurrency: deploy-ea-staging-pg
 on:
   push:
-    branches: [ postgres-2 ]
+    branches: [ ea-pg-staging-deploy ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
