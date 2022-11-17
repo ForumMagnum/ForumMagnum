@@ -81,28 +81,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const actionItemStyles = (theme: ThemeType): JssStyles => ({
-  cell: {
-    textAlign: 'center'
-  }
-});
-
-const ModeratorActionItem = ({ moderatorAction, classes }: {
-  moderatorAction: ModeratorActionDisplay,
-  classes: ClassesType
-}) => {
-  const { UsersName } = Components;
-  return (
-    <tr>
-      <td className={classes.cell}><UsersName user={moderatorAction.user} />{` (${moderatorAction.userId})`}</td>
-      <td className={classes.cell}>{moderatorAction.type}</td>
-      <td className={classes.cell}>{`${moderatorAction.active}`}</td>
-      <td className={classes.cell}>{moderatorAction.createdAt}</td>
-      <td className={classes.cell}>{moderatorAction.endedAt}</td>
-    </tr>
-  );
-};
-
 const reduceCommentModeratorActions = (commentModeratorActions: CommentModeratorActionDisplay[]): CommentWithModeratorActions[] => {
   const allComments = commentModeratorActions.map(action => action.comment);
   const uniqueComments = uniqBy(allComments, comment => comment._id);
@@ -125,6 +103,7 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 
   return currentViewParam;
 };
+
 
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
@@ -264,12 +243,10 @@ const ModerationDashboard = ({ classes }: {
   );
 };
 
-const ModeratorActionItemComponent = registerComponent('ModeratorActionItem', ModeratorActionItem, { styles: actionItemStyles });
 const ModerationDashboardComponent = registerComponent('ModerationDashboard', ModerationDashboard, { styles });
 
 declare global {
   interface ComponentTypes {
-    ModeratorActionItem: typeof ModeratorActionItemComponent
     ModerationDashboard: typeof ModerationDashboardComponent
   }
 }
