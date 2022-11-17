@@ -202,9 +202,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-    <Components.PostVersionHistoryButton
-      postId={document._id}
-    />
+      <Components.PostVersionHistoryButton
+        post={document}
+        postId={document._id}
+      />
     }
   </div>
 }
