@@ -47,10 +47,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     position: 'absolute',
+    width: "100%",
+    '& > img': {
+      objectFit: 'cover',
+      width: '100%',
+    },
     [theme.breakpoints.down('sm')]: {
       '& > img': {
         height: 270,
-        width: '100%',
       },
       top: 77,
       left: -4,
@@ -59,8 +63,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       top: 90,
       '& > img': {
         height: 300,
-        objectFit: 'cover',
-        width: '100%',
       },
     }
   },
