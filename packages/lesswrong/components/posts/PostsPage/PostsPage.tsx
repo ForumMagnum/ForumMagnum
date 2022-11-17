@@ -292,7 +292,7 @@ const PostsPage = ({post, refetch, classes}: {
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post" className={classes.postContent}>
+        <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
