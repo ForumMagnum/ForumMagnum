@@ -146,7 +146,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
-    padding: "0em 1.5em",
+    paddingLeft: "1.5em",
+    paddingRight: "1.5em",
+    paddingBottom: "1em",
+    marginBottom: 24,
   },
   tableOfContentsWrapper: {
     padding: 24,
@@ -175,7 +178,7 @@ const TagSubforumPage2 = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles
+    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -307,47 +310,6 @@ const TagSubforumPage2 = ({classes}: {
   // TODO: put this in a separate file
   const wikiComponent = (
     <>
-      {tag.parentTag || tag.subTags.length ? (
-        <div className={classNames(classes.subHeading, classes.centralColumn)}>
-          <div className={classes.subHeadingInner}>
-            {tag.parentTag && (
-              <div className={classes.relatedTag}>
-                Parent {taggingNameCapitalSetting.get()}:{" "}
-                <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>
-                  {tag.parentTag.name}
-                </Link>
-              </div>
-            )}
-            {/* For subtags it would be better to:
-                - put them at the bottom of the page
-                - truncate the list
-                for our first use case we only need a small number of subtags though, so I'm leaving it for now
-            */}
-            {tag.subTags.length ? (
-              <div className={classes.relatedTag}>
-                <span>
-                  Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}
-                  :&nbsp;
-                  {tag.subTags.map((subTag, idx) => {
-                    return (
-                      <>
-                        <Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>
-                          {subTag.name}
-                        </Link>
-                        {idx < tag.subTags.length - 1 ? <>,&nbsp;</> : <></>}
-                      </>
-                    );
-                  })}
-                </span>
-              </div>
-            ) : (
-              <></>
-            )}
-          </div>
-        </div>
-      ) : (
-        <></>
-      )}
       <div className={classNames(classes.wikiSection, classes.centralColumn)}>
         <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
         <AnalyticsContext pageSectionContext="wikiSection">
@@ -455,10 +417,10 @@ const TagSubforumPage2 = ({classes}: {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag">
-      <div className={classNames(classes.sidebarBoxWrapper, classes.welcomeBox)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+      <div className={classes.sidebarBoxWrapper} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
     </ContentStyles>
   ) : <></>;
-  const rightSidebarComponents = [welcomeBoxComponent]
+  const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} />];
 
   return (
     <AnalyticsContext

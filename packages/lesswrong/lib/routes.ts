@@ -711,12 +711,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'wikiTopisRedirect',
       path: '/wiki',
-      redirect: () => '/topics/all'
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
-    // TODO: use taggingNamePluralSetting for both of these
     {
       name: 'subforum',
-      path: `/topics/:slug/subforum`,
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
       componentName: 'TagSubforumPage',
       fullscreen: true,
     },

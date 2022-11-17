@@ -9,6 +9,7 @@ declare global {
     wikiGrade?: string
     slug?: string
     tagFlagId?: string
+    parentTagId?: string
   }
 }
 
@@ -196,3 +197,5 @@ ensureIndex(Tags, {name: 1});
 
 // Used in packages/lesswrong/server/defaultTagWeights/cache.ts
 ensureIndex(Tags, {defaultFilterMode: 1});
+// Used in subTags resolver
+ensureIndex(Tags, {parentTagId: 1});
