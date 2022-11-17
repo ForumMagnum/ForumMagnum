@@ -31,8 +31,8 @@ export function getTimeframeForRateLimit(type: RateLimitType) {
 /**
  * Fetches the most recent, active rate limit affecting a user.
  */
-export async function getModeratorRateLimit(user: DbUser) {
-  return await ModeratorActions.findOne({
+export function getModeratorRateLimit(user: DbUser) {
+  return ModeratorActions.findOne({
     userId: user._id,
     type: {$in: rateLimits},
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
@@ -40,7 +40,7 @@ export async function getModeratorRateLimit(user: DbUser) {
     sort: {
       createdAt: -1
     }
-  }) 
+  }) as Promise<DbModeratorAction & {type:RateLimitType} | null>
 }
 
 export function getAverageContentKarma(content: VoteableType[]) {

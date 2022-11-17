@@ -53,13 +53,14 @@ async function enforcePostRateLimit (user: DbUser) {
     return;
   
   const moderatorRateLimit = await getModeratorRateLimit(user)
+  if (moderatorRateLimit) {
+    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-  const hours = getTimeframeForRateLimit(moderatorRateLimit?.type as RateLimitType)
-
-  const postsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Posts, hours)
-
-  if (postsInPastTimeframe > 0 && moderatorRateLimit) {
-    throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    const postsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Posts, hours)
+  
+    if (postsInPastTimeframe > 0) {
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }  
   }
 
   const timeSinceLastPost = await userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
@@ -83,13 +84,15 @@ async function enforceCommentRateLimit(user: DbUser) {
   }
 
   const moderatorRateLimit = await getModeratorRateLimit(user)
+  if (moderatorRateLimit) {
+    const hours = getTimeframeForRateLimit(moderatorRateLimit.type)
 
-  const hours = getTimeframeForRateLimit(moderatorRateLimit?.type as RateLimitType)
-
-  const commentsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Comments, hours)
-
-  if (commentsInPastTimeframe > 0 && moderatorRateLimit) {
-    throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    const commentsInPastTimeframe = await userNumberOfItemsInPastTimeframe(user, Comments, hours)
+  
+    if (commentsInPastTimeframe > 0) {
+      throw new Error(MODERATOR_ACTION_TYPES[moderatorRateLimit.type]);
+    }
+  
   }
 
   const timeSinceLastComment = await userTimeSinceLast(user, Comments);
