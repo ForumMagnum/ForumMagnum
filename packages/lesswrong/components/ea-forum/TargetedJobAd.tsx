@@ -257,7 +257,7 @@ const TargetedJobAd = ({
   
   // show the ad to any users interested in software engineering
   const showJobAd = currentUser && (userIds.includes(currentUser._id) || currentUser.profileTagIds?.includes(SOFTWARE_ENG_TAG_ID))
-  
+
   // track which users have seen the ad
   useEffect(() => {
     if (!loading && !count && showJobAd) {
@@ -265,7 +265,8 @@ const TargetedJobAd = ({
         data: {userId: currentUser._id, interestedInMetaculus: false}
       })
     }
-  }, [loading, count, currentUser, showJobAd, createJobAdView])
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, count, currentUser, showJobAd])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
