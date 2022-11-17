@@ -3,6 +3,7 @@ import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,29 +18,38 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   default: {
     color: theme.palette.grey[900],
-  }
+  },
+  scoreTitleFormat: {
+    width: 20,
+    display: "inline-block"
+  },
+  titleDisplay: {
+    display: "block"
+  },
 })
 
 
-const CommentKarmaWithPreview = ({ comment, classes }: {
-  comment: CommentsList,
+const CommentKarmaWithPreview = ({ comment, classes, displayTitle }: {
+  comment: CommentsListWithParentMetadata,
   classes: ClassesType,
+  displayTitle: boolean
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, CommentsNode } = Components
+  const { LWPopper, CommentsNode, MetaInfo } = Components
 
   if (!comment) return null 
 
-  return <span className={classes.root} {...eventHandlers}>
+  return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
     <Link className={comment.deleted ? classes.deleted : classes.default}
       to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
     >
-      {comment.baseScore}
+      <span className={displayTitle ? classes.scoreTitleFormat : null}>{comment.baseScore} </span>
+      {displayTitle && <MetaInfo>{comment.post?.title}</MetaInfo> }
     </Link>
     <LWPopper
         open={hover}
         anchorEl={anchorEl}
-        placement="bottom-start"
+        placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
         <CommentsNode treeOptions={{showPostTitle: true}} comment={comment}/>
