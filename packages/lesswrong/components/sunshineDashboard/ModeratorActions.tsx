@@ -12,15 +12,17 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import moment from 'moment';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '../../lib/collections/moderatorActions/schema';
+import { MODERATOR_ACTION_TYPES, RateLimitType, rateLimits, rateLimitSet } from '../../lib/collections/moderatorActions/schema';
 import FlagIcon from '@material-ui/icons/Flag';
 import Input from '@material-ui/core/Input';
-import { getCurrentContentCount, isLowAverageKarmaContent, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
-import { sortBy } from 'underscore';
+import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
-import { useDialog } from '../common/withDialog';
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -83,9 +85,8 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip } = Components
+  const { LWTooltip, ModeratorActionItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
-  const { openDialog } = useDialog()
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -300,59 +301,39 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     setNotes( newNotes )
   }
 
-  const mostRecentRateLimit = user.moderatorActions.find(modAction => modAction.type === RATE_LIMIT_ONE_PER_DAY);
 
-  const createRateLimit = async (endDate?: Date) => {
-    const newNotes = getModSignatureWithNote(`rate limit added`) + notes;
-    void updateUser({
-      selector: { _id: user._id },
-      data: { sunshineNotes: newNotes }
-    });
+  const createRateLimit = async (type: RateLimitType) => {
 
-    const maybeEndedAt = endDate ? { endedAt: endDate } : {};
-    // Otherwise, we want to create a new one
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 60);
+    
     await createModeratorAction({
       data: {
-        type: RATE_LIMIT_ONE_PER_DAY,
+        type,
         userId: user._id,
-        ...maybeEndedAt
+        endedAt: endDate
       }
     });
 
-    setNotes(newNotes);
+    const existingRateLimits = user.moderatorActions.filter(modAction => rateLimitSet.has(modAction.type)) ?? [];
+    for (const rateLimit of existingRateLimits) {
+      void endRateLimit(rateLimit._id)
+    }
     // We have a refetch to ensure the button displays (toggled on/off) properly 
     refetch();
   };
 
   const endRateLimit = async (rateLimitId: string) => {
-    const newNotes = getModSignatureWithNote(`rate limit removed`) + notes;
-    void updateUser({
-      selector: { _id: user._id },
-      data: { sunshineNotes: newNotes }
-    });
 
     await updateModeratorAction({
       selector: { _id: rateLimitId },
       data: { endedAt: new Date() }
     });
 
-    setNotes(newNotes);
     // We have a refetch to ensure the button displays (toggled on/off) properly 
     refetch();
   };
 
-  const handleRateLimit = async () => {
-    // If we have an active rate limit, we want to disable it
-    if (mostRecentRateLimit?.active) {
-      await endRateLimit(mostRecentRateLimit._id);
-    } else {
-      // Otherwise, we want to create a new one
-      openDialog({
-        componentName: 'RateLimitDialog',
-        componentProps: { createRateLimit },
-      });
-    }
-  };
 
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproverd)" placement="top">
@@ -409,38 +390,29 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
   </div>
 
-  const moderatorActionLog = <div>
-    {user.moderatorActions
-      .filter(moderatorAction => moderatorAction.active)
-      .map(moderatorAction => {
-        let averageContentKarma: number | undefined;
-        if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
-          const mostRecentComments = sortBy(comments ?? [], 'postedAt').reverse();
-          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
-        } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
-          const mostRecentPosts = sortBy(posts ?? [], 'postedAt').reverse();
-          ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
-        }
-
-        const suffix = typeof averageContentKarma === 'number' ? ` (${averageContentKarma})` : '';
-        const endedAt = moderatorAction.endedAt ? `, ends on ${moment(moderatorAction.endedAt).format('YYYY-MM-DD').toString()}` : '';
-
-        return <div key={`${user._id}_${moderatorAction.type}`}>
-          {`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}${endedAt}`}
-        </div>;
-      })
-    }
-  </div>
-
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  
   return <div>
     {actionRow}
     {permissionsRow}
     <div>
-      <LWTooltip title={`${mostRecentRateLimit?.active ? "Un-rate-limit" : "Rate-limit"} this user's ability to post and comment`}>
-        <div className={classNames(classes.permissionsButton, { [classes.permissionDisabled]: mostRecentRateLimit?.active })} onClick={handleRateLimit}>
-          {MODERATOR_ACTION_TYPES[RATE_LIMIT_ONE_PER_DAY]}
-        </div>
-      </LWTooltip>
+      <span onClick={(ev) => setAnchorEl(ev.currentTarget)}>
+        <MenuItem>
+          Rate Limit
+          <ListItemIcon>
+            <ArrowDropDownIcon />
+          </ListItemIcon>
+        </MenuItem>
+      </span>
+      <Menu 
+        onClick={() => setAnchorEl(null)}
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+      >
+        {rateLimits.map(rateLimit => <MenuItem key={rateLimit} onClick={() => createRateLimit(rateLimit)}>
+          {MODERATOR_ACTION_TYPES[rateLimit]}
+        </MenuItem>)}
+      </Menu>
     </div>
     <div className={classes.notes}>
       <Input
@@ -455,7 +427,19 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         rows={5}
       />
     </div>
-    {moderatorActionLog}
+      <div>
+      {user.moderatorActions
+        .filter(moderatorAction => moderatorAction.active)
+        .map(moderatorAction => <ModeratorActionItem 
+            key={moderatorAction._id} 
+            moderatorAction={moderatorAction}
+            user={user} 
+            posts={posts} 
+            comments={comments}
+          />
+        )
+      }
+    </div>
   </div>
 }
 
