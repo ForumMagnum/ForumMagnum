@@ -52,7 +52,7 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === 'Comments' && forumTypeSetting.get() === 'LessWrong') {
     void triggerAutomodIfNeeded(newDocument.userId)
-    void triggerCommentAutomodIfNeeded(newDocument._id, vote);
+    void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
 });
 
