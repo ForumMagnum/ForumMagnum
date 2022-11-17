@@ -60,7 +60,7 @@ export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>
   return await items.count();
 };
 
-export const userNumberOfItemsInPastTimeframe = async function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, hours: number, filter?: Record<string,any>): Promise<number> {
+export const userNumberOfItemsInPastTimeframe = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, hours: number, filter?: Record<string,any>): Promise<number> {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,
@@ -69,6 +69,6 @@ export const userNumberOfItemsInPastTimeframe = async function<T extends DbObjec
       $gte: mNow.subtract(hours, 'hours').toDate(),
     },
   });
-  return await items.count();
+  return items.count();
 };
 
