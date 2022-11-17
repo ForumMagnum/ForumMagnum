@@ -577,6 +577,9 @@ importComponent("SubforumMembersDialog", () => require('../components/tagging/Su
 importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
 importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
+importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
+importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
+importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
 importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor
