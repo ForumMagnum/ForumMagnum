@@ -45,7 +45,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   } = useForeignCrosspost(post, fetchProps);
 
   const { Error404, Loading, PostsPage } = Components;
-  // If we get a error fetching the foreing xpost data, that should not stop us
+  // If we get a error fetching the foreign xpost data, that should not stop us
   // from rendering the post if we have it locally
   if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
