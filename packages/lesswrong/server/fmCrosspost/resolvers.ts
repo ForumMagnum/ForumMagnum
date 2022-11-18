@@ -3,13 +3,11 @@ import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
 import Users from "../../lib/collections/users/collection";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
-import { DatabaseServerSetting } from "../databaseSettings";
-import { ApiError, InsufficientKarmaError, InvalidUserError, UnauthorizedError } from "./errors";
+import { ApiError, UnauthorizedError } from "./errors";
+import { validateCrosspostingKarmaThreshold } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { signToken } from "./tokens";
 import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
-
-const targetForumCrosspostKarmaThreshold = new DatabaseServerSetting<number | null>('crosspostKarmaThreshold', 100);
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -17,27 +15,6 @@ const getUserId = (req?: Request) => {
     throw new UnauthorizedError();
   }
   return userId;
-}
-
-/**
- * Check if the user on the *target* forum has enough karma to be allowed to crosspost from the source forum.
- * 
- * Ex: if a user has 0 karma on LW, and attempts to link accounts to crosspost from the EA Forum, they will get this error, because LW requires you to have a 100 karma account *on LW* to crosspost from the EA Forum.
- * This is true regardless of how much karma they have on the EA Forum.  (This holds in both directions.)
- */
-const validateCrosspostingKarmaThreshold = (currentUser: DbUser | null) => {
-  if (!currentUser) {
-    throw new InvalidUserError();
-  }
-
-  // Despite the generated type, karma is in fact missing by default for new users who haven't had anything of theirs voted on
-  // Numeric comparisons to `undefined` always return false!
-  const userKarma = currentUser.karma ?? 0;
-
-  const currentKarmaThreshold = targetForumCrosspostKarmaThreshold.get();
-  if (currentKarmaThreshold !== null && currentKarmaThreshold > userKarma) {
-    throw new InsufficientKarmaError(currentKarmaThreshold);
-  }
 }
 
 export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
