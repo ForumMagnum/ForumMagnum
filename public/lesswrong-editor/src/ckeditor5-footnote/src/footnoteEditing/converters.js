@@ -258,6 +258,8 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
 	const anchor = viewWriter.createContainerElement('a', { href: `#fnref${id}` });
 	const innerText = viewWriter.createText('^');
 
+  // TODO: This awkward element creation now has a better API to use instead.
+  // See https://ckeditor.com/docs/ckeditor5/latest/updating/migration-to-33.html
 	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
 	viewWriter.insert(viewWriter.createPositionAt(strong, 0), anchor);
 	viewWriter.insert(viewWriter.createPositionAt(sup, 0), strong);
