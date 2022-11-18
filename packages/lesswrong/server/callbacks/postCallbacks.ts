@@ -16,7 +16,7 @@ import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspos
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
-import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
+import { convertImagesInObject } from '../scripts/convertImagesToCloudinary';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -245,8 +245,12 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
  * See: https://app.asana.com/0/628521446211730/1203311932993130/f
  * It's fine to leave it here just in case though
  */
-getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
-getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
+getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {
+  await convertImagesInObject("Posts", post._id);
+})
+getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {
+  await convertImagesInObject("Posts", post._id)
+})
 
 // For posts without comments, update lastCommentedAt to match postedAt
 //
