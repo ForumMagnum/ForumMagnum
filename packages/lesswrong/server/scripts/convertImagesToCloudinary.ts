@@ -165,8 +165,12 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
 }
 
 /**
- * Reupload all images in a post to Cloudinary, and create a new revision with the updated html
- * @param postId - The post to reupload images for
+ * Reupload all images in an object (post, tag, user, etc) to Cloudinary. For each editable
+ * field which had an image that needed reuploading, creates a new revision with the updated
+ * HTML.
+ *
+ * @param collectionName The collection that this object is in
+ * @param _id - The object to reupload images for
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
  */
@@ -178,10 +182,10 @@ export async function convertImagesInObject(
   let totalUploaded = 0;
   try {
     const collection = getCollection(collectionName);
-    const post = await collection.findOne({_id});
+    const obj = await collection.findOne({_id});
     
     for (let fieldName of editableCollectionsFields[collectionName]) {
-      if (!post) {
+      if (!obj) {
         // eslint-disable-next-line no-console
         console.error(`Cannot convert images in ${collectionName}.${_id}: ID not found`);
         return 0;
@@ -190,7 +194,7 @@ export async function convertImagesInObject(
       const latestRev = await getLatestRev(_id, fieldName);
       if (!latestRev) {
         // eslint-disable-next-line no-console
-        console.error(`Could not find a latest-revision for post ID: ${_id}`);
+        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
         return 0;
       }
       
@@ -198,7 +202,7 @@ export async function convertImagesInObject(
       const now = new Date();
       // NOTE: we use the post contents rather than the revision contents because we don't
       // create a revision for no-op edits (this is arguably a bug)
-      const oldHtml = post[fieldName].html;
+      const oldHtml = obj[fieldName].html;
       const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
       if (!uploadCount) {
         // eslint-disable-next-line no-console
@@ -224,7 +228,7 @@ export async function convertImagesInObject(
         $set: {
           [`${fieldName}_latest`]: insertedRevisionId,
           [fieldName]: {
-            ...post[fieldName],
+            ...obj[fieldName],
             html: newHtml,
             version: newVersion,
             editedAt: now,
@@ -236,7 +240,7 @@ export async function convertImagesInObject(
     }
     return totalUploaded;
   } catch (e) {
-    // Always catch the error because the post should mostly load fine without rehosting the images
+    // Always catch the error because the obj should mostly load fine without rehosting the images
     // eslint-disable-next-line no-console
     console.error("Error in convertImagesInObject", e)
     return 0
