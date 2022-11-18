@@ -240,8 +240,9 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
  * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
  * they have fairly strict rate limits that often result in them failing to load.
  *
- * NOTE: This will soon become obsolete because we are going to make it so images
- * are automatically reuploaded on paste rather than on submit (see https://app.asana.com/0/628521446211730/1203311932993130/f).
+ * NOTE: This is still necessary even if CkEditor is configured to reupload
+ * images, because images have URLs that come from Markdown or RSS sync.
+ * See: https://app.asana.com/0/628521446211730/1203311932993130/f
  * It's fine to leave it here just in case though
  */
 getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})

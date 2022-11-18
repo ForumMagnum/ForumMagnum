@@ -2,6 +2,7 @@ import { Globals } from '../../lib/vulcan-lib';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import { Images } from '../../lib/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
@@ -17,6 +18,9 @@ const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecr
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If
 // the URL is already Cloudinary or can't be downloaded, returns null instead.
 async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
+  const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
+  if (alreadyRehosted) return alreadyRehosted;
+  
   const cloudName = cloudinaryCloudNameSetting.get();
   const apiKey = cloudinaryApiKey.get();
   const apiSecret = cloudinaryApiSecret.get();
@@ -38,7 +42,19 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
   );
   // eslint-disable-next-line no-console
   console.log(`Result of moving image: ${result.url}`);
+  
+  await Images.rawInsert({
+    originalUrl: oldUrl,
+    cdnHostedUrl: result.url,
+  });
+  
   return result.url;
+}
+
+/// If an image has already been re-hosted, return its CDN URL. Otherwise null.
+async function findAlreadyMovedImage(url: string): Promise<string|null> {
+  const image = await Images.findOne({originalUrl: url});
+  return image?.cdnHostedUrl ?? null;
 }
 
 /**
