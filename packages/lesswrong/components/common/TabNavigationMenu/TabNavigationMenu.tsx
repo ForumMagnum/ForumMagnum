@@ -7,6 +7,7 @@ import { iconWidth } from './TabNavigationItem'
 import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import classNames from 'classnames';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -17,6 +18,12 @@ const styles = (theme: ThemeType): JssStyles => {
       flexDirection: "column",
       justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
+      paddingTop: 15,
+    },
+    navSidebarTransparent: {
+      zIndex: 10,
+      background: `${theme.palette.background.default}cf`, // Add alpha to background color, not thrilled about this way of doing it
+      backdropFilter: 'blur(6px)'
     },
     divider: {
       width: 50,
@@ -28,8 +35,9 @@ const styles = (theme: ThemeType): JssStyles => {
   }
 }
 
-const TabNavigationMenu = ({onClickSection, classes}: {
+const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
   onClickSection?: any,
+  transparentBackground?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -44,7 +52,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
 
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
-        <div className={classes.root}>
+        <div className={classNames(classes.root, {[classes.navSidebarTransparent]: transparentBackground})}>
           {forumSelect(menuTabs).map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
             

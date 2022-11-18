@@ -711,14 +711,23 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'wikiTopisRedirect',
       path: '/wiki',
-      redirect: () => '/topics/all'
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
     {
       name: 'subforum',
-      path: `/topics/:slug/subforum`,
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
       componentName: 'TagSubforumPage',
       fullscreen: true,
-    }
+    },
+    {
+      name: 'tagsSubforum',
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum2`,
+      componentName: 'TagSubforumPage2',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      unspacedGrid: true,
+    },
   ],
   LessWrong: [
     {

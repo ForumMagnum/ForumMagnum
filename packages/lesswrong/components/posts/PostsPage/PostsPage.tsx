@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -251,7 +251,9 @@ const PostsPage = ({post, refetch, classes}: {
       <CitationTags
         title={post.title}
         author={post.user?.displayName}
-        coauthors={post.coauthors?.map(({displayName}) => displayName)}
+        coauthors={post.coauthors
+          ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
+          .map(({displayName}) => displayName)}
         date={post.createdAt}
       />
     </>}
@@ -290,7 +292,7 @@ const PostsPage = ({post, refetch, classes}: {
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post" className={classes.postContent}>
+        <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
