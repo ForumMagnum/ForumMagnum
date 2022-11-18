@@ -1,5 +1,5 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|staging|production]
+ * Usage: yarn migrate up|down|pending|executed [dev|staging|prod|production]
  *
  * If no environment is specified, you can use the environment variable PG_URL
  */
@@ -9,9 +9,12 @@ const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta
 const { readFile } = require("fs").promises;
 
 (async () => {
-  const mode = process.argv[3];
+  let mode = process.argv[3] ?? process.env["NODE_ENV"];
   let pgUrl = process.env["PG_URL"];
-  if (["dev", "staging", "prod"].includes(mode)) {
+  if (["dev", "staging", "prod", "production"].includes(mode)) {
+    if (mode === "production") {
+      mode = "prod";
+    }
     console.log('Running migrations in mode', mode);
     pgUrl = (await readFile(`../ForumCredentials/${mode}-pg-conn.txt`)).toString().trim();
     process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
