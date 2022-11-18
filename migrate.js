@@ -4,6 +4,15 @@
  * If no environment is specified, you can use the environment variable PG_URL
  */
 require("ts-node/register");
+
+// TODO TMP: Hack to make sure we don't break LessWrong deploys before they
+// migrate to Postgres - remove this once they migrate
+const {ROOT_URL} = process.env;
+if (ROOT_URL && !ROOT_URL.match(/effectivealtruism|eaforum/)) {
+  console.log("Skipping migrations as ROOT_URL is not effectivealtruism");
+  process.exit(0);
+}
+
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
 const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 const { readFile } = require("fs").promises;
