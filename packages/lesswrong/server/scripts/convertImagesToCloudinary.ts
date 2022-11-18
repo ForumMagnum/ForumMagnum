@@ -10,6 +10,7 @@ import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
+import uniq from 'lodash/uniq';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -83,28 +84,82 @@ async function convertImagesInHTML(html: string, originDocumentId: string, urlFi
   // @ts-ignore
   const parsedHtml = cheerio.load(html, null, false);
   const imgTags = parsedHtml("img").toArray();
+  const imgUrls: string[] = [];
+  
+  for (let imgTag of imgTags) {
+    const urls = getImageUrlsFromImgTag(cheerio(imgTag));
+    for (let url of urls) {
+      if (urlNeedsMirroring(url, urlFilterFn)) {
+        imgUrls.push(url);
+      }
+    }
+  }
 
   // Upload all the images to Cloudinary (slow)
-  const mirrorUrls = await Promise.all(imgTags.map(tag => {
-    const src = cheerio(tag).attr("src")
-    if (!src || !(src && urlNeedsMirroring(src, urlFilterFn))) return null
-
+  const mirrorUrls: Record<string,string> = {};
+  await Promise.all(imgUrls.map(async (url) => {
     // resolve to the url of the image on cloudinary
-    return moveImageToCloudinary(src, originDocumentId)
+    const movedImage = await moveImageToCloudinary(url, originDocumentId)
+    if (movedImage) {
+      mirrorUrls[url] = movedImage;
+    }
   }));
 
   // cheerio is not guarantueed to return the same html so explicitly count
   // the number of images that were converted
   let count = 0
+  
   for (let i=0; i<imgTags.length; i++) {
-    const mirrorUrl = mirrorUrls[i];
-    if (mirrorUrl) {
-      count++
-      cheerio(imgTags[i]).attr("src", mirrorUrl);
+    const imgTag = cheerio(imgTags[i]);
+    const src: string|undefined = imgTag.attr("src");
+    if (src) {
+      const replacement = mirrorUrls[src];
+      if (replacement) {
+        imgTag.attr("src", replacement);
+        count++;
+      }
+    }
+    
+    const srcset: string|undefined = imgTag.attr("srcset");
+    if (srcset) {
+      const replacement = rewriteSrcset(srcset, mirrorUrls);
+      if (replacement) {
+        imgTag.attr("srcset", replacement);
+        count++;
+      }
     }
   }
   
   return {count, html: parsedHtml.html()};
+}
+
+function getImageUrlsFromImgTag(tag: any): string[] {
+  let imageUrls: string[] = [];
+  const src: string = tag.attr("src");
+  if (src) {
+    imageUrls.push(src);
+  }
+  const srcset: string = tag.attr("srcset");
+  if (srcset) {
+    const imageVariants = srcset.split(",").map(tok=>tok.trim());
+    for (let imageVariant of imageVariants) {
+      const [url,size] = imageVariant.split(" ").map(tok=>tok.trim());
+      if (url) imageUrls.push(url);
+    }
+  }
+  
+  return uniq(imageUrls);
+}
+
+function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
+  const imageVariants = srcset.split(",").map(tok=>tok.trim());
+  const rewrittenImageVariants = imageVariants.map(variant => {
+    let tokens = variant.split(" ");
+    if (tokens[0] in urlMap)
+      tokens[0] = urlMap[tokens[0]];
+    return tokens.join(" ");
+  });
+  return rewrittenImageVariants.join(", ");
 }
 
 /**
