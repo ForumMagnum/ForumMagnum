@@ -31,7 +31,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      img: [ 'src' , 'srcset'],
+      img: [ 'src' , 'srcset', 'alt'],
       figure: ['style', 'class'],
       table: ['style'],
       tbody: ['style'],
