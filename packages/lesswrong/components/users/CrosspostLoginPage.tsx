@@ -57,9 +57,7 @@ const CrosspostLoginPage = ({classes}: {
       setError(null);
       window.close();
     } else {
-      // This was added to provide an informative error message for the karma threshold case.  Handle differently?
-      const errorMessage = result?.errors?.[0]?.message ?? "Failed to connect accounts";
-      setError(errorMessage);
+      setError("Failed to connect accounts");
     }
   }
 
