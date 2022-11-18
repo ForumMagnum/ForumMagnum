@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -180,7 +180,8 @@ const TagSubforumPage2 = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox
+    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, MixedTypeFeed,
+    CommentWithReplies,
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -424,6 +425,55 @@ const TagSubforumPage2 = ({classes}: {
   ) : <></>;
   const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} key={`subtags_box`}/>];
 
+  const SubforumFeed = () => {
+    const refetchRef = useRef<null|(()=>void)>(null);
+    const refetch = useCallback(() => {
+      if (refetchRef.current)
+        refetchRef.current();
+    }, [refetchRef]);
+    const commentNodeProps = {
+      treeOptions: {
+        postPage: true,
+        refetch,
+        tag,
+      },
+      startThreadTruncated: true,
+      isChild: false,
+      enableGuidelines: false,
+      displayMode: "minimalist" as const,
+    };
+    return <MixedTypeFeed
+      firstPageSize={10}
+      pageSize={20}
+      refetchRef={refetchRef}
+      resolverName="SubforumFeed"
+      sortKeyType="Date"
+      resolverArgs={{
+        tagId: 'String!',
+        af: 'Boolean',
+      }}
+      resolverArgsValues={{
+        tagId: tag._id,
+        af: false,
+      }}
+      fragmentArgs={{}}
+      fragmentArgsValues={{}}
+      renderers={{
+        tagSubforumComments: {
+          fragmentName: "CommentWithRepliesFragment",
+          render: (comment: CommentWithRepliesFragment) => (
+            <CommentWithReplies
+              comment={comment}
+              key={comment._id}
+              commentNodeProps={commentNodeProps}
+              initialMaxChildren={5}
+            />
+          )
+        },
+      }}
+    />
+  }
+
   return (
     <AnalyticsContext
       pageContext="tagPage"
@@ -457,7 +507,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}>PLACEHOLDER FOR POSTS COMPONENT</p>}
+          {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}><SubforumFeed /></p>}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>

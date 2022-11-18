@@ -1,4 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
@@ -17,6 +18,40 @@ import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
+
+defineFeedResolver<Date>({
+  name: "SubforumFeed",
+  args: "tagId: String!, af: Boolean",
+  cutoffTypeGraphQL: "Date",
+  resultTypesGraphQL: `
+    tagSubforumComments: Comment
+  `,
+  resolver: async ({limit = 20, cutoff, offset, args, context}: {
+    limit?: number, cutoff?: Date, offset?: number,
+    args: {tagId: string, af?: boolean},
+    context: ResolverContext,
+  }) => {
+    const {tagId, af} = args;
+    return mergeFeedQueries<Date>({
+      limit,
+      cutoff,
+      offset,
+      subqueries: [
+        // Subforum comments
+        viewBasedSubquery({
+          type: "tagSubforumComments",
+          collection: Comments,
+          sortField: "postedAt",
+          context,
+          selector: {
+            tagId,
+            ...(af ? {af: true} : undefined),
+          },
+        }),
+      ],
+    });
+  },
+});
 
 addGraphQLSchema(`
   type TagUpdates {
