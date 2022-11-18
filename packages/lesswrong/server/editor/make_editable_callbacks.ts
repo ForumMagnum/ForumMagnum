@@ -12,7 +12,7 @@ import * as _ from 'underscore';
 import cheerio from 'cheerio';
 import { onStartup } from '../../lib/executionEnvironment';
 import { dataToHTML, dataToWordCount } from './conversionUtils';
-import { convertImagesInObject } from '../scripts/convertImagesToCloudinary';
+import { Globals } from '../../lib/vulcan-lib/config';
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -269,10 +269,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
    * It's fine to leave it here just in case though
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
-    await convertImagesInObject(collectionName, doc._id);
+    await Globals.convertImagesInObject(collectionName, doc._id);
   })
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
-    await convertImagesInObject(collectionName, doc._id)
+    await Globals.convertImagesInObject(collectionName, doc._id)
   })
 }
 

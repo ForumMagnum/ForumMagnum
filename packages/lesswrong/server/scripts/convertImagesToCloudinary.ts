@@ -1,4 +1,4 @@
-import { Globals } from '../../lib/vulcan-lib';
+import { Globals } from '../../lib/vulcan-lib/config';
 import { editableCollectionsFields } from '../../lib/editor/make_editable';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Posts } from '../../lib/collections/posts/collection';
