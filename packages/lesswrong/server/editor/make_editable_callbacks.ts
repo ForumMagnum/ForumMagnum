@@ -12,6 +12,7 @@ import * as _ from 'underscore';
 import cheerio from 'cheerio';
 import { onStartup } from '../../lib/executionEnvironment';
 import { dataToHTML, dataToWordCount } from './conversionUtils';
+import { convertImagesInObject } from '../scripts/convertImagesToCloudinary';
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -256,6 +257,23 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     }
     return newDoc;
   });
+  
+  
+  /**
+   * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
+   * they have fairly strict rate limits that often result in them failing to load.
+   *
+   * NOTE: This is still necessary even if CkEditor is configured to reupload
+   * images, because images have URLs that come from Markdown or RSS sync.
+   * See: https://app.asana.com/0/628521446211730/1203311932993130/f
+   * It's fine to leave it here just in case though
+   */
+  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
+    await convertImagesInObject(collectionName, doc._id);
+  })
+  getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
+    await convertImagesInObject(collectionName, doc._id)
+  })
 }
 
 export function addAllEditableCallbacks() {
