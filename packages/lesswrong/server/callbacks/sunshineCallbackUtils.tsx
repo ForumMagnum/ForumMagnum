@@ -7,7 +7,10 @@ import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collecti
 import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
 import { Posts } from "../../lib/collections/posts";
 import Users from "../../lib/collections/users/collection";
+import Votes from "../../lib/collections/votes/collection";
+import { getWithLoader } from "../../lib/loaders";
 import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { forumSelect } from "../../lib/forumTypeUtils";
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
@@ -26,8 +29,25 @@ export async function triggerReviewIfNeeded(userId: string, override?: true) {
   void Users.rawUpdateOne({ _id: user._id }, { $set: { needsReview: needsReview } });
 }
 
-function isNetDownvoted(comment: DbComment) {
-  return comment.baseScore <= 0 && comment.voteCount > 0;
+interface VoteableAutomodRuleProps<T extends DbVoteableType>{
+  voteableItem: T;
+  votes: DbVote[];
+}
+
+type VoteableAutomodRule<T extends DbVoteableType = DbVoteableType> = (props: VoteableAutomodRuleProps<T>) => boolean;
+
+function hasMultipleDownvotes<T extends DbVoteableType>({ votes }: VoteableAutomodRuleProps<T>) {
+  const downvotes = votes.filter(vote => vote.voteType === 'smallDownvote' || vote.voteType === 'bigDownvote');
+  return downvotes.length > 1;
+}
+
+/**
+ * Doesn't use `VoteableAutomodRuleProps` because we also use it in places where we don't have (or care) about the votes themselves
+ */
+function isDownvotedBelowBar<T extends DbVoteableType>(bar: number) {
+  return ({ voteableItem }: { voteableItem: T }) => {
+    return voteableItem.baseScore <= bar && voteableItem.voteCount > 0;
+  }
 }
 
 export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]) {
@@ -41,7 +61,7 @@ export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]
 
   const lastFiveVoteableItems = voteableItems.slice(0, 5);
   const downvotedItemCountThreshold = 2;
-  const downvotedItemCount = lastFiveVoteableItems.filter(isNetDownvoted).length;
+  const downvotedItemCount = lastFiveVoteableItems.filter(item => isDownvotedBelowBar(0)({ voteableItem: item })).length;
 
   return downvotedItemCount >= downvotedItemCountThreshold;
 }
@@ -136,14 +156,26 @@ export async function triggerAutomodIfNeeded(userId: string) {
   await triggerAutomodIfNeededForUser(user);
 }
 
-export async function triggerCommentAutomodIfNeeded(commentId: string, vote: DbVote) {
+export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote) {
   const context = createAdminContext();
+  const commentId = comment._id;
 
-  const previousCommentModeratorActions = await CommentModeratorActions.find({ commentId }, { sort: { createdAt: -1 } }).fetch();
+  const [allVotes, previousCommentModeratorActions] = await Promise.all([
+    getWithLoader(context, Votes, "votesByDocument", { cancelled: false }, "documentId", commentId),
+    CommentModeratorActions.find({ commentId }, { sort: { createdAt: -1 } }).fetch()
+  ]);
+
   const existingDownvotedCommentAction = previousCommentModeratorActions.find(action => action.type === DOWNVOTED_COMMENT_ALERT);
-  const isDownvote = vote.voteType === 'smallDownvote' || vote.voteType === 'bigDownvote';
 
-  if (!existingDownvotedCommentAction && isDownvote) {
+  const automodRule = forumSelect<VoteableAutomodRule>({
+    LessWrong: hasMultipleDownvotes,
+    EAForum: isDownvotedBelowBar(-15),
+    default: () => false
+  });
+  
+  const needsModeration = automodRule({ voteableItem: comment, votes: allVotes });
+
+  if (!existingDownvotedCommentAction && needsModeration) {
     void createMutator({
       collection: CommentModeratorActions,
       document: {
