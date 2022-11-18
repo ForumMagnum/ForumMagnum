@@ -15,7 +15,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -148,10 +148,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
-    paddingLeft: "1.5em",
-    paddingRight: "1.5em",
-    paddingBottom: "1em",
     marginBottom: 24,
+  },
+  sidebarBoxWrapperDefaultPadding: {
+    padding: "1em 1.5em",
   },
   tableOfContentsWrapper: {
     padding: 24,
@@ -180,7 +180,7 @@ const TagSubforumPage2 = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox
+    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, SidebarMembersBox
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -419,10 +419,14 @@ const TagSubforumPage2 = ({classes}: {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
-      <div className={classes.sidebarBoxWrapper} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+      <div className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
     </ContentStyles>
   ) : <></>;
-  const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} key={`subtags_box`}/>];
+  const rightSidebarComponents = [
+    welcomeBoxComponent,
+    <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
+    <SidebarSubtagsBox tagId={tag._id} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
+  ];
 
   return (
     <AnalyticsContext
