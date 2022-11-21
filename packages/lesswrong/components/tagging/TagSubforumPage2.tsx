@@ -155,7 +155,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   tableOfContentsWrapper: {
     padding: 24,
-  }
+  },
+  feedPostWrapper: {
+    marginTop: 32,
+  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -462,12 +465,14 @@ const TagSubforumPage2 = ({classes}: {
         tagSubforumPosts: {
           fragmentName: "PostsList",
           render: (post: PostsList) => (
-            <RecentDiscussionThread
-              key={post._id}
-              post={{...post, recentComments: []}}
-              comments={[]}
-              refetch={refetch}
-            />
+            <div className={classes.feedPostWrapper}>
+              <RecentDiscussionThread
+                key={post._id}
+                post={{...post, recentComments: []}}
+                comments={[]}
+                refetch={refetch}
+              />
+            </div>
           )
         },
         tagSubforumComments: {
