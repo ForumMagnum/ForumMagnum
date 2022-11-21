@@ -19,6 +19,7 @@ import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSe
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
@@ -156,6 +157,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
   tableOfContentsWrapper: {
     padding: 24,
   },
+  feedWrapper: {
+    padding: "0 10px",
+  },
+  feedHeader: {
+    display: "flex",
+    marginBottom: -16,
+  },
+  feedHeaderButtons: {
+    display: "flex",
+    flexGrow: 1,
+    columnGap: 16,
+  },
   feedPostWrapper: {
     marginTop: 32,
   },
@@ -184,7 +197,7 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, MixedTypeFeed,
-    CommentWithReplies, RecentDiscussionThread,
+    SectionButton, CommentWithReplies, RecentDiscussionThread,
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -445,49 +458,63 @@ const TagSubforumPage2 = ({classes}: {
       enableGuidelines: false,
       displayMode: "minimalist" as const,
     };
-    return <MixedTypeFeed
-      firstPageSize={10}
-      pageSize={20}
-      refetchRef={refetchRef}
-      resolverName="SubforumFeed"
-      sortKeyType="Date"
-      resolverArgs={{
-        tagId: 'String!',
-        af: 'Boolean',
-      }}
-      resolverArgsValues={{
-        tagId: tag._id,
-        af: false,
-      }}
-      fragmentArgs={{}}
-      fragmentArgsValues={{}}
-      renderers={{
-        tagSubforumPosts: {
-          fragmentName: "PostsList",
-          render: (post: PostsList) => (
-            <div className={classes.feedPostWrapper}>
-              <RecentDiscussionThread
-                key={post._id}
-                post={{...post, recentComments: []}}
-                comments={[]}
-                refetch={refetch}
+    console.log("sort", query.sortedBy);
+    return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      <div className={classes.feedHeader}>
+        <div className={classes.feedHeaderButtons}>
+          <SectionButton>
+            <AddBoxIcon /> New Post
+          </SectionButton>
+          <SectionButton>
+            <AddBoxIcon /> New Discussion
+          </SectionButton>
+        </div>
+        <PostsListSortDropdown value={query.sortedBy} />
+      </div>
+      <MixedTypeFeed
+        firstPageSize={10}
+        pageSize={20}
+        refetchRef={refetchRef}
+        resolverName="SubforumFeed"
+        sortKeyType="Date"
+        resolverArgs={{
+          tagId: 'String!',
+          af: 'Boolean',
+        }}
+        resolverArgsValues={{
+          tagId: tag._id,
+          af: false,
+        }}
+        fragmentArgs={{}}
+        fragmentArgsValues={{}}
+        renderers={{
+          tagSubforumPosts: {
+            fragmentName: "PostsList",
+            render: (post: PostsList) => (
+              <div className={classes.feedPostWrapper}>
+                <RecentDiscussionThread
+                  key={post._id}
+                  post={{...post, recentComments: []}}
+                  comments={[]}
+                  refetch={refetch}
+                />
+              </div>
+            )
+          },
+          tagSubforumComments: {
+            fragmentName: "CommentWithRepliesFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={comment}
+                commentNodeProps={commentNodeProps}
+                initialMaxChildren={5}
               />
-            </div>
-          )
-        },
-        tagSubforumComments: {
-          fragmentName: "CommentWithRepliesFragment",
-          render: (comment: CommentWithRepliesFragment) => (
-            <CommentWithReplies
-              key={comment._id}
-              comment={comment}
-              commentNodeProps={commentNodeProps}
-              initialMaxChildren={5}
-            />
-          )
-        },
-      }}
-    />
+            )
+          },
+        }}
+      />
+    </div>
   }
 
   return (
@@ -523,7 +550,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}><SubforumFeed /></p>}
+          {tab === "wiki" ? wikiComponent : <SubforumFeed />}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>
