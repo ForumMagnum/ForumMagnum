@@ -187,6 +187,11 @@ import './collections/commentModeratorActions/index';
 // ModerationTemplates
 import './collections/moderationTemplates/index';
 
+// Comment approvals
+import './collections/commentApprovals/collection';
+import './collections/commentApprovals/views';
+import './collections/commentApprovals/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 

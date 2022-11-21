@@ -15,6 +15,7 @@ registerFragment(`
       qualitativeScore
     }
     userId
+    requireCommentApproval
   }
 `);
 

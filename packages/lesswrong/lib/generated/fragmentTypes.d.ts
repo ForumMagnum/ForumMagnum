@@ -642,6 +642,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly requireCommentApproval: boolean | null,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -711,6 +712,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string,
+  readonly requireCommentApproval: boolean | null,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -1209,6 +1211,7 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
+  readonly commentApproval: CommentApprovalWithoutComment|null,
 }
 
 interface CommentsList_contents { // fragment on Revisions
@@ -2801,6 +2804,19 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly contents: RevisionEdit|null,
 }
 
+interface CommentApprovalsDefaultFragment { // fragment on CommentApprovals
+  readonly commentId: string,
+  readonly status: "approved" | "rejected",
+  readonly rejectionReason: string | null,
+}
+
+interface CommentApprovalWithoutComment { // fragment on CommentApprovals
+  readonly _id: string,
+  readonly status: "approved" | "rejected",
+  readonly rejectionReason: string | null,
+  readonly createdAt: Date,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -2984,6 +3000,8 @@ interface FragmentTypes {
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
+  CommentApprovalsDefaultFragment: CommentApprovalsDefaultFragment
+  CommentApprovalWithoutComment: CommentApprovalWithoutComment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3159,8 +3177,10 @@ interface CollectionNamesByFragmentName {
   CommentModeratorActionDisplay: "CommentModeratorActions"
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
+  CommentApprovalsDefaultFragment: "CommentApprovals"
+  CommentApprovalWithoutComment: "CommentApprovals"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentApprovals"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
 

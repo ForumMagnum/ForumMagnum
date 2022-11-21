@@ -88,3 +88,26 @@ export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Arr
   }
   return true;
 }
+
+export function flattenComments<T extends ThreadableCommentType>(commentTree: CommentTreeNode<T>[]): T[] {
+  // Shallow copy to avoid mutating the input
+  const commentTreeClone = [...commentTree];
+  
+  // Prevent cycles if we somehow have them
+  const seenCommentIds = new Set<string>();
+
+  // Results
+  const flattenedComments: T[] = [];
+
+  let nextNode: CommentTreeNode<T> | undefined;
+  // Assignment evaluates to true if an element is returned from `pop`, false otherwise
+  while (nextNode = commentTreeClone.pop()) {
+    if (!seenCommentIds.has(nextNode.item._id)) {
+      flattenedComments.push(nextNode.item);
+      seenCommentIds.add(nextNode.item._id);
+      commentTreeClone.push(...nextNode.children);
+    }
+  }
+
+  return flattenedComments;
+}

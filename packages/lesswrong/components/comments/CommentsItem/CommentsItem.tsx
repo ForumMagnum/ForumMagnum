@@ -143,6 +143,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  pendingApproval: {
+    paddingLeft: 12
+  }
 })
 
 export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, displayMode, showParentDefault=false, classes }: {
@@ -173,6 +176,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const currentUser = useCurrentUser();
 
   const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+  const showCommentApprovalStatus = !!post?.requireCommentApproval && !(isChild || comment.parentCommentId);
+
+  console.log({ commentId: comment._id, isChild, parentCommentId });
+
+  const canReplyFromApprovalStatus = () => {
+    if (!post?.requireCommentApproval) return true;
+    return comment.commentApproval?.status === 'approved';
+  };
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -255,7 +266,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
+      canReplyFromApprovalStatus()
     )
 
     const showInlineCancel = showReplyState && isMinimalist
@@ -393,6 +405,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               collection={Comments}
               hideKarma={post?.hideCommentKarma}
             />
+            {showCommentApprovalStatus && <span className={classes.pendingApproval}>
+              {!comment.commentApproval ? 'Pending Approval - Replies Disabled' : ''}
+            </span>}
 
             {!isParentComment && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}

@@ -56,6 +56,9 @@ registerFragment(`
     directChildrenCount
     votingSystem
     isPinnedOnProfile
+    commentApproval {
+      ...CommentApprovalWithoutComment
+    }
   }
 `);
 

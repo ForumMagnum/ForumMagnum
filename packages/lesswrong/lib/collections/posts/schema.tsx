@@ -19,7 +19,7 @@ import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost, userCanRequireCommentApproval, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -2299,6 +2299,17 @@ const schema: SchemaType<DbPost> = {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
+  },
+
+  requireCommentApproval: {
+    type: Boolean,
+    canRead: ['guests'],
+    group: formGroups.moderationGroup,
+    canUpdate: (currentUser: DbUser|null, document: DbPost) => userCanRequireCommentApproval(currentUser, document),
+    canCreate: (currentUser: DbUser|null) => userCanRequireCommentApproval(currentUser, null),
+    optional: true,
+    nullable: true,
+    control: "checkbox",
   },
 };
 

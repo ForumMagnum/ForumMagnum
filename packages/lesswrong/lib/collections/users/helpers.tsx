@@ -150,6 +150,19 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
+export const userCanRequireCommentApproval = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
+  if (userCanDo(user, "posts.requireCommentApproval.all")) {
+    return true
+  }
+  if (!user || !post) {
+    return false
+  }
+  return !!(
+    userCanDo(user, "posts.requireCommentApproval.own") &&
+    userOwns(user, post)
+  )
+}
+
 export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!post) return false;
   return !!(
