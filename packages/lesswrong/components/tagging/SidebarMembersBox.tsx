@@ -34,6 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   scrollableList: {
     paddingLeft: 16,
+    paddingRight: 16,
     maxHeight: 450,
     overflowY: 'scroll',
     position: 'relative',

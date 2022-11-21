@@ -20,6 +20,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
+import { useDialog } from "../common/withDialog";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -155,7 +156,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   tableOfContentsWrapper: {
     padding: 24,
-  }
+  },
+  membersListLink: {
+    background: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.5
+    },
+    [theme.breakpoints.up('md')]: {
+      display: 'none' // only show on mobile (when the sidebar is not showing)
+    }
+  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -233,6 +247,25 @@ const TagSubforumPage2 = ({classes}: {
     limit: 1500,
     skip: !query.flagId
   })
+
+  const { openDialog } = useDialog();
+  const { results: members, totalCount: membersCount } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile',
+    enableTotal: true,
+    skip: !tag
+  })
+
+  const onClickMembersList = () => {
+    if (!tag) return;
+
+    openDialog({
+      componentName: 'SubforumMembersDialog',
+      componentProps: {tag},
+      closeOnNavigate: true
+    })
+  }
   
   useOnSearchHotkey(() => setTruncated(false));
 
@@ -401,6 +434,9 @@ const TagSubforumPage2 = ({classes}: {
             subscriptionType={subscriptionTypes.newTagPosts}
           />
         )}
+      </div>
+      <div className={classes.membersListLink}>
+        {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
       </div>
       <Tabs
         value={tab}
