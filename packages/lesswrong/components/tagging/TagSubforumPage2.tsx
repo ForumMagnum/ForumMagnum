@@ -177,13 +177,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   joinBtn: {
     alignItems: 'center !important',
-    paddingTop: '4px !important',
+    padding: '4px 0 0 0 !important',
     '& button': {
       minHeight: 0,
       fontSize: 14,
       padding: 8
     },
     [theme.breakpoints.down('sm')]: {
+      padding: '2px 0 0 0 !important',
       '& button': {
         minHeight: 0,
         fontSize: 12,
@@ -337,6 +338,8 @@ const TagSubforumPage2 = ({classes}: {
     throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
   }
 
+  const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
+
   // if no sort order was selected, try to use the tag page's default sort order for posts
   if (query.sortedBy || tag.postsDefaultSortOrder) {
     query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
@@ -453,9 +456,9 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {/* TODO clean up */}
         {/* TODO change what appears in SubforumNotificationSettings list */}
-        {currentUser && !editing ? (currentUser?.profileTagIds?.includes(tag._id) ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />) : null}
+        {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
+        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
       </div>
       <div className={classes.membersListLink}>
         {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
