@@ -11,9 +11,6 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  notificationsButtonWrapper: {
-    margin: "3px 0px 0 0",
-  },
   notificationsButton: {
     padding: 4,
   },
@@ -40,10 +37,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumNotificationSettings = ({
   tag,
   currentUser,
+  className,
   classes,
 }: {
   tag: TagBasicInfo;
   currentUser: UsersCurrent;
+  className?: string;
   classes: ClassesType;
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -76,8 +75,8 @@ const SubforumNotificationSettings = ({
 
   return (
     <AnalyticsContext pageSection="subforumNotificationSettings">
-      <div className={classes.root}>
-        <div ref={anchorEl} className={classes.notificationsButtonWrapper}>
+      <div className={className}>
+        <div ref={anchorEl}>
           <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
             {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
               <NotificationsNoneIcon />

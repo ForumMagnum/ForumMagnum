@@ -176,15 +176,26 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   joinBtn: {
+    alignItems: 'center !important',
+    paddingTop: '4px !important',
     '& button': {
       minHeight: 0,
-      fontSize: 12,
-      padding: 6
+      fontSize: 14,
+      padding: 8
     },
+    [theme.breakpoints.down('sm')]: {
+      '& button': {
+        minHeight: 0,
+        fontSize: 12,
+        padding: 6
+      },
+    }
   },
-  notificationSection: {
-    display: 'flex',
-    flexDirection: 'row',
+  notificationSettings: {
+    marginTop: 6,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 4,
+    }
   }
 });
 
@@ -444,7 +455,7 @@ const TagSubforumPage2 = ({classes}: {
         </Typography>
         {/* TODO clean up */}
         {/* TODO change what appears in SubforumNotificationSettings list */}
-        {currentUser && !editing ? (currentUser?.profileTagIds?.includes(tag._id) ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />) : null}
+        {currentUser && !editing ? (currentUser?.profileTagIds?.includes(tag._id) ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />) : null}
       </div>
       <div className={classes.membersListLink}>
         {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
