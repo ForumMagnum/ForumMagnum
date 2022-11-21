@@ -79,19 +79,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
     width: "100%",
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 32,
+      paddingRight: 32,
+    }
   },
   titleRow: {
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-      justifyContent: 'space-between',
-    }
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
     fontWeight: 600,
-    fontVariant: "small-caps"
+    fontVariant: "small-caps",
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "2.4rem",
+    }
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -170,6 +175,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: 'none' // only show on mobile (when the sidebar is not showing)
     }
   },
+  joinBtn: {
+    '& button': {
+      minHeight: 0,
+      fontSize: 12,
+      padding: 6
+    },
+  },
+  notificationSection: {
+    display: 'flex',
+    flexDirection: 'row',
+  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -194,7 +210,8 @@ const TagSubforumPage2 = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, SidebarMembersBox
+    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, SidebarMembersBox, SubforumNotificationSettings,
+    SubforumSubscribeSection
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -425,15 +442,9 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) && (
-          <SubscribeButton
-            tag={tag}
-            className={classes.notifyMeButton}
-            subscribeMessage="Subscribe"
-            unsubscribeMessage="Unsubscribe"
-            subscriptionType={subscriptionTypes.newTagPosts}
-          />
-        )}
+        {/* TODO clean up */}
+        {/* TODO change what appears in SubforumNotificationSettings list */}
+        {currentUser && !editing ? (currentUser?.profileTagIds?.includes(tag._id) ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />) : null}
       </div>
       <div className={classes.membersListLink}>
         {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}

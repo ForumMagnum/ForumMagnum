@@ -12,7 +12,7 @@ import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButtonWrapper: {
-    margin: "0 12px 0 0",
+    margin: "3px 0px 0 0",
   },
   notificationsButton: {
     padding: 4,
