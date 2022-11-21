@@ -9,5 +9,10 @@ const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
 
 makeVoteable(Comments, {
   timeDecayScoresCronjob: true,
-  customBaseScoreReadAccess
+  customBaseScoreReadAccess,
+  userCanVoteOn: (user: DbUser|null, comment: DbComment, voteType: string) => {
+    if (!user) return false;
+    if (comment.userId === user._id && ["bigUpvote", "bigDownvote"].includes(voteType)) return false;
+    return true;
+  }
 });
