@@ -36,6 +36,6 @@ export class InvalidPayloadError extends ApiError {
 
 export class InsufficientKarmaError extends ApiError {
   constructor(requiredKarma: number) {
-    super(400, `You must have at least ${requiredKarma} karma to do this.`);
+    super(403, `You must have at least ${requiredKarma} karma to do this.`);
   }
 }
