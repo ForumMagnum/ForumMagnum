@@ -4,7 +4,8 @@ type OrderPreservingArrayPolicy = "prepend-new" | "append-new" | "interleave-new
 type IndexType = string | number;
 
 const arrayToIndexMap = (arr: IndexType[]): Record<IndexType, number> =>
-  Object.keys(arr).reduce(function (map, idx) {
+  Object.keys(arr).reduce(function (map, idxStr) {
+    const idx = parseInt(idxStr);
     map[arr[idx]] = idx;
     return map;
   }, {});
