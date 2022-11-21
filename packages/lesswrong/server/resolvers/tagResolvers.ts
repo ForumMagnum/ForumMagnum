@@ -5,6 +5,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
+import { Posts } from '../../lib/collections/posts';
 import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
@@ -24,6 +25,7 @@ defineFeedResolver<Date>({
   args: "tagId: String!, af: Boolean",
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
+    tagSubforumPosts: Post
     tagSubforumComments: Comment
   `,
   resolver: async ({limit = 20, cutoff, offset, args, context}: {
@@ -37,6 +39,20 @@ defineFeedResolver<Date>({
       cutoff,
       offset,
       subqueries: [
+        // Subforum posts
+        viewBasedSubquery({
+          type: "tagSubforumPosts",
+          collection: Posts,
+          sortField: "postedAt",
+          context,
+          selector: {
+            [`tagRelevance.${tagId}`]: {$gte: 1},
+            hiddenRelatedQuestion: undefined,
+            shortform: undefined,
+            groupId: undefined,
+            ...(af ? {af: true} : undefined),
+          },
+        }),
         // Subforum comments
         viewBasedSubquery({
           type: "tagSubforumComments",

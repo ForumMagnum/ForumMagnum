@@ -181,7 +181,7 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, MixedTypeFeed,
-    CommentWithReplies,
+    CommentWithReplies, RecentDiscussionThread,
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -459,12 +459,23 @@ const TagSubforumPage2 = ({classes}: {
       fragmentArgs={{}}
       fragmentArgsValues={{}}
       renderers={{
+        tagSubforumPosts: {
+          fragmentName: "PostsList",
+          render: (post: PostsList) => (
+            <RecentDiscussionThread
+              key={post._id}
+              post={{...post, recentComments: []}}
+              comments={[]}
+              refetch={refetch}
+            />
+          )
+        },
         tagSubforumComments: {
           fragmentName: "CommentWithRepliesFragment",
           render: (comment: CommentWithRepliesFragment) => (
             <CommentWithReplies
-              comment={comment}
               key={comment._id}
+              comment={comment}
               commentNodeProps={commentNodeProps}
               initialMaxChildren={5}
             />
