@@ -11,6 +11,9 @@ import { InsufficientKarmaError, InvalidUserError } from "./errors";
   if (!currentUser) {
     throw new InvalidUserError();
   }
+  if (currentUser.isAdmin) {
+    return;
+  }
 
   // Despite the generated type, karma is in fact missing by default for new users who haven't had anything of theirs voted on
   // Numeric comparisons to `undefined` always return false!
