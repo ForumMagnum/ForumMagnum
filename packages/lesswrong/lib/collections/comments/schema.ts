@@ -597,6 +597,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
+    hidden: true
   },
 
   /**
@@ -613,6 +614,7 @@ const schema: SchemaType<DbComment> = {
       if (!newDocument.moderatorHat) return null;
       return newDocument.hideModeratorHat;
     },
+    hidden: true
   },
 
   // whether this comment is pinned on the author's profile
