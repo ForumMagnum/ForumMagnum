@@ -114,6 +114,10 @@ const PostCollaborationEditor = ({ classes }: {
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
         />
+        <Components.PostVersionHistoryButton
+          post={post}
+          postId={postId}
+        />
       </NoSSR>
     </ContentStyles>
   </SingleColumnSection>
