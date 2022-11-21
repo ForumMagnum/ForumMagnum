@@ -299,16 +299,16 @@ const AdvisorsPage = ({classes}: {
 
   const { SingleColumnSection, HeadTags, AdvisorCard, Loading, CommunityMemberCard } = Components
 
-  const { create: createAdvisorRequest } = useCreate({
-    collectionName: 'AdvisorRequests',
-    fragmentName: 'AdvisorRequestsMinimumInfo',
-  })
-  const { count } = useMulti({
-    terms: {view: 'requestsByUser', userId: currentUser?._id},
-    collectionName: 'AdvisorRequests',
-    fragmentName: 'AdvisorRequestsMinimumInfo',
-    skip: !currentUser
-  })
+  // const { create: createAdvisorRequest } = useCreate({
+  //   collectionName: 'AdvisorRequests',
+  //   fragmentName: 'AdvisorRequestsMinimumInfo',
+  // })
+  // const { count } = useMulti({
+  //   terms: {view: 'requestsByUser', userId: currentUser?._id},
+  //   collectionName: 'AdvisorRequests',
+  //   fragmentName: 'AdvisorRequestsMinimumInfo',
+  //   skip: !currentUser
+  // })
   
   const { results: communityMembers, loading: communityMembersLoading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: TOPIC_ID, hasBio: true, limit: 50},
@@ -319,11 +319,11 @@ const AdvisorsPage = ({classes}: {
   const onRequest = async () => {
     captureEvent('advisorRequestBtnClicked')
     // track that the current user requested a chat
-    if (currentUser && !count) {
-      await createAdvisorRequest({
-        data: {userId: currentUser._id}
-      });
-    }
+    // if (currentUser && !count) {
+    //   await createAdvisorRequest({
+    //     data: {userId: currentUser._id}
+    //   });
+    // }
   }
   
   const handleJoin = () => {

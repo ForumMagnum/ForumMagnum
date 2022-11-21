@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow:"hidden",
   },
   drawerNavigationMenuUncompressed: {
-    paddingTop: '10px',
     left:0,
     width:260,
     paddingBottom: 20,

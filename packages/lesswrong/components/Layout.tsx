@@ -34,7 +34,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest', 'tagsSubforum'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
-    gridArea: 'main', 
+    gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: 8,
@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     overflow: "auto",
   },
-  gridActivated: {
+  spacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
@@ -85,6 +85,25 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, 1.4fr)
         minmax(0, min-content)
       `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  unspacedGridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar main sunshine"
+      `,
+      gridTemplateColumns: `
+        0px
+        minmax(0, 1fr)
+        minmax(0, min-content)
+      `,
+    },
+    '& .Layout-main': {
+      width: '100%',
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -170,6 +189,7 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
     
     const shouldUseGridLayout = standaloneNavigation
+    const unspacedGridLayout = currentRoute?.unspacedGrid
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -220,10 +240,16 @@ const Layout = ({currentUser, children, classes}: {
               
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
-              <div className={classNames({[classes.gridActivated]: shouldUseGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
-                {standaloneNavigation && <div className={classes.navSidebar}>
-                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
-                </div>}
+              <div className={classNames(classes.standaloneNavFlex, {
+                [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
+                [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
+              )}>
+                {standaloneNavigation && <NavigationStandalone
+                  sidebarHidden={hideNavigationSidebar}
+                  unspacedGridLayout={unspacedGridLayout}
+                  className={classes.standaloneNav}
+                />}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white",

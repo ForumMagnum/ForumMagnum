@@ -29,7 +29,7 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   expandAll?: ()=>void,
   showContributors: boolean,
   onHoverContributor?: (contributorId: string)=>void,
-  displayOptions?: ToCDisplayOptions
+  displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
 }) => {
   const { TableOfContents, TableOfContentsRow, TagContributorsList } = Components;

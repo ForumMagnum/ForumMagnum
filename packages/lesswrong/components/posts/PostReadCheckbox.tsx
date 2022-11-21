@@ -30,7 +30,7 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
   const {postsRead, setPostRead} = useItemsRead();
   
 
-  const isRead = post.isRead || postsRead[post._id];
+  const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
 
   const {mutate: markAsReadOrUnread} = useNamedMutation<{
     postId: string, isRead: boolean,

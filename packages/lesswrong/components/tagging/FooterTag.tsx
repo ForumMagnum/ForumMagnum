@@ -96,11 +96,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, link=true, isTopTag=false}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard, link=true, isTopTag=false}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
+  popperCard?: React.ReactNode,
   classes: ClassesType,
   isTopTag?: boolean
   link?: boolean
@@ -111,7 +112,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, link=true,
     tagName: tag.name,
     tagSlug: tag.slug
   });
-  const { PopperCard, TagRelCard, TopTagIcon } = Components
+  const { PopperCard, TagRelCard, TopTagIcon, TagPreview } = Components
 
   const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
 
@@ -123,14 +124,17 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, link=true,
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 
+  // Fall back to TagRelCard if no popperCard is provided
+  const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
+
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
       {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>
         {renderedTag}
       </Link> : renderedTag}
-      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
+      {<PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
         <div className={classes.hovercard}>
-          <TagRelCard tagRel={tagRel} />
+          {popperCardToRender}
         </div>
       </PopperCard>}
     </span>

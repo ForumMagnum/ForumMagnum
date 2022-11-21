@@ -1936,11 +1936,13 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
 }
 
 interface TagFragment_parentTag { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
 
 interface TagFragment_subTags { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
@@ -1974,11 +1976,13 @@ interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
 }
 
 interface TagRevisionFragment_parentTag { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
 
 interface TagRevisionFragment_subTags { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
@@ -1999,11 +2003,13 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagPreviewFragment_parentTag { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
 
 interface TagPreviewFragment_subTags { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
@@ -2022,6 +2028,12 @@ interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
 interface TagSubforumFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface TagSubtagFragment { // fragment on Tags
+  readonly _id: string,
+  readonly subforumModeratorIds: Array<string>,
+  readonly subTags: Array<TagPreviewFragment>,
 }
 
 interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
@@ -2051,7 +2063,13 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
+}
+
+interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
@@ -2063,7 +2081,13 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
+}
+
+interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -2742,7 +2766,7 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
   readonly endedAt: Date | null,
 }
 
@@ -2750,7 +2774,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -2920,6 +2944,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagSubforumFragment: TagSubforumFragment
+  TagSubtagFragment: TagSubtagFragment
   TagSubforumSidebarFragment: TagSubforumSidebarFragment
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
@@ -3095,6 +3120,7 @@ interface CollectionNamesByFragmentName {
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
   TagSubforumFragment: "Tags"
+  TagSubtagFragment: "Tags"
   TagSubforumSidebarFragment: "Tags"
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
