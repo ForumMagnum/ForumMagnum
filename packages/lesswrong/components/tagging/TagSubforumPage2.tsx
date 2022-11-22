@@ -21,7 +21,14 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
-import { isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from "../../lib/subforumSortings";
+import {
+  defaultSubforumSorting,
+  isSubforumSorting,
+  SubforumSorting,
+  subforumSortings,
+  subforumSortingToResolverName,
+  subforumSortingTypes,
+} from "../../lib/subforumSortings";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -459,7 +466,7 @@ const TagSubforumPage2 = ({classes}: {
       enableGuidelines: false,
       displayMode: "minimalist" as const,
     };
-    const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : "new";
+    const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>

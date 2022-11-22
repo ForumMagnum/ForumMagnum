@@ -19,7 +19,13 @@ import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
-import { SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../lib/subforumSortings';
+import {
+  defaultSubforumSorting,
+  SubforumSorting,
+  subforumSortings,
+  subforumSortingToResolverName,
+  subforumSortingTypes,
+} from '../../lib/subforumSortings';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -52,8 +58,7 @@ const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
     },
   }
 
-  const defaultFeedSorting = "new";
-  return feedSortings[sort ?? defaultFeedSorting] ?? feedSortings[defaultFeedSorting];
+  return feedSortings[sort ?? defaultSubforumSorting] ?? feedSortings[defaultSubforumSorting];
 }
 
 const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({

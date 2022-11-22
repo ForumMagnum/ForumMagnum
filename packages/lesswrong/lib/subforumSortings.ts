@@ -13,6 +13,8 @@ export const subforumSortingTypes = {
 
 export type SubforumSorting = keyof typeof subforumSortingTypes;
 
+export const defaultSubforumSorting: SubforumSorting = "magic";
+
 export const subforumSortings = Object.keys(subforumSortingTypes) as SubforumSorting[];
 
 export const subforumSortingToResolverName = (sort: SubforumSorting) =>
