@@ -171,7 +171,8 @@ const Layout = ({currentUser, children, classes}: {
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
   }, [updateUser, currentUser, hideNavigationSidebar]);
-
+  
+  
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
 

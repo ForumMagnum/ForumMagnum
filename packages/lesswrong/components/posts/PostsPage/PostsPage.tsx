@@ -11,6 +11,7 @@ import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
@@ -209,7 +210,9 @@ const PostsPage = ({post, refetch, classes}: {
     throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
   }
   
-  const defaultSideCommentVisibility = post.sideCommentVisibility ?? "highKarma";
+  const defaultSideCommentVisibility = userHasSideComments(currentUser)
+    ? (post.sideCommentVisibility ?? "highKarma")
+    : "hidden";
   const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
   const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
     () => ({ sideCommentMode, setSideCommentMode }),

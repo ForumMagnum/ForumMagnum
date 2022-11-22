@@ -117,7 +117,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       <BadgeWrapper commentCount={commentIds.length}>
         <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
       </BadgeWrapper>
-      {isOpen && <span className={classes.extendHoverTarget}/>},
+      {isOpen && <span className={classes.extendHoverTarget}/>}
     </span>
     {isOpen && <ClickAwayListener onClickAway={onClickAway}>
       <LWPopper
