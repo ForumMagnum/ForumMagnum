@@ -50,9 +50,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   contentGivenImage: {
     marginTop: 185,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 130,
-    },
   },
   imageContainer: {
     position: 'absolute',
