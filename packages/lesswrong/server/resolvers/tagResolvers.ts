@@ -34,12 +34,6 @@ type SubforumFeedSort = {
 
 const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
   const feedSortings: Record<SubforumSorting, SubforumFeedSort> = {
-    // relevance: 0, // Does this even make sense here?
-    // magic: 0, // score - probably needs more
-    recentComments: {
-      posts: { sortField: "lastCommentedAt" },
-      comments: { sortField: "lastSubthreadActivity" },
-    },
     new: {
       posts: { sortField: "postedAt" },
       comments: { sortField: "postedAt" },
@@ -53,6 +47,11 @@ const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
       posts: { sortField: "baseScore" },
       comments: { sortField: "baseScore" },
     },
+    recentComments: {
+      posts: { sortField: "lastCommentedAt" },
+      comments: { sortField: "lastSubthreadActivity" },
+    },
+    // magic: 0, // score - probably needs more
   }
 
   const defaultFeedSorting = "new";

@@ -21,7 +21,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
-import { isSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from "../../lib/subforumSortings";
+import { isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from "../../lib/subforumSortings";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -470,7 +470,7 @@ const TagSubforumPage2 = ({classes}: {
             <AddBoxIcon /> New Discussion
           </SectionButton>
         </div>
-        <PostsListSortDropdown value={query.sortedBy} />
+        <PostsListSortDropdown value={query.sortedBy} options={subforumSortings} />
       </div>
       <MixedTypeFeed
         firstPageSize={10}
