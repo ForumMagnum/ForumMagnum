@@ -458,7 +458,6 @@ const TagSubforumPage2 = ({classes}: {
       enableGuidelines: false,
       displayMode: "minimalist" as const,
     };
-    console.log("sort", query.sortedBy);
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
@@ -478,10 +477,12 @@ const TagSubforumPage2 = ({classes}: {
         resolverName="SubforumFeed"
         sortKeyType="Date"
         resolverArgs={{
+          sort: 'String',
           tagId: 'String!',
           af: 'Boolean',
         }}
         resolverArgsValues={{
+          sort: query.sortedBy,
           tagId: tag._id,
           af: false,
         }}

@@ -1,5 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, StaticSortField, DynamicSortField } from '../utils/feedUtil';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
@@ -20,9 +20,28 @@ import filter from 'lodash/filter';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
 
+type SubforumFeedItem = DbComment | DbPost;
+type SubforumFeedStaticSort = StaticSortField<SubforumFeedItem, keyof SubforumFeedItem>;
+type SubforumFeedDynamicSort = DynamicSortField<SubforumFeedItem, Date, keyof SubforumFeedItem>;
+type SubforumFeedSort = SubforumFeedStaticSort | SubforumFeedDynamicSort;
+
+const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
+  const feedSortings: Record<string, SubforumFeedSort> = {
+    // relevance: 0, // Does this even make sense here?
+    // magic: 0, // score - probably needs more
+    // recentComments: 0, // lastCommentedAt
+    new: { sortField: "postedAt" },
+    old: { sortField: "postedAt", sortDirection: "asc" },
+    top: { sortField: "baseScore" }, // Maybe this should use karmaInflationAdjustedScore?
+  }
+
+  const defaultFeedSorting = "new";
+  return feedSortings[sort ?? defaultFeedSorting] ?? feedSortings[defaultFeedSorting];
+}
+
 defineFeedResolver<Date>({
   name: "SubforumFeed",
-  args: "tagId: String!, af: Boolean",
+  args: "sort: String, tagId: String!, af: Boolean",
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
     tagSubforumPosts: Post
@@ -30,20 +49,22 @@ defineFeedResolver<Date>({
   `,
   resolver: async ({limit = 20, cutoff, offset, args, context}: {
     limit?: number, cutoff?: Date, offset?: number,
-    args: {tagId: string, af?: boolean},
+    args: {sort?: string, tagId: string, af?: boolean},
     context: ResolverContext,
   }) => {
-    const {tagId, af} = args;
+    const {sort, tagId, af} = args;
+    const sorting = getSubforumFeedSorting(sort);
     return mergeFeedQueries<Date>({
       limit,
       cutoff,
       offset,
+      sortDirection: sorting.sortDirection,
       subqueries: [
         // Subforum posts
         viewBasedSubquery({
           type: "tagSubforumPosts",
           collection: Posts,
-          sortField: "postedAt",
+          ...sorting,
           context,
           selector: {
             [`tagRelevance.${tagId}`]: {$gte: 1},
@@ -57,7 +78,7 @@ defineFeedResolver<Date>({
         viewBasedSubquery({
           type: "tagSubforumComments",
           collection: Comments,
-          sortField: "postedAt",
+          ...sorting,
           context,
           selector: {
             tagId,
