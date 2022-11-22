@@ -7,7 +7,7 @@ import { useRecordSubforumView } from '../hooks/useRecordSubforumView';
 
 const SubforumCommentsThread = ({ tag, terms }: {
   tag: TagBasicInfo,
-  terms: CommentsViewTerms,
+  terms: OldCommentsViewTerms,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,

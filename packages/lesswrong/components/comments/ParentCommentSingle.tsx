@@ -3,11 +3,12 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import classNames from 'classnames';
 
-const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }: {
+const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, rootCommentApproval, truncated }: {
   documentId: string,
   nestingLevel: number,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
+  rootCommentApproval?: CommentApprovalWithoutComment,
   truncated?: boolean,
 }) => {
   const { document, loading } = useSingle({
@@ -27,7 +28,7 @@ const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }:
         }
       )}>
         <Components.CommentsItem
-          treeOptions={{tag, post}}
+          treeOptions={{tag, post, rootCommentApproval}}
           isParentComment
           comment={document}
           nestingLevel={nestingLevel}

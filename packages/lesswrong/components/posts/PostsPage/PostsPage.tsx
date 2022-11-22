@@ -210,8 +210,8 @@ const PostsPage = ({post, refetch, classes}: {
   
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
-    ? {...(query as CommentsViewTerms), limit:1000}
+  const commentTerms: OldCommentsViewTerms = Object.keys(viewNames).includes(query.view)
+    ? {...(query as OldCommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000}
   const sequenceId = getSequenceId();
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;

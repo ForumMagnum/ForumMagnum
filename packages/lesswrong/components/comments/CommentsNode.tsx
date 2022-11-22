@@ -109,6 +109,12 @@ const CommentsNode = ({
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
 
+  // Child comments need to know whether the root comment in any given thread has a comment approval status or not
+  const updatedTreeOptions: CommentTreeOptions = {
+    ...treeOptions,
+    ...(comment.commentApproval ? { rootCommentApproval: comment.commentApproval } : {})
+  }
+
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
     const mostRecent = lastCommentId === comment._id
@@ -206,7 +212,7 @@ const CommentsNode = ({
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}
-      treeOptions={treeOptions}
+      treeOptions={updatedTreeOptions}
       onClick={(event) => handleExpand(event)}
       id={!noHash ? comment._id : undefined}
       nestingLevel={updatedNestingLevel}
@@ -225,7 +231,7 @@ const CommentsNode = ({
           ? <AnalyticsContext singleLineComment commentId={comment._id}>
               <AnalyticsTracker eventType="singeLineComment">
                 <SingleLineComment
-                  treeOptions={treeOptions}
+                  treeOptions={updatedTreeOptions}
                   comment={comment}
                   nestingLevel={updatedNestingLevel}
                   parentCommentId={parentCommentId}
@@ -235,7 +241,7 @@ const CommentsNode = ({
               </AnalyticsTracker>
             </AnalyticsContext>
           : <CommentsItem
-              treeOptions={treeOptions}
+              treeOptions={updatedTreeOptions}
               truncated={isTruncated && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
               nestingLevel={updatedNestingLevel}
               parentCommentId={parentCommentId}
@@ -255,7 +261,7 @@ const CommentsNode = ({
         {childComments.map(child =>
           <Components.CommentsNode
             isChild={true}
-            treeOptions={treeOptions}
+            treeOptions={updatedTreeOptions}
             comment={child.item}
             parentCommentId={comment._id}
             parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}

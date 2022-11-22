@@ -65,7 +65,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, approvalSection, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, approvalSection, refetchAfterApproval, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -78,6 +78,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   startThreadTruncated?: boolean,
   newForm: boolean,
   approvalSection?: 'approved' | 'rejected',
+  refetchAfterApproval?: () => Promise<void>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -241,6 +242,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
           post: post,
           postPage: true,
           tag: tag,
+          refetchAfterApproval: refetchAfterApproval
         }}
         totalComments={totalComments}
         comments={sectionCommentTree}

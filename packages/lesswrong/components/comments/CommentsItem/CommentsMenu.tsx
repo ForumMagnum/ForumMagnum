@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, refetchAfterApproval}: {
   classes: ClassesType,
   className?: string,
   comment: CommentsList,
@@ -20,6 +20,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   tag?: TagBasicInfo,
   showEdit: ()=>void,
   icon?: any,
+  refetchAfterApproval?: () => Promise<void>
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
@@ -58,6 +59,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
           post={post}
           tag={tag}
           showEdit={showEdit}
+          refetchAfterApproval={refetchAfterApproval}
         />}
       </Menu>
     </>

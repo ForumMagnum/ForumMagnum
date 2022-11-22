@@ -175,15 +175,25 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
-  const showCommentApprovalStatus = !!post?.requireCommentApproval && !(isChild || comment.parentCommentId);
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId, rootCommentApproval } = treeOptions;
+  const showCommentApprovalStatus = !!post?.requireCommentApproval && !treeOptions.rootCommentApproval;
 
-  console.log({ commentId: comment._id, isChild, parentCommentId });
+  const getCommentApprovalStatusMessage = () => {
+    if (comment.commentApproval) return '';
+
+    if (isChild || comment.parentCommentId) {
+      return 'Parent Comment Pending Approval - Replies Disabled';
+    }
+
+    return 'Pending Approval - Replies Disabled';
+  };
 
   const canReplyFromApprovalStatus = () => {
     if (!post?.requireCommentApproval) return true;
-    return comment.commentApproval?.status === 'approved';
+    return rootCommentApproval?.status === 'approved';
   };
+
+  console.log({ commentId: comment._id, isChild, parentCommentId: comment.parentCommentId, showReplyButton: canReplyFromApprovalStatus(), commentApprovalStatusMessage: getCommentApprovalStatusMessage(), rootCommentApproval: treeOptions.rootCommentApproval });
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -230,6 +240,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           post={post}
           tag={tag}
           showEdit={setShowEdit}
+          refetchAfterApproval={treeOptions.refetchAfterApproval}
         />
       </AnalyticsContext>
     )
@@ -346,6 +357,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           <div className={classes.firstParentComment}>
             <Components.ParentCommentSingle
               post={post} tag={tag}
+              rootCommentApproval={rootCommentApproval}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
               truncated={showParentDefault}
@@ -406,7 +418,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               hideKarma={post?.hideCommentKarma}
             />
             {showCommentApprovalStatus && <span className={classes.pendingApproval}>
-              {!comment.commentApproval ? 'Pending Approval - Replies Disabled' : ''}
+              {getCommentApprovalStatusMessage()}
+              {/* {!comment.commentApproval ? 'Pending Approval - Replies Disabled' : ''} */}
             </span>}
 
             {!isParentComment && renderMenu()}

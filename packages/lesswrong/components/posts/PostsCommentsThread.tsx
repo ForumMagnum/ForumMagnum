@@ -2,17 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
-interface PartitionedComments {
-  approvedOrPending: CommentsList[];
-  rejected: CommentsList[];
-}
-
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
   post?: PostsDetails,
-  terms: CommentsViewTerms,
+  terms: OldCommentsViewTerms,
   newForm?: boolean,
 }) => {
-  const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
+  const { loading, results, loadMore, loadingMore, totalCount, refetch } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -27,17 +22,6 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
   }
 
   if (post?.requireCommentApproval && results) {
-    const approvedOrPendingComments: CommentsList[] = [];
-    const rejectedComments: CommentsList[] = [];
-
-    // results?.forEach((comment) => {
-    //   if (!comment.commentApproval || comment.commentApproval.status === 'approved') {
-    //     approvedOrPendingComments.push(comment);
-    //   } else {
-    //     rejectedComments.push(comment);
-    //   }
-    // });
-
     return (
       <>
         <Components.CommentsListSection
@@ -49,6 +33,7 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
           post={post}
           newForm={newForm}
           approvalSection='approved'
+          refetchAfterApproval={refetch}
         />
         <Components.CommentsListSection
           comments={results}
@@ -59,6 +44,7 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
           post={post}
           newForm={false}
           approvalSection='rejected'
+          refetchAfterApproval={refetch}
         />
       </>
     );
