@@ -172,6 +172,54 @@ registerVotingSystem({
   },
 });
 
+export type EmojiReaction = {
+  name: string,
+  icon: string,
+}
+export const emojiReactions: EmojiReaction[] = [
+  {name: "raised-hands", icon: "🙌"},
+  {name: "enthusiasm", icon: "🎉"},
+  {name: "empathy", icon: "❤️"},
+  {name: "star",   icon: "🌟"},
+  {name: "surprise", icon: "😮"},
+]
+const emojiReactionNames = emojiReactions.map(reaction => reaction.name)
+
+registerVotingSystem({
+  name: "emojiReactions",
+  description: "Emoji reactions",
+  getCommentVotingComponent: () => Components.EmojiReactionVoteOnComment,
+  addVoteClient: (oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent): any => {
+    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+      const hasReaction = !!extendedVote?.[reaction];
+      return [reaction, (oldExtendedScore?.[reaction]||0) + (hasReaction?1:0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
+    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+      const oldVote = !!cancelledExtendedVote?.[reaction];
+      return [reaction, oldExtendedScore?.[reaction] - (oldVote?1:0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
+    const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
+      return [reaction, sumBy(votes, v => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+    }));
+    
+    return filterZeroes({...emojiReactCounts });
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    if (!vote.extendedVoteType) return false;
+    for (let key of Object.keys(vote.extendedVoteType)) {
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key]!=="neutral")
+        return true;
+    }
+    return false;
+  },
+});
+
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
 }
