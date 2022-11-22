@@ -26,14 +26,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   sideCommentIcon: {
     position: 'absolute',
     cursor: "pointer",
-    top: 4,
+    paddingTop: 4,
     marginLeft: 25,
+    whiteSpace: "nowrap",
     "& svg": {
       height: 17,
     },
     '&:hover': {
       color: theme.palette.icon.dim5,
     }
+  },
+  extendHoverTarget: {
+    position: "absolute",
+    top: 0, left: 0,
+    width: 350,
+    height: 30,
+    display: "inline-block",
   },
   pinned: {
     color: theme.palette.icon.dim,
@@ -109,6 +117,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       <BadgeWrapper commentCount={commentIds.length}>
         <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
       </BadgeWrapper>
+      {isOpen && <span className={classes.extendHoverTarget}/>},
     </span>
     {isOpen && <ClickAwayListener onClickAway={onClickAway}>
       <LWPopper
