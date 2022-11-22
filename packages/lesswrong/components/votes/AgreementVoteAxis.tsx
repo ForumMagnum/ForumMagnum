@@ -18,7 +18,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2,
     outline: theme.palette.border.commentBorder,
     borderRadius: 2,
-    textAlign: 'center'
+    textAlign: 'center',
+    whiteSpace: "nowrap",
   },
   agreementScore: {
     fontSize: "1.1rem",

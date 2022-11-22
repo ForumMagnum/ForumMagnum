@@ -87,6 +87,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
+  sideCommentMeta: {
+    display: "flex",
+    alignItems: "baseline",
+  },
   bottom: {
     paddingBottom: 5,
     fontSize: 12,
@@ -108,6 +112,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   username: {
     marginRight: 10,
+    
+    "$sideCommentMeta &": {
+      flexGrow: 1,
+      textOverflow: "ellipsis",
+      flexShrink: 1,
+      display: "inline-block",
+      overflowX: "hidden",
+    },
   },
   metaNotice: {
     color: theme.palette.lwTertiary.main,
@@ -371,7 +383,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </Link>}
         </div>
         <div className={classes.body}>
-          <div className={classes.meta}>
+          <div className={classNames(classes.meta, {
+            [classes.sideCommentMeta]: treeOptions.isSideComment,
+          })}>
             {!parentCommentId && !comment.parentCommentId && isParentComment &&
               <div className={classes.usernameSpacing}>○</div>
             }
