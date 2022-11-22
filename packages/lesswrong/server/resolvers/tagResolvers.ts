@@ -1,5 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, StaticSortField, DynamicSortField } from '../utils/feedUtil';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, StaticSortField, DynamicSortField, SortDirection } from '../utils/feedUtil';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
@@ -17,24 +17,42 @@ import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
-import startCase from 'lodash/startCase';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
-import { SubforumSorting, subforumSortings, subforumSortingTypes } from '../../lib/subforumSortings';
+import { SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../lib/subforumSortings';
 
-type SubforumFeedItem = DbComment | DbPost;
-type SubforumFeedStaticSort = StaticSortField<SubforumFeedItem, keyof SubforumFeedItem>;
-type SubforumFeedDynamicSort = DynamicSortField<SubforumFeedItem, Date, keyof SubforumFeedItem>;
-type SubforumFeedSort = SubforumFeedStaticSort | SubforumFeedDynamicSort;
+// type SubforumFeedItem = DbComment | DbPost;
+// type SubforumFeedStaticSort = StaticSortField<SubforumFeedItem, keyof SubforumFeedItem>;
+// type SubforumFeedDynamicSort = DynamicSortField<SubforumFeedItem, Date, keyof SubforumFeedItem>;
+// type SubforumFeedSort = SubforumFeedStaticSort | SubforumFeedDynamicSort;
+
+type SubforumFeedSort = {
+  posts: StaticSortField<DbPost, keyof DbPost>,
+  comments: StaticSortField<DbComment, keyof DbComment>,
+  sortDirection?: SortDirection,
+}
 
 const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
   const feedSortings: Record<SubforumSorting, SubforumFeedSort> = {
     // relevance: 0, // Does this even make sense here?
     // magic: 0, // score - probably needs more
-    // recentComments: 0, // lastCommentedAt
-    new: { sortField: "postedAt" },
-    old: { sortField: "postedAt", sortDirection: "asc" },
-    top: { sortField: "baseScore" }, // Maybe this should use karmaInflationAdjustedScore?
+    recentComments: {
+      posts: { sortField: "lastCommentedAt" },
+      comments: { sortField: "lastSubthreadActivity" },
+    },
+    new: {
+      posts: { sortField: "postedAt" },
+      comments: { sortField: "postedAt" },
+    },
+    old: {
+      posts: { sortField: "postedAt", sortDirection: "asc" },
+      comments: { sortField: "postedAt", sortDirection: "asc" },
+      sortDirection: "asc",
+    },
+    top: {
+      posts: { sortField: "baseScore" },
+      comments: { sortField: "baseScore" },
+    },
   }
 
   const defaultFeedSorting = "new";
@@ -61,7 +79,7 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
       viewBasedSubquery({
         type: "tagSubforumPosts",
         collection: Posts,
-        ...sorting,
+        ...sorting.posts,
         context,
         selector: {
           [`tagRelevance.${tagId}`]: {$gte: 1},
@@ -75,7 +93,7 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
       viewBasedSubquery({
         type: "tagSubforumComments",
         collection: Comments,
-        ...sorting,
+        ...sorting.comments,
         context,
         selector: {
           tagId,
@@ -89,7 +107,7 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
 for (const sortBy of subforumSortings) {
   const sorting = getSubforumFeedSorting(sortBy);
   defineFeedResolver({
-    name: `Subforum${startCase(sortBy)}Feed`,
+    name: `Subforum${subforumSortingToResolverName(sortBy)}Feed`,
     args: "tagId: String!, af: Boolean",
     cutoffTypeGraphQL: subforumSortingTypes[sortBy],
     resultTypesGraphQL: `
