@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback} from 'react';
+import React, {useRef, useState, useCallback, useEffect} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -155,6 +155,7 @@ const Layout = ({currentUser, children, classes}: {
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
   const location = useLocation();
+  const currentRoute = location.currentRoute
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
@@ -171,7 +172,29 @@ const Layout = ({currentUser, children, classes}: {
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
   }, [updateUser, currentUser, hideNavigationSidebar]);
+
+  // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
+  // background against which individual elements in the central column provide their own
+  // background. (In dark mode this is black and dark gray instead of white and light gray). This
+  // is handled by putting `classes.whiteBackground` onto the main wrapper.
+  //
+  // But, caveat/hack: If the page has horizontal scrolling and the horizontal scrolling is the
+  // result of a floating window, the page wrapper doesn't extend far enough to the right. So we
+  // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
+  // <body> is outside the React tree entirely. An alternative way to do this would be to change
+  // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
+  const useWhiteBackground = currentRoute?.background === "white";
   
+  useEffect(() => {
+    const isWhite = document.body.classList.contains(classes.whiteBackground);
+    if (isWhite !== useWhiteBackground) {
+      if (useWhiteBackground) {
+        document.body.classList.add(classes.whiteBackground);
+      } else {
+        document.body.classList.remove(classes.whiteBackground);
+      }
+    }
+  }, [useWhiteBackground, classes.whiteBackground]);
   
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
@@ -182,7 +205,6 @@ const Layout = ({currentUser, children, classes}: {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
 
-    const currentRoute = location.currentRoute
     const standaloneNavigation = !currentRoute ||
       forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
@@ -253,7 +275,7 @@ const Layout = ({currentUser, children, classes}: {
                 />}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                 })}>
                   <ErrorBoundary>
