@@ -111,7 +111,7 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
 }) {
   addGraphQLSchema(`
     type ${name}QueryResults {
-      cutoff: Date
+      cutoff: ${cutoffTypeGraphQL}
       endOffset: Int!
       results: [${name}EntryType!]
     }

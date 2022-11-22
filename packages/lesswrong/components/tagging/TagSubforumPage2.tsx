@@ -21,6 +21,8 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
+import startCase from "lodash/startCase";
+import { subforumSortingTypes } from "../../lib/subforumSortings";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -458,6 +460,7 @@ const TagSubforumPage2 = ({classes}: {
       enableGuidelines: false,
       displayMode: "minimalist" as const,
     };
+    const sortBy = query.sortedBy ?? "new";
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
@@ -474,15 +477,13 @@ const TagSubforumPage2 = ({classes}: {
         firstPageSize={10}
         pageSize={20}
         refetchRef={refetchRef}
-        resolverName="SubforumFeed"
-        sortKeyType="Date"
+        resolverName={`Subforum${startCase(sortBy)}Feed`}
+        sortKeyType={subforumSortingTypes[sortBy]}
         resolverArgs={{
-          sort: 'String',
           tagId: 'String!',
           af: 'Boolean',
         }}
         resolverArgsValues={{
-          sort: query.sortedBy,
           tagId: tag._id,
           af: false,
         }}
@@ -496,7 +497,7 @@ const TagSubforumPage2 = ({classes}: {
                 <RecentDiscussionThread
                   key={post._id}
                   post={{...post, recentComments: []}}
-                  comments={[]}
+                  comments={undefined}
                   refetch={refetch}
                 />
               </div>

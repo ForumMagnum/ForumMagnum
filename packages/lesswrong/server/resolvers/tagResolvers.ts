@@ -17,15 +17,15 @@ import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
+import startCase from 'lodash/startCase';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
+import { SubforumSorting, subforumSortings, subforumSortingTypes } from '../../lib/subforumSortings';
 
 type SubforumFeedItem = DbComment | DbPost;
 type SubforumFeedStaticSort = StaticSortField<SubforumFeedItem, keyof SubforumFeedItem>;
 type SubforumFeedDynamicSort = DynamicSortField<SubforumFeedItem, Date, keyof SubforumFeedItem>;
 type SubforumFeedSort = SubforumFeedStaticSort | SubforumFeedDynamicSort;
-
-type SubforumSorting = "new" | "old" | "top";
 
 const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
   const feedSortings: Record<SubforumSorting, SubforumFeedSort> = {
@@ -41,56 +41,64 @@ const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
   return feedSortings[sort ?? defaultFeedSorting] ?? feedSortings[defaultFeedSorting];
 }
 
-defineFeedResolver<Date>({
-  name: "SubforumFeed",
-  args: "sort: String, tagId: String!, af: Boolean",
-  cutoffTypeGraphQL: "Date",
-  resultTypesGraphQL: `
-    tagSubforumPosts: Post
-    tagSubforumComments: Comment
-  `,
-  resolver: async ({limit = 20, cutoff, offset, args, context}: {
-    limit?: number, cutoff?: Date, offset?: number,
-    args: {sort?: string, tagId: string, af?: boolean},
-    context: ResolverContext,
-  }) => {
-    const {sort, tagId, af} = args;
-    const sorting = getSubforumFeedSorting(sort);
-    return mergeFeedQueries<Date>({
-      limit,
-      cutoff,
-      offset,
-      sortDirection: sorting.sortDirection,
-      subqueries: [
-        // Subforum posts
-        viewBasedSubquery({
-          type: "tagSubforumPosts",
-          collection: Posts,
-          ...sorting,
-          context,
-          selector: {
-            [`tagRelevance.${tagId}`]: {$gte: 1},
-            hiddenRelatedQuestion: undefined,
-            shortform: undefined,
-            groupId: undefined,
-            ...(af ? {af: true} : undefined),
-          },
-        }),
-        // Subforum comments
-        viewBasedSubquery({
-          type: "tagSubforumComments",
-          collection: Comments,
-          ...sorting,
-          context,
-          selector: {
-            tagId,
-            ...(af ? {af: true} : undefined),
-          },
-        }),
-      ],
-    });
-  },
-});
+const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({
+  limit = 20, cutoff, offset, args, context,
+}: {
+  limit?: number,
+  cutoff?: SortKeyType,
+  offset?: number,
+  args: {tagId: string, af?: boolean},
+  context: ResolverContext,
+}) => {
+  const {tagId, af} = args;
+  return mergeFeedQueries({
+    limit,
+    cutoff,
+    offset,
+    sortDirection: sorting.sortDirection,
+    subqueries: [
+      // Subforum posts
+      viewBasedSubquery({
+        type: "tagSubforumPosts",
+        collection: Posts,
+        ...sorting,
+        context,
+        selector: {
+          [`tagRelevance.${tagId}`]: {$gte: 1},
+          hiddenRelatedQuestion: undefined,
+          shortform: undefined,
+          groupId: undefined,
+          ...(af ? {af: true} : undefined),
+        },
+      }),
+      // Subforum comments
+      viewBasedSubquery({
+        type: "tagSubforumComments",
+        collection: Comments,
+        ...sorting,
+        context,
+        selector: {
+          tagId,
+          ...(af ? {af: true} : undefined),
+        },
+      }),
+    ],
+  });
+}
+
+for (const sortBy of subforumSortings) {
+  const sorting = getSubforumFeedSorting(sortBy);
+  defineFeedResolver({
+    name: `Subforum${startCase(sortBy)}Feed`,
+    args: "tagId: String!, af: Boolean",
+    cutoffTypeGraphQL: subforumSortingTypes[sortBy],
+    resultTypesGraphQL: `
+      tagSubforumPosts: Post
+      tagSubforumComments: Comment
+    `,
+    resolver: createSubforumFeedResolver(sorting),
+  });
+}
 
 addGraphQLSchema(`
   type TagUpdates {
