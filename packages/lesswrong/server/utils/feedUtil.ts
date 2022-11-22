@@ -2,12 +2,11 @@ import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 
-export function feedSubquery<ResultType, SortKeyType>(params: {
+export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
-  getSortKey: (result: ResultType) => SortKeyType,
-  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>
-}) {
-  return params;
+  getSortKey: (item: ResultType) => SortKeyType,
+  isNumericallyPositioned?: boolean,
+  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>,
 }
 
 export type SortDirection = "asc" | "desc";
@@ -55,43 +54,44 @@ export function viewBasedSubquery<
   ResultType extends DbObject,
   SortKeyType,
   SortFieldName extends keyof ResultType
->(props: ViewBasedSubqueryProps<ResultType, SortKeyType, SortFieldName>) {
+>(props: ViewBasedSubqueryProps<ResultType, SortKeyType, SortFieldName>): FeedSubquery<ResultType, SortKeyType> {
   props.sortDirection ??= "desc";
   const {type, collection, context, selector, sortDirection} = props;
   const {getSortKey, cutoffField} = resolveSortField(props);
-  return feedSubquery({
+  return {
     type,
     getSortKey,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
       return queryWithCutoff({context, collection, selector, limit, cutoffField, cutoff, sortDirection});
     }
-  });
+  };
 }
 
 export function fixedResultSubquery<ResultType extends DbObject, SortKeyType>({type, result, sortKey}: {
   type: string,
   result: ResultType,
   sortKey: SortKeyType,
-}) {
-  return feedSubquery({
+}): FeedSubquery<ResultType, SortKeyType> {
+  return {
     type,
     getSortKey: (_item: ResultType): SortKeyType => sortKey,
     doQuery: async (_limit: number, _cutoff: SortKeyType): Promise<Array<ResultType>> => {
       return [result];
     }
-  });
+  };
 }
 
-export function fixedIndexSubquery({type, index, result}: {
+export function fixedIndexSubquery<ResultType extends DbObject>({type, index, result}: {
   type: string,
   index: number,
   result: any,
-}) {
-  return feedSubquery({
+}): FeedSubquery<ResultType, number> {
+  return {
     type,
-    getSortKey: ()=>index,
-    doQuery: async ()=>[result],
-  });
+    getSortKey: () => index,
+    isNumericallyPositioned: true,
+    doQuery: async () => [result],
+  };
 }
 
 export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
@@ -180,8 +180,10 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
   const unsortedResults = _.flatten(unsortedSubqueryResults);
   
   // Split into results with numeric indexes and results with sort-key indexes
-  const numericallyPositionedResults = _.filter(unsortedResults, r=>typeof r.sortKey==="number")
-  const orderedResults = _.filter(unsortedResults, r=>typeof r.sortKey!=="number")
+  const [
+    numericallyPositionedResults,
+    orderedResults,
+  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => isNumericallyPositioned);
   
   // Sort by shared sort key
   const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);

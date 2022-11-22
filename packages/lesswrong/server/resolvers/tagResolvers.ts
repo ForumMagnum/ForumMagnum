@@ -25,8 +25,10 @@ type SubforumFeedStaticSort = StaticSortField<SubforumFeedItem, keyof SubforumFe
 type SubforumFeedDynamicSort = DynamicSortField<SubforumFeedItem, Date, keyof SubforumFeedItem>;
 type SubforumFeedSort = SubforumFeedStaticSort | SubforumFeedDynamicSort;
 
+type SubforumSorting = "new" | "old" | "top";
+
 const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
-  const feedSortings: Record<string, SubforumFeedSort> = {
+  const feedSortings: Record<SubforumSorting, SubforumFeedSort> = {
     // relevance: 0, // Does this even make sense here?
     // magic: 0, // score - probably needs more
     // recentComments: 0, // lastCommentedAt
