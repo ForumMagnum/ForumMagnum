@@ -19,7 +19,7 @@ export const closeDatabaseConnection = async () => {
 export const isAnyQueryPending = () => (inProgressQueries > 0);
 
 const disableAllWrites = false;
-const logQueries = false;
+const logQueries = true;
 const debugQueryBatches = false;
 let inProgressQueries = 0;
 let onBatchFinished: Promise<void>|null = null;

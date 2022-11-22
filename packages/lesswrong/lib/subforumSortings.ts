@@ -1,8 +1,14 @@
+/**
+ * This is the one-source-of-truth for sortings that are available on subforums.
+ * As well as defining the GraphQL types for sorting, this also defines the order
+ * in which the options are shown in the dropdown list.
+ */
 export const subforumSortingTypes = {
-  recentComments: "Date",
+  magic: "Float",
   new: "Date",
   old: "Date",
   top: "Int",
+  recentComments: "Date",
 } as const;
 
 export type SubforumSorting = keyof typeof subforumSortingTypes;

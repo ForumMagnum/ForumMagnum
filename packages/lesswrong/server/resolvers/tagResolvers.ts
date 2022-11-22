@@ -1,5 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, StaticSortField, DynamicSortField, SortDirection } from '../utils/feedUtil';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
@@ -21,19 +21,18 @@ import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
 import { SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../lib/subforumSortings';
 
-// type SubforumFeedItem = DbComment | DbPost;
-// type SubforumFeedStaticSort = StaticSortField<SubforumFeedItem, keyof SubforumFeedItem>;
-// type SubforumFeedDynamicSort = DynamicSortField<SubforumFeedItem, Date, keyof SubforumFeedItem>;
-// type SubforumFeedSort = SubforumFeedStaticSort | SubforumFeedDynamicSort;
-
 type SubforumFeedSort = {
-  posts: StaticSortField<DbPost, keyof DbPost>,
-  comments: StaticSortField<DbComment, keyof DbComment>,
+  posts: SubquerySortField<DbPost, keyof DbPost>,
+  comments: SubquerySortField<DbComment, keyof DbComment>,
   sortDirection?: SortDirection,
 }
 
 const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
   const feedSortings: Record<SubforumSorting, SubforumFeedSort> = {
+    magic: {
+      posts: { sortField: "score" },
+      comments: { sortField: "score" },
+    },
     new: {
       posts: { sortField: "postedAt" },
       comments: { sortField: "postedAt" },
@@ -51,7 +50,6 @@ const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
       posts: { sortField: "lastCommentedAt" },
       comments: { sortField: "lastSubthreadActivity" },
     },
-    // magic: 0, // score - probably needs more
   }
 
   const defaultFeedSorting = "new";

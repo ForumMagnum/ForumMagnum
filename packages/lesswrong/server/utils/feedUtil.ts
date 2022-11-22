@@ -11,58 +11,30 @@ export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
 
 export type SortDirection = "asc" | "desc";
 
-export type StaticSortField<ResultType extends DbObject, SortFieldName extends keyof ResultType> = {
+export type SubquerySortField<ResultType extends DbObject, SortFieldName extends keyof ResultType> = {
   sortField: SortFieldName,
   sortDirection?: SortDirection,
 }
 
-export type DynamicSortField<ResultType extends DbObject, SortKeyType, SortFieldName extends keyof ResultType> = {
-  getSortKey: (item: ResultType) => SortKeyType,
-  cutoffField: SortFieldName,
-  sortDirection?: SortDirection,
-}
-
-export type ViewBasedSubqueryProps<ResultType extends DbObject, SortKeyType, SortFieldName extends keyof ResultType> = {
+export type ViewBasedSubqueryProps<ResultType extends DbObject, SortFieldName extends keyof ResultType> = {
   type: string,
   collection: CollectionBase<ResultType>,
   context: ResolverContext,
   selector: MongoSelector<ResultType>,
-} & (
-  StaticSortField<ResultType, SortFieldName> |
-  DynamicSortField<ResultType, SortKeyType, SortFieldName>
-)
-
-const resolveSortField = <
-  ResultType extends DbObject,
-  SortKeyType,
-  SortFieldName extends keyof ResultType
->(props: ViewBasedSubqueryProps<ResultType, SortKeyType, SortFieldName>) => {
-  if ("sortField" in props) {
-    return {
-      getSortKey: (item: ResultType) => item[props.sortField] as unknown as SortKeyType,
-      cutoffField: props.sortField,
-    }
-  } else {
-    return {
-      getSortKey: props.getSortKey,
-      cutoffField: props.cutoffField,
-    }
-  }
-}
+} & SubquerySortField<ResultType, SortFieldName>;
 
 export function viewBasedSubquery<
   ResultType extends DbObject,
   SortKeyType,
   SortFieldName extends keyof ResultType
->(props: ViewBasedSubqueryProps<ResultType, SortKeyType, SortFieldName>): FeedSubquery<ResultType, SortKeyType> {
+>(props: ViewBasedSubqueryProps<ResultType, SortFieldName>): FeedSubquery<ResultType, SortKeyType> {
   props.sortDirection ??= "desc";
-  const {type, collection, context, selector, sortDirection} = props;
-  const {getSortKey, cutoffField} = resolveSortField(props);
+  const {type, collection, context, selector, sortField, sortDirection} = props;
   return {
     type,
-    getSortKey,
+    getSortKey: (item: ResultType) => item[props.sortField] as unknown as SortKeyType,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
-      return queryWithCutoff({context, collection, selector, limit, cutoffField, cutoff, sortDirection});
+      return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
     }
   };
 }
