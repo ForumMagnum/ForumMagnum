@@ -52,17 +52,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
+const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false, hideTooltips=false }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   showBox?: boolean
+  hideTooltips?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover} = useHover();
   
   if (!document) return null;
+  
+  // Wrap all LWTooltips so that we can hide them if necessary
+  const MaybeShowTooltip = (props) => {
+    if (hideTooltips) {
+      return props.children
+    }
+    return <LWTooltip {...props} />
+  }
 
   const { OverallVoteButton, LWTooltip } = Components
 
@@ -96,7 +105,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   return (
     <span className={classes.vote} {...eventHandlers}>
       {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
-        <LWTooltip placement="bottom" title={<div>
+        <MaybeShowTooltip placement="bottom" title={<div>
             <p>AI Alignment Forum Karma</p>
             { moveToAfInfo }
         </div>}>
@@ -104,19 +113,19 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             <span className={classes.secondarySymbol}>Ω</span>
             <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
           </span>
-        </LWTooltip>
+        </MaybeShowTooltip>
       }
       {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
-        <LWTooltip title="LessWrong Karma" placement="bottom">
+        <MaybeShowTooltip title="LessWrong Karma" placement="bottom">
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>
             <span className={classes.secondaryScoreNumber}>{document.baseScore || 0}</span>
           </span>
-        </LWTooltip>
+        </MaybeShowTooltip>
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
-          <LWTooltip
+          <MaybeShowTooltip
             title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
@@ -126,18 +135,18 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               upOrDown="Downvote"
               {...voteProps}
             />
-          </LWTooltip>
+          </MaybeShowTooltip>
           {hideKarma ?
-            <LWTooltip title={'The author of this post has disabled karma visibility'}>
+            <MaybeShowTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
-            </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+            </MaybeShowTooltip> :
+            <MaybeShowTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
-            </LWTooltip>
+            </MaybeShowTooltip>
           }
-          <LWTooltip
+          <MaybeShowTooltip
             title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
@@ -147,7 +156,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               upOrDown="Upvote"
               {...voteProps}
             />
-          </LWTooltip>
+          </MaybeShowTooltip>
         </span>
       }
     </span>

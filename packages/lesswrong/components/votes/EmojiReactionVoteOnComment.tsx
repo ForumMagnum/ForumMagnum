@@ -19,8 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '3px 6px',
     fontSize: 16,
     cursor: "pointer",
-    "&:hover": {
-      background: theme.palette.background.primaryDim2,
+    '@media (hover: hover)': {
+      "&:hover": {
+        background: theme.palette.background.primaryDim2,
+      },
     },
   },
   voteButtonSelected: {
@@ -106,7 +108,7 @@ const EmojiReactionVoteOnComment = ({document, hideKarma=false, collection, voti
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
-      showBox={false}
+      hideTooltips
     />
     
     <span className={classes.scores}>

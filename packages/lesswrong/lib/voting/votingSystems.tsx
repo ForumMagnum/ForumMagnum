@@ -180,7 +180,7 @@ export const emojiReactions: EmojiReaction[] = [
   {name: "raised-hands", icon: "🙌"},
   {name: "enthusiasm", icon: "🎉"},
   {name: "empathy", icon: "❤️"},
-  {name: "star",   icon: "🌟"},
+  {name: "star", icon: "🌟"},
   {name: "surprise", icon: "😮"},
 ]
 const emojiReactionNames = emojiReactions.map(reaction => reaction.name)
