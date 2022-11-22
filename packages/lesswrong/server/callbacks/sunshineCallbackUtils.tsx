@@ -175,7 +175,6 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
 
   // Remove the most recent content item for each rule
   // Since posts & comments start by default without much karma, they artificially down-weight averages
-  voteableContent.pop();
   latestComments.pop();
   latestPosts.pop();
 
