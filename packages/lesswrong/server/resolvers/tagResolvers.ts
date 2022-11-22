@@ -33,81 +33,74 @@ type SubforumFeedSort = {
   sortDirection?: SortDirection,
 }
 
-const getSubforumFeedSorting = (sort?: string): SubforumFeedSort => {
-  const feedSortings: Record<SubforumSorting, SubforumFeedSort> = {
-    magic: {
-      posts: { sortField: "score" },
-      comments: { sortField: "score" },
-    },
-    new: {
-      posts: { sortField: "postedAt" },
-      comments: { sortField: "postedAt" },
-    },
-    old: {
-      posts: { sortField: "postedAt", sortDirection: "asc" },
-      comments: { sortField: "postedAt", sortDirection: "asc" },
-      sortDirection: "asc",
-    },
-    top: {
-      posts: { sortField: "baseScore" },
-      comments: { sortField: "baseScore" },
-    },
-    recentComments: {
-      posts: { sortField: "lastCommentedAt" },
-      comments: { sortField: "lastSubthreadActivity" },
-    },
-  }
-
-  return feedSortings[sort ?? defaultSubforumSorting] ?? feedSortings[defaultSubforumSorting];
+const subforumFeedSortings: Record<SubforumSorting, SubforumFeedSort> = {
+  magic: {
+    posts: { sortField: "score" },
+    comments: { sortField: "score" },
+  },
+  new: {
+    posts: { sortField: "postedAt" },
+    comments: { sortField: "postedAt" },
+  },
+  old: {
+    posts: { sortField: "postedAt", sortDirection: "asc" },
+    comments: { sortField: "postedAt", sortDirection: "asc" },
+    sortDirection: "asc",
+  },
+  top: {
+    posts: { sortField: "baseScore" },
+    comments: { sortField: "baseScore" },
+  },
+  recentComments: {
+    posts: { sortField: "lastCommentedAt" },
+    comments: { sortField: "lastSubthreadActivity" },
+  },
 }
 
 const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({
-  limit = 20, cutoff, offset, args, context,
+  limit = 20, cutoff, offset, args: {tagId, af}, context,
 }: {
   limit?: number,
   cutoff?: SortKeyType,
   offset?: number,
   args: {tagId: string, af?: boolean},
   context: ResolverContext,
-}) => {
-  const {tagId, af} = args;
-  return mergeFeedQueries({
-    limit,
-    cutoff,
-    offset,
-    sortDirection: sorting.sortDirection,
-    subqueries: [
-      // Subforum posts
-      viewBasedSubquery({
-        type: "tagSubforumPosts",
-        collection: Posts,
-        ...sorting.posts,
-        context,
-        selector: {
-          [`tagRelevance.${tagId}`]: {$gte: 1},
-          hiddenRelatedQuestion: undefined,
-          shortform: undefined,
-          groupId: undefined,
-          ...(af ? {af: true} : undefined),
-        },
-      }),
-      // Subforum comments
-      viewBasedSubquery({
-        type: "tagSubforumComments",
-        collection: Comments,
-        ...sorting.comments,
-        context,
-        selector: {
-          tagId,
-          ...(af ? {af: true} : undefined),
-        },
-      }),
-    ],
-  });
-}
+}) => mergeFeedQueries({
+  limit,
+  cutoff,
+  offset,
+  sortDirection: sorting.sortDirection,
+  subqueries: [
+    // Subforum posts
+    viewBasedSubquery({
+      type: "tagSubforumPosts",
+      collection: Posts,
+      ...sorting.posts,
+      context,
+      selector: {
+        [`tagRelevance.${tagId}`]: {$gte: 1},
+        hiddenRelatedQuestion: undefined,
+        shortform: undefined,
+        groupId: undefined,
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+    // Subforum comments
+    viewBasedSubquery({
+      type: "tagSubforumComments",
+      collection: Comments,
+      ...sorting.comments,
+      context,
+      selector: {
+        tagId,
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+  ],
+});
 
 for (const sortBy of subforumSortings) {
-  const sorting = getSubforumFeedSorting(sortBy);
+  const sorting = subforumFeedSortings[sortBy ?? defaultSubforumSorting] ?? subforumFeedSortings[defaultSubforumSorting];
   defineFeedResolver({
     name: `Subforum${subforumSortingToResolverName(sortBy)}Feed`,
     args: "tagId: String!, af: Boolean",

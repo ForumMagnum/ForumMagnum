@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS)
+const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS);
 
 const PostsListSortDropdown = ({classes, value, options=defaultOptions, sortingParam="sortedBy"}:{
   classes: ClassesType,
