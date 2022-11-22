@@ -193,8 +193,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     return rootCommentApproval?.status === 'approved';
   };
 
-  console.log({ commentId: comment._id, isChild, parentCommentId: comment.parentCommentId, showReplyButton: canReplyFromApprovalStatus(), commentApprovalStatusMessage: getCommentApprovalStatusMessage(), rootCommentApproval: treeOptions.rootCommentApproval });
-
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
     setShowReplyState(true);
