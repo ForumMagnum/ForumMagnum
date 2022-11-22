@@ -173,6 +173,12 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
 
   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
 
+  // Remove the most recent content item for each rule
+  // Since posts & comments start by default without much karma, they artificially down-weight averages
+  voteableContent.pop();
+  latestComments.pop();
+  latestPosts.pop();
+
   const unmoderatedVoteableContent = getUnmoderatedContent(voteableContent, downvotedContentActionEndedAt);
   const unmoderatedLatestComments = getUnmoderatedContent(latestComments, lowAvgKarmaCommentEndedAt);
   const unmoderatedLatestPosts = getUnmoderatedContent(latestPosts, lowAvgKarmaPostEndedAt);
