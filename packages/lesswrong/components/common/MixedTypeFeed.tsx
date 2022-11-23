@@ -139,9 +139,10 @@ const MixedTypeFeed = (args: {
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
   
+  const keyFunc = (result) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
+
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
-  // the bottom that we should start loading the next page, and if so, start
-  // loading it.
+  // the bottom that we should start loading the next page, and if so, start loading it.
   const maybeStartLoadingMore = () => {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
@@ -165,13 +166,18 @@ const MixedTypeFeed = (args: {
             if (!fetchMoreResult) {
               return prev;
             }
-            
+
+            // Deduplicate by removing repeated results from the newly fetched page. Ideally we
+            // would use cursor-based pagination to avoid this
+            const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
+            const deduplicatedResults = fetchMoreResult[resolverName].results.filter(result => !prevKeys.has(keyFunc(result)));
+
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
                 endOffset: data[resolverName].endOffset,
-                results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+                results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
           }
@@ -188,7 +194,6 @@ const MixedTypeFeed = (args: {
   useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && data[resolverName]?.results) || [];
-  const keyFunc = (result) => `${result.type}_${result[result.type]?._id}`;
   const orderedResults = useOrderPreservingArray(results, keyFunc);
   return <div>
     {orderedResults.map((result) =>
