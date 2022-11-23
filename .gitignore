@@ -85,6 +85,9 @@ cypress/videos/*
 !cypress/videos/.keep
 .cypress
 
+playwright-report
+playwright-result
+
 myLocalDatabase
 myLocalDatabase/*
 
