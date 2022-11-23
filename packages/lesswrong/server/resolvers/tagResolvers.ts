@@ -93,6 +93,8 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
       context,
       selector: {
         tagId,
+        tagCommentType: "SUBFORUM",
+        topLevelCommentId: {$exists: false},
         ...(af ? {af: true} : undefined),
       },
     }),
