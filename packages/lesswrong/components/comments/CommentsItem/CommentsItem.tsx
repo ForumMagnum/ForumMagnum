@@ -18,6 +18,7 @@ import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
+import { getRejectionDisplayNotice } from '../../../lib/collections/commentApprovals/helpers';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -417,7 +418,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             />
             {showCommentApprovalStatus && <span className={classes.pendingApproval}>
               {getCommentApprovalStatusMessage()}
-              {/* {!comment.commentApproval ? 'Pending Approval - Replies Disabled' : ''} */}
             </span>}
 
             {!isParentComment && renderMenu()}
@@ -434,6 +434,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
           { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}
+          </div>}
+          {comment.commentApproval?.status === 'rejected' && <div className={classes.metaNotice}>
+            {getRejectionDisplayNotice(comment.commentApproval)}
           </div>}
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}

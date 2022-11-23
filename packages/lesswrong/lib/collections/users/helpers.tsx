@@ -150,7 +150,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-export const userCanRequireCommentApproval = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
+export const userCanUpdateRequireCommentApproval = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (userCanDo(user, "posts.requireCommentApproval.all")) {
     return true
   }

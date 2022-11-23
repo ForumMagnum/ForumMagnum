@@ -18,12 +18,13 @@ import { forumSelect } from '../../forumTypeUtils';
 import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost, userCanRequireCommentApproval, userIsSharedOn } from '../users/helpers';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userCanCommentLock, userCanModeratePost, userCanUpdateRequireCommentApproval, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { getSqlClientOrThrow } from '../../sql/sqlClient';
+import { allOf } from '../../utils/functionUtils';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -2305,8 +2306,8 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     canRead: ['guests'],
     group: formGroups.moderationGroup,
-    canUpdate: (currentUser: DbUser|null, document: DbPost) => userCanRequireCommentApproval(currentUser, document),
-    canCreate: (currentUser: DbUser|null) => userCanRequireCommentApproval(currentUser, null),
+    canUpdate: [userCanUpdateRequireCommentApproval, 'sunshineRegiment', 'admins'],
+    canCreate: [(user) => userCanDo(user, 'posts.requireCommentApproval.own'), 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: true,
     control: "checkbox",

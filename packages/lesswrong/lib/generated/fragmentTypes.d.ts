@@ -2806,12 +2806,14 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
 
 interface CommentApprovalsDefaultFragment { // fragment on CommentApprovals
   readonly commentId: string,
+  readonly userId: string,
   readonly status: "approved" | "rejected",
   readonly rejectionReason: string | null,
 }
 
 interface CommentApprovalWithoutComment { // fragment on CommentApprovals
   readonly _id: string,
+  readonly user: UsersMinimumInfo,
   readonly status: "approved" | "rejected",
   readonly rejectionReason: string | null,
   readonly createdAt: Date,

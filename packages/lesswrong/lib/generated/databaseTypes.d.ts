@@ -106,6 +106,7 @@ interface CommentApprovalsCollection extends CollectionBase<DbCommentApproval, "
 interface DbCommentApproval extends DbObject {
   __collectionName?: "CommentApprovals"
   commentId: string
+  userId: string
   status: "approved" | "rejected"
   rejectionReason: string | null
   createdAt: Date
