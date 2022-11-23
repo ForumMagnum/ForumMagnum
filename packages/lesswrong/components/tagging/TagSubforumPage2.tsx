@@ -464,6 +464,8 @@ const TagSubforumPage2 = ({classes}: {
       displayMode: "minimalist" as const,
     };
     const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
+    const maxAgeHours = 18;
+    const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
@@ -490,17 +492,23 @@ const TagSubforumPage2 = ({classes}: {
           tagId: tag._id,
           af: false,
         }}
-        fragmentArgs={{}}
-        fragmentArgsValues={{}}
+        fragmentArgs={{
+          maxAgeHours: 'Int',
+          commentsLimit: 'Int',
+        }}
+        fragmentArgsValues={{
+          maxAgeHours,
+          commentsLimit,
+        }}
         renderers={{
           tagSubforumPosts: {
-            fragmentName: "PostsList",
-            render: (post: PostsList) => (
+            fragmentName: "PostsRecentDiscussion",
+            render: (post: PostsRecentDiscussion) => (
               <div className={classes.feedPostWrapper}>
                 <RecentDiscussionThread
                   key={post._id}
-                  post={{...post, recentComments: []}}
-                  comments={undefined}
+                  post={{...post}}
+                  comments={post.recentComments}
                   refetch={refetch}
                 />
               </div>
