@@ -118,7 +118,7 @@ const RecentDiscussionThread = ({
   classes,
 }: {
   post: PostsRecentDiscussion,
-  comments: Array<CommentsList>,
+  comments?: Array<CommentsList>,
   refetch: any,
   expandAllThreads?: boolean,
   classes: ClassesType,
@@ -150,7 +150,7 @@ const RecentDiscussionThread = ({
   const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostsPageActions } = Components
 
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
+  const nestedComments = unflattenComments(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
@@ -196,9 +196,9 @@ const RecentDiscussionThread = ({
             <PostsHighlight post={post} maxLengthWords={lastVisitedAt ? 50 : 170} />
           </div>
         </div>
-        {nestedComments.length ? <div className={classes.content}>
+        <div className={classes.content}>
           <div className={classes.commentsList}>
-            {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
                   treeOptions={treeOptions}
@@ -212,7 +212,7 @@ const RecentDiscussionThread = ({
               </div>
             )}
           </div>
-        </div> : null}
+        </div>
       </div>
     </AnalyticsContext>
   )

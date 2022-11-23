@@ -26,14 +26,14 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   renderers: any,
 }) => {
   const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
-  const queryArgsList=["$limit: Int", "$cutoff: Date", "$offset: Int",
+  const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
   ];
   const resolverArgsList=["limit: $limit", "cutoff: $cutoff", "offset: $offset",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
-  
+
   return gql`
     query ${resolverName}Query(${queryArgsList.join(", ")}) {
       ${resolverName}(${resolverArgsList.join(", ")}) {

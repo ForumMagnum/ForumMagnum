@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -19,7 +19,16 @@ import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSe
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
+import {
+  defaultSubforumSorting,
+  isSubforumSorting,
+  SubforumSorting,
+  subforumSortings,
+  subforumSortingToResolverName,
+  subforumSortingTypes,
+} from "../../lib/subforumSortings";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -41,9 +50,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   contentGivenImage: {
     marginTop: 185,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 130,
-    },
   },
   imageContainer: {
     position: 'absolute',
@@ -155,7 +161,22 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   tableOfContentsWrapper: {
     padding: 24,
-  }
+  },
+  feedWrapper: {
+    padding: "0 10px",
+  },
+  feedHeader: {
+    display: "flex",
+    marginBottom: -16,
+  },
+  feedHeaderButtons: {
+    display: "flex",
+    flexGrow: 1,
+    columnGap: 16,
+  },
+  feedPostWrapper: {
+    marginTop: 32,
+  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -180,7 +201,8 @@ const TagSubforumPage2 = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox
+    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, MixedTypeFeed,
+    SectionButton, CommentWithReplies, RecentDiscussionThread,
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -424,6 +446,90 @@ const TagSubforumPage2 = ({classes}: {
   ) : <></>;
   const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} key={`subtags_box`}/>];
 
+  const SubforumFeed = () => {
+    const refetchRef = useRef<null|(()=>void)>(null);
+    const refetch = useCallback(() => {
+      if (refetchRef.current)
+        refetchRef.current();
+    }, [refetchRef]);
+    const commentNodeProps = {
+      treeOptions: {
+        postPage: true,
+        refetch,
+        tag,
+      },
+      startThreadTruncated: true,
+      isChild: false,
+      enableGuidelines: false,
+      displayMode: "minimalist" as const,
+    };
+    const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
+    const maxAgeHours = 18;
+    const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+    return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      <div className={classes.feedHeader}>
+        <div className={classes.feedHeaderButtons}>
+          <SectionButton>
+            <AddBoxIcon /> New Post
+          </SectionButton>
+          <SectionButton>
+            <AddBoxIcon /> New Discussion
+          </SectionButton>
+        </div>
+        <PostsListSortDropdown value={query.sortedBy} options={subforumSortings} />
+      </div>
+      <MixedTypeFeed
+        firstPageSize={10}
+        pageSize={20}
+        refetchRef={refetchRef}
+        resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
+        sortKeyType={subforumSortingTypes[sortBy]}
+        resolverArgs={{
+          tagId: 'String!',
+          af: 'Boolean',
+        }}
+        resolverArgsValues={{
+          tagId: tag._id,
+          af: false,
+        }}
+        fragmentArgs={{
+          maxAgeHours: 'Int',
+          commentsLimit: 'Int',
+        }}
+        fragmentArgsValues={{
+          maxAgeHours,
+          commentsLimit,
+        }}
+        renderers={{
+          tagSubforumPosts: {
+            fragmentName: "PostsRecentDiscussion",
+            render: (post: PostsRecentDiscussion) => (
+              <div className={classes.feedPostWrapper}>
+                <RecentDiscussionThread
+                  key={post._id}
+                  post={{...post}}
+                  comments={post.recentComments}
+                  refetch={refetch}
+                />
+              </div>
+            )
+          },
+          tagSubforumComments: {
+            fragmentName: "CommentWithRepliesFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={comment}
+                commentNodeProps={commentNodeProps}
+                initialMaxChildren={5}
+              />
+            )
+          },
+        }}
+      />
+    </div>
+  }
+
   return (
     <AnalyticsContext
       pageContext="tagPage"
@@ -457,7 +563,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}>PLACEHOLDER FOR POSTS COMPONENT</p>}
+          {tab === "wiki" ? wikiComponent : <SubforumFeed />}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>
