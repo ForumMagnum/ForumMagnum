@@ -25,6 +25,7 @@ import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { getSqlClientOrThrow } from '../../sql/sqlClient';
 import { allOf } from '../../utils/functionUtils';
+import { crosspostKarmaThreshold } from '../../publicSettings';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -102,6 +103,19 @@ function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldCon
 const frontpageDefault = isEAForum ?
   eaFrontpageDate :
   undefined
+
+/**
+ * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
+ */
+const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
+  const currentKarmaThreshold = crosspostKarmaThreshold.get();
+
+  return currentKarmaThreshold === null
+    ? true
+    // userOverNKarmaFunc checks greater than, while we want greater than or equal to, since that's the check we're performing elsewhere
+    // so just subtract one
+    : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
+}
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
@@ -1315,8 +1329,8 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'admins'],
-    insertableBy: ['members'],
+    editableBy: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
+    insertableBy: [userPassesCrosspostingKarmaThreshold, 'admins'],
     control: "FMCrosspostControl",
     tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
       "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it." :
