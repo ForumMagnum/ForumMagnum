@@ -311,15 +311,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
    * 1) it has the moderatorHat
    * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
    */
-  // const showModeratorCommentAnnotation = comment.moderatorHat && (
-  //   userIsAdmin(currentUser)
-  //     ? true
-  //     : !comment.hideModeratorHat
-  //   );
+  const showModeratorCommentAnnotation = comment.moderatorHat && (
+    userIsAdmin(currentUser)
+      ? true
+      : !comment.hideModeratorHat
+    );
   
-  // const moderatorCommentAnnotation = comment.hideModeratorHat
-  //   ? 'Moderator Comment (Invisible)'
-  //   : 'Moderator Comment';
+  const moderatorCommentAnnotation = comment.hideModeratorHat
+    ? 'Moderator Comment (Invisible)'
+    : 'Moderator Comment';
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -385,8 +385,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               scrollIntoView={scrollIntoView}
               scrollOnClick={postPage && !isParentComment}
             />
-            {comment.moderatorHat && <span className={classes.moderatorHat}>
-              Moderator Comment
+            {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
+              {moderatorCommentAnnotation}
             </span>}
             <SmallSideVote
               document={comment}

@@ -703,12 +703,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
-      name: 'advice',
-      path: '/advice',
-      componentName: 'AdvisorsPage',
-      title: 'Book a 1:1'
-    },
-    {
       name: 'wikiTopisRedirect',
       path: '/wiki',
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
