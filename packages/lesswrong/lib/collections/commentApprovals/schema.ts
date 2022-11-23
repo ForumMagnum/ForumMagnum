@@ -10,7 +10,6 @@ const schema: SchemaType<DbCommentApproval> = {
       type: "Comment",
       nullable: false
     }),
-    // TODO: figure out all permissions
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
@@ -30,7 +29,6 @@ const schema: SchemaType<DbCommentApproval> = {
   status: {
     type: String,
     allowedValues: ['approved', 'rejected'],
-    // TODO: figure out all permissions
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -39,7 +37,6 @@ const schema: SchemaType<DbCommentApproval> = {
     type: String,
     nullable: true,
     optional: true,
-    // TODO: figure out all permissions
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],    
