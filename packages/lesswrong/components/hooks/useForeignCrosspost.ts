@@ -1,7 +1,6 @@
-import { ApolloError, useQuery, gql } from "@apollo/client";
+import { ApolloError, gql, useQuery } from "@apollo/client";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
-import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
-import { useForeignApolloClient } from "./useForeignApolloClient";
+import { UseSingleProps } from "../../lib/crud/withSingle";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -59,27 +58,20 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     throw new Error("Crosspost has not been created yet");
   }
 
-  const apolloClient = useForeignApolloClient();
+  const getCrosspostQuery = gql`
+    query GetCrosspostQuery($args: JSON) {
+      getCrosspost(args: $args)
+    }
+  `;
 
-  // const getCrosspostQuery = gql`
-  //   query GetCrosspostQuery($args: JSON) {
-  //     getCrosspost(args: $args)
-  //   }
-  // `;
-
-  // const args = {
-  //   ...fetchProps,
-  //   documentId: localPost.fmCrosspost.foreignPostId
-  // };
-
-  // const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
-  const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
+  const args = {
     ...fetchProps,
-    documentId: localPost.fmCrosspost.foreignPostId,
-    apolloClient,
-  });
+    documentId: localPost.fmCrosspost.foreignPostId
+  };
 
-  // const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
+  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
+
+  const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {

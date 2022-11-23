@@ -155,9 +155,14 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       if (!document?.fmCrosspostUserId) {
         try {
           const result = await fetch("/api/crosspostToken");
-          const {token} = await result.json();
-          setToken(token);
-          setError(null);
+          const {token, error} = await result.json();
+          if (token) {
+            setToken(token);
+          } else if (typeof error === 'string') {
+            setError(error);
+          } else {
+            setError("Couldn't create login token");
+          }
         } catch {
           setError("Couldn't create login token");
         }
