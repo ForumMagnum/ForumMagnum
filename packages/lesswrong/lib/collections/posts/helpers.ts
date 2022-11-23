@@ -141,10 +141,10 @@ export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   }
 }
 
-export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
+export const postGetCommentCountStr = (post: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
   // can be passed in a manual comment count, or retrieve the post's cached comment count
 
-  const count = commentCount != undefined ? commentCount :  postGetCommentCount(post)
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
 
   if (!count) {
     return "No comments"
@@ -155,6 +155,15 @@ export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: nu
   }
 }
 
+export const postGetAnswerCountStr = (count: number): string => {
+  if (!count) {
+    return "No answers"
+  } else if (count == 1) {
+    return "1 answer"
+  } else {
+    return count + " answers"
+  }
+}
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
   if (forumTypeSetting.get() === 'AlignmentForum') {

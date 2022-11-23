@@ -17,6 +17,7 @@ import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
+import { useMulti } from '../../../lib/crud/withMulti';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -187,6 +188,23 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   const { query, params } = location;
+
+  const MAX_ANSWERS_QUERIED = 100
+  const sortBy = query.answersSorting || "top";
+  const { results: answers } = useMulti({
+    terms: {
+      view: "questionAnswers",
+      postId: post._id,
+      limit: MAX_ANSWERS_QUERIED,
+      sortBy
+    },
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+    skip: !post.question,
+  });
+
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
@@ -270,7 +288,7 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -309,7 +327,7 @@ const PostsPage = ({post, refetch, classes}: {
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
           <AnalyticsContext pageSectionContext="answersSection">
-            <PostsPageQuestionContent post={post} refetch={refetch}/>
+            <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
           </AnalyticsContext>
         </div>}
         {/* Comments Section */}
