@@ -100,7 +100,6 @@ export function flattenComments<T extends ThreadableCommentType>(commentTree: Co
   const flattenedComments: T[] = [];
 
   let nextNode: CommentTreeNode<T> | undefined;
-  // Assignment evaluates to true if an element is returned from `pop`, false otherwise
   while (commentTreeClone.length) {
     nextNode = commentTreeClone.pop();
     if (nextNode && !seenCommentIds.has(nextNode.item._id)) {
