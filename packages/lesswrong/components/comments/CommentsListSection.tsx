@@ -117,7 +117,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
               {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
             </span> :
             <span>
-              {postGetCommentCountStr(post!, totalComments)}, sorted by <Components.CommentsViews post={post} />
+              {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
             </span>
         }
       </Typography>

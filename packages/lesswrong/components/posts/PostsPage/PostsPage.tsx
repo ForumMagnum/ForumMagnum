@@ -22,6 +22,8 @@ import { useMulti } from '../../../lib/crud/withMulti';
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
+const MAX_ANSWERS_QUERIED = 100
+
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
   /epistemic status/i,
@@ -189,7 +191,6 @@ const PostsPage = ({post, refetch, classes}: {
 
   const { query, params } = location;
 
-  const MAX_ANSWERS_QUERIED = 100
   const sortBy = query.answersSorting || "top";
   const { results: answers } = useMulti({
     terms: {

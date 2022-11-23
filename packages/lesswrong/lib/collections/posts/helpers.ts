@@ -141,7 +141,7 @@ export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   }
 }
 
-export const postGetCommentCountStr = (post: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
   // can be passed in a manual comment count, or retrieve the post's cached comment count
 
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
