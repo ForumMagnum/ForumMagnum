@@ -29,14 +29,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 }); 
 
-const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
-  onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>)=>void,
+const TagsChecklist = ({core, isSubforum, onTagSelected, classes, existingTagIds=[] }: {
+  core?: boolean,
+  isSubforum?: boolean,
+  onTagSelected?: (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>)=>void,
   classes: ClassesType,
   existingTagIds?: Array<string|undefined>
 }) => {
   const { results, loading } = useMulti({
     terms: {
-      view: "coreTags",
+      view: "specialTags",
+      core,
+      isSubforum,
     },
     collectionName: "Tags",
     fragmentName: "TagFragment",
@@ -48,7 +52,7 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
 
   const unusedCoreTags = results?.filter(tag => !existingTagIds.includes(tag._id))
 
-  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name}, existingTagIds) : undefined
+  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name, parentTagId: tag.parentTag?._id}, existingTagIds) : undefined
 
   return <>
     {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> {taggingNameSetting.get()}</div>}>
@@ -60,10 +64,10 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
 }
 
 
-const CoreTagsChecklistComponent = registerComponent("CoreTagsChecklist", CoreTagsChecklist, {styles});
+const TagsChecklistComponent = registerComponent("TagsChecklist", TagsChecklist, {styles});
 
 declare global {
   interface ComponentTypes {
-    CoreTagsChecklist: typeof CoreTagsChecklistComponent
+    TagsChecklist: typeof TagsChecklistComponent
   }
 }

@@ -10,6 +10,8 @@ declare global {
     slug?: string
     tagFlagId?: string
     parentTagId?: string
+    core?: boolean
+    isSubforum?: boolean
   }
 }
 
@@ -87,10 +89,32 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
 });
 ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
 
+// TODO: deprecated, remove
 Tags.addView('coreTags', (terms: TagsViewTerms) => {
   return {
     selector: {
       core: true,
+      adminOnly: viewFieldAllowAny
+    },
+    options: {
+      sort: {
+        defaultOrder: -1,
+        name: 1
+      }
+    },
+  }
+});
+ensureIndex(Tags, {deleted: 1, core:1, name: 1});
+
+// TODO: don't like this name, rename
+Tags.addView('specialTags', (terms: TagsViewTerms) => {
+  const selectorOrAny = (field?: boolean) => field ? true : (field === false ? {$ne: true} : viewFieldAllowAny)
+  const coreSelector = selectorOrAny(terms.core)
+  const subforumSelector = selectorOrAny(terms.isSubforum)
+  return {
+    selector: {
+      core: coreSelector,
+      isSubforum: subforumSelector,
       adminOnly: viewFieldAllowAny
     },
     options: {

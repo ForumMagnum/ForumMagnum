@@ -74,7 +74,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Coauthors"
   },
   tags: {
-    order: 60,
+    order: 22,
     name: "tags",
     label: `Post ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false

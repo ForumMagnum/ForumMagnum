@@ -53,7 +53,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
+  const { LWTooltip, AddTagButton, TagsChecklist } = Components
 
   // [Epistemic status - two years later guessing] This loads the tagrels via a
   // database query instead of using the denormalized field on posts. This
@@ -152,7 +152,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   
  
   return <span className={classes.root}>
-    {showCoreTags && <div><CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
+    {showCoreTags && <div><TagsChecklist core={true} existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       tagRel.tag && <FooterTag 
         key={tagRel._id} 
