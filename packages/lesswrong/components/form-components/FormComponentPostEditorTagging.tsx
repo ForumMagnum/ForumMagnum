@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import toDictionary from '../../lib/utils/toDictionary';
 import mapValues from 'lodash/mapValues';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,7 +37,25 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   updateCurrentValues: any,
   classes: ClassesType,
 }) => {
-  const { TagsChecklist, TagMultiselect, FooterTagList, LWTooltip } = Components
+  const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
+  
+  const { results, loading } = useMulti({
+    terms: {
+      view: "specialTags",
+    },
+    collectionName: "Tags",
+    fragmentName: "TagFragment",
+    limit: 100,
+  });
+  
+  if (loading) return <Loading/>
+  if (!results) return null
+  
+  const subforumTags = results.filter(tag => tag.isSubforum)
+  const coreTags = results.filter(tag => !tag.isSubforum && tag.core)
+  
+  const selectedTagIds = Object.keys(value||{})
+  const selectedSubforumTagIds = selectedTagIds.filter(tagId => subforumTags.find(tag => tag._id === tagId)) // inefficient but we don't expect many subforums
   
   /**
    * When a tag is selected, add both it and its parent to the list of tags.
@@ -50,6 +69,25 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
             tag.parentTagId === undefined || existingTagIds.includes(tag.parentTagId) ? undefined : tag.parentTagId,
             ...existingTagIds,
           ].filter((tagId) => tagId),
+        },
+        (arrayOfTagIds: string[]) =>
+          toDictionary(
+            arrayOfTagIds,
+            (tagId) => tagId,
+            (tagId) => 1
+          )
+      )
+    );
+  }
+
+  /**
+   * When a tag is removed, remove only that tag and not its parent.
+   */
+  const onTagRemoved = (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>) => {
+    updateCurrentValues(
+      mapValues(
+        {
+          tagRelevance: existingTagIds.filter((thisTagId) => thisTagId !== tag.tagId),
         },
         (arrayOfTagIds: string[]) =>
           toDictionary(
@@ -76,21 +114,21 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     return <div className={classes.root}>
       <h2 className={classes.subforumHeader}>Subforums</h2>
       <p className={classes.subforumExplanation}>Subforums are broad topics with a dedicated community and space for general discussion. We ensure that they contain relevant posts by including posts from sub-topics automatically, and through active curation.</p>
-      <TagsChecklist core={undefined} isSubforum={true} existingTagIds={Object.keys(value||{})} onTagSelected={onTagSelected}/>
+      <TagsChecklist tags={subforumTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} onTagRemoved={onTagRemoved} displaySelected={"highlight"}/>
       <h2>Other topics</h2>
-      <TagsChecklist core={true} isSubforum={false} existingTagIds={Object.keys(value||{})} onTagSelected={onTagSelected}/>
+      <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected}/>
       <TagMultiselect
         path={path}
         placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
-        
-        value={Object.keys(value||{})}
+        value={Object.keys(value||{}).filter(tagId => !selectedSubforumTagIds.includes(tagId))}
         updateCurrentValues={(changes) => {
           // post tagRelevance field needs to look like {string: /
           // number}, so even though it's extra work both here and in 
           // the callback, we need to maintain that structure.
           updateCurrentValues(
             mapValues(
-              changes,
+              // selectedSubforumTagIds are filtered out of the value passed in to this component, so make sure they are included when the value is updated
+              {tagRelevance: [...changes.tagRelevance, ...selectedSubforumTagIds]},
               (arrayOfTagIds: string[]) => toDictionary(
                 arrayOfTagIds, tagId=>tagId, tagId=>1
               )

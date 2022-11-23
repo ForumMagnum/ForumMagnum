@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 
@@ -26,42 +25,88 @@ const styles = (theme: ThemeType): JssStyles => ({
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     }
-  }
-}); 
+  },
+  selectedTag: {
+    display: 'inline-flex',
+    alignItems: 'baseline',
+    columnGap: 4,
+    ...tagStyle(theme),
+    cursor: 'default'
+  },
+  removeTag: {
+    background: 'transparent',
+    color: 'inherit',
+    '&:hover': {
+      opacity: 0.5
+    }
+  },
+});
 
-const TagsChecklist = ({core, isSubforum, onTagSelected, classes, existingTagIds=[] }: {
-  core?: boolean,
-  isSubforum?: boolean,
-  onTagSelected?: (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>)=>void,
-  classes: ClassesType,
-  existingTagIds?: Array<string|undefined>
-}) => {
-  const { results, loading } = useMulti({
-    terms: {
-      view: "specialTags",
-      core,
-      isSubforum,
-    },
-    collectionName: "Tags",
-    fragmentName: "TagFragment",
-    limit: 100,
-  });
-  
-  const { Loading, LWTooltip } = Components;
-  if (loading) return <Loading/>
-
-  const unusedCoreTags = results?.filter(tag => !existingTagIds.includes(tag._id))
-
-  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected ? onTagSelected({tagId:tag._id, tagName:tag.name, parentTagId: tag.parentTag?._id}, existingTagIds) : undefined
-
-  return <>
-    {unusedCoreTags?.map(tag => <LWTooltip key={tag._id} title={<div>Click to assign <em>{tag.name}</em> {taggingNameSetting.get()}</div>}>
-      <div className={classes.tag} onClick={() => handleOnTagSelected(tag, existingTagIds)}>
-        {tag.name}
-      </div>
-    </LWTooltip>)}
-  </>
+interface TagsChecklistItem {
+  tag: TagFragment,
+  selected: boolean,
 }
+
+const TagsChecklist = ({
+  onTagSelected = () => {},
+  onTagRemoved = () => {},
+  classes,
+  selectedTagIds: selectedTagIds = [],
+  tags,
+  displaySelected = "hide",
+}: {
+  onTagSelected?: (
+    tag: { tagId: string; tagName: string; parentTagId?: string },
+    existingTagIds: Array<string>
+  ) => void;
+  onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
+  classes: ClassesType;
+  selectedTagIds?: Array<string | undefined>;
+  tags: TagFragment[];
+  displaySelected?: "highlight" | "hide";
+}) => {
+  const { LWTooltip } = Components;
+
+  // TODO: maybe pass in as variable
+  const getTagsToDisplay = (): TagsChecklistItem[] => {
+    if (displaySelected === "hide") {
+      return tags.filter((tag) => !selectedTagIds.includes(tag._id)).map((tag) => ({ tag, selected: false }));
+    } else {
+      return tags.map((tag) => ({ tag, selected: selectedTagIds.includes(tag._id) }));
+    }
+  };
+  const tagsToDisplay = getTagsToDisplay();
+
+  const handleOnTagSelected = (tag, existingTagIds) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
+  const handleOnTagRemoved = (tag, existingTagIds) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
+
+  return (
+    <>
+      {tagsToDisplay?.map((tagChecklistItem) =>
+        tagChecklistItem.selected ? (
+          <div className={classes.selectedTag} key={tagChecklistItem.tag._id}>
+            {tagChecklistItem.tag.name}
+            <button className={classes.removeTag} onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}>x</button>
+          </div>
+        ) : (
+          <LWTooltip
+            key={tagChecklistItem.tag._id}
+            title={
+              <div>
+                Click to assign <em>{tagChecklistItem.tag.name}</em> {taggingNameSetting.get()}
+                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {taggingNameSetting.get()} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
+              </div>
+            }
+          >
+            <div className={classes.tag} onClick={() => handleOnTagSelected(tagChecklistItem.tag, selectedTagIds)}>
+              {tagChecklistItem.tag.name}
+            </div>
+          </LWTooltip>
+        )
+      )}
+    </>
+  );
+};
 
 
 const TagsChecklistComponent = registerComponent("TagsChecklist", TagsChecklist, {styles});
