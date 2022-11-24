@@ -267,6 +267,10 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       customComponentProps: {
         defaultExpanded: true,
         items: [
+          {
+            id: "subforumsList",
+            customComponentName: "SubforumsList",
+          },
         ],
       },
     }, {
@@ -322,7 +326,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       customComponentName: "TabNavigationCollapsibleMenu",
       customComponentProps: {
         defaultExpanded: false,
-        customComponentName: "EventsList",
+        items: [
+          {
+            id: "eventsList",
+            customComponentName: "EventsList",
+          },
+        ],
       },
     }, {
       id: 'community',

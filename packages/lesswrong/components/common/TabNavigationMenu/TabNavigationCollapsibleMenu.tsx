@@ -31,25 +31,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.2rem",
     paddingLeft: 2,
   },
-  itemsWrapper: {
-    marginBottom: 16,
-  },
   subMenu: {
     marginTop: -16,
+    marginBottom: 16,
   },
 });
 
 type TabNavigationCollapsibleMenuProps = {
-  items?: MenuTab[],
-  customComponentName?: string,
+  items: MenuTab[],
   defaultExpanded: boolean,
   tab: MenuTabRegular,
-  currentUser: UsersCurrent,
   classes: ClassesType,
 }
 
 const TabNavigationCollapsibleMenu = ({
-  items, customComponentName, defaultExpanded, tab, currentUser, classes,
+  items, defaultExpanded, tab, classes,
 }: TabNavigationCollapsibleMenuProps) => {
   const {pathname} = useLocation();
   const {title, link} = tab;
@@ -66,8 +62,6 @@ const TabNavigationCollapsibleMenu = ({
   const handleTitleClick = () => {}
 
   const onClickSection = () => {}
-
-  const CustomComponent = Components[customComponentName ?? ""];
 
   return (
     <>
@@ -98,17 +92,12 @@ const TabNavigationCollapsibleMenu = ({
         </div>
       </LWTooltip>
       <Collapse in={isExpanded}>
-        <div className={classes.itemsWrapper}>
-          {items &&
-            <div className={classes.subMenu}>
-              <TabNavigationMenu
-                menuTabs={items}
-                onClickSection={onClickSection}
-                transparentBackground
-              />
-            </div>
-          }
-          {CustomComponent && <CustomComponent currentUser={currentUser} />}
+        <div className={classes.subMenu}>
+          <TabNavigationMenu
+            menuTabs={items}
+            onClickSection={onClickSection}
+            transparentBackground
+          />
         </div>
       </Collapse>
     </>
