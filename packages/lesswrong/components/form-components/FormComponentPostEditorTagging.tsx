@@ -38,8 +38,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   classes: ClassesType,
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
-  // const showSubforumSection = forumTypeSetting.get() === "EAForum";
-  const showSubforumSection = false;
+  const showSubforumSection = forumTypeSetting.get() === "EAForum";
   
   const { results, loading } = useMulti({
     terms: {
