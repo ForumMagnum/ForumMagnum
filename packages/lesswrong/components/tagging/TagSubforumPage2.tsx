@@ -151,6 +151,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  newPostLink: {
+    display: "flex",
+    alignItems: "center",
+  },
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -168,11 +172,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedHeader: {
     display: "flex",
     marginBottom: -16,
+    marginLeft: 10,
   },
   feedHeaderButtons: {
     display: "flex",
     flexGrow: 1,
     columnGap: 16,
+  },
+  newDiscussionContainer: {
+    background: theme.palette.grey[0],
+    marginTop: 32,
+    padding: "0px 8px 8px 8px",
   },
   feedPostWrapper: {
     marginTop: 32,
@@ -202,7 +212,7 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, MixedTypeFeed,
-    SectionButton, CommentWithReplies, RecentDiscussionThread,
+    SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
   } = Components;
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
@@ -237,6 +247,7 @@ const TagSubforumPage2 = ({classes}: {
   });
   
   const [truncated, setTruncated] = useState(true)
+  const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
@@ -311,6 +322,11 @@ const TagSubforumPage2 = ({classes}: {
   const clickReadMore = () => {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
+  }
+
+  const clickNewDiscussion = () => {
+    setNewDiscussionOpen(true)
+    captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
@@ -469,15 +485,26 @@ const TagSubforumPage2 = ({classes}: {
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
-          <SectionButton>
-            <AddBoxIcon /> New Post
-          </SectionButton>
-          <SectionButton>
+          <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
+            <SectionButton>
+              <AddBoxIcon /> New Post
+            </SectionButton>
+          </Link>
+          <SectionButton onClick={clickNewDiscussion}>
             <AddBoxIcon /> New Discussion
           </SectionButton>
         </div>
         <PostsListSortDropdown value={query.sortedBy} options={subforumSortings} />
       </div>
+      {newDiscussionOpen && <div className={classes.newDiscussionContainer}>
+        <CommentsNewForm
+          tag={tag}
+          tagCommentType={"SUBFORUM"}
+          successCallback={refetch}
+          type="comment"
+          enableGuidelines={false}
+        />
+      </div>}
       <MixedTypeFeed
         firstPageSize={10}
         pageSize={20}
