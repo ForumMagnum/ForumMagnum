@@ -19,12 +19,6 @@ const styles = ((theme: ThemeType): JssStyles => ({
     height: 'unset',
     minHeight: 24,
   },
-  title: {
-    paddingLeft: 62,
-    paddingBottom: 5,
-    ...theme.typography.body2,
-    color: theme.palette.grey[800],
-  },
   subItem: {
     textTransform: 'capitalize',
     whiteSpace: 'break-spaces !important',
@@ -57,7 +51,6 @@ const SubforumsList = ({ onClick, classes }) => {
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          <div className={classes.title}>Subforums</div>
           {results.map((subforum) => (
             <MenuItemUntyped
               key={subforum._id}
