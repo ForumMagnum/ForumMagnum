@@ -43,7 +43,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   
   const { results, loading } = useMulti({
     terms: {
-      view: "specialTags",
+      view: "coreAndSubforumTags",
     },
     collectionName: "Tags",
     fragmentName: "TagFragment",
