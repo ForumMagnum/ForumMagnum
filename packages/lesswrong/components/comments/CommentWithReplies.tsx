@@ -24,6 +24,7 @@ export interface CommentWithRepliesProps {
   markAsRead?: any;
   initialMaxChildren?: number;
   commentNodeProps?: Partial<CommentsNodeProps>;
+  startExpanded?: boolean;
   classes: ClassesType;
 }
 
@@ -34,13 +35,15 @@ const CommentWithReplies = ({
   markAsRead = () => {},
   initialMaxChildren = 3,
   commentNodeProps,
+  startExpanded,
   classes,
 }: CommentWithRepliesProps) => {
   const { hash: focusCommentId } = useLocation();
 
   const commentId = focusCommentId.slice(1) || null;
-  const startExpanded = comment.latestChildren.some(c => c._id === commentId)
-  
+
+  startExpanded ??= comment.latestChildren.some(c => c._id === commentId);
+
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
   if (!comment) return null;
