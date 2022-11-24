@@ -179,7 +179,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 0.5
     },
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       display: 'none' // only show on mobile (when the sidebar is not showing)
     }
   },
