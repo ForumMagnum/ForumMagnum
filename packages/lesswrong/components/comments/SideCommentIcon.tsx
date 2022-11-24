@@ -36,6 +36,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.icon.dim5,
     }
   },
+  clickToPinMessage: {
+    position: "absolute",
+    display: "inline-block",
+    top: -2, left: 28,
+    fontSize: 13,
+    color: "rgba(0,0,0,.45)",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
   extendHoverTarget: {
     position: "absolute",
     top: 0, left: 0,
@@ -117,6 +125,9 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       <BadgeWrapper commentCount={commentIds.length}>
         <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
       </BadgeWrapper>
+      {isOpen && <span className={classes.clickToPinMessage}>
+        Click to {pinned==="open" ? "close" : "pin"}
+      </span>}
       {isOpen && <span className={classes.extendHoverTarget}/>}
     </span>
     {isOpen && <ClickAwayListener onClickAway={onClickAway}>
