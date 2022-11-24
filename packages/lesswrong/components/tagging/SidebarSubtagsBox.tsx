@@ -55,7 +55,7 @@ const SidebarSubtagsBox = ({ tagId, className, classes }: { tagId; className?: s
 
   // TODO: open this up to subforum moderators at least. The reason we can't do this at the moment is that subtags can only have one parent,
   // so we don't want people stealing subtags from other subforums.
-  const canEditSubtags = !!(currentUser?.isAdmin || currentUser?.groups.includes("sunshineRegiment"));
+  const canEditSubtags = !!(currentUser?.isAdmin || currentUser?.groups?.includes("sunshineRegiment"));
   const subTags = tagWithSubtags?.subTags;
 
   // still show the box if the user can edit subtags, to expose the add button

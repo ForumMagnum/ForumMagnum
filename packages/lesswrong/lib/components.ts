@@ -581,6 +581,7 @@ importComponent("TagSubforumPage", () => require('../components/tagging/TagSubfo
 importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
 importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
 importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
+importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));
 importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor
