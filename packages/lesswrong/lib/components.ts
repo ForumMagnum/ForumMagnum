@@ -1,4 +1,5 @@
 import '../components/alignment-forum/withSetAlignmentPost';
+import '../components/posts/PostActions';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
 
@@ -30,9 +31,6 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
   importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
   importComponent("EAUsersProfileTags", () => require('../components/ea-forum/users/modules/EAUsersProfileTags'))
-  importComponent("AdvisorsPage", () => require('../components/ea-forum/advice/AdvisorsPage'))
-  importComponent("AdvisorCard", () => require('../components/ea-forum/advice/AdvisorCard'))
-  importComponent("CommunityMemberCard", () => require('../components/ea-forum/advice/CommunityMemberCard'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -96,6 +94,7 @@ importComponent("NavigationEventSender", () => require('../components/hooks/useO
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
 importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
+importComponent("IntercomWrapper", () => require('../components/common/IntercomWrapper'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
@@ -302,6 +301,7 @@ importComponent("VoteOnComment", () => require('../components/votes/VoteOnCommen
 importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
+importComponent("EmojiReactionVoteOnComment", () => require('../components/votes/EmojiReactionVoteOnComment'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // Events
@@ -426,6 +426,7 @@ importComponent("ModerationGuidelinesBox", () => require('../components/comments
 importComponent("ModerationGuidelinesEditForm", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm'))
 importComponent("LastVisitList", () => require('../components/comments/LastVisitList'))
 importComponent("CommentsNewForm", () => require('../components/comments/CommentsNewForm'));
+importComponent("SideCommentIcon", () => require('../components/comments/SideCommentIcon'));
 importComponent("SingleLineComment", () => require('../components/comments/SingleLineComment'));
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));

@@ -3,7 +3,7 @@ import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import withTimezone from '../common/withTimezone';
+import { withTimezone } from '../common/withTimezone';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({

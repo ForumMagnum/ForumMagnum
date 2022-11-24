@@ -29,7 +29,7 @@ describe('Groups', function() {
     cy.reload(true);
     
     // Try to edit the post. This should work because we're a group organizer.
-    cy.get('.PostsPageActions-root').click();
+    cy.get('.PostActionsButton-root').click();
     cy.contains('.PostActions-actions li', 'Edit').click();
     const newEventBody = "Modied test body 123";
     cy.get('.input-contents .ck-editor__editable').click().clear().type(newEventBody);

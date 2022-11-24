@@ -639,6 +639,11 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly linkSharingKeyUsedBy: Array<string>,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
+  readonly tableOfContents: any,
+  readonly tableOfContentsRevision: any,
+  readonly sideComments: any,
+  readonly sideCommentsCache: any /*{"definitions":[{}]}*/,
+  readonly sideCommentVisibility: string,
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
@@ -901,6 +906,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly socialPreviewImageUrl: string,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
+  readonly sideCommentVisibility: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
   readonly canonicalNextPostSlug: string,
@@ -1163,6 +1169,11 @@ interface HighlightWithHash_contents { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
 }
 
+interface PostSideComments { // fragment on Posts
+  readonly _id: string,
+  readonly sideComments: any,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -1202,6 +1213,7 @@ interface CommentsList { // fragment on Comments
   readonly shortform: boolean,
   readonly lastSubthreadActivity: Date,
   readonly moderatorHat: boolean,
+  readonly hideModeratorHat: boolean | null,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly promoted: boolean,
@@ -2860,6 +2872,7 @@ interface FragmentTypes {
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
   HighlightWithHash: HighlightWithHash
+  PostSideComments: PostSideComments
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3035,6 +3048,7 @@ interface CollectionNamesByFragmentName {
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
   HighlightWithHash: "Posts"
+  PostSideComments: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
