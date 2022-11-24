@@ -66,6 +66,7 @@ export type MenuTabRegular = {
   link: string
   icon?: React.ReactNode
   iconComponent?: React.ComponentType<any>
+  minimalIcon?: boolean,
   compressedIconComponent?: React.ComponentType<any>
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
@@ -239,6 +240,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Home',
       link: '/',
       iconComponent: Home,
+      minimalIcon: true,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -247,22 +249,26 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'All Posts',
       link: '/allPosts',
       iconComponent: Sort,
+      minimalIcon: true,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
-    }, {
+    },{
       id: taggingNamePluralSetting.get(),
-      title: taggingNamePluralCapitalSetting.get() + " Wiki",
-      mobileTitle: taggingNamePluralCapitalSetting.get(),
+      title: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
+      minimalIcon: true,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    },{
-      id: 'subforumsList',
-      customComponentName: "SubforumsList",
+      customComponentName: "TabNavigationCollapsibleMenu",
+      customComponentProps: {
+        defaultExpanded: true,
+        items: [
+        ],
+      },
     }, {
       id: 'library',
       title: 'Library',
@@ -301,6 +307,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Take Action',
       link: `/${taggingNamePluralSetting.get()}/take-action`,
       iconComponent: PlaylistAddCheck,
+      minimalIcon: true,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
     }, {
@@ -308,17 +315,21 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Events',
       link: '/events',
       iconComponent: EventIcon,
+      minimalIcon: true,
       tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
-      showOnCompressed: true
-    }, {
-      id: 'eventsList',
-      customComponentName: "EventsList",
+      showOnCompressed: true,
+      customComponentName: "TabNavigationCollapsibleMenu",
+      customComponentProps: {
+        defaultExpanded: false,
+        customComponentName: "EventsList",
+      },
     }, {
       id: 'community',
       title: 'Community',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
+      minimalIcon: true,
       tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true

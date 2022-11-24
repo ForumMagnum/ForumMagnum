@@ -64,6 +64,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       ),
     },
   },
+  iconPlaceholder: {
+    width: iconWidth,
+  },
   navText: {
     ...theme.typography.body2,
     color: theme.palette.grey[800],
@@ -121,11 +124,17 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       disableTouchRipple
     >
       {(tab.icon || tab.iconComponent) && <span
-        className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
-      >
-        {tab.iconComponent && <tab.iconComponent />}
-        {tab.icon && tab.icon}
-      </span>}
+          className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
+        >
+          {tab.minimalIcon
+            ? <div className={classes.iconPlaceholder} />
+            : <>
+              {tab.iconComponent && <tab.iconComponent />}
+              {tab.icon && tab.icon}
+            </>
+          }
+        </span>
+      }
       {tab.subItem ?
         <TabNavigationSubItem>
           {tab.title}
