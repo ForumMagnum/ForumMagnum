@@ -1275,6 +1275,10 @@ interface CommentsListWithParentMetadata extends CommentsList { // fragment on C
   readonly tag: TagBasicInfo|null,
 }
 
+interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
+  readonly tag: TagBasicInfo|null,
+}
+
 interface WithVoteComment { // fragment on Comments
   readonly __typename: string,
   readonly _id: string,
@@ -2881,6 +2885,7 @@ interface FragmentTypes {
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
+  StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   RevisionDisplay: RevisionDisplay
@@ -3057,6 +3062,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
+  StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
   RevisionDisplay: "Revisions"
