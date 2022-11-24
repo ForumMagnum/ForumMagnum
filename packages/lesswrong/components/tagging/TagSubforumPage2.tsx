@@ -172,6 +172,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedHeader: {
     display: "flex",
     marginBottom: -16,
+    marginLeft: 12,
   },
   feedHeaderButtons: {
     display: "flex",
