@@ -29,15 +29,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   upweight: {
     display: "flex",
     alignItems: "center",
-    marginBottom: -3,
+    marginTop: -3,
     "& .MuiButtonBase-root": {
       padding: 6,
+    },
+    "& .Typography-root": {
+      cursor: "default",
     },
   },
   accountLink: {
     borderTop: "solid 1px",
     borderColor: theme.palette.grey[300],
-    margin: "0px 4px",
+    margin: "8px 4px 0px 4px",
     padding: "4px 4px 0px 4px",
     fontSize: 13,
     color: theme.palette.primary.main
@@ -55,11 +58,11 @@ const SubforumNotificationSettings = ({
   className?: string;
   classes: ClassesType;
 }) => {
-  const {filterSettings, setTagFilter, removeTagFilter} = useFilterSettings();
+  const {filterSettings, setTagFilter} = useFilterSettings();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
 
-  const { LWClickAwayListener, LWPopper, WrappedSmartForm, FormComponentCheckbox, Typography, Loading } = Components;
+  const { LWClickAwayListener, LWPopper, WrappedSmartForm, Typography, Loading } = Components;
 
   const { loading, results, refetch } = useMulti({
     terms: { view: "single", tagId: tag._id, userId: currentUser._id },
@@ -113,10 +116,6 @@ const SubforumNotificationSettings = ({
                 <Loading />
               ) : (
                 <>
-                  <span className={classes.upweight}>
-                    <Checkbox checked={isFrontpageSubscribed} onChange={toggleIsFrontpageSubscribed} disableRipple />
-                    <Typography variant="body2">Upweight on frontpage</Typography>
-                  </span>
                   <WrappedSmartForm
                     collection={UserTagRels}
                     documentId={userTagRel?._id}
@@ -124,6 +123,10 @@ const SubforumNotificationSettings = ({
                     mutationFragment={getFragment("UserTagRelNotifications")}
                     autoSubmit
                   />
+                  <span className={classes.upweight}>
+                    <Checkbox checked={isFrontpageSubscribed} onChange={toggleIsFrontpageSubscribed} disableRipple />
+                    <Typography variant="body2">Upweight on frontpage</Typography>
+                  </span>
                   <Typography variant="body2" className={classes.accountLink}>
                     <Link to={"/account?highlightField=notificationSubforumUnread"}>Change batching and email vs on-site in account settings</Link>
                   </Typography>
