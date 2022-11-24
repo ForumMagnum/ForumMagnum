@@ -627,7 +627,8 @@ const TagSubforumPage2 = ({classes}: {
                     showPostTitle: true,
                   },
                 }}
-                initialMaxChildren={5}
+                initialMaxChildren={3}
+                startExpanded={false}
               />
             )
           },
