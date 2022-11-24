@@ -122,6 +122,7 @@ const AnswerCommentsList = ({classes, post, parentAnswer}: {
         <CommentsList
           treeOptions={{
             postPage: true,
+            showCollapseButtons: true,
             post: post,
             highlightDate: highlightDate,
           }}

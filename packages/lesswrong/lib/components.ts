@@ -1,4 +1,5 @@
 import '../components/alignment-forum/withSetAlignmentPost';
+import '../components/posts/PostActions';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
 
@@ -93,6 +94,7 @@ importComponent("NavigationEventSender", () => require('../components/hooks/useO
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
 importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
+importComponent("IntercomWrapper", () => require('../components/common/IntercomWrapper'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
@@ -424,6 +426,7 @@ importComponent("ModerationGuidelinesBox", () => require('../components/comments
 importComponent("ModerationGuidelinesEditForm", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm'))
 importComponent("LastVisitList", () => require('../components/comments/LastVisitList'))
 importComponent("CommentsNewForm", () => require('../components/comments/CommentsNewForm'));
+importComponent("SideCommentIcon", () => require('../components/comments/SideCommentIcon'));
 importComponent("SingleLineComment", () => require('../components/comments/SingleLineComment'));
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
@@ -578,6 +581,7 @@ importComponent("TagSubforumPage", () => require('../components/tagging/TagSubfo
 importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
 importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
 importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
+importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));
 importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 
 // SequenceEditor

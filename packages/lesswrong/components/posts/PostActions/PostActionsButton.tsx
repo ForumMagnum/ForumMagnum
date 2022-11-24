@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsPageActions = ({post, vertical, classes}: {
+const PostActionsButton = ({post, vertical, classes}: {
   post: PostsList,
   vertical?: boolean,
   classes: ClassesType,
@@ -48,6 +48,7 @@ const PostsPageActions = ({post, vertical, classes}: {
       placement="right-start"
       allowOverflow
     >
+      {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
         <PostActions post={post} closeMenu={() => handleSetOpen(false)}/>
       </LWClickAwayListener>
@@ -56,10 +57,10 @@ const PostsPageActions = ({post, vertical, classes}: {
 }
 
 
-const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions, {styles});
+const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsPageActions: typeof PostsPageActionsComponent
+    PostActionsButton: typeof PostActionsButtonComponent
   }
 }
