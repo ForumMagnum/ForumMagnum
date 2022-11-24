@@ -253,7 +253,7 @@ const TagSubforumPage2 = ({classes}: {
   classes: ClassesType
 }) => {
   const {
-    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
+    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, LWTooltip,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox,
     SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
@@ -313,7 +313,7 @@ const TagSubforumPage2 = ({classes}: {
   })
 
   const { openDialog } = useDialog();
-  const { results: members, totalCount: membersCount } = useMulti({
+  const { totalCount: membersCount } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
@@ -500,7 +500,7 @@ const TagSubforumPage2 = ({classes}: {
         {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
       </div>
       <div className={classes.membersListLink}>
-        {members && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
+        <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>
       </div>
       <Tabs
         value={tab}
@@ -546,17 +546,28 @@ const TagSubforumPage2 = ({classes}: {
     };
     const maxAgeHours = 18;
     const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+
+    const discussionButton = isSubscribed || currentUser?.isAdmin ? (
+      <SectionButton onClick={clickNewDiscussion}>
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
+      </SectionButton>
+    ) : (
+      <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
+        <SectionButton>
+          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
+        </SectionButton>
+      </LWTooltip>
+    );
+
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
           <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
             <SectionButton>
-              <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span> Post
+              <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
             </SectionButton>
           </Link>
-          <SectionButton onClick={clickNewDiscussion}>
-            <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span> Discussion
-          </SectionButton>
+          {discussionButton}
         </div>
         <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
