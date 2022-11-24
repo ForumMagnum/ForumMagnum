@@ -172,12 +172,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedHeader: {
     display: "flex",
     marginBottom: -16,
-    marginLeft: 12,
+    marginLeft: 10,
   },
   feedHeaderButtons: {
     display: "flex",
     flexGrow: 1,
     columnGap: 16,
+  },
+  newDiscussionContainer: {
+    background: theme.palette.grey[0],
+    marginTop: 32,
+    padding: "0px 8px 8px 8px",
   },
   feedPostWrapper: {
     marginTop: 32,
@@ -491,13 +496,15 @@ const TagSubforumPage2 = ({classes}: {
         </div>
         <PostsListSortDropdown value={query.sortedBy} options={subforumSortings} />
       </div>
-      {newDiscussionOpen && <CommentsNewForm
-        tag={tag}
-        tagCommentType={"SUBFORUM"}
-        successCallback={refetch}
-        type="comment"
-        enableGuidelines={false}
-      />}
+      {newDiscussionOpen && <div className={classes.newDiscussionContainer}>
+        <CommentsNewForm
+          tag={tag}
+          tagCommentType={"SUBFORUM"}
+          successCallback={refetch}
+          type="comment"
+          enableGuidelines={false}
+        />
+      </div>}
       <MixedTypeFeed
         firstPageSize={10}
         pageSize={20}
