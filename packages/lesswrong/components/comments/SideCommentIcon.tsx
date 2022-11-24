@@ -151,22 +151,27 @@ const SideCommentHover = ({commentIds, post, classes}: {
 }) => {
   const { SideCommentSingle } = Components;
   
-  // FIXME: z-index issues with comment menus
+  // If there's only one comment (not counting replies to that comment), don't
+  // truncate it with a read more.
+  const dontTruncateRoot = (commentIds.length === 1); 
+  
   return <div className={classes.sideCommentHover}>
     {commentIds.map(commentId =>
       <SideCommentSingle
         key={commentId}
         commentId={commentId}
         post={post}
+        dontTruncateRoot={dontTruncateRoot}
       />
     )}
   </div>
 }
 
-const SideCommentSingle = ({commentId, post, classes}: {
+const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
   commentId: string,
   post: PostsDetails,
   classes: ClassesType,
+  dontTruncateRoot?: boolean,
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
@@ -232,6 +237,7 @@ const SideCommentSingle = ({commentId, post, classes}: {
           hideActionsMenu: true,
           isSideComment: true,
         },
+        ...(dontTruncateRoot ? {expandByDefault: true} : {}),
       }}
     />
   </div>
