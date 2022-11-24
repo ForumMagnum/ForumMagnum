@@ -10,6 +10,9 @@ import { styles as itemStyles } from "./TabNavigationItem";
 import type { MenuTab, MenuTabRegular } from "./menuTabs";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    marginTop: -6,
+  },
   container: {
     display: "flex",
     flexDirection: "row",
@@ -64,7 +67,7 @@ const TabNavigationCollapsibleMenu = ({
   const onClickSection = () => {}
 
   return (
-    <>
+    <div className={classes.root}>
       <LWTooltip placement='right-start' title={tab.tooltip || ''}>
         <div className={classes.container}>
           <span onClick={handleArrowClick} className={classNames(
@@ -100,7 +103,7 @@ const TabNavigationCollapsibleMenu = ({
           />
         </div>
       </Collapse>
-    </>
+    </div>
   );
 }
 
