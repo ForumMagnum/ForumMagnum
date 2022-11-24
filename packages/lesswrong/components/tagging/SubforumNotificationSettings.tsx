@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
+import Checkbox from '@material-ui/core/Checkbox';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
@@ -9,6 +10,7 @@ import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
+import { useFilterSettings } from '../../lib/filterSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -23,6 +25,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .form-input:last-child': {
       marginBottom: 4,
     }
+  },
+  upweight: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: -3,
+    "& .MuiButtonBase-root": {
+      padding: 6,
+    },
   },
   accountLink: {
     borderTop: "solid 1px",
@@ -45,10 +55,11 @@ const SubforumNotificationSettings = ({
   className?: string;
   classes: ClassesType;
 }) => {
+  const {filterSettings, setTagFilter, removeTagFilter} = useFilterSettings();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
 
-  const { LWClickAwayListener, LWPopper, WrappedSmartForm, Typography, Loading } = Components;
+  const { LWClickAwayListener, LWPopper, WrappedSmartForm, FormComponentCheckbox, Typography, Loading } = Components;
 
   const { loading, results, refetch } = useMulti({
     terms: { view: "single", tagId: tag._id, userId: currentUser._id },
@@ -73,6 +84,16 @@ const SubforumNotificationSettings = ({
   if (!userTagRel) return null
   if (loading) return null
 
+  const filterSetting = filterSettings?.tags?.find(({tagId}) => tag._id === tagId);
+  const isFrontpageSubscribed = filterSetting?.filterMode === "Subscribed";
+
+  const toggleIsFrontpageSubscribed = () =>
+    setTagFilter({
+      tagId: tag._id,
+      tagName: tag.name,
+      filterMode: isFrontpageSubscribed ? 0 : "Subscribed",
+    });
+
   return (
     <AnalyticsContext pageSection="subforumNotificationSettings">
       <div className={className}>
@@ -92,6 +113,10 @@ const SubforumNotificationSettings = ({
                 <Loading />
               ) : (
                 <>
+                  <span className={classes.upweight}>
+                    <Checkbox checked={isFrontpageSubscribed} onChange={toggleIsFrontpageSubscribed} disableRipple />
+                    <Typography variant="body2">Upweight on frontpage</Typography>
+                  </span>
                   <WrappedSmartForm
                     collection={UserTagRels}
                     documentId={userTagRel?._id}
