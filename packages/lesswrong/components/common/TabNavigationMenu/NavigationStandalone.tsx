@@ -53,8 +53,8 @@ const NavigationStandalone = (
         mountOnEnter
         unmountOnExit
       >
-        {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-        <TabNavigationMenu transparentBackground={unspacedGridLayout}/>
+        {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background translucent */}
+        <TabNavigationMenu translucentBackground={unspacedGridLayout} />
       </Slide>
     </div>
     <div className={classNames(classes.footerBar, className)}>

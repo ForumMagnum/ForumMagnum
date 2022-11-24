@@ -4,7 +4,7 @@ import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
-import menuTabs from './menuTabs'
+import defaultMenuTabs, { MenuTab } from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
@@ -20,10 +20,13 @@ const styles = (theme: ThemeType): JssStyles => {
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
     },
-    navSidebarTransparent: {
+    navSidebarTranslucent: {
       zIndex: 10,
       background: `${theme.palette.background.default}cf`, // Add alpha to background color, not thrilled about this way of doing it
       backdropFilter: 'blur(6px)'
+    },
+    navSidebarTransparent: {
+      background: "transparent",
     },
     divider: {
       width: 50,
@@ -35,8 +38,10 @@ const styles = (theme: ThemeType): JssStyles => {
   }
 }
 
-const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
+const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, transparentBackground, classes}: {
+  menuTabs?: MenuTab[],
   onClickSection?: any,
+  translucentBackground?: boolean,
   transparentBackground?: boolean,
   classes: ClassesType,
 }) => {
@@ -50,10 +55,16 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
     onClickSection && onClickSection(e)
   }
 
+  const isNested = !!menuTabs;
+  menuTabs ??= forumSelect(defaultMenuTabs);
+
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
-        <div className={classNames(classes.root, {[classes.navSidebarTransparent]: transparentBackground})}>
-          {forumSelect(menuTabs).map(tab => {
+        <div className={classNames(classes.root, {
+          [classes.navSidebarTranslucent]: translucentBackground,
+          [classes.navSidebarTransparent]: transparentBackground,
+        })}>
+          {menuTabs.map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
             
             if ('divider' in tab) {
@@ -80,7 +91,7 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
             />
           })}
           {/* NB: This returns null if you don't have any active resources */}
-          <FeaturedResourceBanner terms={{view: "activeResources"}}/>
+          {!isNested && <FeaturedResourceBanner terms={{view: "activeResources"}}/>}
         </div>
     </AnalyticsContext>  )
 };

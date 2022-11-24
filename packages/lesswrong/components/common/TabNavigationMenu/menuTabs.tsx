@@ -74,7 +74,7 @@ export type MenuTabRegular = {
   loggedOutOnly?: boolean
 }
 
-type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
+export type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
 
 export const menuTabs: ForumOptions<Array<MenuTab>> = {
   LessWrong: [
@@ -274,25 +274,28 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       customComponentName: "TabNavigationCollapsibleMenu",
       customComponentProps: {
         defaultExpanded: true,
+        items: [
+          {
+            id: 'handbook',
+            title: 'The EA Handbook',
+            link: '/handbook',
+            tooltip: "To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.",
+            subItem: true,
+          }, {
+            id: 'replacing-guilt',
+            title: 'Replacing Guilt',
+            link: '/s/a2LBRPLhvwB83DSGq',
+            tooltip: "Nate Soares writes about replacing guilt with other feelings and finding better ways to motivate yourself, so you can build a better future without falling apart.",
+            subItem: true,
+          }, {
+            id: 'most-important-century',
+            title: 'Most Important Century',
+            link: '/s/isENJuPdB3fhjWYHd',
+            tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
+            subItem: true,
+          },
+        ],
       },
-    }, {
-      id: 'handbook',
-      title: 'The EA Handbook',
-      link: '/handbook',
-      tooltip: "To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.",
-      subItem: true,
-    }, {
-      id: 'replacing-guilt',
-      title: 'Replacing Guilt',
-      link: '/s/a2LBRPLhvwB83DSGq',
-      tooltip: "Nate Soares writes about replacing guilt with other feelings and finding better ways to motivate yourself, so you can build a better future without falling apart.",
-      subItem: true,
-    }, {
-      id: 'most-important-century',
-      title: 'Most Important Century',
-      link: '/s/isENJuPdB3fhjWYHd',
-      tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
-      subItem: true,
     }, {
       id: 'takeAction',
       title: 'Take Action',
