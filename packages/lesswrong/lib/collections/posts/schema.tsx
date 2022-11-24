@@ -2230,7 +2230,7 @@ const schema: SchemaType<DbPost> = {
     
     label: "Replies in sidebar",
     viewableBy: ['guests'],
-    editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     form: {
