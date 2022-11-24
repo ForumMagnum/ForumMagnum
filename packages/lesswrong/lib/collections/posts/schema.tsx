@@ -26,6 +26,7 @@ import { userOverNKarmaFunc } from "../../vulcan-users";
 import { getSqlClientOrThrow } from '../../sql/sqlClient';
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
+import { userHasSideComments } from '../../betas';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -2227,6 +2228,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "select",
     group: formGroups.advancedOptions,
+    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
     
     label: "Replies in sidebar",
     viewableBy: ['guests'],
