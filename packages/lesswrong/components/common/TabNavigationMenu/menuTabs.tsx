@@ -273,6 +273,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
       customComponentName: "TabNavigationCollapsibleMenu",
       customComponentProps: {
+        defaultExpanded: true,
       },
     }, {
       id: 'handbook',

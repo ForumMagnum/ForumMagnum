@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import type { MenuTabRegular } from "./menuTabs";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -17,9 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   arrow: {
     opacity: 1,
     color: theme.palette.grey[800],
-    width: 22,
-    margin: "4px 4px 0 32px",
+    width: 16,
+    margin: "8px 10px 0 32px",
     cursor: "pointer",
+    transition: "all ease 0.2s",
+  },
+  iconExpanded: {
+    transform: "rotate(90deg) translate(-6px, 4px)",
   },
   title: {
     color: theme.palette.grey[800],
@@ -30,29 +34,39 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type TabNavigationCollapsibleMenuProps = {
   tab: MenuTabRegular,
+  defaultExpanded: boolean,
   classes: ClassesType,
 }
 
-const TabNavigationCollapsibleMenu = ({tab, classes}: TabNavigationCollapsibleMenuProps) => {
+const TabNavigationCollapsibleMenu = ({
+  tab, defaultExpanded, classes,
+}: TabNavigationCollapsibleMenuProps) => {
   const {pathname} = useLocation();
   const {title, link} = tab;
   const {LWTooltip} = Components;
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
   // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
 
-  const handleClick = () => {}
+  const handleArrowClick = () => setIsExpanded(!isExpanded);
+
+  const handleTitleClick = () => {}
 
   return (
     <LWTooltip placement='right-start' title={tab.tooltip || ''}>
       <div className={classes.container}>
-        <span className={classNames(classes.icon, classes.arrow)}>
-          <ArrowForwardIcon />
+        <span onClick={handleArrowClick} className={classNames(
+          classes.icon,
+          classes.arrow,
+          {[classes.iconExpanded]: isExpanded}
+        )}>
+          <ArrowForwardIcon fontSize="small" />
         </span>
         <MenuItemUntyped
-          onClick={handleClick}
+          onClick={handleTitleClick}
           component={Link}
           to={link}
           disableGutters
