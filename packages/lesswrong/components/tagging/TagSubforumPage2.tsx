@@ -228,6 +228,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedPostWrapper: {
     marginTop: 32,
   },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
+  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -240,10 +245,9 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
   })
 }
 
-// TODO rename
-const subforumTabs = ["posts", "wiki"] as const
+const subforumTabs = ["subforum", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
-const defaultTab: SubforumTab = "posts"
+const defaultTab: SubforumTab = "subforum"
 
 const TagSubforumPage2 = ({classes}: {
   classes: ClassesType
@@ -504,10 +508,9 @@ const TagSubforumPage2 = ({classes}: {
         className={classes.tabs}
         textColor="primary"
         aria-label="select tab"
-        scrollable
         scrollButtons="off"
       >
-        <Tab label="Posts" value="posts" />
+        <Tab label="Subforum" value="subforum" />
         <Tab label="Wiki" value="wiki" />
       </Tabs>
     </div>
@@ -548,22 +551,24 @@ const TagSubforumPage2 = ({classes}: {
         <div className={classes.feedHeaderButtons}>
           <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
             <SectionButton>
-              <AddBoxIcon /> New Post
+              <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span> Post
             </SectionButton>
           </Link>
           <SectionButton onClick={clickNewDiscussion}>
-            <AddBoxIcon /> New Discussion
+            <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span> Discussion
           </SectionButton>
         </div>
         <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
       {newDiscussionOpen && <div className={classes.newDiscussionContainer}>
+        {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
         <CommentsNewForm
           tag={tag}
           tagCommentType={"SUBFORUM"}
           successCallback={refetch}
-          type="comment"
+          type="reply" // required to make the Cancel button appear
           enableGuidelines={false}
+          cancelCallback={() => setNewDiscussionOpen(false)}
         />
       </div>}
       <MixedTypeFeed
@@ -644,6 +649,7 @@ const TagSubforumPage2 = ({classes}: {
                       expandAll={expandAll}
                       showContributors={true}
                       onHoverContributor={onHoverContributor}
+                      allowSubforumLink={false}
                     />
                   </div>,
                 ]

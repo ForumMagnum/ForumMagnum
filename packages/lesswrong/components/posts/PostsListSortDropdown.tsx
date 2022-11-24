@@ -11,8 +11,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginTop: 8,
+    marginBottom: 8,
+    marginRight: 8,
+    textAlign: "right",
   },
   selectMenu: {
     cursor: "pointer",
@@ -44,7 +46,7 @@ const PostsListSortDropdown = ({classes, value, options=defaultOptions, sortingP
 
   return <div className={classes.root}>
     <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
-      {TAG_POSTS_SORT_ORDER_OPTIONS[value].label} <ArrowDropDownIcon className={classes.icon}/>
+      {TAG_POSTS_SORT_ORDER_OPTIONS[value].label}&nbsp;<ArrowDropDownIcon className={classes.icon}/>
     </span>
     <Menu
       open={Boolean(anchorEl)}
