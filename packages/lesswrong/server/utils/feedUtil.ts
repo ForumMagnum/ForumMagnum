@@ -21,6 +21,7 @@ export type ViewBasedSubqueryProps<ResultType extends DbObject, SortFieldName ex
   collection: CollectionBase<ResultType>,
   context: ResolverContext,
   selector: MongoSelector<ResultType>,
+  sticky?: boolean,
 } & SubquerySortField<ResultType, SortFieldName>;
 
 export function viewBasedSubquery<
@@ -29,10 +30,11 @@ export function viewBasedSubquery<
   SortFieldName extends keyof ResultType
 >(props: ViewBasedSubqueryProps<ResultType, SortFieldName>): FeedSubquery<ResultType, SortKeyType> {
   props.sortDirection ??= "desc";
-  const {type, collection, context, selector, sortField, sortDirection} = props;
+  const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
   return {
     type,
     getSortKey: (item: ResultType) => item[props.sortField] as unknown as SortKeyType,
+    isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
       return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
     }
@@ -143,6 +145,7 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
       return subqueryResults.map((result: DbObject) => ({
         type: subquery.type,
         sortKey: subquery.getSortKey(result),
+        isNumericallyPositioned: subquery.isNumericallyPositioned,
         [subquery.type]: result,
       }))
     })
