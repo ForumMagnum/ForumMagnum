@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => {
 
 const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, transparentBackground, classes}: {
   menuTabs?: MenuTab[],
-  onClickSection?: any,
+  onClickSection?: (e: React.MouseEvent<HTMLAnchorElement>) => void,
   translucentBackground?: boolean,
   transparentBackground?: boolean,
   classes: ClassesType,
@@ -48,12 +48,17 @@ const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, tra
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const { TabNavigationItem, FeaturedResourceBanner } = Components
-  const customComponentProps = {currentUser}
-  
-  const handleClick = (e, tabId) => {
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)
   }
+
+  const customComponentProps = {
+    currentUser,
+    onMenuItemClick: handleClick,
+    onClickSection,
+  };
 
   const isNested = !!menuTabs;
   menuTabs ??= forumSelect(defaultMenuTabs);
@@ -75,11 +80,11 @@ const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, tra
               const props = {
                 ...customComponentProps,
                 ...tab.customComponentProps,
-                tab: tab,
+                tab,
               };
               return <CustomComponent
                 key={tab.id}
-                onClick={(e: MouseEvent) => handleClick(e, tab.id)}
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => handleClick(e, tab.id)}
                 {...props}
               />
             }

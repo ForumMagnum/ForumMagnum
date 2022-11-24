@@ -44,11 +44,13 @@ type TabNavigationCollapsibleMenuProps = {
   items: MenuTab[],
   defaultExpanded: boolean,
   tab: MenuTabRegular,
+  onMenuItemClick?: (e: React.MouseEvent<HTMLAnchorElement>, tabId: string) => void;
+  onClickSection?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   classes: ClassesType,
 }
 
 const TabNavigationCollapsibleMenu = ({
-  items, defaultExpanded, tab, classes,
+  items, defaultExpanded, tab, onMenuItemClick, onClickSection, classes,
 }: TabNavigationCollapsibleMenuProps) => {
   const {pathname} = useLocation();
   const {title, link} = tab;
@@ -62,9 +64,8 @@ const TabNavigationCollapsibleMenu = ({
 
   const handleArrowClick = () => setIsExpanded(!isExpanded);
 
-  const handleTitleClick = () => {}
-
-  const onClickSection = () => {}
+  const handleTitleClick = (e: React.MouseEvent<HTMLAnchorElement>) =>
+    onMenuItemClick?.(e, tab.id);
 
   return (
     <div className={classes.root}>

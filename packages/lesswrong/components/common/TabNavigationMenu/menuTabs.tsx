@@ -65,8 +65,8 @@ export type MenuTabRegular = {
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
+  minimalIcon?: boolean
   iconComponent?: React.ComponentType<any>
-  minimalIcon?: boolean,
   compressedIconComponent?: React.ComponentType<any>
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
@@ -253,7 +253,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
-    },{
+    }, {
       id: taggingNamePluralSetting.get(),
       title: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
