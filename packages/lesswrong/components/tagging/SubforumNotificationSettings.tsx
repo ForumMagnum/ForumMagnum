@@ -128,7 +128,7 @@ const SubforumNotificationSettings = ({
                     <Typography variant="body2">Upweight on frontpage</Typography>
                   </span>
                   <Typography variant="body2" className={classes.accountLink}>
-                    <Link to={"/account?highlightField=notificationSubforumUnread"}>Change batching and email vs on-site in account settings</Link>
+                    <Link to={"/account?highlightField=notificationSubscribedTagPost"}>Change batching and email vs on-site in account settings</Link>
                   </Typography>
                 </>
               )}
