@@ -29,29 +29,27 @@ const styles = ((theme: ThemeType): JssStyles => ({
 }))
 
 const SubforumsList = ({ onClick, classes }) => {
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     terms: {view: 'currentUserSubforums'},
     collectionName: "Tags",
     fragmentName: 'TagSubforumSidebarFragment',
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
   })
-  
-  if (!results || !results.length) return <></>
-  
+
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
   // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any
-  
-  const { TabNavigationSubItem } = Components
 
-  
+  const { TabNavigationSubItem, Loading } = Components
+
   return (
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
-          {results.map((subforum) => (
+          {loading && !results?.length && <Loading />}
+          {results?.map((subforum) => (
             <MenuItemUntyped
               key={subforum._id}
               onClick={onClick}
