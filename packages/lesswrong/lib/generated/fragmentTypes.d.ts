@@ -369,6 +369,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
+  readonly subforumStickyPriority: number | null,
   readonly userId: string,
   readonly userIP: string,
   readonly userAgent: string,
