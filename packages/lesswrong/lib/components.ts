@@ -138,6 +138,7 @@ importComponent("PermanentRedirect", () => require('../components/common/Permane
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
 
 importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu'));
+importComponent("TabNavigationCollapsibleMenu", () => require('../components/common/TabNavigationMenu/TabNavigationCollapsibleMenu'));
 importComponent("TabNavigationMenuFooter", () => require('../components/common/TabNavigationMenu/TabNavigationMenuFooter'));
 importComponent("TabNavigationMenuCompressed", () => require('../components/common/TabNavigationMenu/TabNavigationMenuCompressed'));
 importComponent("TabNavigationItem", () => require('../components/common/TabNavigationMenu/TabNavigationItem'));

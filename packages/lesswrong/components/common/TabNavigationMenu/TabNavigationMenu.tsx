@@ -61,10 +61,15 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
             }
             if ('customComponentName' in tab) {
               const CustomComponent = Components[tab.customComponentName];
+              const props = {
+                ...customComponentProps,
+                ...tab.customComponentProps,
+                tab: tab,
+              };
               return <CustomComponent
                 key={tab.id}
-                onClick={(e) => handleClick(e, tab.id)}
-                {...customComponentProps}
+                onClick={(e: MouseEvent) => handleClick(e, tab.id)}
+                {...props}
               />
             }
 

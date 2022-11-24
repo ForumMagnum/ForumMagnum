@@ -14,7 +14,6 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
-import VoiceChatIcon from '@material-ui/icons/VoiceChat';
 import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
@@ -57,6 +56,7 @@ type MenuTabDivider = {
 type MenuTabCustomComponent = {
   id: string
   customComponentName: string
+  customComponentProps?: Record<string, unknown>
 }
 
 export type MenuTabRegular = {
@@ -65,8 +65,8 @@ export type MenuTabRegular = {
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
-  iconComponent?: any // I tried
-  compressedIconComponent?: any
+  iconComponent?: React.ComponentType<any>
+  compressedIconComponent?: React.ComponentType<any>
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
@@ -271,6 +271,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: "Core reading, and sequences of posts building on a common theme",
       showOnMobileStandalone: true,
       showOnCompressed: true,
+      customComponentName: "TabNavigationCollapsibleMenu",
+      customComponentProps: {
+      },
     }, {
       id: 'handbook',
       title: 'The EA Handbook',

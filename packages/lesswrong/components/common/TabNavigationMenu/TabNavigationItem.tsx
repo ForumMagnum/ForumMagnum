@@ -8,7 +8,7 @@ import { MenuTabRegular } from './menuTabs';
 
 export const iconWidth = 30
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
