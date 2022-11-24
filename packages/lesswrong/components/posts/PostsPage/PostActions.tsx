@@ -8,7 +8,7 @@ import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/hel
 import { useCurrentUser } from '../../common/withUser'
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
-import { useItemsRead } from '../../common/withRecordPostView';
+import { useItemsRead } from '../../hooks/useRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -31,7 +31,10 @@ const NotFPSubmittedWarning = ({className}: {className?: string}) => <div classN
 </div>
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
+  actions: {
+    minWidth: 300,
+  },
+  root: { //FIXME orphaned styles
     margin: 0,
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -171,7 +174,7 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton} = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton, SetSideCommentVisibility} = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -259,6 +262,7 @@ const PostActions = ({post, closeMenu, classes}: {
         />}
 
         <BookmarkButton post={post} menuItem/>
+        <SetSideCommentVisibility />
         
         {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 

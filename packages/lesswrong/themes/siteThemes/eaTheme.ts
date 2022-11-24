@@ -73,7 +73,12 @@ export const eaForumTheme: SiteThemeSpecification = {
       primaryHighlight2: '#bae2e8',
       secondaryHighlight: '#aedba3',
       secondaryHighlight2: '#d8edd3',
-    }
+    },
+    blockquoteHighlight: {
+      commentHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
+      individualQuoteHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
+      addedBlockquoteHighlightStyles: `padding-top: 4px; padding-bottom: 6px;`
+    },
   }),
   make: (palette: ThemePalette) => {
     const basicText = {

@@ -11,7 +11,7 @@ describe('Moderators', function() {
   it('can move posts to drafts, hiding them from public view', function() {
     cy.loginAs(this.testAdmin);
     cy.visit('/posts/test-seeded-post');
-    cy.get('.PostsPageActions-root').click();
+    cy.get('.PostActionsButton-root').click();
     cy.contains(this.testPost.title).should('exist');
     cy.contains('li', 'Move to Draft').click();
 

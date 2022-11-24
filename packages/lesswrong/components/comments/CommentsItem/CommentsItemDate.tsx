@@ -20,6 +20,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     // buttons, which are to the right of this and have a click-target that
     // partially overlaps.
     position: "relative",
+    
+    // Prevent permalink-icon and date from wrapping onto separate lines, in
+    // narrow/flexbox contexts
+    whiteSpace: "nowrap",
+    
     zIndex: theme.zIndexes.commentPermalinkIcon,
   },
   answerDate: {},
