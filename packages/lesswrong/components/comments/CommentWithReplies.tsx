@@ -54,6 +54,7 @@ const CommentWithReplies = ({
     condensed: true,
     showPostTitle: true,
     post,
+    noHash: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
 
@@ -77,7 +78,6 @@ const CommentWithReplies = ({
 
   return (
     <CommentsNode
-      noHash
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}

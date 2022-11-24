@@ -71,7 +71,6 @@ const SubforumSubscribeSection = ({
   
   const isSubscribed = currentUser?.profileTagIds?.includes(tag._id)
 
-  // TODO: Either reword or remove the tooltip here
   return <div className={classNames(className, classes.root)}>
     {isSubscribed ? <Button variant="outlined" color="primary" className={classes.subscribeButton} onClick={onUnsubscribe}>
       <span className={classes.subscribeText}>Leave</span>

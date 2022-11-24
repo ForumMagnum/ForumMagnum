@@ -1,9 +1,7 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { userHasNewTagSubscriptions } from "../../lib/betas";
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -19,8 +17,17 @@ import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSe
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
 import { useDialog } from "../common/withDialog";
+import {
+  defaultSubforumSorting,
+  isSubforumSorting,
+  SubforumSorting,
+  subforumSortings,
+  subforumSortingToResolverName,
+  subforumSortingTypes,
+} from "../../lib/subforumSortings";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -42,9 +49,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   contentGivenImage: {
     marginTop: 185,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 130,
-    },
   },
   imageContainer: {
     position: 'absolute',
@@ -151,6 +155,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  newPostLink: {
+    display: "flex",
+    alignItems: "center",
+  },
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -176,6 +184,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   joinBtn: {
+    // FIXME: refactor to remove these !importants once the old subforum page is deprecated (this is the only other place SubforumSubscribeSection is used)
     alignItems: 'center !important',
     padding: '4px 0 0 0 !important',
     '& button': {
@@ -197,7 +206,28 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: 4,
     }
-  }
+  },
+  feedWrapper: {
+    padding: "0 10px",
+  },
+  feedHeader: {
+    display: "flex",
+    marginBottom: -16,
+    marginLeft: 10,
+  },
+  feedHeaderButtons: {
+    display: "flex",
+    flexGrow: 1,
+    columnGap: 16,
+  },
+  newDiscussionContainer: {
+    background: theme.palette.grey[0],
+    marginTop: 32,
+    padding: "0px 8px 8px 8px",
+  },
+  feedPostWrapper: {
+    marginTop: 32,
+  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -221,13 +251,13 @@ const TagSubforumPage2 = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, SidebarMembersBox, SubforumNotificationSettings,
-    SubforumSubscribeSection
+    TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox,
+    SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
+    SidebarSubtagsBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
   } = Components;
   const currentUser = useCurrentUser();
-  const { history } = useNavigation();
   const { query, params: { slug } } = useLocation();
+  const { history } = useNavigation();
   
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
@@ -258,6 +288,7 @@ const TagSubforumPage2 = ({classes}: {
   });
   
   const [truncated, setTruncated] = useState(true)
+  const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
@@ -341,9 +372,8 @@ const TagSubforumPage2 = ({classes}: {
   const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  if (query.sortedBy || tag.postsDefaultSortOrder) {
-    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
-  }
+  // TODO: possibly use tag.postsDefaultSortOrder as the fallback, initially though we do want subforum sorting to be different from the wiki post list sorting
+  const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
 
   const terms = {
     ...tagPostTerms(tag, query),
@@ -353,6 +383,11 @@ const TagSubforumPage2 = ({classes}: {
   const clickReadMore = () => {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
+  }
+
+  const clickNewDiscussion = () => {
+    setNewDiscussionOpen(true)
+    captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
@@ -489,6 +524,100 @@ const TagSubforumPage2 = ({classes}: {
     <SidebarSubtagsBox tagId={tag._id} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
   ];
 
+  const SubforumFeed = () => {
+    const refetchRef = useRef<null|(()=>void)>(null);
+    const refetch = useCallback(() => {
+      if (refetchRef.current)
+        refetchRef.current();
+    }, [refetchRef]);
+    const commentNodeProps = {
+      treeOptions: {
+        postPage: true,
+        refetch,
+        tag,
+      },
+      startThreadTruncated: true,
+      isChild: false,
+      enableGuidelines: false,
+      displayMode: "minimalist" as const,
+    };
+    const maxAgeHours = 18;
+    const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+    return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      <div className={classes.feedHeader}>
+        <div className={classes.feedHeaderButtons}>
+          <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
+            <SectionButton>
+              <AddBoxIcon /> New Post
+            </SectionButton>
+          </Link>
+          <SectionButton onClick={clickNewDiscussion}>
+            <AddBoxIcon /> New Discussion
+          </SectionButton>
+        </div>
+        <PostsListSortDropdown value={sortBy} options={subforumSortings} />
+      </div>
+      {newDiscussionOpen && <div className={classes.newDiscussionContainer}>
+        <CommentsNewForm
+          tag={tag}
+          tagCommentType={"SUBFORUM"}
+          successCallback={refetch}
+          type="comment"
+          enableGuidelines={false}
+        />
+      </div>}
+      <MixedTypeFeed
+        firstPageSize={10}
+        pageSize={20}
+        refetchRef={refetchRef}
+        resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
+        sortKeyType={subforumSortingTypes[sortBy]}
+        resolverArgs={{
+          tagId: 'String!',
+          af: 'Boolean',
+        }}
+        resolverArgsValues={{
+          tagId: tag._id,
+          af: false,
+        }}
+        fragmentArgs={{
+          maxAgeHours: 'Int',
+          commentsLimit: 'Int',
+        }}
+        fragmentArgsValues={{
+          maxAgeHours,
+          commentsLimit,
+        }}
+        renderers={{
+          tagSubforumPosts: {
+            fragmentName: "PostsRecentDiscussion",
+            render: (post: PostsRecentDiscussion) => (
+              <div className={classes.feedPostWrapper}>
+                <RecentDiscussionThread
+                  key={post._id}
+                  post={{...post}}
+                  comments={post.recentComments}
+                  refetch={refetch}
+                />
+              </div>
+            )
+          },
+          tagSubforumComments: {
+            fragmentName: "CommentWithRepliesFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={comment}
+                commentNodeProps={commentNodeProps}
+                initialMaxChildren={5}
+              />
+            )
+          },
+        }}
+      />
+    </div>
+  }
+
   return (
     <AnalyticsContext
       pageContext="tagPage"
@@ -522,7 +651,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : <p className={classes.centralColumn}>PLACEHOLDER FOR POSTS COMPONENT</p>}
+          {tab === "wiki" ? wikiComponent : <SubforumFeed />}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>
