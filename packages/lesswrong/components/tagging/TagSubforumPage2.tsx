@@ -629,6 +629,25 @@ const TagSubforumPage2 = ({classes}: {
               />
             )
           },
+          tagSubforumStickyComments: {
+            fragmentName: "StickySubforumCommentFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={{...comment, isPinnedOnProfile: true}}
+                commentNodeProps={{
+                  ...commentNodeProps,
+                  showPinnedOnProfile: true,
+                  treeOptions: {
+                    ...commentNodeProps.treeOptions,
+                    showPostTitle: true,
+                  },
+                }}
+                initialMaxChildren={3}
+                startExpanded={false}
+              />
+            )
+          },
         }}
       />
     </div>

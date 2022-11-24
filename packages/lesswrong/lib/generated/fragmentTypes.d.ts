@@ -369,6 +369,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
+  readonly subforumStickyPriority: number | null,
   readonly userId: string,
   readonly userIP: string,
   readonly userAgent: string,
@@ -1271,6 +1272,10 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
 
 interface CommentsListWithParentMetadata extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
+  readonly tag: TagBasicInfo|null,
+}
+
+interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
   readonly tag: TagBasicInfo|null,
 }
 
@@ -2880,6 +2885,7 @@ interface FragmentTypes {
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
+  StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   RevisionDisplay: RevisionDisplay
@@ -3056,6 +3062,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
+  StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
   RevisionDisplay: "Revisions"
