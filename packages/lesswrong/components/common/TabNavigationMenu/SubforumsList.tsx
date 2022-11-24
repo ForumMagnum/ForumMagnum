@@ -5,6 +5,7 @@ import { taggingNamePluralSetting } from "../../../lib/instanceSettings";
 import { useMulti } from "../../../lib/crud/withMulti";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
+import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
 
 const styles = ((theme: ThemeType): JssStyles => ({
   menuItem: {
@@ -63,7 +64,7 @@ const SubforumsList = ({ onClick, classes }) => {
               key={subforum._id}
               onClick={onClick}
               component={Link}
-              to={`/${taggingNamePluralSetting.get()}/${subforum.slug}/subforum`}
+              to={tagGetSubforumUrl(subforum)}
               classes={{ root: classes.menuItem }}
             >
               <TabNavigationSubItem className={classes.subItem}>

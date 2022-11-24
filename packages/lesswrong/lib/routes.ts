@@ -377,7 +377,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagsSingleCustomName',
       path: `/${taggingNamePluralSetting.get()}/:slug`,
-      componentName: 'TagPage',
+      componentName: 'TagPageRouter',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
@@ -710,8 +710,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'subforum',
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      fullscreen: true,
+      redirect: () => `/${taggingNamePluralSetting.get()}/:slug`
     },
     {
       name: 'tagsSubforum',
