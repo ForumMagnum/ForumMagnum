@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import toDictionary from '../../lib/utils/toDictionary';
 import mapValues from 'lodash/mapValues';
-import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -38,6 +38,8 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   classes: ClassesType,
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
+  // const showSubforumSection = forumTypeSetting.get() === "EAForum";
+  const showSubforumSection = false;
   
   const { results, loading } = useMulti({
     terms: {
@@ -52,31 +54,35 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   if (!results) return null
   
   const subforumTags = results.filter(tag => tag.isSubforum)
-  const coreTags = results.filter(tag => !tag.isSubforum && tag.core)
+  const coreTags = results.filter(tag => (!tag.isSubforum || !showSubforumSection) && tag.core)
   
   const selectedTagIds = Object.keys(value||{})
-  const selectedSubforumTagIds = selectedTagIds.filter(tagId => subforumTags.find(tag => tag._id === tagId)) // inefficient but we don't expect many subforums
+  const selectedSubforumTagIds = showSubforumSection ? selectedTagIds.filter(tagId => subforumTags.find(tag => tag._id === tagId)) : [] // inefficient but we don't expect many subforums
+  
+  /**
+   * post tagRelevance field needs to look like {string: number}
+   */
+  const updateValuesWithArray = (arrayOfTagIds: string[]) => {
+    updateCurrentValues(
+      mapValues(
+        { tagRelevance: arrayOfTagIds },
+        (arrayOfTagIds: string[]) => toDictionary(
+          arrayOfTagIds, tagId=>tagId, tagId=>1
+        )
+      )
+    );
+  }
   
   /**
    * When a tag is selected, add both it and its parent to the list of tags.
    */
   const onTagSelected = (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>) => {
-    updateCurrentValues(
-      mapValues(
-        {
-          tagRelevance: [
-            tag.tagId,
-            tag.parentTagId === undefined || existingTagIds.includes(tag.parentTagId) ? undefined : tag.parentTagId,
-            ...existingTagIds,
-          ].filter((tagId) => tagId),
-        },
-        (arrayOfTagIds: string[]) =>
-          toDictionary(
-            arrayOfTagIds,
-            (tagId) => tagId,
-            (tagId) => 1
-          )
-      )
+    updateValuesWithArray(
+      [
+        tag.tagId,
+        tag.parentTagId === undefined || existingTagIds.includes(tag.parentTagId) ? undefined : tag.parentTagId,
+        ...existingTagIds,
+      ].filter((tagId) => tagId) as string[]
     );
   }
 
@@ -84,24 +90,9 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
    * When a tag is removed, remove only that tag and not its parent.
    */
   const onTagRemoved = (tag: {tagId: string, tagName: string, parentTagId?: string}, existingTagIds: Array<string>) => {
-    updateCurrentValues(
-      mapValues(
-        {
-          tagRelevance: existingTagIds.filter((thisTagId) => thisTagId !== tag.tagId),
-        },
-        (arrayOfTagIds: string[]) =>
-          toDictionary(
-            arrayOfTagIds,
-            (tagId) => tagId,
-            (tagId) => 1
-          )
-      )
-    );
+    updateValuesWithArray(existingTagIds.filter((thisTagId) => thisTagId !== tag.tagId))
   }
 
-  // What is special about posting into a subforum:
-  // Subforums are broad, high level topics with a dedicated community. We ensure that subforums contain relevant posts through active curation.
-  // Posting into a subforum targets your post at a more niche audience, who may have more context, enabling you to get more useful feedback and discussion. If you want your post to only appear in the subforum and not on the frontpage you can also uncheck the "Frontpage" checkbox at the bottom of the page.
   if (formType === "edit") {
     return <FooterTagList
       post={document}
@@ -111,32 +102,36 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       link={false}
     />
   } else {
-    return <div className={classes.root}>
-      <h2 className={classes.subforumHeader}>Subforums</h2>
-      <p className={classes.subforumExplanation}>Subforums are broad topics with a dedicated community and space for general discussion. We ensure that they contain relevant posts by including posts from sub-topics automatically, and through active curation.</p>
-      <TagsChecklist tags={subforumTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} onTagRemoved={onTagRemoved} displaySelected={"highlight"}/>
-      <h2>Other topics</h2>
-      <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected}/>
-      <TagMultiselect
-        path={path}
-        placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
-        value={Object.keys(value||{}).filter(tagId => !selectedSubforumTagIds.includes(tagId))}
-        updateCurrentValues={(changes) => {
-          // post tagRelevance field needs to look like {string: /
-          // number}, so even though it's extra work both here and in 
-          // the callback, we need to maintain that structure.
-          updateCurrentValues(
-            mapValues(
-              // selectedSubforumTagIds are filtered out of the value passed in to this component, so make sure they are included when the value is updated
-              {tagRelevance: [...changes.tagRelevance, ...selectedSubforumTagIds]},
-              (arrayOfTagIds: string[]) => toDictionary(
-                arrayOfTagIds, tagId=>tagId, tagId=>1
-              )
-            )
-          )
-        }}
-      />
-    </div>
+    return (
+      <div className={classes.root}>
+        {showSubforumSection && (
+          <>
+            <h2 className={classes.subforumHeader}>Subforums</h2>
+            <p className={classes.subforumExplanation}>
+              Subforums are broad topics with a dedicated community and space for general discussion. We ensure that
+              they contain relevant posts by including posts from sub-topics automatically, and through active curation.
+            </p>
+            <TagsChecklist
+              tags={subforumTags}
+              selectedTagIds={selectedTagIds}
+              onTagSelected={onTagSelected}
+              onTagRemoved={onTagRemoved}
+              displaySelected={"highlight"}
+            />
+            <h2>Other topics</h2>
+          </>
+        )}
+        <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
+        <TagMultiselect
+          path={path}
+          placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
+          value={selectedTagIds.filter((tagId) => !selectedSubforumTagIds.includes(tagId))}
+          updateCurrentValues={(changes) => {
+            updateValuesWithArray([...changes.tagRelevance, ...selectedSubforumTagIds])
+          }}
+        />
+      </div>
+    );
   }
 }
 

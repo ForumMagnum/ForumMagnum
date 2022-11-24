@@ -67,7 +67,6 @@ const TagsChecklist = ({
 }) => {
   const { LWTooltip } = Components;
 
-  // TODO: maybe pass in as variable
   const getTagsToDisplay = (): TagsChecklistItem[] => {
     if (displaySelected === "hide") {
       return tags.filter((tag) => !selectedTagIds.includes(tag._id)).map((tag) => ({ tag, selected: false }));

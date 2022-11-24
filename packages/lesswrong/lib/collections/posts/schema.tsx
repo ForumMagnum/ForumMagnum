@@ -866,7 +866,6 @@ const schema: SchemaType<DbPost> = {
     control: "FormComponentPostEditorTagging",
     hidden: (props) => props.eventForm,
   },
-  
   "tagRelevance.$": {
     type: Number,
     optional: true,
