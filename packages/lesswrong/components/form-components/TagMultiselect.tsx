@@ -47,10 +47,11 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
 
   const [focused, setFocused] = useState(startWithBorder)
 
-  const addTag = (id: string) => {
-    if (!value.includes(id)) {
-      value.push(id)
-      updateCurrentValues({ [path]: value })
+  const addTag = (id: string, tag: AlgoliaTag | null) => {
+    const ids = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
+    if (ids.length) {
+      const newValue = value.concat(ids)
+      updateCurrentValues({ [path]: newValue })
     }
   }
   
@@ -75,7 +76,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
       <ErrorBoundary>
         <div className={classNames(classes.inputContainer, {[classes.focused]:focused})} onClick={() => setFocused(true)}>
           <TagsSearchAutoComplete
-            clickAction={(id: string) => addTag(id)}
+            clickAction={(id: string, tag: AlgoliaTag | null) => addTag(id, tag)}
             placeholder={placeholder}
             hidePostCount={hidePostCount}
           />
