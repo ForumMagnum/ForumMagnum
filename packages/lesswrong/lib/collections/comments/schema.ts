@@ -120,6 +120,15 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     ...schemaDefaultValue("DISCUSSION"),
   },
+  subforumStickyPriority: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
   // The comment author's `_id`
   userId: {
     ...foreignKeyField({
