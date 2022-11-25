@@ -313,7 +313,7 @@ const TagSubforumPage2 = ({classes}: {
   })
 
   const { openDialog } = useDialog();
-  const { totalCount: membersCount } = useMulti({
+  const { totalCount: membersCount, loading: membersCountLoading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
@@ -500,7 +500,7 @@ const TagSubforumPage2 = ({classes}: {
         {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
       </div>
       <div className={classes.membersListLink}>
-        <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>
+        {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
       </div>
       <Tabs
         value={tab}
