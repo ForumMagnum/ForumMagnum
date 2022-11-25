@@ -232,6 +232,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
+  },
+  commentPermalink: {
+    marginBottom: 8,
   }
 });
 
@@ -255,7 +258,7 @@ const TagSubforumPage2 = ({classes}: {
   const {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, LWTooltip,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox,
+    TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox, CommentPermalink,
     SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
     SidebarSubtagsBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
   } = Components;
@@ -313,7 +316,7 @@ const TagSubforumPage2 = ({classes}: {
   })
 
   const { openDialog } = useDialog();
-  const { totalCount: membersCount } = useMulti({
+  const { totalCount: membersCount, loading: membersCountLoading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
@@ -376,8 +379,7 @@ const TagSubforumPage2 = ({classes}: {
   const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  // TODO: possibly use tag.postsDefaultSortOrder as the fallback, initially though we do want subforum sorting to be different from the wiki post list sorting
-  const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
+  const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
 
   const terms = {
     ...tagPostTerms(tag, query),
@@ -500,7 +502,7 @@ const TagSubforumPage2 = ({classes}: {
         {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
       </div>
       <div className={classes.membersListLink}>
-        <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>
+        {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
       </div>
       <Tabs
         value={tab}
@@ -560,6 +562,7 @@ const TagSubforumPage2 = ({classes}: {
     );
 
     return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      {query.commentId && <div className={classes.commentPermalink}><CommentPermalink documentId={query.commentId} /></div>}
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
           <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>

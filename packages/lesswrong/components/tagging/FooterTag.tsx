@@ -123,7 +123,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
     <span className={classes.name}>{tag.name}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
-
+  
   // Fall back to TagRelCard if no popperCard is provided
   const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
 
