@@ -379,8 +379,7 @@ const TagSubforumPage2 = ({classes}: {
   const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  // TODO: possibly use tag.postsDefaultSortOrder as the fallback, initially though we do want subforum sorting to be different from the wiki post list sorting
-  const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
+  const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
 
   const terms = {
     ...tagPostTerms(tag, query),
