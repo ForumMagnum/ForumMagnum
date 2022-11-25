@@ -105,10 +105,9 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       <div className={classes.root}>
         {showSubforumSection && (
           <>
-            <h2 className={classes.subforumHeader}>Subforums</h2>
+            <h3 className={classes.subforumHeader}>Topics with subforums</h3>
             <p className={classes.subforumExplanation}>
-              Subforums are broad topics with a dedicated community and space for general discussion. We ensure that
-              they contain relevant posts by including posts from sub-topics automatically, and through active curation.
+              Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums are broad topics with a dedicated community and space for general discussion.
             </p>
             <TagsChecklist
               tags={subforumTags}
@@ -117,7 +116,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
               onTagRemoved={onTagRemoved}
               displaySelected={"highlight"}
             />
-            <h2>Other topics</h2>
+            <h3>Other topics</h3>
           </>
         )}
         <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
