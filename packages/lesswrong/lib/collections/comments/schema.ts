@@ -412,6 +412,8 @@ const schema: SchemaType<DbComment> = {
     type: String,
     viewableBy: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      if (comment?.tagId) return "twoAxis"; // Discussion and subforum comments are both allowed agree/disagree votes
+
       if (!comment?.postId) {
         return "default";
       }
