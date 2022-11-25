@@ -5,6 +5,8 @@ import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/
 import { onStartup } from './executionEnvironment';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
+import pickBy from 'lodash/pickBy';
+import qs from 'qs';
 
 
 export const communityPath = '/community';
@@ -710,7 +712,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'subforum',
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
-      redirect: () => `/${taggingNamePluralSetting.get()}/:slug`
+      redirect: (routerLocation: RouterLocation) => {
+        console.log("routerLocation", routerLocation)
+        const { params: {slug}, query, hash } = routerLocation
+
+        const redirectQuery = pickBy({
+          ...query,
+          tab: "subforum",
+          commentId: query.commentId || hash?.slice(1)
+        }, v => v)
+
+        return `/${taggingNamePluralSetting.get()}/${slug}?${qs.stringify(redirectQuery)}${hash}`
+      }
     },
     {
       name: 'tagsSubforum',

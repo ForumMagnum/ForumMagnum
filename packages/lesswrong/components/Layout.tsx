@@ -153,7 +153,7 @@ const Layout = ({currentUser, children, classes}: {
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
   const { currentRoute, params: { slug }, pathname} = useLocation();
-  const isSubforum = subforumSlugsSetting.get().includes(slug);
+  const isSubforum = subforumSlugsSetting.get().includes(slug); // FIXME remove this hack and find a way to always use the isSubforum field on the tag
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
