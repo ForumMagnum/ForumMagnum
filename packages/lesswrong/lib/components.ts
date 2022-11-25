@@ -579,6 +579,7 @@ importComponent("SubforumMember", () => require('../components/tagging/SubforumM
 importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
 importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
 importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
+importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
 importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
 importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
 importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));

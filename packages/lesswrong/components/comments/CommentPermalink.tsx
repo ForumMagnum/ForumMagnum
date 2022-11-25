@@ -67,6 +67,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
       showPostTitle: false,
     },
     expandByDefault: true,
+    noAutoScroll: true
   };
 
   // NB: classes.root is not in the above styles, but is used by eaTheme

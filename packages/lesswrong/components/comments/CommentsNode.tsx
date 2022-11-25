@@ -69,6 +69,7 @@ export interface CommentsNodeProps {
    * Default: false.  Currently only used in the comment moderation tab.
    */
   showParentDefault?: boolean,
+  noAutoScroll?: boolean,
   classes: ClassesType,
 }
 /**
@@ -98,6 +99,7 @@ const CommentsNode = ({
   enableGuidelines=true,
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
+  noAutoScroll=false,
   classes
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
@@ -152,7 +154,7 @@ const CommentsNode = ({
 
   const {hash: commentHash} = useLocation();
   useEffect(() => {
-    if (comment && commentHash === ("#" + comment._id)) {
+    if (!noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         scrollIntoView()
       }, 0);
