@@ -4,11 +4,15 @@ import toDictionary from '../../lib/utils/toDictionary';
 import mapValues from 'lodash/mapValues';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
+  },
+  header: {
+    marginTop: 6,
   },
   subforumHeader: {
     marginBottom: 0,
@@ -105,7 +109,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       <div className={classes.root}>
         {showSubforumSection && (
           <>
-            <h3 className={classes.subforumHeader}>Topics with subforums</h3>
+            <h3 className={classNames(classes.subforumHeader, classes.header)}>Topics with subforums</h3>
             <p className={classes.subforumExplanation}>
               Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums are broad topics with a dedicated community and space for general discussion.
             </p>
@@ -116,7 +120,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
               onTagRemoved={onTagRemoved}
               displaySelected={"highlight"}
             />
-            <h3>Other topics</h3>
+            <h3 className={classes.header}>Other topics</h3>
           </>
         )}
         <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
