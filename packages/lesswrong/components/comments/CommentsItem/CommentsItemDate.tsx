@@ -57,12 +57,12 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
   permalink?: boolean,
 }) => {
   const { history } = useNavigation();
-  const { location } = useLocation();
+  const { location, query } = useLocation();
   const { captureEvent } = useTracking();
 
   const handleLinkClick = (event: React.MouseEvent) => {
     event.preventDefault()
-    history.replace({...location, search: qs.stringify({commentId: comment._id})})
+    history.replace({...location, search: qs.stringify({...query, commentId: comment._id})})
     if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };
