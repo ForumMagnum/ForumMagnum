@@ -85,7 +85,6 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 }) => {
   const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
-  const iconRef = useRef<HTMLSpanElement|null>(null);
   const {sideCommentsActive, setSideCommentsActive} = useContext(SidebarsContext)!;
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -107,9 +106,11 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       setPinned("auto");
   }
   const onClickAway = (ev) => {
-    const isClickOnIcon = some(ev.path, e=>e===iconRef.current);
-    if (!isClickOnIcon)
-      setPinned("auto")
+    // FIXME: ev.path is somehow browser specific
+    const isClickOnIcon = some(ev.composedPath(), e=>e.hasClass(classes.sideCommentIcon));
+    if (!isClickOnIcon) {
+      setPinned("auto");
+    }
   }
   
   const isOpen = (pinned==="open" || (pinned==="auto" && hover));
@@ -119,7 +120,6 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   >
     <span {...eventHandlers}
       onClick={onClick}
-      ref={iconRef}
       className={classes.sideCommentIcon}
     >
       <BadgeWrapper commentCount={commentIds.length}>
