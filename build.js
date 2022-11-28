@@ -109,6 +109,7 @@ build({
   bundle: true,
   target: "es6",
   sourcemap: true,
+  sourcesContent: true,
   outfile: clientOutfilePath,
   minify: isProduction,
   banner: {
@@ -159,6 +160,7 @@ build({
   outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",
   sourcemap: true,
+  sourcesContent: true,
   minify: false,
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
