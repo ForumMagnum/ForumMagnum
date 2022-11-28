@@ -306,6 +306,12 @@ const TagSubforumPage2 = ({classes}: {
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
+  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetch = useCallback(() => {
+    if (refetchRef.current)
+      refetchRef.current();
+  }, [refetchRef]);
+
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
     myPages: {view: "userTags", userId: currentUser?._id},
@@ -534,40 +540,39 @@ const TagSubforumPage2 = ({classes}: {
     <SidebarSubtagsBox tag={tag} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
   ];
 
-  const SubforumFeed = () => {
-    const refetchRef = useRef<null|(()=>void)>(null);
-    const refetch = useCallback(() => {
-      if (refetchRef.current)
-        refetchRef.current();
-    }, [refetchRef]);
-    const commentNodeProps = {
-      treeOptions: {
-        postPage: true,
-        refetch,
-        tag,
-      },
-      startThreadTruncated: true,
-      isChild: false,
-      enableGuidelines: false,
-      displayMode: "minimalist" as const,
-    };
-    const maxAgeHours = 18;
-    const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+  const commentNodeProps = {
+    treeOptions: {
+      postPage: true,
+      refetch,
+      tag,
+    },
+    startThreadTruncated: true,
+    isChild: false,
+    enableGuidelines: false,
+    displayMode: "minimalist" as const,
+  };
+  const maxAgeHours = 18;
+  const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
 
-    const discussionButton = isSubscribed || currentUser?.isAdmin ? (
-      <SectionButton onClick={clickNewDiscussion}>
+  const discussionButton = isSubscribed || currentUser?.isAdmin ? (
+    <SectionButton onClick={clickNewDiscussion}>
+      <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+    </SectionButton>
+  ) : (
+    <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
+      <SectionButton>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
       </SectionButton>
-    ) : (
-      <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
-        <SectionButton>
-          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
-        </SectionButton>
-      </LWTooltip>
-    );
+    </LWTooltip>
+  );
 
-    return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
-      {query.commentId && <div className={classes.commentPermalink}><CommentPermalink documentId={query.commentId} /></div>}
+  const subforumFeedComponent = (
+    <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      {query.commentId && (
+        <div className={classes.commentPermalink}>
+          <CommentPermalink documentId={query.commentId} />
+        </div>
+      )}
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
           {discussionButton}
@@ -579,34 +584,36 @@ const TagSubforumPage2 = ({classes}: {
         </div>
         <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
-      {newDiscussionOpen && <div className={classes.newDiscussionContainer}>
-        {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
-        <CommentsNewForm
-          tag={tag}
-          tagCommentType={"SUBFORUM"}
-          successCallback={refetch}
-          type="reply" // required to make the Cancel button appear
-          enableGuidelines={false}
-          cancelCallback={() => setNewDiscussionOpen(false)}
-        />
-      </div>}
+      {newDiscussionOpen && (
+        <div className={classes.newDiscussionContainer}>
+          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
+          <CommentsNewForm
+            tag={tag}
+            tagCommentType={"SUBFORUM"}
+            successCallback={refetch}
+            type="reply" // required to make the Cancel button appear
+            enableGuidelines={false}
+            cancelCallback={() => setNewDiscussionOpen(false)}
+          />
+        </div>
+      )}
       <MixedTypeFeed
-        firstPageSize={10}
+        firstPageSize={15}
         pageSize={20}
         refetchRef={refetchRef}
         resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
         sortKeyType={subforumSortingTypes[sortBy]}
         resolverArgs={{
-          tagId: 'String!',
-          af: 'Boolean',
+          tagId: "String!",
+          af: "Boolean",
         }}
         resolverArgsValues={{
           tagId: tag._id,
           af: false,
         }}
         fragmentArgs={{
-          maxAgeHours: 'Int',
-          commentsLimit: 'Int',
+          maxAgeHours: "Int",
+          commentsLimit: "Int",
         }}
         fragmentArgsValues={{
           maxAgeHours,
@@ -619,13 +626,13 @@ const TagSubforumPage2 = ({classes}: {
               <div className={classes.feedPostWrapper}>
                 <RecentDiscussionThread
                   key={post._id}
-                  post={{...post}}
+                  post={{ ...post }}
                   comments={post.recentComments}
                   maxLengthWords={50}
                   refetch={refetch}
                 />
               </div>
-            )
+            ),
           },
           tagSubforumComments: {
             fragmentName: "CommentWithRepliesFragment",
@@ -636,14 +643,14 @@ const TagSubforumPage2 = ({classes}: {
                 commentNodeProps={commentNodeProps}
                 initialMaxChildren={5}
               />
-            )
+            ),
           },
           tagSubforumStickyComments: {
             fragmentName: "StickySubforumCommentFragment",
             render: (comment: CommentWithRepliesFragment) => (
               <CommentWithReplies
                 key={comment._id}
-                comment={{...comment, isPinnedOnProfile: true}}
+                comment={{ ...comment, isPinnedOnProfile: true }}
                 commentNodeProps={{
                   ...commentNodeProps,
                   showPinnedOnProfile: true,
@@ -655,12 +662,12 @@ const TagSubforumPage2 = ({classes}: {
                 initialMaxChildren={3}
                 startExpanded={false}
               />
-            )
+            ),
           },
         }}
       />
     </div>
-  }
+  );
 
   return (
     <AnalyticsContext
@@ -696,7 +703,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : <SubforumFeed />}
+          {tab === "wiki" ? wikiComponent : subforumFeedComponent}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>
