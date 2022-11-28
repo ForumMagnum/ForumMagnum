@@ -478,6 +478,11 @@ const ReviewVotingPage = ({classes}: {
           </ul>
         </FaqCard>
       </p>
+
+      <br />
+      <p>
+        Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
+      </p>
     </ContentStyles>
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
