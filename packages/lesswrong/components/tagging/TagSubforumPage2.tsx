@@ -214,6 +214,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     marginBottom: -16,
     marginLeft: 10,
+    [theme.breakpoints.down('xs')]: {
+      '& .PostsListSortDropdown-root': {
+        marginRight: "0px !important",
+      }
+    }
   },
   feedHeaderButtons: {
     display: "flex",
@@ -526,7 +531,7 @@ const TagSubforumPage2 = ({classes}: {
   const rightSidebarComponents = [
     welcomeBoxComponent,
     <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
-    <SidebarSubtagsBox tagId={tag._id} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
+    <SidebarSubtagsBox tag={tag} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
   ];
 
   const SubforumFeed = () => {
@@ -556,7 +561,7 @@ const TagSubforumPage2 = ({classes}: {
     ) : (
       <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
         <SectionButton>
-          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
+          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
         </SectionButton>
       </LWTooltip>
     );
@@ -565,12 +570,12 @@ const TagSubforumPage2 = ({classes}: {
       {query.commentId && <div className={classes.commentPermalink}><CommentPermalink documentId={query.commentId} /></div>}
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
+          {discussionButton}
           <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
             <SectionButton>
               <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
             </SectionButton>
           </Link>
-          {discussionButton}
         </div>
         <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
@@ -616,6 +621,7 @@ const TagSubforumPage2 = ({classes}: {
                   key={post._id}
                   post={{...post}}
                   comments={post.recentComments}
+                  maxLengthWords={50}
                   refetch={refetch}
                 />
               </div>
