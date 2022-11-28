@@ -102,15 +102,11 @@ const CommentOnSelectionPageWrapper = ({children}: {
     };
   }, []);
   
-<<<<<<< HEAD
-  const onClickComment = () => {
-=======
   useOnNavigate(() => {
     setToolbarState({open: false});
   });
   
-  const onClickComment = (ev) => {
->>>>>>> origin/master
+  const onClickComment = () => {
     const firstSelectedNode = document.getSelection()?.anchorNode;
     if (!firstSelectedNode) {
       return;
