@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
     display: "flex",
     justifyContent: "flex-end",
-    marginTop: 8
+    marginTop: 2
   },
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
@@ -348,7 +348,10 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 3,
       itemsPerPage: 10
-    }}/>
+    }}>
+      {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && nominationPhaseButtons}
+      {activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
+    </PostsList2>
   </AnalyticsContext>
 
   return (
@@ -376,8 +379,6 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
 
         {/* Post list */}
         {showFrontpageItems && postList}
-        {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && nominationPhaseButtons}
-        {activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
 
 
         {!showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
