@@ -6,13 +6,13 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
+import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -75,9 +75,12 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
+export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+
 export type NotificationTypeSettings = {
-  channel: "none"|"onsite"|"email"|"both",
-  batchingFrequency: "realtime"|"daily"|"weekly",
+  channel: NotificationChannelOption,
+  batchingFrequency: NotificationBatchingOption,
   timeOfDayGMT: number,
   dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
 };
@@ -137,7 +140,7 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
-const notificationTypeSettingsField = (overrideSettings?: any) => ({
+const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
@@ -179,6 +182,21 @@ const partiallyReadSequenceItem = new SimpleSchema({
   },
 });
 
+const userTheme = new SimpleSchema({
+  name: {
+    type: String,
+    allowedValues: [...userThemeSettings],
+    optional: true,
+    nullable: true,
+  },
+  siteThemeOverride: {
+    type: Object,
+    optional: true,
+    nullable: true,
+    blackbox: true,
+  },
+});
+
 export const CAREER_STAGES = [
   {value: 'highSchool', label: "In high school"},
   {value: 'associateDegree', label: "Pursuing an associate's degree"},
@@ -195,13 +213,13 @@ export const CAREER_STAGES = [
 ]
 
 export const PROGRAM_PARTICIPATION = [
-  {value: 'vpIntro', label: "Completed the Introductory EA VP"},
-  {value: 'vpInDepth', label: "Completed the In-Depth EA VP"},
+  {value: 'vpIntro', label: "Completed the Introductory EA Virtual Program"},
+  {value: 'vpInDepth', label: "Completed the In-Depth EA Virtual Program"},
   {value: 'vpPrecipice', label: "Completed the Precipice Reading Group"},
-  {value: 'vpLegal', label: "Completed the Legal Topics in EA VP"},
-  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals VP"},
-  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals VP"},
-  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars VP"},
+  {value: 'vpLegal', label: "Completed the Legal Topics in EA Virtual Program"},
+  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals Virtual Program"},
+  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals Virtual Program"},
+  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars Virtual Program"},
   {value: 'eag', label: "Attended an EA Global conference"},
   {value: 'eagx', label: "Attended an EAGx conference"},
   {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
@@ -497,12 +515,17 @@ const schema: SchemaType<DbUser> = {
   },
   
   theme: {
-    type: String,
-    optional: true, 
+    type: userTheme,
+    optional: true,
+    nullable: true,
+    ...schemaDefaultValue(defaultThemeOptions),
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
-    hidden: true,
+    hidden: forumTypeSetting.get() !== "EAForum",
+    control: "ThemeSelect",
+    order: 1,
+    group: formGroups.siteCustomizations,
   },
   
   lastUsedTimezone: {
@@ -585,6 +608,18 @@ const schema: SchemaType<DbUser> = {
         ];
       }
     },
+  },
+  
+  noKibitz: {
+    type: Boolean,
+    optional: true,
+    label: "Hide author names until I hover over them",
+    tooltip: "For if you want to not be biased. Adds an option to the user menu to temporarily disable. Does not work well on mobile",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    group: formGroups.siteCustomizations,
+    order: 68,
   },
   
   showHideKarmaOption: {
@@ -749,7 +784,8 @@ const schema: SchemaType<DbUser> = {
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: 'guests',
-    ...schemaDefaultValue(getDefaultFilterSettings),
+    // FIXME this isn't filling default values as intended
+    // ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,
@@ -1192,6 +1228,10 @@ const schema: SchemaType<DbUser> = {
     // Hide this while review is inactive
     hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationSubforumUnread: {
+    label: `New messages in subforums I'm subscribed to`,
+    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings
@@ -1656,7 +1696,7 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     label: "Alignment Base Score",
-    defaultValue: false,
+    defaultValue: 0,
     canRead: ['guests'],
   },
 
@@ -2020,7 +2060,6 @@ const schema: SchemaType<DbUser> = {
     viewableBy: ['guests'],
     editableBy: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    tooltip: "This will only be shown on your profile page",
     control: "ImageUpload"
   },
   

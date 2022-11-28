@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -187,7 +187,7 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   const { query, params } = location;
-  const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+  const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
@@ -243,10 +243,20 @@ const PostsPage = ({post, refetch, classes}: {
     : null;
   
   const header = <>
-    {!commentId && <HeadTags
-      ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-      title={post.title} description={description} noIndex={post.noIndex}
-    />}
+    {!commentId && <>
+      <HeadTags
+        ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+        title={post.title} description={description} noIndex={post.noIndex}
+      />
+      <CitationTags
+        title={post.title}
+        author={post.user?.displayName}
+        coauthors={post.coauthors
+          ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
+          .map(({displayName}) => displayName)}
+        date={post.createdAt}
+      />
+    </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>
@@ -282,7 +292,7 @@ const PostsPage = ({post, refetch, classes}: {
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post" className={classes.postContent}>
+        <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>

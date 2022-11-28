@@ -1,5 +1,5 @@
 import Users from "../users/collection";
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
@@ -166,6 +166,8 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
   return {
     selector: {
       profileTagIds: terms.profileTagId,
+      deleted: {$ne: true},
+      deleteContent: {$ne: true},
       ...bioSelector
     },
     options: {
@@ -175,7 +177,7 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
     }
   }
 })
-ensureIndex(Users, {profileTagIds: 1})
+ensureIndex(Users, {profileTagIds: 1, deleted: 1, deletedContent: 1, karma: 1})
 
 Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   return {

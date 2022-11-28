@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import { defaultNotificationTypeSettings } from '../../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import { PickedTime } from '../common/BatchTimePicker';
 
@@ -39,6 +39,13 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
     });
   }
   
+  const channelOptions: Record<NotificationChannelOption, React.ReactChild> = {
+    none: <MenuItem value="none" key="none">Don't notify</MenuItem>,
+    onsite: <MenuItem value="onsite" key="onsite">Notify me on-site</MenuItem>,
+    email: <MenuItem value="email" key="email">Notify me by email</MenuItem>,
+    both: <MenuItem value="both" key="both">Notify me both on-site and by email</MenuItem>
+  }
+  
   return <div className={classes.root}>
     <Typography variant="body1" className={classes.label}>{label}</Typography>
     <Typography variant="body2" component="div" className={classes.settings}>
@@ -47,10 +54,8 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
         onChange={(event) =>
           modifyValue({ channel: event.target.value })}
       >
-        {!notificationType.mustBeEnabled && <MenuItem value="none">Don't notify</MenuItem>}
-        <MenuItem value="onsite">Notify me on-site</MenuItem>
-        <MenuItem value="email">Notify me by email</MenuItem>
-        <MenuItem value="both">Notify me both on-site and by email</MenuItem>
+        {notificationType.allowedChannels?.length ?
+          notificationType.allowedChannels.map(channel => channelOptions[channel]) : <></>}
       </Select>
       { currentValue.channel !== "none" && <React.Fragment>
         {" "}

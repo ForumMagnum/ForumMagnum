@@ -597,7 +597,24 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-    hidden: true,
+    hidden: true
+  },
+
+  /**
+   * Suppress user-visible styling for comments marked with `moderatorHat: true`
+   */
+  hideModeratorHat: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    onUpdate: ({ newDocument }) => {
+      if (!newDocument.moderatorHat) return null;
+      return newDocument.hideModeratorHat;
+    },
+    hidden: true
   },
 
   // whether this comment is pinned on the author's profile
@@ -624,18 +641,6 @@ Object.assign(schema, {
     editableBy: ['alignmentForum', 'admins'],
     insertableBy: ['alignmentForum', 'admins'],
     hidden: (props) => alignmentForum || !props.alignmentForumPost
-  },
-
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
   },
 
   suggestForAlignmentUserIds: {
@@ -673,7 +678,6 @@ Object.assign(schema, {
     type: Date,
     optional: true,
     label: "Alignment Forum",
-    defaultValue: false,
     hidden: true,
     viewableBy: ['guests'],
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
@@ -694,6 +698,15 @@ Object.assign(schema, {
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
+  },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
 });
 

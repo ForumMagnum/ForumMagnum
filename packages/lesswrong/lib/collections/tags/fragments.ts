@@ -45,10 +45,12 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -88,10 +90,12 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -114,10 +118,12 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -136,6 +142,17 @@ registerFragment(`
     subforumWelcomeText {
       _id
       html
+    }
+  }
+`);
+
+// TODO: would prefer to fetch subtags in fewer places
+registerFragment(`
+  fragment TagSubtagFragment on Tag {
+    _id
+    subforumModeratorIds
+    subTags {
+      ...TagPreviewFragment
     }
   }
 `);
@@ -183,6 +200,10 @@ registerFragment(`
     tableOfContents
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -201,6 +222,7 @@ registerFragment(`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    subforumUnreadMessagesCount
   }
 `);
 
@@ -210,6 +232,10 @@ registerFragment(`
     tableOfContents(version: $version)
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {

@@ -1,5 +1,5 @@
 import { Tags } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
 
 declare global {
@@ -9,6 +9,7 @@ declare global {
     wikiGrade?: string
     slug?: string
     tagFlagId?: string
+    parentTagId?: string
   }
 }
 
@@ -94,6 +95,7 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
     },
     options: {
       sort: {
+        defaultOrder: -1,
         name: 1
       }
     },
@@ -195,3 +197,5 @@ ensureIndex(Tags, {name: 1});
 
 // Used in packages/lesswrong/server/defaultTagWeights/cache.ts
 ensureIndex(Tags, {defaultFilterMode: 1});
+// Used in subTags resolver
+ensureIndex(Tags, {parentTagId: 1});

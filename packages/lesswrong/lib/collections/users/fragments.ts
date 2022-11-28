@@ -128,6 +128,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    noKibitz
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
@@ -188,6 +189,7 @@ registerFragment(`
     ...SharedUserBooleans
 
     acknowledgedNewUserGuidelines
+    notificationSubforumUnread
   }
 `);
 
@@ -265,6 +267,8 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
     
     needsReview
     sunshineNotes
@@ -334,6 +338,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
+    theme
 
     # Emails
     email
@@ -348,6 +353,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    noKibitz
     showHideKarmaOption
 
     # Ban & Purge
@@ -397,6 +403,7 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
 
     hideFrontpageMap
     hideTaggingProgressBar

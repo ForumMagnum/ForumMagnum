@@ -31,7 +31,7 @@ import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
 import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
-import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../migrations/2020-05-13-noIndexLowKarma';
+import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
 function getPosts (selector: any) {
   const defaultSelector = {
@@ -41,8 +41,8 @@ function getPosts (selector: any) {
     authorIsUnreviewed: false,
   }
 
-  const fields = {
-    id: 1,
+  const projection = {
+    _id: 1,
     userId: 1,
     title: 1,
     slug: 1,
@@ -56,12 +56,12 @@ function getPosts (selector: any) {
     draft: 1,
     status: 1,
     tagRelevance: 1,
-  }
+  } as const;
 
   const finalSelector = Object.assign({}, defaultSelector, selector || {})
 
   return Posts
-    .find(finalSelector, {fields, sort: { createdAt: 1 }})
+    .find(finalSelector, {projection, sort: { createdAt: 1 }})
 }
 
 Vulcan.exportPostDetails = wrapVulcanAsyncScript(
@@ -81,7 +81,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
         const tagIds = (Object.entries(post.tagRelevance) as Array<[string, number]>)
           .filter(([_, relevanceScore]) => relevanceScore > 0)
           .map(([tagId]) => tagId)
-        const tagsResult = await Tags.find({ _id: { $in: tagIds } }, { fields: { name: 1 } }).fetch()
+        const tagsResult = await Tags.find({ _id: { $in: tagIds } }, { projection: { name: 1 } }).fetch()
         tags = tagsResult.map(({ name }) => name)
       }
       

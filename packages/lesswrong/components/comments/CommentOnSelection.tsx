@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { userHasCommentOnSelection } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -101,7 +102,15 @@ const CommentOnSelectionPageWrapper = ({children}: {
     };
   }, []);
   
+<<<<<<< HEAD
   const onClickComment = () => {
+=======
+  useOnNavigate(() => {
+    setToolbarState({open: false});
+  });
+  
+  const onClickComment = (ev) => {
+>>>>>>> origin/master
     const firstSelectedNode = document.getSelection()?.anchorNode;
     if (!firstSelectedNode) {
       return;

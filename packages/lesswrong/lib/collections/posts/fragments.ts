@@ -439,6 +439,7 @@ registerFragment(`
     coauthorStatuses
     readTimeMinutesOverride
     fmCrosspost
+    hideFromRecentDiscussions
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -446,6 +447,7 @@ registerFragment(`
       ...RevisionEdit
     }
     tableOfContents
+    subforumTagId
   }
 `);
 
@@ -527,6 +529,11 @@ registerFragment(`
       moderationGuidelines {
         _id
         html
+      }
+
+      needsReview
+      moderatorActions {
+        ...ModeratorActionDisplay
       }
     }
   }

@@ -2,12 +2,14 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import Users from '../../lib/collections/users/collection';
-import { getUserEmail, userCanEdit, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
+import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useThemeOptions, useSetTheme } from '../themes/useTheme';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -48,6 +50,8 @@ const UsersEditForm = ({terms, classes}: {
   const client = useApolloClient();
   const { Typography } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
+  const currentThemeOptions = useThemeOptions();
+  const setTheme = useSetTheme();
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -57,8 +61,13 @@ const UsersEditForm = ({terms, classes}: {
       </div>
     );
   }
-  if (!userCanEdit(currentUser,
-    terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
+  if (!userCanEditUser(currentUser,
+    terms.documentId ?
+      {_id: terms.documentId} :
+      // HasSlugType wants some fields we don't have (schemaVersion, _id), but
+      // userCanEdit won't use them
+      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
+  )) {
     return <span>Sorry, you do not have permission to do this at this time.</span>
   }
 
@@ -95,6 +104,11 @@ const UsersEditForm = ({terms, classes}: {
         {...terms}
         hideFields={["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
+          if (user?.theme) {
+            const theme = {...currentThemeOptions, ...user.theme};
+            setTheme(theme);
+            captureEvent("setUserTheme", theme);
+          }
           flash(`User "${userGetDisplayName(user)}" edited`);
           try {
             await client.resetStore()

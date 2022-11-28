@@ -6,7 +6,6 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { allOf } from '../../utils/functionUtils';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -30,7 +29,7 @@ const options: MutationOptions<DbPost> = {
 
     
     return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
-    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
+    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
@@ -48,6 +47,7 @@ interface ExtendedPostsCollection extends PostsCollection {
 export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
+  collectionType: 'mongo',
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
@@ -72,7 +72,7 @@ makeEditable({
     permissions: {
       viewableBy: ['guests'],
       // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
-      editableBy: [canUserEditPostMetadata, 'sunshineRegiment', 'admins'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
       insertableBy: ['members']
     },
   }

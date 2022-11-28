@@ -24,17 +24,22 @@ import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
+import uniq from 'lodash/uniq';
+import startCase from 'lodash/startCase';
 
 interface ServerNotificationType {
   name: string,
   from?: string,
   canCombineEmails?: boolean,
+  skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
   emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
   emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,
 }
+// A default skip function is added in serverRegisterNotificationType so it is optional when registering a notification type
+type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
 
-const notificationTypes: {string?: ServerNotificationType} = {};
+const notificationTypes: Record<string, ServerNotificationType> = {};
 
 export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
   if (name in notificationTypes)
@@ -43,10 +48,11 @@ export const getNotificationTypeByNameServer = (name: string): ServerNotificatio
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-const serverRegisterNotificationType = (notificationTypeClass: ServerNotificationType): ServerNotificationType => {
-  const name = notificationTypeClass.name;
-  notificationTypes[name] = notificationTypeClass;
-  return notificationTypeClass;
+const serverRegisterNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
+  const notificationType = {skip, ...notificationTypeClass};
+  const name = notificationType.name;
+  notificationTypes[name] = notificationType;
+  return notificationType;
 }
 
 export const NewPostNotification = serverRegisterNotificationType({
@@ -158,6 +164,40 @@ export const NewCommentNotification = serverRegisterNotificationType({
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
       return `${author.displayName} commented on a post you subscribed to`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
+export const NewSubforumCommentNotification = serverRegisterNotificationType({
+  name: "newSubforumComment",
+  canCombineEmails: true,
+  skip: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+
+    return comments.length === 0;
+  },
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+
+    const commentCount = comments.length
+    const subforumIds = uniq(comments.map(c => c.tagId))
+    
+    if (subforumIds.length === 1) {
+      const subforum = await Tags.findOne(subforumIds[0])
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in the ${startCase(subforum?.name)} subforum`
+    } else {
+      return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} subforums you are subscribed to`
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {

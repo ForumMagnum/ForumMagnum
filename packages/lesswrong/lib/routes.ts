@@ -498,13 +498,6 @@ if (taggingNameIsSet.get()) {
       path: `/${taggingNamePluralSetting.get()}/`,
       redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
-    {
-      name: 'taggingSubforumCustomName',
-      path: `/topics/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      hideFooter: true,
-      noPadding: true,
-    }
   )
 } else {
   addRoute(
@@ -710,21 +703,24 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
-      name: 'advice',
-      path: '/advice',
-      componentName: 'AdvisorsPage',
-      title: 'Book a 1:1'
-    },
-    // {
-    //   name: 'advisorRequest',
-    //   path: '/advisor-request',
-    //   componentName: 'AdvisorsRequestPage',
-    //   title: 'My 1:1 Request'
-    // },
-    {
       name: 'wikiTopisRedirect',
       path: '/wiki',
-      redirect: () => '/topics/all'
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
+    },
+    {
+      name: 'subforum',
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
+      componentName: 'TagSubforumPage',
+      fullscreen: true,
+    },
+    {
+      name: 'tagsSubforum',
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum2`,
+      componentName: 'TagSubforumPage2',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      unspacedGrid: true,
     },
   ],
   LessWrong: [
@@ -1269,7 +1265,13 @@ addRoute(
     name: 'moderatorActions',
     path: '/admin/moderation',
     componentName: 'ModerationDashboard',
-    title: "Moderator Actions"
+    title: "Moderation Dashboard"
+  },
+  {
+    name: 'moderationTemplates',
+    path: '/admin/moderationTemplates',
+    componentName: 'ModerationTemplatesPage',
+    title: "Moderation Message Templates"
   },
   {
     name: 'moderation',

@@ -1,4 +1,5 @@
-import { expectedIndexes, isUnbackedCollection } from '../lib/collectionUtils';
+import { expectedIndexes } from '../lib/collectionIndexUtils'
+import { isUnbackedCollection } from '../lib/collectionUtils';
 import { getCollection, getAllCollections } from '../lib/vulcan-lib/getCollection';
 import * as _ from 'underscore';
 

@@ -5,10 +5,11 @@ type IndexType = string | number;
 
 const arrayToIndexMap = (arr: IndexType[]): Record<IndexType, number> =>
   Object.fromEntries(
-    Object.entries(arr).map(([key, val]) => [val, Number(key)] as const)
+    Object.entries(arr).map(([key, val]) => [val, parseInt(key)] as const)
   );
   // TODO: verify that this is identical
-  // Object.keys(arr).reduce(function (map, idx) {
+  // Object.keys(arr).reduce(function (map, idxStr) {
+  //   const idx = parseInt(idxStr);
   //   map[arr[idx]] = idx;
   //   return map;
   // }, {});

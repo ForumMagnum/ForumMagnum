@@ -11,6 +11,7 @@ import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { filter } from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,18 +40,20 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
-  smallText?: boolean
-
+  showCoreTags?: boolean
+  hidePostTypeTag?: boolean,
+  smallText?: boolean,
+  link?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWTooltip, AddTagButton } = Components
+  const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // [Epistemic status - two years later guessing] This loads the tagrels via a
   // database query instead of using the denormalized field on posts. This
@@ -59,7 +62,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   // reorder the tags, by updating the result of this query. But you could
   // imagine that this could start with the ordering of the tags on the post
   // object, and then use the result from the database once we have it.
-  const { results, loading, refetch } = useMulti({
+  const { results, loading, loadingInitial, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
       postId: post._id,
@@ -141,18 +144,19 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
           </MaybeLink>
         : null
       )
-    )
+    ) 
 
-  if (loading || !results) {
+  if (loadingInitial || !results) {
     return <span className={classes.root}>
      {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText}/>)}
-     {postType}
+     {!hidePostTypeTag && postType}
     </span>;
   }
 
-
-
+  
+ 
   return <span className={classes.root}>
+    {showCoreTags && <div><CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       tagRel.tag && <FooterTag 
         key={tagRel._id} 
@@ -160,9 +164,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
         tag={tagRel.tag} 
         hideScore={hideScore}
         smallText={smallText}
+        link={link}
       />
     )}
-    { postType }
+    { !hidePostTypeTag && postType }
     {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
   </span>

@@ -4,7 +4,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { useTheme } from '../themes/useTheme';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -38,8 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       height: 56,
     },
-    
-    flexGrow: 1,
     "@media print": {
       display: "none"
     }
@@ -135,9 +132,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
+  stayAtTop?: boolean,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
@@ -150,7 +148,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
-  const theme = useTheme();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -267,6 +264,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           )}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={stayAtTop}
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>

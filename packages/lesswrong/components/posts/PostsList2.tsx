@@ -9,6 +9,7 @@ import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useHideRepeatedPosts } from '../posts/HideRepeatedPostsContext';
 import * as _ from 'underscore';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -58,6 +59,8 @@ const PostsList2 = ({
   defaultToShowUnreadComments,
   itemsPerPage=25,
   hideAuthor=false,
+  hideTrailingButtons=false,
+  tooltipPlacement="bottom-end",
   boxShadow=true,
   curatedIconLeft=false,
   showFinalBottomBorder=false,
@@ -83,6 +86,8 @@ const PostsList2 = ({
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
   hideAuthor?: boolean,
+  hideTrailingButtons?: boolean,
+  tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
   showFinalBottomBorder?: boolean,
@@ -188,33 +193,37 @@ const PostsList2 = ({
           const props = {
             post,
             index: i,
-            terms, showNominationCount, showReviewCount, showDraftTag, dense,
+            terms, showNominationCount, showReviewCount, showDraftTag, dense, hideAuthor, hideTrailingButtons,
             curatedIconLeft: curatedIconLeft,
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
-            showQuestionTag: terms.filter!=="questions",
+            showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from
             // undefined given the truthy check above
-            showBottomBorder: showFinalBottomBorder || ((orderedResults!.length > 1) && i < (orderedResults!.length - 1))
+            showBottomBorder: showFinalBottomBorder || ((orderedResults!.length > 1) && i < (orderedResults!.length - 1)),
+            tooltipPlacement,
           };
 
           if (!(post._id in hiddenPosts)) {
-            return <PostsItem2 key={post._id} {...props} hideAuthor={hideAuthor} />
+            return <PostsItem2 key={post._id} {...props} />
           }
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { (maybeMorePosts||loading) && 
-          <LoadMore
-            {...loadMoreProps}
-            loadMore={() => {
-              loadMore();
-              setHaveLoadedMore(true);
-            }}
-            hideLoading={dimWhenLoading || !showLoading}
-            sectionFooterStyles
-          />
-        }
+        <LoadMore
+          {...loadMoreProps}
+          loading={loading}
+          loadMore={() => {
+            loadMore();
+            setHaveLoadedMore(true);
+          }}
+          hideLoading={dimWhenLoading || !showLoading}
+          // It's important to use hidden here rather than not rendering the component,
+          // because LoadMore has an "isFirstRender" check that prevents it from showing loading dots
+          // on the first render. Not rendering resets this
+          hidden={!maybeMorePosts && !loading}
+          sectionFooterStyles
+        />
         { children }
       </SectionFooter>}
     </div>
