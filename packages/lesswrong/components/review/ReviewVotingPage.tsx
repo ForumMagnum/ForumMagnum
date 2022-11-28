@@ -406,7 +406,7 @@ const ReviewVotingPage = ({classes}: {
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
 
   const FaqCard = ({linkText, children}) => (
-    <LWTooltip tooltip={false} title={
+    <LWTooltip tooltip={false} clickable title={
       <Card className={classes.faqCard}>
         <ContentStyles contentType="comment">
           {children}
@@ -463,7 +463,7 @@ const ReviewVotingPage = ({classes}: {
       <p className={classes.faqQuestion}>
         <FaqCard linkText="How exactly do Preliminary Votes work?">
           <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly.</p>
+          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
           <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
           <p>You can change your votes during the Final Voting Phase.</p>
         </FaqCard>

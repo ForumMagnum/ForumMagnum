@@ -199,15 +199,17 @@ const ReviewVoteTableRow = (
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
   const voteMap = {
-    'bigDownvote': 'a strong downvote',
-    'smallDownvote': 'a downvote',
-    'smallUpvote': 'an upvote',
-    'bigUpvote': 'a strong upvote'
+    'bigDownvote': 'a strong karma downvote',
+    'smallDownvote': 'a karma downvote',
+    'smallUpvote': 'a karma upvote',
+    'bigUpvote': 'a strong karma upvote'
   }
 
   const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
+
+  // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: getReviewPhase() === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
@@ -242,7 +244,7 @@ const ReviewVoteTableRow = (
           />
         </div>
         {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
-          <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
+          <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount !== 1 ? "s" : ""}`}>
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>}

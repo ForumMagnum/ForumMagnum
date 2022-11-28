@@ -1,4 +1,4 @@
-  import React from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
@@ -240,12 +240,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     <>
       <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
-        <li>Look over {/* TODO: Raymond Arnold look here, sentence fragment */} </li>
+        <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {REVIEW_YEAR} can vote in the review</li>
         <li>The end result will be compiled into a canonical sequence and best-of {REVIEW_YEAR} book</li>
       </ul>
-      {/* TODO: Raymond Arnold look here, This isn't that useful to say any more */}
-      <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in {REVIEW_YEAR-1}</div>
     </>
 
   const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {

@@ -81,23 +81,40 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
   const displayVote = getCostData({})[voteIndex]?.label
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
-  return <div onMouseLeave={() => setAnchorEl(null)}>
-
-    <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
+  return (
+    <LWTooltip
+      title={
+        <Card className={classes.card}>
+          <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
+          <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+          <div className={classes.reviewButton}>Write a Review</div>
+        </LWTooltip>}/>
+        </Card>}
+      placement="right"
+      tooltip={false}
+      clickable>
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
         {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
       </div>
     </LWTooltip>
+  )
+  // return <div onMouseLeave={() => setAnchorEl(null)}>
 
-    <LWPopper placement="right" anchorEl={anchorEl} open={!!anchorEl}>
-      <Card className={classes.card}>
-        <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
-        <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-        <div className={classes.reviewButton}>Write a Review</div>
-      </LWTooltip>}/>
-      </Card>
-    </LWPopper>
-  </div>
+  //   <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
+  //     <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
+  //       {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
+  //     </div>
+  //   </LWTooltip>
+
+  //   <LWPopper placement="right" anchorEl={anchorEl} open={!!anchorEl}>
+  //     <Card className={classes.card}>
+  //       <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
+  //       <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+  //       <div className={classes.reviewButton}>Write a Review</div>
+  //     </LWTooltip>}/>
+  //     </Card>
+  //   </LWPopper>
+  // </div>
 }
 
 const PostsItemReviewVoteComponent = registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
