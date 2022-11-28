@@ -46,7 +46,7 @@ const schema: SchemaType<DbUserTagRel> = {
     type: Boolean,
     nullable: false,
     optional: false,
-    label: "Notify me of new discussions",
+    label: "Notify me of new threads",
     // control: "SubforumNotifications", // TODO: Possibly add this back in (it shows the batching settings in the menu)
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
