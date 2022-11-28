@@ -214,6 +214,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     marginBottom: -16,
     marginLeft: 10,
+    [theme.breakpoints.down('xs')]: {
+      '& .PostsListSortDropdown-root': {
+        marginRight: "0px !important",
+      }
+    }
   },
   feedHeaderButtons: {
     display: "flex",
