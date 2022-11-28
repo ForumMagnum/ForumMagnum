@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     top: -2, left: 28,
     fontSize: 13,
-    color: "rgba(0,0,0,.45)",
+    color: theme.palette.text.dim45,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   extendHoverTarget: {
@@ -65,14 +65,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom:8,
     paddingTop: 4,
   },
+  badge: {
+    fontSize: 12,
+    color: theme.palette.text.dim45,
+  },
 });
 
-const BadgeWrapper = ({commentCount, children}: {
+const BadgeWrapper = ({commentCount, classes, children}: {
   commentCount: number,
+  classes: ClassesType,
   children: React.ReactNode
 }) => {
   if (commentCount>1) {
-    return <Badge badgeContent={commentCount}>{children}</Badge>
+    return <Badge
+      classes={{ badge: classes.badge }}
+      badgeContent={commentCount}
+    >{children}</Badge>
   } else {
     return <>{children}</>
   }
@@ -122,7 +130,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       onClick={onClick}
       className={classes.sideCommentIcon}
     >
-      <BadgeWrapper commentCount={commentIds.length}>
+      <BadgeWrapper commentCount={commentIds.length} classes={classes}>
         <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
       </BadgeWrapper>
       {isOpen && <span className={classes.clickToPinMessage}>
