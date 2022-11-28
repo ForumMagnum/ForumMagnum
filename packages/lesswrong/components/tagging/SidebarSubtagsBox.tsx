@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SidebarSubtagsBox = ({ tagId, className, classes }: { tagId; className?: string; classes: ClassesType }) => {
+const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment | TagPageWithRevisionFragment; className?: string; classes: ClassesType }) => {
   const { ContentStyles, FooterTag, AddTagButton, TagPreview, Loading } = Components;
 
   const [isAwaiting, setIsAwaiting] = useState(false)
@@ -34,7 +34,7 @@ const SidebarSubtagsBox = ({ tagId, className, classes }: { tagId; className?: s
     document: tagWithSubtags,
     refetch,
   } = useSingle({
-    documentId: tagId,
+    documentId: tag._id,
     collectionName: "Tags",
     fragmentName: "TagSubtagFragment",
   });
@@ -82,15 +82,21 @@ const SidebarSubtagsBox = ({ tagId, className, classes }: { tagId; className?: s
         <h2>Posts in this space are about</h2>
       </ContentStyles>
       <span className={classes.root}>
+        <FooterTag
+          key={tag._id}
+          tag={tag}
+          hideScore={true}
+          popperCard={<WrappedTagPreview tag={tag} showRelatedTags={false} />}
+        />
         {sortTags(subTags, (t) => t).map((tag) => (
           <FooterTag
             key={tag._id}
             tag={tag}
             hideScore={true}
-            popperCard={<WrappedTagPreview tag={tag} showRelatedTags={false} />}
+            popperCard={<WrappedTagPreview tag={tag} />}
           />
         ))}
-        {canEditSubtags && <AddTagButton onTagSelected={({ tagId: subTagId }) => setParentTag({ subTagId, parentTagId: tagId })} />}
+        {canEditSubtags && <AddTagButton onTagSelected={({ tagId: subTagId }) => setParentTag({ subTagId, parentTagId: tag._id })} />}
         { isAwaiting && <Loading/>}
       </span>
     </div>

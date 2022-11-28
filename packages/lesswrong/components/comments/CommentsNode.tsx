@@ -47,6 +47,7 @@ export interface CommentsNodeProps {
    * expanded state to child comments
    */
   expandByDefault?: boolean,
+  expandNewComments?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
@@ -87,6 +88,7 @@ const CommentsNode = ({
   nestingLevel=1,
   expandAllThreads,
   expandByDefault,
+  expandNewComments=true,
   isChild,
   parentAnswerId,
   parentCommentId,
@@ -182,7 +184,7 @@ const CommentsNode = ({
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return isTruncated && !isNewComment;
+    return isTruncated && !(expandNewComments && isNewComment);
   })();
 
   const handleExpand = async (event: React.MouseEvent) => {
@@ -264,6 +266,7 @@ const CommentsNode = ({
             truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
+            expandNewComments={expandNewComments}
             enableGuidelines={enableGuidelines}
           />)}
       </div>}
