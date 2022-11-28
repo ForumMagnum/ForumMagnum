@@ -122,8 +122,8 @@ const applyCutoff = <SortKeyType>(
   sortDirection: SortDirection,
 ) => {
   const cutoffFilter = sortDirection === "asc"
-    ? ({sortKey}) => sortKey > cutoff
-    : ({sortKey}) => sortKey < cutoff;
+    ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
+    : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
   return _.filter(sortedResults, cutoffFilter);
 }
 

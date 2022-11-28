@@ -16,7 +16,7 @@ const compileWithGlobals = (code: string) => {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key] ?? serverShellCommandScope[key];
+          return global[key as keyof typeof global] ?? serverShellCommandScope[key];
         }
       }
     }));

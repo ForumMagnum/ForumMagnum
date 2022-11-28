@@ -2,6 +2,11 @@ import { getCollection, Vulcan } from "./vulcan-lib";
 import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR } from '../lib/scoring';
 import * as _ from 'underscore';
 
+interface BatchUpdateParams {
+  inactive?: boolean;
+  forceUpdate?: boolean;
+}
+
 /*
 
 Update a document's score if necessary.
@@ -9,7 +14,11 @@ Update a document's score if necessary.
 Returns how many documents have been updated (1 or 0).
 
 */
-export const updateScore = async ({collection, item, forceUpdate}) => {
+export const updateScore = async ({collection, item, forceUpdate}: {
+  collection: any;
+  item: DbPost;
+  forceUpdate?: boolean;
+}) => {
 
   // Age Check
   const postedAt = item?.frontpageDate?.valueOf() || item?.postedAt?.valueOf()
@@ -78,7 +87,7 @@ const getCollectionProjections = (collectionName: CollectionNameString) => {
   return collectionProjections[collectionName] ?? {};
 }
 
-export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}) => {
+export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
   // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
   //      and posts can become inactive
   const INACTIVITY_THRESHOLD_DAYS = 30;
@@ -157,7 +166,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   const items = await itemsPromise;
   const itemsArray = await items.toArray();
   let updatedDocumentsCounter = 0;
-  const itemUpdates = _.compact(itemsArray.map(i => {
+  const itemUpdates = _.compact(itemsArray.map((i: any) => {
     if (forceUpdate || i.scoreDiffSignificant) {
       updatedDocumentsCounter++;
       return {
@@ -184,7 +193,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   return updatedDocumentsCounter;
 }
 
-export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}) => {
+export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}: BatchUpdateParams & { collectionName: CollectionNameString }) => {
   const collection = getCollection(collectionName);
   return batchUpdateScore({collection, inactive, forceUpdate});
 }

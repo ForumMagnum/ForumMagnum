@@ -116,7 +116,7 @@ export function extractTableOfContents(postHTML: string)
 
   // Generate a mapping from raw heading levels to compressed heading levels
   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
-  let headingLevelMap = {};
+  let headingLevelMap: Record<string, number> = {};
   for(let i=0; i<headingLevelsUsed.length; i++)
     headingLevelMap[ headingLevelsUsed[i] ] = i;
 
@@ -226,9 +226,10 @@ function tagToHeadingLevel(tagName: string): number
 {
   let lowerCaseTagName = tagName.toLowerCase();
   if (lowerCaseTagName in headingTags)
-    return headingTags[lowerCaseTagName];
+    return headingTags[lowerCaseTagName as keyof typeof headingTags];
   else if (lowerCaseTagName in headingIfWholeParagraph)
-    return headingIfWholeParagraph[lowerCaseTagName];
+    // TODO: this seems wrong??? It's returning a boolean when it should be returning a number
+    return headingIfWholeParagraph[lowerCaseTagName as keyof typeof headingIfWholeParagraph];
   else
     return 0;
 }

@@ -135,7 +135,7 @@ async function serverStartup() {
 }
 
 function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>void) {
-  for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
     // eslint-disable-next-line no-console
     const originalFn = console[functionName];
     // eslint-disable-next-line no-console

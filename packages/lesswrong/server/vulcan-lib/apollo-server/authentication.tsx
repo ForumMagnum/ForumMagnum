@@ -88,7 +88,8 @@ const loginData = `type LoginReturnData {
 
 addGraphQLSchema(loginData);
 
-function promisifiedAuthenticate(req, res, name, options, callback) {
+type PassportAuthenticateCallback = Exclude<Parameters<typeof passport.authenticate>[2], undefined>;
+function promisifiedAuthenticate(req: ResolverContext['req'], res: ResolverContext['res'], name: string, options: passport.AuthenticateOptions, callback: PassportAuthenticateCallback) {
   return new Promise((resolve, reject) => {
     try {
       passport.authenticate(name, options, async (err, user, info) => {
