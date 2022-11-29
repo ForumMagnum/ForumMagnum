@@ -16,7 +16,6 @@ import type { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
-    whiteSpace: "nowrap",
     color: "inherit !important"
   },
   tooltip: {

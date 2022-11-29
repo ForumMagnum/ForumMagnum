@@ -115,4 +115,5 @@ interface AlgoliaTag {
   isSubforum: boolean,
   description: string,
   bannerImageId?: string,
+  parentTagId?: string,
 }

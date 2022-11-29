@@ -1,9 +1,11 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
+import { Posts } from '../../lib/collections/posts';
 import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
@@ -17,6 +19,119 @@ import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
+import {
+  defaultSubforumSorting,
+  SubforumSorting,
+  subforumSortings,
+  subforumSortingToResolverName,
+  subforumSortingTypes,
+} from '../../lib/subforumSortings';
+
+type SubforumFeedSort = {
+  posts: SubquerySortField<DbPost, keyof DbPost>,
+  comments: SubquerySortField<DbComment, keyof DbComment>,
+  sortDirection?: SortDirection,
+}
+
+const subforumFeedSortings: Record<SubforumSorting, SubforumFeedSort> = {
+  magic: {
+    posts: { sortField: "score" },
+    comments: { sortField: "score" },
+  },
+  new: {
+    posts: { sortField: "postedAt" },
+    comments: { sortField: "postedAt" },
+  },
+  old: {
+    posts: { sortField: "postedAt", sortDirection: "asc" },
+    comments: { sortField: "postedAt", sortDirection: "asc" },
+    sortDirection: "asc",
+  },
+  top: {
+    posts: { sortField: "baseScore" },
+    comments: { sortField: "baseScore" },
+  },
+  recentComments: {
+    posts: { sortField: "lastCommentedAt" },
+    comments: { sortField: "lastSubthreadActivity" },
+  },
+}
+
+const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({
+  limit = 20, cutoff, offset, args: {tagId, af}, context,
+}: {
+  limit?: number,
+  cutoff?: SortKeyType,
+  offset?: number,
+  args: {tagId: string, af?: boolean},
+  context: ResolverContext,
+}) => mergeFeedQueries({
+  limit,
+  cutoff,
+  offset,
+  sortDirection: sorting.sortDirection,
+  subqueries: [
+    // Subforum posts
+    viewBasedSubquery({
+      type: "tagSubforumPosts",
+      collection: Posts,
+      ...sorting.posts,
+      context,
+      selector: {
+        [`tagRelevance.${tagId}`]: {$gte: 1},
+        hiddenRelatedQuestion: undefined,
+        shortform: undefined,
+        groupId: undefined,
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+    // Subforum comments
+    viewBasedSubquery({
+      type: "tagSubforumComments",
+      collection: Comments,
+      ...sorting.comments,
+      context,
+      selector: {
+        tagId,
+        tagCommentType: "SUBFORUM",
+        topLevelCommentId: {$exists: false},
+        subforumStickyPriority: {$exists: false},
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+    // Sticky subforum comments
+    viewBasedSubquery({
+      type: "tagSubforumStickyComments",
+      collection: Comments,
+      sortField: "subforumStickyPriority",
+      sortDirection: "asc",
+      sticky: true,
+      context,
+      selector: {
+        tagId,
+        tagCommentType: "SUBFORUM",
+        topLevelCommentId: {$exists: false},
+        subforumStickyPriority: {$exists: true},
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+  ],
+});
+
+for (const sortBy of subforumSortings) {
+  const sorting = subforumFeedSortings[sortBy ?? defaultSubforumSorting] ?? subforumFeedSortings[defaultSubforumSorting];
+  defineFeedResolver({
+    name: `Subforum${subforumSortingToResolverName(sortBy)}Feed`,
+    args: "tagId: String!, af: Boolean",
+    cutoffTypeGraphQL: subforumSortingTypes[sortBy],
+    resultTypesGraphQL: `
+      tagSubforumPosts: Post
+      tagSubforumComments: Comment
+      tagSubforumStickyComments: Comment
+    `,
+    resolver: createSubforumFeedResolver(sorting),
+  });
+}
 
 addGraphQLSchema(`
   type TagUpdates {

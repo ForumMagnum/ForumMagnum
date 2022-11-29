@@ -13,13 +13,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions, forceSingleLine }: {
+const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions }: {
   terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   post: PostsList,
   treeOptions: CommentTreeOptions,
-  forceSingleLine?: any,
 }) => {
   const { loading, results } = useMulti({
     terms,
@@ -48,7 +47,6 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions,
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          forceSingleLine={forceSingleLine}
         />}
         {loading && <Loading/>}
       </div>
