@@ -276,7 +276,8 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
     wikiOnly: tag.wikiOnly,
     isSubforum: tag.isSubforum,
     description,
-    bannerImageId: tag.bannerImageId
+    bannerImageId: tag.bannerImageId,
+    parentTagId: tag.parentTagId,
   }];
 }
 
