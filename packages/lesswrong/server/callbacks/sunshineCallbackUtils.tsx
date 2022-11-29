@@ -175,8 +175,8 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
 
   // Remove the most recent content item for each rule
   // Since posts & comments start by default without much karma, they artificially down-weight averages
-  latestComments.pop();
-  latestPosts.pop();
+  latestComments.shift();
+  latestPosts.shift();
 
   const unmoderatedVoteableContent = getUnmoderatedContent(voteableContent, downvotedContentActionEndedAt);
   const unmoderatedLatestComments = getUnmoderatedContent(latestComments, lowAvgKarmaCommentEndedAt);
