@@ -156,7 +156,7 @@ const CommentsNode = ({
 
   const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
-    if (!noAutoScroll && comment && commentHash === ("#" + comment._id)) {
+    if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         scrollIntoView()
       }, 0);
