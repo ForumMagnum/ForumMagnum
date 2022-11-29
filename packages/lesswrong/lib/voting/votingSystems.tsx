@@ -19,8 +19,8 @@ export interface VotingSystem {
   name: string,
   description: string,
   getCommentVotingComponent: ()=>CommentVotingComponent,
-  addVoteClient: (oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent)=>any,
-  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent)=>any
+  addVoteClient: (props: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent})=>any,
+  cancelVoteClient: (props: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent})=>any
   computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
@@ -35,10 +35,10 @@ registerVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
   getCommentVotingComponent: () => Components.VoteOnComment,
-  addVoteClient: (oldExtendedScore, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
     return null;
   },
-  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
     return null;
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
@@ -53,17 +53,19 @@ registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
-  addVoteClient: (oldExtendedScore, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
+    
     return {
       agreement: (oldExtendedScore?.agreement||0) + newAgreementPower,
       agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) + 1,
     };
   },
-  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
     const oldVote = cancelledExtendedVote?.agreement;
     if (!oldVote || oldVote==="neutral") return oldExtendedScore;
     const oldAgreementPower = calculateVotePower(currentUser.karma, oldVote);
+    
     return {
       agreement: (oldExtendedScore?.agreement||0) - oldAgreementPower,
       agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) - 1,
@@ -124,7 +126,7 @@ registerVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
   getCommentVotingComponent: () => Components.ReactBallotVoteOnComment,
-  addVoteClient: (oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent}): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       const axisPower = calculateVotePower(currentUser.karma, extendedVote?.[axis]||"neutral");
       return [axis, (oldExtendedScore?.[axis]||0) + axisPower];
@@ -135,7 +137,7 @@ registerVotingSystem({
     }));
     return filterZeroes({...axisScores, ...standaloneReactCounts});
   },
-  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       const oldVote = cancelledExtendedVote?.[axis];
       const oldScore = (oldExtendedScore?.[axis]||0);
@@ -190,14 +192,14 @@ registerVotingSystem({
   name: "emojiReactions",
   description: "Emoji reactions",
   getCommentVotingComponent: () => Components.EmojiReactionVoteOnComment,
-  addVoteClient: (oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent}): any => {
     const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
       const hasReaction = !!extendedVote?.[reaction];
       return [reaction, (oldExtendedScore?.[reaction]||0) + (hasReaction?1:0)];
     }));
     return filterZeroes({...emojiReactCounts});
   },
-  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
     const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
       const oldVote = !!cancelledExtendedVote?.[reaction];
       return [reaction, oldExtendedScore?.[reaction] - (oldVote?1:0)];
