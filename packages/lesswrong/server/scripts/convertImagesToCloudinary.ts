@@ -177,67 +177,67 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
 export async function convertImagesInObject(
   collectionName: CollectionNameString,
   _id: string,
+  fieldName: string = "contents",
   urlFilterFn: (url: string)=>boolean = ()=>true
 ): Promise<number> {
   let totalUploaded = 0;
   try {
     const collection = getCollection(collectionName);
     const obj = await collection.findOne({_id});
-    
-    for (let fieldName of editableCollectionsFields[collectionName]) {
-      if (!obj) {
-        // eslint-disable-next-line no-console
-        console.error(`Cannot convert images in ${collectionName}.${_id}: ID not found`);
-        return 0;
-      }
-      
-      const latestRev = await getLatestRev(_id, fieldName);
-      if (!latestRev) {
-        // eslint-disable-next-line no-console
-        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
-        return 0;
-      }
-      
-      const newVersion = await getNextVersion(_id, "patch", fieldName, false);
-      const now = new Date();
-      // NOTE: we use the post contents rather than the revision contents because we don't
-      // create a revision for no-op edits (this is arguably a bug)
-      const oldHtml = obj[fieldName].html;
-      const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
-      if (!uploadCount) {
-        // eslint-disable-next-line no-console
-        console.log("No images to convert.");
-        return 0;
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(`Converted ${uploadCount} images`)
-      }
-      
-      const newRevision = {
-        ...latestRev,
-        _id: randomId(),
-        html: newHtml,
-        editedAt: now,
-        updateType: "patch",
-        version: newVersion,
-        commitMessage: "Move images to CDN",
-        changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
-      };
-      const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
-      await collection.rawUpdateOne({_id}, {
-        $set: {
-          [`${fieldName}_latest`]: insertedRevisionId,
-          [fieldName]: {
-            ...obj[fieldName],
-            html: newHtml,
-            version: newVersion,
-            editedAt: now,
-            updateType: "patch",
-          },
-        }
-      });
-      totalUploaded += uploadCount;
+    console.log(`convertImagesInObject(${collectionName}.${fieldName})`);
+
+    if (!obj) {
+      // eslint-disable-next-line no-console
+      console.error(`Cannot convert images in ${collectionName}.${_id}: ID not found`);
+      return 0;
     }
+    
+    const latestRev = await getLatestRev(_id, fieldName);
+    if (!latestRev) {
+      // eslint-disable-next-line no-console
+      console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
+      return 0;
+    }
+    
+    const newVersion = await getNextVersion(_id, "patch", fieldName, false);
+    const now = new Date();
+    // NOTE: we use the post contents rather than the revision contents because we don't
+    // create a revision for no-op edits (this is arguably a bug)
+    const oldHtml = obj[fieldName].html;
+    const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
+    if (!uploadCount) {
+      // eslint-disable-next-line no-console
+      console.log("No images to convert.");
+      return 0;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Converted ${uploadCount} images`)
+    }
+    
+    const newRevision = {
+      ...latestRev,
+      _id: randomId(),
+      html: newHtml,
+      editedAt: now,
+      updateType: "patch",
+      version: newVersion,
+      commitMessage: "Move images to CDN",
+      changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
+    };
+    const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
+    await collection.rawUpdateOne({_id}, {
+      $set: {
+        [`${fieldName}_latest`]: insertedRevisionId,
+        [fieldName]: {
+          ...obj[fieldName],
+          html: newHtml,
+          version: newVersion,
+          editedAt: now,
+          updateType: "patch",
+        },
+      }
+    });
+    totalUploaded += uploadCount;
     return totalUploaded;
   } catch (e) {
     // Always catch the error because the obj should mostly load fine without rehosting the images
