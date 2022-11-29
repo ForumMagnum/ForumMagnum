@@ -74,7 +74,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   
   const canonicalLinkSharingKey = post.linkSharingKey;
   const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
-  const keysMatch = constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey });
+  const keysMatch = !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey });
   if (keysMatch) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
   }

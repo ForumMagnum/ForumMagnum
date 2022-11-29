@@ -49,7 +49,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
     return true
   } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
     return true;
-  } else if (!currentUser && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
+  } else if (!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

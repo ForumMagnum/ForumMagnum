@@ -2086,6 +2086,7 @@ const schema: SchemaType<DbPost> = {
     viewableBy: [userOwns, 'admins'],
     editableBy: ['admins'],
     optional: true,
+    nullable: true,
     hidden: true,
   },
 

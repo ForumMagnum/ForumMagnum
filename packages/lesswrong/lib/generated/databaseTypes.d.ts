@@ -563,7 +563,7 @@ interface DbPost extends DbObject {
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
-  linkSharingKey: string
+  linkSharingKey: string | null
   linkSharingKeyUsedBy: Array<string>
   commentSortOrder: string
   hideAuthor: boolean

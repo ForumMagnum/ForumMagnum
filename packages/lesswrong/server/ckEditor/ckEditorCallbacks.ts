@@ -85,7 +85,7 @@ defineQuery({
     }
 
     const canonicalLinkSharingKey = post.linkSharingKey;
-    const keysMatch = constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });  
+    const keysMatch = !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });  
     
     // Either:
     //  * The logged-in user is explicitly shared on this post
