@@ -37,7 +37,7 @@ const getCommentDescription = (comment: CommentWithRepliesFragment) => {
 
 const CommentPermalink = ({ documentId, post, classes }: {
   documentId: string,
-  post: PostsDetails,
+  post?: PostsDetails,
   classes: ClassesType,
 }) => {
   const { document: comment, data, loading, error } = useSingle({
@@ -46,7 +46,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
     fragmentName: 'CommentWithRepliesFragment',
   });
   const refetch = data?.refetch;
-  const { Loading, Divider, CommentOnPostWithReplies, HeadTags } = Components;
+  const { Loading, Divider, CommentOnPostWithReplies, HeadTags, CommentWithReplies } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
   
@@ -56,28 +56,58 @@ const CommentPermalink = ({ documentId, post, classes }: {
 
   if (!documentId) return null
 
-  const ogUrl = postGetPageUrl(post, true) // open graph
-  const canonicalUrl = post.canonicalSource || ogUrl
+  const ogUrl = post ? postGetPageUrl(post, true) : undefined // open graph
+  const canonicalUrl = post ? post.canonicalSource || ogUrl : undefined
   // For imageless posts this will be an empty string
-  const socialPreviewImageUrl = post.socialPreviewImageUrl
+  const socialPreviewImageUrl = post ? post.socialPreviewImageUrl : undefined
+
+  const commentNodeProps = {
+    treeOptions: {
+      refetch,
+      showPostTitle: false,
+    },
+    expandByDefault: true,
+    noAutoScroll: true
+  };
 
   // NB: classes.root is not in the above styles, but is used by eaTheme
-  return <div className={classes.root}>
+  return (
+    <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       <div>
-        <HeadTags ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl} 
-        description={getCommentDescription(comment)} noIndex={true} />
-        <CommentOnPostWithReplies key={comment._id} post={post} comment={comment} commentNodeProps={{
-          treeOptions: {
-            refetch,
-            showPostTitle: false,
-          },
-          expandByDefault: true,
-        }}/>
-        <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
+        <HeadTags
+          ogUrl={ogUrl}
+          canonicalUrl={canonicalUrl}
+          image={socialPreviewImageUrl}
+          description={getCommentDescription(comment)}
+          noIndex={true}
+        />
+        {post ? (
+          <CommentOnPostWithReplies
+            key={comment._id}
+            post={post}
+            comment={comment}
+            commentNodeProps={commentNodeProps}
+          />
+        ) : (
+          <CommentWithReplies
+            key={comment._id}
+            comment={comment}
+            commentNodeProps={commentNodeProps}
+            initialMaxChildren={5}
+          />
+        )}
+        <div className={classes.seeInContext}>
+          <a href={`#${documentId}`}>See in context</a>
+        </div>
       </div>
-      {forumTypeSetting.get() !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}
+      {forumTypeSetting.get() !== "EAForum" && (
+        <div className={classes.dividerMargins}>
+          <Divider />
+        </div>
+      )}
     </div>
+  );
 }
 
 const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });

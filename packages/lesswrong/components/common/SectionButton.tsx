@@ -14,12 +14,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SectionButton = ({children, classes, className}: {
+const SectionButton = ({children, classes, className, onClick}: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
+  onClick?: (event: React.MouseEvent) => void,
 }) => {
-  return <Components.Typography component='span' variant='body2' className={classNames(classes.root, className)}>
+  return <Components.Typography
+    component='span'
+    variant='body2'
+    className={classNames(classes.root, className)}
+    onClick={onClick}
+  >
     {children}
   </Components.Typography>
 }

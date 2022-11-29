@@ -2,8 +2,6 @@ import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { userHasNewTagSubscriptions } from "../../lib/betas";
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -15,12 +13,13 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
+import { useDialog } from "../common/withDialog";
 import {
   defaultSubforumSorting,
   isSubforumSorting,
@@ -84,19 +83,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
     width: "100%",
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 32,
+      paddingRight: 32,
+    }
   },
   titleRow: {
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-      justifyContent: 'space-between',
-    }
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
     fontWeight: 600,
-    fontVariant: "small-caps"
+    fontVariant: "small-caps",
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "2.4rem",
+    }
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -151,16 +155,57 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  newPostLink: {
+    display: "flex",
+    alignItems: "center",
+  },
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
-    paddingLeft: "1.5em",
-    paddingRight: "1.5em",
-    paddingBottom: "1em",
     marginBottom: 24,
+  },
+  sidebarBoxWrapperDefaultPadding: {
+    padding: "1em 1.5em",
   },
   tableOfContentsWrapper: {
     padding: 24,
+  },
+  membersListLink: {
+    background: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.primary.main,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.5
+    },
+    [theme.breakpoints.up('lg')]: {
+      display: 'none' // only show on mobile (when the sidebar is not showing)
+    }
+  },
+  joinBtn: {
+    // FIXME: refactor to remove these !importants once the old subforum page is deprecated (this is the only other place SubforumSubscribeSection is used)
+    alignItems: 'center !important',
+    padding: '4px 0 0 0 !important',
+    '& button': {
+      minHeight: 0,
+      fontSize: 14,
+      padding: 8
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: '2px 0 0 0 !important',
+      '& button': {
+        minHeight: 0,
+        fontSize: 12,
+        padding: 6
+      },
+    }
+  },
+  notificationSettings: {
+    marginTop: 6,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 4,
+    }
   },
   feedWrapper: {
     padding: "0 10px",
@@ -168,15 +213,34 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedHeader: {
     display: "flex",
     marginBottom: -16,
+    marginLeft: 10,
+    [theme.breakpoints.down('xs')]: {
+      '& .PostsListSortDropdown-root': {
+        marginRight: "0px !important",
+      }
+    }
   },
   feedHeaderButtons: {
     display: "flex",
     flexGrow: 1,
     columnGap: 16,
   },
+  newDiscussionContainer: {
+    background: theme.palette.grey[0],
+    marginTop: 32,
+    padding: "0px 8px 8px 8px",
+  },
   feedPostWrapper: {
     marginTop: 32,
   },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
+  },
+  commentPermalink: {
+    marginBottom: 8,
+  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -189,24 +253,23 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
   })
 }
 
-// TODO rename
-const subforumTabs = ["posts", "wiki"] as const
+const subforumTabs = ["subforum", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
-const defaultTab: SubforumTab = "posts"
+const defaultTab: SubforumTab = "subforum"
 
 const TagSubforumPage2 = ({classes}: {
   classes: ClassesType
 }) => {
   const {
-    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
+    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, LWTooltip,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, RightSidebarColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles, SidebarSubtagsBox, MixedTypeFeed,
-    SectionButton, CommentWithReplies, RecentDiscussionThread,
+    TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox, CommentPermalink,
+    SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
+    SidebarSubtagsBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
   } = Components;
   const currentUser = useCurrentUser();
-  const { history } = useNavigation();
   const { query, params: { slug } } = useLocation();
+  const { history } = useNavigation();
   
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
@@ -237,10 +300,17 @@ const TagSubforumPage2 = ({classes}: {
   });
   
   const [truncated, setTruncated] = useState(true)
+  const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
+
+  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetch = useCallback(() => {
+    if (refetchRef.current)
+      refetchRef.current();
+  }, [refetchRef]);
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -255,6 +325,25 @@ const TagSubforumPage2 = ({classes}: {
     limit: 1500,
     skip: !query.flagId
   })
+
+  const { openDialog } = useDialog();
+  const { totalCount: membersCount, loading: membersCountLoading } = useMulti({
+    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
+    collectionName: 'Users',
+    fragmentName: 'UsersProfile',
+    enableTotal: true,
+    skip: !tag
+  })
+
+  const onClickMembersList = () => {
+    if (!tag) return;
+
+    openDialog({
+      componentName: 'SubforumMembersDialog',
+      componentProps: {tag},
+      closeOnNavigate: true
+    })
+  }
   
   useOnSearchHotkey(() => setTruncated(false));
 
@@ -298,10 +387,10 @@ const TagSubforumPage2 = ({classes}: {
     throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
   }
 
+  const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
+
   // if no sort order was selected, try to use the tag page's default sort order for posts
-  if (query.sortedBy || tag.postsDefaultSortOrder) {
-    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
-  }
+  const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
 
   const terms = {
     ...tagPostTerms(tag, query),
@@ -311,6 +400,11 @@ const TagSubforumPage2 = ({classes}: {
   const clickReadMore = () => {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
+  }
+
+  const clickNewDiscussion = () => {
+    setNewDiscussionOpen(true)
+    captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
@@ -414,15 +508,12 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) && (
-          <SubscribeButton
-            tag={tag}
-            className={classes.notifyMeButton}
-            subscribeMessage="Subscribe"
-            unsubscribeMessage="Unsubscribe"
-            subscriptionType={subscriptionTypes.newTagPosts}
-          />
-        )}
+        {/* TODO change what appears in SubforumNotificationSettings list */}
+        {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
+        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
+      </div>
+      <div className={classes.membersListLink}>
+        {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
       </div>
       <Tabs
         value={tab}
@@ -430,10 +521,9 @@ const TagSubforumPage2 = ({classes}: {
         className={classes.tabs}
         textColor="primary"
         aria-label="select tab"
-        scrollable
         scrollButtons="off"
       >
-        <Tab label="Posts" value="posts" />
+        <Tab label="Subforum" value="subforum" />
         <Tab label="Wiki" value="wiki" />
       </Tabs>
     </div>
@@ -441,60 +531,89 @@ const TagSubforumPage2 = ({classes}: {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
-      <div className={classes.sidebarBoxWrapper} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+      <div className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
     </ContentStyles>
   ) : <></>;
-  const rightSidebarComponents = [welcomeBoxComponent, <SidebarSubtagsBox tagId={tag._id} className={classes.sidebarBoxWrapper} key={`subtags_box`}/>];
+  const rightSidebarComponents = [
+    welcomeBoxComponent,
+    <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
+    <SidebarSubtagsBox tag={tag} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
+  ];
 
-  const SubforumFeed = () => {
-    const refetchRef = useRef<null|(()=>void)>(null);
-    const refetch = useCallback(() => {
-      if (refetchRef.current)
-        refetchRef.current();
-    }, [refetchRef]);
-    const commentNodeProps = {
-      treeOptions: {
-        postPage: true,
-        refetch,
-        tag,
-      },
-      startThreadTruncated: true,
-      isChild: false,
-      enableGuidelines: false,
-      displayMode: "minimalist" as const,
-    };
-    const sortBy: SubforumSorting = isSubforumSorting(query.sortedBy) ? query.sortedBy : defaultSubforumSorting;
-    const maxAgeHours = 18;
-    const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
-    return <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+  const commentNodeProps = {
+    treeOptions: {
+      postPage: true,
+      refetch,
+      tag,
+    },
+    startThreadTruncated: true,
+    isChild: false,
+    enableGuidelines: false,
+    displayMode: "minimalist" as const,
+  };
+  const maxAgeHours = 18;
+  const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+
+  const discussionButton = isSubscribed || currentUser?.isAdmin ? (
+    <SectionButton onClick={clickNewDiscussion}>
+      <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+    </SectionButton>
+  ) : (
+    <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
+      <SectionButton>
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+      </SectionButton>
+    </LWTooltip>
+  );
+
+  const subforumFeedComponent = (
+    <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      {query.commentId && (
+        <div className={classes.commentPermalink}>
+          <CommentPermalink documentId={query.commentId} />
+        </div>
+      )}
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
-          <SectionButton>
-            <AddBoxIcon /> New Post
-          </SectionButton>
-          <SectionButton>
-            <AddBoxIcon /> New Discussion
-          </SectionButton>
+          {discussionButton}
+          <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
+            <SectionButton>
+              <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
+            </SectionButton>
+          </Link>
         </div>
-        <PostsListSortDropdown value={query.sortedBy} options={subforumSortings} />
+        <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
+      {newDiscussionOpen && (
+        <div className={classes.newDiscussionContainer}>
+          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
+          <CommentsNewForm
+            tag={tag}
+            tagCommentType={"SUBFORUM"}
+            successCallback={refetch}
+            type="reply" // required to make the Cancel button appear
+            enableGuidelines={false}
+            cancelCallback={() => setNewDiscussionOpen(false)}
+          />
+        </div>
+      )}
       <MixedTypeFeed
-        firstPageSize={10}
+        firstPageSize={15}
         pageSize={20}
         refetchRef={refetchRef}
         resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
         sortKeyType={subforumSortingTypes[sortBy]}
         resolverArgs={{
-          tagId: 'String!',
-          af: 'Boolean',
+          tagId: "String!",
+          af: "Boolean",
         }}
         resolverArgsValues={{
           tagId: tag._id,
           af: false,
         }}
         fragmentArgs={{
-          maxAgeHours: 'Int',
-          commentsLimit: 'Int',
+          maxAgeHours: "Int",
+          commentsLimit: "Int",
         }}
         fragmentArgsValues={{
           maxAgeHours,
@@ -507,12 +626,13 @@ const TagSubforumPage2 = ({classes}: {
               <div className={classes.feedPostWrapper}>
                 <RecentDiscussionThread
                   key={post._id}
-                  post={{...post}}
+                  post={{ ...post }}
                   comments={post.recentComments}
+                  maxLengthWords={50}
                   refetch={refetch}
                 />
               </div>
-            )
+            ),
           },
           tagSubforumComments: {
             fragmentName: "CommentWithRepliesFragment",
@@ -523,12 +643,31 @@ const TagSubforumPage2 = ({classes}: {
                 commentNodeProps={commentNodeProps}
                 initialMaxChildren={5}
               />
-            )
+            ),
+          },
+          tagSubforumStickyComments: {
+            fragmentName: "StickySubforumCommentFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={{ ...comment, isPinnedOnProfile: true }}
+                commentNodeProps={{
+                  ...commentNodeProps,
+                  showPinnedOnProfile: true,
+                  treeOptions: {
+                    ...commentNodeProps.treeOptions,
+                    showPostTitle: true,
+                  },
+                }}
+                initialMaxChildren={3}
+                startExpanded={false}
+              />
+            ),
           },
         }}
       />
     </div>
-  }
+  );
 
   return (
     <AnalyticsContext
@@ -556,6 +695,7 @@ const TagSubforumPage2 = ({classes}: {
                       expandAll={expandAll}
                       showContributors={true}
                       onHoverContributor={onHoverContributor}
+                      allowSubforumLink={false}
                     />
                   </div>,
                 ]
@@ -563,7 +703,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : <SubforumFeed />}
+          {tab === "wiki" ? wikiComponent : subforumFeedComponent}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>

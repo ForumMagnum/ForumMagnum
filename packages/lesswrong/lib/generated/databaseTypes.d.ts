@@ -124,6 +124,7 @@ interface DbComment extends DbObject {
   postId: string
   tagId: string
   tagCommentType: "SUBFORUM" | "DISCUSSION"
+  subforumStickyPriority: number | null
   userId: string
   userIP: string
   userAgent: string
