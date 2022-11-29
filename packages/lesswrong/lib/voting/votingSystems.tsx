@@ -19,8 +19,20 @@ export interface VotingSystem {
   name: string,
   description: string,
   getCommentVotingComponent: ()=>CommentVotingComponent,
-  addVoteClient: (props: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent})=>any,
-  cancelVoteClient: (props: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent})=>any
+  addVoteClient: (props: {
+    voteType: string|null,
+    document: VoteableTypeClient,
+    oldExtendedScore: any,
+    extendedVote: any,
+    currentUser: UsersCurrent
+  })=>any,
+  cancelVoteClient: (props: {
+    voteType: string|null,
+    document: VoteableTypeClient,
+    oldExtendedScore: any,
+    cancelledExtendedVote: any,
+    currentUser: UsersCurrent
+  })=>any
   computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
@@ -53,22 +65,28 @@ registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
-  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
+  addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
+    const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const newVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
     return {
+      approvalVoteCount: oldApprovalVoteCount + (newVoteIncludesApproval?1:0),
       agreement: (oldExtendedScore?.agreement||0) + newAgreementPower,
       agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) + 1,
     };
   },
-  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
-    const oldVote = cancelledExtendedVote?.agreement;
-    if (!oldVote || oldVote==="neutral") return oldExtendedScore;
-    const oldAgreementPower = calculateVotePower(currentUser.karma, oldVote);
+  cancelVoteClient: ({voteType, document, oldExtendedScore, cancelledExtendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
+    const oldVoteAgreement = cancelledExtendedVote?.agreement;
+    const oldVoteIncludesAgreement = (oldVoteAgreement && oldVoteAgreement!=="neutral");
+    const oldAgreementPower = calculateVotePower(currentUser.karma, oldVoteAgreement);
+    const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const oldVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
     return {
-      agreement: (oldExtendedScore?.agreement||0) - oldAgreementPower,
-      agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) - 1,
+      approvalVoteCount: oldApprovalVoteCount - (oldVoteIncludesApproval?1:0),
+      agreement: (oldExtendedScore?.agreement||0) - (oldVoteIncludesAgreement?oldAgreementPower:0),
+      agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) - (oldVoteIncludesAgreement?1:0),
     };
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {

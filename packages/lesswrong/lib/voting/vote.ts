@@ -35,11 +35,15 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
     currentUserVote: voteType,
     currentUserExtendedVote: extendedVote,
     extendedScore: votingSystem.addVoteClient({
+      voteType: voteType,
+      document,
       oldExtendedScore: document.extendedScore,
       extendedVote: extendedVote,
       currentUser: user
     }),
     afExtendedScore: isAfVote ? votingSystem.addVoteClient({
+      voteType: voteType,
+      document,
       oldExtendedScore: document.afExtendedScore,
       extendedVote: extendedVote,
       currentUser: user
@@ -81,11 +85,15 @@ const cancelVoteClient = ({document, collection, user, votingSystem}: {
     currentUserVote: null,
     currentUserExtendedVote: null,
     extendedScore: votingSystem.cancelVoteClient({
+      voteType: document.currentUserVote,
+      document,
       oldExtendedScore: document.extendedScore,
       cancelledExtendedVote: document.currentUserExtendedVote,
       currentUser: user
     }),
     afExtendedScore: isAfVote ? votingSystem.cancelVoteClient({
+      voteType: document.currentUserVote,
+      document,
       oldExtendedScore: document.afExtendedScore,
       cancelledExtendedVote: document.currentUserExtendedVote,
       currentUser: user
