@@ -10,6 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -116,7 +117,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
               {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
             </span> :
             <span>
-              { totalComments } comments, sorted by <Components.CommentsViews post={post} />
+              {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
             </span>
         }
       </Typography>
