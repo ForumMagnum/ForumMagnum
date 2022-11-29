@@ -276,6 +276,8 @@ importComponent("ReportPostMenuItem", () => require('../components/posts/ReportP
 importComponent("PostsItemDate", () => require('../components/posts/PostsItemDate'));
 importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'));
 
+importComponent("SetSideCommentVisibility", () => require('../components/posts/PostActions/SetSideCommentVisibility'));
+
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageTitle'));
