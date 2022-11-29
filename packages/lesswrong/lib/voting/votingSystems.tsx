@@ -75,6 +75,7 @@ registerVotingSystem({
     const usersById = keyBy(usersThatVoted, u=>u._id);
     
     const result = {
+      approvalVoteCount: votes.filter(v=>(v.voteType && v.voteType!=="neutral")).length,
       agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
       agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0).length,
     };
