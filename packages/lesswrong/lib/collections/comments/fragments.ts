@@ -132,6 +132,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
     _id

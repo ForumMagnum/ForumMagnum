@@ -179,7 +179,7 @@ const PostsNewForm = ({classes}: {
   if (query.subforumTagId) {
     prefilledProps = {
       subforumTagId: query.subforumTagId,
-      submitToFrontpage: false,
+      tagRelevance: {[query.subforumTagId]: 1},
     }
   }
 

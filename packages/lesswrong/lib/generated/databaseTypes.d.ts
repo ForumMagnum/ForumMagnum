@@ -124,6 +124,7 @@ interface DbComment extends DbObject {
   postId: string
   tagId: string
   tagCommentType: "SUBFORUM" | "DISCUSSION"
+  subforumStickyPriority: number | null
   userId: string
   userIP: string
   userAgent: string
@@ -597,6 +598,8 @@ interface DbPost extends DbObject {
   linkSharingKeyUsedBy: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
+  sideCommentsCache: any /*{"definitions":[{}]}*/
+  sideCommentVisibility: string
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number

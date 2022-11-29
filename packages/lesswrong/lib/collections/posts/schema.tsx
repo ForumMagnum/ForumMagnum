@@ -26,6 +26,7 @@ import { userOverNKarmaFunc } from "../../vulcan-users";
 import { getSqlClientOrThrow } from '../../sql/sqlClient';
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
+import { userHasSideComments } from '../../betas';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -103,6 +104,19 @@ function eaFrontpageDate (document: ReplaceFieldsOfType<DbPost, EditableFieldCon
 const frontpageDefault = isEAForum ?
   eaFrontpageDate :
   undefined
+
+export const sideCommentCacheVersion = 1;
+export interface SideCommentsCache {
+  version: number,
+  generatedAt: Date,
+  annotatedHtml: string
+  commentsByBlock: Record<string,string[]>
+}
+export interface SideCommentsResolverResult {
+  html: string,
+  commentsByBlock: Record<string,string[]>,
+  highKarmaCommentsByBlock: Record<string,string[]>,
+}
 
 /**
  * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
@@ -881,7 +895,6 @@ const schema: SchemaType<DbPost> = {
     control: "FormComponentPostEditorTagging",
     hidden: (props) => props.eventForm,
   },
-  
   "tagRelevance.$": {
     type: Number,
     optional: true,
@@ -2174,35 +2187,62 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
-  tableOfContents: resolverOnlyField({
+  tableOfContents: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
-    graphQLtype: GraphQLJSON,
-    resolver: async (document: DbPost, args: void, context: ResolverContext) => {
-      try {
-        return await Utils.getToCforPost({document, version: null, context});
-      } catch(e) {
-        captureException(e);
-        return null;
-      }
-    },
-  }),
+    // Implementation in postResolvers.ts
+  },
 
-  tableOfContentsRevision: resolverOnlyField({
+  tableOfContentsRevision: {
     type: Object,
+    optional: true,
+    hidden: true,
     viewableBy: ['guests'],
-    graphQLtype: GraphQLJSON,
-    graphqlArguments: 'version: String',
-    resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
-      const { version=null } = args;
-      try {
-        return await Utils.getToCforPost({document, version, context});
-      } catch(e) {
-        captureException(e);
-        return null;
+    // Implementation in postResolvers.ts
+  },
+  
+  sideComments: {
+    type: Object,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  
+  // sideCommentsCache: Stores the matching between comments on a post,
+  // and paragraph IDs within the post. Invalid if the cache-generation
+  // time is older than when the post was last modified (modifiedAt) or
+  // commented on (lastCommentedAt).
+  // SideCommentsCache
+  sideCommentsCache: {
+    type: Object,
+    viewableBy: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
+    optional: true, nullable: true, hidden: true,
+  },
+  
+  sideCommentVisibility: {
+    type: String,
+    optional: true,
+    control: "select",
+    group: formGroups.advancedOptions,
+    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
+    
+    label: "Replies in sidebar",
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
+    blackbox: true,
+    form: {
+      options: () => {
+        return [
+          {value: "highKarma", label: "10+ karma (default)"},
+          {value: "hidden", label: "Hide all"},
+        ];
       }
     },
-  }),
+  },
 
   // GraphQL only field that resolves based on whether the current user has closed
   // this posts author's moderation guidelines in the past

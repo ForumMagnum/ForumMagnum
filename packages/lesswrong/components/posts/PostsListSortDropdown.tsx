@@ -11,13 +11,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginTop: 8,
+    marginBottom: 8,
+    marginRight: 8,
+    textAlign: "center",
   },
   selectMenu: {
     cursor: "pointer",
     paddingLeft: 4,
     color: theme.palette.primary.main
+  },
+  noBreak: {
+    whiteSpace: "nowrap"
   },
   icon: {
     verticalAlign: "middle",
@@ -41,10 +46,16 @@ const PostsListSortDropdown = ({classes, value, options=defaultOptions, sortingP
   sortingParam?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const splitLabel = (label: string) => {
+    const words = label.split(" ");
+    const lastWord = words.pop();
+    return [words.join(" "), lastWord]
+  }
+  const [labelStart, labelEnd] = splitLabel(TAG_POSTS_SORT_ORDER_OPTIONS[value].label)
 
   return <div className={classes.root}>
     <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
-      {TAG_POSTS_SORT_ORDER_OPTIONS[value].label} <ArrowDropDownIcon className={classes.icon}/>
+      {labelStart} <span className={classes.noBreak}>{labelEnd} <ArrowDropDownIcon className={classes.icon}/></span>
     </span>
     <Menu
       open={Boolean(anchorEl)}

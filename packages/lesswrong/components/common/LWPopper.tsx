@@ -43,16 +43,31 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
   className?: string,
   clickable?: boolean
 }) => {
+  const [everOpened, setEverOpened] = useState(open);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
-  const preventOverflowModifier = allowOverflow ? [{
-    name: 'preventOverflow',
-    enabled: false, 
-  }] : undefined
+  const preventOverflowModifier = allowOverflow ? [
+    {
+      name: 'preventOverflow',
+      enabled: false,
+    },
+    {
+      name: 'flip',
+      enabled: false,
+    },
+  ] : []
 
   const { styles, attributes } = usePopper(anchorEl, popperElement, {
     placement,
-    modifiers: preventOverflowModifier
+    modifiers: [
+      {
+        name: 'computeStyles',
+        options: {
+          gpuAcceleration: false, // true by default
+        },
+      },
+      ...preventOverflowModifier
+    ],
   });
 
   if (!open)
@@ -65,7 +80,12 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
     createPortal(
       <div
         ref={setPopperElement}
-        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable}, className)}
+        className={classNames({
+          [classes.tooltip]: tooltip,
+          [classes.default]: !tooltip,
+          [classes.noMouseEvents]: !clickable},
+          className
+        )}
         style={styles.popper}
         {...attributes.popper}
       >

@@ -95,6 +95,23 @@ const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => a
         tagId,
         tagCommentType: "SUBFORUM",
         topLevelCommentId: {$exists: false},
+        subforumStickyPriority: {$exists: false},
+        ...(af ? {af: true} : undefined),
+      },
+    }),
+    // Sticky subforum comments
+    viewBasedSubquery({
+      type: "tagSubforumStickyComments",
+      collection: Comments,
+      sortField: "subforumStickyPriority",
+      sortDirection: "asc",
+      sticky: true,
+      context,
+      selector: {
+        tagId,
+        tagCommentType: "SUBFORUM",
+        topLevelCommentId: {$exists: false},
+        subforumStickyPriority: {$exists: true},
         ...(af ? {af: true} : undefined),
       },
     }),
@@ -110,6 +127,7 @@ for (const sortBy of subforumSortings) {
     resultTypesGraphQL: `
       tagSubforumPosts: Post
       tagSubforumComments: Comment
+      tagSubforumStickyComments: Comment
     `,
     resolver: createSubforumFeedResolver(sorting),
   });
