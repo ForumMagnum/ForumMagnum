@@ -2131,6 +2131,7 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
   readonly interestedInMetaculus: boolean,
+  readonly jobAds: any /*{"definitions":[{}]}*/,
 }
 
 interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
@@ -2138,6 +2139,7 @@ interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly userId: string,
   readonly createdAt: Date,
   readonly interestedInMetaculus: boolean,
+  readonly jobAds: any /*{"definitions":[{}]}*/,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions

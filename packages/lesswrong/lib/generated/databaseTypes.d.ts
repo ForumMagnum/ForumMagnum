@@ -14,6 +14,7 @@ interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   userId: string
   interestedInMetaculus: boolean
+  jobAds: any /*{"definitions":[{}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
