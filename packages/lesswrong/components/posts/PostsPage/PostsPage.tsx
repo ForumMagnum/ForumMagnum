@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useLocation } from '../../../lib/routeUtil';
+import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -150,7 +150,7 @@ const PostsPage = ({post, refetch, classes}: {
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
-  const location = useLocation();
+  const location = useSubscribedLocation();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
