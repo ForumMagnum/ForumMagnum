@@ -4,7 +4,7 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
-import { useLocation } from '../lib/routeUtil';
+import { subforumSlugsSetting, useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
@@ -15,10 +15,8 @@ import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { getUserEmail } from "../lib/collections/users/helpers";
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -154,8 +152,9 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const location = useLocation();
-  const currentRoute = location.currentRoute
+  const { currentRoute, params: { slug }, pathname} = useLocation();
+  const isSubforum = subforumSlugsSetting.get().includes(slug); // FIXME remove this hack and find a way to always use the isSubforum field on the tag
+  
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
@@ -205,14 +204,13 @@ const Layout = ({currentUser, children, classes}: {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
 
-    const standaloneNavigation = !currentRoute ||
-      forumSelect(standaloneNavMenuRouteNames)
-        .includes(currentRoute?.name)
-    
+    const standaloneNavigation =
+      !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum;
+
     const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
     
     const shouldUseGridLayout = standaloneNavigation
-    const unspacedGridLayout = currentRoute?.unspacedGrid
+    const unspacedGridLayout = currentRoute?.unspacedGrid || isSubforum
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -226,7 +224,7 @@ const Layout = ({currentUser, children, classes}: {
     }
     
     return (
-      <AnalyticsContext path={location.pathname}>
+      <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
