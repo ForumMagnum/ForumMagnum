@@ -30,8 +30,13 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
+type PermissionableUser = UsersMinimumInfo & {
+  readonly groups: Array<string>
+  readonly banned: Date
+}
+
 // get a list of a user's groups
-export const userGetGroups = (user: UsersProfile|DbUser|null): Array<string> => {
+export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
   }
@@ -67,7 +72,7 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
 };
 
 // Check if a user is a member of a group
-export const userIsMemberOf = (user: UsersCurrent|UsersProfile|DbUser|null, group: PermissionGroups): boolean => {
+export const userIsMemberOf = (user: PermissionableUser|DbUser|null, group: PermissionGroups): boolean => {
   const userGroups = userGetGroups(user);
   for (let userGroup of userGroups) {
     if (userGroup === group)
@@ -129,6 +134,11 @@ export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(use
 };
 
 export const isAdmin = userIsAdmin;
+
+export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): user is Exclude<T, null> {
+  if (!user) return false;
+  return user.isAdmin || userIsMemberOf(user, 'sunshineRegiment');
+};
 
 // Check if a user can view a field
 export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
