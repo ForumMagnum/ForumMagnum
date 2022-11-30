@@ -81,7 +81,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     userAgent: userAgent,
   };
   
-  if (user) {
+  if (user || isExcludedFromPageCache(url)) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
@@ -134,6 +134,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     };
   }
 };
+
+function isExcludedFromPageCache(path: string): boolean {
+  return path.startsWith("/collaborateOnPost") || path.startsWith("/editPost");
+}
 
 export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
   const themeCookie = getCookieFromReq(req, "theme");
