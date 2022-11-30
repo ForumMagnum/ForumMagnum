@@ -374,8 +374,6 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
         {reviewTimeline}
 
         {/* TODO: Improve logged out user experience */}
-        
-        {showFrontpageItems && activeRange === "NOMINATIONS" }
 
         {/* Post list */}
         {showFrontpageItems && postList}

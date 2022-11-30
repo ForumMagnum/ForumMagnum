@@ -10,7 +10,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
@@ -288,10 +288,20 @@ const ReviewVotingPage = ({classes}: {
   const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
   let defaultSort = ""
-  if (getReviewPhase() === "REVIEWS") { 
-    defaultSort = "needsReview"
+  switch (getReviewPhase()) {
+    case 'NOMINATIONS':
+      defaultSort = "needsPreliminaryVote";
+      break;
+    case 'REVIEWS':
+      defaultSort = "needsReview"
+      break;
+    case 'VOTING':
+      defaultSort = "needsFinalVote";
+      break;
+    default:
+      defaultSort = "reviewCount";
+      break;
   }
-  if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
 
   const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
@@ -376,12 +386,14 @@ const ReviewVotingPage = ({classes}: {
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
-        // TODO: figure out why commenting this out makes it sort correctly.
+        if (sortPosts === "needsPreliminaryVote") {
+          // This is intended to prioritize showing users posts which have reviews but that the current user hasn't yet voted on
+          const reviewedNotVoted1 = post1.reviewCount > 0 && !post1Score
+          const reviewedNotVoted2 = post2.reviewCount > 0 && !post2Score
+          if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
+          if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
+        }
 
-        const reviewedNotVoted1 = post1.reviewCount > 0 && !post1Score
-        const reviewedNotVoted2 = post2.reviewCount > 0 && !post2Score
-        if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
-        if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
         if (permuted1 < permuted2) return -1;
@@ -531,7 +543,7 @@ const ReviewVotingPage = ({classes}: {
             }
             {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+            {!isEAForum && eligibleToNominate(currentUser) && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
               <LWTooltip title={costTotalTooltip}>
                 {costTotal}/500
               </LWTooltip>
@@ -552,6 +564,9 @@ const ReviewVotingPage = ({classes}: {
                 onChange={(e)=>{setSortPosts(e.target.value)}}
                 disableUnderline
                 >
+                {getReviewPhase() === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
+                  <span className={classes.sortBy}>Sort by</span> Needs Vote
+                </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
                 </MenuItem>
