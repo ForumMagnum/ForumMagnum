@@ -81,7 +81,7 @@ const TabNavigationCollapsibleMenu = ({
           <MenuItemUntyped
             onClick={handleTitleClick}
             component={Link}
-            to={link}
+            to={link || ''}
             disableGutters
             classes={{root: classNames(classes.title, {
               [classes.navButton]: !tab.subItem,

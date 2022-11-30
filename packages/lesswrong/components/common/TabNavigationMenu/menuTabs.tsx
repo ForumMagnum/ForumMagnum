@@ -63,7 +63,7 @@ export type MenuTabRegular = {
   id: string
   title: string
   mobileTitle?: string
-  link: string
+  link?: string
   icon?: React.ReactNode
   minimalIcon?: boolean
   iconComponent?: React.ComponentType<any>
@@ -240,7 +240,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Home',
       link: '/',
       iconComponent: Home,
-      minimalIcon: true,
+      // minimalIcon: false,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -249,14 +249,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'All Posts',
       link: '/allPosts',
       iconComponent: Sort,
-      minimalIcon: true,
+      // minimalIcon: true,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
       title: taggingNamePluralCapitalSetting.get(),
-      link: `/${taggingNamePluralSetting.get()}/all`,
+      // link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
       minimalIcon: true,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
