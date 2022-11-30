@@ -1,9 +1,9 @@
 import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { userOwns } from "../../lib/vulcan-users";
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
+import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -142,7 +142,10 @@ addGraphQLResolvers({
         throw new Error("Permission denied");
       }
       // Maybe check for karma level here?
-      if (!userOwns(currentUser, post) && !currentUser.isAdmin && !currentUser.groups.includes("sunshineRegiment")) {
+      if (
+        !canUserEditPostMetadata(currentUser, post) &&
+        !currentUser.groups.includes("sunshineRegiment")
+      ) {
         throw new Error("Permission denied");
       }
 

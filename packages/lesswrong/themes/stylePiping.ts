@@ -472,6 +472,12 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& ol, & ul': {
           listStyleType: "revert !important",
         },
+        '& ol > li > ol': {
+          listStyle: 'lower-alpha !important',
+        },
+        '& ol > li > ol > li > ol': {
+          listStyle: 'lower-roman !important',
+        },
       },
       '& .ck-placeholder:before': {
         whiteSpace: 'break-spaces'

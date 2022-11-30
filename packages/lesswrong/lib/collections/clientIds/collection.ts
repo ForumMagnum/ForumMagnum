@@ -1,6 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, ensureIndex } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",

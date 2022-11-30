@@ -3,7 +3,7 @@ import React from 'react';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './PostsItem2';

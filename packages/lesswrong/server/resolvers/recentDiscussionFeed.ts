@@ -42,7 +42,9 @@ defineFeedResolver<Date>({
           selector: {
             baseScore: {$gt:0},
             hideFrontpageComments: false,
-            $or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$nin:[0,null]}}],
+            $or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}],
+            lastCommentedAt: {$exists: true},
+            hideFromRecentDiscussions: {$ne: true},
             hiddenRelatedQuestion: undefined,
             shortform: undefined,
             groupId: undefined,
@@ -82,6 +84,7 @@ defineFeedResolver<Date>({
             collectionName: "Tags",
             fieldName: "description",
             "changeMetrics.added": {$gt: 100},
+            editedAt: {$exists: true},
           },
         }),
         // Suggestion to subscribe to curated

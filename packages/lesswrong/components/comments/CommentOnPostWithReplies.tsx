@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useRecordPostView } from "../common/withRecordPostView";
+import { useRecordPostView } from "../hooks/useRecordPostView";
 import { CommentWithRepliesProps } from "./CommentWithReplies";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 

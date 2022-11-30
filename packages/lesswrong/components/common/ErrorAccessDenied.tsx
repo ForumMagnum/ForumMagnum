@@ -3,15 +3,16 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 
-const ErrorAccessDenied = () => {
+const ErrorAccessDenied = ({explanation}: {explanation?: string}) => {
   const { SingleColumnSection, Typography } = Components;
   const serverRequestStatus = useServerRequestStatus()
   const currentUser = useCurrentUser();
   if (serverRequestStatus) serverRequestStatus.status = 403
   
   if (currentUser) {
+    const message = `Sorry, you don't have access to this page.${(explanation ? ` ${explanation}` : "")}`
     return <SingleColumnSection>
-      <div>Sorry, you don't have access to this page.</div>
+      <div>{message}</div>
     </SingleColumnSection>
   } else {
     return <SingleColumnSection>

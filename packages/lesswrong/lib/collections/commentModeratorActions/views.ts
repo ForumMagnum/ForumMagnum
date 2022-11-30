@@ -1,4 +1,4 @@
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import CommentModeratorActions from './collection';
 
 interface NoViewTerms extends ViewTermsBase {

@@ -1,30 +1,24 @@
+import React, {useRef, useState, useCallback, useEffect} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdate } from '../lib/crud/withUpdate';
-import React, { PureComponent } from 'react';
+import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import Intercom from 'react-intercom';
-import moment from '../lib/moment-timezone';
-import { withCookies } from 'react-cookie'
-import { withTheme } from '@material-ui/core/styles';
-import { withLocation } from '../lib/routeUtil';
+import { useTheme } from './themes/useTheme';
+import { subforumSlugsSetting, useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
-import { TimezoneContext } from './common/withTimezone';
+import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
-import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
-import { ItemsReadContext } from './common/withRecordPostView';
+import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { getUserEmail } from "../lib/collections/users/helpers";
+import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 
-const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -38,7 +32,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'handbook', 'advice', 'advisorRequest', 'tagsSubforum'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -52,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
-    gridArea: 'main', 
+    gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: 8,
@@ -76,19 +70,38 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     overflow: "auto",
   },
-  gridActivated: {
+  spacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
         "navSidebar ... main ... sunshine"
       `,
       gridTemplateColumns: `
-      minmax(0, min-content)
-      minmax(0, 1fr)
-      minmax(0, min-content)
-      minmax(0, 1.4fr)
-      minmax(0, min-content)
-    `,
+        minmax(0, min-content)
+        minmax(0, 1fr)
+        minmax(0, min-content)
+        minmax(0, 1.4fr)
+        minmax(0, min-content)
+      `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  unspacedGridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar main sunshine"
+      `,
+      gridTemplateColumns: `
+        0px
+        minmax(0, 1fr)
+        minmax(0, min-content)
+      `,
+    },
+    '& .Layout-main': {
+      width: '100%',
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -120,134 +133,70 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
-    ...(theme.palette.intercom ? {
-      '.intercom-launcher': {
-        backgroundColor: theme.palette.intercom.buttonBackground
-      }
-    } : null),
   },
   searchResultsArea: {
     position: "absolute",
-    zIndex: theme.zIndexes.layout,
+    zIndex: theme.zIndexes.searchResults,
     top: 0,
     width: "100%",
   },
 })
 
-interface ExternalProps {
-  currentUser: UsersCurrent | null,
-  messages: any,
+const Layout = ({currentUser, children, classes}: {
+  currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-}
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
-  cookies: any,
-  theme: ThemeType,
-  updateUser: any,
-}
-interface LayoutState {
-  timezone: string,
-  toc: {title: string|null, sections?: ToCSection[]}|null,
-  postsRead: Record<string,boolean>,
-  tagsRead: Record<string,boolean>,
-  hideNavigationSidebar: boolean,
-}
-
-class Layout extends PureComponent<LayoutProps,LayoutState> {
-  searchResultsAreaRef: React.RefObject<HTMLDivElement>
+  classes: ClassesType,
+}) => {
+  const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
+  const [sideCommentsActive,setSideCommentsActive] = useState(false);
+  const [disableNoKibitz, setDisableNoKibitz] = useState(false);
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const theme = useTheme();
+  const { currentRoute, params: { slug }, pathname} = useLocation();
+  const isSubforum = subforumSlugsSetting.get().includes(slug); // FIXME remove this hack and find a way to always use the isSubforum field on the tag
   
-  constructor (props: LayoutProps) {
-    super(props);
-    const { cookies, currentUser } = this.props;
-    const savedTimezone = cookies?.get('timezone');
-
-    this.state = {
-      timezone: savedTimezone,
-      toc: null,
-      postsRead: {},
-      tagsRead: {},
-      hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
-    };
-
-    this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
-  }
-
-  setToC = (title: string|null, sectionData: ToCData|null) => {
-    if (title) {
-      this.setState({
-        toc: {
-          title: title,
-          sections: sectionData?.sections
+  const {mutate: updateUser} = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersCurrent',
+  });
+  
+  const toggleStandaloneNavigation = useCallback(() => {
+    if (currentUser) {
+      void updateUser({
+        selector: {_id: currentUser._id},
+        data: {
+          hideNavigationSidebar: !hideNavigationSidebar
         }
-      });
-    } else {
-      this.setState({
-        toc: null,
-      });
+      })
     }
-  }
+    setHideNavigationSidebar(!hideNavigationSidebar);
+  }, [updateUser, currentUser, hideNavigationSidebar]);
 
-  toggleStandaloneNavigation = () => {
-    const { updateUser, currentUser } = this.props
-    this.setState(prevState => {
-      if (currentUser) {
-        void updateUser({
-          selector: {_id: currentUser._id},
-          data: {
-            hideNavigationSidebar: !prevState.hideNavigationSidebar
-          }
-        })
-      }
-      return {
-        hideNavigationSidebar: !prevState.hideNavigationSidebar
-      }
-    })
-  }
-
-  componentDidMount() {
-    const { updateUser, currentUser, cookies } = this.props;
-    const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
-      cookies.set('timezone', newTimezone);
-      if (currentUser) {
-        void updateUser({
-          selector: {_id: currentUser._id},
-          data: {
-            lastUsedTimezone: newTimezone,
-          }
-        })
-      }
-      this.setState({
-        timezone: newTimezone
-      });
-    }
-  }
-
-  render () {
-    const {currentUser, location, children, classes, theme} = this.props;
-    const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper } = Components
-
-    const showIntercom = (currentUser: UsersCurrent|null) => {
-      if (currentUser && !currentUser.hideIntercom) {
-        return <div id="intercome-outer-frame">
-          <ErrorBoundary>
-            <Intercom
-              appID={intercomAppIdSetting.get()}
-              user_id={currentUser._id}
-              email={getUserEmail(currentUser)}
-              name={currentUser.displayName}/>
-          </ErrorBoundary>
-        </div>
-      } else if (!currentUser) {
-        return <div id="intercome-outer-frame">
-            <ErrorBoundary>
-              <Intercom appID={intercomAppIdSetting.get()}/>
-            </ErrorBoundary>
-          </div>
+  // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
+  // background against which individual elements in the central column provide their own
+  // background. (In dark mode this is black and dark gray instead of white and light gray). This
+  // is handled by putting `classes.whiteBackground` onto the main wrapper.
+  //
+  // But, caveat/hack: If the page has horizontal scrolling and the horizontal scrolling is the
+  // result of a floating window, the page wrapper doesn't extend far enough to the right. So we
+  // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
+  // <body> is outside the React tree entirely. An alternative way to do this would be to change
+  // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
+  const useWhiteBackground = currentRoute?.background === "white";
+  
+  useEffect(() => {
+    const isWhite = document.body.classList.contains(classes.whiteBackground);
+    if (isWhite !== useWhiteBackground) {
+      if (useWhiteBackground) {
+        document.body.classList.add(classes.whiteBackground);
       } else {
-        return null
+        document.body.classList.remove(classes.whiteBackground);
       }
     }
+  }, [useWhiteBackground, classes.whiteBackground]);
+  
+  const render = () => {
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
 
     // Check whether the current route is one which should have standalone
     // navigation on the side. If there is no current route (ie, a 404 page),
@@ -255,14 +204,13 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
 
-    const currentRoute = location.currentRoute
-    const standaloneNavigation = !currentRoute ||
-      forumSelect(standaloneNavMenuRouteNames)
-        .includes(currentRoute?.name)
-    
+    const standaloneNavigation =
+      !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum;
+
     const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
-        
+    
     const shouldUseGridLayout = standaloneNavigation
+    const unspacedGridLayout = currentRoute?.unspacedGrid || isSubforum
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -274,26 +222,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-      
+    
     return (
-      <AnalyticsContext path={location.pathname}>
+      <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
-      <TimezoneContext.Provider value={this.state.timezone}>
-      <ItemsReadContext.Provider value={{
-        postsRead: this.state.postsRead,
-        setPostRead: (postId: string, isRead: boolean): void => {
-          this.setState({
-            postsRead: {...this.state.postsRead, [postId]: isRead}
-          })
-        },
-        tagsRead: this.state.tagsRead,
-        setTagRead: (tagId: string, isRead: boolean): void => {
-          this.setState({
-            tagsRead: {...this.state.tagsRead, [tagId]: isRead}
-          })
-        },
-      }}>
-      <TableOfContentsContext.Provider value={this.setToC}>
+      <TimezoneWrapper>
+      <ItemsReadContextWrapper>
+      <SidebarsWrapper>
+      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
@@ -310,27 +246,34 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
+              <IntercomWrapper/>
 
-              {/* Sign up user for Intercom, if they do not yet have an account */}
-              {!currentRoute?.standalone && showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              
               {!currentRoute?.standalone && <Header
-                toc={this.state.toc}
-                searchResultsArea={this.searchResultsAreaRef}
+                searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
-                toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={Boolean(currentRoute?.fullscreen)}
               />}
+              
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              <div className={classNames({[classes.gridActivated]: shouldUseGridLayout, [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen})}>
-                {standaloneNavigation && <div className={classes.navSidebar}>
-                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
-                </div>}
-                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+              
+              <div className={classNames(classes.standaloneNavFlex, {
+                [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
+                [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
+              )}>
+                {standaloneNavigation && <NavigationStandalone
+                  sidebarHidden={hideNavigationSidebar}
+                  unspacedGridLayout={unspacedGridLayout}
+                  className={classes.standaloneNav}
+                />}
+                <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                 })}>
                   <ErrorBoundary>
@@ -352,25 +295,18 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
           </DialogManager>
         </div>
       </CommentOnSelectionPageWrapper>
-      </TableOfContentsContext.Provider>
-      </ItemsReadContext.Provider>
-      </TimezoneContext.Provider>
+      </DisableNoKibitzContext.Provider>
+      </SidebarsWrapper>
+      </ItemsReadContextWrapper>
+      </TimezoneWrapper>
       </UserContext.Provider>
       </AnalyticsContext>
     )
-  }
+  };
+  return render();
 }
 
-const LayoutComponent = registerComponent<ExternalProps>(
-  'Layout', Layout, { styles, hocs: [
-    withLocation, withCookies,
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'UsersCurrent',
-    }),
-    withTheme()
-  ]}
-);
+const LayoutComponent = registerComponent('Layout', Layout, {styles});
 
 declare global {
   interface ComponentTypes {

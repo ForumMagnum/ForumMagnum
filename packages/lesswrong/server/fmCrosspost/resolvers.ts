@@ -4,6 +4,7 @@ import { crosspostUserAgent } from "../../lib/apollo/links";
 import Users from "../../lib/collections/users/collection";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
 import { ApiError, UnauthorizedError } from "./errors";
+import { validateCrosspostingKarmaThreshold } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { signToken } from "./tokens";
 import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
@@ -36,7 +37,7 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   if (isLeft(validatedResponse)) {
     // eslint-disable-next-line no-console
     console.error("Cross-site request failed:", json);
-    throw new ApiError(500, onErrorMessage);    
+    throw new ApiError(500, onErrorMessage);
   }
   
   return validatedResponse.right;
@@ -47,9 +48,13 @@ const crosspostResolvers = {
     connectCrossposter: async (
       _root: void,
       {token}: ConnectCrossposterArgs,
-      {req}: ResolverContext,
+      {req, currentUser}: ResolverContext,
     ) => {
       const localUserId = getUserId(req);
+
+      // Throws an error if user doesn't have enough karma on the receiving forum (which is the current execution environment)
+      validateCrosspostingKarmaThreshold(currentUser);
+
       const {foreignUserId} = await makeCrossSiteRequest(
         'connectCrossposter',
         {token, localUserId},
