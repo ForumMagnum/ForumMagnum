@@ -199,7 +199,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
               truncated
               nestingLevel={1}
               comment={comment}
-              treeOptions={{...treeOptions, hideReply: true, forceNotSingleLine: true}}
+              treeOptions={{...treeOptions, hideReply: true, forceSingleLine: false, forceNotSingleLine: true}}
               hoverPreview
             />
           </div>

@@ -115,6 +115,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "$sideCommentMeta &": {
       flexGrow: 1,
+      whiteSpace: "nowrap",
       textOverflow: "ellipsis",
       flexShrink: 1,
       display: "inline-block",
