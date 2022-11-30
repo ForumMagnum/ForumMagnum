@@ -379,11 +379,11 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]
       const excludedPower = selfVoteAdjustment?.excludedPower || 0;
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
-      
+
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
-        voteCount: sumBy(revisionsByThisUser, r=>r.voteCount) - excludedVoteCount,
+        voteCount: sumBy(revisionsByThisUser, r=>r.voteCount ?? 0) - excludedVoteCount,
       };
     }
   );

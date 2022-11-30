@@ -592,7 +592,7 @@ const TagSubforumPage2 = ({classes}: {
             tagCommentType={"SUBFORUM"}
             successCallback={refetch}
             type="reply" // required to make the Cancel button appear
-            enableGuidelines={false}
+            enableGuidelines={true}
             cancelCallback={() => setNewDiscussionOpen(false)}
           />
         </div>
