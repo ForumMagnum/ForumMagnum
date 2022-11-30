@@ -77,7 +77,7 @@ const PostCollaborationEditor = ({ classes }: {
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
   if (canUserEditPostMetadata(currentUser, post)) {
-      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
+      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
   }
 
   // If the post has a link-sharing key which is not in the URL, redirect to add

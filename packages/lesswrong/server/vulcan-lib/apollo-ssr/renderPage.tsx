@@ -90,14 +90,14 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
-      userId: user._id,
+      userId: user?._id,
       timings: rendered.timings,
       cached: false,
       abTestGroups: rendered.allAbTestGroups,
       ip
     });
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
+    console.log(`Rendered ${url} for ${user?.username ?? `logged out ${ip}`}: ${printTimings(rendered.timings)}`);
     
     return {
       ...rendered,
