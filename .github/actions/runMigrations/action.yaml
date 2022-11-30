@@ -7,6 +7,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+
     - name: Run migrations
       shell: bash
       env:
