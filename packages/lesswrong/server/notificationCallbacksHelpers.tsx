@@ -18,7 +18,6 @@ import { createMutator } from './vulcan-lib/mutators';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
 import Localgroups from '../lib/collections/localgroups/collection';
-import { ReviewVotes } from '../lib/collections/reviewVotes/collection';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
