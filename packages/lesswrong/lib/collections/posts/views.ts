@@ -5,7 +5,7 @@ import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionI
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
-import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
+import { postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
@@ -340,7 +340,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
               else: 0
             }}
           )),
-          ...defaultScoreModifiers(),
+          ...postScoreModifiers(),
           ...frontpageSoftFilter,
         ]},
         ...tagsSoftFiltered.map(t => (
