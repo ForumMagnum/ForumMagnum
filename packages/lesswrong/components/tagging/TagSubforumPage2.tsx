@@ -535,7 +535,7 @@ const TagSubforumPage2 = ({classes}: {
     <ContentStyles contentType="tag" key={`welcome_box`}>
       <div className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
     </ContentStyles>
-  ) : <></>;
+  ) : null;
   const rightSidebarComponents = [
     welcomeBoxComponent,
     <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
