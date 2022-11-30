@@ -17,6 +17,7 @@ jobs:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - run: pip3 install --upgrade pip awsebcli
     - name: Run Migrations
+      if: github.ref == 'refs/heads/master'
       uses: ./.github/actions/runMigrations
       with:
         pg-url: ${{ secrets.CEA_STAGING_PG_URL }}
