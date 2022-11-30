@@ -8,6 +8,7 @@ runs:
   using: composite
   steps:
     - name: Run migrations
+      shell: bash
       env:
         PG_URL: ${{ inputs.pg-url }}
       run: yarn migrate up
