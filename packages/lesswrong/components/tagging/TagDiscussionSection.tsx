@@ -35,6 +35,7 @@ const TagDiscussionSection = ({classes, tag}: {
       commentCount={(results?.length) || 0}
       loadingMoreComments={loadingMore}
       newForm={true}
+      newFormProps={{enableGuidelines: false}}
     />
   );
 }
