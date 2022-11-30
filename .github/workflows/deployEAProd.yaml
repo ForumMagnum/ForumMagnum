@@ -7,10 +7,10 @@ on:
   push:
     branches: [ ea-deploy ]
 jobs:
-  deploy: 
+  deploy:
     runs-on: ubuntu-latest
     strategy:
-      matrix: 
+      matrix:
         node-version: [18.x]
         environment: [EAForum-Production-2]
     steps:
@@ -19,9 +19,13 @@ jobs:
       with:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - run: pip3 install --upgrade pip awsebcli
+    - name: Run Migrations
+      uses: ./.github/actions/runMigrations
+      with:
+        pg-url: ${{ secrets.CEA_PROD_PG_URL }}
     - name: Run Deploy
       run: scripts/deploy.sh EAForum ${{ matrix.environment }}
-      env: 
+      env:
         AWS_ACCESS_KEY_ID: ${{ secrets.CEA_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.CEA_AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: "us-east-1"
