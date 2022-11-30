@@ -2,7 +2,7 @@ import { DatabasePublicSetting } from './publicSettings';
 
 /**
  * We apply a score boost to subforum comments using the formula:
- *   max(b, m * (1 - (x / d) ** p))
+ *   max(b, m * (1 - ((x / d) ** p)))
  * where b is the base (the minimum boost received after the duration
  * has expired), m is the magnitude (the maximum boost when the comment
  * is first posted), d is the duration in hours, p is the exponent
@@ -45,7 +45,7 @@ const getSubforumCommentBonus = (item: VoteableType) => {
     const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
     const createdAt = (item as any).createdAt ?? new Date();
     const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
-    return Math.max(base, magnitude * (1 - (ageHours / duration) ** exponent));
+    return Math.max(base, magnitude * (1 - ((ageHours / duration) ** exponent)));
   }
   return 0;
 }
