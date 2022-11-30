@@ -18,7 +18,7 @@ export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR}
 
 export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 
-export function getReviewPhase(): ReviewPhase | void {
+export function getReviewPhase(): ReviewPhase | undefined {
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
 
@@ -26,11 +26,11 @@ export function getReviewPhase(): ReviewPhase | void {
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return
+  if (currentDate < reviewStart) return undefined
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
   if (currentDate < reviewEnd) return "VOTING"
-  return
+  return undefined
 }
 
 /** Is there an active review taking place? */
