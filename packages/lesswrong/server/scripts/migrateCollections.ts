@@ -9,6 +9,7 @@ import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
 import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
+import { omit } from "lodash";
 
 type Transaction = ITask<{}>;
 
@@ -30,8 +31,28 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
   },
 };
 
-const getCollectionFormatter = (collection: SwitchingCollection<DbObject>) =>
-  formatters[collection.getName()] ?? ((document: DbObject) => document);
+type DbObjectWithLegacyData = DbObject & {legacyData?: any};
+
+const getLegacyData = (fieldNames: string[], data: DbObjectWithLegacyData) => {
+  const legacyData = omit(data, fieldNames);
+  return Object.keys(legacyData).length ? legacyData : undefined;
+}
+
+const getCollectionFormatter = (collection: SwitchingCollection<DbObject>) => {
+  const fieldNames = Object.keys(collection.getPgCollection().table.getFields());
+  const formatter = formatters[collection.getName()] ?? ((document: DbObject) => document);
+  return (document: DbObjectWithLegacyData) => {
+    const legacyData = getLegacyData(fieldNames, document);
+    if (legacyData) {
+      if (document.legacyData) {
+        Object.assign(document.legacyData, legacyData);
+      } else {
+        document.legacyData = legacyData;
+      }
+    }
+    return formatter(document);
+  };
+}
 
 const createTables = async (sql: Transaction, collections: SwitchingCollection<DbObject>[]) => {
   console.log("...Creating tables");
