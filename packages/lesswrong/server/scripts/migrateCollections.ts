@@ -9,7 +9,7 @@ import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
 import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
-import { omit } from "lodash";
+import omit from "lodash/omit";
 
 type Transaction = ITask<{}>;
 
