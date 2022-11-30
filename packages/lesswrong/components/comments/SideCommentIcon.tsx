@@ -36,6 +36,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.icon.dim5,
     }
   },
+  clickToPinMessage: {
+    position: "absolute",
+    display: "inline-block",
+    top: -2, left: 28,
+    fontSize: 13,
+    color: theme.palette.text.dim45,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
   extendHoverTarget: {
     position: "absolute",
     top: 0, left: 0,
@@ -57,14 +65,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom:8,
     paddingTop: 4,
   },
+  badge: {
+    fontSize: 12,
+    color: theme.palette.text.dim45,
+  },
 });
 
-const BadgeWrapper = ({commentCount, children}: {
+const BadgeWrapper = ({commentCount, classes, children}: {
   commentCount: number,
+  classes: ClassesType,
   children: React.ReactNode
 }) => {
   if (commentCount>1) {
-    return <Badge badgeContent={commentCount}>{children}</Badge>
+    return <Badge
+      classes={{ badge: classes.badge }}
+      badgeContent={commentCount}
+    >{children}</Badge>
   } else {
     return <>{children}</>
   }
@@ -77,7 +93,6 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 }) => {
   const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
-  const iconRef = useRef<HTMLSpanElement|null>(null);
   const {sideCommentsActive, setSideCommentsActive} = useContext(SidebarsContext)!;
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -99,9 +114,11 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       setPinned("auto");
   }
   const onClickAway = (ev) => {
-    const isClickOnIcon = some(ev.path, e=>e===iconRef.current);
-    if (!isClickOnIcon)
-      setPinned("auto")
+    // FIXME: ev.path is somehow browser specific
+    const isClickOnIcon = some(ev.composedPath(), e=>e.hasClass(classes.sideCommentIcon));
+    if (!isClickOnIcon) {
+      setPinned("auto");
+    }
   }
   
   const isOpen = (pinned==="open" || (pinned==="auto" && hover));
@@ -111,12 +128,14 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   >
     <span {...eventHandlers}
       onClick={onClick}
-      ref={iconRef}
       className={classes.sideCommentIcon}
     >
-      <BadgeWrapper commentCount={commentIds.length}>
+      <BadgeWrapper commentCount={commentIds.length} classes={classes}>
         <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
       </BadgeWrapper>
+      {isOpen && <span className={classes.clickToPinMessage}>
+        Click to {pinned==="open" ? "close" : "pin"}
+      </span>}
       {isOpen && <span className={classes.extendHoverTarget}/>}
     </span>
     {isOpen && <ClickAwayListener onClickAway={onClickAway}>
@@ -140,22 +159,27 @@ const SideCommentHover = ({commentIds, post, classes}: {
 }) => {
   const { SideCommentSingle } = Components;
   
-  // FIXME: z-index issues with comment menus
+  // If there's only one comment (not counting replies to that comment), don't
+  // truncate it with a read more.
+  const dontTruncateRoot = (commentIds.length === 1); 
+  
   return <div className={classes.sideCommentHover}>
     {commentIds.map(commentId =>
       <SideCommentSingle
         key={commentId}
         commentId={commentId}
         post={post}
+        dontTruncateRoot={dontTruncateRoot}
       />
     )}
   </div>
 }
 
-const SideCommentSingle = ({commentId, post, classes}: {
+const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
   commentId: string,
   post: PostsDetails,
   classes: ClassesType,
+  dontTruncateRoot?: boolean,
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
@@ -221,6 +245,7 @@ const SideCommentSingle = ({commentId, post, classes}: {
           hideActionsMenu: true,
           isSideComment: true,
         },
+        ...(dontTruncateRoot ? {expandByDefault: true} : {}),
       }}
     />
   </div>
