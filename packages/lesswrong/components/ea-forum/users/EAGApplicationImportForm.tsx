@@ -283,8 +283,9 @@ const EAGApplicationImportForm = ({classes}: {
     // 'organizerOfGroupIds', // TODO: implement later - for the first release I decided this wasn't worth the effort to include
     'mapLocation',
     'linkedinProfileURL',
-  ]
+  ] as const
   // formValues holds the state of the form EXCEPT for CKEditor fields, which have their own state
+  // TODO: pick should be correctly typed, but it can't be right now because currentUser can be null
   const [formValues, setFormValues] = useState(pick(currentUser, formFields))
 
   // these are used to access CKEditor fields, to copy over the imported data
@@ -681,7 +682,7 @@ const EAGApplicationImportForm = ({classes}: {
       <div className={classes.formRow}>
         <label className={classes.label}>LinkedIn profile</label>
         <PrefixedInput
-          value={formValues.linkedinProfileURL}
+          value={formValues.linkedinProfileURL ?? ''}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
           path="linkedinProfileURL"
           updateCurrentValues={handleUpdateValue}
