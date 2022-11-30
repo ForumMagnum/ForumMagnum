@@ -4,22 +4,35 @@ import Button from '@material-ui/core/Button'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import CloseIcon from '@material-ui/icons/Close'
 import InfoIcon from '@material-ui/icons/Info'
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 import { useTracking } from '../../lib/analyticsEvents';
 import Tooltip from '@material-ui/core/Tooltip';
+import TextField from '@material-ui/core/TextField';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    maxHeight: 1200, // This is to make the close transition work
     display: 'flex',
     alignItems: 'flex-start',
     columnGap: 20,
     background: theme.palette.panelBackground.default,
     fontFamily: theme.typography.fontFamily,
     padding: '6px 15px 10px 20px',
-    marginTop: 2,
     [theme.breakpoints.down('xs')]: {
       columnGap: 12,
       padding: '6px 10px',
     }
+  },
+  rootClosed: {
+    opacity: 0,
+    visibility: 'hidden',
+    paddingTop: 0,
+    paddingBottom: 0,
+    maxHeight: 0,
+    transitionProperty: 'opacity, visibility, padding-top, padding-bottom, max-height',
+    transitionDuration: '0.5s',
   },
   logo: {
     flex: 'none',
@@ -43,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
   },
   label: {
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
     flexGrow: 1,
     display: 'flex',
     columnGap: 8,
@@ -79,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 18,
     color: theme.palette.grey[700],
-    margin: '0 0 3px'
+    margin: '3px 0'
   },
   link: {
     color: theme.palette.primary.main
@@ -101,6 +114,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
   },
   readMore: {
+    display: 'flex',
+    alignItems: 'center',
     fontFamily: theme.typography.fontFamily,
     background: 'none',
     color: theme.palette.primary.main,
@@ -109,6 +124,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 0.5
     },
+  },
+  readMoreIcon: {
+    fontSize: 18
   },
   description: {
     maxWidth: 570,
@@ -130,7 +148,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 10
   },
   btnRow: {
-    marginBottom: 4
+    display: 'flex',
+    flexWrap: 'wrap',
+    columnGap: 16,
+    rowGap: '12px',
+    alignItems: 'baseline',
+    marginBottom: 6
+  },
+  input: {
+    maxWidth: '100%',
+    width: 400
   },
   btn: {
     textTransform: 'none',
@@ -138,8 +165,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const jobAdData = {
+export const JOB_AD_DATA = {
   'research-givewell': {
+    tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
     logo: 'https://80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
     occupation: 'research',
     feedbackLinkPrefill: 'Senior+Research+Associate+at+GiveWell',
@@ -167,33 +195,142 @@ const jobAdData = {
         </ul>
       </div>
     </>
-  }
+  },
+  'research-effective-giving': {
+    tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
+    logo: 'https://80000hours.org/wp-content/uploads/2019/12/effective-giving-160x160.png',
+    occupation: 'research',
+    feedbackLinkPrefill: 'Biosecurity+Program+Associate+at+Effective+Giving',
+    bitlyLink: "https://efctv.org/3A16UNq",
+    role: 'Biosecurity Program Associate',
+    org: 'Effective Giving',
+    orgSlug: 'effective-giving-organization',
+    salary: '€50k+',
+    location: 'Remote (Euro-centric)',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://www.effectivegiving.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Effective Giving
+        </a> is a philanthropic advisory and <span className={classes.link}>
+          <Components.HoverPreviewLink href="/topics/grantmaking" innerHTML="grantmaking"/>
+        </span> organization.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates:
+        <ul>
+          <li>Have academic or professional experience from a relevant field, such as medicine, biotechnology, public health, or engineering</li>
+          <li>Have a high-level understanding of the biosecurity field, including context around existing organizations and efforts</li>
+          <li>Have excellent written (English) communication</li>
+        </ul>
+      </div>
+    </>
+  },
+  'people-ops-open-phil': {
+    tagId: 'CGameg7coDgLbtgdH',//TODO: delete
+    logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
+    occupation: 'people operations',
+    feedbackLinkPrefill: 'People+Operations+Generalist+at+Open+Philanthropy',
+    bitlyLink: "https://efctv.org/3A16UNq",
+    role: 'People Operations Generalist',
+    org: 'Open Philanthropy',
+    orgSlug: 'open-philanthropy',
+    salary: '$104k+',
+    location: 'Remote (US-centric)',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Open Philanthropy
+        </a> is a research and <span className={classes.link}>
+          <Components.HoverPreviewLink href="/topics/grantmaking" innerHTML="grantmaking"/>
+        </span> organization.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates:
+        <ul>
+          <li>Have at least 2-3 years of operations experience</li>
+          <li>Have a track record of taking on poorly scoped projects and proactively getting them over the finish line</li>
+          <li>Are intensely detail-oriented</li>
+        </ul>
+      </div>
+    </>
+  },
 }
 
-const TargetedJobAd = ({ad, handleDismiss, onExpand, handleRegisterInterest, classes}: {
+const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, classes}: {
   ad: string,
-  handleDismiss: () => void,
+  onDismiss: () => void,
   onExpand: () => void,
-  handleRegisterInterest: () => void,
+  onInterested: () => void,
+  onUninterested: (reason?: string) => void,
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking()
+  // expand/collapse the ad contents
   const [expanded, setExpanded] = useState(false)
+  // if the user says this doesn't match their interests, replace the main CTA to ask them why
+  const [showUninterestedForm, setShowUninterestedForm] = useState(false)
+  // clicking either "interested" or "uninterested" will close the ad
+  const [closed, setClosed] = useState(false)
   
-  const handleReadMore = () => {
+  const handleExpand = () => {
     captureEvent('expandJobAd')
     setExpanded(true)
     onExpand()
   }
   
+  const handleInterested = () => {
+    setClosed(true)
+    onInterested()
+  }
+  
+  const handleUninterested = (reason?: string) => {
+    setShowUninterestedForm(true)
+    onUninterested(reason)
+  }
+  
+  const handleSubmitUninterestedReason = (e) => {
+    e.preventDefault()
+    setClosed(true)
+    onUninterested(e.target.uninterestedReason.value)
+  }
+  
   const { HoverPreviewLink, LWTooltip } = Components
   
-  const adData = jobAdData[ad]
+  const adData = JOB_AD_DATA[ad]
   if (!adData) {
     return null
   }
+  
+  // standard CTA, asking if the user is interested in this role
+  let ctaSection = <>
+    <div className={classes.prompt}>
+      If you're interested in this role, would you like us to pass along your email address and EA Forum profile to the hiring manager?
+    </div>
+    <div className={classes.btnRow}>
+      <Button variant="contained" color="primary" onClick={handleInterested} className={classes.btn}>
+        Yes, I'm interested
+      </Button>
+      <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
+        No, this doesn't match my interests
+      </Button>
+    </div>
+  </>
+  // if the user said they were uninterested in the role, instead prompt them to tell us why
+  if (showUninterestedForm) {
+    ctaSection = <form onSubmit={handleSubmitUninterestedReason}>
+      <div className={classes.prompt}>
+        Why doesn't this role match your interests?
+      </div>
+      <div className={classes.btnRow}>
+        <TextField name="uninterestedReason" className={classes.input} />
+        <Button type="submit" variant="contained" color="primary" className={classes.btn}>
+          Submit
+        </Button>
+      </div>
+    </form>
+  }
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, {[classes.rootClosed]: closed})}>
       <img src={adData.logo} className={classes.logo} />
       <div className={classes.bodyCol}>
         <div className={classes.topRow}>
@@ -219,7 +356,7 @@ const TargetedJobAd = ({ad, handleDismiss, onExpand, handleRegisterInterest, cla
             </a>
           </div>
           <Tooltip title="Dismiss">
-            <Button className={classes.closeButton} onClick={handleDismiss}>
+            <Button className={classes.closeButton} onClick={onDismiss}>
               <CloseIcon className={classes.closeIcon} />
             </Button>
           </Tooltip>
@@ -241,19 +378,15 @@ const TargetedJobAd = ({ad, handleDismiss, onExpand, handleRegisterInterest, cla
             {adData.location}
           </div>
         </div>
-        {!expanded && <button onClick={handleReadMore} className={classes.readMore}>Read more</button>}
+        {!expanded ? <button onClick={handleExpand} className={classes.readMore}>
+          <ChevronRight className={classes.readMoreIcon} /> Expand
+        </button> : <button onClick={() => setExpanded(false)} className={classes.readMore}>
+          <ExpandMore className={classes.readMoreIcon} /> Collapse
+        </button>}
         
         {expanded && <>
           {adData.getDescription(classes)}
-          <div className={classes.prompt}>
-            If you're interested in this role, would you like us to pass along your email address and EA Forum profile to the hiring manager?
-          </div>
-          <div className={classes.btnRow}>
-            <Button variant="contained" color="primary" onClick={handleRegisterInterest} className={classes.btn}>
-              Yes, I'm interested
-            </Button>
-          </div>
-          <button onClick={() => setExpanded(false)} className={classes.readMore}>Show less</button>
+          {ctaSection}
         </>}
       </div>
     </div>

@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
-import { useTracking } from '../../lib/analyticsEvents';
+import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useCookies } from 'react-cookie';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { JOB_AD_DATA } from './TargetedJobAd';
 
 const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
 // const RESEARCH_TAG_ID = 'hxRMaKvwGqPb43TWB'
@@ -15,9 +16,12 @@ const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
 // for testing purposes, this points to the "Forecasting" topic on the dev db
 const RESEARCH_TAG_ID = 'CGameg7coDgLbtgdH'
 
+
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking()
+  // we track when the user has seen the ad
+  const { setNode, entry } = useIsInView()
   const { flash } = useMessages()
   const [cookies, setCookie] = useCookies([HIDE_JOB_AD_COOKIE])
   
@@ -31,41 +35,76 @@ const TargetedJobAdSection = () => {
     collectionName: 'AdvisorRequests',
     fragmentName: 'AdvisorRequestsMinimumInfo',
   })
-  const { results, loading } = useMulti({
+  const { results } = useMulti({
     terms: {view: 'requestsByUser', userId: currentUser?._id, limit: 1},
     collectionName: 'AdvisorRequests',
     fragmentName: 'AdvisorRequestsMinimumInfo',
     skip: !currentUser
   })
   
-  // show the ad to any users interested in research
-  const showJobAd = currentUser?.profileTagIds?.includes(RESEARCH_TAG_ID) ||
-    (results && ['queued', 'seen', 'expanded'].includes(results[0].jobAds['research-givewell']?.state))
-
-  // track which users have seen the ad
+  // we only advertise one job per page view
+  const [activeJob, setActiveJob] = useState<string>()
+  
+  /**
+   * check if we should show the given job's ad
+   */
+  const shouldShowJob = (jobName: string, userTags: string[], userJobAds, occupationTag?: string) => {
+    const jobAdState = userJobAds[jobName]?.state
+    // user qualifies for ad, hasn't seen it before
+    if (!jobAdState && occupationTag && userTags.includes(occupationTag)) return true
+    // user qualifies for ad, has seen it before, but hasn't interacted with CTA section
+    if (['queued', 'seen', 'expanded'].includes(jobAdState)) return true
+    // user either doesn't qualify, or has already clicked the "interested" or "uninterested" CTA
+    return false
+  }
+  
+  // select a job ad to show to the current user
   useEffect(() => {
-    if (!currentUser || loading || !results || !showJobAd) return
+    if (!currentUser || !results || activeJob) return
+    
+    const userTags = currentUser.profileTagIds ?? []
+    const userJobAds = results.length ? results[0].jobAds : {}
+    
+    for (let jobName in JOB_AD_DATA) {
+      if (shouldShowJob(jobName, userTags, userJobAds, JOB_AD_DATA[jobName].tagId)) {
+        setActiveJob(jobName)
+        return
+      }
+    }
+    
+  }, [currentUser, results, activeJob])
+
+  // record when this user has seen the selected ad
+  useEffect(() => {
+    console.log('entry', entry)
+    console.log('isIntersecting', entry?.isIntersecting)
+    console.log('isVisible', entry?.isVisible)
+    console.log('activeJob', activeJob)
+    if (!currentUser || !results || !activeJob || !entry?.isIntersecting) return
 
     // if we're not tracking this user at all, start tracking them
-    if (!results.length && showJobAd) {
+    if (!results.length) {
       void createJobAdView({
         data: {
           userId: currentUser._id,
-          jobAds: {'research-givewell': {state: 'seen', lastUpdated: new Date()}}
+          jobAds: {[activeJob]: {state: 'seen', lastUpdated: new Date()}}
         }
       })
       return
     }
     // if this user hadn't seen this job ad before, mark them as having seen it
-    const jobAdState = results[0].jobAds['research-givewell']?.state
+    const jobAdState = results[0].jobAds[activeJob]?.state
     if (!jobAdState || jobAdState === 'queued') {
       void updateJobAds({
         selector: {_id: results[0]._id},
-        data: {jobAds: {'research-givewell': {state: 'seen', lastUpdated: new Date()}}}
+        data: {jobAds: {
+          ...results[0].jobAds,
+          [activeJob]: {state: 'seen', lastUpdated: new Date()}
+        }}
       })
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, currentUser, showJobAd])
+  }, [currentUser, results, activeJob, entry])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
@@ -77,36 +116,57 @@ const TargetedJobAdSection = () => {
   }
   
   const handleExpand = () => {
-    if (!currentUser || !results?.length) return
+    if (!currentUser || !results?.length || !activeJob) return
     // track which users have expanded the ad
     void updateJobAds({
       selector: {_id: results[0]._id},
-      data: {jobAds: {'research-givewell': {state: 'expanded', lastUpdated: new Date()}}}
+      data: {jobAds: {
+        ...results[0].jobAds,
+        [activeJob]: {state: 'expanded', lastUpdated: new Date()}
+      }}
     })
   }
   
-  const handleRegisterInterest = async () => {
-    if (!currentUser || !results?.length) return
+  const handleInterested = async () => {
+    if (!currentUser || !results?.length || !activeJob) return
     // track which users have registered interest
     await updateJobAds({
       selector: {_id: results[0]._id},
-      data: {jobAds: {'research-givewell': {state: 'interested', lastUpdated: new Date()}}}
+      data: {jobAds: {
+        ...results[0].jobAds,
+        [activeJob]: {state: 'interested', lastUpdated: new Date()}
+      }}
     })
     flash({messageString: "Thanks for registering interest!", type: "success"})
   }
   
+  const handleUninterested = (uninterestedReason?: string) => {
+    if (!currentUser || !results?.length || !activeJob) return
+    // track which users have said they are uninterested
+    void updateJobAds({
+      selector: {_id: results[0]._id},
+      data: {jobAds: {
+        ...results[0].jobAds,
+        [activeJob]: {state: 'uninterested', uninterestedReason, lastUpdated: new Date()}
+      }}
+    })
+  }
+  
   const { TargetedJobAd } = Components
   
-  if (loading || (results?.length && results[0].interestedInMetaculus) || cookies[HIDE_JOB_AD_COOKIE] || !showJobAd) {
+  if (cookies[HIDE_JOB_AD_COOKIE] || !activeJob) {
     return null
   }
   
-  return <TargetedJobAd
-    ad="research-givewell"
-    handleDismiss={dismissJobAd}
-    onExpand={handleExpand}
-    handleRegisterInterest={handleRegisterInterest}
-  />
+  return <div ref={setNode}>
+    <TargetedJobAd
+      ad={activeJob}
+      onDismiss={dismissJobAd}
+      onExpand={handleExpand}
+      onInterested={handleInterested}
+      onUninterested={handleUninterested}
+    />
+  </div>
 }
 
 const TargetedJobAdSectionComponent = registerComponent("TargetedJobAdSection", TargetedJobAdSection);
