@@ -300,7 +300,7 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
     {showFrontpageItems && <LatestReview/>}
     {allPhaseButtons}
     <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
-      <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
+      <Link to={`/votesByYear/${REVIEW_YEAR}`} className={classes.actionButton}>
         <span>
           <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{REVIEW_YEAR} Upvotes
         </span>
@@ -321,7 +321,7 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
         <li>Start writing reviews.</li>
       </ul>
       </div>}>
-      <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
+      <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
         Vote on <span className={classes.hideOnMobile}>nominated</span> posts
       </Link>
     </LWTooltip>}

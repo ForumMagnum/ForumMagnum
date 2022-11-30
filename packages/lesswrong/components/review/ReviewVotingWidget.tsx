@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
-import { eligibleToNominate, REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
+import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { overviewTooltip } from './FrontpageReviewWidget';
@@ -42,7 +42,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     score: number
   }) => {
     if (setNewVote) setNewVote(score)
-    return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
   }, [submitVote, setNewVote]);
 
   if (!eligibleToNominate(currentUser)) return null

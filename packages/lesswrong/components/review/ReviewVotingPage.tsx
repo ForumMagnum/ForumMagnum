@@ -20,8 +20,6 @@ import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
-const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
-
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
