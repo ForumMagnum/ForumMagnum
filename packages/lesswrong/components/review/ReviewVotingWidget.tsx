@@ -42,7 +42,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     score: number
   }) => {
     if (setNewVote) setNewVote(score)
-    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR.toString(), dummy: false}})
   }, [submitVote, setNewVote]);
 
   if (!eligibleToNominate(currentUser)) return null
