@@ -126,23 +126,65 @@ function handleAutomodAction(triggerAction: boolean, userId: string, actionType:
   }
 }
 
+/**
+ * WARNING: assumes that the input actions are already sorted by createdAt descending
+ */
+function getLastActionEndedAt(actions: DbModeratorAction[], actionType: DbModeratorAction['type']) {
+  return actions.find(action => action.type === actionType)?.endedAt;
+}
+
+function getUnmoderatedContent(content: (DbPost | DbComment)[], lastActionEndedAt?: Date | null) {
+  return lastActionEndedAt
+    ? content.filter(item => item.postedAt > lastActionEndedAt)
+    : content;
+}
+
+/**
+ * recently downvoted content:
+ * - if active, disable if no longer meets condition
+ * - if inactive, condition should only check content (both posts & comments) from after the last endedAt
+ * 
+ * low average karma:
+ * - if active, disable if no longer meets condition
+ * - if inactive, condition should only check content (whichever one matches the action type) from after the last endedAt
+ */
 export async function triggerAutomodIfNeededForUser(user: DbUser) {
   const userId = user._id;
+
 
   const lowUserKarma = user.karma < -5;
   handleAutomodAction(lowUserKarma, userId, NEGATIVE_KARMA_USER_ALERT);
 
-  const [latestComments, latestPosts] = await Promise.all([
+  const [userModeratorActions, latestComments, latestPosts] = await Promise.all([
+    // Sort by createdAt descending so that `.find` returns the most recent one matching the condition
+    ModeratorActions.find({ userId }, { sort: { createdAt: -1 } }).fetch(),
     Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
     Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20 }).fetch()
   ]);
 
+  // Get the `endedAt` of the most recently-created action of each type
+  // We don't care about the distinction between an active action with no `endedAt` and the user not having that type of action at all
+  // We'll check that distinction later in `triggerModerationAction`, if necessary
+  // Also, we want to be able to disable active actions on the basis of recent content getting upvoted
+  // That would be impossible if we filtered it out
+  const downvotedContentActionEndedAt = getLastActionEndedAt(userModeratorActions, RECENTLY_DOWNVOTED_CONTENT_ALERT);
+  const lowAvgKarmaCommentEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_COMMENT_ALERT);
+  const lowAvgKarmaPostEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_POST_ALERT);
+
   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
+
+  // Remove the most recent content item for each rule
+  // Since posts & comments start by default without much karma, they artificially down-weight averages
+  latestComments.shift();
+  latestPosts.shift();
+
+  const unmoderatedVoteableContent = getUnmoderatedContent(voteableContent, downvotedContentActionEndedAt);
+  const unmoderatedLatestComments = getUnmoderatedContent(latestComments, lowAvgKarmaCommentEndedAt);
+  const unmoderatedLatestPosts = getUnmoderatedContent(latestPosts, lowAvgKarmaPostEndedAt);
   
-  // TODO: vary threshold based on other user info (i.e. age/karma/etc)?
-  const lowQualityContent = isRecentlyDownvotedContent(voteableContent);
-  const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(latestComments, 'comment');
-  const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(latestPosts, 'post');
+  const lowQualityContent = isRecentlyDownvotedContent(unmoderatedVoteableContent);
+  const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(unmoderatedLatestComments, 'comment');
+  const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(unmoderatedLatestPosts, 'post');
 
   handleAutomodAction(lowQualityContent, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
   handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
