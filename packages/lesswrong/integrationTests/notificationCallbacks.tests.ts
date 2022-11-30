@@ -1,5 +1,7 @@
 import "./integrationTestSetup";
 import ReviewVotes from "../lib/collections/reviewVotes/collection";
+import { Collections } from "../lib/vulcan-lib";
+console.log({ Collections, ReviewVotes })
 import { createDummyPost, createDummyLocalgroup } from "./utils";
 import { postsNewNotifications } from "../server/notificationCallbacks";
 import { createNotifications } from "../server/notificationCallbacksHelpers";
