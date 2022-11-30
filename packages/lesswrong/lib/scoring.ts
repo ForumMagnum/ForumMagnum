@@ -1,31 +1,51 @@
 import { DatabasePublicSetting } from './publicSettings';
 
+/**
+ * We apply a score boost to subforum comments using the formula:
+ *   max(b, m * (1 - (x / d) ** p))
+ * where b is the base (the minimum boost received after the duration
+ * has expired), m is the magnitude (the maximum boost when the comment
+ * is first posted), d is the duration in hours, p is the exponent
+ * (defining the dropoff curve), and x is the elapsed time since the
+ * comment was posted in hours.
+ */
+const defaultSubforumCommentBonus = {
+  base: 5,
+  magnitude: 100,
+  duration: 8,
+  exponent: 0.3,
+} as const;
+
+type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
+
 const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)
 const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10)
 const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10)
-const subforumCommentBoostSetting = new DatabasePublicSetting<number>('subforumCommentScoreBonus', 20);
-const subforumCommentBoostHoursSetting = new DatabasePublicSetting<number>('subforumCommentScoreBonusHours', 8);
+const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBonus>(
+  'subforumCommentBonus',
+  defaultSubforumCommentBonus,
+);
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
 export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
 
-const getSubforumScoreBoost = () => {
-  return {
-    magnitude: subforumCommentBoostSetting.get(),
-    durationHours: subforumCommentBoostHoursSetting.get(),
-  };
+const getSubforumScoreBoost = (): SubforumCommentBonus => {
+  const defaultBonus = {...defaultSubforumCommentBonus};
+  const bonus = subforumCommentBonusSetting.get();
+  return Object.assign(defaultBonus, bonus);
 }
 
+/**
+ * This implements the same formula as commentScoreModifiers below
+ */
 const getSubforumCommentBonus = (item: VoteableType) => {
   if ("tagCommentType" in item && item["tagCommentType"] === "SUBFORUM") {
-    const {magnitude, durationHours} = getSubforumScoreBoost();
+    const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
     const createdAt = (item as any).createdAt ?? new Date();
     const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
-    const factor = -magnitude / (durationHours * durationHours);
-    const bias = factor * (ageHours - durationHours) * (ageHours + durationHours);
-    return Math.max(0, bias);
+    return Math.max(base, magnitude * (1 - (ageHours / duration) ** exponent));
   }
   return 0;
 }
@@ -79,10 +99,12 @@ export const postScoreModifiers = () => {
   ];
 };
 
+/**
+ * This implements the same formula as getSubforumCommentBonus above
+ */
 export const commentScoreModifiers = () => {
-  const {magnitude, durationHours} = getSubforumScoreBoost();
+  const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
 
-  // (Date.now() - createdAt.getTime()) / 3600000
   const ageHoursExpr = {
     $divide: [
       {
@@ -95,31 +117,27 @@ export const commentScoreModifiers = () => {
     ],
   };
 
-  // -magnitude / (durationHours * durationHours);
-  const factorExpr = {
+  const bonusExpr = {
     $multiply: [
+      magnitude,
       {
-        $divide: [
-          {$subtract: [0, magnitude]},
-          durationHours * durationHours,
+        $subtract: [
+          1,
+          {
+            $pow: [
+              {$divide: [ageHoursExpr, duration]},
+              exponent,
+            ],
+          },
         ],
       },
-    ],
-  };
-
-  // factor * (ageHours - durationHours) * (ageHours + durationHours)
-  const biasExpr = {
-    $multiply: [
-      factorExpr,
-      {$subtract: [ageHoursExpr, durationHours]},
-      {$add: [ageHoursExpr, durationHours]},
     ],
   };
 
   return [
     {$cond: {
       if: {tagCommentType: "SUBFORUM"},
-      then: {$max: [0, biasExpr]},
+      then: {$max: [base, bonusExpr]},
       else: 0,
     }},
   ];
