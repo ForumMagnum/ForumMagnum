@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
@@ -78,6 +77,7 @@ interface ContentItemBodyProps extends WithStylesProps {
   // Only Implemented for Tag Hover Previews
   noHoverPreviewPrefetch?: boolean,
   nofollow?: boolean,
+  idInsertions?: Record<string,React.ReactNode>
 }
 interface ContentItemBodyState {
   updatedElements: boolean,
@@ -125,6 +125,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       this.markScrollableLaTeX();
       this.markHoverableLinks();
       this.markElicitBlocks();
+      this.applyIdInsertions();
       this.setState({updatedElements: true})
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
@@ -291,13 +292,34 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     }
   }
   
+  applyIdInsertions = () => {
+    if (!this.props.idInsertions) return;
+    for (let id of Object.keys(this.props.idInsertions)) {
+      const addedElement = this.props.idInsertions[id];
+      const container = document.getElementById(id);
+      // TODO: Check that it's inside this ContentItemBody
+      if (container) this.insertElement(container, <>{addedElement}</>);
+    }
+  }
+  
   replaceElement = (replacedElement: HTMLElement, replacementElement: JSX.Element) => {
     const replacementContainer = document.createElement("span");
+    if (replacementContainer) {
+      this.replacedElements.push({
+        replacementElement: replacementElement,
+        container: replacementContainer,
+      });
+      replacedElement.parentElement?.replaceChild(replacementContainer, replacedElement);
+    }
+  }
+  
+  insertElement = (container: HTMLElement, insertedElement: JSX.Element) => {
+    const insertionContainer = document.createElement("span");
     this.replacedElements.push({
-      replacementElement: replacementElement,
-      container: replacementContainer,
+      replacementElement: insertedElement,
+      container: insertionContainer,
     });
-    replacedElement.parentElement?.replaceChild(replacementContainer, replacedElement);
+    container.prepend(insertionContainer);
   }
 }
 
@@ -305,9 +327,7 @@ const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {
-  styles, hocs: [withUser]
-});
+const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {styles});
 
 declare global {
   interface ComponentTypes {

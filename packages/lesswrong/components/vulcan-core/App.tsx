@@ -127,7 +127,12 @@ class App extends PureComponent<AppProps,any> {
 
     // subscribeLocationContext changes (by shallow comparison) whenever the
     // URL changes.
-    if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
+    // FIXME: Also needs to include changes to hash and to query params
+    if (!this.subscribeLocationContext
+      || this.subscribeLocationContext.pathname != location.pathname
+      || JSON.stringify(this.subscribeLocationContext.query) != JSON.stringify(location.query)
+      || this.subscribeLocationContext.hash != location.hash
+    ) {
       this.subscribeLocationContext = {...location};
     } else {
       Object.assign(this.subscribeLocationContext, location);
@@ -153,7 +158,7 @@ class App extends PureComponent<AppProps,any> {
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
-          <Components.Layout currentUser={currentUser} messages={messages}>
+          <Components.Layout currentUser={currentUser}>
             <RouteComponent />
           </Components.Layout>
         </MessageContext.Provider>

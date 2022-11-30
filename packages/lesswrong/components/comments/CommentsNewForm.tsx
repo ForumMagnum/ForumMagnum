@@ -92,7 +92,7 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, displayMode = "default"}:
+const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}:
 {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
@@ -108,7 +108,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  displayMode?: CommentFormDisplayMode
+  replyFormStyle?: CommentFormDisplayMode
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
@@ -117,7 +117,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = displayMode === "minimalist"
+  const isMinimalist = replyFormStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components

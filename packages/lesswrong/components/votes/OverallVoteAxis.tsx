@@ -27,6 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   vote: {
     fontSize: 25,
     lineHeight: 0.6,
+    whiteSpace: "nowrap",
     display: "inline-block"
   },
   voteScore: {

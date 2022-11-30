@@ -1,5 +1,7 @@
+import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+import { subforumSlugsSetting } from "../../routeUtil";
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
@@ -27,12 +29,12 @@ export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
 export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
-  const { flagId, edit } = urlOptions || {};
+  // Assume links that are not explicitly for the subforum should go to the wiki tab (this may change in the future)
+  const urlSearchParams = subforumSlugsSetting.get().includes(tag.slug) ? {tab: "wiki", ...urlOptions} : urlOptions
+  const search = qs.stringify(urlSearchParams)
+
   const url = `/${tagUrlBase}/${tag.slug}`
-  if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
-  if (flagId) return `${url}?flagId=${flagId}`
-  if (edit) return `${url}?edit=${edit}`
-  return url
+  return `${url}${search ? `?${search}` : ''}`
 }
 
 export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl(tag)}/history`
@@ -43,7 +45,7 @@ export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
 }
 
 export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${tagUrlBase}/${tag.slug}/subforum`
+  const suffix = `/${tagUrlBase}/${tag.slug}?tab=subforum`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
@@ -54,7 +56,9 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
   isAbsolute?: boolean,
 }): string => {
   const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
-  return commentId ? `${base}#${commentId}` : base
+
+  // Bit of a hack to make it work whether or not there are already query params, if this breaks just parse the URL properly
+  return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base
 }
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {

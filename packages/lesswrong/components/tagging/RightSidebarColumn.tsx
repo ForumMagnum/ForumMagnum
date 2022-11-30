@@ -4,7 +4,7 @@ import { TAB_NAVIGATION_MENU_WIDTH } from '../common/TabNavigationMenu/TabNaviga
 import { registerComponent } from '../../lib/vulcan-lib';
 
 const MIN_SIDEBAR_WIDTH = 250
-const MAX_SIDEBAR_WIDTH = 320
+const MAX_SIDEBAR_WIDTH = 370
 const MIN_GAP = 20
 
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -22,7 +22,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       gridTemplateColumns: `
         minmax(${TAB_NAVIGATION_MENU_WIDTH + MIN_GAP}px, ${TAB_NAVIGATION_MENU_WIDTH + 250}px)
         0.7fr
-        ${MAX_COLUMN_WIDTH}px
+        minmax(${MAX_COLUMN_WIDTH - 20}px, ${MAX_COLUMN_WIDTH}px)
         minmax(${MIN_GAP}px, 70px)
         minmax(${MIN_SIDEBAR_WIDTH}px, ${MAX_SIDEBAR_WIDTH}px)
         minmax(${MIN_GAP}px, 50px)

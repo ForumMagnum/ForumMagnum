@@ -290,7 +290,7 @@ async function getTocComments (document: DbPost) {
   return [{anchor:"comments", level:0, title: postGetCommentCountStr(document, commentCount)}]
 }
 
-const getToCforPost = async ({document, version, context}: {
+export const getToCforPost = async ({document, version, context}: {
   document: DbPost,
   version: string|null,
   context: ResolverContext,

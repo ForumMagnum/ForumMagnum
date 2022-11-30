@@ -50,10 +50,10 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType }) => {
                 post: comment.post || undefined,
                 tag: comment.tag || undefined,
                 showPostTitle: true,
+                forceNotSingleLine: true
               }}
               comment={comment}
               startThreadTruncated={true}
-              forceNotSingleLine
               loadChildrenSeparately
               loadDirectReplies
             />

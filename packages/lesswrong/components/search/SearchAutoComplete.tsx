@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }: {
-  clickAction: (id: string) => void,
+  clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
   renderSuggestion: any,
@@ -41,7 +41,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     return <input type="text" placeholder={noSearchPlaceholder} onKeyPress={ev => {
       if (ev.charCode===13) {
         const id = (ev.target as HTMLInputElement).value;
-        clickAction(id);
+        clickAction(id, null);
         ev.preventDefault();
       }
     }}/>;
@@ -50,7 +50,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   const onSuggestionSelected: OnSuggestionSelected<any> = (event, { suggestion }) => {
     event.preventDefault();
     event.stopPropagation();
-    clickAction(suggestion._id)
+    clickAction(suggestion._id, suggestion)
   }
   return <InstantSearch
     indexName={indexName}

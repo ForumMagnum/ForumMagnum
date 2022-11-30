@@ -9,7 +9,7 @@ import { eligibleToNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/revie
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
