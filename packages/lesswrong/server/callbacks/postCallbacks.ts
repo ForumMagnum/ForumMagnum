@@ -17,6 +17,7 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
 import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
+import { captureException } from '@sentry/core';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -331,12 +332,24 @@ getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCa
     post = {...post, tagRelevance: undefined};
     
     for (let tagId of tagsToApply) {
-      await addOrUpvoteTag({
-        tagId, postId: post._id,
-        currentUser: currentUser!,
-        ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
-        context
-      });
+      try {
+        await addOrUpvoteTag({
+          tagId, postId: post._id,
+          currentUser: currentUser!,
+          ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
+          context
+        });
+      } catch(e) {
+        // This can throw if there's a tag applied which doesn't exist, which
+        // can happen if there are issues with the Algolia index.
+        //
+        // If we fail to add a tag, capture the exception in Sentry but don't
+        // throw from the form-submission callback. From the user perspective
+        // letting this exception esscape would make posting appear to fail (but
+        // actually the post is created, minus some of its callbacks having
+        // completed).
+        captureException(e)
+      }
     }
   }
   
