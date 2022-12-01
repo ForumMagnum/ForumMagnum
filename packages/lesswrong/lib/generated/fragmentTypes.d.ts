@@ -1929,10 +1929,16 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
+  readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
+}
+
+interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -2106,6 +2112,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
+  readonly moderationGuidelines: RevisionEdit|null,
 }
 
 interface TagEditFragment_parentTag { // fragment on Tags

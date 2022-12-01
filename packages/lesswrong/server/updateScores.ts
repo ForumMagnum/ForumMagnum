@@ -1,5 +1,11 @@
 import { getCollection, Vulcan } from "./vulcan-lib";
-import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR } from '../lib/scoring';
+import {
+  recalculateScore,
+  timeDecayExpr,
+  postScoreModifiers,
+  commentScoreModifiers,
+  TIME_DECAY_FACTOR,
+} from '../lib/scoring';
 import * as _ from 'underscore';
 
 /*
@@ -70,7 +76,15 @@ const getCollectionProjections = (collectionName: CollectionNameString) => {
       baseScore: { // Add optional bonuses to baseScore of posts
         $add: [
           "$baseScore",
-          ...defaultScoreModifiers(),
+          ...postScoreModifiers(),
+        ],
+      },
+    },
+    Comments: {
+      baseScore: { // Add optional bonuses to baseScore of comments
+        $add: [
+          "$baseScore",
+          ...commentScoreModifiers(),
         ],
       },
     },
