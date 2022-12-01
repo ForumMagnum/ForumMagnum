@@ -7,7 +7,7 @@ import {
 import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -99,7 +99,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.75rem",
   },
   actions: {
-    "& .PostsPageActions-icon": {
+    "& .PostActionsButton-icon": {
       fontSize: "1.5em",
     },
     opacity: 0.2,
@@ -115,12 +115,14 @@ const RecentDiscussionThread = ({
   post,
   comments, refetch,
   expandAllThreads: initialExpandAllThreads,
+  maxLengthWords,
   classes,
 }: {
   post: PostsRecentDiscussion,
-  comments: Array<CommentsList>,
+  comments?: Array<CommentsList>,
   refetch: any,
   expandAllThreads?: boolean,
+  maxLengthWords?: number,
   classes: ClassesType,
 }) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
@@ -147,10 +149,10 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostsPageActions } = Components
+  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostActionsButton } = Components
 
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
+  const nestedComments = unflattenComments(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
@@ -185,7 +187,7 @@ const RecentDiscussionThread = ({
                 {post.title}
               </Link>
               <div className={classes.actions}>
-                <PostsPageActions post={post} vertical />
+                <PostActionsButton post={post} vertical />
               </div>
             </div>
             <div className={classes.threadMeta} onClick={showHighlight}>
@@ -193,17 +195,18 @@ const RecentDiscussionThread = ({
             </div>
           </div>
           <div className={highlightClasses}>
-            <PostsHighlight post={post} maxLengthWords={lastVisitedAt ? 50 : 170} />
+            <PostsHighlight post={post} maxLengthWords={maxLengthWords ?? lastVisitedAt ? 50 : 170} />
           </div>
         </div>
-        {nestedComments.length ? <div className={classes.content}>
+        <div className={classes.content}>
           <div className={classes.commentsList}>
-            {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
                   treeOptions={treeOptions}
                   startThreadTruncated={true}
                   expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                  expandNewComments={false}
                   nestingLevel={1}
                   comment={comment.item}
                   childComments={comment.children}
@@ -212,7 +215,7 @@ const RecentDiscussionThread = ({
               </div>
             )}
           </div>
-        </div> : null}
+        </div>
       </div>
     </AnalyticsContext>
   )

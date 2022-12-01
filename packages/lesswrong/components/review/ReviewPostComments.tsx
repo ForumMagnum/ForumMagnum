@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { useRecordPostView } from '../common/withRecordPostView';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
 
@@ -87,10 +87,10 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
             enableHoverPreview: false,
             markAsRead: markAsRead,
             post: post,
+            forceSingleLine: true
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          forceSingleLine
         />
         : <div>
           {results && results.map((comment) => <CommentOnPostWithReplies key={comment._id} comment={comment} post={post}/>)}

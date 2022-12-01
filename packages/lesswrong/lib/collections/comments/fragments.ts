@@ -47,6 +47,7 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
+    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted
@@ -124,6 +125,15 @@ registerFragment(`
     post {
       ...PostsMinimumInfo
     }
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
     tag {
       ...TagBasicInfo
     }

@@ -179,7 +179,7 @@ const PostsNewForm = ({classes}: {
   if (query.subforumTagId) {
     prefilledProps = {
       subforumTagId: query.subforumTagId,
-      submitToFrontpage: false,
+      tagRelevance: {[query.subforumTagId]: 1},
     }
   }
 
@@ -209,6 +209,7 @@ const PostsNewForm = ({classes}: {
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
+        <Components.PostsAcceptTos currentUser={currentUser} />
         <NoSsr>
           <WrappedSmartForm
             collection={Posts}

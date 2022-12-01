@@ -16,9 +16,25 @@ import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspos
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 
 const MINIMUM_APPROVAL_KARMA = 5
+
+if (forumTypeSetting.get() === "EAForum") {
+  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
+    if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
+      throw new Error("You must accept the terms of use before you can publish this post");
+    }
+    return post;
+  }
+  getCollectionHooks("Posts").newSync.add(
+    (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
+  );
+  getCollectionHooks("Posts").updateBefore.add(
+    (post, {oldDocument: oldPost, currentUser}) => checkTosAccepted(currentUser, post, oldPost),
+  );
+}
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
@@ -86,19 +102,6 @@ getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
   if (!post.authorIsUnreviewed && !post.draft) {
     void postPublishedCallback.runCallbacksAsync([post]);
   }
-});
-
-/**
- * For posts created in a subforum, add the appropriate tag
- */
-getCollectionHooks("Posts").createAfter.add(async function subforumAddTag(post: DbPost, properties: CreateCallbackProperties<DbPost>) {
-  const { context } = properties
-
-  if (post.subforumTagId && context.currentUser?._id) {
-    const currentUser = context.currentUser
-    await addOrUpvoteTag({tagId: post.subforumTagId, postId: post._id, currentUser, context})
-  }
-  return post
 });
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
@@ -347,6 +350,7 @@ getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCa
       await addOrUpvoteTag({
         tagId, postId: post._id,
         currentUser: currentUser!,
+        ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
         context
       });
     }

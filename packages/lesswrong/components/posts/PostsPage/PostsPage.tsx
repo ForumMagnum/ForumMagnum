@@ -1,25 +1,30 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useLocation } from '../../../lib/routeUtil';
+import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { useRecordPostView } from '../../common/withRecordPostView';
+import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCookies } from 'react-cookie';
 import { useDialog } from '../../common/withDialog';
+import { useMulti } from '../../../lib/crud/withMulti';
+import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../PostActions/SetSideCommentVisibility';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
+
+const MAX_ANSWERS_QUERIED = 100
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
@@ -145,7 +150,7 @@ const PostsPage = ({post, refetch, classes}: {
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
-  const location = useLocation();
+  const location = useSubscribedLocation();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
@@ -187,11 +192,27 @@ const PostsPage = ({post, refetch, classes}: {
   }
 
   const { query, params } = location;
+
+  const sortBy = query.answersSorting || "top";
+  const { results: answers } = useMulti({
+    terms: {
+      view: "questionAnswers",
+      postId: post._id,
+      limit: MAX_ANSWERS_QUERIED,
+      sortBy
+    },
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+    skip: !post.question,
+  });
+
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    CommentOnSelectionContentWrapper
+    PostBody, CommentOnSelectionContentWrapper
   } = Components
 
   useEffect(() => {
@@ -207,6 +228,15 @@ const PostsPage = ({post, refetch, classes}: {
   if (shouldHideAsSpam()) {
     throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
   }
+  
+  const defaultSideCommentVisibility = userHasSideComments(currentUser)
+    ? (post.sideCommentVisibility ?? "highKarma")
+    : "hidden";
+  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
+  const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
+    () => ({ sideCommentMode, setSideCommentMode }),
+    [sideCommentMode, setSideCommentMode]
+  );
   
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
@@ -270,7 +300,7 @@ const PostsPage = ({post, refetch, classes}: {
             />
           </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
+        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -281,6 +311,7 @@ const PostsPage = ({post, refetch, classes}: {
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
       tableOfContents={tableOfContents}
       header={header}
@@ -296,7 +327,10 @@ const PostsPage = ({post, refetch, classes}: {
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`} nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}/> }
+              {htmlWithAnchors && <PostBody
+                post={post} html={htmlWithAnchors}
+                sideCommentMode={sideCommentMode}
+              />}
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>
@@ -309,7 +343,7 @@ const PostsPage = ({post, refetch, classes}: {
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
           <AnalyticsContext pageSectionContext="answersSection">
-            <PostsPageQuestionContent post={post} refetch={refetch}/>
+            <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
           </AnalyticsContext>
         </div>}
         {/* Comments Section */}
@@ -321,6 +355,7 @@ const PostsPage = ({post, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+    </SideCommentVisibilityContext.Provider>
   </AnalyticsContext>);
 }
 
