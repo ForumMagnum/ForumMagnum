@@ -22,10 +22,12 @@ const schema: SchemaType<DbMigration> = {
     type: Date,
   },
   finished: {
-    type: Date,
+    type: Boolean,
+    defaultValue: false,
   },
   succeeded: {
     type: Boolean,
+    defaultValue: false,
   },
 };
 

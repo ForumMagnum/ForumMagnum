@@ -33,6 +33,11 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     chapter.postIds ??= [];
     return chapter;
   },
+  Migrations: (migration: DbMigration): DbMigration => {
+    migration.finished ??= false;
+    migration.succeeded ??= false;
+    return migration;
+  },
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
