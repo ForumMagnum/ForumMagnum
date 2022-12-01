@@ -884,6 +884,8 @@ interface DbTag extends DbObject {
   description_latest: string
   subforumWelcomeText: EditableFieldContents
   subforumWelcomeText_latest: string
+  moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
 }
 
 interface UserPostEngagementsCollection extends CollectionBase<DbUserPostEngagement, "UserPostEngagements"> {
@@ -953,6 +955,7 @@ interface DbUser extends DbObject {
   noCollapseCommentsPosts: boolean
   noCollapseCommentsFrontpage: boolean
   petrovOptOut: boolean | null
+  acceptedTos: boolean | null
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/

@@ -256,7 +256,7 @@ addRoute(
   {
     name:'reviewVoting',
     path: '/reviewVoting',
-    redirect: () => `/reviewVoting/2020`,
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   // {
   //   name:'reviewVoting2019',
@@ -265,9 +265,9 @@ addRoute(
   //   componentName: "ReviewVotingPage2019"
   // },
   {
-    name:'reviewVoting2020',
-    path: '/reviewVoting/2020',
-    title: "Voting 2020 Review",
+    name:'reviewVotingByYear',
+    path: '/reviewVoting/:year',
+    title: "Review Voting",
     componentName: "ReviewVotingPage",
     ...reviewSubtitle
   },
@@ -625,6 +625,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/handbook',
       componentName: 'EAIntroCurriculum',
       title: 'The Effective Altruism Handbook',
+    },
+    {
+      name: 'termsOfUse',
+      path: '/termsOfUse',
+      componentName: 'EATermsOfUsePage',
     },
     {
       name: 'intro',
@@ -1395,7 +1400,7 @@ addRoute(
   {
     name: 'reviewAdmin',
     path: '/reviewAdmin',
-    redirect: () => `/reviewAdmin/2020`,
+    redirect: () => `/reviewAdmin/${REVIEW_YEAR}`,
   },
   {
     name: 'reviewAdmin-year',

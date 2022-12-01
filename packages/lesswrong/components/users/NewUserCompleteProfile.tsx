@@ -1,14 +1,15 @@
+import React, { useState, useRef } from "react";
+import classnames from "classnames";
 import { gql, useMutation } from "@apollo/client";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
-import React, { useState, useRef } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
-import { useCurrentUser } from "../common/withUser";
 import { getUserEmail } from "../../lib/collections/users/helpers";
+import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,16 +20,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0
   },
   section: {
-    marginTop: theme.spacing.unit * 6
+    marginTop: theme.spacing.unit * 6,
+    "& .MuiTypography-body1": {
+      color: theme.palette.text.normal,
+    },
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.grey[600],
+    },
   },
   sectionHelperText: {
     color: theme.palette.grey[600],
     fontStyle: 'italic',
-    fontSize: '1rem'
+    fontSize: '1rem',
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+  },
+  tosText: {
+    marginBottom: 16,
   },
   submitButtonSection: {
     marginTop: theme.spacing.unit * 3
-  }
+  },
 });
 
 type NewUserCompleteProfileProps = {
@@ -49,8 +62,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
-    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String) {
-      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email) {
+    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
+      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email, acceptedTos: $acceptedTos) {
         username
         slug
         displayName
@@ -76,11 +89,11 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
     // if (usernameIsUnique) ...
     setValidationError('')
   }
-  
+
   async function handleSave() {
     try {
       if (validationError) return
-      
+
       // TODO: loading spinner while running
       await updateUser({variables: {
         username,
@@ -88,7 +101,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
         // We do this fancy spread so we avoid setting the email to an empty
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
-        ...(!getUserEmail(currentUser) && {email: emailInput.current?.value})
+        ...(!getUserEmail(currentUser) && {email: emailInput.current?.value}),
+        acceptedTos: forumTypeSetting.get() === "EAForum",
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
@@ -143,7 +157,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
           inputRef={emailInput}
         />
       </div>}
-      
+
       {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
         <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
@@ -161,6 +175,12 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       </div>}
       {/* TODO: Something about bio? */}
       <div className={classes.submitButtonSection}>
+        {forumTypeSetting.get() === "EAForum" &&
+          <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
+            I agree to the <TosLink />, including my content being available
+            under a <LicenseLink /> license.
+          </Typography>
+        }
         <Button
           onClick={handleSave}
           color='primary'

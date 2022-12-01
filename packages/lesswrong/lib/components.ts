@@ -18,6 +18,7 @@ if(forumTypeSetting.get() === 'AlignmentForum') {
 
 if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+  importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
@@ -259,6 +260,7 @@ importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBl
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
+importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
