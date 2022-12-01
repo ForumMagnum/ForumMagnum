@@ -480,6 +480,12 @@ const ReviewVotingPage = ({classes}: {
       </p>
 
       <p className={classes.faqQuestion}>
+        <FaqCard linkText="How many votes are required for a nominated post to proceed to the Review Phase?">
+          <p>Posts will need at least two positive Preliminary Votes to proceed to the Review Phase.</p>
+        </FaqCard>
+      </p>
+
+      <p className={classes.faqQuestion}>
         <FaqCard linkText="Who is eligible?">
           <ul>
             <li>Any user registered before {REVIEW_YEAR} can vote on posts.</li>

@@ -209,7 +209,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Nominate a post by casting a <em>preliminary vote</em>, or vote on an existing nomination to help us prioritize it during the Review Phase.</li>
         <li>Any post from {REVIEW_YEAR} can be nominated</li>
         <li>Any user registered before {REVIEW_YEAR} can nominate posts for review</li>
-        <li>Posts will need at least one vote to proceed to the Review Phase.</li>
+        <li>Posts will need at least two positive votes to proceed to the Review Phase.</li>
       </ul>
     </div>
 
