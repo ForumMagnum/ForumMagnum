@@ -66,31 +66,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
     display: "flex",
     justifyContent: "flex-end",
-    marginTop: 2
+    alignItems: "center",
+    marginTop: 8
   },
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
+    border: `solid 1px ${theme.palette.primary.main}`,
     paddingTop: 6,
     paddingBottom: 6,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 10,
+    paddingRight: 10,
     borderRadius: 3,
     color: theme.palette.text.invertedBackgroundText,
     ...theme.typography.commentStyle,
     display: "inline-block",
-    marginLeft: 12
+    marginLeft: 10
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     paddingTop: 6,
     paddingBottom: 6,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 10,
+    paddingRight: 10,
     borderRadius: 3,
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle,
     display: "inline-block",
-    marginLeft: 12
+    marginLeft: 10
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,
@@ -181,12 +183,12 @@ export const overviewTooltip = isEAForum ?
       <li><em>Review</em> ({reviewPhaseDateRange})</li>
       <li><em>Final Voting</em> ({votingPhaseDateRange})</li>
     </ul>
-    {!isEAForum && <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>}
+    <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>
     <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview, PostsList2 } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2 } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -342,16 +344,16 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
   </div>
 
   const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
-    <PostsList2 terms={{
-      view:"reviewVoting",
-      before: `${REVIEW_YEAR+1}-01-01`,
-      ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 3,
-      itemsPerPage: 10
-    }}>
-      {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && nominationPhaseButtons}
-      {activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
-    </PostsList2>
+    <PostsList2 
+      showLoadMore={false}
+      terms={{
+        view:"reviewVoting",
+        before: `${REVIEW_YEAR+1}-01-01`,
+        ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
+        limit: 3,
+        itemsPerPage: 10,
+      }}
+    />
   </AnalyticsContext>
 
   return (
@@ -377,7 +379,8 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
 
         {/* Post list */}
         {showFrontpageItems && postList}
-
+        {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && nominationPhaseButtons}
+        {activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
 
         {!showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
           {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
