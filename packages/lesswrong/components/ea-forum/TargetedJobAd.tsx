@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import CloseIcon from '@material-ui/icons/Close'
@@ -10,6 +10,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
+import OpenInNew from '@material-ui/icons/OpenInNew';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -136,6 +137,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: '10px 0',
     '& ul': {
       margin: 0
+    },
+    '& li': {
+      marginTop: 4
     }
   },
   prompt: {
@@ -153,7 +157,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 16,
     rowGap: '12px',
     alignItems: 'baseline',
-    marginBottom: 6
+    marginTop: 18,
+    marginBottom: 8
   },
   input: {
     width: '100%',
@@ -162,20 +167,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   btn: {
     textTransform: 'none',
     boxShadow: 'none',
-  }
+  },
+  btnIcon: {
+    fontSize: 13,
+    marginLeft: 6
+  },
 })
 
+// job-specific data for the ad
+// (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA = {
   'research-givewell': {
     tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
     logo: 'https://80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
     occupation: 'research',
-    feedbackLinkPrefill: 'Senior+Research+Associate+at+GiveWell',
+    feedbackLinkPrefill: 'Senior+Researcher+at+GiveWell',
     bitlyLink: "https://efctv.org/3A16UNq",
-    role: 'Senior Research Associate',
+    role: 'Senior Researcher',
     org: 'GiveWell',
     orgSlug: 'givewell',
-    salary: '$127k - $140k',
+    salary: '$181k - $199k',
     location: 'Remote (US-centric)',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
@@ -183,13 +194,13 @@ export const JOB_AD_DATA = {
           GiveWell
         </a> is a nonprofit charity evaluator dedicated to finding the most cost-effective giving opportunities
         in <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/global-health-and-development" innerHTML="global health and development"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/global-health-and-development")} innerHTML="global health and development"/>
         </span>.
       </div>
       <div className={classes.description}>
         Ideal candidates:
         <ul>
-          <li>Have a bachelor's degree (or higher) in a quantitative field such as economics, mathematics, or statistics or equivalent experience (~6 years)</li>
+          <li>Have a quantitatively-oriented advanced degree and/or substantive relevant experience</li>
           <li>Are passionate about helping to improve global health and alleviate global poverty as much as possible</li>
           <li>Ask a lot of questions, and are curious, rather than defensive, when interrogating their own or others' work</li>
         </ul>
@@ -197,6 +208,7 @@ export const JOB_AD_DATA = {
     </>
   },
   'research-effective-giving': {
+    standardApplyBtn: true,
     tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/effective-giving-160x160.png',
     occupation: 'research',
@@ -212,7 +224,7 @@ export const JOB_AD_DATA = {
         <a href="https://www.effectivegiving.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Effective Giving
         </a> is a philanthropic advisory and <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/grantmaking" innerHTML="grantmaking"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
         </span> organization.
       </div>
       <div className={classes.description}>
@@ -241,7 +253,7 @@ export const JOB_AD_DATA = {
         <a href="http://www.thehumaneleague.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
           The Humane League
         </a> is an organization working to improve <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/animal-welfare-1" innerHTML="animal welfare"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/animal-welfare-1")} innerHTML="animal welfare"/>
         </span> standards via corporate campaigns and grassroots outreach.
       </div>
       <div className={classes.description}>
@@ -270,9 +282,9 @@ export const JOB_AD_DATA = {
         <a href="https://epochai.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Epoch
         </a> is a research initiative working on investigating trends in machine learning and <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/forecasting" innerHTML="forecasting"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/forecasting")} innerHTML="forecasting"/>
         </span> the development of <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/transformative-artificial-intelligence" innerHTML="transformative AI"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/transformative-artificial-intelligence")} innerHTML="transformative AI"/>
         </span>.
       </div>
       <div className={classes.description}>
@@ -301,7 +313,7 @@ export const JOB_AD_DATA = {
         <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Open Philanthropy
         </a> is a research and <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/grantmaking" innerHTML="grantmaking"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
         </span> organization.
       </div>
       <div className={classes.description}>
@@ -330,7 +342,7 @@ export const JOB_AD_DATA = {
         <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Open Philanthropy
         </a> is a research and <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/grantmaking" innerHTML="grantmaking"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
         </span> organization.
       </div>
       <div className={classes.description}>
@@ -384,7 +396,7 @@ export const JOB_AD_DATA = {
         <a href="https://www.evidenceaction.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Evidence Action
         </a> is a nonprofit working to reduce <span className={classes.link}>
-          <Components.HoverPreviewLink href="/topics/global-poverty" innerHTML="global poverty"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/global-poverty")} innerHTML="global poverty"/>
         </span> via scaling evidence-based and cost-effective programs.
       </div>
       <div className={classes.description}>
@@ -403,7 +415,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
   ad: string,
   onDismiss: () => void,
   onExpand: () => void,
-  onInterested: () => void,
+  onInterested: (showSuccessMsg?: boolean) => void,
   onUninterested: (reason?: string) => void,
   classes: ClassesType,
 }) => {
@@ -421,9 +433,9 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
     onExpand()
   }
   
-  const handleInterested = () => {
+  const handleInterested = (showSuccessMsg?: boolean) => {
     setClosed(true)
-    onInterested()
+    onInterested(showSuccessMsg)
   }
   
   const handleUninterested = (reason?: string) => {
@@ -450,7 +462,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
       If you're interested in this role, would you like us to pass along your email address and EA Forum profile to the hiring manager?
     </div>
     <div className={classes.btnRow}>
-      <Button variant="contained" color="primary" onClick={handleInterested} className={classes.btn}>
+      <Button variant="contained" color="primary" onClick={() => handleInterested()} className={classes.btn}>
         Yes, I'm interested
       </Button>
       <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
@@ -471,6 +483,27 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
         </Button>
       </div>
     </form>
+  }
+  // if the org didn't want us to send them expressions of interest, just link to their standard application form
+  else if (adData.standardApplyBtn) {
+    ctaSection = <>
+      <div className={classes.btnRow}>
+        <Button
+          variant="contained"
+          color="primary"
+          href='https://effective-giving.homerun.co/biosecurity-program-associate/en'
+          target="_blank"
+          rel="noopener noreferrer"
+          className={classes.btn}
+          onClick={() => handleInterested(false)}
+        >
+          Apply now <OpenInNew className={classes.btnIcon} />
+        </Button>
+        <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
+          This doesn't match my interests
+        </Button>
+      </div>
+    </>
   }
 
   return <div className={classNames(classes.root, {[classes.rootClosed]: closed})}>

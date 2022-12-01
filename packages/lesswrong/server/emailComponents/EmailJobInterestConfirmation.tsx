@@ -47,8 +47,8 @@ const EmailJobInterestConfirmation = ({
   return (
     <div className={classes.root}>
       <div>
-        Thank you for registering your interest in this role. We have passed on your EA Forum profile to the hiring
-        manager, we would also encourage you to complete the full application <a href={link}>here</a>.
+        Thank you for registering your interest in this role! We'll pass on your email address and EA Forum profile
+        to the hiring manager. We also encourage you to complete the full job application <a href={link}>here</a>.
       </div>
       <hr className={classes.hr}/>
       <h2>

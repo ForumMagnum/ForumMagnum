@@ -121,7 +121,7 @@ const TargetedJobAdSection = () => {
     })
   }
   
-  const handleInterested = async () => {
+  const handleInterested = async (showSuccessMsg=true) => {
     if (!currentUser || !results?.length || !activeJob) return
     // track which users have registered interest
     await updateJobAds({
@@ -131,7 +131,7 @@ const TargetedJobAdSection = () => {
         [activeJob]: {state: 'interested', lastUpdated: new Date()}
       }}
     })
-    flash({messageString: "Thanks for registering interest!", type: "success"})
+    showSuccessMsg && flash({messageString: "Thanks for registering interest!", type: "success"})
   }
   
   const handleUninterested = (uninterestedReason?: string) => {
