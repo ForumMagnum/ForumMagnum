@@ -556,7 +556,7 @@ const TagSubforumPage2 = ({classes}: {
 
   const discussionButton = isSubscribed || currentUser?.isAdmin ? (
     <SectionButton onClick={clickNewDiscussion}>
-      <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+      <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Comment
     </SectionButton>
   ) : (
     <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
