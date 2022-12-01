@@ -8,7 +8,7 @@ import { JOB_AD_DATA } from '../../components/ea-forum/TargetedJobAd';
 
 getCollectionHooks("AdvisorRequests").updateAsync.add(async function AdvisorRequestsNewAsync ({document, oldDocument, currentUser}: {document: DbAdvisorRequest, oldDocument: DbAdvisorRequest, currentUser: DbUser|null}) {
   const newInterestedJobs = Object.keys(document.jobAds).filter(jobId => document.jobAds[jobId].state === 'interested' && oldDocument?.jobAds[jobId]?.state !== 'interested')
-  
+
   if (!newInterestedJobs.length) return;
   const newInterestedJob = newInterestedJobs[0]
 

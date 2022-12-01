@@ -29,37 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-// 'research-givewell': {
-//   tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
-//   logo: 'https://80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
-//   occupation: 'research',
-//   feedbackLinkPrefill: 'Senior+Research+Associate+at+GiveWell',
-//   bitlyLink: "https://efctv.org/3A16UNq",
-//   role: 'Senior Research Associate',
-//   org: 'GiveWell',
-//   orgSlug: 'givewell',
-//   salary: '$127k - $140k',
-//   location: 'Remote (US-centric)',
-//   getDescription: (classes: ClassesType) => <>
-//     <div className={classes.description}>
-//       <a href="https://www.givewell.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-//         GiveWell
-//       </a> is a nonprofit charity evaluator dedicated to finding the most cost-effective giving opportunities
-//       in <span className={classes.link}>
-//         <Components.HoverPreviewLink href="/topics/global-health-and-development" innerHTML="global health and development"/>
-//       </span>.
-//     </div>
-//     <div className={classes.description}>
-//       Ideal candidates:
-//       <ul>
-//         <li>Have a bachelor's degree (or higher) in a quantitative field such as economics, mathematics, or statistics or equivalent experience (~6 years)</li>
-//         <li>Are passionate about helping to improve global health and alleviate global poverty as much as possible</li>
-//         <li>Ask a lot of questions, and are curious, rather than defensive, when interrogating their own or others' work</li>
-//       </ul>
-//     </div>
-//   </>
-// },
-
 const EmailJobInterestConfirmation = ({
   user,
   newInterestedJob,
