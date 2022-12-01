@@ -6,7 +6,7 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
-import withTimezone from '../common/withTimezone';
+import { withTimezone } from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';

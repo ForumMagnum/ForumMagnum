@@ -1,0 +1,17 @@
+name: 'Run migrations'
+description: 'Run Postgres migrations'
+inputs:
+  pg-url:
+    description: 'Postgres connection string'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+
+    - name: Run migrations
+      shell: bash
+      env:
+        PG_URL: ${{ inputs.pg-url }}
+      run: yarn migrate up

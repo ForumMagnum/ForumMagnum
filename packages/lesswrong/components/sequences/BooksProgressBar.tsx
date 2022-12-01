@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
-import { useItemsRead } from '../common/withRecordPostView';
+import { useItemsRead } from '../hooks/useRecordPostView';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({

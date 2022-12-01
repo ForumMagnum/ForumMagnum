@@ -7,6 +7,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    whiteSpace: "nowrap",
   },
   agreementSection: {
     display: "inline-block",

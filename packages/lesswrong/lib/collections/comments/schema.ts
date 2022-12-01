@@ -120,6 +120,15 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     ...schemaDefaultValue("DISCUSSION"),
   },
+  subforumStickyPriority: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
   // The comment author's `_id`
   userId: {
     ...foreignKeyField({
@@ -403,6 +412,8 @@ const schema: SchemaType<DbComment> = {
     type: String,
     viewableBy: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      if (comment?.tagId) return "twoAxis"; // Discussion and subforum comments are both allowed agree/disagree votes
+
       if (!comment?.postId) {
         return "default";
       }
@@ -597,6 +608,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
+    hidden: true
   },
 
   /**
@@ -613,6 +625,7 @@ const schema: SchemaType<DbComment> = {
       if (!newDocument.moderatorHat) return null;
       return newDocument.hideModeratorHat;
     },
+    hidden: true
   },
 
   // whether this comment is pinned on the author's profile

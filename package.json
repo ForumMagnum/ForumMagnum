@@ -65,7 +65,8 @@
     "ea-load-testing-db": "mongo $(< ../ForumCredentials/testing-db-conn.txt) ../ForumCredentials/loadTestingDbSettings.js",
     "ea-replicate-dev-db": "./scripts/eaReplicateDevDb.sh",
     "local-cypress-run": "yarn cypress run --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true",
-    "local-cypress-open": "yarn cypress open --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true"
+    "local-cypress-open": "yarn cypress open --env TESTING_DB_URL=mongodb://127.0.0.1:27017/?directConnection=true",
+    "brigader-check": "ts-node scripts/brigaderCheck.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
@@ -203,6 +204,7 @@
     "graphql-voyager": "^1.0.0-rc.26",
     "he": "^1.1.1",
     "history": "^3.0.0",
+    "html-lexer": "^0.4.1",
     "html-to-text": "^2.1.0",
     "htmlparser2": "^3.9.2",
     "import": "0.0.6",

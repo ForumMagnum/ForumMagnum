@@ -7,7 +7,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 
@@ -150,7 +150,7 @@ const ModerationDashboard = ({ classes }: {
 
   const commentsWithActions = reduceCommentModeratorActions(commentModeratorActions);
 
-  if (!userIsAdmin(currentUser)) {
+  if (!userIsAdminOrMod(currentUser)) {
     return null;
   }
 
