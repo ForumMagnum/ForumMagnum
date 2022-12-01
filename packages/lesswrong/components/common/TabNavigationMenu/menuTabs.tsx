@@ -344,6 +344,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Contact Us',
       link: '/contact',
       subItem: true,
+    }, {
+      id: 'tou',
+      title: 'Terms of Use',
+      link: '/termsOfUse',
+      subItem: true,
     }
   ],
   default: [
