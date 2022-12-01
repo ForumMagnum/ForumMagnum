@@ -10,14 +10,14 @@ import Table from "./Table";
 class AddFieldQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table, fieldName: string) {
     const fields = table.getFields();
-    const field = fields[fieldName];
-    if (!field) {
+    const fieldType = fields[fieldName];
+    if (!fieldType) {
       throw new Error(`Field "${fieldName}" does not exist in the schema`);
     }
     super(table, [
       "ALTER TABLE",
       table,
-      `ADD COLUMN "${fieldName}" ${field.toString()}`,
+      `ADD COLUMN "${fieldName}" ${fieldType.toString()}`,
     ]);
   }
 }
