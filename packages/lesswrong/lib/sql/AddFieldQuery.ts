@@ -17,7 +17,7 @@ class AddFieldQuery<T extends DbObject> extends Query<T> {
     super(table, [
       "ALTER TABLE",
       table,
-      `ADD COLUMN "${fieldName}" ${fieldType.toString()}`,
+      `ADD COLUMN IF NOT EXISTS "${fieldName}" ${fieldType.toString()}`,
     ]);
   }
 }
