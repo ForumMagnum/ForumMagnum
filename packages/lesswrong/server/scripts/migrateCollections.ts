@@ -29,6 +29,10 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     }
     return post;
   },
+  Chapters: (chapter: DbChapter): DbChapter => {
+    chapter.postIds ??= [];
+    return chapter;
+  },
 };
 
 type DbObjectWithLegacyData = DbObject & {legacyData?: any};
