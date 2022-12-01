@@ -1,8 +1,10 @@
 import "./integrationTestSetup";
-import ReviewVotes from "../lib/collections/reviewVotes/collection";
-// import { Collections } from "../lib/vulcan-lib";
-console.log({ ReviewVotes })
 import { createDummyPost, createDummyLocalgroup } from "./utils";
+
+// TODO: this is a temporary hack to resolve an import order issue with callback hooks on ReviewVotes.  Do not remove this or the console log, or move it below the import of `notificationCallbacks`!
+import ReviewVotes from "../lib/collections/reviewVotes/collection";
+// eslint-disable-next-line no-console
+console.log({ ReviewVotes })
 import { postsNewNotifications } from "../server/notificationCallbacks";
 import { createNotifications } from "../server/notificationCallbacksHelpers";
 
