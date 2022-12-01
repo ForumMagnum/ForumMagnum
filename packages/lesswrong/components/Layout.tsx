@@ -288,7 +288,7 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(location?.currentRoute?.name)
+                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name)
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
