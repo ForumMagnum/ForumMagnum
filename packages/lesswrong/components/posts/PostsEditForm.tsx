@@ -4,7 +4,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -12,7 +11,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanDo, userIsPodcaster } from '../../lib/vulcan-users/permissions';
+import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -101,6 +100,7 @@ const PostsEditForm = ({ documentId, classes }: {
   return (
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
+      <Components.PostsAcceptTos currentUser={currentUser} />
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
