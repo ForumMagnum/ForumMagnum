@@ -154,6 +154,10 @@ addRoute(
     background: "white"
   },
   {
+    name: "engagementsLog",
+    path: "/account/readingHistory",
+  },
+  {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',

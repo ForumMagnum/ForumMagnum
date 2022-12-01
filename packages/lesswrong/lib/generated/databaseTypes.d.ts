@@ -662,6 +662,20 @@ interface DbReadStatus extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface RecommendationLogsCollection extends CollectionBase<DbRecommendationLog, "RecommendationLogs"> {
+}
+
+interface DbRecommendationLog extends DbObject {
+  __collectionName?: "RecommendationLogs"
+  postId: string
+  clientId: any /*{"definitions":[{"type":"String"}]}*/
+  userId: string
+  seen: boolean
+  recommendationType: any /*{"definitions":[{"type":"String"}]}*/
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface ReportsCollection extends CollectionBase<DbReport, "Reports"> {
 }
 
@@ -870,6 +884,22 @@ interface DbTag extends DbObject {
   description_latest: string
   subforumWelcomeText: EditableFieldContents
   subforumWelcomeText_latest: string
+}
+
+interface UserPostEngagementsCollection extends CollectionBase<DbUserPostEngagement, "UserPostEngagements"> {
+}
+
+interface DbUserPostEngagement extends DbObject {
+  __collectionName?: "UserPostEngagements"
+  postId: string
+  clientId: any /*{"definitions":[{"type":"String"}]}*/
+  userId: string
+  referralType: any /*{"definitions":[{"type":"String"}]}*/
+  referralRecommendation: string
+  readingTimeMS: number
+  lastInteractedAt: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
@@ -1252,6 +1282,7 @@ interface CollectionsByName {
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
+  RecommendationLogs: RecommendationLogsCollection
   Reports: ReportsCollection
   ReviewVotes: ReviewVotesCollection
   Revisions: RevisionsCollection
@@ -1261,6 +1292,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserPostEngagements: UserPostEngagementsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1296,6 +1328,7 @@ interface ObjectsByCollectionName {
   Posts: DbPost
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
+  RecommendationLogs: DbRecommendationLog
   Reports: DbReport
   ReviewVotes: DbReviewVote
   Revisions: DbRevision
@@ -1305,6 +1338,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserPostEngagements: DbUserPostEngagement
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

@@ -172,6 +172,10 @@ import './collections/featuredResources/fragments'
 // Votes
 import './collections/votes';
 
+// Recommendations and engagement tracking
+import './collections/recommendationLogs/collection'
+import './collections/userPostEngagements/collection'
+
 // Spotlights
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';

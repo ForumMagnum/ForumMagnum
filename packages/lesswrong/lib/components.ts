@@ -710,6 +710,7 @@ importComponent("RelatedQuestionsList", () => require('../components/questions/R
 
 importComponent("ConfigurableRecommendationsList", () => require('../components/recommendations/ConfigurableRecommendationsList'));
 importComponent("ContinueReadingList", () => require('../components/recommendations/ContinueReadingList'));
+importComponent("ReadingHistoryPage", () => require('../components/recommendations/ReadingHistoryPage'));
 importComponent("RecommendationsAlgorithmPicker", () => require('../components/recommendations/RecommendationsAlgorithmPicker'));
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));

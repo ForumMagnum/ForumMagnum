@@ -1,0 +1,48 @@
+import { defineMutation } from '../utils/serverGraphqlUtil';
+import { UserPostEngagements } from '../../lib/collections/userPostEngagements/collection';
+import { RecommendationLogs } from '../../lib/collections/recommendationLogs/collection';
+
+defineMutation({
+  name: "recordImpression",
+  resultType: "Boolean!",
+  argTypes: "(recommendationId: String!)",
+  fn: async (root: any, {recommendationId}: {recommendationId: string}, context: ResolverContext): Promise<boolean> => {
+    // TODO
+    return true;
+  },
+});
+
+defineMutation({
+  name: "recordReadingTime",
+  resultType: "Boolean!",
+  argTypes: "(postId: String!, timeSpentMS: Int!)",
+  fn: async (root: any, {postId,timeSpentMS}: {postId: string, timeSpentMS: number}, context: ResolverContext): Promise<boolean> => {
+    const { currentUser } = context;
+    if (!currentUser) {
+      // TODO: If not logged in, use clientId
+      return true;
+    }
+    const userId = currentUser._id;
+    
+    await ensureEngagementExists({ userId, postId });
+    await UserPostEngagements.rawUpdateOne(
+      {postId, userId},
+      {$inc: {readingTimeMS: timeSpentMS}},
+    );
+    
+    return true;
+  }
+});
+
+/**
+ * Ensure an entry exists in the UserPostEngagements collection for a user-post
+ * pair, so that it can be updated to record something happening. Returns its
+ * ID.
+ *
+ * Ordinarily this should already exist and be a no-op. If it doesn't exist,
+ * it's presumed to be direct traffic (not attributed to any recommendation).
+ * 
+ */
+async function ensureEngagementExists({userId, postId}: {userId: string, postId: string}) {
+  // TODO
+}
