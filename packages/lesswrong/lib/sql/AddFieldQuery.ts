@@ -5,7 +5,7 @@ import Table from "./Table";
  * Builds a Postgres query to add a new field to a Postgres table.
  * This assumes that the field already exists in the schema but
  * has not been propogated to the database yet and, as such, is
- * mainly meant for use in migrations.
+ * meant for use in migrations.
  */
 class AddFieldQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table, fieldName: string) {
