@@ -6,6 +6,7 @@ import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {forumTypeSetting} from '../../lib/instanceSettings';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -52,14 +53,19 @@ type NewUserUpdates = {
   username: string
   email?: string
   subscribeToDigest: boolean
+  acceptedTos: boolean
 }
 
 addGraphQLResolvers({
   Mutation: {
-    async NewUserCompleteProfile(root: void, { username, email, subscribeToDigest }: NewUserUpdates, context: ResolverContext) {
+    async NewUserCompleteProfile(root: void, { username, email, subscribeToDigest, acceptedTos }: NewUserUpdates, context: ResolverContext) {
       const { currentUser } = context
       if (!currentUser) {
         throw new Error('Cannot change username without being logged in')
+      }
+      // Check they accepted the terms of use
+      if (forumTypeSetting.get() === "EAForum" && !acceptedTos) {
+        throw new Error("You must accept the terms of use to continue");
       }
       // Only for new users. Existing users should need to contact support to
       // change their usernames
@@ -92,17 +98,35 @@ addGraphQLResolvers({
           displayName: username,
           slug: await Utils.getUnusedSlugByCollectionName("Users", slugify(username)),
           ...(email ? {email} : {}),
-          subscribedToDigest: subscribeToDigest
+          subscribedToDigest: subscribeToDigest,
+          acceptedTos,
         },
         // We've already done necessary gating
         validate: false
       })).data
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
-    }
-  }
+    },
+    async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
+      if (!currentUser) {
+        throw new Error('Cannot accept terms of use while not logged in');
+      }
+      const updatedUser = (await updateMutator({
+        collection: Users,
+        documentId: currentUser._id,
+        set: {
+          acceptedTos: true,
+        },
+        validate: false,
+      })).data;
+      return updatedUser.acceptedTos;
+    },
+  },
 })
 
 addGraphQLMutation(
-  'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String): NewUserCompletedProfile'
+  'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
+)
+addGraphQLMutation(
+  'UserAcceptTos: Boolean'
 )

@@ -36,6 +36,14 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
+/**
+ * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
+ * and we require them to fill this in in the NewUserCompleteProfile form before continuing.
+ * This is a list of route names that the user is allowed to view despite having an
+ * 'incomplete' account.
+ */
+const allowedIncompletePaths: string[] = ["termsOfUse"];
+
 const styles = (theme: ThemeType): JssStyles => ({
   main: {
     paddingTop: 50,
@@ -280,7 +288,7 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset
+                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name)
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
