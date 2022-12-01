@@ -623,6 +623,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'The Effective Altruism Handbook',
     },
     {
+      name: 'termsOfUse',
+      path: '/termsOfUse',
+      componentName: 'EATermsOfUsePage',
+    },
+    {
       name: 'intro',
       path: '/intro',
       componentName: 'PostsSingleRoute',
