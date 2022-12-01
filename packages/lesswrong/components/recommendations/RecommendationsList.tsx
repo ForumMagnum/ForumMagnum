@@ -14,8 +14,14 @@ const RecommendationsList = ({algorithm, translucentBackground}: {
     return <PostsLoading/>
 
   return <div>
-    {recommendations.map(post =>
-      <PostsItem2 post={post} key={post._id} translucentBackground={translucentBackground}/>)}
+    {recommendations.map(recommendation =>
+      <PostsItem2
+        post={recommendation.post}
+        recommendationId={recommendation.id}
+        key={recommendation.post._id}
+        translucentBackground={translucentBackground}
+      />
+    )}
     {recommendations.length===0 &&
       <Typography variant="body1"><small>There are no more recommendations left.</small></Typography>}
   </div>

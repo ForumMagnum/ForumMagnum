@@ -5,11 +5,13 @@ import { Collections } from '../../lib/collections/collections/collection';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from '../partiallyReadSequences';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { WeightedList } from '../weightedList';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import SelectQuery from "../../lib/sql/SelectQuery";
+import { randomId } from '../../lib/random';
+import RecommendationLogs from '../../lib/collections/recommendationLogs/collection';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -355,7 +357,7 @@ addGraphQLResolvers({
       return await getResumeSequences(currentUser, context);
     },
 
-    async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
+    async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext): Promise<RecommendationResult[]> {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
       const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
@@ -363,7 +365,29 @@ addGraphQLResolvers({
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
-      return accessFilteredPosts;
+      const recommendationIds = accessFilteredPosts.map(post => randomId())
+      const recommendationResults: RecommendationResult[] = []
+      for (let i=0; i<accessFilteredPosts.length; i++) {
+        const post = accessFilteredPosts[i]
+        const recommendationId = recommendationIds[i]
+        void createMutator({
+          collection: RecommendationLogs,
+          currentUser,
+          document: {
+            postId: post._id,
+            clientId: null, // TODO
+            userId: currentUser?._id,
+            recommendationType: "", // TODO
+          },
+          context,
+          validate: false,
+        })
+        recommendationResults.push({
+          id: recommendationId,
+          post,
+        })
+      }
+      return recommendationResults;
     }
   },
   Mutation: {
@@ -393,6 +417,18 @@ addGraphQLSchema(`
   }
 `);
 
+type RecommendationResult = {
+  id: string,
+  post: DbPost,
+}
+
+addGraphQLSchema(`
+  type RecommendationResult {
+    id: String!
+    post: Post!
+  }
+`);
+
 addGraphQLQuery("ContinueReading: [RecommendResumeSequence!]");
-addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
+addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [RecommendationResult!]");
 addGraphQLMutation("dismissRecommendation(postId: String): Boolean");

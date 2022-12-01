@@ -350,12 +350,13 @@ const PostsItem2 = ({
   hideAuthor=false,
   hideTrailingButtons=false,
   tooltipPlacement="bottom-end",
-  classes,
   curatedIconLeft=false,
   strikethroughTitle=false,
   translucentBackground=false,
   forceSticky=false,
-  showReadCheckbox=false
+  showReadCheckbox=false,
+  recommendationId,
+  classes,
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -402,12 +403,13 @@ const PostsItem2 = ({
   hideAuthor?: boolean,
   hideTrailingButtons?: boolean,
   tooltipPlacement?: PopperPlacementType,
-  classes: ClassesType,
   curatedIconLeft?: boolean,
   strikethroughTitle?: boolean
   translucentBackground?: boolean,
   forceSticky?: boolean,
-  showReadCheckbox?: boolean
+  showReadCheckbox?: boolean,
+  recommendationId?: string,
+  classes: ClassesType,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -533,6 +535,7 @@ const PostsItem2 = ({
                       {...(showPersonalIcon ? {showPersonalIcon} : {})}
                       curatedIconLeft={curatedIconLeft}
                       strikethroughTitle={strikethroughTitle}
+                      recommendationId={recommendationId}
                     />
                   </AnalyticsTracker>
                 </span>

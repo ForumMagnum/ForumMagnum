@@ -35,7 +35,7 @@ const EmailFooterRecommendations = ({classes}: {
     <h2 className={classes.recommendedPostsHeader}>Other Recommended Posts</h2>
     <ul>
       {/* TODO: Watch for this referrer */}
-      {recommendations?.map(post => <li key={post._id}><a href={`${postGetPageUrl(post, true)}?referrer=emailfooter`}>{post.title}</a></li>)}
+      {recommendations?.map(rec => <li key={rec.post._id}><a href={`${postGetPageUrl(rec.post, true)}?referrer=emailfooter`}>{rec.post.title}</a></li>)}
     </ul>
   </>
 }

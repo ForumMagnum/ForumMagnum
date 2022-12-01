@@ -32,6 +32,7 @@ const schema: SchemaType<DbRecommendationLog> = {
   },
   seen: {
     type: Boolean,
+    ...schemaDefaultValue(false),
   },
   recommendationType: {
     type: "String",

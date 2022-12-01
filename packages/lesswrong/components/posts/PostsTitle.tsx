@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
+import { gql, useMutation } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -110,7 +111,8 @@ const PostsTitle = ({
   showIcons=true, 
   isLink=true, 
   curatedIconLeft=true, 
-  strikethroughTitle=false
+  strikethroughTitle=false,
+  recommendationId,
 }:{
   post: PostsBase|PostsListBase,
   postLink?: string,
@@ -126,9 +128,15 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
+  recommendationId?: string
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
+  const [recordClickthroughMutation] = useMutation(gql`
+    mutation recordClickthrough($recommendationId: String!) {
+      recordClickthrough(recommendationId: $recommendationId)
+    }
+  `)
   const { PostsItemIcons, CuratedIcon } = Components
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
@@ -153,6 +161,14 @@ const PostsTitle = ({
 
     <span>{post.title}</span>
   </span>
+  
+  const trackRecommendationClick = () => {
+    if (!recommendationId) {
+      return
+    }
+    console.log('tracking rec click', recommendationId)
+    void recordClickthroughMutation({variables: {recommendationId}})
+  }
 
   return (
     <span className={classNames(classes.root, {
@@ -163,7 +179,12 @@ const PostsTitle = ({
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}
-      {isLink ? <Link to={url}>{title}</Link> : title }
+      {isLink ? <Link
+        to={url}
+        onClick={trackRecommendationClick}
+      >
+        {title}
+      </Link> : title }
       {showIcons && <span className={classes.hideSmDown}>
         <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
       </span>}

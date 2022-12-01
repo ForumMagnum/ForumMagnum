@@ -120,6 +120,7 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
       }),
       addOriginalField: true,
     },
+    // nullable,
   }
 }
 

@@ -37,7 +37,7 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
 
 export const Link = (props: LinkProps) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
-  const handleClick = (e) => {
+  const handleMouseDown = (e) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)
   }
@@ -47,7 +47,7 @@ export const Link = (props: LinkProps) => {
     console.error("Props 'to' for Link components only accepts strings or objects, passed type: ", typeof props.to)
     return <span>Broken Link</span>
   }
-  return <HashLink {...props} onMouseDown={handleClick}/>
+  return <HashLink {...props} onMouseDown={handleMouseDown}/>
 }
 
 export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}) => {

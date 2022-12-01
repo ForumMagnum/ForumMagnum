@@ -1,6 +1,7 @@
 import { defineMutation } from '../utils/serverGraphqlUtil';
 import { UserPostEngagements } from '../../lib/collections/userPostEngagements/collection';
 import { RecommendationLogs } from '../../lib/collections/recommendationLogs/collection';
+import { createMutator } from '../vulcan-lib';
 
 defineMutation({
   name: "recordImpression",
@@ -8,6 +9,33 @@ defineMutation({
   argTypes: "(recommendationId: String!)",
   fn: async (root: any, {recommendationId}: {recommendationId: string}, context: ResolverContext): Promise<boolean> => {
     // TODO
+    return true;
+  },
+});
+
+defineMutation({
+  name: "recordClickthrough",
+  resultType: "Boolean!",
+  argTypes: "(recommendationId: String!)",
+  fn: async (root: any, {recommendationId}: {recommendationId: string}, context: ResolverContext): Promise<boolean> => {
+    const recommendation = await RecommendationLogs.findOne({_id: recommendationId});
+    if (!recommendation) {
+      throw new Error("Invalid recommendation ID");
+    }
+    const existingEngagement = await UserPostEngagements.findOne({postId: recommendation.postId, userId: context.currentUser?._id}); // TODO logged out case
+    if (existingEngagement) {
+      return true
+    }
+    await createMutator({
+      collection: UserPostEngagements,
+      document: {
+        postId: recommendation.postId,
+        userId: context.currentUser?._id,
+        clientId: null, // TODO
+        referralType: "recommendation",
+        referralRecommendation: recommendationId,
+      },
+    })
     return true;
   },
 });
