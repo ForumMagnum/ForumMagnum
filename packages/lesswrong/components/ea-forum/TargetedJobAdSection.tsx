@@ -64,7 +64,6 @@ const TargetedJobAdSection = () => {
     
     const userTags = currentUser.profileTagIds ?? []
     const userJobAds = results.length ? results[0].jobAds : {}
-    
     for (let jobName in JOB_AD_DATA) {
       if (shouldShowJob(jobName, userTags, userJobAds, JOB_AD_DATA[jobName].tagId)) {
         setActiveJob(jobName)
@@ -76,12 +75,7 @@ const TargetedJobAdSection = () => {
 
   // record when this user has seen the selected ad
   useEffect(() => {
-    console.log('entry', entry)
-    console.log('isIntersecting', entry?.isIntersecting)
-    console.log('isVisible', entry?.isVisible)
-    console.log('activeJob', activeJob)
     if (!currentUser || !results || !activeJob || !entry?.isIntersecting) return
-
     // if we're not tracking this user at all, start tracking them
     if (!results.length) {
       void createJobAdView({

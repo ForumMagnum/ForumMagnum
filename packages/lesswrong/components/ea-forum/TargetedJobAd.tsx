@@ -368,6 +368,35 @@ export const JOB_AD_DATA = {
       </div>
     </>
   },
+  'writing-evidence-action': {
+    tagId: 'CGameg7coDgLbtgdH',//TODO delete
+    logo: 'https://80000hours.org/wp-content/uploads/2018/04/evidence_action-150x150.png',
+    occupation: 'writing',
+    feedbackLinkPrefill: 'Writer+at+Evidence+Action',
+    bitlyLink: "https://efctv.org/3A16UNq",
+    role: 'Writer',
+    org: 'Evidence Action',
+    orgSlug: 'evidence-action',
+    salary: '',
+    location: 'Remote / Washington DC',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://www.evidenceaction.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Evidence Action
+        </a> is a nonprofit working to reduce <span className={classes.link}>
+          <Components.HoverPreviewLink href="/topics/global-poverty" innerHTML="global poverty"/>
+        </span> via scaling evidence-based and cost-effective programs.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates:
+        <ul>
+          <li>Have a Bachelor's degree and 3 - 5 years of communications-related work experience, or equivalent</li>
+          <li>Have demonstrated an ability to generate high-quality content for a range of technical and non-technical audiences</li>
+          <li>Have meticulous attention to detail when editing</li>
+        </ul>
+      </div>
+    </>
+  },
 }
 
 const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, classes}: {
