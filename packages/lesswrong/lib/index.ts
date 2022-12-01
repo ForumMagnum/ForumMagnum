@@ -126,6 +126,7 @@ import './collections/books/permissions';
 
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
+import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
 

@@ -4,7 +4,7 @@ import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable'
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
@@ -128,7 +128,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   useEffect(() => {
     if (editorRef.current) {
       const cleanupSubmitForm = context.addToSubmitForm(async (submission) => {
-        if (editorRef.current)
+        if (editorRef.current && shouldSubmitContents(editorRef.current))
           return {
             ...submission,
             [fieldName]: await editorRef.current.submitData(submission)
@@ -202,9 +202,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-    <Components.PostVersionHistoryButton
-      postId={document._id}
-    />
+      <Components.PostVersionHistoryButton
+        post={document}
+        postId={document._id}
+      />
     }
   </div>
 }

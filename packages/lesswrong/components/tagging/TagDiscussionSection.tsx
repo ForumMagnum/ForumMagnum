@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -25,18 +24,18 @@ const TagDiscussionSection = ({classes, tag}: {
     enableTotal: true,
   });
   
-  const nestedComments = !!results && unflattenComments(results);
-  
-  if (!nestedComments) return null
+  if (!results)
+    return null
   
   return (
     <CommentsListSection
-      comments={nestedComments} tag={tag ? tag : undefined}
+      comments={results} tag={tag ? tag : undefined}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
       commentCount={(results?.length) || 0}
       loadingMoreComments={loadingMore}
       newForm={true}
+      newFormProps={{enableGuidelines: false}}
     />
   );
 }

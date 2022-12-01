@@ -370,6 +370,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
+  readonly subforumStickyPriority: number | null,
   readonly userId: string,
   readonly userIP: string,
   readonly userAgent: string,
@@ -640,6 +641,11 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly linkSharingKeyUsedBy: Array<string>,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
+  readonly tableOfContents: any,
+  readonly tableOfContentsRevision: any,
+  readonly sideComments: any,
+  readonly sideCommentsCache: any /*{"definitions":[{}]}*/,
+  readonly sideCommentVisibility: string,
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
@@ -902,6 +908,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly socialPreviewImageUrl: string,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
+  readonly sideCommentVisibility: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
   readonly canonicalNextPostSlug: string,
@@ -1164,6 +1171,11 @@ interface HighlightWithHash_contents { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
 }
 
+interface PostSideComments { // fragment on Posts
+  readonly _id: string,
+  readonly sideComments: any,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -1203,6 +1215,7 @@ interface CommentsList { // fragment on Comments
   readonly shortform: boolean,
   readonly lastSubthreadActivity: Date,
   readonly moderatorHat: boolean,
+  readonly hideModeratorHat: boolean | null,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly promoted: boolean,
@@ -1260,6 +1273,10 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
 
 interface CommentsListWithParentMetadata extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
+  readonly tag: TagBasicInfo|null,
+}
+
+interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
   readonly tag: TagBasicInfo|null,
 }
 
@@ -1913,10 +1930,16 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
+  readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
+}
+
+interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -1926,11 +1949,13 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
 }
 
 interface TagFragment_parentTag { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
 
 interface TagFragment_subTags { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
@@ -1964,11 +1989,13 @@ interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
 }
 
 interface TagRevisionFragment_parentTag { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
 
 interface TagRevisionFragment_subTags { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
@@ -1989,11 +2016,13 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagPreviewFragment_parentTag { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
 
 interface TagPreviewFragment_subTags { // fragment on Tags
+  readonly _id: string,
   readonly name: string,
   readonly slug: string,
 }
@@ -2012,6 +2041,12 @@ interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
 interface TagSubforumFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface TagSubtagFragment { // fragment on Tags
+  readonly _id: string,
+  readonly subforumModeratorIds: Array<string>,
+  readonly subTags: Array<TagPreviewFragment>,
 }
 
 interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
@@ -2041,7 +2076,13 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
+}
+
+interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
@@ -2053,7 +2094,13 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
+}
+
+interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -2066,6 +2113,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
+  readonly moderationGuidelines: RevisionEdit|null,
 }
 
 interface TagEditFragment_parentTag { // fragment on Tags
@@ -2733,7 +2781,7 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
   readonly endedAt: Date | null,
 }
 
@@ -2741,7 +2789,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -2838,6 +2886,7 @@ interface FragmentTypes {
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
   HighlightWithHash: HighlightWithHash
+  PostSideComments: PostSideComments
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -2845,6 +2894,7 @@ interface FragmentTypes {
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
+  StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   RevisionDisplay: RevisionDisplay
@@ -2910,6 +2960,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagSubforumFragment: TagSubforumFragment
+  TagSubtagFragment: TagSubtagFragment
   TagSubforumSidebarFragment: TagSubforumSidebarFragment
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
@@ -3012,6 +3063,7 @@ interface CollectionNamesByFragmentName {
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
   HighlightWithHash: "Posts"
+  PostSideComments: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3019,6 +3071,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
+  StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
   RevisionDisplay: "Revisions"
@@ -3084,6 +3137,7 @@ interface CollectionNamesByFragmentName {
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
   TagSubforumFragment: "Tags"
+  TagSubtagFragment: "Tags"
   TagSubforumSidebarFragment: "Tags"
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"

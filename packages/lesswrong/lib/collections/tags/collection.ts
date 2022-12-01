@@ -61,6 +61,11 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
 
 addUniversalFields({collection: Tags})
 
+export const userIsSubforumModerator = (user: DbUser|null, tag: DbTag): boolean => {
+  if (!user || !tag) return false;
+  return tag.subforumModeratorIds?.includes(user._id);
+}
+
 makeEditable({
   collection: Tags,
   options: {
@@ -87,10 +92,28 @@ makeEditable({
     fieldName: "subforumWelcomeText",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 });
+
+makeEditable({
+  collection: Tags,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.subforumModerationGuidelines,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      insertableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }
+})
 
 export default Tags;

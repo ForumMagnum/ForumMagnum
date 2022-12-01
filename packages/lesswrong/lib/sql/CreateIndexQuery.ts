@@ -63,7 +63,7 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     const tokens = fieldName.split(".");
     const name = `"${tokens[0]}"`;
     return {
-      useGin: tokens.length > 1,
+      useGin: tokens.length > 1 || this.table.getField(fieldName)?.isArray(),
       field: coalesceValue && this.isUnique ? `COALESCE(${name}, ${coalesceValue})` : name,
     };
   }

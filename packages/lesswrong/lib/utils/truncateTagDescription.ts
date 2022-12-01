@@ -1,3 +1,15 @@
+import { isServer } from "../executionEnvironment";
+
+const getInnerHTML = (html: string) => {
+  if (isServer) {
+    const cheerio = require("cheerio");
+    const $ = cheerio.load(html);
+    return $("body").html();
+  } else {
+    return new DOMParser().parseFromString(html, "text/html").body.innerHTML;
+  }
+}
+
 const truncateTagDescription = (htmlWithAnchors: string, withReadMore = true) => {
   for (let matchString of [
       'id="Further_reading"',
@@ -14,10 +26,8 @@ const truncateTagDescription = (htmlWithAnchors: string, withReadMore = true) =>
        * at the desired index, use `parseFromString` to clean up the HTML,
        * and then append our footer 'read more' element.
        */
-      return new DOMParser().parseFromString(
-          htmlWithAnchors.slice(0, truncationLength), 
-          'text/html'
-        ).body.innerHTML + (withReadMore ? "<span>...<p><a>(Read More)</a></p></span>" : "");
+      const innerHTML = getInnerHTML(htmlWithAnchors.slice(0, truncationLength));
+      return innerHTML + (withReadMore ? "<span>...<p><a>(Read More)</a></p></span>" : "");
     }
   }
   return htmlWithAnchors
