@@ -751,13 +751,14 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     optional: true,
   },
-
+  // Results (sum) of the quadratic votes when filtering only for users with >1000 karma
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
+  // A list of each individual user's calculated quadratic vote, for users with >1000 karma
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
@@ -768,13 +769,14 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     optional: true,
   },
-
+  // Results (sum) of the quadratic votes for all users
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
+  // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     type: Array,
     optional: true,

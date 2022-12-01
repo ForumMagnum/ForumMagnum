@@ -7,10 +7,10 @@ import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhas
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export type ReviewYear = 2018 | 2019 | 2020
+export type ReviewYear = 2018 | 2019 | 2020 | 2021
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2020
+export const REVIEW_YEAR: ReviewYear = 2021
 
 // Probably only used while the EA Forum is doing something sufficiently different
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`

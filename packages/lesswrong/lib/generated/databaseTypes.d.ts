@@ -870,6 +870,8 @@ interface DbTag extends DbObject {
   description_latest: string
   subforumWelcomeText: EditableFieldContents
   subforumWelcomeText_latest: string
+  moderationGuidelines: EditableFieldContents
+  moderationGuidelines_latest: string
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
