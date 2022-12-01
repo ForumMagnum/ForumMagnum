@@ -1,7 +1,7 @@
 /**
  * This migration exists purely to add the first schema hash.
  */
-export const acceptsSchemaHash = "2e6dd768e7ca4ef6f586c863fba6cb03";
+export const acceptsSchemaHash = "d8fc391a26a0c08d334ad6380a41534f";
 
 export const up = async ({db}: MigrationContext) => {
   // TODO
