@@ -8,6 +8,7 @@ import "./UpdateQuery";
 import "./DeleteQuery";
 import "./CreateTableQuery";
 import "./CreateIndexQuery";
+import "./AddFieldQuery";
 import "./DropIndexQuery";
 import "./Pipeline";
 import "./PgCollection";
