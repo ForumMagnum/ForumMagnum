@@ -20,7 +20,6 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row",
     rowGap: "15px",
     padding: "30px 5px 20px 5px",
-    cursor: "pointer",
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -66,7 +65,7 @@ const PostsAcceptTos = ({currentUser, classes}: {
   }
 
   return (
-    <div className={classes.root} onClick={onAccept}>
+    <div className={classes.root}>
       <Checkbox
         onChange={onAccept}
         checked={loading}
