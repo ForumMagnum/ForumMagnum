@@ -19,11 +19,10 @@ import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/sche
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 import { captureException } from '@sentry/core';
+import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-export const TOS_NOT_ACCEPTED_ERROR = 'You must accept the terms of use before you can publish this post';
-export const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
 
 if (forumTypeSetting.get() === "EAForum") {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
