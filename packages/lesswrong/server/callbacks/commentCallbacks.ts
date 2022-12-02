@@ -235,6 +235,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
+    // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
     const noEmail = forumTypeSetting.get() === "EAForum" 
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
