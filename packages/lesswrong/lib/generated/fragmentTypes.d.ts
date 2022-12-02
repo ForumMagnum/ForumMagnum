@@ -322,6 +322,7 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
 
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
+  readonly createdAt: Date,
   readonly userId: string,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -637,7 +638,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly metaSticky: boolean,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly shareWithUsers: Array<string>,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
@@ -1063,12 +1064,12 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
   readonly version: string,
   readonly coauthorStatuses: Array<{
     userId: string,
