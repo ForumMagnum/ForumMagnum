@@ -157,10 +157,18 @@ const PostActions = ({post, closeMenu, classes}: {
     })
   }
 
+  // TODO – refactor this so it shares code with the version in ModeratorActions and 
+  // can't get out of sync again.
   const handleApproveUser = async () => {
     await updateUser({
       selector: {_id: post.userId},
-      data: {reviewedByUserId: currentUser?._id}
+      data: {
+        reviewedByUserId: currentUser?._id, 
+        sunshineFlagged: false,
+        reviewedAt: new Date(),
+        needsReview: false,
+        snoozedUntilContentCount: null
+      }
     })
   }
 
