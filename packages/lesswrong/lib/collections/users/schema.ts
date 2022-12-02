@@ -1242,7 +1242,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings

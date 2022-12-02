@@ -121,6 +121,26 @@ addGraphQLResolvers({
       })).data;
       return updatedUser.acceptedTos;
     },
+    async UserJoinSubforum(root: void, { tagId }: {tagId: string}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Cannot join subforum without being logged in')
+      }
+      if (currentUser.profileTagIds?.includes(tagId)) {
+        throw new Error('User is aleady a member of this subforum')
+      }
+
+      const updatedUser = await updateMutator({
+        collection: Users,
+        documentId: currentUser._id,
+        set: {
+          profileTagIds: [...currentUser.profileTagIds, tagId]
+        },
+        // We've already done necessary gating
+        validate: false
+      })
+      
+    },
   },
 })
 
@@ -129,4 +149,7 @@ addGraphQLMutation(
 )
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
+)
+addGraphQLMutation(
+  'UserJoinSubforum(tagId: String!): Boolean'
 )
