@@ -3,6 +3,7 @@ import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
 import Users from "../../lib/collections/users/collection";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
+import { TOS_NOT_ACCEPTED_ERROR, TOS_NOT_ACCEPTED_REMOTE_ERROR } from "../callbacks/postCallbacks";
 import { ApiError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
@@ -37,7 +38,12 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   if (isLeft(validatedResponse)) {
     // eslint-disable-next-line no-console
     console.error("Cross-site request failed:", json);
-    throw new ApiError(500, onErrorMessage);
+    let errorMessage = onErrorMessage;
+    // TODO: temporary patch for surfacing 
+    if ('error' in json && json.error === TOS_NOT_ACCEPTED_ERROR) {
+      errorMessage = TOS_NOT_ACCEPTED_REMOTE_ERROR;
+    }
+    throw new ApiError(500, errorMessage);
   }
   
   return validatedResponse.right;
