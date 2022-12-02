@@ -18,8 +18,10 @@ import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
+import { Editor, EditorTypeString, getInitialEditorContents, styles as editorStyles } from '../../editor/Editor';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  ...editorStyles, // WARNING: this can cause problems if class names overlap
   root: {
     maxWidth: 1000,
     margin: '0 auto',
@@ -93,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[55]
     }
   },
-  label: {
+  formLabel: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
     lineHeight: '24px',
@@ -279,18 +281,21 @@ const EAGApplicationImportForm = ({classes}: {
     'careerStage',
     // 'biography',
     // 'howOthersCanHelpMe',
-    // 'howICanHelpOthers',
+    'howICanHelpOthers',
     // 'organizerOfGroupIds', // TODO: implement later - for the first release I decided this wasn't worth the effort to include
     'mapLocation',
     'linkedinProfileURL',
   ]
-  // formValues holds the state of the form EXCEPT for CKEditor fields, which have their own state
-  const [formValues, setFormValues] = useState(pick(currentUser, formFields))
+  // formValues holds the state of the form
+  const [formValues, setFormValues] = useState({
+    ...pick(currentUser, formFields),
+    'howICanHelpOthers': getInitialEditorContents(currentUser?.howICanHelpOthers, currentUser, 'howICanHelpOthers', currentUser)
+  })
 
   // these are used to access CKEditor fields, to copy over the imported data
   const biographyRef = useRef<EditorFormComponentRefType>(null)
   const howOthersCanHelpMeRef = useRef<EditorFormComponentRefType>(null)
-  const howICanHelpOthersRef = useRef<EditorFormComponentRefType>(null)
+  const howICanHelpOthersRef = useRef<Editor|null>(null)
   // CKEditor fields use this to insert their data before we submit the form
   const submitFormCallbacks = useRef<Array<Function>>([])
   // CKEditor fields use this to clear local storage after successfully submitting the form
@@ -330,9 +335,9 @@ const EAGApplicationImportForm = ({classes}: {
       linkedinProfileURL: importLinkedinProfileURL()
     })
     // update CKEditor fields
-    biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
-    howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
-    howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
+    // biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
+    // howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
+    // howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
   }
   
   const handleCopyField = async (e, field) => {
@@ -347,7 +352,7 @@ const EAGApplicationImportForm = ({classes}: {
         howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
         return
       case 'howICanHelpOthers':
-        howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
+        howICanHelpOthersRef?.current?.setContents?.("ckEditorMarkup", importedData.howICanHelpOthers.ckEditorValue)
         return
       // case 'organizerOfGroupIds':
       //   // TODO: this field needs more work -
@@ -422,7 +427,7 @@ const EAGApplicationImportForm = ({classes}: {
       // update CKEditor fields
       // biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
       // howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
-      // howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
+      howICanHelpOthersRef?.current?.setContents("markdown", importedData.howICanHelpOthers.markdownValue)
     }
     
     for (let field in updatedFormData) {
@@ -525,7 +530,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
       
       <div className={classes.formRow}>
-        <label className={classes.label}>Role</label>
+        <label className={classes.formLabel}>Role</label>
         <Input name="jobTitle" value={formValues.jobTitle} onChange={(e) => handleChangeField(e, 'jobTitle')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'jobTitle')}>
@@ -536,7 +541,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
     
       <div className={classes.formRow}>
-        <label className={classes.label}>Organization</label>
+        <label className={classes.formLabel}>Organization</label>
         <Input name="organization" value={formValues.organization} onChange={(e) => handleChangeField(e, 'organization')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organization')}>
@@ -547,7 +552,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
       
       <div className={classes.formRow}>
-        <label className={classes.label}>Career stage</label>
+        <label className={classes.formLabel}>Career stage</label>
         <FormComponentMultiSelect
           options={CAREER_STAGES}
           value={formValues.careerStage || []}
@@ -573,7 +578,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
       
       {/* <div className={classes.formRow}>
-        <label className={classes.label}>Bio</label>
+        <label className={classes.formLabel}>Bio</label>
         <EditorFormComponent
           ref={biographyRef}
           document={currentUser}
@@ -596,7 +601,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
       
       <div className={classes.formRow}>
-        <label className={classes.label}>How others can help me</label>
+        <label className={classes.formLabel}>How others can help me</label>
         <EditorFormComponent
           ref={howOthersCanHelpMeRef}
           document={currentUser}
@@ -616,20 +621,23 @@ const EAGApplicationImportForm = ({classes}: {
         <ContentStyles contentType="comment">
           <div dangerouslySetInnerHTML={{__html: importedData.howOthersCanHelpMe.ckEditorValue}}></div>
         </ContentStyles>
-      </div>
+      </div> */}
       
       <div className={classes.formRow}>
-        <label className={classes.label}>How I can help others</label>
-        <EditorFormComponent
+        <label className={classes.formLabel}>How I can help others</label>
+        <Editor
           ref={howICanHelpOthersRef}
-          document={currentUser}
-          name="howICanHelpOthers"
-          value={currentUser.howICanHelpOthers?.ckEditorMarkup}
-          {...getSchema(Users).howICanHelpOthers}
-          {...getSchema(Users).howICanHelpOthers.form}
+          _classes={classes}
+          documentId={currentUser._id}
+          collectionName="Users"
+          fieldName="howICanHelpOthers"
+          value={formValues.howICanHelpOthers}
           label=""
-          addToSubmitForm={data => submitFormCallbacks.current.push(data)}
-          addToSuccessForm={data => successFormCallbacks.current.push(data)}
+          currentUser={currentUser}
+          formType="edit"
+          initialEditorType="ckEditorMarkup"
+          isCollaborative={false}
+          onChange={({contents}) => handleUpdateValue({howICanHelpOthers: contents})}
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howICanHelpOthers')}>
@@ -639,10 +647,10 @@ const EAGApplicationImportForm = ({classes}: {
         <ContentStyles contentType="comment">
           <div dangerouslySetInnerHTML={{__html: importedData.howICanHelpOthers.ckEditorValue}}></div>
         </ContentStyles>
-      </div> */}
+      </div>
       
       {/* <div className={classes.formRow}>
-        <label className={classes.label}>Organizer of</label>
+        <label className={classes.formLabel}>Organizer of</label>
         <SelectLocalgroup
           currentUser={currentUser}
           value={formValues.organizerOfGroupIds || []}
@@ -663,7 +671,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div> */}
       
       <div className={classes.formRow}>
-        <label className={classes.label}>Public map location</label>
+        <label className={classes.formLabel}>Public map location</label>
         <LocationFormComponent
           document={currentUser}
           value={formValues.mapLocation}
@@ -679,7 +687,7 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
       
       <div className={classes.formRow}>
-        <label className={classes.label}>LinkedIn profile</label>
+        <label className={classes.formLabel}>LinkedIn profile</label>
         <PrefixedInput
           value={formValues.linkedinProfileURL}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
