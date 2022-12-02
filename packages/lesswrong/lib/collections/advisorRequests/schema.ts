@@ -4,14 +4,14 @@ import { userOwns } from '../../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema';
 
 export interface JobAdsType {
-  state: 'queued'|'seen'|'expanded'|'interested'|'uninterested'
+  state: 'seen'|'expanded'|'interested'|'uninterested'
   uninterestedReason?: string
   lastUpdated: Date
 }
 const jobAdsType = new SimpleSchema({
   state: {
     type: String,
-    allowedValues: ['queued', 'seen', 'expanded', 'interested', 'uninterested'],
+    allowedValues: ['seen', 'expanded', 'interested', 'uninterested'],
   },
   uninterestedReason: {
     type: String,

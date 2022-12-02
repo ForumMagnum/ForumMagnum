@@ -231,11 +231,16 @@ export const JOB_AD_DATA = {
         </span> organization, focused primarily on safeguarding future generations.
       </div>
       <div className={classes.description}>
-        Ideal candidates:
+        Ideal candidates have:
         <ul>
-          <li>Have academic or professional experience from a relevant field, such as medicine, biotechnology, public health, or engineering</li>
-          <li>Have a high-level understanding of the biosecurity field, including context around existing organizations and efforts</li>
-          <li>Have excellent written (English) communication</li>
+          <li>Academic or professional experience from a relevant field, such as medicine, biotechnology, public health, or engineering</li>
+          <li>
+            A high-level understanding of the <Components.HoverPreviewLink
+              href={makeAbsolute("/topics/biosecurity")}
+              innerHTML="biosecurity"
+            /> field, including context around existing organizations and efforts
+          </li>
+          <li>Excellent written (English) communication</li>
         </ul>
       </div>
     </>
@@ -245,17 +250,17 @@ export const JOB_AD_DATA = {
     tagId: 'mPDquzDnkBkgi2iKR', // Marketing
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
     occupation: 'marketing',
-    feedbackLinkPrefill: 'Head+of+Development,+UK+at+The+Humane+League',
+    feedbackLinkPrefill: 'Head+of+Development,+UK+at+The+Humane+League+UK',
     bitlyLink: "https://efctv.org/3VsAP9K",
     role: 'Head of Development, UK',
-    org: 'The Humane League',
+    org: 'The Humane League UK',
     orgSlug: 'the-humane-league',
     salary: '€58k+',
     location: 'Remote (UK-centric)',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <a href="http://www.thehumaneleague.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          The Humane League
+        <a href="https://thehumaneleague.org.uk/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          The Humane League UK
         </a> is an organization working to improve <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/animal-welfare-1")} innerHTML="animal welfare"/>
         </span> standards via corporate campaigns and grassroots outreach.
