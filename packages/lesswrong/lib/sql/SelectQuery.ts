@@ -3,7 +3,6 @@ import Table from "./Table";
 import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
 import { inspect } from "util";
-import { SHA1 } from "crypto-js";
 
 export type SimpleLookup = {
   from: string,
