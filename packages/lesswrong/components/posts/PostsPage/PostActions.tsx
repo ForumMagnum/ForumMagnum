@@ -157,7 +157,7 @@ const PostActions = ({post, closeMenu, classes}: {
     })
   }
 
-  // TODO – refactor this so it shares code with the version in ModeratorActions and 
+  // TODO - refactor this so it shares code with the version in ModeratorActions and 
   // can't get out of sync again.
   const handleApproveUser = async () => {
     await updateUser({
