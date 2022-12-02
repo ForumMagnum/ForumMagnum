@@ -67,7 +67,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -88,6 +88,7 @@ const CollectionsPage = ({ documentId, classes }: {
     const ButtonUntyped = Button as any;
     
     return (<ErrorBoundary><div className={classes.root}>
+    <CollectionTableOfContents collection={document}/>
       <SingleColumnSection>
         <div className={classes.header}>
           {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}

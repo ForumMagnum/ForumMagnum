@@ -619,6 +619,7 @@ importComponent("ChaptersEditForm", () => require('../components/sequences/Chapt
 importComponent("ChaptersNewForm", () => require('../components/sequences/ChaptersNewForm'));
 importComponent("CollectionsSingle", () => require('../components/sequences/CollectionsSingle'));
 importComponent("CollectionsPage", () => require('../components/sequences/CollectionsPage'));
+importComponent("CollectionTableOfContents", () => require('../components/sequences/CollectionTableOfContents'));
 importComponent("CollectionsItem", () => require('../components/sequences/CollectionsItem'));
 importComponent("CollectionsEditForm", () => require('../components/sequences/CollectionsEditForm'));
 importComponent("BooksNewForm", () => require('../components/sequences/BooksNewForm'));
