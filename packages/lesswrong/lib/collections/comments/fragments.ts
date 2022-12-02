@@ -13,6 +13,7 @@ registerFragment(`
       _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -46,6 +47,7 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
+    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted
@@ -130,6 +132,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
     _id
@@ -141,5 +152,14 @@ registerFragment(`
     afBaseScore
     afExtendedScore
     voteCount
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
   }
 `);

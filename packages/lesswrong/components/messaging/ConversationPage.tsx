@@ -121,7 +121,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         <div className={classes.editor}>
           <NewMessageForm  
             conversationId={conversation._id}
-            templateQueries={{templateCommentId: query.templateCommentId, displayName: query.displayName}}
+            templateQueries={{templateId: query.templateId, displayName: query.displayName}}
             successEvent={() => {
               captureEvent('messageSent', {
                 conversationId: conversation._id,

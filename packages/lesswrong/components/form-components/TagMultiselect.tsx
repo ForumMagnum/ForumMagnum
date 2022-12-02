@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FormLabel from '@material-ui/core/FormLabel';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   label: {
@@ -12,30 +13,45 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     width: '100%',
     maxWidth: 350,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
-    padding: 10,
+    border: "none",
     marginBottom: 8,
+    '& .SearchAutoComplete-autoComplete input': {
+      fontSize: 13
+    },
     '& input': {
-      width: '100%'
+      width: '100%',
+      cursor: "pointer",
     }
   },
+  focused: {
+    border: theme.palette.border.extraFaint,
+    borderRadius: 3,
+    padding: 5,
+    '& input': {
+      cursor: "text"
+    }
+  }
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, updateCurrentValues }: {
+const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false, updateCurrentValues }: {
   value: Array<string>,
   path: string,
   classes: ClassesType,
   label?: string,
   placeholder?: string,
   hidePostCount?: boolean,
-  updateCurrentValues<T extends {}>(values: T): void,
+  startWithBorder?: boolean,
+  updateCurrentValues(values): void,
 }) => {
-  
-  const addTag = (id: string) => {
-    if (!value.includes(id)) {
-      value.push(id)
-      updateCurrentValues({ [path]: value })
+  const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
+
+  const [focused, setFocused] = useState(startWithBorder)
+
+  const addTag = (id: string, tag: AlgoliaTag | null) => {
+    const ids = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
+    if (ids.length) {
+      const newValue = value.concat(ids)
+      updateCurrentValues({ [path]: newValue })
     }
   }
   
@@ -50,22 +66,22 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
       {label && <FormLabel className={classes.label}>{label}</FormLabel>}
       <div className={classes.tags}>
         {value.map(tagId => {
-          return <Components.SingleTagItem
+          return <SingleTagItem
             key={tagId}
             documentId={tagId}
             onDelete={(_: string) => removeTag(tagId)}
           />
         })}
       </div>
-      <Components.ErrorBoundary>
-        <div className={classes.inputContainer}>
-          <Components.TagsSearchAutoComplete
-            clickAction={(id: string) => addTag(id)}
+      <ErrorBoundary>
+        <div className={classNames(classes.inputContainer, {[classes.focused]:focused})} onClick={() => setFocused(true)}>
+          <TagsSearchAutoComplete
+            clickAction={(id: string, tag: AlgoliaTag | null) => addTag(id, tag)}
             placeholder={placeholder}
             hidePostCount={hidePostCount}
           />
         </div>
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
     </div>
   )
 }

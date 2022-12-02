@@ -1,5 +1,5 @@
+import React, { useState, useContext, createContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React from 'react';
 import { userGetCommentCount, userGetPostCount, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -11,11 +11,12 @@ import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
-    whiteSpace: "nowrap",
-    color: "inherit"
+    color: "inherit !important"
   },
   tooltip: {
     maxWidth: 250,
@@ -40,17 +41,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-// Given a user (which may not be null), render the user name as a link with a
-// tooltip. This should not be used directly; use UsersName instead.
+type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean)=>void};
+export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >({disableNoKibitz: false, setDisableNoKibitz: ()=>{}});
+
+/**
+ * Given a user (which may not be null), render the user name as a link with a
+ * tooltip. This should not be used directly; use UsersName instead.
+ */
 const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
   user: UsersMinimumInfo|null|undefined,
   nofollow?: boolean,
   simple?: boolean,
   classes: ClassesType,
-  tooltipPlacement?: "left" | "top" | "right" | "bottom",
+  tooltipPlacement?: PopperPlacementType,
   className?: string,
 }) => {
-  const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
+  const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
+  const currentUser = useCurrentUser();
+  const {disableNoKibitz} = useContext(DisableNoKibitzContext);
+  const noKibitz = (currentUser
+    && (currentUser.noKibitz ?? false)
+    && user
+    && currentUser._id !== user._id  //don't nokibitz your own name
+    && !disableNoKibitz
+    && !hover
+  );
+  const [clickedToReveal, setClickedToReveal] = useState(false);
 
   if (!user || user.deleted) {
     return <Components.UserNameDeleted/>
@@ -74,9 +90,13 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contribution{wikiContributionCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </span>
+  
+  const displayName = noKibitz ? "(hidden)" : userGetDisplayName(user);
 
   if (simple) {
-    return <span {...eventHandlers} className={classNames(classes.userName, className)}>{userGetDisplayName(user)}</span>
+    return <span {...eventHandlers} className={classNames(classes.userName, className)}>
+      {displayName}
+    </span>
   }
 
   return <span {...eventHandlers} className={className}>
@@ -85,7 +105,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
       <Link to={userGetProfileUrl(user)} className={classes.userName}
         {...(nofollow ? {rel:"nofollow"} : {})}
       >
-        {userGetDisplayName(user)}
+        {displayName}
       </Link>
     </LWTooltip>
     </AnalyticsContext>

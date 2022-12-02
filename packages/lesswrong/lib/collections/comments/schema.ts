@@ -8,6 +8,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import GraphQLJSON from 'graphql-type-json';
 import { commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
+import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 
 
 export const moderationOptionsGroup: FormGroup = {
@@ -119,6 +120,15 @@ const schema: SchemaType<DbComment> = {
     allowedValues: Object.values(tagCommentTypes),
     hidden: true,
     ...schemaDefaultValue("DISCUSSION"),
+  },
+  subforumStickyPriority: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
   },
   // The comment author's `_id`
   userId: {
@@ -402,12 +412,8 @@ const schema: SchemaType<DbComment> = {
   votingSystem: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      if (!comment?.postId) {
-        return "default";
-      }
-      const post = await context.loaders.Posts.load(comment.postId);
-      return post.votingSystem || "default";
+    resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
+      return getVotingSystemNameForDocument(comment, context)
     }
   }),
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -597,7 +603,24 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-    hidden: true,
+    hidden: true
+  },
+
+  /**
+   * Suppress user-visible styling for comments marked with `moderatorHat: true`
+   */
+  hideModeratorHat: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    onUpdate: ({ newDocument }) => {
+      if (!newDocument.moderatorHat) return null;
+      return newDocument.hideModeratorHat;
+    },
+    hidden: true
   },
 
   // whether this comment is pinned on the author's profile
@@ -624,18 +647,6 @@ Object.assign(schema, {
     editableBy: ['alignmentForum', 'admins'],
     insertableBy: ['alignmentForum', 'admins'],
     hidden: (props) => alignmentForum || !props.alignmentForumPost
-  },
-
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
   },
 
   suggestForAlignmentUserIds: {
@@ -673,7 +684,6 @@ Object.assign(schema, {
     type: Date,
     optional: true,
     label: "Alignment Forum",
-    defaultValue: false,
     hidden: true,
     viewableBy: ['guests'],
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
@@ -694,6 +704,15 @@ Object.assign(schema, {
     editableBy: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     group: alignmentOptionsGroup,
     label: "Move to Alignment UserId",
+  },
+
+  agentFoundationsId: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: [userOwns, 'admins'],
+    editableBy: [userOwns, 'admins'],
   },
 });
 

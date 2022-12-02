@@ -100,6 +100,7 @@ registerFragment(`
     beta
     email
     services
+    acceptedTos
     pageUrl
     voteBanned
     banned
@@ -128,6 +129,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    noKibitz
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
@@ -266,6 +268,8 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    mapLocation
+    profileImageId
     
     needsReview
     sunshineNotes
@@ -335,6 +339,7 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
+    theme
 
     # Emails
     email
@@ -349,6 +354,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    noKibitz
     showHideKarmaOption
 
     # Ban & Purge

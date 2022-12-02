@@ -218,6 +218,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey800: shades.grey[800],
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
+    primaryDim: "#5caab7"
   },
   linkHover: {
     dim: shades.greyAlpha(.3),
@@ -396,7 +397,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   tag: {
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
-    coreTagBorder: shades.greyBorder("1px", .12),
+    coreTagBorder: shades.greyBorder("1px", .15),
     text: shades.greyAlpha(.9),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     hollowTagBackground: shades.grey[0],
@@ -427,6 +428,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sideCommentEditorBackground: "#f3f7fb",
     commentMarker: "#fef7a9",
     commentMarkerActive: "#fdf05d",
+  },
+  blockquoteHighlight: {
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
+  },
+  embeddedPlayer: {
+    opacity: 1,
   },
   
   commentParentScrollerHover: shades.greyAlpha(.075),

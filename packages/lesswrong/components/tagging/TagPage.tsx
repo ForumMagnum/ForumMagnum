@@ -117,6 +117,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.extraFaint,
     borderBottom: theme.palette.border.extraFaint,
   },
+  relatedTag : {
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
+  },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
   },

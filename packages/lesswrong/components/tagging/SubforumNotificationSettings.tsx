@@ -1,46 +1,73 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import Checkbox from '@material-ui/core/Checkbox';
+import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Paper from "@material-ui/core/Paper";
 import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@apollo/client";
 import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
+import { useFilterSettings } from '../../lib/filterSettings';
+import { useMessages } from "../common/withMessages";
+import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
+import { useCreate } from "../../lib/crud/withCreate";
+import { max } from "underscore";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
-    margin: "0px 12px 10px 0px",
     padding: 4,
   },
   popout: {
-    padding: "1px 0px 4px 0px",
+    padding: "4px 0px 4px 0px",
+    maxWidth: 260,
+    '& .form-input': {
+      marginTop: 0,
+    },
+    '& .form-input:last-child': {
+      marginBottom: 4,
+    }
+  },
+  checkbox: {
+    display: "flex",
+    alignItems: "center",
+    marginRight: 24,
+    "& .MuiButtonBase-root": {
+      padding: 6,
+    },
+    "& .Typography-root": {
+      cursor: "default",
+    },
   },
   accountLink: {
-    marginTop: -6,
-    padding: "0px 8px",
-    fontStyle: "italic",
+    borderTop: "solid 1px",
+    borderColor: theme.palette.grey[300],
+    margin: "4px 4px 0px 4px",
+    padding: "4px 4px 0px 4px",
+    fontSize: 13,
+    color: theme.palette.primary.main
   },
 });
 
 const SubforumNotificationSettings = ({
   tag,
   currentUser,
+  className,
   classes,
 }: {
   tag: TagBasicInfo;
   currentUser: UsersCurrent;
+  className?: string;
   classes: ClassesType;
 }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const {filterSettings, setTagFilter} = useFilterSettings();
+  const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
+  const { flash } = useMessages();
 
-  const { LWPopper, WrappedSmartForm, Typography, Loading } = Components;
+  const { LWClickAwayListener, LWPopper, WrappedSmartForm, Typography, Loading } = Components;
 
   const { loading, results, refetch } = useMulti({
     terms: { view: "single", tagId: tag._id, userId: currentUser._id },
@@ -48,8 +75,47 @@ const SubforumNotificationSettings = ({
     fragmentName: "UserTagRelNotifications",
     fetchPolicy: "cache-and-network",
   });
-  const recordSubforumView = useRecordSubforumView({userId: currentUser._id, tagId: tag._id});
 
+  // This is all a mess because we had to launch subforums quickly, I can only apologize
+  // Get existing subscription, if there is one
+  const subscriptionType = "newTagPosts"
+  const { results: subscriptions, loading: loadingSubscriptions } = useMulti({
+    terms: {
+      view: "subscriptionState",
+      documentId: tag._id,
+      userId: currentUser?._id,
+      type: subscriptionType,
+      collectionName: "Tags",
+      limit: 1
+    },
+    collectionName: "Subscriptions",
+    fragmentName: 'SubscriptionState',
+    enableTotal: false,
+  });
+  const { create: createSubscription } = useCreate({
+    collectionName: 'Subscriptions',
+    fragmentName: 'SubscriptionState',
+  });
+
+  const getIsSubscribed = () => {
+    // Get the last element of the results array, which will be the most recent subscription
+    if (subscriptions && subscriptions.length > 0) {
+      // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
+      const currentSubscription = max(subscriptions, result=>new Date(result.createdAt).getTime());
+
+      if (currentSubscription.state === "subscribed")
+        return true;
+      else if (currentSubscription.state === "suppressed")
+        return false;
+    }
+    return userIsDefaultSubscribed({
+      user: currentUser,
+      subscriptionType, collectionName: "Tags", document: tag
+    });
+  }
+  const isSubscribed = getIsSubscribed();
+
+  const recordSubforumView = useRecordSubforumView({userId: currentUser._id, tagId: tag._id});
   const userTagRel = results?.length ? results[0] : undefined;
   
   // This is to ensure the userTagRel exists, which it almost always should because it is created as a result of loading `SubforumCommentsThread`
@@ -65,43 +131,58 @@ const SubforumNotificationSettings = ({
   if (!userTagRel) return null
   if (loading) return null
 
-  const handleOpen = (event) => {
-    setOpen(true);
-    setAnchorEl(event.currentTarget);
-  };
+  const filterSetting = filterSettings?.tags?.find(({tagId}) => tag._id === tagId);
+  const isFrontpageSubscribed = filterSetting?.filterMode === "Subscribed";
 
-  const handleClose = (e) => {
-    if (e && anchorEl?.contains(e.target)) {
-      return;
-    }
-    setOpen(false);
-  };
+  const toggleIsFrontpageSubscribed = () =>
+    setTagFilter({
+      tagId: tag._id,
+      tagName: tag.name,
+      filterMode: isFrontpageSubscribed ? 0 : "Subscribed",
+    });
 
-  const handleToggle = (e) => {
-    if (open) {
-      handleClose(null); // When closing from toggle, force a close by not providing an event
-    } else {
-      handleOpen(e);
+  const togglePostsSubscribed = async (e) => {
+    try {
+      e.preventDefault();
+      const subscriptionState = isSubscribed ? 'suppressed' : 'subscribed'
+      captureEvent("subscribeClicked", {state: subscriptionState})
+
+      const newSubscription = {
+        state: subscriptionState,
+        documentId: tag._id,
+        collectionName: "Tags",
+        type: subscriptionType,
+      } as const;
+
+      await createSubscription({data: newSubscription})
+    } catch(error) {
+      flash({messageString: error.message});
     }
-  };
+  }
 
   return (
     <AnalyticsContext pageSection="subforumNotificationSettings">
-      <div className={classes.root}>
-        <IconButton onClick={handleToggle} className={classes.notificationsButton}>
-          {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
-            <NotificationsNoneIcon />
-          ) : (
-            <NotificationsIcon />
-          )}
-        </IconButton>
-        <LWPopper open={open} anchorEl={anchorEl} placement="bottom-end">
-          <ClickAwayListener onClickAway={handleClose}>
+      <div className={className}>
+        <div ref={anchorEl}>
+          <IconButton onClick={() => setOpen(!open)} className={classes.notificationsButton}>
+            {(!userTagRel.subforumShowUnreadInSidebar && !userTagRel.subforumEmailNotifications) ? (
+              <NotificationsNoneIcon />
+            ) : (
+              <NotificationsIcon />
+            )}
+          </IconButton>
+        </div>
+        <LWPopper open={open} anchorEl={anchorEl.current} placement="bottom-end">
+          <LWClickAwayListener onClickAway={() => setOpen(false)}>
             <Paper className={classes.popout}>
               {loading ? (
                 <Loading />
               ) : (
                 <>
+                  <span className={classes.checkbox}>
+                    <Checkbox checked={isSubscribed} onChange={togglePostsSubscribed} disableRipple />
+                    <Typography variant="body2">Notify me of new posts</Typography>
+                  </span>
                   <WrappedSmartForm
                     collection={UserTagRels}
                     documentId={userTagRel?._id}
@@ -109,13 +190,17 @@ const SubforumNotificationSettings = ({
                     mutationFragment={getFragment("UserTagRelNotifications")}
                     autoSubmit
                   />
-                  <Typography variant="subheading" className={classes.accountLink}>
-                    <Link to={"/account"}>Change batching in user settings</Link>
+                  <span className={classes.checkbox}>
+                    <Checkbox checked={isFrontpageSubscribed} onChange={toggleIsFrontpageSubscribed} disableRipple />
+                    <Typography variant="body2">Upweight on frontpage</Typography>
+                  </span>
+                  <Typography variant="body2" className={classes.accountLink}>
+                    <Link to={"/account?highlightField=notificationSubscribedTagPost"}>Change notification batching and email vs on-site in account settings</Link>
                   </Typography>
                 </>
               )}
             </Paper>
-          </ClickAwayListener>
+          </LWClickAwayListener>
         </LWPopper>
       </div>
     </AnalyticsContext>

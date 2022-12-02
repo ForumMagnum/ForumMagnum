@@ -126,6 +126,7 @@ import './collections/books/permissions';
 
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
+import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
 
@@ -180,6 +181,12 @@ import './collections/spotlights/views';
 // Moderator actions
 import './collections/moderatorActions/index';
 
+// Comment moderator actions
+import './collections/commentModeratorActions/index';
+
+// ModerationTemplates
+import './collections/moderationTemplates/index';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -209,3 +216,5 @@ import './abTests';
 import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
+
+import './sql';

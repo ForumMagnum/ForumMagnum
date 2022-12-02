@@ -12,7 +12,7 @@ export const voteTextStyling = (theme: ThemeType): JssStyles => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",
-  width: 28,
+  width: 40,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -53,6 +53,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 24,
     display: "inline-block"
   },
+  voteButton: {
+    border: theme.palette.border.normal,
+    borderRadius: 3,
+    paddingTop: 2,
+    paddingBottom: 2,
+    width: 40,
+    display: "inline-block"
+  },
   card: {
     padding: isEAForum ? "8px 24px" : 8,
     textAlign: "center",
@@ -78,14 +86,38 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
   if (!canNominate(currentUser, post)) return null
 
   const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
-  const displayVote = getCostData({})[voteIndex]?.label
+  const displayVote = getCostData({})[voteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
+
+  // TODO: if we want to switch to hoverover without click, use this
+  // const voteWidget = <Card className={classes.card}>
+  //   <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
+  //   <ReviewPostButton
+  //     post={post}
+  //     year={REVIEW_YEAR+""}
+  //     reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+  //       <div className={classes.reviewButton}>Write a Review</div>
+  //     </LWTooltip>}
+  //   />
+  // </Card>;
+
+  // return (
+  //   <LWTooltip
+  //     title={voteWidget}
+  //     placement="right"
+  //     tooltip={false}
+  //     clickable>
+  //     <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
+  //       {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
+  //     </div>
+  //   </LWTooltip>
+  // )
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
+        {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
       </div>
     </LWTooltip>
 

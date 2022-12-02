@@ -1,15 +1,16 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 import type { Option } from '../common/InlineSelect';
-import { isEmpty } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
-import { subforumDefaultSorting } from '../../lib/collections/comments/views';
+import { subforumDiscussionDefaultSorting } from '../../lib/collections/comments/views';
 import { useTracking } from '../../lib/analyticsEvents';
+import isEmpty from 'lodash/isEmpty';
+import omit from 'lodash/omit';
 
 const sortOptions: Option[] = [
   {value: "new", label: "new"},
@@ -19,11 +20,14 @@ const sortOptions: Option[] = [
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontWeight: 400,
-    margin: "0px auto -15px auto", // -15px is to offset the padding in Layout so that this fills exactly the whole page
+    margin: "0px auto 0px auto",
     ...theme.typography.commentStyle,
     position: "relative",
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    flexBasis: 0,
+    flexGrow: 1,
+    width: "100%",
   },
   maxWidthRoot: {
     maxWidth: 720,
@@ -63,6 +67,7 @@ const CommentsTimelineSection = ({
   comments,
   parentAnswerId,
   startThreadTruncated,
+  sortingParam="sortDiscussionBy",
   refetch = () => {},
   classes,
 }: {
@@ -75,6 +80,7 @@ const CommentsTimelineSection = ({
   comments: CommentWithRepliesFragment[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
+  sortingParam?: string,
   refetch?: any,
   classes: ClassesType,
 }) => {
@@ -83,50 +89,29 @@ const CommentsTimelineSection = ({
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
 
-  const bodyRef = useRef<HTMLDivElement>(null)
-  // topAbsolutePosition is set to make it exactly fill the page, 200 is about right so setting that as a default reduces the visual jitter
-  const [topAbsolutePosition, setTopAbsolutePosition] = useState(200)
-
-  const sorting = query.sortBy || subforumDefaultSorting
+  // FIXME "sortBy" is here for backwards compatibility with old links, remove it eventually
+  const sorting = query[sortingParam] || query["sortBy"] || subforumDiscussionDefaultSorting
   const selectedSorting = useMemo(() => sortOptions.find((opt) => opt.value === sorting) || sortOptions[0], [sorting])
 
   const handleSortingSelect = (option: Option) => {
-    const currentQuery = isEmpty(query) ? {sortBy: subforumDefaultSorting} : query
-    const newQuery = {...currentQuery, sortBy: option.value}
+    const currentQuery = isEmpty(query) ? {[sortingParam]: subforumDiscussionDefaultSorting} : omit(query, "sortBy")
+    const newQuery = {...currentQuery, [sortingParam]: option.value}
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
-    captureEvent("subforumSortingChanged", {oldSorting: currentQuery.sortBy, newSorting: option.value})
+    captureEvent("subforumSortingChanged", {oldSorting: currentQuery['sortingParameter'], newSorting: option.value})
   };
   const isSubscribed = currentUser && currentUser.profileTagIds?.includes(tag._id)
-
-  useEffect(() => {
-    recalculateTopAbsolutePosition()
-    window.addEventListener('resize', recalculateTopAbsolutePosition)
-    return () => window.removeEventListener('resize', recalculateTopAbsolutePosition)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const recalculateTopAbsolutePosition = () => {
-    if (!bodyRef.current) return
-
-    // We want the position relative to the top of the page, not the top of the viewport, so add window.scrollY
-    const newPos = bodyRef.current.getBoundingClientRect().top + window.scrollY
-    if (newPos !== topAbsolutePosition)
-      setTopAbsolutePosition(newPos)
-  }
 
   const {CommentsTimeline, InlineSelect, CommentsNewForm, Typography, SubforumSubscribeSection} = Components
 
   return (
-    <div
-      ref={bodyRef}
-      className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}
-      style={{ height: `calc(100vh - ${topAbsolutePosition}px)` }}
-    >
+    <div className={classNames(classes.root, { [classes.maxWidthRoot]: !tag })}>
       <CommentsTimeline
         treeOptions={{
           refetch,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
+          replyFormStyle: "minimalist",
         }}
         comments={comments}
         startThreadTruncated={startThreadTruncated}
@@ -137,7 +122,6 @@ const CommentsTimelineSection = ({
         loadMoreComments={loadMoreComments}
         loadingMoreComments={loadingMoreComments}
       />
-      {/* TODO add permissions check here */}
       {isSubscribed ? (
         <>
           <Typography
@@ -159,7 +143,7 @@ const CommentsTimelineSection = ({
               successCallback={refetch}
               type="comment"
               enableGuidelines={false}
-              displayMode="minimalist" />
+              replyFormStyle="minimalist" />
           </div>
         </>
       ) : (

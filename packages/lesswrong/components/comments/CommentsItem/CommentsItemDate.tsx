@@ -20,6 +20,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     // buttons, which are to the right of this and have a click-target that
     // partially overlaps.
     position: "relative",
+    
+    // Prevent permalink-icon and date from wrapping onto separate lines, in
+    // narrow/flexbox contexts
+    whiteSpace: "nowrap",
+    
     zIndex: theme.zIndexes.commentPermalinkIcon,
   },
   answerDate: {},
@@ -52,12 +57,12 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
   permalink?: boolean,
 }) => {
   const { history } = useNavigation();
-  const { location } = useLocation();
+  const { location, query } = useLocation();
   const { captureEvent } = useTracking();
 
   const handleLinkClick = (event: React.MouseEvent) => {
     event.preventDefault()
-    history.replace({...location, search: qs.stringify({commentId: comment._id})})
+    history.replace({...location, search: qs.stringify({...query, commentId: comment._id})})
     if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };

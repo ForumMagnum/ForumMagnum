@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import type { IncomingMessage } from 'http';
 import Cookies from 'universal-cookie';
 
 // Utility functions for dealing with HTTP requests/responses, eg getting and
@@ -15,7 +16,7 @@ import Cookies from 'universal-cookie';
  *  
  * We need to do this because {@link setCookieOnResponse} can only assign to `cookies`, not `universalCookies`, so sometimes `universalCookies` will exist but won't have the (newly assigned) cookie value.
  */
-export function getCookieFromReq(req: Request, cookieName: string) {
+export function getCookieFromReq(req: Request | IncomingMessage, cookieName: string) {
   const untypedReq: any = req;
   if (!untypedReq.universalCookies && !untypedReq.cookies)
     throw new Error("Tried to get a cookie but middleware not correctly configured");

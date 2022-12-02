@@ -1,11 +1,12 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { routerOnUpdate } from '../components/common/NavigationEventSender';
+import { routerOnUpdate } from '../components/hooks/useOnNavigate';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil, userIdentifiedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -60,6 +61,7 @@ window.addEventListener('load', ev => {
     url: document.location?.href,
     referrer: document.referrer,
     browserProps: browserProperties(),
+    prefersDarkMode: devicePrefersDarkMode(),
     performance: {
       memory: (window as any).performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,

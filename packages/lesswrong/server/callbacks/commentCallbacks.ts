@@ -12,8 +12,9 @@ import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { ensureIndex } from '../../lib/collectionUtils';
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import ReadStatuses from '../../lib/collections/readStatus/collection';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -84,9 +85,23 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
 getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment) {
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
-    await Posts.rawUpdateOne(comment.postId, {
-      $set: {lastCommentedAt: new Date()},
-    });
+    const lastCommentedAt = new Date()
+    // we're updating the comment author's lastVisitedAt time for the post as well,
+    // so that their comment doesn't cause the post to look like it has unread comments
+    await Promise.all([
+      Posts.rawUpdateOne(comment.postId, {
+        $set: {lastCommentedAt},
+      }),
+      ReadStatuses.rawUpdateOne({
+        postId: comment.postId,
+        userId: comment.userId,
+        tagId: null,
+      }, {
+        $set: {
+          lastUpdated: lastCommentedAt
+        }
+      })
+    ])
   } else if (comment.tagId) {
     const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {

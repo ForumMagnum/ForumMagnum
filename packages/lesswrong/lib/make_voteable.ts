@@ -5,7 +5,7 @@ import GraphQLJSON from 'graphql-type-json';
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
-  userCanVoteOn?: (user: DbUser, document: DbVoteableType) => boolean|Promise<boolean>,
+  userCanVoteOn?: (user: DbUser, document: DbVoteableType, voteType: string|null, extendedVote?: any) => boolean|Promise<boolean>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
@@ -184,6 +184,22 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       type: Boolean,
       optional: true,
       onInsert: () => false
+    },
+    afBaseScore: {
+      type: Number,
+      optional: true,
+      label: "Alignment Base Score",
+      viewableBy: ['guests'],
+    },
+    afExtendedScore: {
+      type: GraphQLJSON,
+      optional: true,
+      viewableBy: ['guests'],
+    },
+    afVoteCount: {
+      type: Number,
+      optional: true,
+      canRead: ['guests'],
     },
   });
 }

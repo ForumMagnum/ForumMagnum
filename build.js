@@ -5,6 +5,12 @@ const WebSocket = require('ws');
 const crypto = require('crypto');
 const { zlib } = require("mz");
 
+/**
+ * This is used for clean exiting in Github workflows by the dev
+ * only route /api/quit
+ */
+process.on("SIGQUIT", () => process.exit(0));
+
 const defaultServerPort = 3000;
 
 const getServerPort = () => {
@@ -26,6 +32,8 @@ const [opts, args] = cliopts.parse(
   ["settings", "A JSON config file for the server", "<file>"],
   ["mongoUrl", "A mongoDB connection connection string", "<url>"],
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
+  ["postgresUrl", "A postgresql connection connection string", "<url>"],
+  ["postgresUrlFile", "The name of a text file which contains a postgresql URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
 );
 
@@ -53,6 +61,19 @@ if (opts.mongoUrl) {
   }
 }
 
+if (opts.postgresUrl) {
+  process.env.PG_URL = opts.postgresUrl;
+} else if (opts.postgresUrlFile) {
+  try {
+    process.env.PG_URL = fs.readFileSync(opts.postgresUrlFile, 'utf8').trim();
+  } catch(e) {
+    // TODO: Make this an error once both sites have migrated
+    // console.log(e);
+    // process.exit(1);
+    console.warn("Warning: Can't read Postgres URL file");
+  }
+}
+
 const clientBundleBanner = `/*
  * LessWrong 2.0 (client JS bundle)
  * Copyright (c) 2022 the LessWrong development team. See https://github.com/ForumMagnum/ForumMagnum
@@ -72,21 +93,34 @@ const bundleDefinitions = {
   "serverPort": getServerPort(),
 };
 
+const clientBundleDefinitions = {
+  "bundleIsServer": false,
+  "global": "window",
+}
+
+const serverBundleDefinitions = {
+  "bundleIsServer": true,
+  "estrellaPid": process.pid,
+}
+
 const clientOutfilePath = `./${outputDir}/client/js/bundle.js`;
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
   sourcemap: true,
+  sourcesContent: true,
   outfile: clientOutfilePath,
   minify: isProduction,
-  banner: clientBundleBanner,
+  banner: {
+    js: clientBundleBanner,
+  },
   treeShaking: "ignore-annotations",
   run: false,
-  onStart: (config, changedFiles, ctx, esbuildOptions) => {
+  onStart: (config, changedFiles, ctx) => {
     clientRebuildInProgress = true;
     inProgressBuildId = generateBuildId();
-    esbuildOptions.define.buildId = `"${inProgressBuildId}"`;
+    config.define.buildId = `"${inProgressBuildId}"`;
   },
   onEnd: (config, buildResult, ctx) => {
     clientRebuildInProgress = false;
@@ -110,14 +144,15 @@ build({
   },
   define: {
     ...bundleDefinitions,
-    "bundleIsServer": false,
-    "global": "window",
+    ...clientBundleDefinitions,
   },
 });
 
 let serverCli = ["node", "-r", "source-map-support/register", "--", `./${outputDir}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
+if (!isProduction)
+  serverCli.splice(1, 0, "--inspect");
 
 build({
   entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
@@ -125,9 +160,10 @@ build({
   outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",
   sourcemap: true,
+  sourcesContent: true,
   minify: false,
   run: cliopts.run && serverCli,
-  onStart: (config, changedFiles, ctx, esbuildOptions) => {
+  onStart: (config, changedFiles, ctx) => {
     serverRebuildInProgress = true;
   },
   onEnd: () => {
@@ -136,14 +172,14 @@ build({
   },
   define: {
     ...bundleDefinitions,
-    "bundleIsServer": true,
+    ...serverBundleDefinitions,
   },
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
-    "apollo-server", "apollo-server-express", "graphql",
-    "bcrypt", "node-pre-gyp", "intercom-client",
-    "fsevents", "chokidar", "auth0", "dd-trace"
+    "apollo-server", "apollo-server-express", "graphql", "csso", "io-ts", "fp-ts",
+    "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
+    "fsevents", "auth0", "dd-trace", "pg-formatter"
   ],
 })
 

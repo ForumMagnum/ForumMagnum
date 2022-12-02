@@ -6,7 +6,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    "& a.read-more": {
+    "& a.read-more-button": {
       fontSize: ".85em",
       color: theme.palette.grey[600]
     },
@@ -24,12 +24,12 @@ const TagPreviewDescription = ({tag, classes}: {
   if (!tag) return null
   
   const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs",
-    '... <a class="read-more" href="#">(read more)</a>')
+    '... <a class="read-more-button" href="#">(read more)</a>')
 
   if (tag.description?.htmlHighlight) {
     return <div
       onClick={(ev: React.SyntheticEvent) => {
-        if ((ev.target as any)?.className==="read-more") {
+        if ((ev.target as any)?.className==="read-more-button") {
           history.push(tagGetUrl(tag));
         }
       }}

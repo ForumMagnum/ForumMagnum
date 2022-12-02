@@ -162,7 +162,7 @@ const PostsNewForm = ({classes}: {
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
-  const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
+  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
@@ -175,6 +175,13 @@ const PostsNewForm = ({classes}: {
     moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
   }
   const eventForm = query && query.eventForm
+  
+  if (query.subforumTagId) {
+    prefilledProps = {
+      subforumTagId: query.subforumTagId,
+      tagRelevance: {[query.subforumTagId]: 1},
+    }
+  }
 
   if (!currentUser) {
     return (<WrappedLoginForm />);
@@ -202,6 +209,7 @@ const PostsNewForm = ({classes}: {
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
+        <Components.PostsAcceptTos currentUser={currentUser} />
         <NoSsr>
           <WrappedSmartForm
             collection={Posts}

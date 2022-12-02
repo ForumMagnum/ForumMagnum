@@ -5,10 +5,11 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { performVoteServer } from '../voteServer';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
-const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
+export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context}: {
   tagId: string,
   postId: string,
   currentUser: DbUser,
+  ignoreParent?: boolean,
   context: ResolverContext,
 }): Promise<any> => {
   // Validate that tagId and postId refer to valid non-deleted documents
@@ -31,7 +32,7 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
     });
     
     // If the tag has a parent which has not been applied to this post, apply it
-    if (tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
+    if (!ignoreParent && tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
       // RECURSIVE CALL, should only ever go one level deep because we disallow chaining of parent tags (see packages/lesswrong/lib/collections/tags/schema.ts)
       await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context});
     }
