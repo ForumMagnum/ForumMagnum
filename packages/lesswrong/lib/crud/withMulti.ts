@@ -72,7 +72,6 @@ function getGraphQLQueryFromOptions({
 //   - after: String
 //   - before: String
 //   - enableTotal: Boolean
-//   - enableCache: Boolean
 //   - listId: String
 //   - query: String # search query
 //   - postId: String
@@ -81,7 +80,6 @@ export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
   enableTotal = false, //LESSWRONG: enableTotal defaults false
-  enableCache = false,
   extraVariables,
   fetchPolicy,
   notifyOnNetworkStatusChange,
@@ -93,7 +91,6 @@ export function withMulti({
   limit?: number,
   pollInterval?: number,
   enableTotal?: boolean,
-  enableCache?: boolean,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   notifyOnNetworkStatusChange?: boolean,
@@ -145,7 +142,6 @@ export function withMulti({
             variables: {
               input: {
                 terms: mergedTerms,
-                enableCache,
                 enableTotal,
               },
               ...(_.pick(rest, Object.keys(extraVariables || {})))
@@ -235,7 +231,6 @@ export interface UseMultiOptions<
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
-  enableCache?: boolean,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -266,7 +261,6 @@ export function useMulti<
   extraVariablesValues,
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
-  enableCache = false,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -310,7 +304,7 @@ export function useMulti<
   const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
-      enableCache, enableTotal,
+      enableTotal,
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
   }

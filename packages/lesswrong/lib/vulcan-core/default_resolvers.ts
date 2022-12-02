@@ -25,14 +25,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean} }, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableTotal?: boolean} }, context: ResolverContext) {
         const input = args?.input || {};
-        const { terms={}, enableCache = false, enableTotal = false } = input;
-
-        if (cacheControl && enableCache) {
-          const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
-          cacheControl.setCacheHint({ maxAge });
-        }
+        const { terms={}, enableTotal = false } = input;
 
         // get currentUser and Users collection from context
         const { currentUser }: {currentUser: DbUser|null} = context;
@@ -81,8 +76,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
-        const { enableCache = false, allowNull = false } = input;
+      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext) {
+        const { allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
         // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -97,11 +92,6 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         );
         logger(`Options: ${JSON.stringify(resolverOptions)}`);
         logger(`Selector: ${JSON.stringify(selector)}`);
-
-        if (cacheControl && enableCache) {
-          const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
-          cacheControl.setCacheHint({ maxAge });
-        }
 
         const { currentUser }: {currentUser: DbUser|null} = context;
         const collection = getCollection(collectionName);
