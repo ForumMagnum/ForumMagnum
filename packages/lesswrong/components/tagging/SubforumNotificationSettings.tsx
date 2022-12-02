@@ -65,7 +65,7 @@ const SubforumNotificationSettings = ({
   className?: string;
   classes: ClassesType;
 }) => {
-  useForceRerender()
+  useForceRerender() // Required because anchorEl is not set on the first render
   const {filterSettings, setTagFilter} = useFilterSettings();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(startOpen);

@@ -133,7 +133,7 @@ addGraphQLResolvers({
         throw new Error(member ? 'User is aleady a member of this subforum' : 'User is not a member of this subforum so cannot leave')
       }
 
-      const newProfileTagIds = member ? [...(currentUser.profileTagIds || []), tagId] : currentUser.profileTagIds?.filter(id => id !== tagId)
+      const newProfileTagIds = member ? [...(currentUser.profileTagIds || []), tagId] : currentUser.profileTagIds?.filter(id => id !== tagId) || []
       const updatedUser = await updateMutator({
         collection: Users,
         documentId: currentUser._id,
