@@ -346,6 +346,13 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     ? 'Moderator Comment (Invisible)'
     : 'Moderator Comment';
   
+  const getReviewLink = (year) => {
+    if (year === "2018" || year === "2019") {
+      return `/reviews/${year}`
+    }
+    return `/reviewVoting/${year}`
+  }
+
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
@@ -427,7 +434,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
 
-            {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
+            {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
           </div>
