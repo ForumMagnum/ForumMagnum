@@ -8,6 +8,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     lineHeight: "22px",
   },
+  row: {
+    marginBottom: 20
+  },
   description: {
     maxWidth: 570,
     fontSize: 16,
@@ -30,11 +33,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const EmailJobInterestConfirmation = ({
-  user,
   newInterestedJob,
   classes,
 }: {
-  user: UsersMinimumInfo | DbUser | null | undefined;
   newInterestedJob: string;
   classes: ClassesType;
 }) => {
@@ -46,9 +47,12 @@ const EmailJobInterestConfirmation = ({
 
   return (
     <div className={classes.root}>
-      <div>
+      <div className={classes.row}>
         Thank you for registering your interest in this role! We'll pass on your email address and EA Forum profile
-        to the hiring manager. We also encourage you to complete the full job application <a href={link}>here</a>.
+        to the hiring manager.
+      </div>
+      <div className={classes.row}>
+        We also encourage you to complete the full job application <a href={link}>here</a>.
       </div>
       <hr className={classes.hr}/>
       <h2>

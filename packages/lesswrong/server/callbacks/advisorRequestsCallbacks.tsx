@@ -19,6 +19,6 @@ getCollectionHooks("AdvisorRequests").updateAsync.add(async function AdvisorRequ
   await wrapAndSendEmail({
     user: currentUser,
     subject: `You have registered interest in the ${jobAdData.role} role at ${jobAdData.org}`,
-    body: <Components.EmailJobInterestConfirmation user={currentUser} newInterestedJob={newInterestedJob}/>
+    body: <Components.EmailJobInterestConfirmation newInterestedJob={newInterestedJob}/>
   });
 })

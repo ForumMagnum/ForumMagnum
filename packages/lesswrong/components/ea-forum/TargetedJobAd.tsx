@@ -178,7 +178,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 // (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA = {
   'research-givewell': {
-    tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
+    occupationName: 'Academic research',
+    tagId: 'hxRMaKvwGqPb43TWB', // Research
     logo: 'https://80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
     occupation: 'research',
     feedbackLinkPrefill: 'Senior+Researcher+at+GiveWell',
@@ -209,7 +210,8 @@ export const JOB_AD_DATA = {
   },
   'research-effective-giving': {
     standardApplyBtn: true,
-    tagId: 'CGameg7coDgLbtgdH',//'hxRMaKvwGqPb43TWB',
+    occupationName: 'Academic research',
+    tagId: 'hxRMaKvwGqPb43TWB', // Research
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/effective-giving-160x160.png',
     occupation: 'research',
     feedbackLinkPrefill: 'Biosecurity+Program+Associate+at+Effective+Giving',
@@ -238,7 +240,8 @@ export const JOB_AD_DATA = {
     </>
   },
   'marketing-humane-league': {
-    tagId: 'CGameg7coDgLbtgdH',//'mPDquzDnkBkgi2iKR',
+    occupationName: 'Communications/Marketing',
+    tagId: 'mPDquzDnkBkgi2iKR', // Marketing
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
     occupation: 'marketing',
     feedbackLinkPrefill: 'Head+of+Development,+UK+at+The+Humane+League',
@@ -267,7 +270,8 @@ export const JOB_AD_DATA = {
     </>
   },
   'data-science-epoch': {
-    tagId: 'CGameg7coDgLbtgdH',//'M56s5yFziKvHFhNKk',
+    occupationName: 'Data science/Data visualization',
+    tagId: 'M56s5yFziKvHFhNKk', // Data science
     logo: 'https://80000hours.org/wp-content/uploads/2022/07/Epoch-logo-160x160.png',
     occupation: 'data science',
     feedbackLinkPrefill: 'Research+Data+Analyst+at+Epoch',
@@ -298,7 +302,7 @@ export const JOB_AD_DATA = {
     </>
   },
   'people-ops-open-phil': {
-    tagId: 'CGameg7coDgLbtgdH',//TODO: delete
+    occupationName: 'HR/People operations',
     logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
     occupation: 'people operations',
     feedbackLinkPrefill: 'People+Operations+Generalist+at+Open+Philanthropy',
@@ -327,7 +331,7 @@ export const JOB_AD_DATA = {
     </>
   },
   'finance-open-phil': {
-    tagId: 'CGameg7coDgLbtgdH',//TODO: delete
+    occupationName: 'Finance/Accounting',
     logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
     occupation: 'finance',
     feedbackLinkPrefill: 'Finance+Operations+Assistant+at+Open+Philanthropy',
@@ -356,7 +360,8 @@ export const JOB_AD_DATA = {
     </>
   },
   'policy-training-for-good': {
-    tagId: 'CGameg7coDgLbtgdH',//'of9xBvR3wpbp6qsZC'
+    occupationName: 'Policymaking/Civil service',
+    tagId: 'of9xBvR3wpbp6qsZC', // Policy
     logo: 'https://80000hours.org/wp-content/uploads/2022/11/Training-for-Good-1-160x160.png',
     occupation: 'policy',
     feedbackLinkPrefill: 'EU+Tech+Policy+Fellowship+at+Training+for+Good',
@@ -381,7 +386,7 @@ export const JOB_AD_DATA = {
     </>
   },
   'writing-evidence-action': {
-    tagId: 'CGameg7coDgLbtgdH',//TODO delete
+    occupationName: 'Writing',
     logo: 'https://80000hours.org/wp-content/uploads/2018/04/evidence_action-150x150.png',
     occupation: 'writing',
     feedbackLinkPrefill: 'Writer+at+Evidence+Action',

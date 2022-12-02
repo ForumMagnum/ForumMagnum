@@ -53,6 +53,7 @@ import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
+import "./server/scripts/importEAGUserInterests";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
