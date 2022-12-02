@@ -77,9 +77,9 @@ registerVotingSystem({
     };
   },
   cancelVoteClient: ({voteType, document, oldExtendedScore, cancelledExtendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
-    const oldVoteAgreement = cancelledExtendedVote?.agreement;
+    const oldVoteAgreement: string | undefined = cancelledExtendedVote?.agreement;
     const oldVoteIncludesAgreement = (oldVoteAgreement && oldVoteAgreement!=="neutral");
-    const oldAgreementPower = calculateVotePower(currentUser.karma, oldVoteAgreement);
+    const oldAgreementPower = oldVoteIncludesAgreement ? calculateVotePower(currentUser.karma, oldVoteAgreement) : 0;
     const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const oldVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
@@ -107,7 +107,7 @@ registerVotingSystem({
 });
 
 function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
-  const voteType = vote.extendedVoteType?.[axis];
+  const voteType: string | undefined = vote.extendedVoteType?.[axis];
   if (!voteType) return 0;
   const user = usersById[vote.userId];
   return calculateVotePower(user.karma, voteType);
@@ -157,7 +157,7 @@ registerVotingSystem({
   },
   cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent}): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
-      const oldVote = cancelledExtendedVote?.[axis];
+      const oldVote: string | undefined = cancelledExtendedVote?.[axis];
       const oldScore = (oldExtendedScore?.[axis]||0);
       if (!oldVote || oldVote==="neutral") return [axis, oldScore];
       const oldAxisPower = calculateVotePower(currentUser.karma, oldVote);
