@@ -571,7 +571,9 @@ const ReviewVotingPage = ({classes}: {
                 disableUnderline
                 >
                 {getReviewPhase() === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
-                  <span className={classes.sortBy}>Sort by</span> Needs Vote
+                  <LWTooltip title="Prioritizes posts with at least one Review, which you haven't yet voted on">
+                    <span><span className={classes.sortBy}>Sort by</span> Magic</span>
+                  </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
