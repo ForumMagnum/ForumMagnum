@@ -42,15 +42,7 @@ const PostsEditForm = ({ documentId, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-  
-  // If logged out, show a login form. (Even if link-sharing is enabled, you still
-  // need to be logged into LessWrong with some account.)
-  if (!currentUser) {
-    return <Components.SingleColumnSection>
-      <Components.WrappedLoginForm/>
-    </Components.SingleColumnSection>
-  }
-  
+    
   if (!document && loading) {
     return <Components.Loading/>
   }
@@ -100,7 +92,7 @@ const PostsEditForm = ({ documentId, classes }: {
   return (
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
-      <Components.PostsAcceptTos currentUser={currentUser} />
+      {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
