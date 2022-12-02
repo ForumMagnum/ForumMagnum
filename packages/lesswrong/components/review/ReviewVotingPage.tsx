@@ -19,6 +19,7 @@ import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
+const isLW = forumTypeSetting.get() === 'LessWrong'
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -571,20 +572,20 @@ const ReviewVotingPage = ({classes}: {
                 disableUnderline
                 >
                 {getReviewPhase() === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
-                  <LWTooltip title="Prioritizes posts with at least one Review, which you haven't yet voted on">
-                    <span><span className={classes.sortBy}>Sort by</span> Magic</span>
+                  <LWTooltip placement="left" title="Prioritizes posts with at least one Review, which you haven't yet voted on">
+                    <span><span className={classes.sortBy}>Sort by</span> Prioritized</span>
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
                 </MenuItem>
-                <MenuItem value={'reviewVoteScoreHighKarma'}>
+                {getReviewPhase() === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
-                </MenuItem>
-                <MenuItem value={'reviewVoteScoreAllKarma'}>
+                </MenuItem>}
+                {getReviewPhase() === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
-                </MenuItem>
-                {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
+                </MenuItem>}
+                {getReviewPhase() === "REVIEWS" && isLW && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
