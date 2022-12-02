@@ -52,6 +52,10 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
       name: "dark",
       label: "Dark Mode",
     },
+    {
+      name: "auto",
+      label: "Auto",
+    },
   ];
 
 export function isValidSerializedThemeOptions(options: string|object): options is string | AbstractThemeOptions {
