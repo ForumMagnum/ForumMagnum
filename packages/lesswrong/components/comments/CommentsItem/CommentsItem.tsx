@@ -346,7 +346,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     ? 'Moderator Comment (Invisible)'
     : 'Moderator Comment';
   
-  const getReviewLink = (year) => {
+  const getReviewLink = (year: string) => {
     // We changed our review page in 2018 and 2019. In 2020 we came up with a page that we'll
     // hopefully stick with for awhile.
     if (year === "2018" || year === "2019") {
