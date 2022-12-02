@@ -88,10 +88,10 @@ const CommentWithReplies = ({
       key={comment._id}
       shortform
       showExtraChildrenButton={showExtraChildrenButton}
-      {...commentNodeProps}
-      treeOptions={treeOptions}
       expandAllThreads={startExpanded}
       expandByDefault={startExpanded}
+      {...commentNodeProps}
+      treeOptions={treeOptions}
     />
   );
 };

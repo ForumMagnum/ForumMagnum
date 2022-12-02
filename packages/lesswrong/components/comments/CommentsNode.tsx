@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
@@ -154,16 +154,16 @@ const CommentsNode = ({
     }, HIGHLIGHT_DURATION*1000);
   }, []);
 
-  const {hash: commentHash} = useLocation();
+  const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
-    if (!noAutoScroll && comment && commentHash === ("#" + comment._id)) {
+    if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         scrollIntoView()
       }, 0);
     }
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [commentHash]);
 
   const toggleCollapse = useCallback(
     () => setCollapsed(!collapsed),

@@ -115,6 +115,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "$sideCommentMeta &": {
       flexGrow: 1,
+      whiteSpace: "nowrap",
       textOverflow: "ellipsis",
       flexShrink: 1,
       display: "inline-block",
@@ -345,6 +346,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     ? 'Moderator Comment (Invisible)'
     : 'Moderator Comment';
   
+  const getReviewLink = (year: string) => {
+    // We changed our review page in 2018 and 2019. In 2020 we came up with a page that we'll
+    // hopefully stick with for awhile.
+    if (year === "2018" || year === "2019") {
+      return `/reviews/${year}`
+    }
+    return `/reviewVoting/${year}`
+  }
+
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
@@ -426,7 +436,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
 
-            {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
+            {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
               {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
           </div>

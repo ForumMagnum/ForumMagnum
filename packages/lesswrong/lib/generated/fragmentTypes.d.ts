@@ -39,6 +39,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly petrovOptOut: boolean | null,
+  readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -636,7 +637,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly metaSticky: boolean,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly shareWithUsers: Array<string>,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
@@ -1062,12 +1063,12 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
   readonly version: string,
   readonly coauthorStatuses: Array<{
     userId: string,
@@ -1929,10 +1930,16 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
+  readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
+}
+
+interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -2106,6 +2113,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
+  readonly moderationGuidelines: RevisionEdit|null,
 }
 
 interface TagEditFragment_parentTag { // fragment on Tags
@@ -2266,6 +2274,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly beta: boolean,
   readonly email: string,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly acceptedTos: boolean | null,
   readonly pageUrl: string,
   readonly voteBanned: boolean,
   readonly banned: Date,

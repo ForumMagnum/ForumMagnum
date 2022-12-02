@@ -10,6 +10,8 @@ import { useCurrentUser } from '../common/withUser';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { CommentsNewFormProps } from './CommentsNewForm';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -65,7 +67,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -77,6 +79,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
+  newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -116,7 +119,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
               {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
             </span> :
             <span>
-              { totalComments } comments, sorted by <Components.CommentsViews post={post} />
+              {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
             </span>
         }
       </Typography>
@@ -171,6 +174,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
             prefilledProps={{
               parentAnswerId: parentAnswerId}}
             type="comment"
+            {...newFormProps}
           />
         </div>
       }
