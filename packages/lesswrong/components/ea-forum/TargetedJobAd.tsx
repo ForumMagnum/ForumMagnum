@@ -235,10 +235,10 @@ export const JOB_AD_DATA = {
         <ul>
           <li>Academic or professional experience from a relevant field, such as medicine, biotechnology, public health, or engineering</li>
           <li>
-            A high-level understanding of the <Components.HoverPreviewLink
+            A high-level understanding of the <span className={classes.link}><Components.HoverPreviewLink
               href={makeAbsolute("/topics/biosecurity")}
               innerHTML="biosecurity"
-            /> field, including context around existing organizations and efforts
+            /></span> field, including context around existing organizations and efforts
           </li>
           <li>Excellent written (English) communication</li>
         </ul>
@@ -322,9 +322,9 @@ export const JOB_AD_DATA = {
       <div className={classes.description}>
         <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Open Philanthropy
-        </a> is a research and <span className={classes.link}>
+        </a> is a multi-billion dollar research and <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> organization.
+        </span> foundation, and one of the largest funders in effective altruism.
       </div>
       <div className={classes.description}>
         Ideal candidates:
@@ -351,9 +351,9 @@ export const JOB_AD_DATA = {
       <div className={classes.description}>
         <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Open Philanthropy
-        </a> is a research and <span className={classes.link}>
+        </a> is a multi-billion dollar research and <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> organization.
+        </span> foundation, and one of the largest funders in effective altruism.
       </div>
       <div className={classes.description}>
         Ideal candidates:
@@ -381,9 +381,9 @@ export const JOB_AD_DATA = {
       <div className={classes.description}>
         <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Open Philanthropy
-        </a> is a research and <span className={classes.link}>
+        </a> is a multi-billion dollar research and <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> organization.
+        </span> foundation, and one of the largest funders in effective altruism.
       </div>
       <div className={classes.description}>
         Ideal candidates:
