@@ -55,6 +55,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
       post: document,
       user: user,
       useAdminPowers: true,
+      context
     });
     if (accessLevelCan(collabEditorAccess, "read")) {
       return true;
