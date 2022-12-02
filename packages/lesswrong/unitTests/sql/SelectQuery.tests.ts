@@ -190,6 +190,12 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select query with only a comment",
+      getQuery: () => new SelectQuery(testTable, {$comment: "Test comment"}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection"',
+      expectedArgs: [],
+    },
+    {
       name: "can build select from a subquery",
       getQuery: () => new SelectQuery(new SelectQuery(testTable, {a: 3}), {b: "test"}),
       expectedSql: 'SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ) A WHERE "b" = $2',
