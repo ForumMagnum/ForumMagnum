@@ -23,7 +23,6 @@ import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-
 if (forumTypeSetting.get() === "EAForum") {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
     if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
