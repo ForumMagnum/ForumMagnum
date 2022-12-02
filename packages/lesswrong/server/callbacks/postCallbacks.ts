@@ -19,13 +19,14 @@ import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/sche
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 import { captureException } from '@sentry/core';
+import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
 if (forumTypeSetting.get() === "EAForum") {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T, oldPost?: DbPost): T => {
     if (post.draft === false && (!oldPost || oldPost.draft) && !currentUser?.acceptedTos) {
-      throw new Error("You must accept the terms of use before you can publish this post");
+      throw new Error(TOS_NOT_ACCEPTED_ERROR);
     }
     return post;
   }
