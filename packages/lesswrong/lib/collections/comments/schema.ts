@@ -8,6 +8,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import GraphQLJSON from 'graphql-type-json';
 import { commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
+import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 
 
 export const moderationOptionsGroup: FormGroup = {
@@ -411,14 +412,8 @@ const schema: SchemaType<DbComment> = {
   votingSystem: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      if (comment?.tagId) return "twoAxis"; // Discussion and subforum comments are both allowed agree/disagree votes
-
-      if (!comment?.postId) {
-        return "default";
-      }
-      const post = await context.loaders.Posts.load(comment.postId);
-      return post.votingSystem || "default";
+    resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
+      return getVotingSystemNameForDocument(comment, context)
     }
   }),
   // Legacy: Boolean used to indicate that post was imported from old LW database
