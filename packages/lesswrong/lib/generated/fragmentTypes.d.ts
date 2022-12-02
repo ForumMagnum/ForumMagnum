@@ -322,6 +322,7 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
 
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
+  readonly createdAt: Date,
   readonly userId: string,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
