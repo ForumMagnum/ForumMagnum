@@ -92,7 +92,7 @@ const PostsEditForm = ({ documentId, classes }: {
   return (
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
-      <Components.PostsAcceptTos currentUser={currentUser} />
+      {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
