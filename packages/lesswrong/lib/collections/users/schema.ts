@@ -2356,7 +2356,7 @@ const schema: SchemaType<DbUser> = {
   }
 };
 
-/* fields for targeting job ads - currently only changed via /scripts/importEAGUserInterests */
+/* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
 Object.assign(schema, {
   experiencedIn: {
     type: Array,

@@ -12,11 +12,6 @@ import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
 
 const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
-// const RESEARCH_TAG_ID = 'hxRMaKvwGqPb43TWB'
-
-// for testing purposes, this points to the "Forecasting" topic on the dev db
-const RESEARCH_TAG_ID = 'CGameg7coDgLbtgdH'
-
 
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()

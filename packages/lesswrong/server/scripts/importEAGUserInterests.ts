@@ -10,8 +10,8 @@ import { wrapVulcanAsyncScript } from './utils';
  */
 Vulcan.importEAGUserInterests = wrapVulcanAsyncScript(
   'importEAGUserInterests',
-  async () => {
-    fs.createReadStream('test_EAG_users.csv')
+  async (fileName='EAG_users.csv') => {
+    fs.createReadStream(fileName)
       .pipe(Papa.parse(Papa.NODE_STREAM_INPUT, {header: true, delimiter: ','}))
       .on("data", async data => {
         // do a simple check to see if we have a user with this email address

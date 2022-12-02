@@ -92,6 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   header: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 18,
+    lineHeight: '24px',
     color: theme.palette.grey[700],
     margin: '3px 0'
   },
@@ -183,7 +184,7 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
     occupation: 'research',
     feedbackLinkPrefill: 'Senior+Researcher+at+GiveWell',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3EK7guK",
     role: 'Senior Researcher',
     org: 'GiveWell',
     orgSlug: 'givewell',
@@ -215,7 +216,7 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/effective-giving-160x160.png',
     occupation: 'research',
     feedbackLinkPrefill: 'Biosecurity+Program+Associate+at+Effective+Giving',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3VNehR8",
     role: 'Biosecurity Program Associate',
     org: 'Effective Giving',
     orgSlug: 'effective-giving-organization',
@@ -227,7 +228,7 @@ export const JOB_AD_DATA = {
           Effective Giving
         </a> is a philanthropic advisory and <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> organization.
+        </span> organization, focused primarily on safeguarding future generations.
       </div>
       <div className={classes.description}>
         Ideal candidates:
@@ -245,7 +246,7 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
     occupation: 'marketing',
     feedbackLinkPrefill: 'Head+of+Development,+UK+at+The+Humane+League',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3VsAP9K",
     role: 'Head of Development, UK',
     org: 'The Humane League',
     orgSlug: 'the-humane-league',
@@ -275,7 +276,7 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2022/07/Epoch-logo-160x160.png',
     occupation: 'data science',
     feedbackLinkPrefill: 'Research+Data+Analyst+at+Epoch',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3Vol57K",
     role: 'Research Data Analyst',
     org: 'Epoch',
     orgSlug: 'epoch',
@@ -306,7 +307,7 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
     occupation: 'people operations',
     feedbackLinkPrefill: 'People+Operations+Generalist+at+Open+Philanthropy',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3XRmiq0",
     role: 'People Operations Generalist',
     org: 'Open Philanthropy',
     orgSlug: 'open-philanthropy',
@@ -335,7 +336,7 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
     occupation: 'finance',
     feedbackLinkPrefill: 'Finance+Operations+Assistant+at+Open+Philanthropy',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3OTNpwh",
     role: 'Finance Operations Assistant',
     org: 'Open Philanthropy',
     orgSlug: 'open-philanthropy',
@@ -359,13 +360,52 @@ export const JOB_AD_DATA = {
       </div>
     </>
   },
+  'ops-open-phil': {
+    occupationName: 'Operations',
+    tagId: 'NNdytpR2E4jYKQCNd', // Operations
+    logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
+    occupation: 'operations',
+    feedbackLinkPrefill: 'Business+Operations+Generalist+at+Open+Philanthropy',
+    bitlyLink: "https://efctv.org/3uBHtyZ",
+    role: 'Business Operations Generalist',
+    org: 'Open Philanthropy',
+    orgSlug: 'open-philanthropy',
+    salary: '$84k+',
+    location: 'Remote (US-centric)',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Open Philanthropy
+        </a> is a research and <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
+        </span> organization.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates:
+        <ul>
+          <li>Are excited to contribute to impact-driven work in a supportive capacity</li>
+          <li>
+            Have a track record of demonstrating (or are excited to develop) an “<a
+              href="https://80000hours.org/podcast/episodes/tara-mac-aulay-operations-mindset/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={classes.link}
+            >
+              operations mindset
+            </a>”
+          </li>
+          <li>Are able to improvise and pivot quickly when priorities shift</li>
+        </ul>
+      </div>
+    </>
+  },
   'policy-training-for-good': {
     occupationName: 'Policymaking/Civil service',
     tagId: 'of9xBvR3wpbp6qsZC', // Policy
     logo: 'https://80000hours.org/wp-content/uploads/2022/11/Training-for-Good-1-160x160.png',
     occupation: 'policy',
     feedbackLinkPrefill: 'EU+Tech+Policy+Fellowship+at+Training+for+Good',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3B3cVJL",
     role: 'EU Tech Policy Fellowship',
     org: 'Training for Good',
     orgSlug: 'training-for-good',
@@ -390,11 +430,11 @@ export const JOB_AD_DATA = {
     logo: 'https://80000hours.org/wp-content/uploads/2018/04/evidence_action-150x150.png',
     occupation: 'writing',
     feedbackLinkPrefill: 'Writer+at+Evidence+Action',
-    bitlyLink: "https://efctv.org/3A16UNq",
+    bitlyLink: "https://efctv.org/3VKjQQ9",
     role: 'Writer',
     org: 'Evidence Action',
     orgSlug: 'evidence-action',
-    salary: '',
+    salary: '', // TODO
     location: 'Remote / Washington DC',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
@@ -543,7 +583,6 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
           </Tooltip>
         </div>
         <h2 className={classes.header}>
-          {/* TODO Direct link to job description: https://apply.workable.com/metaculus/j/409AECAA94/ */}
           <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
             {adData.role}
           </a> at <span className={classes.link}>
