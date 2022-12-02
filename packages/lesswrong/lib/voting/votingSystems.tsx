@@ -67,7 +67,7 @@ registerVotingSystem({
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
-    const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const newVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
     return {
@@ -80,7 +80,7 @@ registerVotingSystem({
     const oldVoteAgreement: string | undefined = cancelledExtendedVote?.agreement;
     const oldVoteIncludesAgreement = (oldVoteAgreement && oldVoteAgreement!=="neutral");
     const oldAgreementPower = oldVoteIncludesAgreement ? calculateVotePower(currentUser.karma, oldVoteAgreement) : 0;
-    const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const oldVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
     return {
