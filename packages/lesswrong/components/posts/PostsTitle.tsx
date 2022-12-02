@@ -166,7 +166,6 @@ const PostsTitle = ({
     if (!recommendationId) {
       return
     }
-    console.log('tracking rec click', recommendationId)
     void recordClickthroughMutation({variables: {recommendationId}})
   }
 

@@ -28,46 +28,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       async resolver(root: void, args: { input: {terms: ViewTermsBase, enableTotal?: boolean} }, context: ResolverContext) {
         const input = args?.input || {};
         const { terms={}, enableTotal = false } = input;
-
-        // get currentUser and Users collection from context
-        const { currentUser }: {currentUser: DbUser|null} = context;
-
-        // get collection based on collectionName argument
-        const collection = getCollection(collectionName);
-
-        // get selector and options from terms and perform Mongo query
-        const parameters = collection.getParameters(terms, {}, context);
-        
-        const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
-        
-        // Were there enough results to reach the limit specified in the query?
-        const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
-        
-        // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
-        const viewableDocs: Array<T> = collection.checkAccess
-          ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
-          : docs;
-
-        // take the remaining documents and remove any fields that shouldn't be accessible
-        const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
-
-        // prime the cache
-        restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
-
-        const data: any = { results: restrictedDocs };
-
-        if (enableTotal) {
-          // get total count of documents matching the selector
-          // TODO: Make this handle synthetic fields
-          if (saturated) {
-            data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
-          } else {
-            data.totalCount = viewableDocs.length;
-          }
-        }
-
-        // return results
-        return data;
+        return await loadMulti({collectionName, terms, enableTotal, context});
       },
     },
 
@@ -143,6 +104,56 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       },
     },
   };
+}
+
+export const loadMulti = async <N extends CollectionNameString,T=ObjectsByCollectionName[N]>({collectionName, terms, enableTotal, context}: {
+  collectionName: N,
+  terms: ViewTermsBase,
+  enableTotal: boolean,
+  context: ResolverContext,
+}): Promise<{
+  results: ObjectsByCollectionName[N][],
+  totalCount: number,
+}> => {
+  // get currentUser and Users collection from context
+  const { currentUser }: {currentUser: DbUser|null} = context;
+
+  // get collection based on collectionName argument
+  const collection = getCollection(collectionName);
+
+  // get selector and options from terms and perform Mongo query
+  const parameters = collection.getParameters(terms, {}, context);
+  
+  const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
+  
+  // Were there enough results to reach the limit specified in the query?
+  const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
+  
+  // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
+  const viewableDocs: Array<T> = collection.checkAccess
+    ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
+    : docs;
+
+  // take the remaining documents and remove any fields that shouldn't be accessible
+  const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
+
+  // prime the cache
+  restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
+
+  const data: any = { results: restrictedDocs };
+
+  if (enableTotal) {
+    // get total count of documents matching the selector
+    // TODO: Make this handle synthetic fields
+    if (saturated) {
+      data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+    } else {
+      data.totalCount = viewableDocs.length;
+    }
+  }
+
+  // return results
+  return data;
 }
 
 const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
