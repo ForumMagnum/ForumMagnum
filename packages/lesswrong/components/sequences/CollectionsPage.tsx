@@ -8,8 +8,8 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
+    position: "relative",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 70,
       marginTop: -50,
@@ -19,6 +19,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     marginBottom: 50,
+    background: theme.palette.background.pageActiveAreaBackground,
+    padding: 36
   },
   startReadingButton: {
     background: theme.palette.buttons.startReadingButtonBackground,
@@ -88,7 +90,7 @@ const CollectionsPage = ({ documentId, classes }: {
     const ButtonUntyped = Button as any;
     
     return (<ErrorBoundary><div className={classes.root}>
-    <CollectionTableOfContents collection={document}/>
+      <CollectionTableOfContents collection={document}/>
       <SingleColumnSection>
         <div className={classes.header}>
           {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}

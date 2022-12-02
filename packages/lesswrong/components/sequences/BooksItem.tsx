@@ -4,6 +4,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    background: theme.palette.background.pageActiveAreaBackground,
+    padding: 36
   },
   description: {
     marginTop: theme.spacing.unit,
@@ -54,8 +56,8 @@ const BooksItem = ({ book, canEdit, classes }: {
       cancelCallback={showBook}
     />
   } else {
-    return <div className="books-item">
-      <SingleColumnSection>
+    return <>
+      <SingleColumnSection className={classes.root}>
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
@@ -82,7 +84,7 @@ const BooksItem = ({ book, canEdit, classes }: {
         )}
       </SingleColumnSection>
       <Divider />
-    </div>
+    </>
   }
 }
 
