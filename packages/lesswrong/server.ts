@@ -53,6 +53,7 @@ import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
+import "./server/scripts/importEAGUserInterests";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
@@ -111,6 +112,7 @@ import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
+import './server/callbacks/advisorRequestsCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
