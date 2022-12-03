@@ -2367,6 +2367,32 @@ const schema: SchemaType<DbUser> = {
   }
 };
 
+/* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
+Object.assign(schema, {
+  experiencedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'experiencedIn.$': {
+    type: String,
+    optional: true
+  },
+  interestedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'interestedIn.$': {
+    type: String,
+    optional: true
+  },
+})
+
 /* Alignment Forum fields */
 Object.assign(schema, {
   afPostCount: {
