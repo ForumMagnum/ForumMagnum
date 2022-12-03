@@ -439,7 +439,7 @@ export const JOB_AD_DATA = {
     role: 'Writer',
     org: 'Evidence Action',
     orgSlug: 'evidence-action',
-    salary: '', // TODO
+    salary: null, // TODO
     location: 'Remote / Washington DC',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
@@ -541,7 +541,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
         <Button
           variant="contained"
           color="primary"
-          href='https://effective-giving.homerun.co/biosecurity-program-associate/en'
+          href={adData.bitlyLink}
           target="_blank"
           rel="noopener noreferrer"
           className={classes.btn}
@@ -595,9 +595,9 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
           </span>
         </h2>
         <div className={classes.metadataRow}>
-          <div className={classes.metadata}>
+          {adData.salary && <div className={classes.metadata}>
             {adData.salary}
-          </div>
+          </div>}
           <div className={classes.metadata}>
             <LocationIcon className={classes.metadataIcon} />
             {adData.location}
