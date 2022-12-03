@@ -49,7 +49,7 @@ const TargetedJobAdSection = () => {
     const userInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
     // the topics that the user has displayed on their profile
     const userTags = currentUser.profileTagIds ?? []
-    const userJobAds = results.length ? results[0].jobAds : {}
+    const userJobAds = results[0]?.jobAds ?? {}
     
     for (let jobName in JOB_AD_DATA) {
       const occupationName = JOB_AD_DATA[jobName].occupationName
@@ -83,7 +83,7 @@ const TargetedJobAdSection = () => {
       return
     }
     // if this user hadn't seen this job ad before, mark them as having seen it
-    const jobAdState = results[0].jobAds[activeJob]?.state
+    const jobAdState = results[0]?.jobAds?.[activeJob]?.state
     if (!jobAdState) {
       void updateJobAds({
         selector: {_id: results[0]._id},
