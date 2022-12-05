@@ -39,6 +39,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 //    render only whiteness) (default true)
 //  * hideLastUnread: If the list ends with N sequential read posts, 
 //    hide them, except for the first post in the list
+//  * isRecommendations: If set, use an alternate resolver which logs entries
+//    as issued recommendations, then pass recommendation IDs to PostsItem2.
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
@@ -54,7 +56,6 @@ const PostsList2 = ({
   showReviewCount,
   showDraftTag=true,
   tagId,
-  classes,
   dense,
   defaultToShowUnreadComments,
   itemsPerPage=25,
@@ -65,6 +66,8 @@ const PostsList2 = ({
   curatedIconLeft=false,
   showFinalBottomBorder=false,
   hideHiddenFrontPagePosts=false,
+  isRecommendations=false,
+  classes,
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -81,7 +84,6 @@ const PostsList2 = ({
   showReviewCount?: boolean,
   showDraftTag?: boolean,
   tagId?: string,
-  classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
@@ -92,6 +94,8 @@ const PostsList2 = ({
   curatedIconLeft?: boolean,
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
+  isRecommendations?: boolean,
+  classes: ClassesType,
 }) => {
   const {isPostRepeated, addPost} = useHideRepeatedPosts();
 
@@ -112,6 +116,7 @@ const PostsList2 = ({
     nextFetchPolicy: "cache-first",
     itemsPerPage: itemsPerPage,
     alwaysShowLoadMore,
+    resolverName: isRecommendations ? "recommendationsMulti" : undefined,
     ...tagVariables
   });
 

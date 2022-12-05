@@ -81,7 +81,6 @@ export const createCollection = <
   collection.typeName = typeName;
   collection.options.typeName = typeName;
   collection.options.singleResolverName = camelCaseify(typeName);
-  collection.options.multiResolverName = camelCaseify(pluralize(typeName));
 
   // add collectionName if missing
   collection.collectionName = collectionName;

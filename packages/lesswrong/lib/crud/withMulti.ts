@@ -7,34 +7,9 @@ import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
+import { getMultiResolverName } from './utils';
 
-// Multi query used on the client
-//
-// mutation multiMovieQuery($input: MultiMovieInput) {
-//   movies(input: $input) {
-//     results {
-//       _id
-//       name
-//       __typename
-//     }
-//     totalCount
-//     __typename
-//   }
-// }
-const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }) =>
-`query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
-  ${camelCaseify(pluralize(typeName))}(input: $input) {
-    results {
-      ...${fragmentName}
-    }
-    totalCount
-    __typename
-  }
-}`;
-
-function getGraphQLQueryFromOptions({
-  collectionName, collection, fragmentName, fragment, extraVariables,
-}) {
+function getGraphQLQueryFromOptions({ resolverName, collectionName, collection, fragmentName, fragment, extraVariables }) {
   const typeName = collection.options.typeName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
@@ -45,7 +20,15 @@ function getGraphQLQueryFromOptions({
   
   // build graphql query from options
   return gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+      ${resolverName}(input: $input) {
+        results {
+          ...${fragmentName}
+        }
+        totalCount
+        __typename
+      }
+    }
     ${fragment}
   `;
 }
@@ -109,9 +92,11 @@ export function withMulti({
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   const typeName = collection!.options.typeName;
-  const resolverName = collection!.options.multiResolverName;
+  const resolverName = getMultiResolverName(typeName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
+  const query = getGraphQLQueryFromOptions({
+    resolverName, collectionName, collection, fragmentName, fragment, extraVariables
+  });
 
   return compose(
     // wrap component with HoC that manages the terms object via its state
@@ -241,6 +226,7 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
+  resolverName?: string,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -271,6 +257,7 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
+  resolverName = undefined,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -297,9 +284,12 @@ export function useMulti<
   
   const collection = getCollection(collectionName);
   const fragment = getFragment(fragmentName);
+  const typeName = collection.options.typeName;
+  resolverName = resolverName ?? getMultiResolverName(typeName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
-  const resolverName = collection.options.multiResolverName;
+  const query = getGraphQLQueryFromOptions({
+    resolverName, collectionName, collection, fragmentName, fragment, extraVariables
+  });
 
   const graphQLVariables = {
     input: {

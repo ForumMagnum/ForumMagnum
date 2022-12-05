@@ -71,7 +71,6 @@ interface CollectionOptions {
   typeName: string
   collectionName: CollectionNameString
   singleResolverName: string
-  multiResolverName: string
   mutations: any
   resolvers: any
   interfaces: Array<string>

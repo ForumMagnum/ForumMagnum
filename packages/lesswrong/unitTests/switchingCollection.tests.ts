@@ -250,7 +250,6 @@ describe("SwitchingCollection", () => {
       expect(collection.typeName).toBe("RSSFeed");
       expect(collection.options.typeName).toBe("RSSFeed");
       expect(collection.options.singleResolverName).toBe("rSSFeed");
-      expect(collection.options.multiResolverName).toBe("rSSFeeds");
       expect(collection.collectionName).toBe("RSSFeeds");
       expect(collection.options.collectionName).toBe("RSSFeeds");
     }

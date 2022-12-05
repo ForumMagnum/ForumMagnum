@@ -28,7 +28,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       async resolver(root: void, args: { input: {terms: ViewTermsBase, enableTotal?: boolean} }, context: ResolverContext) {
         const input = args?.input || {};
         const { terms={}, enableTotal = false } = input;
-        return await loadMulti({collectionName, terms, enableTotal, context});
+        const results = await loadMulti({collectionName, terms, enableTotal, context});
+        // TODO write down results in recommendationsLog
+        return result;
       },
     },
 
