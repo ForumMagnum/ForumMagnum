@@ -375,6 +375,8 @@ const TagSubforumPage2 = ({classes}: {
     setHoveredContributorId(userId);
   }, []);
   
+  const [joinedDuringSession, setJoinedDuringSession] = useState(false);
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -510,7 +512,7 @@ const TagSubforumPage2 = ({classes}: {
         </Typography>
         {/* TODO change what appears in SubforumNotificationSettings list */}
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
+        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}

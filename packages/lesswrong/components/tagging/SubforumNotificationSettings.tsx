@@ -15,6 +15,7 @@ import { useMessages } from "../common/withMessages";
 import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
 import { useCreate } from "../../lib/crud/withCreate";
 import { max } from "underscore";
+import { useForceRerender } from "../hooks/useFirstRender";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -54,17 +55,20 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumNotificationSettings = ({
   tag,
   currentUser,
+  startOpen = false,
   className,
   classes,
 }: {
   tag: TagBasicInfo;
   currentUser: UsersCurrent;
+  startOpen?: boolean;
   className?: string;
   classes: ClassesType;
 }) => {
+  useForceRerender() // Required because anchorEl is not set on the first render
   const {filterSettings, setTagFilter} = useFilterSettings();
   const anchorEl = useRef<HTMLDivElement | null>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const { flash } = useMessages();
 
   const { LWClickAwayListener, LWPopper, WrappedSmartForm, Typography, Loading } = Components;
@@ -129,7 +133,6 @@ const SubforumNotificationSettings = ({
   // Don't show notification settings if the user is not subscribed to the tag
   if (!currentUser || !currentUser.profileTagIds?.includes(tag._id)) return null;
   if (!userTagRel) return null
-  if (loading) return null
 
   const filterSetting = filterSettings?.tags?.find(({tagId}) => tag._id === tagId);
   const isFrontpageSubscribed = filterSetting?.filterMode === "Subscribed";
@@ -172,10 +175,10 @@ const SubforumNotificationSettings = ({
             )}
           </IconButton>
         </div>
-        <LWPopper open={open} anchorEl={anchorEl.current} placement="bottom-end">
+        <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-end">
           <LWClickAwayListener onClickAway={() => setOpen(false)}>
             <Paper className={classes.popout}>
-              {loading ? (
+              {loading || loadingSubscriptions ? (
                 <Loading />
               ) : (
                 <>
