@@ -34,9 +34,10 @@ const schema: SchemaType<DbBook> = {
   tocTitle: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
   },
 
   collectionId: {
