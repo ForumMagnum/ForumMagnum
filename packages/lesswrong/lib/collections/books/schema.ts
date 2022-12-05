@@ -29,6 +29,16 @@ const schema: SchemaType<DbBook> = {
     insertableBy: ['members'],
   },
 
+  // this overrides the book title in the CollectionsPage table of contents,
+  // for books whose title needs to be different there for whatever reason.
+  tocTitle: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+  },
+
   collectionId: {
     type: String,
     foreignKey: "Collections",

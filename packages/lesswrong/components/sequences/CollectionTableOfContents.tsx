@@ -32,9 +32,9 @@ export const CollectionTableOfContents = ({classes, collection}: {
   const sections: ToCSection[] = [] 
 
   collection.books.forEach(book => {
-    if (book.title) {
+    if (book.tocTitle || book.title) {
       sections.push(({
-        title: book.title,
+        title: book.tocTitle || book.title,
         anchor: slugify(book.title),
         level: 1
       }))

@@ -41,6 +41,7 @@ interface DbBook extends DbObject {
   postedAt: Date
   title: string
   subtitle: string
+  tocTitle: string
   collectionId: string
   number: number
   postIds: Array<string>
