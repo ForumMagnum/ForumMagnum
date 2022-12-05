@@ -11,11 +11,17 @@ makeVoteable(Comments, {
   timeDecayScoresCronjob: true,
   customBaseScoreReadAccess,
   userCanVoteOn: (user: DbUser|null, comment: DbComment, voteType: string, extendedVote: any) => {
-    if (!user) return false;
-    if (comment.userId === user._id) {
-      if (["bigUpvote", "bigDownvote"].includes(voteType)) return false;
-      if (extendedVote?.agreement && extendedVote?.agreement !== "neutral") return false;
+    if (!user) {
+      return {fail: true, reason: 'You do must be logged in to vote.'};
     }
-    return true;
+    if (comment.userId === user._id) {
+      if (["bigUpvote", "bigDownvote"].includes(voteType)) {
+        return {fail: true, reason: 'You cannot cast strong votes on your own comments'};
+      }
+      if (extendedVote?.agreement && extendedVote?.agreement !== "neutral") {
+        return {fail: true, reason: 'You cannot cast agreement votes on your own comments'};
+      }
+    }
+    return {fail: false, reason: null};
   }
 });
