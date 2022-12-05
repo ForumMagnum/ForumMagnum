@@ -3,10 +3,6 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    background: theme.palette.background.pageActiveAreaBackground,
-    padding: 36
-  },
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,
@@ -39,8 +35,8 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
+  const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
+    SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -56,8 +52,7 @@ const BooksItem = ({ book, canEdit, classes }: {
       cancelCallback={showBook}
     />
   } else {
-    return <>
-      <SingleColumnSection className={classes.root}>
+    return <div>
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
@@ -82,9 +77,7 @@ const BooksItem = ({ book, canEdit, classes }: {
         {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
           <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
         )}
-      </SingleColumnSection>
-      <Divider />
-    </>
+    </div>
   }
 }
 

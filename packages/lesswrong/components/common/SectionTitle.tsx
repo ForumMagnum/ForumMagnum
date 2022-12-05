@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
+export const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
   if (anchor) {
     return anchor;
   }

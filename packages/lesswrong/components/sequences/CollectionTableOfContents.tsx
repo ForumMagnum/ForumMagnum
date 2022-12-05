@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
+import { ToCSection } from '../../server/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { getAnchorId } from '../common/SectionTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    position: "sticky",
-    top: 12,
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]
   },
@@ -27,15 +27,39 @@ export const CollectionTableOfContents = ({classes, collection}: {
   classes: ClassesType,
   collection: CollectionsPageFragment
 }) => {
-  return <div className={classes.root}>
-    <div className={classes.collectionTitle}>{collection.title}</div>
-    {collection.books.map(book => <div key={book._id}>
-      <div className={classes.bookTitle}>{book.title}</div>
-      {book.sequences.map(sequence => <div key={sequence._id} className={classes.sequenceTitle}>
-        {sequence.title}
-      </div>)}
-    </div>)}
-  </div>;
+  const { TableOfContents } = Components 
+
+  const sections: ToCSection[] = [] 
+
+  collection.books.forEach(book => {
+    if (book.title) {
+      sections.push(({
+        title: book.title,
+        anchor: slugify(book.title),
+        level: 1
+      }))
+    }
+    book.sequences.forEach(sequence => {
+      if (sequence.title) {
+        sections.push(({
+          title: sequence.title,
+          anchor: sequence._id,
+          level: 2
+        }))
+      }
+    })
+  })
+
+  const sectionData = {
+    html: "",
+    sections: sections,
+    headingsCount: sections.length
+  }
+
+  return <TableOfContents
+    sectionData={sectionData}
+    title={collection.title}
+  />
 }
 
 const CollectionTableOfContentsComponent = registerComponent('CollectionTableOfContents', CollectionTableOfContents, {styles});
