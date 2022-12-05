@@ -26,6 +26,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+  importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
   importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJobAd'))
   importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
   importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
