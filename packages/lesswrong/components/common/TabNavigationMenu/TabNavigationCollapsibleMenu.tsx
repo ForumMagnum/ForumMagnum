@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 1,
     color: theme.palette.grey[800],
     width: 16,
-    margin: "8px 10px 0 32px",
+    margin: "8px 22px 0 20px",
     cursor: "pointer",
     transition: "transform 0.2s ease",
   },
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     color: theme.palette.grey[800],
     fontSize: "1.2rem",
-    paddingLeft: 2,
+    paddingLeft: 3,
   },
   subMenu: {
     marginTop: -16,
@@ -69,39 +69,40 @@ const TabNavigationCollapsibleMenu = ({
 
   return (
     <div className={classes.root}>
-      <LWTooltip placement='right-start' title={tab.tooltip || ''}>
-        <div className={classes.container}>
-          <span onClick={handleArrowClick} className={classNames(
-            classes.icon,
-            classes.arrow,
-            {[classes.iconExpanded]: isExpanded}
-          )}>
-            <ArrowForwardIcon fontSize="small" />
-          </span>
-          <MenuItemUntyped
-            onClick={handleTitleClick}
-            component={Link}
-            to={link || ''}
-            disableGutters
-            classes={{root: classNames(classes.title, {
-              [classes.navButton]: !tab.subItem,
-              [classes.selected]: pathname === link,
-            })}}
-            disableTouchRipple
-          >
-            <span className={classes.navText}>
-              {title}
-            </span>
-          </MenuItemUntyped>
-        </div>
-      </LWTooltip>
+      <div className={classes.container}>
+        <span
+          onClick={handleArrowClick}
+          className={classNames(classes.icon, classes.arrow, { [classes.iconExpanded]: isExpanded })}
+        >
+          <ArrowForwardIcon fontSize="small" />
+        </span>
+        <LWTooltip placement="right-start" title={tab.tooltip || ""}>
+          {link ? (
+            <MenuItemUntyped
+              onClick={handleTitleClick}
+              component={Link}
+              to={link || ""}
+              disableGutters
+              classes={{
+                root: classNames(classes.title, {
+                  [classes.navButton]: !tab.subItem,
+                  [classes.selected]: pathname === link,
+                }),
+              }}
+              disableTouchRipple
+            >
+              <span className={classes.navText}>{title}</span>
+            </MenuItemUntyped>
+          ) : (
+            <div className={classNames(classes.title, { [classes.navButton]: !tab.subItem })}>
+              <span className={classes.navText}>{title}</span>
+            </div>
+          )}
+        </LWTooltip>
+      </div>
       <Collapse in={isExpanded}>
         <div className={classes.subMenu}>
-          <TabNavigationMenu
-            menuTabs={items}
-            onClickSection={onClickSection}
-            transparentBackground
-          />
+          <TabNavigationMenu menuTabs={items} onClickSection={onClickSection} transparentBackground />
         </div>
       </Collapse>
     </div>

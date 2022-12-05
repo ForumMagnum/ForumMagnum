@@ -5,6 +5,7 @@ import { useMulti } from "../../../lib/crud/withMulti";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
+import { taggingNamePluralSetting } from "../../../lib/instanceSettings";
 
 const styles = ((theme: ThemeType): JssStyles => ({
   menuItem: {
@@ -48,7 +49,17 @@ const SubforumsList = ({ onClick, classes }) => {
     <span>
       <AnalyticsContext pageSubSectionContext="menuSubforumsList">
         <div>
+          <MenuItemUntyped
+            key={"wiki"}
+            onClick={onClick}
+            component={Link}
+            to={`/${taggingNamePluralSetting.get()}/all`}
+            classes={{ root: classes.menuItem }}
+          >
+            <TabNavigationSubItem className={classes.subItem}>EA Wiki</TabNavigationSubItem>
+          </MenuItemUntyped>
           {loading && !results?.length && <Loading />}
+          {!!results?.length && <div>Subforums</div>}
           {results?.map((subforum) => (
             <MenuItemUntyped
               key={subforum._id}
@@ -57,9 +68,7 @@ const SubforumsList = ({ onClick, classes }) => {
               to={tagGetSubforumUrl(subforum)}
               classes={{ root: classes.menuItem }}
             >
-              <TabNavigationSubItem className={classes.subItem}>
-                {subforum.name}
-              </TabNavigationSubItem>
+              <TabNavigationSubItem className={classes.subItem}>{subforum.name}</TabNavigationSubItem>
             </MenuItemUntyped>
           ))}
         </div>
