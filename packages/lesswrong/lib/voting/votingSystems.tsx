@@ -67,7 +67,7 @@ registerVotingSystem({
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore, extendedVote: any, currentUser: UsersCurrent}): any => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
-    const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const newVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
     return {
@@ -80,7 +80,7 @@ registerVotingSystem({
     const oldVoteAgreement: string | undefined = cancelledExtendedVote?.agreement;
     const oldVoteIncludesAgreement = (oldVoteAgreement && oldVoteAgreement!=="neutral");
     const oldAgreementPower = oldVoteIncludesAgreement ? calculateVotePower(currentUser.karma, oldVoteAgreement) : 0;
-    const oldApprovalVoteCount = ("approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
+    const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
     const oldVoteIncludesApproval = (voteType&&voteType!=="neutral");
     
     return {
@@ -260,14 +260,21 @@ export function getVotingSystems(): VotingSystem[] {
   return Object.keys(votingSystems).map(k => votingSystems[k]!);
 }
 
-export async function getVotingSystemForDocument(document: VoteableType, context: ResolverContext) {
+export async function getVotingSystemNameForDocument(document: VoteableType, context: ResolverContext): Promise<string> {
+  if ((document as DbComment).tagId) {
+    return "twoAxis";
+  }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId);
     if (post?.votingSystem) {
-      return await getVotingSystemByName(post.votingSystem);
+      return post.votingSystem;
     }
   }
-  return getDefaultVotingSystem();
+  return "default";
+}
+
+export async function getVotingSystemForDocument(document: VoteableType, context: ResolverContext) {
+  return getVotingSystemByName(await getVotingSystemNameForDocument(document, context));
 }
 
 
