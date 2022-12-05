@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const PADDING = 36
-const COLLECTION_WIDTH = SECTION_WIDTH + PADDING * 2
+const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -125,7 +125,7 @@ const CollectionsPage = ({ documentId, classes }: {
           }
         </div>
         <div>
-          {collection.books.map(book => <div className={classes.section}>
+          {collection.books.map(book => <div className={classes.section} key={`collectionsPage${book._id}`}>
             <BooksItem key={book._id} book={book} canEdit={canEdit} />
           </div>)}
         </div>
