@@ -1,5 +1,6 @@
 import { userGetGroups } from '../vulcan-users/permissions';
 import Tags from '../collections/tags/collection';
+import { PermissionResult } from '../make_voteable';
 
 const FETCH_INTERVAL_MS = 1000 * 60 * 60; // Fetch once per hour
 
@@ -19,18 +20,18 @@ const getTagVotingGroups = async (tagId: string) => {
   return tagVotingGroups[tagId];
 }
 
-export const userCanVoteOnTag = async (user: DbUser, tagId: string) => {
+export const userCanVoteOnTag = async (user: DbUser, tagId: string): Promise<PermissionResult> => {
   const groups = await getTagVotingGroups(tagId);
   if (!groups) {
-    return true;
+    return {fail: false, reason: null};
   }
 
   const userGroups = userGetGroups(user);
   for (const group of groups) {
     if (userGroups.includes(group)) {
-      return true;
+      return {fail: false, reason: null};
     }
   }
 
-  return false;
+  return {fail: true, reason: 'You do not have permission to apply or vote on this tag'};
 }

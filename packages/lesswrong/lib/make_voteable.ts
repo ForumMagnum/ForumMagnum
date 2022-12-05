@@ -2,7 +2,7 @@ import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } fr
 import { getWithLoader } from './loaders'
 import GraphQLJSON from 'graphql-type-json';
 
-type PermissionResult = {
+export type PermissionResult = {
   fail: false,
   reason: null
 } | {
