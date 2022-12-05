@@ -567,7 +567,7 @@ const TagSubforumPage2 = ({classes}: {
       </SectionButton>
     </LWTooltip>
   ) : (
-    <LWTooltip title="You must be a member of this subforum to start a thread" className={classes.newPostLink}>
+    <LWTooltip title="You must be a member of this subforum to create a thread" className={classes.newPostLink}>
       <SectionButton>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
       </SectionButton>
