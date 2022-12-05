@@ -191,6 +191,9 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    
+    experiencedIn
+    interestedIn
   }
 `);
 
