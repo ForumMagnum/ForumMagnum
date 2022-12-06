@@ -1,12 +1,14 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, createMutator, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
+import { Subscriptions } from '../../lib/collections/subscriptions';
+import { randomId } from '../../lib/random';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -121,6 +123,42 @@ addGraphQLResolvers({
       })).data;
       return updatedUser.acceptedTos;
     },
+    async UserUpdateSubforumMembership(root: void, { tagId, member }: {tagId: string, member: boolean}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Cannot join subforum without being logged in')
+      }
+
+      if ((member && currentUser.profileTagIds?.includes(tagId)) || (!member && !currentUser.profileTagIds?.includes(tagId))) {
+        throw new Error(member ? 'User is aleady a member of this subforum' : 'User is not a member of this subforum so cannot leave')
+      }
+
+      const newProfileTagIds = member ? [...(currentUser.profileTagIds || []), tagId] : currentUser.profileTagIds?.filter(id => id !== tagId) || []
+      const updatedUser = await updateMutator({
+        collection: Users,
+        documentId: currentUser._id,
+        set: {
+          profileTagIds: newProfileTagIds
+        },
+        validate: false
+      })
+
+      await createMutator({
+        collection: Subscriptions,
+        document: {
+          collectionName: "Tags",
+          documentId: tagId,
+          type: "newTagPosts",
+          state: member ? "subscribed" : "suppressed",
+          deleted: false,
+        },
+        validate: false,
+        context,
+        currentUser,
+      })
+      
+      return updatedUser
+    },
   },
 })
 
@@ -129,4 +167,7 @@ addGraphQLMutation(
 )
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
+)
+addGraphQLMutation(
+  'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )

@@ -14,6 +14,7 @@ interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   userId: string
   interestedInMetaculus: boolean
+  jobAds: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1153,6 +1154,8 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
+  experiencedIn: Array<string>
+  interestedIn: Array<string>
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number

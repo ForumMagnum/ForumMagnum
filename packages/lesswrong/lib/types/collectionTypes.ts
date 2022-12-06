@@ -97,6 +97,7 @@ type ViewQueryAndOptions<
     limit?: number
     skip?: number
     projection?: MongoProjection<T>
+    hint?: string
   }
 }
 
@@ -109,6 +110,7 @@ interface MergedViewQueryAndOptions<
     sort: MongoSort<T>
     limit: number
     skip?: number
+    hint?: string
   }
 }
 

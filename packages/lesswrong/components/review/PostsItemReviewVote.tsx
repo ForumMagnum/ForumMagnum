@@ -89,35 +89,11 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
   const displayVote = getCostData({})[voteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
-  // TODO: if we want to switch to hoverover without click, use this
-  // const voteWidget = <Card className={classes.card}>
-  //   <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
-  //   <ReviewPostButton
-  //     post={post}
-  //     year={REVIEW_YEAR+""}
-  //     reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-  //       <div className={classes.reviewButton}>Write a Review</div>
-  //     </LWTooltip>}
-  //   />
-  // </Card>;
-
-  // return (
-  //   <LWTooltip
-  //     title={voteWidget}
-  //     placement="right"
-  //     tooltip={false}
-  //     clickable>
-  //     <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-  //       {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
-  //     </div>
-  //   </LWTooltip>
-  // )
-
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
+        {(voteIndex !== 0) ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
       </div>
     </LWTooltip>
 
