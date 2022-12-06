@@ -13,6 +13,7 @@ type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers";
+type LanguageModelCacheViewName = never
 type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
 type MessagesViewName = "messagesConversation"|"conversationPreview";
@@ -56,6 +57,7 @@ interface ViewTermsByCollectionName {
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms
   LWEvents: LWEventsViewTerms
+  LanguageModelCache: ViewTermsBase
   LegacyData: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
   Messages: MessagesViewTerms

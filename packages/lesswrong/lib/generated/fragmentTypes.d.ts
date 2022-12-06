@@ -269,6 +269,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly experiencedIn: Array<string>,
+  readonly interestedIn: Array<string>,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -650,6 +652,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly languageModelSummary: string,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1175,6 +1178,11 @@ interface HighlightWithHash_contents { // fragment on Revisions
 interface PostSideComments { // fragment on Posts
   readonly _id: string,
   readonly sideComments: any,
+}
+
+interface PostWithGeneratedSummary { // fragment on Posts
+  readonly _id: string,
+  readonly languageModelSummary: string,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2892,6 +2900,7 @@ interface FragmentTypes {
   WithVotePost: WithVotePost
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
+  PostWithGeneratedSummary: PostWithGeneratedSummary
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3069,6 +3078,7 @@ interface CollectionNamesByFragmentName {
   WithVotePost: "Posts"
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
+  PostWithGeneratedSummary: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
@@ -3197,5 +3207,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LanguageModelCache"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
 

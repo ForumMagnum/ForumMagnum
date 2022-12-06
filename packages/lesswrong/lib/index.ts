@@ -172,6 +172,9 @@ import './collections/featuredResources/fragments'
 // Votes
 import './collections/votes';
 
+// Language-Model Cache
+import './collections/languageModelCache/collection';
+
 // Spotlights
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';

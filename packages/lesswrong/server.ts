@@ -146,8 +146,10 @@ import './server/fmCrosspost/routes';
 
 import './server/spotlightCron';
 
-import './server/codegen/generateTypes';
+import './server/languageModels/languageModelIntegration';
+import './server/languageModels/postSummaryResolver';
 
+import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 // Algolia Search Integration

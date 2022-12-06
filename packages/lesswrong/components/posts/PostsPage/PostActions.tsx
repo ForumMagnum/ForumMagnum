@@ -22,6 +22,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { userHasAutosummarize } from '../../../lib/betas';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
@@ -282,6 +283,10 @@ const PostActions = ({post, closeMenu, classes}: {
             Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
+        
+        {userHasAutosummarize(currentUser)
+          && <Components.PostSummaryAction post={post}/>}
+        
         { isRead
           ? <div onClick={handleMarkAsUnread}>
               <MenuItem>
