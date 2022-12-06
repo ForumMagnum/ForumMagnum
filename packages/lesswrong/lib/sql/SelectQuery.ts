@@ -131,7 +131,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       selector = {_id: selector};
     }
 
-    if (selector && Object.keys(selector).length > 0) {
+    if (!this.selectorIsEmpty(selector)) {
       this.atoms.push("WHERE");
       this.appendSelector(selector);
     }
@@ -146,6 +146,21 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.forUpdate) {
       this.atoms.push("FOR UPDATE");
     }
+  }
+
+  private selectorIsEmpty(selector?: string | MongoSelector<T>): boolean {
+    if (!selector) {
+      return true;
+    }
+
+    if (typeof selector === "string") {
+      return false;
+    }
+
+    const keys = Object.keys(selector);
+    return keys.length === 1
+      ? keys[0] === "$comment"
+      : keys.length === 0;
   }
 
   private appendGroup<U extends {}>(group: U) {

@@ -86,12 +86,8 @@ async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Loading settings");
   await refreshSettingsCaches();
-  
+
   require('../server.ts');
-  
-  // eslint-disable-next-line no-console
-  console.log("Running onStartup functions");
-  await runStartupFunctions();
 
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
     // eslint-disable-next-line no-console
@@ -110,6 +106,10 @@ async function serverStartup() {
       collection.startPolling();
     }
   }
+
+  // eslint-disable-next-line no-console
+  console.log("Running onStartup functions");
+  await runStartupFunctions();
 
   // define executableSchema
   createVoteableUnionType();
