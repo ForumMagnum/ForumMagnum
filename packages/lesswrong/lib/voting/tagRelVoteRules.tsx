@@ -23,13 +23,13 @@ const getTagVotingGroups = async (tagId: string) => {
 export const userCanVoteOnTag = async (user: DbUser, tagId: string): Promise<PermissionResult> => {
   const groups = await getTagVotingGroups(tagId);
   if (!groups) {
-    return {fail: false, reason: null};
+    return {fail: false};
   }
 
   const userGroups = userGetGroups(user);
   for (const group of groups) {
     if (userGroups.includes(group)) {
-      return {fail: false, reason: null};
+      return {fail: false};
     }
   }
 

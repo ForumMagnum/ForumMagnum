@@ -12,7 +12,7 @@ makeVoteable(Comments, {
   customBaseScoreReadAccess,
   userCanVoteOn: (user: DbUser|null, comment: DbComment, voteType: string, extendedVote: any) => {
     if (!user) {
-      return {fail: true, reason: 'You do must be logged in to vote.'};
+      return {fail: true, reason: 'You must be logged in to vote.'};
     }
     if (comment.userId === user._id) {
       if (["bigUpvote", "bigDownvote"].includes(voteType)) {
@@ -22,6 +22,6 @@ makeVoteable(Comments, {
         return {fail: true, reason: 'You cannot cast agreement votes on your own comments'};
       }
     }
-    return {fail: false, reason: null};
+    return {fail: false};
   }
 });
