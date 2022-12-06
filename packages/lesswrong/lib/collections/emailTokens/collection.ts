@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const EmailTokens: EmailTokensCollection = createCollection({
   collectionName: 'EmailTokens',
   typeName: 'EmailTokens',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
 });
 

@@ -186,7 +186,7 @@ const schema: SchemaType<DbGardenCode> = {
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),

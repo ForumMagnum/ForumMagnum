@@ -6,7 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const PetrovDayLaunchs: PetrovDayLaunchsCollection = createCollection({
   collectionName: 'PetrovDayLaunchs',
   typeName: 'PetrovDayLaunch',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema
 });
 
