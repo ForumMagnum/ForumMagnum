@@ -29,19 +29,25 @@ export const CollectionTableOfContents = ({classes, collection}: {
 }) => {
   const { TableOfContents } = Components 
 
-  const sections: (ToCSection|undefined)[] = collection.books.flatMap(book => {
-    const bookTitle = book.tocTitle ?? book.title
-    const bookSection = bookTitle ? {
-      title: bookTitle,
-      anchor: slugify(book.title),
-      level: 1
-    } : undefined
-    const sequenceSections = book.sequences.filter(sequence => !!sequence.title).map(sequence => ({ 
-      title: sequence.title,
-      anchor: sequence._id,
-      level: 2
-    }));
-    return [bookSection, ...sequenceSections]
+  const sections: ToCSection[] = [] 
+
+  collection.books.forEach(book => {
+    if (book.tocTitle || book.title) {
+      sections.push(({
+        title: book.tocTitle || book.title,
+        anchor: slugify(book.title),
+        level: 1
+      }))
+    }
+    book.sequences.forEach(sequence => {
+      if (sequence.title) {
+        sections.push(({
+          title: sequence.title,
+          anchor: sequence._id,
+          level: 2
+        }))
+      }
+    })
   })
 
   const sectionData = {
