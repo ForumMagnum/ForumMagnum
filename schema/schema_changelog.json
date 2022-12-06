@@ -3,5 +3,10 @@
     "acceptsSchemaHash": "daa7d5ff57b1a6eb6bcbe08581493ce5",
     "acceptedByMigration": "20221021T091915.schema_hash.ts",
     "timestamp": "2022-10-21T09:19:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "22bf6d65631e3efb681c9cbea6213033",
+    "acceptedByMigration": "20221206T194243.auto.ts",
+    "timestamp": "2022-12-06T19:42:43.000Z"
   }
 ]
