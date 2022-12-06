@@ -2,7 +2,7 @@ import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
-import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
+import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics, BuiltRevision } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
@@ -152,6 +152,10 @@ function postIdToCkEditorDocumentId(postId: string) {
 
 const cloudEditorAutosaveCommitMessage = "Cloud editor autosave";
 
+function shouldSaveNewRevision(previousRevision: DbRevision | null, newOriginalContents: DbRevision['originalContents'], builtRevision: BuiltRevision) {
+  return !previousRevision || !(_.isEqual(newOriginalContents, previousRevision.originalContents) || builtRevision.wordCount === 0);
+}
+
 async function saveDocumentRevision(userId: string, documentId: string, html: string) {
   const fieldName = "contents";
   const user = await Users.findOne(userId);
@@ -165,12 +169,15 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
   if (!user) {
     throw Error("no user found for userId in saveDocumentRevision")
   }
-  if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
+
+  const baseRevision = await buildRevision({
+    originalContents: newOriginalContents,
+    currentUser: user,
+  });
+
+  if (shouldSaveNewRevision(previousRev, newOriginalContents, baseRevision)) {
     const newRevision: Partial<DbRevision> = {
-      ...await buildRevision({
-        originalContents: newOriginalContents,
-        currentUser: user,
-      }),
+      ...baseRevision,
       documentId,
       fieldName,
       collectionName: "Posts",
