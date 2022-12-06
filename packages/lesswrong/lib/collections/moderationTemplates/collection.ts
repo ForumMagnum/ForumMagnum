@@ -8,7 +8,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const ModerationTemplates: ModerationTemplatesCollection = createCollection({
   collectionName: 'ModerationTemplates',
   typeName: 'ModerationTemplate',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('ModerationTemplates'),
   mutations: getDefaultMutations('ModerationTemplates'),

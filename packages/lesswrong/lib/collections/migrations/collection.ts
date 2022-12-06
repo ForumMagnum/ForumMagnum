@@ -34,7 +34,7 @@ const schema: SchemaType<DbMigration> = {
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),
