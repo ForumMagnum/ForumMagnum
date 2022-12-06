@@ -251,6 +251,13 @@ abstract class Query<T extends DbObject> {
       }
     } else {
       const hint = unresolvedField.indexOf(".") > 0 && resolvedField.indexOf("::") < 0 ? this.getTypeHint(value) : "";
+      if (value === null) {
+        if (op === "=") {
+          return [`${resolvedField}${hint} IS NULL`];
+        } else if (op === "<>") {
+          return [`${resolvedField}${hint} IS NOT NULL`];
+        }
+      }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }
   }

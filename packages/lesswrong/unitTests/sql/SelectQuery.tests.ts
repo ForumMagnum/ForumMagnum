@@ -71,8 +71,8 @@ describe("SelectQuery", () => {
     },
     {
       name: "can build select query with comparison against null",
-      getQuery: () => new SelectQuery(testTable, {a: null}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" IS NULL',
+      getQuery: () => new SelectQuery(testTable, {a: null, b: {$eq: null}, c: {$ne: null}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS NULL AND "b" IS NULL AND "c" IS NOT NULL )',
       expectedArgs: [],
     },
     {
