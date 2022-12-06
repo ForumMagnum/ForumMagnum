@@ -270,7 +270,7 @@ export async function dataToCkEditor(data, type) {
  * is just to find the first place where this occurs and then to ignore to the end of
  * the document.
  */
-export async function dataToWordCount(data, type) {
+export async function dataToWordCount(data, type): Promise<number> {
   try {
     const markdown = dataToMarkdown(data, type) ?? "";
     const withoutFootnotes = markdown

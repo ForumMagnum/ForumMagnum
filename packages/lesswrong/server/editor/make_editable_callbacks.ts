@@ -68,11 +68,21 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }:{
-  originalContents: DbRevision["originalContents"],
-  currentUser: DbUser,
-  dataWithDiscardedSuggestions?: string
-}) {
+interface BuildRevisionParams {
+  originalContents: DbRevision['originalContents'];
+  currentUser: DbUser;
+  dataWithDiscardedSuggestions?: string;
+}
+
+export interface BuiltRevision  {
+  html: string;
+  wordCount: number;
+  originalContents: DbRevision['originalContents'];
+  editedAt: Date;
+  userId: string;
+}
+
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: BuildRevisionParams): Promise<BuiltRevision> {
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
   const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)

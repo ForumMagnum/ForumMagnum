@@ -2,7 +2,7 @@ import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
-import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
+import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics, BuiltRevision } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
@@ -82,8 +82,16 @@ async function handleCkEditorWebhook(message: any) {
       const documentSavedPayload = payload as CkEditorDocumentSaved;
       const ckEditorDocumentId = documentSavedPayload?.document?.id;
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      const documentContents = await fetchCkEditorCloudStorageDocument(ckEditorDocumentId);
-      await saveOrUpdateDocumentRevision(postId, documentContents);
+      const [documentContents, post] = await Promise.all([
+        fetchCkEditorCloudStorageDocument(ckEditorDocumentId),
+        Posts.findOne(postId)
+      ]);
+
+      if (!post) {
+        throw new Error(`Post with id ${postId} from ckEditor webhook event ${event} not found when trying to save a new revision`);
+      }
+
+      await saveDocumentRevision(post.userId, postId, documentContents);
       break;
     }
     case "collaboration.document.updated": {
@@ -101,8 +109,16 @@ async function handleCkEditorWebhook(message: any) {
       const documentUpdatedPayload = payload as CkEditorDocumentUpdated;
       const ckEditorDocumentId = documentUpdatedPayload?.document?.id;
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      const documentContents = await fetchCkEditorCloudStorageDocument(ckEditorDocumentId);
-      await saveOrUpdateDocumentRevision(postId, documentContents);
+      const [documentContents, post] = await Promise.all([
+        fetchCkEditorCloudStorageDocument(ckEditorDocumentId),
+        Posts.findOne(postId)
+      ]);
+
+      if (!post) {
+        throw new Error(`Post with id ${postId} from ckEditor webhook event ${event} not found when trying to save a new revision`);
+      }
+
+      await saveDocumentRevision(post.userId, postId, documentContents);
       break;
     }
     
@@ -152,6 +168,10 @@ function postIdToCkEditorDocumentId(postId: string) {
 
 const cloudEditorAutosaveCommitMessage = "Cloud editor autosave";
 
+function shouldSaveNewRevision(previousRevision: DbRevision | null, newOriginalContents: DbRevision['originalContents'], builtRevision: BuiltRevision) {
+  return !previousRevision || !(_.isEqual(newOriginalContents, previousRevision.originalContents) || builtRevision.wordCount === 0);
+}
+
 async function saveDocumentRevision(userId: string, documentId: string, html: string) {
   const fieldName = "contents";
   const user = await Users.findOne(userId);
@@ -165,12 +185,15 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
   if (!user) {
     throw Error("no user found for userId in saveDocumentRevision")
   }
-  if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
+
+  const baseRevision = await buildRevision({
+    originalContents: newOriginalContents,
+    currentUser: user,
+  });
+
+  if (shouldSaveNewRevision(previousRev, newOriginalContents, baseRevision)) {
     const newRevision: Partial<DbRevision> = {
-      ...await buildRevision({
-        originalContents: newOriginalContents,
-        currentUser: user,
-      }),
+      ...baseRevision,
       documentId,
       fieldName,
       collectionName: "Posts",
