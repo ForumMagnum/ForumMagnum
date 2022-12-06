@@ -82,8 +82,16 @@ async function handleCkEditorWebhook(message: any) {
       const documentSavedPayload = payload as CkEditorDocumentSaved;
       const ckEditorDocumentId = documentSavedPayload?.document?.id;
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      const documentContents = await fetchCkEditorCloudStorageDocument(ckEditorDocumentId);
-      await saveOrUpdateDocumentRevision(postId, documentContents);
+      const [documentContents, post] = await Promise.all([
+        fetchCkEditorCloudStorageDocument(ckEditorDocumentId),
+        Posts.findOne(postId)
+      ]);
+
+      if (!post) {
+        throw new Error(`Post with id ${postId} from ckEditor webhook event ${event} not found when trying to save a new revision`);
+      }
+
+      await saveDocumentRevision(post.userId, postId, documentContents);
       break;
     }
     case "collaboration.document.updated": {
@@ -101,8 +109,16 @@ async function handleCkEditorWebhook(message: any) {
       const documentUpdatedPayload = payload as CkEditorDocumentUpdated;
       const ckEditorDocumentId = documentUpdatedPayload?.document?.id;
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      const documentContents = await fetchCkEditorCloudStorageDocument(ckEditorDocumentId);
-      await saveOrUpdateDocumentRevision(postId, documentContents);
+      const [documentContents, post] = await Promise.all([
+        fetchCkEditorCloudStorageDocument(ckEditorDocumentId),
+        Posts.findOne(postId)
+      ]);
+
+      if (!post) {
+        throw new Error(`Post with id ${postId} from ckEditor webhook event ${event} not found when trying to save a new revision`);
+      }
+
+      await saveDocumentRevision(post.userId, postId, documentContents);
       break;
     }
     
