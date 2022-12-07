@@ -7,7 +7,7 @@ import drop from 'lodash/drop';
 const openAIApiKey:string|null = null;
 
 let openAIApi: OpenAIApi|null = null;
-async function getOpenAI(): Promise<OpenAIApi|null> {
+export async function getOpenAI(): Promise<OpenAIApi|null> {
   if (!openAIApi && openAIApiKey) {
     openAIApi = new OpenAIApi(new OpenAIApiConfiguration({
       apiKey: openAIApiKey,
@@ -189,7 +189,7 @@ async function languageModelExecute(job: LanguageModelJob): Promise<string> {
       const api = await getOpenAI();
       if (!api) throw new Error("OpenAI API not configured");
       const prompt = substituteIntoTemplate(job.template, job.inputs);
-      console.log(`Prompting with: ${JSON.stringify(prompt)}`);
+      //console.log(`Prompting with: ${JSON.stringify(prompt)}`);
       const response = await api.createCompletion({
         model: job.model,
         prompt: prompt,
