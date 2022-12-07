@@ -7,6 +7,7 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 
@@ -155,6 +156,18 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  
+  let togglePodcastIcon = toggleEmbeddedPlayer && <LWTooltip
+    title={'Listen to this post'}
+    className={classes.togglePodcastIcon}
+  >
+    <a href="#" onClick={toggleEmbeddedPlayer}>
+      <VolumeUpIcon />
+    </a>
+  </LWTooltip>
+  if (forumTypeSetting.get() === 'EAForum') {
+    //
+  }
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -192,11 +205,6 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           </div>}
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
           <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
-          {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
-            <a href="#" onClick={toggleEmbeddedPlayer}>
-              <VolumeUpIcon />
-            </a>
-          </LWTooltip>}
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
