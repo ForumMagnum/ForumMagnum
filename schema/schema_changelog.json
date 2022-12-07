@@ -6,7 +6,7 @@
   },
   {
     "acceptsSchemaHash": "dc1ea5409f03e1b22c4c5835fd70e2a3",
-    "acceptedByMigration": "20221207T030042.auto.ts",
+    "acceptedByMigration": "20221207T030042.books_toc_title.ts",
     "timestamp": "2022-12-07T03:00:42.000Z"
   }
 ]
