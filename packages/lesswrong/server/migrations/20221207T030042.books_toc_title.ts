@@ -1,17 +1,21 @@
+import Books from "../../lib/collections/books/collection";
+import AddFieldQuery from "../../lib/sql/AddFieldQuery";
+import PgCollection from "../../lib/sql/PgCollection";
+
 /**
- * Generated on 2022-12-06T19:42:43.108Z by `yarn makemigrations`
+ * Generated on 2022-12-07T03:00:42.348Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
- * diff --git a/Users/raymondarnold/Dropbox/Mac2/Documents/LessWrongSuite/Lesswrong2/schema/accepted_schema.sql b/Users/raymondarnold/Dropbox/Mac2/Documents/LessWrongSuite/Lesswrong2/schema/schema_to_accept.sql
- * index dc30da73f4..bb14c0cb94 100644
- * --- a/Users/raymondarnold/Dropbox/Mac2/Documents/LessWrongSuite/Lesswrong2/schema/accepted_schema.sql
- * +++ b/Users/raymondarnold/Dropbox/Mac2/Documents/LessWrongSuite/Lesswrong2/schema/schema_to_accept.sql
+ * diff --git a/Users/jpaddison/cea/Forum/ForumMagnum/schema/accepted_schema.sql b/Users/jpaddison/cea/Forum/ForumMagnum/schema/schema_to_accept.sql
+ * index 9a0e4839d1..0bfb2fd389 100644
+ * --- a/Users/jpaddison/cea/Forum/ForumMagnum/schema/accepted_schema.sql
+ * +++ b/Users/jpaddison/cea/Forum/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
  * --- Overall schema hash: 84ce55cce528e97d831629f3adf9c4eb
  * -
  * --- Accepted on 2022-10-21T09:19:15.000Z by 20221021T091915.schema_hash.ts
- * +-- Overall schema hash: 22bf6d65631e3efb681c9cbea6213033
+ * +-- Overall schema hash: dc1ea5409f03e1b22c4c5835fd70e2a3
  *  
  * @@ -33,3 +31,3 @@ CREATE TABLE "Bans" (
  *  
@@ -31,12 +35,17 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "22bf6d65631e3efb681c9cbea6213033";
+export const acceptsSchemaHash = "dc1ea5409f03e1b22c4c5835fd70e2a3";
 
 export const up = async ({db}: MigrationContext) => {
-  // TODO
+  if (!Books.isPostgres()) {
+    throw new Error('Can only run this migration on postgres')
+  }
+  const booksTable = Books.getTable()
+  const {sql} = new AddFieldQuery(booksTable, "tocTitle").compile();
+  await db.none(sql);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  // Not implemented
 }
