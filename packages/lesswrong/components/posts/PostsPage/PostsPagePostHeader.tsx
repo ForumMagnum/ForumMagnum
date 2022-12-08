@@ -142,7 +142,9 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag,
+    NewFeatureTooltip
+  } = Components;
 
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
@@ -166,7 +168,11 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     </a>
   </LWTooltip>
   if (forumTypeSetting.get() === 'EAForum') {
-    //
+    togglePodcastIcon = <NewFeatureTooltip
+      title='New: listen to EA Forum posts, narrated by humans'
+    >
+      {togglePodcastIcon}
+    </NewFeatureTooltip>
   }
 
   // TODO: If we are not the primary author of this post, but it was shared with
@@ -204,6 +210,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
+          {togglePodcastIcon}
           <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />

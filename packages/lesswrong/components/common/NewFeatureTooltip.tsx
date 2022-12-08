@@ -56,6 +56,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     left: '50%',
     top: 0,
   },
+  'handle-top-start': {
+    left: 0,
+    top: 0,
+  },
   'handle-bottom': {
     left: '50%',
     bottom: -Math.floor(HANDLE_SIZE / 2),
@@ -106,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement = 'left'}: {
   children?: any,
   title?: string,
-  placement?: 'top'|'right'|'left'|'bottom',
+  placement?: 'top'|'right'|'left'|'bottom'|'top-start',
   classes: ClassesType,
 }) => {
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -115,12 +119,14 @@ const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement
   });
 
   const { LWPopper } = Components;
+  const placement1 = placement
+  placement = placement === 'top-start' ? 'top' : placement;
 
   return (
     <span className={classes.container}>
       {everHovered &&
         <LWPopper
-          placement={placement}
+          placement={placement1}
           open={hover}
           anchorEl={anchorEl}
           tooltip
