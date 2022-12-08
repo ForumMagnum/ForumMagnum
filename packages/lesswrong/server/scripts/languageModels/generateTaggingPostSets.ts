@@ -6,12 +6,14 @@ import { postStatuses } from '../../../lib/collections/posts/constants';
 import { dataToMarkdown, htmlToMarkdown } from '../../editor/conversionUtils';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { cheerioParse } from '../../utils/htmlUtil';
+import type { OpenAIApi } from "openai";
 import shuffle from 'lodash/shuffle';
 import take from 'lodash/take';
 import drop from 'lodash/drop';
 import sum from 'lodash/sum';
 import keyBy from 'lodash/keyBy';
 import mapValues from 'lodash/mapValues';
+import filter from 'lodash/filter';
 import fs from 'fs';
 
 const bodyWordCountLimit = 1500;
@@ -87,11 +89,50 @@ function postToPrompt(post: DbPost, promptSuffix: string): string {
     //const withLinksStripped = stripLinksFromHTML(html);
     //const markdownPostBody = htmlToMarkdown(withLinksStripped);
     const markdownPostBody = dataToMarkdown(post.contents?.originalContents?.data, post.contents?.originalContents?.type);
-    const truncatedPostBody = truncate(markdownPostBody, bodyWordCountLimit, "words", "...");
+    const truncatedPostBody = truncate(markdownPostBody, bodyWordCountLimit, "words", "...").substring(0,3000);
     postTruncatedBodyCache[post._id] = truncatedPostBody;
   }
   return `${post.title}\n\n${postTruncatedBodyCache[post._id]}\n\n${promptSuffix}`;
 }
+
+const tagClassifiers = {
+  "rationality": {
+    prompt: "Is this post about rationality techniques, reasoning techniques, heuristics and biases, or something widely applicable?",
+    finetuneModel: "babbage:ft-personal-2022-12-07-21-47-36",
+    finetuneID: "ft-USVX58sWUQPzgYd46Bc86nrr",
+  },
+  "world-modeling": {
+    prompt: "Is this post about understanding something in the physical world, excluding rationality techniques and AI?",
+    finetuneModel: "babbage:ft-personal-2022-12-08-02-41-08",
+    finetuneID: "ft-i1awtIVhtHdGgen0j5I8CPWG",
+  },
+  "world-optimization": {
+    prompt: "Is this post about strategies for being more effective, making the world better, or acquiring leverage?",
+    finetuneModel: "babbage:ft-personal-2022-12-08-03-43-09",
+    finetuneID: "ft-1aQFhsCwx97oySUTBXFlq0Uw",
+  },
+  "community": {
+    prompt: "Is this post about the rationalist community dynamics, events, people or gossip?",
+    finetuneModel: "babbage:ft-personal-2022-12-08-01-40-46",
+    finetuneID: "ft-m8qvYbS6EbnagXVz418N1KaB",
+  },
+  "practical": {
+    prompt: "Is this post about something you could apply in day to day life, life hacks, or productivity techniques?",
+    finetuneModel: "babbage:ft-personal-2022-12-07-22-48-29",
+    finetuneID: "ft-o9jEgvlssJxABgig6VrIS0ex",
+  },
+  "ai": {
+    prompt: "Is this post about artificial intelligence or machine learning?",
+    finetuneModel: "babbage:ft-personal-2022-12-07-07-55-15",
+    finetuneID: "ft-Zm4L7U6LP3Izt4q4qGMAYmXs",
+  },
+  "covid-19": {
+    prompt: "Is this post about the COVID-19 pandemic?",
+    finetuneModel: "babbage:ft-personal-2022-12-07-23-49-16",
+    finetuneID: "ft-c7fWn5rmGIGtHZzDaUwLaN3C",
+  },
+};
+const tagsToClassifySlugs = Object.keys(tagClassifiers);
 
 async function generateFineTuningFile(postIdsFilename: string, outputFilename: string): Promise<void> {
   const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
@@ -99,7 +140,6 @@ async function generateFineTuningFile(postIdsFilename: string, outputFilename: s
   const postsById = keyBy(posts, post=>post._id);
   const result: string[] = [];
   
-  const tagsToClassifySlugs = ["rationality","world-modeling","world-optimization","ai","practical","community"];
   const tagsToClassify = await Tags.find({slug: {$in: tagsToClassifySlugs}}).fetch();
   const tagsBySlug = keyBy(tagsToClassify, tag=>tag.slug);
   
@@ -201,20 +241,10 @@ Globals.generateTagClassifierData = async () => {
   const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
   
   
-  const tagSlugs = ["rationality", "world-modeling", "world-optimization", "community", "practical", "ai", "covid-19"];
-  const tagPrompts = {
-    "rationality": "Is this post about rationality techniques, reasoning techniques, heuristics and biases, or something widely applicable?",
-    "world-modeling": "Is this post about understanding something in the physical world, excluding rationality techniques and AI?",
-    "world-optimization": "Is this post about strategies for being more effective, making the world better, or acquiring leverage?",
-    "community": "Is this post about the rationalist community dynamics, events, people or gossip?",
-    "practical": "Is this post about something you could apply in day to day life, life hacks, or productivity techniques?",
-    "ai": "Is this post about artificial intelligence or machine learning?",
-    "covid-19": "Is this post about the COVID-19 pandemic?",
-  };
-  const tags = await Tags.find({slug: {$in: tagSlugs}}).fetch();
+  const tags = await Tags.find({slug: {$in: tagsToClassifySlugs}}).fetch();
   
   for (let tag of tags) {
-    const tagPrompt = "\n\n###\n\n" + tagPrompts[tag.slug];
+    const tagPrompt = "\n\n###\n\n" + tagClassifiers[tag.slug].prompt;
     
     await generateClassifierTuningFile({
       description: `Train tag ${tag.slug}: ${tagPrompt}`,
@@ -239,6 +269,58 @@ Globals.generateTagClassifierData = async () => {
       )
     });
   }
+}
+
+async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
+  let tagsApplied = {};
+  
+  for (let tag of tags) {
+    const languageModelResult = await openAIApi.createCompletion({
+      model: tagClassifiers[tag.slug].finetuneModel,
+      prompt: postToPrompt(post, '\n\n###\n\n' + tagClassifiers[tag.slug].prompt),
+      max_tokens: 1,
+    });
+    const completion = languageModelResult.data.choices[0].text!;
+    const hasTag = (completion.trim().toLowerCase() === "yes");
+    tagsApplied[tag.slug] = hasTag;
+  }
+  
+  return tagsApplied;
+}
+
+Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
+  const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
+  const posts = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
+  const tags = await Tags.find({slug: {$in: Object.keys(tagClassifiers)}}).fetch();
+  const openAIApi = await getOpenAI();
+  if (!openAIApi) throw new Error("OpenAI API not configured");
+  const sb: string[] = [];
+  
+  function writeResult(text: string) {
+    console.log(text); // eslint-disable-line no-console
+    sb.push(text);
+  }
+  
+  for (let post of shuffle(posts)) {
+    const tagsByHumans = filter(tags, t=>post.tagRelevance?.[t._id] > 0).map(t=>t.name);
+    
+    try {
+      const tagsPredicted = await checkTags(post, tags, openAIApi);
+      
+      writeResult(`${post.title}\n`
+        + `    https://www.lesswrong.com/posts/${post._id}/${post.slug}\n`
+        + `    Language model: ${filter(tags, t=>!!tagsPredicted[t.slug]).map(t=>t.name).join(", ")}\n`
+        + `    Human: ${tagsByHumans.join(", ")}\n`
+      );
+    } catch(e) {
+      writeResult(`${post._id} ${post.title}\n`
+        + `    Language model: ERROR\n`
+        + `    Human: ${tagsByHumans.join(", ")}\n`
+      );
+    }
+  }
+  
+  fs.writeFileSync(outputFilename, sb.join(''));
 }
 
 Globals.weightedPartition = weightedPartition;
