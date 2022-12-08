@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
+import { gql, useMutation } from '@apollo/client';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -27,10 +28,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SubforumSubscribeSection = ({
   tag,
+  joinCallback = () => {},
+  leaveCallback = () => {},
   className,
   classes,
 }: {
   tag: TagBasicInfo,
+  joinCallback?: () => void,
+  leaveCallback?: () => void,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -38,7 +43,14 @@ const SubforumSubscribeSection = ({
   const { openDialog } = useDialog();
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
-  const updateCurrentUser = useUpdateCurrentUser()
+  const [subforumMembershipMutation] = useMutation(gql`
+    mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {
+      UserUpdateSubforumMembership(tagId: $tagId, member: $member) {
+        ...UsersCurrent
+      }
+    }
+    ${getFragment("UsersCurrent")}
+  `, {refetchQueries: ['getCurrentUser']});
   const { LWTooltip } = Components
 
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -48,7 +60,8 @@ const SubforumSubscribeSection = ({
       captureEvent('subforumSubscribeClicked', {tagId: tag._id});
 
       if (currentUser) {
-        void updateCurrentUser({profileTagIds: [...(currentUser.profileTagIds || []), tag._id]})
+        await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
+        joinCallback();
       } else {
         openDialog({
           componentName: "LoginPopup",
@@ -65,7 +78,8 @@ const SubforumSubscribeSection = ({
 
     captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
     if (currentUser) {
-      void updateCurrentUser({profileTagIds: currentUser.profileTagIds.filter(id => id !== tag._id)})
+      await subforumMembershipMutation({variables: {tagId: tag._id, member: false}});
+      leaveCallback();
     }
   }
   

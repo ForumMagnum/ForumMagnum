@@ -42,6 +42,7 @@ interface DbBook extends DbObject {
   postedAt: Date
   title: string
   subtitle: string
+  tocTitle: string | null
   collectionId: string
   number: number
   postIds: Array<string>
@@ -353,7 +354,7 @@ interface DbMigration extends DbObject {
   __collectionName?: "Migrations"
   name: string
   started: Date
-  finished: Date
+  finished: boolean
   succeeded: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

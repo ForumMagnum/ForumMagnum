@@ -1,7 +1,12 @@
 [
   {
-    "acceptsSchemaHash": "41d43ce0ce67110c70c251dca8e8899a",
+    "acceptsSchemaHash": "daa7d5ff57b1a6eb6bcbe08581493ce5",
     "acceptedByMigration": "20221021T091915.schema_hash.ts",
     "timestamp": "2022-10-21T09:19:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dc1ea5409f03e1b22c4c5835fd70e2a3",
+    "acceptedByMigration": "20221207T030042.books_toc_title.ts",
+    "timestamp": "2022-12-07T03:00:42.000Z"
   }
 ]

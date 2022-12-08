@@ -71,8 +71,8 @@ describe("SelectQuery", () => {
     },
     {
       name: "can build select query with comparison against null",
-      getQuery: () => new SelectQuery(testTable, {a: null}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" IS NULL',
+      getQuery: () => new SelectQuery(testTable, {a: null, b: {$eq: null}, c: {$ne: null}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS NULL AND "b" IS NULL AND "c" IS NOT NULL )',
       expectedArgs: [],
     },
     {
@@ -188,6 +188,12 @@ describe("SelectQuery", () => {
       getQuery: () => new SelectQuery(testTable, {a: 3, $comment: "Test comment"}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" = $1 )',
       expectedArgs: [3],
+    },
+    {
+      name: "can build select query with only a comment",
+      getQuery: () => new SelectQuery(testTable, {$comment: "Test comment"}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection"',
+      expectedArgs: [],
     },
     {
       name: "can build select from a subquery",
