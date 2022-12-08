@@ -31,6 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+// TODO: figure out what to do when title isn't a string. It currently returns
+// undefined, which prevents anchor links from working 
 export const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
   if (anchor) {
     return anchor;

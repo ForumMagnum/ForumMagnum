@@ -1,4 +1,5 @@
 import React from 'react';
+import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import { ToCSection } from '../../server/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -35,7 +36,7 @@ export const CollectionTableOfContents = ({classes, collection}: {
     if (book.tocTitle || book.title) {
       sections.push(({
         title: book.tocTitle || book.title,
-        anchor: slugify(book.title),
+        anchor: getBookAnchor(book), // this needs to match the anchor in 
         level: 1
       }))
     }

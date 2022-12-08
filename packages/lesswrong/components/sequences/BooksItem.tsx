@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -53,7 +54,7 @@ const BooksItem = ({ book, canEdit, classes }: {
     />
   } else {
     return <div>
-        <SectionTitle title={book.title}>
+        <SectionTitle title={book.title} anchor={getBookAnchor(book)}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
         {book.subtitle && <div className={classes.subtitle}>{book.subtitle}</div>}
