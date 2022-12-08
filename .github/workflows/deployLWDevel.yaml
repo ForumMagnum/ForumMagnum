@@ -5,7 +5,7 @@ name: Deploy LW-Devel
 concurrency: deploy-lw-devel
 on:
   push:
-    branches: [ deployLessestWrong ]
+    branches: [ deployLessestWrong, hotfix-lessest-wrong ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
