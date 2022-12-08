@@ -119,8 +119,8 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     return <div/>
 
   let filteredSections = (displayOptions?.maxHeadingDepth)
-    ? filter(sectionData?.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
-    : sectionData?.sections;
+    ? filter(sectionData.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
+    : sectionData.sections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
