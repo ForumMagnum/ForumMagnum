@@ -11,6 +11,7 @@ import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceS
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
+import { reviewIsActive } from '../../lib/reviewUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -62,6 +63,10 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     limit:limit
   }
 
+  const showCurated = 
+    (forumTypeSetting.get() === "EAForum")
+    || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
+
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -96,7 +101,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </AnalyticsContext>
         </div>
         <HideRepeatedPostsProvider>
-          {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
+          {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
