@@ -37,6 +37,8 @@ const initGlobals = (isProd) => {
   }
 
   initGlobals(mode === "prod");
+  const {initServer} = require("./packages/lesswrong/server/serverStartup");
+  await initServer();
 
   const db = await createSqlConnection(pgUrl);
   try {

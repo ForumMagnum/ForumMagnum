@@ -49,6 +49,9 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
+  if (isMigrations) {
+    return;
+  }
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
