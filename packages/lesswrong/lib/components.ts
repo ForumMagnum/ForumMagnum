@@ -49,6 +49,7 @@ importComponent("ModeratorInboxWrapper", () => require('../components/messaging/
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));
+importComponent("CKEditorErrorBoundary", () => require('../components/editor/CKEditorErrorBoundary'));
 importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));
 importComponent("Editor", () => require('../components/editor/Editor'));
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));

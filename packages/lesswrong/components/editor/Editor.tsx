@@ -1,4 +1,4 @@
-import React, { Component, MutableRefObject } from 'react';
+import React, { Component, createContext, MutableRefObject } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
@@ -20,6 +20,7 @@ const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
+export const CKEditorErrorContext = createContext<{ error?: unknown }>({});
 
 export const styles = (theme: ThemeType): JssStyles => ({
   editor: {
@@ -239,7 +240,8 @@ interface EditorComponentState {
   commitMessage: string,
   ckEditorReference: any,
   loading: boolean,
-  markdownImgErrs: boolean
+  markdownImgErrs: boolean,
+  ckEditorError?: unknown
 }
 
 export const getBlankEditorContents = (editorType: EditorTypeString): EditorContents => {
@@ -488,6 +490,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       </Components.ContentStyles>
     }
   }
+
+  handleCkEditorError = (error: unknown) => {
+    console.log({ error }, 'handling ckEditor error in Editor.tsx');
+    this.setState({ ckEditorError: error });
+  }
   
   renderCkEditor = (contents: EditorContents) => {
     const { ckEditorReference } = this.state
@@ -527,12 +534,25 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
       return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
         { isCollaborative
-          ? <Components.CKPostEditor key="ck-collaborate"
-              {...editorProps}
-              isCollaborative={true}
-              accessLevel={this.props.accessLevel}
-            />
-          : <CKEditor key="ck-default" { ...editorProps } />}
+          ? 
+            <Components.CKEditorErrorBoundary handleError={this.handleCkEditorError}>
+              <CKEditorErrorContext.Provider value={{ error: this.state.ckEditorError }}>
+                <Components.CKPostEditor key="ck-collaborate"
+                  {...editorProps}
+                  isCollaborative={true}
+                  accessLevel={this.props.accessLevel}
+                />
+              </CKEditorErrorContext.Provider>
+            </Components.CKEditorErrorBoundary>
+          : commentEditor
+            ? <CKEditor key="ck-default" { ...editorProps } />
+            : 
+              <Components.CKEditorErrorBoundary handleError={this.handleCkEditorError}>
+                <CKEditorErrorContext.Provider value={{ error: this.state.ckEditorError }}>
+                    <CKEditor key="ck-default" { ...editorProps } />
+                </CKEditorErrorContext.Provider>
+              </Components.CKEditorErrorBoundary>
+            }
       </div>
     }
   }

@@ -6,33 +6,37 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getCkEditor } from '../../lib/wrapCkEditor';
+import type EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
+import type BalloonBlockEditorBase from '@ckeditor/ckeditor5-editor-balloon/src/ballooneditor';
+import type { EditorConfig } from '@ckeditor/ckeditor5-core/src/editor/editorconfig';
 
-interface CKEditorProps {
+export interface CKEditorProps {
   data?: any,
-  editor: any,
+  editor: typeof BalloonBlockEditorBase,
   disabled?: any,
-  onInit?: any,
+  onInit?: (editor: BalloonBlockEditorBase) => void,
   onChange?: any,
   onFocus?: any,
   onBlur?: any,
-  config?: any,
+  config?: EditorConfig,
 }
 
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
-export default class CKEditor extends React.Component<CKEditorProps,{}> {
-  domContainer: any
-  watchdog: any
-  editor: any
+export default class CKEditor extends React.Component<CKEditorProps,{ firstRender: boolean }> {
+  domContainer: React.RefObject<HTMLDivElement>
+  watchdog: EditorWatchdog
+  editor: BalloonBlockEditorBase | null
   
   constructor(props: CKEditorProps) {
     super( props );
-    
+
     // After mounting the editor, the variable will contain a reference to the created editor.
     // @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
     this.editor = null;
     this.domContainer = React.createRef();
     const { EditorWatchdog } = getCkEditor();
     this.watchdog = new EditorWatchdog()
+    global.editor = this;
   }
   
   // This component should never be updated by React itself.
@@ -54,7 +58,12 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
   
   // Initialize the editor when the component is mounted.
   componentDidMount() {
-    this._initializeEditor();
+    this._initializeEditor().catch((err) => this.setState(() => { throw err; }))
+    // try {
+    // } catch (error) {
+    //   console.log({ error }, 'caught error in ReactCKEditor.componentDidMount');
+    //   throw error;
+    // }
   }
   
   // Destroy the editor before unmouting the component.
@@ -71,58 +80,98 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
       <div ref={ this.domContainer } ></div>
     );
   }
+
+  _innerInit(editor: BalloonBlockEditorBase) {
+    // if (!this.state?.firstRender) {
+    //   this.setState({ firstRender: true });
+    //   throw new Error('test failing editor creation!');
+    // }
+
+    this.editor = editor;
+          
+    if ( 'disabled' in this.props ) {
+      editor.isReadOnly = this.props.disabled;
+    }
     
-  _initializeEditor() {
+    if ( this.props.onInit ) {
+      this.props.onInit( editor );
+    }
+    
+    const modelDocument = editor.model.document;
+    const viewDocument = editor.editing.view.document;
+    
+    modelDocument.on( 'change:data', event => {
+      /* istanbul ignore else */
+      if ( this.props.onChange ) {
+        this.props.onChange( event, editor );
+      }
+    } );
+    
+    viewDocument.on( 'focus', event => {
+      /* istanbul ignore else */
+      if ( this.props.onFocus ) {
+        this.props.onFocus( event, editor );
+      }
+    } );
+    
+    viewDocument.on( 'blur', event => {
+      /* istanbul ignore else */
+      if ( this.props.onBlur ) {
+        this.props.onBlur( event, editor );
+      }
+    } );
+    return editor
+  }
+    
+  async _initializeEditor() {
+
+    const oldCreate = this.props.editor.create.bind(this.props.editor);
+
+    this.props.editor.create = async (...[el, config]: Parameters<typeof this.props.editor.create>) => {
+      const builtinPlugins = this.props.editor.builtinPlugins;
+      const removePlugins = config?.removePlugins;
+      const realTimeCollaborativeEditingPlugin = builtinPlugins.find((plugin) => typeof plugin !== 'string' && plugin.pluginName === 'RealTimeCollaborativeEditing');
+      if (realTimeCollaborativeEditingPlugin && !removePlugins?.includes(realTimeCollaborativeEditingPlugin)) {
+        throw new Error('test failing editor creation due to realTimeCollaborativeEditingPlugin!');
+      }
+
+      console.log({ el, config });
+
+      return oldCreate(el, config);
+    };
+
+    Object.assign(this.props.editor.create, { modified: true });
+    
     this.watchdog.setCreator((el, config) => {
       return this.props.editor
         .create( el , config )
-        .then( editor => {
-          this.editor = editor;
-          
-          if ( 'disabled' in this.props ) {
-            editor.isReadOnly = this.props.disabled;
-          }
-          
-          if ( this.props.onInit ) {
-            this.props.onInit( editor );
-          }
-          
-          const modelDocument = editor.model.document;
-          const viewDocument = editor.editing.view.document;
-          
-          modelDocument.on( 'change:data', event => {
-            /* istanbul ignore else */
-            if ( this.props.onChange ) {
-              this.props.onChange( event, editor );
-            }
-          } );
-          
-          viewDocument.on( 'focus', event => {
-            /* istanbul ignore else */
-            if ( this.props.onFocus ) {
-              this.props.onFocus( event, editor );
-            }
-          } );
-          
-          viewDocument.on( 'blur', event => {
-            /* istanbul ignore else */
-            if ( this.props.onBlur ) {
-              this.props.onBlur( event, editor );
-            }
-          } );
-          return editor
-        } )
-        .catch( error => {
-          // eslint-disable-next-line no-console
-          console.error( error );
-        } );
+        .then((e) => this._innerInit(e), (error) => {
+          console.log({ error }, 'in extra then.catch block of _initializeEditor');
+          throw error;
+        })
+        // .catch( error => {
+        //   // eslint-disable-next-line no-console
+        //   console.error( error );
+        //   // const builtinPlugins = this.props.editor.builtinPlugins;
+        //   // const realTimeCollaborativeEditingPlugin = builtinPlugins.find((plugin) => typeof plugin !== 'string' && plugin.pluginName === 'RealTimeCollaborativeEditing');
+        //   // if (realTimeCollaborativeEditingPlugin) {
+        //   //   if (!config) config = {};
+        //   //   if (!config.removePlugins) config.removePlugins = [];
+        //     // config.removePlugins.push(realTimeCollaborativeEditingPlugin);
+
+        //     // console.log({ builtinPlugins, removePlugins: config?.removePlugins, realTimeCollaborativeEditingPlugin, createFunc: this.props.editor.create })
+        //     // return this.props.editor.create(el, config).then((e) => this._innerInit(e));
+        //   // }
+        //   throw error;
+        // } );
     })
     this.watchdog.setDestructor(editor => editor.destroy())
-    this.watchdog.create(this.domContainer.current, this.props.config)
     // eslint-disable-next-line no-console
     this.watchdog.on( 'error', () => { console.log( 'Editor crashed.' ) } );
     // eslint-disable-next-line no-console
     this.watchdog.on( 'restart', () => { console.log( 'Editor was restarted.' ) } );
+
+    await this.watchdog.create(this.domContainer.current, this.props.config)
   }
     
   _destroyEditor() {
@@ -146,7 +195,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     }
     
     // We should not change data if the editor's content is equal to the `#data` property.
-    if ( this.editor.getData() === nextProps.data ) {
+    if ( this.editor?.getData() === nextProps.data ) {
       return false;
     }
     
