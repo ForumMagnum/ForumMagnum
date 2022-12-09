@@ -164,7 +164,7 @@ if (!isProduction)
   serverCli.splice(1, 0, "--inspect");
 
 build({
-  entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
+  entryPoints: ['./packages/lesswrong/server/runServer.ts'],
   bundle: true,
   outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",

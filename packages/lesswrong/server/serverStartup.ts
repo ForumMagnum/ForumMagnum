@@ -149,7 +149,7 @@ const runServer = async ({shellMode, command}: CommandLineArguments) => {
   }
 }
 
-const initServer = async () => {
+export const initServer = async () => {
   initConsole();
   const commandLineArguments = getCommandLineArguments();
   await initDatabases(commandLineArguments);
@@ -159,7 +159,7 @@ const initServer = async () => {
   return commandLineArguments;
 }
 
-const serverStartup = async () => {
+export const serverStartup = async () => {
   // eslint-disable-next-line no-console
   console.log("Starting server");
   const commandLineArguments = await initServer();
@@ -232,5 +232,3 @@ const watchForShellCommands = () => {
     }
   });
 }
-
-void serverStartup();
