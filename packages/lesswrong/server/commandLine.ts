@@ -1,4 +1,4 @@
-import { isAnyTest } from '../lib/executionEnvironment';
+import { isAnyTest, isMigrations } from '../lib/executionEnvironment';
 import process from 'process';
 import fs from 'fs';
 
@@ -36,7 +36,9 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
         commandLine.command = argv[++i];
         break;
       default:
-        throw new Error(`Unrecognized command line argument: ${arg}`);
+        if (!isMigrations) {
+          throw new Error(`Unrecognized command line argument: ${arg}`);
+        }
     }
   }
   

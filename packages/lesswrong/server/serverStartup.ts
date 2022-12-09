@@ -6,7 +6,7 @@ import { setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
-import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
 import { forumTypeSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
@@ -123,7 +123,7 @@ async function serverStartup() {
     console.log("Finished. Result: ", result);
     process.exit(0);
   } else {
-    if (!isAnyTest) {
+    if (!isAnyTest && !isMigrations) {
       watchForShellCommands();
       // eslint-disable-next-line no-console
       console.log("Starting webserver");

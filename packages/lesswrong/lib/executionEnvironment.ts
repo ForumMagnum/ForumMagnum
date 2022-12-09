@@ -4,6 +4,7 @@ declare global {
   let bundleIsServer: boolean;
   let bundleIsTest: boolean;
   let bundleIsProduction: boolean;
+  let bundleIsMigrations: boolean;
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
   let estrellaPid: number;
@@ -13,6 +14,7 @@ export const isClient = !bundleIsServer
 export const isServer = bundleIsServer
 export const isDevelopment = !bundleIsProduction
 export const isProduction = bundleIsProduction
+export const isMigrations = bundleIsMigrations
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
 

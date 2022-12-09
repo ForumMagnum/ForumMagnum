@@ -92,6 +92,7 @@ const bundleDefinitions = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
+  "bundleIsMigrations": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
   "serverPort": getServerPort(),
