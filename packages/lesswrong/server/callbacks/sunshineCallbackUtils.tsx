@@ -70,10 +70,10 @@ function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbP
     // Not enough engagement to make a judgment
     if (voteableItems.length < 5) return false;
 
-    const oneWeekAgo = moment().subtract(7, 'days').toDate();
+    const oneMonthAgo = moment().subtract(1, 'month').toDate();
   
     // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
-    if (voteableItems.every(item => item.postedAt < oneWeekAgo)) return false;
+    if (voteableItems.every(item => item.postedAt < oneMonthAgo)) return false;
 
     return user.karma < -5;
 }
