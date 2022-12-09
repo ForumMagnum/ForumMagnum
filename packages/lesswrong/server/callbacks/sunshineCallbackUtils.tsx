@@ -66,6 +66,18 @@ export function isRecentlyDownvotedContent(voteableItems: (DbComment | DbPost)[]
   return downvotedItemCount >= downvotedItemCountThreshold;
 }
 
+function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbPost)[]) {
+    // Not enough engagement to make a judgment
+    if (voteableItems.length < 5) return false;
+
+    const oneWeekAgo = moment().subtract(7, 'days').toDate();
+  
+    // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
+    if (voteableItems.every(item => item.postedAt < oneWeekAgo)) return false;
+
+    return user.karma < -5;
+}
+
 async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
   const context = createAdminContext();
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
@@ -151,16 +163,22 @@ function getUnmoderatedContent(content: (DbPost | DbComment)[], lastActionEndedA
 export async function triggerAutomodIfNeededForUser(user: DbUser) {
   const userId = user._id;
 
-
-  const lowUserKarma = user.karma < -5;
-  handleAutomodAction(lowUserKarma, userId, NEGATIVE_KARMA_USER_ALERT);
-
   const [userModeratorActions, latestComments, latestPosts] = await Promise.all([
     // Sort by createdAt descending so that `.find` returns the most recent one matching the condition
     ModeratorActions.find({ userId }, { sort: { createdAt: -1 } }).fetch(),
     Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
     Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20 }).fetch()
   ]);
+
+  const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
+
+  const activeNegativeKarmaUser = isActiveNegativeKarmaUser(user, voteableContent);
+  handleAutomodAction(activeNegativeKarmaUser, userId, NEGATIVE_KARMA_USER_ALERT);
+
+  // Remove the most recent content item for each rule
+  // Since posts & comments start by default without much karma, they artificially down-weight averages
+  latestComments.shift();
+  latestPosts.shift();
 
   // Get the `endedAt` of the most recently-created action of each type
   // We don't care about the distinction between an active action with no `endedAt` and the user not having that type of action at all
@@ -170,13 +188,6 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
   const downvotedContentActionEndedAt = getLastActionEndedAt(userModeratorActions, RECENTLY_DOWNVOTED_CONTENT_ALERT);
   const lowAvgKarmaCommentEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_COMMENT_ALERT);
   const lowAvgKarmaPostEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_POST_ALERT);
-
-  const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
-
-  // Remove the most recent content item for each rule
-  // Since posts & comments start by default without much karma, they artificially down-weight averages
-  latestComments.shift();
-  latestPosts.shift();
 
   const unmoderatedVoteableContent = getUnmoderatedContent(voteableContent, downvotedContentActionEndedAt);
   const unmoderatedLatestComments = getUnmoderatedContent(latestComments, lowAvgKarmaCommentEndedAt);
