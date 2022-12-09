@@ -116,6 +116,12 @@ async function serverStartup() {
   
   if (commandLineArguments.shellMode) {
     initShell();
+  } else if (commandLineArguments.command) {
+    const func = compileWithGlobals(commandLineArguments.command);
+    const result = await func();
+    // eslint-disable-next-line no-console
+    console.log("Finished. Result: ", result);
+    process.exit(0);
   } else {
     if (!isAnyTest) {
       watchForShellCommands();

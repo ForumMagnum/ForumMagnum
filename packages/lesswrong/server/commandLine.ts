@@ -7,6 +7,7 @@ interface CommandLineArguments {
   postgresUrl: string
   settingsFileName: string
   shellMode: boolean,
+  command?: string,
 }
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
@@ -30,6 +31,9 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
         break;
       case "--shell":
         commandLine.shellMode = true;
+        break;
+      case "--command":
+        commandLine.command = argv[++i];
         break;
       default:
         throw new Error(`Unrecognized command line argument: ${arg}`);
