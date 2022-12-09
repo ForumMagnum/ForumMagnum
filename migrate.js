@@ -8,6 +8,15 @@ const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnecti
 const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 const { readFile } = require("fs").promises;
 
+const initGlobals = (isProd) => {
+  global.bundleIsServer = true;
+  global.bundleIsTest = false;
+  global.bundleIsProduction = isProd;
+  global.defaultSiteAbsoluteUrl = "";
+  global.serverPort = 5001;
+  global.estrellaPid = -1;
+}
+
 (async () => {
   let mode = process.argv[3];
   let pgUrl = process.env["PG_URL"];
@@ -25,6 +34,8 @@ const { readFile } = require("fs").promises;
   } else {
     throw new Error('Unable to run migration without an environment mode or PG_URL');
   }
+
+  initGlobals(mode === "prod");
 
   const db = await createSqlConnection(pgUrl);
   try {
