@@ -47,7 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
   },
   filtering: {
-    ...filteringStyles(theme)
+    ...filteringStyles(theme),
+    marginBottom: 4,
   },
   filterRow: {
     display: "flex",
