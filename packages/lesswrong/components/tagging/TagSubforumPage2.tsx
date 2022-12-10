@@ -517,6 +517,8 @@ const TagSubforumPage2 = ({classes}: {
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
       </div>
+      {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
+      Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
       <Tabs
         value={tab}
         onChange={handleChangeTab}
