@@ -56,7 +56,7 @@ export const loadInstanceSettings = () => {
 }
 
 function loadSettingsFile(filename: string) {
-  if (isAnyTest) {
+  if (isAnyTest || isMigrations) {
     return {};
   } else {
     const settingsFileText = readTextFile(filename);

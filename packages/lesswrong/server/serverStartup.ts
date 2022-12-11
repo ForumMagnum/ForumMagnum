@@ -152,14 +152,14 @@ const runServer = async ({shellMode, command}: CommandLineArguments) => {
   }
 }
 
-export const initServer = async () => {
+export const initServer = async (commandLineArguments?: CommandLineArguments) => {
   initConsole();
-  const commandLineArguments = getCommandLineArguments();
-  await initDatabases(commandLineArguments);
+  const args = commandLineArguments ?? getCommandLineArguments();
+  await initDatabases(args);
   await initSettings();
   require('../server.ts');
   initPostgres();
-  return commandLineArguments;
+  return args;
 }
 
 export const serverStartup = async () => {

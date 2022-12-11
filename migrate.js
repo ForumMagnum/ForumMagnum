@@ -1,7 +1,8 @@
 /**
  * Usage: yarn migrate up|down|pending|executed [dev|staging|prod]
  *
- * If no environment is specified, you can use the environment variable PG_URL
+ * If no environment is specified, you can use the environment variables PG_URL,
+ * MONGO_URL and SETTINGS_FILE
  */
 require("ts-node/register");
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
@@ -18,29 +19,44 @@ const initGlobals = (isProd) => {
   global.estrellaPid = -1;
 }
 
+const readUrlFile = async (fileName) =>
+  (await readFile(`../ForumCredentials/${fileName}`)).toString().trim();
+
 (async () => {
   let mode = process.argv[3];
-  let pgUrl = process.env["PG_URL"];
-  if (["dev", "development", "staging", "prod", "production"].includes(mode)) {
-    if (mode === "development") {
-      mode = "dev";
-    } else if (mode === "production") {
-      mode = "prod";
-    }
+  if (mode === "development") {
+    mode = "dev";
+  } else if (mode === "production") {
+    mode = "prod";
+  }
+
+  const args = {
+    mongoUrl: process.env.MONGO_URL,
+    postgresUrl: process.env.PG_URL,
+    settingsFileName: process.env.SETTINGS_FILE,
+    shellMode: false,
+  };
+
+  if (["dev", "staging", "prod"].includes(mode)) {
     console.log('Running migrations in mode', mode);
-    pgUrl = (await readFile(`../ForumCredentials/${mode}-pg-conn.txt`)).toString().trim();
+    args.mongoUrl = await readUrlFile(`${mode}-db-conn.txt`);
+    args.postgresUrl = await readUrlFile(`${mode}-pg-conn.txt`);
+    args.settingsFileName = `../ForumCredentials/settings-${mode}.json`;
     process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
-  } else if (pgUrl) {
-    console.log('Using PG_URL from environment');
+  } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
+    console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
   } else {
     throw new Error('Unable to run migration without an environment mode or PG_URL');
   }
 
   initGlobals(mode === "prod");
-  const {initServer} = require("./packages/lesswrong/server/serverStartup");
-  await initServer();
 
-  const db = await createSqlConnection(pgUrl);
+  const {initServer} = require("./packages/lesswrong/server/serverStartup");
+  await initServer(args);
+
+  let exitCode = 0;
+
+  const db = await createSqlConnection(args.postgresUrl);
   try {
     await db.tx(async (transaction) => {
       const migrator = await createMigrator(transaction);
@@ -48,8 +64,9 @@ const initGlobals = (isProd) => {
     });
   } catch (e) {
     console.error("An error occurred while running migrations:", e);
-    process.exit(1);
+    exitCode = 1;
   } finally {
     await db.$pool.end();
+    process.exit(exitCode);
   }
 })();
