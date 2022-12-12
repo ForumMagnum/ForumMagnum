@@ -127,7 +127,7 @@ const initPostgres = () => {
   }
 }
 
-const runServer = async ({shellMode, command}: CommandLineArguments) => {
+const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
   await runStartupFunctions();
@@ -166,7 +166,7 @@ export const serverStartup = async () => {
   // eslint-disable-next-line no-console
   console.log("Starting server");
   const commandLineArguments = await initServer();
-  await runServer(commandLineArguments);
+  await executeServerWithArgs(commandLineArguments);
 }
 
 function initShell() {
