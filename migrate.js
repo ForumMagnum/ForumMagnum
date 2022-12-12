@@ -19,8 +19,12 @@ const initGlobals = (isProd) => {
   global.estrellaPid = -1;
 }
 
-const readUrlFile = async (fileName) =>
-  (await readFile(`../ForumCredentials/${fileName}`)).toString().trim();
+const credentialsFile = (fileName) => {
+  const base = process.env.GITHUB_WORKSPACE ?? "..";
+  return `${base}/ForumCredentials/${fileName}`;
+}
+
+const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName))).toString().trim();
 
 (async () => {
   let mode = process.argv[3];
@@ -41,7 +45,7 @@ const readUrlFile = async (fileName) =>
     console.log('Running migrations in mode', mode);
     args.mongoUrl = await readUrlFile(`${mode}-db-conn.txt`);
     args.postgresUrl = await readUrlFile(`${mode}-pg-conn.txt`);
-    args.settingsFileName = `../ForumCredentials/settings-${mode}.json`;
+    args.settingsFileName = credentialsFile(`settings-${mode}.json`);
     process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
     console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
