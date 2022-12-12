@@ -9,6 +9,7 @@ import { getCkEditor } from '../../lib/wrapCkEditor';
 import type EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import type BalloonBlockEditorBase from '@ckeditor/ckeditor5-editor-balloon/src/ballooneditor';
 import type { EditorConfig } from '@ckeditor/ckeditor5-core/src/editor/editorconfig';
+import { CKEditorErrorContext } from './Editor';
 
 export interface CKEditorProps {
   data?: any,
@@ -22,7 +23,7 @@ export interface CKEditorProps {
 }
 
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
-export default class CKEditor extends React.Component<CKEditorProps,{ firstRender: boolean }> {
+export default class CKEditor extends React.Component<CKEditorProps, { firstRender: boolean }, { error?: unknown }> {
   domContainer: React.RefObject<HTMLDivElement>
   watchdog: EditorWatchdog
   editor: BalloonBlockEditorBase | null
@@ -38,6 +39,9 @@ export default class CKEditor extends React.Component<CKEditorProps,{ firstRende
     this.watchdog = new EditorWatchdog()
     global.editor = this;
   }
+
+  static contextType = CKEditorErrorContext;
+  declare context: React.ContextType<typeof CKEditorErrorContext>;
   
   // This component should never be updated by React itself.
   shouldComponentUpdate( nextProps ) {
@@ -131,7 +135,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{ firstRende
       const builtinPlugins = this.props.editor.builtinPlugins;
       const removePlugins = config?.removePlugins;
       const realTimeCollaborativeEditingPlugin = builtinPlugins.find((plugin) => typeof plugin !== 'string' && plugin.pluginName === 'RealTimeCollaborativeEditing');
-      if (realTimeCollaborativeEditingPlugin && !removePlugins?.includes(realTimeCollaborativeEditingPlugin)) {
+      if (realTimeCollaborativeEditingPlugin && !this.context.error) {
         throw new Error('test failing editor creation due to realTimeCollaborativeEditingPlugin!');
       }
 
@@ -140,13 +144,15 @@ export default class CKEditor extends React.Component<CKEditorProps,{ firstRende
       return oldCreate(el, config);
     };
 
-    Object.assign(this.props.editor.create, { modified: true });
+    Object.assign(this.props.editor.create, { modified: true });  
     
     this.watchdog.setCreator((el, config) => {
       return this.props.editor
         .create( el , config )
-        .then((e) => this._innerInit(e), (error) => {
-          console.log({ error }, 'in extra then.catch block of _initializeEditor');
+        .then((e) => this._innerInit(e))
+        .catch( error => {
+          // eslint-disable-next-line no-console
+          console.error( error, 'in original catch block of _initializeEditor' );
           throw error;
         })
         // .catch( error => {

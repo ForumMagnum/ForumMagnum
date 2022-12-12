@@ -94,7 +94,7 @@ const CKPostEditor = ({
   placeholder,
   // renderingError
 }: CKPostEditorProps) => {
-  const { EditorTopBar, CKEditorErrorBoundary } = Components;
+  const { EditorTopBar } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";

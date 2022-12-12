@@ -30,13 +30,13 @@ export class CKEditorErrorBoundary extends Component<CKEditorErrorBoundaryProps,
 
   render() {
     // const { CKPostEditor } = Components;
-    const { error } = this.state;
+    // const { error } = this.state;
 
-    if (error) {
-      console.log({ error }, 'rendering in CKEditorErrorBoundary');
-      // this.props.handleError(error);
-      return <>Error!</>;
-    }
+    // if (error) {
+    //   console.log({ error }, 'rendering in CKEditorErrorBoundary');
+    //   // this.props.handleError(error);
+    //   return <>Error!</>;
+    // }
     return this.props.children;
     // return (
     //   // <CKEditorErrorContext.Provider value={{ error }}>

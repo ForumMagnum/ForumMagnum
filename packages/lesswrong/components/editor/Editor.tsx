@@ -535,23 +535,23 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
         { isCollaborative
           ? 
-            <Components.CKEditorErrorBoundary handleError={this.handleCkEditorError}>
-              <CKEditorErrorContext.Provider value={{ error: this.state.ckEditorError }}>
+            <CKEditorErrorContext.Provider value={{ error: this.state.ckEditorError }}>
+              <Components.CKEditorErrorBoundary handleError={this.handleCkEditorError}>
                 <Components.CKPostEditor key="ck-collaborate"
                   {...editorProps}
                   isCollaborative={true}
                   accessLevel={this.props.accessLevel}
                 />
-              </CKEditorErrorContext.Provider>
-            </Components.CKEditorErrorBoundary>
+              </Components.CKEditorErrorBoundary>
+            </CKEditorErrorContext.Provider>
           : commentEditor
             ? <CKEditor key="ck-default" { ...editorProps } />
             : 
-              <Components.CKEditorErrorBoundary handleError={this.handleCkEditorError}>
-                <CKEditorErrorContext.Provider value={{ error: this.state.ckEditorError }}>
+              <CKEditorErrorContext.Provider value={{ error: this.state.ckEditorError }}>
+                <Components.CKEditorErrorBoundary handleError={this.handleCkEditorError}>
                     <CKEditor key="ck-default" { ...editorProps } />
-                </CKEditorErrorContext.Provider>
-              </Components.CKEditorErrorBoundary>
+                </Components.CKEditorErrorBoundary>
+              </CKEditorErrorContext.Provider>
             }
       </div>
     }
