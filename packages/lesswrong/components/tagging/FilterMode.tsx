@@ -7,7 +7,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -98,7 +97,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 60,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
-  }
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
+  },
 });
 
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
@@ -178,12 +187,16 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(tag && !isMobile()) ?
-        <Link to={tagGetUrl(tag)}>
-          {tagLabel}
-        </Link> :
-        tagLabel
-      }
+      {tag ? (
+        <>
+          <Link to={tagGetUrl(tag)} className={classes.hideOnMobile}>
+            {tagLabel}
+          </Link>
+          <span className={classes.hideOnDesktop}>
+            {tagLabel}
+          </span>
+        </>
+      ) : tagLabel}
       <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
