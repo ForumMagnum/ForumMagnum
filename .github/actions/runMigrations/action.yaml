@@ -23,8 +23,8 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ${{ inputs.credentials-repo }}
-        token: ${{ inputs.credentials-pat }}
         path: ForumCredentials
+        token: ${{ inputs.credentials-pat }}
         persist-credentials: false
 
     - name: Install transcrypt
@@ -40,4 +40,4 @@ runs:
 
     - name: Run migrations
       shell: bash
-      run: yarn migrate up
+      run: yarn migrate up ${{ inputs.mode }}
