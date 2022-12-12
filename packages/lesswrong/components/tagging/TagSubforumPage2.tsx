@@ -28,6 +28,7 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from "../../lib/subforumSortings";
+import startCase from "lodash/startCase";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -158,6 +159,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   newPostLink: {
     display: "flex",
     alignItems: "center",
+  },
+  newPostLinkHover: {
+    '&:hover': {
+      opacity: 0.5
+    }
   },
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -558,15 +564,49 @@ const TagSubforumPage2 = ({classes}: {
   const maxAgeHours = 18;
   const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
 
-  const discussionButton = isSubscribed || currentUser?.isAdmin ? (
-    <SectionButton onClick={clickNewDiscussion}>
-      <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
-    </SectionButton>
-  ) : (
-    <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
-      <SectionButton>
+  const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
+  const discussionButton = (
+    <LWTooltip
+      title={
+        canPostDiscussion
+          ? "Create a thread which will only appear in this subforum"
+          : "You must be a member of this subforum to create a thread"
+      }
+      className={classNames(classes.newPostLink, classes.newPostLinkHover)}
+    >
+      <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
         <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
       </SectionButton>
+    </LWTooltip>
+  );
+
+  const newPostButton = (
+    <LWTooltip
+      title={
+        currentUser
+          ? `Create a post tagged with the ${startCase(
+              tag.name
+            )} topic — by default this will appear here and on the frontpage`
+          : "You must be logged in to create a post"
+      }
+      className={classes.newPostLink}
+    >
+      <Link
+        to={`/newPost?subforumTagId=${tag._id}`}
+        onClick={(ev) => {
+          if (!currentUser) {
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {},
+            });
+            ev.preventDefault();
+          }
+        }}
+      >
+        <SectionButton>
+          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
+        </SectionButton>
+      </Link>
     </LWTooltip>
   );
 
@@ -580,11 +620,7 @@ const TagSubforumPage2 = ({classes}: {
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
           {discussionButton}
-          <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
-            <SectionButton>
-              <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
-            </SectionButton>
-          </Link>
+          {newPostButton}
         </div>
         <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
