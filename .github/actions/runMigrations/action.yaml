@@ -35,8 +35,8 @@ runs:
 
     - name: Decrypt credentials
       shell: bash
-      working-directory: ../ForumCredentials
-      run: ../transcrypt/transcrypt -c aes-256-cbc -p ${{ inputs.transcrypt-secret }}
+      working-directory: ${{ github.workspace }}/ForumCredentials
+      run: ${{ github.workspace }}/transcrypt/transcrypt -c aes-256-cbc -p ${{ inputs.transcrypt-secret }}
 
     - name: Run migrations
       shell: bash
