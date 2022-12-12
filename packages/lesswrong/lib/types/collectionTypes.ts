@@ -10,10 +10,6 @@ import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type PgCollection from "../sql/PgCollection";
 
-// In general, we should never import /server into /lib, but this is safe because
-// it's only `import type`
-import type { PostRelationsRepo } from "../../server/repos";
-
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
@@ -212,10 +208,6 @@ interface HasCreatedAtType extends DbObject {
 export type AlgoliaDocument = {
   _id: string,
   [key: string]: any,
-}
-
-type Repos = {
-  postRelations: PostRelationsRepo,
 }
 
 interface ResolverContext extends CollectionsByName {
