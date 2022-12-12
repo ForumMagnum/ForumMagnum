@@ -51,10 +51,11 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
         return <CommentsNode
           treeOptions={{
             post: comment.post || undefined,
+            forceSingleLine: true
           }}
           comment={comment}
           key={comment._id}
-          forceSingleLine loadChildrenSeparately
+          loadChildrenSeparately
         />
       })}
       {comments?.length < totalCount! &&

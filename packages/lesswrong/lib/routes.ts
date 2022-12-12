@@ -5,6 +5,9 @@ import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/
 import { onStartup } from './executionEnvironment';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
+import pickBy from 'lodash/pickBy';
+import qs from 'qs';
+import { subforumSlugsSetting } from './routeUtil';
 
 
 export const communityPath = '/community';
@@ -249,7 +252,7 @@ addRoute(
   {
     name:'reviewVoting',
     path: '/reviewVoting',
-    redirect: () => `/reviewVoting/2020`,
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   // {
   //   name:'reviewVoting2019',
@@ -258,9 +261,9 @@ addRoute(
   //   componentName: "ReviewVotingPage2019"
   // },
   {
-    name:'reviewVoting2020',
-    path: '/reviewVoting/2020',
-    title: "Voting 2020 Review",
+    name:'reviewVotingByYear',
+    path: '/reviewVoting/:year',
+    title: "Review Voting",
     componentName: "ReviewVotingPage",
     ...reviewSubtitle
   },
@@ -377,7 +380,7 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagsSingleCustomName',
       path: `/${taggingNamePluralSetting.get()}/:slug`,
-      componentName: 'TagPage',
+      componentName: 'TagPageRouter',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
@@ -620,6 +623,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'The Effective Altruism Handbook',
     },
     {
+      name: 'termsOfUse',
+      path: '/termsOfUse',
+      componentName: 'EATermsOfUsePage',
+    },
+    {
       name: 'intro',
       path: '/intro',
       componentName: 'PostsSingleRoute',
@@ -703,22 +711,36 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
-      name: 'advice',
-      path: '/advice',
-      componentName: 'AdvisorsPage',
-      title: 'Book a 1:1'
-    },
-    {
       name: 'wikiTopisRedirect',
       path: '/wiki',
-      redirect: () => '/topics/all'
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
     },
     {
       name: 'subforum',
-      path: `/topics/:slug/subforum`,
-      componentName: 'TagSubforumPage',
-      fullscreen: true,
-    }
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
+      redirect: (routerLocation: RouterLocation) => {
+        const { params: {slug}, query, hash } = routerLocation
+        const isRouteSubforum = subforumSlugsSetting.get().includes(slug)
+
+        const redirectQuery = pickBy({
+          ...query,
+          tab: "subforum",
+          commentId: query.commentId || hash?.slice(1)
+        }, v => v)
+
+        // If the route is not declared as a subforum but somehow the user has clicked on a subforum link, redirect to the /subforum2 path, which will always display like a subforum
+        return `/${taggingNamePluralSetting.get()}/${slug}${isRouteSubforum ? '' : '/subforum2'}?${qs.stringify(redirectQuery)}${hash}`
+      }
+    },
+    {
+      name: 'tagsSubforum',
+      path: `/${taggingNamePluralSetting.get()}/:slug/subforum2`,
+      componentName: 'TagSubforumPage2',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      unspacedGrid: true,
+    },
   ],
   LessWrong: [
     {
@@ -1374,7 +1396,7 @@ addRoute(
   {
     name: 'reviewAdmin',
     path: '/reviewAdmin',
-    redirect: () => `/reviewAdmin/2020`,
+    redirect: () => `/reviewAdmin/${REVIEW_YEAR}`,
   },
   {
     name: 'reviewAdmin-year',

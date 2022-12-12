@@ -213,13 +213,13 @@ export const CAREER_STAGES = [
 ]
 
 export const PROGRAM_PARTICIPATION = [
-  {value: 'vpIntro', label: "Completed the Introductory EA VP"},
-  {value: 'vpInDepth', label: "Completed the In-Depth EA VP"},
+  {value: 'vpIntro', label: "Completed the Introductory EA Virtual Program"},
+  {value: 'vpInDepth', label: "Completed the In-Depth EA Virtual Program"},
   {value: 'vpPrecipice', label: "Completed the Precipice Reading Group"},
-  {value: 'vpLegal', label: "Completed the Legal Topics in EA VP"},
-  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals VP"},
-  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals VP"},
-  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars VP"},
+  {value: 'vpLegal', label: "Completed the Legal Topics in EA Virtual Program"},
+  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals Virtual Program"},
+  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals Virtual Program"},
+  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars Virtual Program"},
   {value: 'eag', label: "Attended an EA Global conference"},
   {value: 'eagx', label: "Attended an EAGx conference"},
   {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
@@ -760,6 +760,17 @@ const schema: SchemaType<DbUser> = {
     // public settings aren't been loaded yet.
   },
 
+  acceptedTos: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    defaultValue: false,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -1231,7 +1242,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings
@@ -2355,6 +2366,32 @@ const schema: SchemaType<DbUser> = {
     type: 'Object'
   }
 };
+
+/* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
+Object.assign(schema, {
+  experiencedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'experiencedIn.$': {
+    type: String,
+    optional: true
+  },
+  interestedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'interestedIn.$': {
+    type: String,
+    optional: true
+  },
+})
 
 /* Alignment Forum fields */
 Object.assign(schema, {

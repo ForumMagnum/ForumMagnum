@@ -10,7 +10,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
@@ -19,8 +19,7 @@ import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
-
-const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
+const isLW = forumTypeSetting.get() === 'LessWrong'
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -290,10 +289,20 @@ const ReviewVotingPage = ({classes}: {
   const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
   let defaultSort = ""
-  if (getReviewPhase() === "REVIEWS") { 
-    defaultSort = "needsReview"
+  switch (getReviewPhase()) {
+    case 'NOMINATIONS':
+      defaultSort = "needsPreliminaryVote";
+      break;
+    case 'REVIEWS':
+      defaultSort = "needsReview"
+      break;
+    case 'VOTING':
+      defaultSort = "needsFinalVote";
+      break;
+    default:
+      defaultSort = "reviewCount";
+      break;
   }
-  if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
 
   const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
@@ -378,12 +387,14 @@ const ReviewVotingPage = ({classes}: {
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
-        // TODO: figure out why commenting this out makes it sort correctly.
+        if (sortPosts === "needsPreliminaryVote") {
+          // This is intended to prioritize showing users posts which have reviews but that the current user hasn't yet voted on
+          const reviewedNotVoted1 = post1.reviewCount > 0 && !post1Score
+          const reviewedNotVoted2 = post2.reviewCount > 0 && !post2Score
+          if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
+          if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
+        }
 
-        const reviewedNotVoted1 = post1.reviewCount > 0 && !post1Score
-        const reviewedNotVoted2 = post2.reviewCount > 0 && !post2Score
-        if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
-        if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
         if (permuted1 < permuted2) return -1;
@@ -406,7 +417,7 @@ const ReviewVotingPage = ({classes}: {
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
 
   const FaqCard = ({linkText, children}) => (
-    <LWTooltip tooltip={false} title={
+    <LWTooltip tooltip={false} clickable title={
       <Card className={classes.faqCard}>
         <ContentStyles contentType="comment">
           {children}
@@ -463,9 +474,15 @@ const ReviewVotingPage = ({classes}: {
       <p className={classes.faqQuestion}>
         <FaqCard linkText="How exactly do Preliminary Votes work?">
           <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly.</p>
+          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
           <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
           <p>You can change your votes during the Final Voting Phase.</p>
+        </FaqCard>
+      </p>
+
+      <p className={classes.faqQuestion}>
+        <FaqCard linkText="How many votes does a post need to proceed to the Review Phase?">
+          <p>Posts will need at least two positive Preliminary Votes to proceed to the Review Phase.</p>
         </FaqCard>
       </p>
 
@@ -477,6 +494,11 @@ const ReviewVotingPage = ({classes}: {
             <li>Any user can write reviews.</li>
           </ul>
         </FaqCard>
+      </p>
+
+      <br />
+      <p>
+        Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
       </p>
     </ContentStyles>
 
@@ -528,7 +550,7 @@ const ReviewVotingPage = ({classes}: {
             }
             {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+            {!isEAForum && eligibleToNominate(currentUser) && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
               <LWTooltip title={costTotalTooltip}>
                 {costTotal}/500
               </LWTooltip>
@@ -549,16 +571,21 @@ const ReviewVotingPage = ({classes}: {
                 onChange={(e)=>{setSortPosts(e.target.value)}}
                 disableUnderline
                 >
+                {getReviewPhase() === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
+                  <LWTooltip placement="left" title="Prioritizes posts with at least one Review, which you haven't yet voted on">
+                    <span><span className={classes.sortBy}>Sort by</span> Prioritized</span>
+                  </LWTooltip>
+                </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
                 </MenuItem>
-                <MenuItem value={'reviewVoteScoreHighKarma'}>
+                {getReviewPhase() === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
-                </MenuItem>
-                <MenuItem value={'reviewVoteScoreAllKarma'}>
+                </MenuItem>}
+                {getReviewPhase() === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
-                </MenuItem>
-                {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
+                </MenuItem>}
+                {getReviewPhase() === "REVIEWS" && isLW && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>

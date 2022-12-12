@@ -246,8 +246,9 @@ registerFragment(`
     # Tags
     tagRelevance
     
-    # Sort settings
+    # Posts-page display options
     commentSortOrder
+    sideCommentVisibility
     
     # Sequence navigation
     collectionTitle
@@ -288,10 +289,14 @@ registerFragment(`
     # Voting
     currentUserVote
     currentUserExtendedVote
+    
+    # RSS metadata
     feedLink
     feed {
       ...RSSFeedMinimumInfo
     }
+    
+    # Related Questions
     sourcePostRelations {
       _id
       sourcePostId
@@ -309,6 +314,8 @@ registerFragment(`
       }
       order
     }
+    
+    # Events
     rsvps
     activateRSVPs
 
@@ -439,6 +446,7 @@ registerFragment(`
     coauthorStatuses
     readTimeMinutesOverride
     fmCrosspost
+    hideFromRecentDiscussions
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -559,5 +567,12 @@ registerFragment(`
     contents {
       htmlHighlightStartingAtHash(hash: $hash)
     }
+  }
+`);
+
+registerFragment(`
+  fragment PostSideComments on Post {
+    _id
+    sideComments
   }
 `);

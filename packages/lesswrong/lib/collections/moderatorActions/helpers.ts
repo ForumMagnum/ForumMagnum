@@ -1,5 +1,47 @@
 import moment from "moment";
 import { forumTypeSetting } from "../../instanceSettings";
+import ModeratorActions from "./collection";
+import { rateLimits, RateLimitType, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK } from "./schema";
+
+/**
+ * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
+ */
+export function getTimeframeForRateLimit(type: RateLimitType) {
+  let hours 
+  switch(type) {
+    case RATE_LIMIT_ONE_PER_DAY:
+      hours = 24; 
+      break;
+    case RATE_LIMIT_ONE_PER_THREE_DAYS:
+      hours = 24 * 3; 
+      break;
+    case RATE_LIMIT_ONE_PER_WEEK:
+      hours = 24 * 7; 
+      break;
+    case RATE_LIMIT_ONE_PER_FORTNIGHT:
+      hours = 24 * 14; 
+      break;
+    case RATE_LIMIT_ONE_PER_MONTH:
+      hours = 24 * 30;
+      break;
+  }
+  return hours
+}
+
+/**
+ * Fetches the most recent, active rate limit affecting a user.
+ */
+export function getModeratorRateLimit(user: DbUser) {
+  return ModeratorActions.findOne({
+    userId: user._id,
+    type: {$in: rateLimits},
+    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
+  }, {
+    sort: {
+      createdAt: -1
+    }
+  }) as Promise<DbModeratorAction & {type:RateLimitType} | null>
+}
 
 export function getAverageContentKarma(content: VoteableType[]) {
   const runningContentKarma = content.reduce((prev, curr) => prev + curr.baseScore, 0);

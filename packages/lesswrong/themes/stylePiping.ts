@@ -265,6 +265,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...tableHeadingStyles(theme)
   },
   '& figure': {
+    maxWidth: '100%',
     margin: '1em auto',
     textAlign: "center"
   },
@@ -471,6 +472,12 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         },
         '& ol, & ul': {
           listStyleType: "revert !important",
+        },
+        '& ol > li > ol': {
+          listStyle: 'lower-alpha !important',
+        },
+        '& ol > li > ol > li > ol': {
+          listStyle: 'lower-roman !important',
         },
       },
       '& .ck-placeholder:before': {

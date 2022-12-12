@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, forceSingleLine, forceNotSingleLine, classes}: {
+const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, classes}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -24,8 +24,6 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   parentAnswerId?: string,
   defaultNestingLevel?: number,
   parentCommentId?: string,
-  forceSingleLine?: boolean,
-  forceNotSingleLine?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -77,8 +75,6 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           key={comment.item._id}
           parentCommentId={parentCommentId}
           parentAnswerId={parentAnswerId}
-          forceSingleLine={forceSingleLine}
-          forceNotSingleLine={forceNotSingleLine}
           shortform={(treeOptions.post as PostsBase)?.shortform}
           isChild={defaultNestingLevel > 1}
         />)

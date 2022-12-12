@@ -3,10 +3,12 @@ import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { sunshineRegimentGroup } from '../../permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { forumTypeSetting } from '../../instanceSettings';
 
 const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),

@@ -109,6 +109,7 @@ build({
   bundle: true,
   target: "es6",
   sourcemap: true,
+  sourcesContent: true,
   outfile: clientOutfilePath,
   minify: isProduction,
   banner: {
@@ -159,6 +160,7 @@ build({
   outfile: `./${outputDir}/server/js/serverBundle.js`,
   platform: "node",
   sourcemap: true,
+  sourcesContent: true,
   minify: false,
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
@@ -176,8 +178,8 @@ build({
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql", "csso", "io-ts", "fp-ts",
-    "bcrypt", "node-pre-gyp", "intercom-client", "node:*", "tsyringe", "reflect-metadata",
-    "fsevents", "auth0", "dd-trace", "pg-formatter"
+    "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
+    "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter"
   ],
 })
 

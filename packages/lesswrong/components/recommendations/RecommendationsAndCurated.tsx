@@ -104,7 +104,8 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList } = Components;
+    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
+      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, TargetedJobAdSection } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -185,6 +186,7 @@ const RecommendationsAndCurated = ({
             {forumTypeSetting.get() !== "EAForum" && <div className={classes.curated}>
               <CuratedPostsList />
             </div>}
+            {forumTypeSetting.get() === "EAForum" && <TargetedJobAdSection />}
           </div>
         </div>
 

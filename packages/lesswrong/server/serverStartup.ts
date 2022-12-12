@@ -14,18 +14,17 @@ import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
-import { setServerShellCommandScope } from './serverShellCommand';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
 import process from 'process';
 import { PostRelationsRepo } from './repos';
+import chokidar from 'chokidar';
+import fs from 'fs';
 
 async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Starting server");
-
-  setServerShellCommandScope({Vulcan, Globals});
 
   const isTTY = process.stdout.isTTY;
   const CSI = "\x1b[";
@@ -65,18 +64,17 @@ async function serverStartup() {
 
   try {
     let connectionString = commandLineArguments.postgresUrl;
-    if (!connectionString) {
-      throw new Error("No postgres connection string provided");
+    if (connectionString) {
+      const branchDb = await getBranchDbName();
+      if (branchDb) {
+        connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
+      }
+      const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
+      // eslint-disable-next-line no-console
+      console.log(`Connecting to postgres (${dbName})`);
+      const sql = await createSqlConnection(connectionString);
+      setSqlClient(sql);
     }
-    const branchDb = await getBranchDbName();
-    if (branchDb) {
-      connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
-    }
-    const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
-    // eslint-disable-next-line no-console
-    console.log(`Connecting to postgres (${dbName})`);
-    const sql = await createSqlConnection(connectionString);
-    setSqlClient(sql);
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err.message);
@@ -89,18 +87,16 @@ async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Loading settings");
   await refreshSettingsCaches();
-  
-  require('../server.ts');
-  
-  // eslint-disable-next-line no-console
-  console.log("Running onStartup functions");
-  await runStartupFunctions();
 
-  // eslint-disable-next-line no-console
-  console.log("Building postgres tables");
-  for (const collection of Collections) {
-    if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
-      collection.buildPostgresTable();
+  require('../server.ts');
+
+  if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    // eslint-disable-next-line no-console
+    console.log("Building postgres tables");
+    for (const collection of Collections) {
+      if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
+        collection.buildPostgresTable();
+      }
     }
   }
 
@@ -114,6 +110,10 @@ async function serverStartup() {
     }
   }
 
+  // eslint-disable-next-line no-console
+  console.log("Running onStartup functions");
+  await runStartupFunctions();
+
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
@@ -122,6 +122,7 @@ async function serverStartup() {
     initShell();
   } else {
     if (!isAnyTest) {
+      watchForShellCommands();
       // eslint-disable-next-line no-console
       console.log("Starting webserver");
       startWebserver();
@@ -186,5 +187,49 @@ function initShell()
   r.context.Globals = Globals;
   r.context.Vulcan = Globals;
 }
+
+const compileWithGlobals = (code: string) => {
+  // This is basically just eval() but done in a way that:
+  //   1) Allows us to define our own global scope
+  //   2) Doesn't upset esbuild
+  const callable = (async function () {}).constructor(`with(this) { await ${code} }`);
+  const scope = {Globals, Vulcan};
+  return () => {
+    return callable.call(new Proxy({}, {
+      has () { return true; },
+      get (target, key) {
+        if (typeof key !== "symbol") {
+          return global[key] ?? scope[key];
+        }
+      }
+    }));
+  }
+}
+
+// Monitor ./tmp/pendingShellCommands for shell commands. If a JS file is
+// written there, run it then delete it. Security-wise this is okay because
+// write-access inside the repo directory is already equivalent to script
+// execution.
+const watchForShellCommands = () => {
+  const watcher = chokidar.watch('./tmp/pendingShellCommands');
+  watcher.on('add', async (path) => {
+    const fileContents = fs.readFileSync(path, 'utf8');
+    // eslint-disable-next-line no-console
+    console.log(`Running shell command: ${fileContents}`);
+    fs.unlinkSync(path);
+    try {
+      const func = compileWithGlobals(fileContents);
+      const result = await func();
+      // eslint-disable-next-line no-console
+      console.log("Finished. Result: ", result);
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Failed.");
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  });
+}
+
 
 void serverStartup();

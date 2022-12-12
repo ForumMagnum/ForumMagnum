@@ -32,6 +32,7 @@ Forum Magnum is built on top of a number major open-source libraries.
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
+  * Curl, Perl are optional, but needed to run some scripts and tests
 
 ### Installation
 
@@ -75,10 +76,16 @@ commands are supported:
 ### Start the development server
 
 ```
-yarn [start|ea-start]
+yarn start-local-db
 ```
 
-You should now have a local version running at [http://localhost:3000](http://localhost:3000/). Only use ea-start if you have access to the ForumCredentials repository.
+Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
+
+```
+yarn ea-start
+```
+
+You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
 

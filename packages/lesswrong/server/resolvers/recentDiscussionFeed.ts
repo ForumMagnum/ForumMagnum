@@ -44,6 +44,7 @@ defineFeedResolver<Date>({
             hideFrontpageComments: false,
             $or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}],
             lastCommentedAt: {$exists: true},
+            hideFromRecentDiscussions: {$ne: true},
             hiddenRelatedQuestion: undefined,
             shortform: undefined,
             groupId: undefined,

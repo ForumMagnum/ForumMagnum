@@ -8,6 +8,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import GraphQLJSON from 'graphql-type-json';
 import { commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
+import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 
 
 export const moderationOptionsGroup: FormGroup = {
@@ -119,6 +120,15 @@ const schema: SchemaType<DbComment> = {
     allowedValues: Object.values(tagCommentTypes),
     hidden: true,
     ...schemaDefaultValue("DISCUSSION"),
+  },
+  subforumStickyPriority: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
   },
   // The comment author's `_id`
   userId: {
@@ -402,12 +412,8 @@ const schema: SchemaType<DbComment> = {
   votingSystem: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      if (!comment?.postId) {
-        return "default";
-      }
-      const post = await context.loaders.Posts.load(comment.postId);
-      return post.votingSystem || "default";
+    resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
+      return getVotingSystemNameForDocument(comment, context)
     }
   }),
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -597,6 +603,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
+    hidden: true
   },
 
   /**
@@ -613,6 +620,7 @@ const schema: SchemaType<DbComment> = {
       if (!newDocument.moderatorHat) return null;
       return newDocument.hideModeratorHat;
     },
+    hidden: true
   },
 
   // whether this comment is pinned on the author's profile

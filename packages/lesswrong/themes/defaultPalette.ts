@@ -429,6 +429,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentMarker: "#fef7a9",
     commentMarkerActive: "#fdf05d",
   },
+  blockquoteHighlight: {
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
+  },
   embeddedPlayer: {
     opacity: 1,
   },

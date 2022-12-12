@@ -26,5 +26,8 @@
   "exclude": [
     "node_modules",
     "build"
-  ]
+  ],
+  "ts-node": {
+    "files": true
+  }
 }

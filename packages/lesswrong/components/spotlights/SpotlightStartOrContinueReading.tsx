@@ -4,7 +4,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useItemsRead } from '../common/withRecordPostView';
+import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
 const styles = (theme: ThemeType): JssStyles => ({

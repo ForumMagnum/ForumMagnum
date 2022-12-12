@@ -27,7 +27,6 @@ const StickiedPosts = ({
       boxShadow={false}
       curatedIconLeft={false}
     />
-    <TargetedJobAd />
   </SingleColumnSection>
 }
 
