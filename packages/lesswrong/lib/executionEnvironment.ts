@@ -1,4 +1,5 @@
 import * as _ from 'underscore';
+import type { CommandLineArguments } from '../server/commandLine';
 
 declare global {
   let bundleIsServer: boolean;
@@ -44,11 +45,11 @@ export const runStartupFunctions = async () => {
 }
 
 let instanceSettings: any = null;
-export const getInstanceSettings = (): any => {
+export const getInstanceSettings = (args?: CommandLineArguments): any => {
   if (!instanceSettings) {
     if (bundleIsServer) {
       const { loadInstanceSettings } = require('../server/commandLine.ts');
-      instanceSettings = loadInstanceSettings();
+      instanceSettings = loadInstanceSettings(args);
     } else {
       instanceSettings = {
         public: window.publicInstanceSettings,

@@ -49,14 +49,14 @@ export const getCommandLineArguments = () => {
   return parseCommandLine(process.argv);
 }
 
-export const loadInstanceSettings = () => {
-  const commandLineArguments = parseCommandLine(process.argv);
+export const loadInstanceSettings = (args?: CommandLineArguments) => {
+  const commandLineArguments = args ?? parseCommandLine(process.argv);
   const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
   return instanceSettings;
 }
 
 function loadSettingsFile(filename: string) {
-  if (isAnyTest || isMigrations) {
+  if (isAnyTest) {
     return {};
   } else {
     const settingsFileText = readTextFile(filename);

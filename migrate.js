@@ -51,6 +51,9 @@ const readUrlFile = async (fileName) =>
 
   initGlobals(mode === "prod");
 
+  const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
+  getInstanceSettings(args); // These args will be cached for later
+
   const {initServer} = require("./packages/lesswrong/server/serverStartup");
   await initServer(args);
 
