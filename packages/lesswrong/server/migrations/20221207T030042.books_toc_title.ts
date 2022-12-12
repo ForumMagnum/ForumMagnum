@@ -1,5 +1,5 @@
 import Books from "../../lib/collections/books/collection";
-import AddFieldQuery from "../../lib/sql/AddFieldQuery";
+import { addField } from "./meta/utils";
 
 /**
  * Generated on 2022-12-07T03:00:42.348Z by `yarn makemigrations`
@@ -38,9 +38,7 @@ export const acceptsSchemaHash = "dc1ea5409f03e1b22c4c5835fd70e2a3";
 
 export const up = async ({db}: MigrationContext) => {
   if (Books.isPostgres()) {
-    const booksTable = Books.getTable()
-    const {sql} = new AddFieldQuery(booksTable, "tocTitle").compile();
-    await db.none(sql);
+    await addField(db, Books, "tocTitle");
   } else {
     console.warn("'Books' is not a Postgres collection");
   }
