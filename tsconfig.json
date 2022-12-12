@@ -14,9 +14,7 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strictBindCallApply": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "strictBindCallApply": true
   },
   "include": [
     "packages/lesswrong",

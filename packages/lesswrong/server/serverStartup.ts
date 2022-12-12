@@ -1,5 +1,4 @@
 import './datadog/tracer';
-import 'reflect-metadata';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
@@ -99,8 +98,6 @@ async function serverStartup() {
       }
     }
   }
-
-  const repo = PostRelationsRepo.resolve();
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");

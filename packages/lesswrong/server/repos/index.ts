@@ -1,7 +1,7 @@
 import PostRelationsRepo from "./PostRelationsRepo";
 
 const getAllRepos = (): Repos => ({
-  postRelations: PostRelationsRepo.resolve(),
+  postRelations: new PostRelationsRepo(),
 });
 
 export {
