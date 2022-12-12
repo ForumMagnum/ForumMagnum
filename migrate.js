@@ -60,13 +60,18 @@ const readUrlFile = async (fileName) =>
   try {
     await db.tx(async (transaction) => {
       const migrator = await createMigrator(transaction);
-      await migrator.runAsCLI();
+      const result = await migrator.runAsCLI();
+      if (!result) {
+        // If the migration throws an error it will have already been reported,
+        // but we need to manually propagate it to the exitCode
+        exitCode = 1;
+      }
     });
   } catch (e) {
     console.error("An error occurred while running migrations:", e);
     exitCode = 1;
-  } finally {
-    await db.$pool.end();
-    process.exit(exitCode);
   }
+
+  await db.$pool.end();
+  process.exit(exitCode);
 })();
