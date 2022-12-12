@@ -37,6 +37,7 @@
     "rebuild-ckeditor": "cd ./public/lesswrong-editor && yarn install && yarn run build",
     "production": "scripts/runProduction.sh",
     "deploy": "scripts/deploy.sh",
+    "ea-command": "./build.js -run --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt --postgresUrlFile ../ForumCredentials/dev-pg-conn.txt --command",
     "ea-start": "./build.js -run -watch --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt --postgresUrlFile ../ForumCredentials/dev-pg-conn.txt",
     "ea-start-xpost-dev": "PORT=4000 ./build.js -run -watch --settings ../ForumCredentials/xpost-dev-settings.json --mongoUrlFile ../ForumCredentials/xpost-dev-db-conn.txt --postgresUrlFile ../ForumCredentials/xpost-dev-pg-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --settings ../ForumCredentials/settings-local-dev-staging-db.json --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --postgresUrlFile ../ForumCredentials/staging-pg-conn.txt",

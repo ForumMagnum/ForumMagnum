@@ -6,10 +6,10 @@ import { setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
-import { runStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
 import { forumTypeSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { getCommandLineArguments } from './commandLine';
+import { getCommandLineArguments, CommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
@@ -20,34 +20,45 @@ import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 
-async function serverStartup() {
-  // eslint-disable-next-line no-console
-  console.log("Starting server");
+const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
+  for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+    // eslint-disable-next-line no-console
+    const originalFn = console[functionName];
+    // eslint-disable-next-line no-console
+    console[functionName] = (...message: any[]) => {
+      wrapper(originalFn, ...message);
+    }
+  }
+}
 
+const initConsole = () => {
   const isTTY = process.stdout.isTTY;
   const CSI = "\x1b[";
   const blue = isTTY ? `${CSI}34m` : "";
   const endBlue = isTTY ? `${CSI}39m` : "";
-  
+
   wrapConsoleLogFunctions((log, ...message) => {
     process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
-    
+
     // Uncomment to add stacktraces to every console.log, for debugging where
     // mysterious output came from.
     //var stack = new Error().stack
     //log(stack)
   });
-  
-  const commandLineArguments = getCommandLineArguments();
-  
+}
+
+const connectToMongo = async (connectionString: string) => {
+  if (isMigrations) {
+    return;
+  }
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
-    const client = new MongoClient(commandLineArguments.mongoUrl, {
+    const client = new MongoClient(connectionString, {
       // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
       // for various options that could be tuned here
-      
+
       // A deprecation warning says to use this option 
       useUnifiedTopology: true,
     });
@@ -59,9 +70,10 @@ async function serverStartup() {
     console.error("Failed to connect to mongodb: ", err);
     process.exit(1);
   }
+}
 
+const connectToPostgres = async (connectionString: string) => {
   try {
-    let connectionString = commandLineArguments.postgresUrl;
     if (connectionString) {
       const branchDb = await getBranchDbName();
       if (branchDb) {
@@ -81,13 +93,21 @@ async function serverStartup() {
       process.exit(1);
     }
   }
+}
 
+const initDatabases = ({mongoUrl, postgresUrl}: CommandLineArguments) =>
+  Promise.all([
+    connectToMongo(mongoUrl),
+    connectToPostgres(postgresUrl),
+  ]);
+
+const initSettings = () => {
   // eslint-disable-next-line no-console
   console.log("Loading settings");
-  await refreshSettingsCaches();
+  return refreshSettingsCaches();
+}
 
-  require('../server.ts');
-
+const initPostgres = () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
@@ -105,7 +125,9 @@ async function serverStartup() {
       collection.startPolling();
     }
   }
+}
 
+const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
   await runStartupFunctions();
@@ -113,54 +135,41 @@ async function serverStartup() {
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
-  
-  if (commandLineArguments.shellMode) {
-    initShell();
-  } else {
-    if (!isAnyTest) {
-      watchForShellCommands();
-      // eslint-disable-next-line no-console
-      console.log("Starting webserver");
-      startWebserver();
-    }
-  }
-  
-  /*if (process.stdout.isTTY) {
-    console.log("Output is a TTY");
-    initShell();
-    
-    const origConsoleLog = console.log;
-    console.log = (message) => wrappedConsoleLog(origConsoleLog, message);
-  }*/
-}
 
-function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>void) {
-  for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+  if (shellMode) {
+    initShell();
+  } else if (command) {
+    const func = compileWithGlobals(command);
+    const result = await func();
     // eslint-disable-next-line no-console
-    const originalFn = console[functionName];
+    console.log("Finished. Result: ", result);
+    process.exit(0);
+  } else if (!isAnyTest && !isMigrations) {
+    watchForShellCommands();
     // eslint-disable-next-line no-console
-    console[functionName] = (...message: any[]) => {
-      wrapper(originalFn, ...message);
-    }
+    console.log("Starting webserver");
+    startWebserver();
   }
 }
 
-function wrappedConsoleLog(unwrappedConsoleLog: (...messages: string[])=>void, message: string)
-{
-  const screenHeight = process.stdout.rows;
-  const ESC = '\x1b';
-  const CSI = ESC+'[';
-  
-  process.stdout.write(`${CSI}s`); // Save cursor
-  process.stdout.write(`${CSI}1;${screenHeight-2}r`); // Set scroll region
-  process.stdout.write(`${CSI}${screenHeight-2};1H`); // Move cursor to insertion point
-  process.stdout.write(message+"\n"); // Write the output
-  process.stdout.write(`${CSI}r`); // Clear scroll region
-  process.stdout.write(`${CSI}u`); // Restore cursor
+export const initServer = async (commandLineArguments?: CommandLineArguments) => {
+  initConsole();
+  const args = commandLineArguments ?? getCommandLineArguments();
+  await initDatabases(args);
+  await initSettings();
+  require('../server.ts');
+  initPostgres();
+  return args;
 }
 
-function initShell()
-{
+export const serverStartup = async () => {
+  // eslint-disable-next-line no-console
+  console.log("Starting server");
+  const commandLineArguments = await initServer();
+  await executeServerWithArgs(commandLineArguments);
+}
+
+function initShell() {
   const repl = require('repl');
   /*const rl = readline.createInterface({
     input: process.stdin,
@@ -172,7 +181,7 @@ function initShell()
     rl.prompt();
   });
   rl.prompt();*/
-  
+
   const r = repl.start({
     prompt: "> ",
     terminal: true,
@@ -193,7 +202,7 @@ const compileWithGlobals = (code: string) => {
   return () => {
     return callable.call(new Proxy({}, {
       has () { return true; },
-      get (target, key) {
+      get (_target, key) {
         if (typeof key !== "symbol") {
           return global[key] ?? scope[key];
         }
@@ -226,6 +235,3 @@ const watchForShellCommands = () => {
     }
   });
 }
-
-
-void serverStartup();
