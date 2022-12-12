@@ -46,7 +46,7 @@ const readUrlFile = async (fileName) =>
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
     console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
   } else {
-    throw new Error('Unable to run migration without an environment mode or PG_URL');
+    throw new Error('Unable to run migration without a mode or environment (PG_URL, MONGO_URL and SETTINGS_FILE)');
   }
 
   initGlobals(mode === "prod");
