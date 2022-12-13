@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -15,15 +15,12 @@ import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
-import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
-import { captureException } from '@sentry/core';
 import { userOverNKarmaFunc } from "../../vulcan-users";
-import { getSqlClientOrThrow } from '../../sql/sqlClient';
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
@@ -568,25 +565,10 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { Posts, currentUser } = context;
+      const { Posts, currentUser, repos } = context;
       let postRelations: DbPostRelation[] = [];
       if (Posts.isPostgres()) {
-        const sql = getSqlClientOrThrow();
-        postRelations = await sql.any(`
-          WITH RECURSIVE search_tree(
-            "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
-          ) AS (
-            SELECT "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", 1 AS depth
-            FROM "PostRelations"
-            WHERE "sourcePostId" = $1
-            UNION
-            SELECT source."_id", source."createdAt", source."type", source."sourcePostId", source."targetPostId",
-              source."order", source."schemaVersion", target.depth + 1 AS depth
-            FROM "PostRelations" source
-            JOIN search_tree target ON source."sourcePostId" = target."targetPostId" AND target.depth < 3
-          )
-          SELECT * FROM search_tree;
-        `, [post._id]);
+        postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
       } else {
         postRelations = await Posts.aggregate([
           { $match: { _id: post._id }},
