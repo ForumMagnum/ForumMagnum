@@ -9,5 +9,10 @@ describe("AddFieldQuery", () => {
       expectedSql: 'ALTER TABLE "TestCollection" ADD COLUMN IF NOT EXISTS "b" TEXT',
       expectedArgs: [],
     },
+    {
+      name: "throws an error if passed an invalid field name",
+      getQuery: () => new AddFieldQuery<DbTestObject>(testTable, "some-field-name"),
+      expectedError: 'Field "some-field-name" does not exist in the schema',
+    },
   ]);
 });
