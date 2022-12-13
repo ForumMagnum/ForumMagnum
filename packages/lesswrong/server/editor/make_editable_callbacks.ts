@@ -269,11 +269,9 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
    * It's fine to leave it here just in case though
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
-    console.log(`Calling convertImagesInObject from ${collectionName}.editAsync`);
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
   })
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
-    console.log(`Calling convertImagesInObject from ${collectionName}.newAsync`);
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
   })
 }

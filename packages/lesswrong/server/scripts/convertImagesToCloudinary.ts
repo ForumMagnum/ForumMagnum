@@ -177,14 +177,13 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
 export async function convertImagesInObject(
   collectionName: CollectionNameString,
   _id: string,
-  fieldName: string = "contents",
+  fieldName = "contents",
   urlFilterFn: (url: string)=>boolean = ()=>true
 ): Promise<number> {
   let totalUploaded = 0;
   try {
     const collection = getCollection(collectionName);
     const obj = await collection.findOne({_id});
-    console.log(`convertImagesInObject(${collectionName}.${fieldName})`);
 
     if (!obj) {
       // eslint-disable-next-line no-console
