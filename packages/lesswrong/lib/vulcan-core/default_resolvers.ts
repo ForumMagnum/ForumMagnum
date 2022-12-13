@@ -65,7 +65,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           // get total count of documents matching the selector
           // TODO: Make this handle synthetic fields
           if (saturated) {
-            data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+            const { hint } = parameters.options;
+            data.totalCount = await Utils.Connectors.count(collection, parameters.selector, { hint });
           } else {
             data.totalCount = viewableDocs.length;
           }
@@ -189,6 +190,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
+    logger('queryFromViewParameters connector find', selector, terms, options);
     return await Utils.Connectors.find(collection,
       {
         ...selector,

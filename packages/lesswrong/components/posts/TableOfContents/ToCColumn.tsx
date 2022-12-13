@@ -116,7 +116,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
   tableOfContents: React.ReactNode|null,
-  header: React.ReactNode,
+  header?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
   welcomeBox?: React.ReactNode,

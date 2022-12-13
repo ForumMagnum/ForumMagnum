@@ -99,7 +99,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       componentName: "PostSharingSettingsDialog",
       componentProps: {
         postId: document._id,
-        linkSharingKey: document.linkSharingKey,
+        linkSharingKey: document.linkSharingKey ?? undefined,
         initialSharingSettings,
         onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
@@ -145,7 +145,8 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
 
 const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
   postId: string,
-  linkSharingKey: string,
+  // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
+  linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
   initialShareWithUsers: string[],
   onClose: ()=>void,

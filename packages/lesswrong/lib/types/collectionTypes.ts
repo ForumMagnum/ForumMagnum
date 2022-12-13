@@ -97,6 +97,7 @@ type ViewQueryAndOptions<
     limit?: number
     skip?: number
     projection?: MongoProjection<T>
+    hint?: string
   }
 }
 
@@ -109,6 +110,7 @@ interface MergedViewQueryAndOptions<
     sort: MongoSort<T>
     limit: number
     skip?: number
+    hint?: string
   }
 }
 
@@ -219,7 +221,8 @@ interface ResolverContext extends CollectionsByName {
   }
   extraLoaders: Record<string,any>
   req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: Response
+  res?: Response,
+  repos: Repos,
 }
 
 type FragmentName = keyof FragmentTypes;
