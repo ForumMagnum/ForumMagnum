@@ -161,7 +161,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
@@ -620,6 +620,7 @@ importComponent("ChaptersEditForm", () => require('../components/sequences/Chapt
 importComponent("ChaptersNewForm", () => require('../components/sequences/ChaptersNewForm'));
 importComponent("CollectionsSingle", () => require('../components/sequences/CollectionsSingle'));
 importComponent("CollectionsPage", () => require('../components/sequences/CollectionsPage'));
+importComponent("CollectionTableOfContents", () => require('../components/sequences/CollectionTableOfContents'));
 importComponent("CollectionsItem", () => require('../components/sequences/CollectionsItem'));
 importComponent("CollectionsEditForm", () => require('../components/sequences/CollectionsEditForm'));
 importComponent("BooksNewForm", () => require('../components/sequences/BooksNewForm'));
