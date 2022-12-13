@@ -11,7 +11,7 @@ export const datadogMiddleware = (req, res, next) => {
     const rootSpan = span.context()._trace.started[0]
     const user = req.user
     if (user) {
-      rootSpan.setTag('usr', {id: user._id, name: user.slug, email: user.email})
+      rootSpan.setTag('usr', {id: user._id, name: user.displayName, email: user.email, slug: user.slug})
     }
   }
 

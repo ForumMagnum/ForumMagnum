@@ -27,7 +27,8 @@ export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | nu
   datadogRum.setUser(user ? {
     id: user._id,
     email: getUserEmail(user),
-    name: user.slug,
+    name: user.displayName,
+    slug: user.slug,
   } : {});
 
   if (user && !user.allowDatadogSessionReplay) {
