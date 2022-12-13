@@ -10,6 +10,7 @@ import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
+import { configureDatadogRum } from '../../client/datadogRum';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -109,6 +110,10 @@ const UsersEditForm = ({terms, classes}: {
             setTheme(theme);
             captureEvent("setUserTheme", theme);
           }
+
+          // reconfigure datadog RUM in case they have changed their settings
+          configureDatadogRum(user)
+
           flash(`User "${userGetDisplayName(user)}" edited`);
           try {
             await client.resetStore()

@@ -271,6 +271,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
+  readonly allowDatadogSessionReplay: boolean | null,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -2405,6 +2406,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   },
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
+  readonly allowDatadogSessionReplay: boolean | null,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2525,6 +2527,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly location: string,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly allowDatadogSessionReplay: boolean | null,
   readonly reviewedByUserId: string,
   readonly reviewForAlignmentForumUserId: string,
   readonly groups: Array<string>,

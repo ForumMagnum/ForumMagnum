@@ -2,11 +2,12 @@ import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 import { routerOnUpdate } from '../components/hooks/useOnNavigate';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { captureEvent, AnalyticsUtil, userIdentifiedCallback } from '../lib/analyticsEvents';
+import { captureEvent, AnalyticsUtil, userChangedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
+import datadogRum, { configureDatadogRum } from './datadogRum';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -39,22 +40,24 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 
 // Initializing sentry on the client browser
 
-userIdentifiedCallback.add(function identifyUserToSentry(user: UsersCurrent) {
-  // Set user in sentry scope
+userChangedCallback.add(function identifyUserToSentry(user: UsersCurrent | null) {
+  // Set user in sentry scope, or clear user if they have logged out
   Sentry.configureScope((scope) => {
-    scope.setUser({id: user._id, email: getUserEmail(user), username: user.username});
+    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username} : null);
   });
 });
 
-userIdentifiedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent) {
+userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
   const dataLayer = (window as any).dataLayer
   if (!dataLayer) {
     // eslint-disable-next-line no-console
     console.warn("Trying to call gtag before dataLayer has been initialized")
   } else {
-    dataLayer.push({userId: user._id})
+    dataLayer.push({userId: user ? user._id : null})
   }
 });
+
+userChangedCallback.add(configureDatadogRum);
 
 window.addEventListener('load', ev => {
   captureEvent("pageLoadFinished", {

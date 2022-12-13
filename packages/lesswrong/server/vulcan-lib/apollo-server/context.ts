@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
+import { userChangedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
@@ -61,7 +61,7 @@ const setupAuthToken = async (user: DbUser|null): Promise<{
 }> => {
   if (user) {
     // identify user to any server-side analytics providers
-    await userIdentifiedCallback.runCallbacks({
+    await userChangedCallback.runCallbacks({
       iterator: user,
       properties: [],
     });

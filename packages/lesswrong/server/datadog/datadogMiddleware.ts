@@ -1,7 +1,9 @@
-// import { getUserFromReq } from '../vulcan-lib';
 import tracer from './tracer'
 
-// Middleware for attaching user info to the root span of a request
+/**
+ * - Attach user info to the root span
+ * - Allow the headers required for Real User Monitoring
+ */
 export const datadogMiddleware = (req, res, next) => {
   const span = tracer.scope().active()
   if (span !== null) {
@@ -9,7 +11,7 @@ export const datadogMiddleware = (req, res, next) => {
     const rootSpan = span.context()._trace.started[0]
     const user = req.user
     if (user) {
-      rootSpan.setTag('usr', {_id: user._id, slug: user.slug})
+      rootSpan.setTag('usr', {id: user._id, name: user.slug, email: user.email})
     }
   }
 
