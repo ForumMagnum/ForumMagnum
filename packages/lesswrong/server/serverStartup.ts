@@ -17,6 +17,7 @@ import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
 import process from 'process';
+import { PostRelationsRepo } from './repos';
 import chokidar from 'chokidar';
 import fs from 'fs';
 
