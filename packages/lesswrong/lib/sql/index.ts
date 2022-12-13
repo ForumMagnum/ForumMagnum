@@ -11,6 +11,7 @@ import "./CreateIndexQuery";
 import "./AddFieldQuery";
 import "./DropIndexQuery";
 import "./UpdateDefaultValueQuery";
+import "./UpdateFieldTypeQuery";
 import "./Pipeline";
 import "./PgCollection";
 import "./BulkWriter";
