@@ -594,14 +594,23 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count
                 </MenuItem>
+                {getReviewPhase() === "NOMINATIONS" && 
+                  <MenuItem value={'positiveReviewVoteCount'}>
+                    <LWTooltip title="Sort how by how many positive votes the post has gotten. (Posts need at least 2 positive votes to proceed to the Review Phase">
+                      <span className={classes.sortBy}>Sort by</span> Positive Vote Count
+                    </LWTooltip>
+                  </MenuItem>
+                }
                 {getReviewPhase() === "REVIEWS" && 
                   <MenuItem value={'needsReview'}>
                     <span className={classes.sortBy}>Sort by</span> Needs Review
-                  </MenuItem>}
+                  </MenuItem>
+                }
                 {getReviewPhase() === "VOTING" && 
                   <MenuItem value={'needsFinalVote'}>
                     <span className={classes.sortBy}>Sort by</span> Needs Vote
-                  </MenuItem>}
+                  </MenuItem>
+                }
               </Select>
             </div>
           </div>
