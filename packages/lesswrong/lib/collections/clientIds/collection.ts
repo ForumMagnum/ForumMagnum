@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
   typeName: "ClientId",
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('ClientIds'),
 });
