@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 1,
     color: theme.palette.grey[800],
     width: 16,
-    margin: "8px 22px 0 20px",
+    margin: "8px 24px 0 18px",
     cursor: "pointer",
     transition: "transform 0.2s ease",
   },
@@ -34,16 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.2rem",
     paddingLeft: 3,
   },
-  subMenu: {
-    marginTop: -16,
-    marginBottom: 16,
-  },
-  navButton: {
-    '&:hover': {
-      opacity:.6,
-      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
-    },
-    
+  mainItem: {
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -51,7 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
         paddingLeft: 16,
         paddingRight: 16,
       } : {
-        padding: 12,
+        paddingTop: 12,
+        paddingBottom: 12,
+        paddingLeft: 3,
       }
     ),
     display: "flex",
@@ -59,6 +52,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "flex-start",
     flexDirection: "row",
   },
+  navButton: {
+    '&:hover': {
+      opacity:.6,
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    },
+  }
 });
 
 type TabNavigationCollapsibleMenuProps = {
@@ -74,7 +73,7 @@ const TabNavigationCollapsibleMenu = ({
   items, defaultExpanded, tab, onMenuItemClick, onClickSection, classes,
 }: TabNavigationCollapsibleMenuProps) => {
   const {pathname} = useLocation();
-  const {title, link} = tab;
+  const {title, link, noLinkInSidebar} = tab;
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const {LWTooltip, TabNavigationMenu} = Components;
 
@@ -98,7 +97,7 @@ const TabNavigationCollapsibleMenu = ({
           <ArrowForwardIcon fontSize="small" />
         </span>
         <LWTooltip placement="right-start" title={tab.tooltip || ""}>
-          {link ? (
+          {link && !noLinkInSidebar ? (
             <MenuItemUntyped
               onClick={handleTitleClick}
               component={Link}
@@ -106,6 +105,7 @@ const TabNavigationCollapsibleMenu = ({
               disableGutters
               classes={{
                 root: classNames(classes.title, {
+                  [classes.mainItem]: !tab.subItem,
                   [classes.navButton]: !tab.subItem,
                   [classes.selected]: pathname === link,
                 }),
@@ -115,16 +115,14 @@ const TabNavigationCollapsibleMenu = ({
               <span className={classes.navText}>{title}</span>
             </MenuItemUntyped>
           ) : (
-            <div className={classNames(classes.title, { [classes.navButton]: !tab.subItem })}>
+            <div className={classNames(classes.title, { [classes.mainItem]: !tab.subItem })}>
               <span className={classes.navText}>{title}</span>
             </div>
           )}
         </LWTooltip>
       </div>
       <Collapse in={isExpanded}>
-        <div className={classes.subMenu}>
-          <TabNavigationMenu menuTabs={items} onClickSection={onClickSection} transparentBackground />
-        </div>
+        <TabNavigationMenu menuTabs={items} onClickSection={onClickSection} transparentBackground />
       </Collapse>
     </div>
   );

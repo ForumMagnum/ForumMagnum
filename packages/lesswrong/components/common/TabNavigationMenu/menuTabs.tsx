@@ -63,9 +63,9 @@ export type MenuTabRegular = {
   id: string
   title: string
   mobileTitle?: string
-  link?: string
+  link: string
+  noLinkInSidebar?: boolean // if true, link is only active in the footer row, not the sidebar
   icon?: React.ReactNode
-  minimalIcon?: boolean
   iconComponent?: React.ComponentType<any>
   compressedIconComponent?: React.ComponentType<any>
   tooltip?: React.ReactNode
@@ -240,7 +240,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Home',
       link: '/',
       iconComponent: Home,
-      // minimalIcon: false,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -249,16 +248,15 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'All Posts',
       link: '/allPosts',
       iconComponent: Sort,
-      // minimalIcon: true,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
       id: taggingNamePluralSetting.get(),
       title: taggingNamePluralCapitalSetting.get(),
-      // link: `/${taggingNamePluralSetting.get()}/all`,
+      link: `/${taggingNamePluralSetting.get()}/all`,
+      noLinkInSidebar: true,
       iconComponent: LocalOffer,
-      minimalIcon: true,
       showOnMobileStandalone: true,
       showOnCompressed: true,
       customComponentName: "TabNavigationCollapsibleMenu",
@@ -305,19 +303,10 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
         ],
       },
     }, {
-      id: 'takeAction',
-      title: 'Take Action',
-      link: `/${taggingNamePluralSetting.get()}/take-action`,
-      iconComponent: PlaylistAddCheck,
-      minimalIcon: true,
-      tooltip: "Opportunities to get involved with impactful work",
-      loggedOutOnly: true
-    }, {
       id: 'events',
       title: 'Events',
       link: '/events',
       iconComponent: EventIcon,
-      minimalIcon: true,
       tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -332,11 +321,17 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
         ],
       },
     }, {
+      id: 'takeAction',
+      title: 'Take Action',
+      link: `/${taggingNamePluralSetting.get()}/take-action`,
+      iconComponent: PlaylistAddCheck,
+      tooltip: "Opportunities to get involved with impactful work",
+      loggedOutOnly: true
+    }, {
       id: 'community',
       title: 'Community',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
-      minimalIcon: true,
       tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true

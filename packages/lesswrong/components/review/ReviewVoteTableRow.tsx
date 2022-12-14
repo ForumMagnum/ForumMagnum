@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
   },
   votes: {
     backgroundColor: theme.palette.grey[200],
-    padding: 10,
+    padding: 8,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -126,14 +126,12 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "unset",
   },
   yourVote: {
-    marginLeft: 6,
     [theme.breakpoints.down('xs')]: {
       order: 0,
       marginRight: 10
     }
   },
   voteResults: {
-    width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
     [theme.breakpoints.down('xs')]: {
@@ -160,6 +158,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentsCount: {
     paddingBottom: 8
+  },
+  cantVote: {
+    width: 188,
+    textAlign: "center"
   }
 });
 
@@ -199,18 +201,31 @@ const ReviewVoteTableRow = (
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
   const voteMap = {
-    'bigDownvote': 'a strong downvote',
-    'smallDownvote': 'a downvote',
-    'smallUpvote': 'an upvote',
-    'bigUpvote': 'a strong upvote'
+    'bigDownvote': 'a strong (karma) downvote',
+    'smallDownvote': 'a (karma) downvote',
+    'smallUpvote': 'a (karma) upvote',
+    'bigUpvote': 'a strong (karma) upvote'
   }
 
   const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
+
+  let positiveVoteCountText = "0"
+  let positiveVoteCountTooltip = "0 positive votes"
+  if (post.positiveReviewVoteCount === 1) {
+    positiveVoteCountText = "1"
+    positiveVoteCountTooltip = "1 positive vote"
+  }
+  if (post.positiveReviewVoteCount > 1) {
+    positiveVoteCountText = "2+"
+    positiveVoteCountTooltip = "2 or more positive votes"
+  }
+
+  // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: getReviewPhase() === "VOTING" })} onClick={markAsRead}>
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
+      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You previously gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: getReviewPhase() === "VOTING"})}>
@@ -241,8 +256,16 @@ const ReviewVoteTableRow = (
             newPromotedComments={false}
           />
         </div>
+        {getReviewPhase() === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
+          <LWTooltip title={<div>
+            <div>This post has {positiveVoteCountTooltip}.</div>
+            <div><em>(It needs at least 2 to proceed to the Review Phase.)</em></div>
+          </div>}>
+            { positiveVoteCountText }
+          </LWTooltip>
+        </PostsItem2MetaInfo>}
         {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
-          <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
+          <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount !== 1 ? "s" : ""}`}>
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>}
@@ -269,7 +292,7 @@ const ReviewVoteTableRow = (
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
-          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+          {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
 
       </div>

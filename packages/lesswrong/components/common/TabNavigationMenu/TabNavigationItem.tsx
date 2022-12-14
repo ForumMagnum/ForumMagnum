@@ -126,13 +126,8 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       {(tab.icon || tab.iconComponent) && <span
           className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
         >
-          {tab.minimalIcon
-            ? <div className={classes.iconPlaceholder} />
-            : <>
-              {tab.iconComponent && <tab.iconComponent />}
-              {tab.icon && tab.icon}
-            </>
-          }
+          {tab.iconComponent && <tab.iconComponent />}
+          {tab.icon && tab.icon}
         </span>
       }
       {tab.subItem ?

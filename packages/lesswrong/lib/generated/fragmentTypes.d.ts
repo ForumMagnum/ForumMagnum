@@ -39,6 +39,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly petrovOptOut: boolean | null,
+  readonly acceptedTos: boolean | null,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -268,6 +269,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly experiencedIn: Array<string>,
+  readonly interestedIn: Array<string>,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -321,6 +324,7 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
 
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
+  readonly createdAt: Date,
   readonly userId: string,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -469,6 +473,7 @@ interface BooksDefaultFragment { // fragment on Books
   readonly postedAt: Date,
   readonly title: string,
   readonly subtitle: string,
+  readonly tocTitle: string | null,
   readonly collectionId: string,
   readonly number: number,
   readonly postIds: Array<string>,
@@ -636,7 +641,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly metaSticky: boolean,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly shareWithUsers: Array<string>,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
   readonly commentSortOrder: string,
   readonly hideAuthor: boolean,
@@ -1062,12 +1067,12 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string,
+  readonly linkSharingKey: string | null,
   readonly version: string,
   readonly coauthorStatuses: Array<{
     userId: string,
@@ -1785,6 +1790,7 @@ interface BookPageFragment { // fragment on Books
   readonly title: string,
   readonly number: number,
   readonly subtitle: string,
+  readonly tocTitle: string | null,
   readonly contents: RevisionDisplay|null,
   readonly sequenceIds: Array<string>,
   readonly sequences: Array<SequencesPageWithChaptersFragment>,
@@ -1929,10 +1935,16 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
+  readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
   readonly sequence: SequencesPageFragment|null,
+}
+
+interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -2106,6 +2118,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
+  readonly moderationGuidelines: RevisionEdit|null,
 }
 
 interface TagEditFragment_parentTag { // fragment on Tags
@@ -2131,6 +2144,7 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
   readonly interestedInMetaculus: boolean,
+  readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
@@ -2138,6 +2152,7 @@ interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly userId: string,
   readonly createdAt: Date,
   readonly interestedInMetaculus: boolean,
+  readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -2264,6 +2279,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly beta: boolean,
   readonly email: string,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly acceptedTos: boolean | null,
   readonly pageUrl: string,
   readonly voteBanned: boolean,
   readonly banned: Date,
@@ -2387,6 +2403,8 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly experiencedIn: Array<string>,
+  readonly interestedIn: Array<string>,
 }
 
 interface UserBookmarkedPosts { // fragment on Users

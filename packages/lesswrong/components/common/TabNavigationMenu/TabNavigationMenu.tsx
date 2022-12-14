@@ -18,7 +18,6 @@ const styles = (theme: ThemeType): JssStyles => {
       flexDirection: "column",
       justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
-      paddingTop: 15,
     },
     navSidebarTranslucent: {
       zIndex: 10,
@@ -38,11 +37,12 @@ const styles = (theme: ThemeType): JssStyles => {
   }
 }
 
-const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, transparentBackground, classes}: {
+const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, transparentBackground, className, classes}: {
   menuTabs?: MenuTab[],
   onClickSection?: (e: React.MouseEvent<HTMLAnchorElement>) => void,
   translucentBackground?: boolean,
   transparentBackground?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -65,7 +65,7 @@ const TabNavigationMenu = ({menuTabs, onClickSection, translucentBackground, tra
 
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
-        <div className={classNames(classes.root, {
+        <div className={classNames(className, classes.root, {
           [classes.navSidebarTranslucent]: translucentBackground,
           [classes.navSidebarTransparent]: transparentBackground,
         })}>

@@ -21,6 +21,7 @@ import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
+import { getAllRepos } from '../../repos';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -113,6 +114,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isGreaterWrong: requestIsFromGreaterWrong(req),
+    repos: getAllRepos(),
     ...await setupAuthToken(user),
   };
 

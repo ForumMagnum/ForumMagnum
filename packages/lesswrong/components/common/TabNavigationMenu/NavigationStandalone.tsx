@@ -32,6 +32,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   background: {
     background: theme.palette.panelBackground.translucent3,
+  },
+  menuPadding: {
+    paddingTop: 15,
   }
 })
 
@@ -54,7 +57,7 @@ const NavigationStandalone = (
         unmountOnExit
       >
         {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background translucent */}
-        <TabNavigationMenu translucentBackground={unspacedGridLayout} />
+        <TabNavigationMenu translucentBackground={unspacedGridLayout} className={classes.menuPadding} />
       </Slide>
     </div>
     <div className={classNames(classes.footerBar, className)}>

@@ -10,6 +10,7 @@ import { WeightedList } from './weightedList';
 import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import SelectQuery from "../lib/sql/SelectQuery";
+import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -74,11 +75,12 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       question: true
     }
   }
+  // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
     if (isEAForum) {
       return {
         postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
+        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
       }
     }
     return {
@@ -86,7 +88,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
         $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
       },
-      positiveReviewVoteCount: {$gte: 1},
+      positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()},
     }
   }
   if (algorithm.lwRationalityOnly) {

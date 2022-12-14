@@ -49,6 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  menuPadding: {
+    paddingTop: 15,
+  }
 })
 
 const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
@@ -71,7 +74,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
       classes.drawerNavigationMenuUncompressed,
       {[classes.hideOnMobile]: showToc}
     )}>
-      <TabNavigationMenu onClickSection={handleClose}/>
+      <TabNavigationMenu onClickSection={handleClose} className={classes.menuPadding}/>
     </div>
     {showToc && <React.Fragment>
       <div className={classes.drawerNavigationMenuCompressed}>

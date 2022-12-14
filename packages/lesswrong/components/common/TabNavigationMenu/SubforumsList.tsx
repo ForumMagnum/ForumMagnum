@@ -6,6 +6,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../../lib/instanceSettings";
+import startCase from "lodash/startCase";
 
 const styles = ((theme: ThemeType): JssStyles => ({
   menuItem: {
@@ -21,7 +22,6 @@ const styles = ((theme: ThemeType): JssStyles => ({
     minHeight: 24,
   },
   subItem: {
-    textTransform: 'capitalize',
     whiteSpace: 'break-spaces !important',
   },
   unreadCount: {
@@ -31,9 +31,12 @@ const styles = ((theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     color: theme.palette.grey[800],
     paddingLeft: 62,
-    paddingBottom: 8,
-    fontSize: '1rem',
-    fontWeight: 500,
+    paddingBottom: 7,
+    fontSize: '1.1rem',
+    fontWeight: 400,
+  },
+  indented: {
+    paddingLeft: 0,
   }
 }))
 
@@ -65,7 +68,7 @@ const SubforumsList = ({ onClick, classes }) => {
             classes={{ root: classes.menuItem }}
           >
             <TabNavigationSubItem className={classes.subItem}>
-              <LWTooltip title={`A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`}>
+              <LWTooltip title={`A sorted list of ${taggingNamePluralCapitalSetting.get()}, with wiki-style navigation`}>
                 EA Wiki
               </LWTooltip>
             </TabNavigationSubItem>
@@ -80,9 +83,18 @@ const SubforumsList = ({ onClick, classes }) => {
               to={tagGetSubforumUrl(subforum)}
               classes={{ root: classes.menuItem }}
             >
-              <TabNavigationSubItem className={classes.subItem}>{subforum.name}</TabNavigationSubItem>
+              <TabNavigationSubItem className={classes.subItem}><div className={classes.indented}>{startCase(subforum.name)}</div></TabNavigationSubItem>
             </MenuItemUntyped>
           ))}
+          <MenuItemUntyped
+            key="all-subforums"
+            onClick={onClick}
+            component={Link}
+            to={'/search?contentType=Tags&query=&toggle%5BisSubforum%5D=true&page=1'}
+            classes={{ root: classes.menuItem }}
+          >
+            <TabNavigationSubItem className={classes.subItem}><div className={classes.indented}>(see all)</div></TabNavigationSubItem>
+          </MenuItemUntyped>
         </div>
       </AnalyticsContext>
     </span>

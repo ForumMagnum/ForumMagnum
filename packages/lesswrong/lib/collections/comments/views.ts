@@ -333,7 +333,6 @@ Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
     }
   };
 });
-ensureIndex(Comments, augmentForDefaultView({tagId:1}));
 
 
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
