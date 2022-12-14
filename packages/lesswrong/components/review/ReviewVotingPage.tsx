@@ -596,7 +596,10 @@ const ReviewVotingPage = ({classes}: {
                 </MenuItem>
                 {getReviewPhase() === "NOMINATIONS" && 
                   <MenuItem value={'positiveReviewVoteCount'}>
-                    <LWTooltip title="Sort how by how many positive votes the post has gotten. (Posts need at least 2 positive votes to proceed to the Review Phase">
+                    <LWTooltip title={<div>
+                      <div>Sort by how many positive votes the post has</div>
+                      <div><em>(Posts need at least 2 positive votes to proceed to the Review Phase</em></div>
+                    </div>}>
                       <span className={classes.sortBy}>Sort by</span> Positive Vote Count
                     </LWTooltip>
                   </MenuItem>
