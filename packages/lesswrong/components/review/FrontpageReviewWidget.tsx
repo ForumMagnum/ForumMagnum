@@ -309,11 +309,13 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     </div>
   </div>
 
-  const oneDayLeftOfNominations = nominationEndDate.diff(new Date()) < (24 * 60 * 60 * 1000)
+  function isLastDay(date: moment.Moment) {
+    return date.diff(new Date()) < (24 * 60 * 60 * 1000)
+  }
 
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
-    {showFrontpageItems && !oneDayLeftOfNominations && <LatestReview/>}
-    {showFrontpageItems && oneDayLeftOfNominations && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
+    {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>}
+    {showFrontpageItems && isLastDay(nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
@@ -348,10 +350,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
   const reviewAndVotingPhaseButtons = <div className={classes.actionButtonRow}>
     {/* If there's less than 24 hours remaining, show the remaining time */}
-    {reviewEndDate.diff(new Date()) < (24 * 60 * 60 * 1000) && <span className={classes.timeRemaining}>
+    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
     </span>}
-    {voteEndDate.diff(new Date()) < (24 * 60 * 60 * 1000) && <span className={classes.timeRemaining}>
+    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
       {voteEndDate.fromNow()} remaining
     </span>}
     {eligibleToNominate(currentUser) &&
