@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
   },
   votes: {
     backgroundColor: theme.palette.grey[200],
-    padding: 10,
+    padding: 8,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -126,14 +126,12 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "unset",
   },
   yourVote: {
-    marginLeft: 6,
     [theme.breakpoints.down('xs')]: {
       order: 0,
       marginRight: 10
     }
   },
   voteResults: {
-    width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
     [theme.breakpoints.down('xs')]: {
