@@ -59,6 +59,7 @@ declare global {
     includeDraftEvents?: boolean
     includeShared?: boolean
     distance?: number,
+    minPositiveVoteCount?: number
   }
 }
 
@@ -1358,7 +1359,7 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: 1 },
+      positiveReviewVoteCount: { $gte: terms.minPositiveVoteCount },
     },
     options: {
       // This sorts the posts deterministically, which is important for the

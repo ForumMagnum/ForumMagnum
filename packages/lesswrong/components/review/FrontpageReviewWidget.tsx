@@ -367,6 +367,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       showLoadMore={false}
       terms={{
         view:"reviewVoting",
+        minPositiveVoteCount: getReviewPhase() === "NOMINATIONS" ? 1 : 2,
         before: `${REVIEW_YEAR+1}-01-01`,
         ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
         limit: 3,
