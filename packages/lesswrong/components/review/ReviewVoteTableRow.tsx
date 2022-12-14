@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
   },
   votes: {
     backgroundColor: theme.palette.grey[200],
-    padding: 10,
+    padding: 8,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -126,14 +126,12 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "unset",
   },
   yourVote: {
-    marginLeft: 6,
     [theme.breakpoints.down('xs')]: {
       order: 0,
       marginRight: 10
     }
   },
   voteResults: {
-    width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
     [theme.breakpoints.down('xs')]: {
@@ -160,6 +158,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentsCount: {
     paddingBottom: 8
+  },
+  cantVote: {
+    width: 188,
+    textAlign: "center"
   }
 });
 
@@ -271,7 +273,7 @@ const ReviewVoteTableRow = (
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
-          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+          {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
 
       </div>

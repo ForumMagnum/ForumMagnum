@@ -14,7 +14,7 @@ jobs:
         node-version: [18.x]
         environment: [EAForum-Production-2]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v2
       with:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
@@ -23,7 +23,10 @@ jobs:
       if: github.ref == 'refs/heads/ea-deploy'
       uses: ./.github/actions/runMigrations
       with:
-        pg-url: ${{ secrets.CEA_PROD_PG_URL }}
+        mode: prod
+        credentials-repo: ${{ secrets.CEA_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.CEA_CREDENTIALS_PAT }}
+        transcrypt-secret: ${{ secrets.CEA_TRANSCRYPT_SECRET }}
     - name: Run Deploy
       run: scripts/deploy.sh EAForum ${{ matrix.environment }}
       env:

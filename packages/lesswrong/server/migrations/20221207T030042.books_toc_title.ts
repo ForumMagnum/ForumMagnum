@@ -1,6 +1,5 @@
 import Books from "../../lib/collections/books/collection";
-import AddFieldQuery from "../../lib/sql/AddFieldQuery";
-import PgCollection from "../../lib/sql/PgCollection";
+import { addField } from "./meta/utils";
 
 /**
  * Generated on 2022-12-07T03:00:42.348Z by `yarn makemigrations`
@@ -38,14 +37,10 @@ import PgCollection from "../../lib/sql/PgCollection";
 export const acceptsSchemaHash = "dc1ea5409f03e1b22c4c5835fd70e2a3";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Books.isPostgres()) {
-    throw new Error('Can only run this migration on postgres')
+  if (Books.isPostgres()) {
+    await addField(db, Books, "tocTitle");
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn("'Books' is not a Postgres collection");
   }
-  const booksTable = Books.getTable()
-  const {sql} = new AddFieldQuery(booksTable, "tocTitle").compile();
-  await db.none(sql);
-}
-
-export const down = async ({db}: MigrationContext) => {
-  // Not implemented
 }
