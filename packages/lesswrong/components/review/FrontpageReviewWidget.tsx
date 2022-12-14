@@ -124,6 +124,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+function isLastDay(date: moment.Moment) {
+  return date.diff(new Date()) < (24 * 60 * 60 * 1000)
+}
+
 /**
  * Get the algorithm for review recommendations
  *
@@ -308,10 +312,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       </LWTooltip>
     </div>
   </div>
-
-  function isLastDay(date: moment.Moment) {
-    return date.diff(new Date()) < (24 * 60 * 60 * 1000)
-  }
 
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
     {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>}
