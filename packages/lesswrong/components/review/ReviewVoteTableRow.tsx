@@ -160,6 +160,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentsCount: {
     paddingBottom: 8
+  },
+  cantVote: {
+    width: 188,
+    textAlign: "center"
   }
 });
 
@@ -271,7 +275,7 @@ const ReviewVoteTableRow = (
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
-          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+          {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
 
       </div>
