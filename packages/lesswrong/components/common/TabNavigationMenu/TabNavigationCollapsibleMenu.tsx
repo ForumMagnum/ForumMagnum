@@ -38,6 +38,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: -16,
     marginBottom: 16,
   },
+  navButton: {
+    '&:hover': {
+      opacity:.6,
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    },
+    
+    ...(theme.forumType === "LessWrong"
+      ? {
+        paddingTop: 7,
+        paddingBottom: 8,
+        paddingLeft: 16,
+        paddingRight: 16,
+      } : {
+        padding: 12,
+      }
+    ),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    flexDirection: "row",
+  },
 });
 
 type TabNavigationCollapsibleMenuProps = {

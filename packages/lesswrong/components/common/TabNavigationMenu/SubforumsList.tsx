@@ -5,7 +5,7 @@ import { useMulti } from "../../../lib/crud/withMulti";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
-import { taggingNamePluralSetting } from "../../../lib/instanceSettings";
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../../lib/instanceSettings";
 
 const styles = ((theme: ThemeType): JssStyles => ({
   menuItem: {
@@ -27,6 +27,14 @@ const styles = ((theme: ThemeType): JssStyles => ({
   unreadCount: {
     color: theme.palette.primary.main,
   },
+  subforumsHeader: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[800],
+    paddingLeft: 62,
+    paddingBottom: 8,
+    fontSize: '1rem',
+    fontWeight: 500,
+  }
 }))
 
 const SubforumsList = ({ onClick, classes }) => {
@@ -43,7 +51,7 @@ const SubforumsList = ({ onClick, classes }) => {
   // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any
 
-  const { TabNavigationSubItem, Loading } = Components
+  const { TabNavigationSubItem, Loading, LWTooltip } = Components
 
   return (
     <span>
@@ -56,10 +64,14 @@ const SubforumsList = ({ onClick, classes }) => {
             to={`/${taggingNamePluralSetting.get()}/all`}
             classes={{ root: classes.menuItem }}
           >
-            <TabNavigationSubItem className={classes.subItem}>EA Wiki</TabNavigationSubItem>
+            <TabNavigationSubItem className={classes.subItem}>
+              <LWTooltip title={`A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`}>
+                EA Wiki
+              </LWTooltip>
+            </TabNavigationSubItem>
           </MenuItemUntyped>
           {loading && !results?.length && <Loading />}
-          {!!results?.length && <div>Subforums</div>}
+          {!!results?.length && <div className={classes.subforumsHeader}>Subforums</div>}
           {results?.map((subforum) => (
             <MenuItemUntyped
               key={subforum._id}

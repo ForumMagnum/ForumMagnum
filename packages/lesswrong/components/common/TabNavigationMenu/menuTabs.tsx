@@ -259,8 +259,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       // link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
       minimalIcon: true,
-      tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
-      ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
       customComponentName: "TabNavigationCollapsibleMenu",
