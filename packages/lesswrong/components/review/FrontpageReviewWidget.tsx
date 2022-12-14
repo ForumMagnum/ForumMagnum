@@ -346,7 +346,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     </LWTooltip>}
   </div>
 
-  const reviewAndVotingPhaseButtons = <div>
+  const reviewAndVotingPhaseButtons = <div className={classes.actionButtonRow}>
     {/* If there's less than 24 hours remaining, show the remaining time */}
     {reviewEndDate.diff(new Date()) < (24 * 60 * 60 * 1000) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
