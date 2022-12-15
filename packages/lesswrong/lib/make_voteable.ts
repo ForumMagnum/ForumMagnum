@@ -2,10 +2,17 @@ import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } fr
 import { getWithLoader } from './loaders'
 import GraphQLJSON from 'graphql-type-json';
 
+export type PermissionResult = {
+  fail: false,
+} | {
+  fail: true,
+  reason: string
+}
+
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
-  userCanVoteOn?: (user: DbUser, document: DbVoteableType, voteType: string|null, extendedVote?: any) => boolean|Promise<boolean>,
+  userCanVoteOn?: (user: DbUser, document: DbVoteableType, voteType: string|null, extendedVote?: any) => PermissionResult|Promise<PermissionResult>,
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
