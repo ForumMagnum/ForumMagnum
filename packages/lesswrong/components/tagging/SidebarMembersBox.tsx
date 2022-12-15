@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SidebarMembersBox = ({tag, className, classes}: {
-  tag: TagDetailsFragment,
+  tag: TagSubforumFragment,
   className?: string,
   classes: ClassesType,
 }) => {

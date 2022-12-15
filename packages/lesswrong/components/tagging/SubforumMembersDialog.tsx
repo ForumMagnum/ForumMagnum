@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumMembersDialog = ({classes, onClose, tag}: {
   classes: ClassesType,
   onClose: () => void,
-  tag: TagDetailsFragment,
+  tag: TagSubforumFragment,
 }) => {
   const { results: members, loading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
