@@ -107,7 +107,7 @@ export function wikiPageToTemplate(wikiPage: DbTag): {
       template = drop(lines,i+1).join("\n");
       break;
     } else {
-      const [_headerLine,headerName,headerValue] = line.match(/^([a-zA-Z0-9_]+):\s*([^\s]*)\s*$/)
+      const [_headerLine,headerName,headerValue] = line.match(/^([a-zA-Z0-9_-]+):\s*([^\s]*)\s*$/)
       header[headerName.toLowerCase()] = headerValue;
     }
   }
