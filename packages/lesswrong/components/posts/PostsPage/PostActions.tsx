@@ -221,6 +221,7 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
+        {editLink}
         { canUserEditPostMetadata(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -229,7 +230,6 @@ const PostActions = ({post, closeMenu, classes}: {
             Duplicate Event
           </MenuItem>
         </Link>}
-        {editLink}
         { forumTypeSetting.get() === 'EAForum' && canUserEditPostMetadata(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
