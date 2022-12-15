@@ -38,7 +38,7 @@ registerMigration({
       } else {
         postList[vote.postId].push(getValue(vote, total))
       }
-    }
+    } 
 
     for (let userId in votesByUserId) {
       let totalUserPoints = 0 
