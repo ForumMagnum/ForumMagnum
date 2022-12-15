@@ -45,7 +45,7 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
   const organizers: UsersProfile[] = []
   const otherMembers: UsersProfile[] = []
   members?.forEach(member => {
-    if (tag.subforumModeratorIds.includes(member._id)) {
+    if (tag.subforumModeratorIds?.includes(member._id)) {
       organizers.push(member)
     } else {
       otherMembers.push(member)
