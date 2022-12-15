@@ -15,7 +15,7 @@ import { Users } from '../../lib/collections/users/collection';
  *    its slug in the `languageModels.autoTagging.taggerAccountSlug` server
  *    setting.
  *
- * 2. Go to /tag/create (or /topic/create) and create a wiki page named
+ * 2. Go to /tag/create (or /topics/create) and create a wiki page named
  *    "LM Config Autotag". Under Advanced Options, set the "Admin Only" and
  *    "Wiki Only" options. Give it a body that looks like this:
  *       api: openai
