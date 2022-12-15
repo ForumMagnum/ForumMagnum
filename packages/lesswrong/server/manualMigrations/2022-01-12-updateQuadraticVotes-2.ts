@@ -34,7 +34,7 @@ const voteMap = {
   7: { 
     cost: 45,
     value: 9 
-  }, 
+  },
 }
 
 const getCost = (vote) => voteMap[vote.qualitativeScore].cost
@@ -85,7 +85,7 @@ registerMigration({
       }
       // eslint-disable-next-line no-console
       console.log(userId, totalUserPoints, totalUserPoints > 500 ? "Over 500" : "", totalUserPoints > 400 ? "400+" : "")
-    } 
+    }
 
     for (let postId in postsAllUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 

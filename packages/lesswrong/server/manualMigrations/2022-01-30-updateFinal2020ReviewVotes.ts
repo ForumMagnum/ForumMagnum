@@ -13,7 +13,7 @@ const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const getCost = (vote) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote, total) => getCostData({costTotal:total})[vote.qualitativeScore].value
- 
+
 registerMigration({
   name: "updateFinal2020ReviewVotes",
   dateWritten: "2022-01-30",
@@ -38,7 +38,7 @@ registerMigration({
       } else {
         postList[vote.postId].push(getValue(vote, total))
       }
-    } 
+    }
 
     for (let userId in votesByUserId) {
       let totalUserPoints = 0 
