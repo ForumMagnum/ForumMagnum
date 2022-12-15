@@ -40,10 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0,
     }
   },
-  title: {
-    display: 'flex',
-    alignItems: 'center'
-  },
   usernameTitle: {
     fontSize: "3rem",
     ...theme.typography.display3,
@@ -250,10 +246,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.title}>
-              <div className={classes.usernameTitle}>
-                {username}
-              </div>
+            <div className={classes.usernameTitle}>
+              {username}
             </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
