@@ -20,6 +20,9 @@ import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useMessages } from '../common/withMessages';
+import CopyIcon from '@material-ui/icons/FileCopy'
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -46,11 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0,
-  },
-  userIdTitle: {
-    ...theme.typography.postStyle,
-    paddingLeft: 12,
-    paddingTop: 6
   },
   userInfo: {
     display: "flex",
@@ -88,6 +86,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
+  copyIcon: {
+    fontSize: 14
+  }
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -103,6 +104,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   
   const {loading, results} = useMulti({
     terms,
@@ -184,7 +186,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -252,12 +254,18 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <div className={classes.usernameTitle}>
                 {username}
               </div>
-              {currentUser?.isAdmin && <div className={classes.userIdTitle}>
-                {`userId: ${user._id}`}
-              </div>}
             </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
+              { currentUser?.isAdmin &&
+                <div>
+                  <LWTooltip title="Click to copy userId" placement="right">
+                    <CopyToClipboard text={user._id} onCopy={()=>flash({messageString:"userId copied!"})}>
+                      <CopyIcon className={classes.copyIcon} />
+                    </CopyToClipboard>
+                  </LWTooltip>
+                </div>
+              }
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
