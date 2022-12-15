@@ -234,34 +234,36 @@ async function updatePreliminaryVoteTotals(usersByUserId: Dictionary<DbUser[]>, 
     }
   }
 
-  // eslint-disable-next-line no-console
-  console.log("Updating all karma...")
   for (let postId in postsAllUsers) {
+    const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
+    const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
+    // console.log({postId, reviewVoteScoreAllKarma, reviewVotesAllKarma})
     await Posts.rawUpdateOne({_id:postId}, {$set: { 
-      finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
-      finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
+      reviewVotesAllKarma,
+      reviewVoteScoreAllKarma 
     }})
   }
-
-  // eslint-disable-next-line no-console
-  console.log("Updating high karma...")
   for (let postId in postsHighKarmaUsers) {
+    const reviewVoteScoreHighKarma = postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0)
+    const reviewVotesHighKarma = postsHighKarmaUsers[postId].sort((a,b) => b - a)
+    // console.log({postId, reviewVoteScoreHighKarma, reviewVotesHighKarma})
     await Posts.rawUpdateOne({_id:postId}, {$set: { 
-      finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
-      finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
+      reviewVotesHighKarma,
+      reviewVoteScoreHighKarma,
     }})
   }
-  // eslint-disable-next-line no-console
-  console.log("Updating AF...")
   for (let postId in postsAFUsers) {
+    const reviewVoteScoreAF =  postsAFUsers[postId].reduce((x, y) => x + y, 0)
+    const reviewVotesAF =  postsAFUsers[postId].sort((a,b) => b - a)
+    // console.log({postId, reviewVoteScoreAF, reviewVotesAF})
     await Posts.rawUpdateOne({_id:postId}, {$set: { 
-      finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
-      finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
-    }})
+      reviewVotesAF,
+      reviewVoteScoreAF,
+     }})
   }
-}
+} 
 
-async function updateReviewVoteTotals (phase) {
+export async function updateReviewVoteTotals (phase) {
   const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
 
   // we group each user's votes, so we can weight them appropriately
@@ -276,10 +278,10 @@ async function updateReviewVoteTotals (phase) {
   // organizes users by userId to make them easy to grab later.
   const usersByUserId = groupBy(users, user => user._id)
 
-  if (phase === "NOMINATIONS") {
+  if (phase === "nominationVote") {
     updatePreliminaryVoteTotals(usersByUserId, votesByUserId)
   }
-  if (phase === "VOTING") {
+  if (phase === "finalVote") {
     // Only used during final voting phase
     // const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
     // const postIds = posts.map(post=>post._id)
