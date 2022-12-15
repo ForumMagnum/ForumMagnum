@@ -124,12 +124,11 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       disableTouchRipple
     >
       {(tab.icon || tab.iconComponent) && <span
-          className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
-        >
-          {tab.iconComponent && <tab.iconComponent />}
-          {tab.icon && tab.icon}
-        </span>
-      }
+        className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
+      >
+        {tab.iconComponent && <tab.iconComponent />}
+        {tab.icon && tab.icon}
+      </span>}
       {tab.subItem ?
         <TabNavigationSubItem>
           {tab.title}
