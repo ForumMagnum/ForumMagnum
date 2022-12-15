@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       } : {
         paddingTop: 12,
         paddingBottom: 12,
-        paddingLeft: 3,
+        paddingLeft: 4,
       }
     ),
     display: "flex",

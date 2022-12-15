@@ -68,33 +68,43 @@ const SubforumsList = ({ onClick, classes }) => {
             classes={{ root: classes.menuItem }}
           >
             <TabNavigationSubItem className={classes.subItem}>
-              <LWTooltip title={`A sorted list of ${taggingNamePluralCapitalSetting.get()}, with wiki-style navigation`}>
+              <LWTooltip
+                title={`A sorted list of ${taggingNamePluralCapitalSetting.get()}, with wiki-style navigation`}
+              >
                 EA Wiki
               </LWTooltip>
             </TabNavigationSubItem>
           </MenuItemUntyped>
           {loading && !results?.length && <Loading />}
-          {!!results?.length && <div className={classes.subforumsHeader}>Subforums</div>}
-          {results?.map((subforum) => (
-            <MenuItemUntyped
-              key={subforum._id}
-              onClick={onClick}
-              component={Link}
-              to={tagGetSubforumUrl(subforum)}
-              classes={{ root: classes.menuItem }}
-            >
-              <TabNavigationSubItem className={classes.subItem}><div className={classes.indented}>{startCase(subforum.name)}</div></TabNavigationSubItem>
-            </MenuItemUntyped>
-          ))}
-          <MenuItemUntyped
-            key="all-subforums"
-            onClick={onClick}
-            component={Link}
-            to={'/search?contentType=Tags&query=&toggle%5BisSubforum%5D=true&page=1'}
-            classes={{ root: classes.menuItem }}
-          >
-            <TabNavigationSubItem className={classes.subItem}><div className={classes.indented}>(see all)</div></TabNavigationSubItem>
-          </MenuItemUntyped>
+          {!!results?.length && (
+            <>
+              <div className={classes.subforumsHeader}>Subforums</div>
+              {results?.map((subforum) => (
+                <MenuItemUntyped
+                  key={subforum._id}
+                  onClick={onClick}
+                  component={Link}
+                  to={tagGetSubforumUrl(subforum)}
+                  classes={{ root: classes.menuItem }}
+                >
+                  <TabNavigationSubItem className={classes.subItem}>
+                    <div className={classes.indented}>{startCase(subforum.name)}</div>
+                  </TabNavigationSubItem>
+                </MenuItemUntyped>
+              ))}
+              <MenuItemUntyped
+                key="all-subforums"
+                onClick={onClick}
+                component={Link}
+                to={"/search?contentType=Tags&query=&toggle%5BisSubforum%5D=true&page=1"}
+                classes={{ root: classes.menuItem }}
+              >
+                <TabNavigationSubItem className={classes.subItem}>
+                  <div className={classes.indented}>(see all)</div>
+                </TabNavigationSubItem>
+              </MenuItemUntyped>
+            </>
+          )}
         </div>
       </AnalyticsContext>
     </span>
