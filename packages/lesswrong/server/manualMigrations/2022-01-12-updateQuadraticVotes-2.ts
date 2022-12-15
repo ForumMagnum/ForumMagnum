@@ -34,7 +34,7 @@ const voteMap = {
   7: { 
     cost: 45,
     value: 9 
-  },
+  }, 
 }
 
 const getCost = (vote) => voteMap[vote.qualitativeScore].cost
