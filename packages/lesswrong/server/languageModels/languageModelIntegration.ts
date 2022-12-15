@@ -1,17 +1,26 @@
+import { Globals } from '../../lib/vulcan-lib/config';
 import { Configuration as OpenAIApiConfiguration, OpenAIApi } from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { encode as gpt3encode } from 'gpt-3-encoder'
 import drop from 'lodash/drop';
 
-// Put your OpenAI API key here. TODO: Make this an instance setting.
-const openAIApiKey:string|null = null;
+const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
+const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
 
 let openAIApi: OpenAIApi|null = null;
 export async function getOpenAI(): Promise<OpenAIApi|null> {
-  if (!openAIApi && openAIApiKey) {
-    openAIApi = new OpenAIApi(new OpenAIApiConfiguration({
-      apiKey: openAIApiKey,
-    }));
+  if (!openAIApi){
+    const apiKey = openAIApiKey.get();
+    const organizationId = openAIOrganizationId.get();
+    
+    if (apiKey) {
+      openAIApi = new OpenAIApi(new OpenAIApiConfiguration({
+        apiKey,
+        organization: organizationId ?? undefined,
+      }));
+    }
   }
   return openAIApi;
 }
@@ -73,49 +82,97 @@ async function getLMConfigForTask(task: LanguageModelTask, context: ResolverCont
 
 function tagToLMConfig(tag: DbTag, task: LanguageModelTask): LanguageModelConfig {
   if (!tag) throw new Error("Tag not found");
-  const descriptionMarkdown = dataToMarkdown(tag.description?.originalContents?.data, tag.description?.originalContents?.type);
+  
+  const {header, template} = wikiPageToTemplate(tag);
+  return {
+    api: (header["api"] ?? "disabled") as LanguageModelAPI,
+    model: header["model"] ?? "stub",
+    task, template
+  };
+}
+
+export function wikiPageToTemplate(wikiPage: DbTag): {
+  header: Record<string,string>,
+  template: string,
+} {
+  let header: Record<string,string> = {};
+  let template = "";
+  
+  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description?.originalContents?.type);
   const lines = descriptionMarkdown.trim().split('\n');
   
-  let api: LanguageModelAPI = "disabled";
-  let model = "stub";
-  let template = "";
   for (let i=0; i<lines.length; i++) {
     const line = lines[i];
     if (line.trim()==="") {
       template = drop(lines,i+1).join("\n");
       break;
-    }
-    
-    const [_headerLine,headerName,headerValue] = line.match(/^([a-zA-Z0-9_]+):\s*([^\s]*)\s*$/)
-    switch(headerName.toLowerCase()) {
-      case "api":
-        api = headerValue as LanguageModelAPI;
-        break;
-      case "model":
-        model = headerValue;
-        break;
+    } else {
+      const [_headerLine,headerName,headerValue] = line.match(/^([a-zA-Z0-9_]+):\s*([^\s]*)\s*$/)
+      header[headerName.toLowerCase()] = headerValue;
     }
   }
   
-  return { api, model, task, template };
+  return {header, template};
 }
 
 /**
  * Given a template for a language-model task, which is in markdown, and a set
  * of key-value pairs, find instances of "${key}" in the text and substitute
- * them.
+ * them. If this would be longer (measured in GPT-3 tokens) than maxLengthTokens,
+ * shorten truncatableVariable to fit.
  *
  * This is NOT safe for SQL, HTML rendering, or anything else that's sensitive
  * to quoting. It is intended only for use with language-model prompting.
  */
-function substituteIntoTemplate(template: string, inputs: Record<string,string>): string {
-  let result = template;
+export function substituteIntoTemplate({template, variables, maxLengthTokens, truncatableVariable}: {
+  template: string,
+  variables: Record<string,string>
+  maxLengthTokens?: number,
+  truncatableVariable?: string,
+}): string {
+  let withVarsSubstituted = template;
   
-  for (let key of Object.keys(inputs)) {
-    result = result.replace(new RegExp("\\${"+key+"}", "g"), inputs[key]);
+  // Substitute everything except the truncatable variable
+  for (let key of Object.keys(variables)) {
+    if (key !== truncatableVariable || !maxLengthTokens)
+      withVarsSubstituted = withVarsSubstituted.replace(new RegExp("\\${"+key+"}", "g"), variables[key]);
   }
   
-  return result;
+  if (maxLengthTokens && truncatableVariable) {
+    const withVarsSubstitutedAndTruncVarRemoved = withVarsSubstituted.replace(new RegExp("\\${"+truncatableVariable+"}", "g"), "");
+    const tokensSpent = countGptTokens(withVarsSubstitutedAndTruncVarRemoved);
+    const tokensAvailable = maxLengthTokens - tokensSpent;
+    const truncatedVar = truncateByTokenCount(variables[truncatableVariable], tokensAvailable);
+    withVarsSubstituted = withVarsSubstituted.replace(new RegExp("\\${"+truncatableVariable+"}", "g"), truncatedVar);
+  }
+  
+  return withVarsSubstituted;
+}
+
+function countGptTokens(str: string): number {
+  return gpt3encode(str).length;
+}
+
+/**
+ * Truncate a string to a given length, measured in GPT-3 tokens (which only
+ * approximately line up with character counts). Uses countGptTokens (which uses
+ * gpt-3-encoder) plus binary search. (This could be made faster by instead
+ * doing an encode-then-decode round trip, but that raises potential bugs if
+ * some character sequences don't roundtrip.)
+ */
+function truncateByTokenCount(str: string, tokens: number): string {
+  let low=0, high=str.length, mid=(low+high)/2|0;
+  
+  while (high>low) {
+    mid=(low+high)/2|0;
+    if (countGptTokens(str.substring(0,mid)) > tokens) {
+      high = mid;
+    } else {
+      low = mid+1;
+    }
+  }
+  
+  return str.substring(0,mid);
 }
 
 /**
@@ -188,7 +245,10 @@ async function languageModelExecute(job: LanguageModelJob): Promise<string> {
     case "openai": {
       const api = await getOpenAI();
       if (!api) throw new Error("OpenAI API not configured");
-      const prompt = substituteIntoTemplate(job.template, job.inputs);
+      const prompt = substituteIntoTemplate({
+        template: job.template,
+        variables: job.inputs
+      });
       //console.log(`Prompting with: ${JSON.stringify(prompt)}`);
       const response = await api.createCompletion({
         model: job.model,

@@ -179,7 +179,8 @@ build({
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql", "csso", "io-ts", "fp-ts",
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
-    "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter"
+    "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
+    "gpt-3-encoder",
   ],
 })
 

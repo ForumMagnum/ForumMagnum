@@ -6,7 +6,7 @@ import { postStatuses } from '../../../lib/collections/posts/constants';
 import { dataToMarkdown, htmlToMarkdown } from '../../editor/conversionUtils';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { cheerioParse } from '../../utils/htmlUtil';
-import type { OpenAIApi } from "openai";
+import { postToPrompt, checkTags, getAutoAppliedTags } from '../../languageModels/autoTagCallbacks';
 import shuffle from 'lodash/shuffle';
 import take from 'lodash/take';
 import drop from 'lodash/drop';
@@ -16,9 +16,7 @@ import mapValues from 'lodash/mapValues';
 import filter from 'lodash/filter';
 import fs from 'fs';
 
-const bodyWordCountLimit = 1500;
 const postEndMarker  = "===TAGS===";
-const nextPostMarker = "END";
 
 /**
  * Given a list of items and a list of weights, shuffle and partition the items
@@ -70,69 +68,19 @@ async function generateCandidateSetsForTagClassification(): Promise<void> {
   const [trainSet,testSet] = weightedPartition(postIds, [2.0/3.0, 1.0/3.0]);
   console.log(`Partitioned into ${trainSet.length} train and ${testSet.length} test`); //eslint-disable-line no-console
   
-  const trainSetFilename = "tagClassificationPostIds.train.json";
-  const testSetFilename = "tagClassificationPostIds.test.json";
+  const trainSetFilename = "ml/tagClassificationPostIds.train.json";
+  const testSetFilename = "ml/tagClassificationPostIds.test.json";
+  if (!fs.existsSync("ml")) {
+    fs.mkdirSync("ml");
+  }
   fs.writeFileSync(trainSetFilename, JSON.stringify(trainSet));
   fs.writeFileSync(testSetFilename, JSON.stringify(testSet));
   console.log(`Wrote ${trainSetFilename} and ${testSetFilename}`); //eslint-disable-line no-console
 }
 
-const postTruncatedBodyCache: Record<string,string> = {};
+const frontpageModel = "babbage:ft-personal-2022-12-08-22-23-33";
+const frontpagePrompt = "Is this post of broad relevance, timeless, apolitical, and aiming to explain rather than persuade?";
 
-function stripLinksFromHTML(html: string): string {
-  return html; // TODO
-}
-
-function postToPrompt(post: DbPost, promptSuffix: string): string {
-  if (!(post._id in postTruncatedBodyCache)) {
-    //const html = post.contents?.html;
-    //const withLinksStripped = stripLinksFromHTML(html);
-    //const markdownPostBody = htmlToMarkdown(withLinksStripped);
-    const markdownPostBody = dataToMarkdown(post.contents?.originalContents?.data, post.contents?.originalContents?.type);
-    const truncatedPostBody = truncate(markdownPostBody, bodyWordCountLimit, "words", "...").substring(0,3000);
-    postTruncatedBodyCache[post._id] = truncatedPostBody;
-  }
-  return `${post.title}\n\n${postTruncatedBodyCache[post._id]}\n\n${promptSuffix}`;
-}
-
-const tagClassifiers = {
-  "rationality": {
-    prompt: "Is this post about rationality techniques, reasoning techniques, heuristics and biases, or something widely applicable?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-21-47-36",
-    finetuneID: "ft-USVX58sWUQPzgYd46Bc86nrr",
-  },
-  "world-modeling": {
-    prompt: "Is this post about understanding something in the physical world, excluding rationality techniques and AI?",
-    finetuneModel: "babbage:ft-personal-2022-12-08-02-41-08",
-    finetuneID: "ft-i1awtIVhtHdGgen0j5I8CPWG",
-  },
-  "world-optimization": {
-    prompt: "Is this post about strategies for being more effective, making the world better, or acquiring leverage?",
-    finetuneModel: "babbage:ft-personal-2022-12-08-03-43-09",
-    finetuneID: "ft-1aQFhsCwx97oySUTBXFlq0Uw",
-  },
-  "community": {
-    prompt: "Is this post about the rationalist community dynamics, events, people or gossip?",
-    finetuneModel: "babbage:ft-personal-2022-12-08-01-40-46",
-    finetuneID: "ft-m8qvYbS6EbnagXVz418N1KaB",
-  },
-  "practical": {
-    prompt: "Is this post about something you could apply in day to day life, life hacks, or productivity techniques?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-22-48-29",
-    finetuneID: "ft-o9jEgvlssJxABgig6VrIS0ex",
-  },
-  "ai": {
-    prompt: "Is this post about artificial intelligence or machine learning?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-07-55-15",
-    finetuneID: "ft-Zm4L7U6LP3Izt4q4qGMAYmXs",
-  },
-  "covid-19": {
-    prompt: "Is this post about the COVID-19 pandemic?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-23-49-16",
-    finetuneID: "ft-c7fWn5rmGIGtHZzDaUwLaN3C",
-  },
-};
-const tagsToClassifySlugs = Object.keys(tagClassifiers);
 
 async function generateFineTuningFile(postIdsFilename: string, outputFilename: string): Promise<void> {
   const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
@@ -140,7 +88,7 @@ async function generateFineTuningFile(postIdsFilename: string, outputFilename: s
   const postsById = keyBy(posts, post=>post._id);
   const result: string[] = [];
   
-  const tagsToClassify = await Tags.find({slug: {$in: tagsToClassifySlugs}}).fetch();
+  const tagsToClassify = await getAutoAppliedTags();
   const tagsBySlug = keyBy(tagsToClassify, tag=>tag.slug);
   
   let numPostsWithTag = mapValues(tagsBySlug, t=>0);
@@ -149,13 +97,12 @@ async function generateFineTuningFile(postIdsFilename: string, outputFilename: s
   for (let postId of postIds) {
     try {
       const post = postsById[postId];
-      const prompt = postToPrompt(post, postEndMarker);
+      const prompt = await postToPrompt(post, postEndMarker);
       
       let tagsCompletion = "";
-      for (let tagSlug of tagsToClassifySlugs) {
-        const tag = tagsBySlug[tagSlug]
+      for (let tag of tagsToClassify) {
         const hasTag = (tag._id in post.tagRelevance) && (post.tagRelevance[tag._id] > 0);
-        if (hasTag) numPostsWithTag[tagSlug]++;
+        if (hasTag) numPostsWithTag[tag.slug]++;
         tagsCompletion += `${tag.name}: ${hasTag ? "Yes" : "No"}\n`;
       }
       
@@ -170,7 +117,8 @@ async function generateFineTuningFile(postIdsFilename: string, outputFilename: s
     }
   }
   
-  for (let tagSlug of tagsToClassifySlugs) {
+  for (let tag of tagsToClassify) {
+    const tagSlug = tag.slug;
     console.log(`Posts with tag ${tagSlug}: ${numPostsWithTag[tagSlug] / postsWritten}`); //eslint-disable-line no-console
   }
   
@@ -185,7 +133,7 @@ async function getCompletionsWithFinetune(finetuneId: string, postIdsFilename: s
   if (!openAIApi) throw new Error("OpenAI API is not configured");
   
   for (let post of posts) {
-    const prompt = postToPrompt(post, postEndMarker);
+    const prompt = await postToPrompt(post, postEndMarker);
     const result = await openAIApi.createCompletion({
       model: finetuneId,
       prompt,
@@ -212,7 +160,7 @@ async function generateClassifierTuningFile({description, posts, outputFilename,
   
   for (let post of posts) {
     try {
-      const prompt = postToPrompt(post, promptSuffix);
+      const prompt = await postToPrompt(post, promptSuffix);
       const hasTag = classifyPost(post);
       
       result.push(JSON.stringify({
@@ -241,10 +189,10 @@ Globals.generateTagClassifierData = async () => {
   const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
   
   
-  const tags = await Tags.find({slug: {$in: tagsToClassifySlugs}}).fetch();
+  const tags = await getAutoAppliedTags();
   
   for (let tag of tags) {
-    const tagPrompt = "\n\n###\n\n" + tagClassifiers[tag.slug].prompt;
+    const tagPrompt = tag.autoTagPrompt;
     
     await generateClassifierTuningFile({
       description: `Train tag ${tag.slug}: ${tagPrompt}`,
@@ -271,27 +219,40 @@ Globals.generateTagClassifierData = async () => {
   }
 }
 
-async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
-  let tagsApplied = {};
+Globals.generateIsFrontpageClassifierData = async () => {
+  const trainingSetFilename = "ml/tagClassificationPostIds.train.json";
+  const testSetFilename = "ml/tagClassificationPostIds.test.json";
   
-  for (let tag of tags) {
-    const languageModelResult = await openAIApi.createCompletion({
-      model: tagClassifiers[tag.slug].finetuneModel,
-      prompt: postToPrompt(post, '\n\n###\n\n' + tagClassifiers[tag.slug].prompt),
-      max_tokens: 1,
-    });
-    const completion = languageModelResult.data.choices[0].text!;
-    const hasTag = (completion.trim().toLowerCase() === "yes");
-    tagsApplied[tag.slug] = hasTag;
-  }
+  const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
+  const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
   
-  return tagsApplied;
+  const trainingSet: DbPost[] = await Posts.find({_id: {$in: trainingSetPostIds}}).fetch();
+  const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
+  
+  await generateClassifierTuningFile({
+    description: `Train is-front-page`,
+    posts: trainingSet,
+    outputFilename: `ml/tagClassification.frontpage.train.jsonl`,
+    promptSuffix: frontpagePrompt,
+    classifyPost: (post: DbPost) => (
+      !!post.frontpageDate
+    )
+  });
+  await generateClassifierTuningFile({
+    description: `Test is-tag front-page`,
+    posts: testSet,
+    outputFilename: `ml/tagClassification.frontpage.test.jsonl`,
+    promptSuffix: frontpagePrompt,
+    classifyPost: (post: DbPost) => (
+      !!post.frontpageDate
+    )
+  });
 }
 
 Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const posts = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
-  const tags = await Tags.find({slug: {$in: Object.keys(tagClassifiers)}}).fetch();
+  const tags = await getAutoAppliedTags();
   const openAIApi = await getOpenAI();
   if (!openAIApi) throw new Error("OpenAI API not configured");
   const sb: string[] = [];
@@ -320,6 +281,66 @@ Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilenam
     }
   }
   
+  fs.writeFileSync(outputFilename, sb.join(''));
+}
+
+Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
+  const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
+  const posts = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
+  const postsById = keyBy(posts, post=>post._id);
+  const openAIApi = await getOpenAI();
+  if (!openAIApi) throw new Error("OpenAI API not configured");
+  let humanFrontpagedIt: Record<string,boolean> = {};
+  let languageModelFrontpagedIt: Record<string,boolean> = {};
+  let languageModelHadError: Record<string,boolean> = {};
+  
+  function writeResult(text: string) {
+    console.log(text); // eslint-disable-line no-console
+    sb.push(text);
+  }
+  
+  console.log(`Evaluating front-page classification for ${posts.length} posts`);
+  for (let post of shuffle(posts)) {
+    humanFrontpagedIt[post._id] = !!post.frontpageDate;
+    try {
+      const languageModelResult = await openAIApi.createCompletion({
+        model: frontpageModel,
+        prompt: await postToPrompt(post, frontpagePrompt),
+        max_tokens: 1,
+      });
+      const completion = languageModelResult.data.choices[0].text!;
+      const isFrontpage = (completion.trim().toLowerCase() === "yes");
+      languageModelFrontpagedIt[post._id] = isFrontpage;
+    } catch(e) {
+      languageModelHadError[post._id] = true;
+    }
+  }
+  
+  console.log(`Finished evaluations.`);
+  
+  const sb: string[] = [];
+  const agreements = filter(testSetPostIds, postId=>languageModelFrontpagedIt[postId]===humanFrontpagedIt[postId]);
+  const onlyHumanFrontpaged = filter(testSetPostIds, postId=>!languageModelFrontpagedIt[postId] && humanFrontpagedIt[postId]);
+  const onlyLMFrontpaged = filter(testSetPostIds, postId=>languageModelFrontpagedIt[postId] && !humanFrontpagedIt[postId]);
+  sb.push(`Human and LM agree: ${agreements.length}\n`);
+  sb.push(`Only human front-paged it: ${onlyHumanFrontpaged.length}\n`);
+  sb.push(`Only LM front-paged it: ${onlyLMFrontpaged.length}\n`);
+  sb.push('\n');
+  
+  function listPosts(postIds: string[]) {
+    return postIds.map(postId => {
+      const post = postsById[postId];
+      return `    ${post.title} - https://wwww.lesswrong.com/posts/${post._id}/${post.slug}\n`
+    }).join("");
+  }
+  sb.push('Human front paged:\n');
+  sb.push(listPosts(onlyHumanFrontpaged));
+  sb.push('LM front paged:\n');
+  sb.push(listPosts(onlyLMFrontpaged));
+  sb.push('Agreed:\n');
+  sb.push(listPosts(agreements));
+  sb.push('LM encountered error:\n');
+  sb.push(listPosts(filter(testSetPostIds, postId=>languageModelHadError[postId])));
   fs.writeFileSync(outputFilename, sb.join(''));
 }
 

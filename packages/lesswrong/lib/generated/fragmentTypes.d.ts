@@ -460,6 +460,8 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly parentTagId: string,
+  readonly autoTagModel: string,
+  readonly autoTagPrompt: string,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -2120,6 +2122,8 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
+  readonly autoTagModel: string,
+  readonly autoTagPrompt: string,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,

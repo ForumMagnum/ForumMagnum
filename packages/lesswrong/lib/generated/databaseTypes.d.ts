@@ -877,6 +877,8 @@ interface DbTag extends DbObject {
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   parentTagId: string
+  autoTagModel: string
+  autoTagPrompt: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
