@@ -37,11 +37,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0,
     }
   },
+  title: {
+    display: 'flex',
+    alignItems: 'center'
+  },
   usernameTitle: {
     fontSize: "3rem",
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0,
+  },
+  userIdTitle: {
+    ...theme.typography.postStyle,
+    paddingLeft: 12,
+    paddingTop: 6
   },
   userInfo: {
     display: "flex",
@@ -70,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
-  title: {
+  postsTitle: {
     cursor: "pointer"
   },
   // Dark Magick
@@ -239,8 +248,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>
-              {username}
+            <div className={classes.title}>
+              <div className={classes.usernameTitle}>
+                {username}
+              </div>
+              {currentUser?.isAdmin && <div className={classes.userIdTitle}>
+                {`userId: ${user._id}`}
+              </div>}
             </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
@@ -312,7 +326,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Posts Section */}
           <SingleColumnSection>
-            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
+            <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
                 <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>
