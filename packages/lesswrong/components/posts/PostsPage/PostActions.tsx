@@ -285,7 +285,7 @@ const PostActions = ({post, closeMenu, classes}: {
         </div>
         
         {userHasAutosummarize(currentUser)
-          && <Components.PostSummaryAction post={post}/>}
+          && <Components.PostSummaryAction closeMenu={closeMenu} post={post}/>}
         
         { isRead
           ? <div onClick={handleMarkAsUnread}>

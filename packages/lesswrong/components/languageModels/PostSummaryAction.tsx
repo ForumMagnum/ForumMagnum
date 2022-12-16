@@ -9,13 +9,15 @@ import MenuItem from '@material-ui/core/MenuItem';
 const styles = (theme: ThemeType) => ({
 })
 
-const PostSummaryAction = ({post, classes}: {
+const PostSummaryAction = ({post, closeMenu, classes}: {
   post: PostsList,
+  closeMenu?: ()=>void,
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();
   
   const showPostSummary = () => {
+    closeMenu?.();
     openDialog({
       componentName: "PostSummaryDialog",
       componentProps: { post },
