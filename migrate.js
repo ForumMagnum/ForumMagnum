@@ -5,7 +5,7 @@
  * MONGO_URL and SETTINGS_FILE
  */
 require("ts-node/register");
-const { getSqlClientOrThrow } = require("./packages/lesswrong/lib/sql/sqlClient");
+const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
 const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 const { readFile } = require("fs").promises;
@@ -79,6 +79,7 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
 
   try {
     await db.tx(async (transaction) => {
+      setSqlClient(transaction);
       const migrator = await createMigrator(transaction);
       const result = await migrator.runAsCLI();
       if (!result) {
