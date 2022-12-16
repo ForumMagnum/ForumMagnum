@@ -27,7 +27,7 @@ registerMigration({
             {
               tagId: dadTag._id,
               tagName: dadTag.name,
-              filterMode: -25,
+              filterMode: 0.75,
             },
           ];
           return {
