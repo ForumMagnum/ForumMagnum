@@ -5,9 +5,10 @@ echo "Running Production Site"
 # variables are undefined, but those variables are optional.
 set -ex
 
-# lw-look here: you must define GITHUB_CREDENTIALS_REPO_USER in your AWS EBS config
 echo "Cloning credentials repo"
-git clone https://$GITHUB_CREDENTIALS_REPO_USER:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
+if [ ! -d "Credentials" ] ; then
+    git clone https://$GITHUB_CREDENTIALS_REPO_USER:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
+fi
 
 # Decrypt credentials if encrypted
 if [ -n "$TRANSCRYPT_SECRET" ]; then
