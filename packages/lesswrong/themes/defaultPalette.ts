@@ -198,6 +198,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
+    primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
 
     eventMaybe: "#d59c00",
     
@@ -291,8 +292,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2',
-    primaryDim2: '#e2f1f4',
+    primaryDim: '#e2f1f4',
   },
   panelBackground: {
     default: shades.grey[0],

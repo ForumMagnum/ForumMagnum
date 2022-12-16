@@ -162,6 +162,7 @@ export const darkModeTheme: UserThemeSpecification = {
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
       alwaysWhite: '#fff',
+      primaryDarkOnDim: '#a8cad7',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",
@@ -183,8 +184,7 @@ export const darkModeTheme: UserThemeSpecification = {
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
-      primaryDim: "#303435",
-      primaryDim2: "#303435",
+      primaryDim: "#28383e",
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
