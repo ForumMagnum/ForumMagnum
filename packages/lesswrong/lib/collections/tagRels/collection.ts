@@ -54,9 +54,9 @@ const schema: SchemaType<DbTagRel> = {
     type: Boolean,
     graphQLtype: 'Boolean',
     viewableBy: ['guests'],
-    resolver: (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+    resolver: async (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
-      return currentUser ? userCanVoteOnTag(currentUser, document.tagId) : true;
+      return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
     },
   }),
 };
