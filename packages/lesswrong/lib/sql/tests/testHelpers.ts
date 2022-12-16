@@ -22,6 +22,7 @@ export const TestCollection = {
     },
     a: {
       type: Number,
+      defaultValue: 3,
     },
     b: {
       type: String,

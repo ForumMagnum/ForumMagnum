@@ -21,6 +21,13 @@ export abstract class Type {
   abstract toString(): string;
 
   /**
+   * Returns the default value as a Postgres string
+   */
+  getDefaultValueString(): string | null {
+    return null;
+  }
+
+  /**
    * Convert this Type to a "concrete" Type - that is, remove any metadata
    * like nullability or default values to leave a raw column type.
    */
@@ -145,6 +152,10 @@ export class ArrayType extends Type {
     this.subtype = subtype.toConcrete();
   }
 
+  getDefaultValueString(): string | null {
+    return this.subtype.getDefaultValueString();
+  }
+
   toString() {
     return `${this.subtype.toString()}[]`;
   }
@@ -183,6 +194,10 @@ export class NotNullType extends Type {
 
   toString() {
     return `${this.type.toString()} NOT NULL`;
+  }
+
+  getDefaultValueString(): string | null {
+    return this.type.getDefaultValueString();
   }
 
   toConcrete() {
@@ -235,10 +250,10 @@ export class DefaultValueType extends Type {
   }
 
   toString() {
-    return `${this.type.toString()} DEFAULT ${this.valueToString()}`;
+    return `${this.type.toString()} DEFAULT ${this.getDefaultValueString()}`;
   }
 
-  private valueToString() {
+  getDefaultValueString(): string | null {
     return valueToString(this.value, this.type.isArray() ? this.type.subtype : undefined);
   }
 
