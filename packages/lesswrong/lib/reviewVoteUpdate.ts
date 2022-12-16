@@ -3,7 +3,7 @@ import Users from "./collections/users/collection"
 import { getCostData, REVIEW_YEAR } from "./reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
-import { Dictionary } from 'underscore';
+import { Dictionary } from "lodash";
 
 const getCost = (vote: reviewVoteFragment) => {
   return getCostData({})[vote.qualitativeScore].cost
@@ -98,7 +98,7 @@ export async function updateReviewVoteTotals (phase) {
   const usersByUserId = groupBy(users, user => user._id)
 
   if (phase === "nominationVote") {
-    updatePreliminaryVoteTotals(usersByUserId, votesByUserId)
+    await updatePreliminaryVoteTotals(usersByUserId, votesByUserId)
   }
   if (phase === "finalVote") {
     // Only used during final voting phase
