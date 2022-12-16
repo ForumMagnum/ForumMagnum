@@ -5,6 +5,7 @@
  * MONGO_URL and SETTINGS_FILE
  */
 require("ts-node/register");
+const { getSqlClientOrThrow } = require("./packages/lesswrong/lib/sql/sqlClient");
 const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
 const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
 const { readFile } = require("fs").promises;
@@ -27,11 +28,16 @@ const credentialsFile = (fileName) => {
 const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName))).toString().trim();
 
 (async () => {
+  const command = process.argv[2];
+  const isRunCommand = ["up", "down"].includes(command);
+
   let mode = process.argv[3];
   if (mode === "development") {
     mode = "dev";
   } else if (mode === "production") {
     mode = "prod";
+  } else if (!isRunCommand) {
+    mode = "dev";
   }
 
   const args = {
@@ -46,24 +52,31 @@ const readUrlFile = async (fileName) => (await readFile(credentialsFile(fileName
     args.mongoUrl = await readUrlFile(`${mode}-db-conn.txt`);
     args.postgresUrl = await readUrlFile(`${mode}-pg-conn.txt`);
     args.settingsFileName = credentialsFile(`settings-${mode}.json`);
-    process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
+    if (isRunCommand) {
+      process.argv = process.argv.slice(0, 3).concat(process.argv.slice(4));
+    }
   } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
     console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
   } else {
     throw new Error('Unable to run migration without a mode or environment (PG_URL, MONGO_URL and SETTINGS_FILE)');
   }
 
-  initGlobals(mode === "prod");
+  if (isRunCommand) {
+    initGlobals(mode === "prod");
 
-  const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
-  getInstanceSettings(args); // These args will be cached for later
+    const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
+    getInstanceSettings(args); // These args will be cached for later
 
-  const {initServer} = require("./packages/lesswrong/server/serverStartup");
-  await initServer(args);
+    const {initServer} = require("./packages/lesswrong/server/serverStartup");
+    await initServer(args);
+  }
 
   let exitCode = 0;
 
-  const db = await createSqlConnection(args.postgresUrl);
+  const db = isRunCommand
+    ? getSqlClientOrThrow()
+    : await createSqlConnection(args.postgresUrl);
+
   try {
     await db.tx(async (transaction) => {
       const migrator = await createMigrator(transaction);

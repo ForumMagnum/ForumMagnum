@@ -10,6 +10,7 @@ import "./CreateTableQuery";
 import "./CreateIndexQuery";
 import "./AddFieldQuery";
 import "./DropIndexQuery";
+import "./UpdateDefaultValueQuery";
 import "./Pipeline";
 import "./PgCollection";
 import "./BulkWriter";
