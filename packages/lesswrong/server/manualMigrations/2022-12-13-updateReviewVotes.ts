@@ -1,5 +1,5 @@
+import { updateReviewVoteTotals } from '../../lib/reviewVoteUpdate';
 import { registerMigration } from './migrationUtils';
-import { updateReviewVoteTotals } from '../../lib/reviewUtils';
 
 
 registerMigration({
@@ -7,6 +7,6 @@ registerMigration({
   dateWritten: "2022-12-15",
   idempotent: true,
   action: async () => {
-    updateReviewVoteTotals("nominationVote") 
+    await updateReviewVoteTotals("nominationVote") 
   }
 })
