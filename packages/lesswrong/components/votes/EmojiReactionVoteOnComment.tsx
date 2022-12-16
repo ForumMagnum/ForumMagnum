@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     '@media (hover: hover)': {
       "&:hover": {
-        background: theme.palette.background.primaryDim2,
+        background: theme.palette.background.primaryDim,
       },
     },
   },

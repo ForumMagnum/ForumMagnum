@@ -47,8 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8
   },
   userTag: {
-    backgroundColor: theme.palette.background.primaryDim2,
-    color: theme.palette.primary.dark,
+    backgroundColor: theme.palette.background.primaryDim,
+    color: theme.palette.text.primaryDarkOnDim,
     fontFamily: theme.typography.fontFamily,
     fontSize: 11,
     padding: '5px 11px',
