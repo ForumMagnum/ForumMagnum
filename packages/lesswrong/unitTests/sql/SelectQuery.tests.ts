@@ -296,6 +296,42 @@ describe("SelectQuery", () => {
       expectedArgs: [2, 4, 3],
     },
     {
+      name: "can build select query with $abs",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $abs: "$a",
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , ABS( "a" ) AS "k" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select query with $min",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $min: ["$a", 6],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , LEAST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [6, 3],
+    },
+    {
+      name: "can build select query with $max",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $max: ["$a", 6],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , GREATEST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [6, 3],
+    },
+    {
       name: "can build select with date diff",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {

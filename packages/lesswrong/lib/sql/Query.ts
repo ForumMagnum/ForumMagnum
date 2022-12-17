@@ -487,6 +487,20 @@ abstract class Query<T extends DbObject> {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    if (op === "$min" || op === "$max") {
+      const func = op === "$min" ? "LEAST" : "GREATEST";
+      const args = expr[op].map((value: any) => this.compileExpression(value));
+      let prefix = `${func}(`;
+      let result: Atom<T>[] = [];
+      for (const arg of args) {
+        result.push(prefix);
+        result = result.concat(arg);
+        prefix = ",";
+      }
+      result.push(")");
+      return result;
+    }
+
     if (op === "$in") {
       const [value, array] = expr[op];
       return [...this.compileExpression(value), "= ANY(", ...this.compileExpression(array), ")"];
