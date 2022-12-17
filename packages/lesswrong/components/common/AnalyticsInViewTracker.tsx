@@ -2,18 +2,18 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useCallback } from 'react';
 import { useIsInView, useTracking } from "../../lib/analyticsEvents";
 
-const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children, skip}: {
+const AnalyticsInViewTracker = ({eventType, eventProps, threshold, children, skip}: {
   eventType?: string,
   eventProps?: Record<string,any>,
-  observerProps?: Record<string,any>,
+  threshold?: number[],
   children?: React.ReactNode,
   skip?: boolean,
 }) => {
-  const { setNode, entry } = useIsInView(observerProps)
+  const { setNode, entry } = useIsInView({threshold})
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const captureInViewEvent = useCallback(
-    useTracking({ eventType: eventType || "inViewEvent", eventProps: {...eventProps, ...observerProps}}).captureEvent,
+    useTracking({ eventType: eventType || "inViewEvent", eventProps: {...eventProps }}).captureEvent,
     // absolutely no reason for eventType or props to change for InView tracker once created, easiest way to prevent rerender because of object props
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [])

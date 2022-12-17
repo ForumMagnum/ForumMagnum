@@ -20,8 +20,8 @@ const Home2 = () => {
           </SingleColumnSection>}
           
           <AnalyticsInViewTracker
-              eventProps={{inViewType: "latestPosts"}}
-              observerProps={{threshold:[0, 0.5, 1]}}
+            eventProps={{inViewType: "latestPosts"}}
+            threshold={[0, 0.5, 1]}
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>

@@ -153,6 +153,8 @@ importComponent("FeaturedResourceBanner", () => require('../components/common/Ta
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
+importComponent("InViewTracker", () => require('../components/common/InViewTracker'));
+
 importComponent("MixedTypeFeed", () => require('../components/common/MixedTypeFeed'));
 
 // Outgoing RSS Feed builder

@@ -223,11 +223,14 @@ export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventPr
   return {captureEvent: track}
 }
 
-export function useIsInView({rootMargin='0px', threshold=0}={}) {
-  const [entry, setEntry] = useState<any>(null)
-  const [node, setNode] = useState<any>(null)
+export function useIsInView({rootMargin='0px', threshold=0}: {
+  rootMargin?: string
+  threshold?: number|number[]
+}) {
+  const [entry, setEntry] = useState<IntersectionObserverEntry|null>(null)
+  const [node, setNode] = useState<HTMLElement|null>(null)
 
-  const observer = useRef<any>(null)
+  const observer = useRef<IntersectionObserver|null>(null)
 
   useEffect(() => {
     if (!window.IntersectionObserver) return

@@ -30,7 +30,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const { terms={}, enableTotal = false } = input;
         const results = await loadMulti({collectionName, terms, enableTotal, context});
         // TODO write down results in recommendationsLog
-        return result;
+        return results;
       },
     },
 

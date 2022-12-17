@@ -109,6 +109,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -8,
     marginTop: -8,
   },
+  highlightVisible: {
+    border: theme.palette.border.normal,
+  }
 })
 
 const RecentDiscussionThread = ({
@@ -131,6 +134,7 @@ const RecentDiscussionThread = ({
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { isRead, recordPostView } = useRecordPostView(post);
   const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
+  const [visible,setVisible] = useState(false);
 
   const markAsRead = useCallback(
     () => {
@@ -149,12 +153,16 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostActionsButton } = Components
+  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostActionsButton, InViewTracker } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
+  
+  const makeVisible = useCallback(() => setVisible(true), []);
+  const makeHidden = useCallback(() => setVisible(false), []);
+
 
   if (comments && !comments.length && post.commentCount != null) {
     // New posts should render (to display their highlight).
@@ -175,10 +183,14 @@ const RecentDiscussionThread = ({
     condensed: true,
     post: post,
   };
-
+  
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
-      <div className={classes.root}>
+      <InViewTracker
+        onVisible={makeVisible}
+        onHidden={makeHidden}
+      >
+      <div className={classNames(classes.root, {[classes.highlightVisible]: visible})}>
         <div className={classes.post}>
           <div className={classes.postItem}>
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
@@ -217,6 +229,7 @@ const RecentDiscussionThread = ({
           </div>
         </div>
       </div>
+      </InViewTracker>
     </AnalyticsContext>
   )
 };
