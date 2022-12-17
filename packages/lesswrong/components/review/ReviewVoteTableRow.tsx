@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
   },
   votes: {
     backgroundColor: theme.palette.grey[200],
-    padding: 8,
+    padding: 10,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -126,12 +126,14 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "unset",
   },
   yourVote: {
+    marginLeft: 6,
     [theme.breakpoints.down('xs')]: {
       order: 0,
       marginRight: 10
     }
   },
   voteResults: {
+    width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
     [theme.breakpoints.down('xs')]: {
@@ -211,6 +213,17 @@ const ReviewVoteTableRow = (
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
 
+  let positiveVoteCountText = "0"
+  let positiveVoteCountTooltip = "0 positive votes"
+  if (post.positiveReviewVoteCount === 1) {
+    positiveVoteCountText = "1"
+    positiveVoteCountTooltip = "1 positive vote"
+  }
+  if (post.positiveReviewVoteCount > 1) {
+    positiveVoteCountText = "2+"
+    positiveVoteCountTooltip = "2 or more positive votes"
+  }
+
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: getReviewPhase() === "VOTING" })} onClick={markAsRead}>
@@ -245,6 +258,14 @@ const ReviewVoteTableRow = (
             newPromotedComments={false}
           />
         </div>
+        {getReviewPhase() === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
+          <LWTooltip title={<div>
+            <div>This post has {positiveVoteCountTooltip}.</div>
+            <div><em>(It needs at least 2 to proceed to the Review Phase.)</em></div>
+          </div>}>
+            { positiveVoteCountText }
+          </LWTooltip>
+        </PostsItem2MetaInfo>}
         {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount !== 1 ? "s" : ""}`}>
             { post.reviewCount }

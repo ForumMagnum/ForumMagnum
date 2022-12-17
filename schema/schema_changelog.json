@@ -8,5 +8,15 @@
     "acceptsSchemaHash": "dc1ea5409f03e1b22c4c5835fd70e2a3",
     "acceptedByMigration": "20221207T030042.books_toc_title.ts",
     "timestamp": "2022-12-07T03:00:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9e733b575316b2cdd41d3a1d9032131a",
+    "acceptedByMigration": "20221213T153954.array_of_foreign_key_defaults.ts",
+    "timestamp": "2022-12-13T15:39:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f56d2f2c10b4b90a9e9ff9b08e98c3bc",
+    "acceptedByMigration": "20221213T181144.fix_float_precision.ts",
+    "timestamp": "2022-12-13T18:11:44.000Z"
   }
 ]

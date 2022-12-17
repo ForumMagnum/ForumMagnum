@@ -17,7 +17,6 @@ import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
 import process from 'process';
-import { PostRelationsRepo } from './repos';
 import chokidar from 'chokidar';
 import fs from 'fs';
 
@@ -50,9 +49,6 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
-  if (isMigrations) {
-    return;
-  }
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
