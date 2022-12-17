@@ -128,7 +128,7 @@ export class IntType extends Type {
 
 export class FloatType extends Type {
   toString() {
-    return "REAL";
+    return "DOUBLE PRECISION";
   }
 }
 

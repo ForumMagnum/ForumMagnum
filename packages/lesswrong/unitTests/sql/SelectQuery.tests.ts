@@ -114,13 +114,13 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$in: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[])',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = ANY(ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[])',
       expectedArgs: [1, 2, 3],
     },
     {
       name: "can build select query with not-in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$nin: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[]) )',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" = ANY(ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[]) )',
       expectedArgs: [1, 2, 3],
     },
     {
