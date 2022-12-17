@@ -256,10 +256,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    display: 'inline-block',
-    position: 'relative',
-    left: '50%',
-    transform: 'translateX(-50%)',
+    width: 'fit-content',
   },
   '& td, & th': {
     ...tableCellStyles(theme)
