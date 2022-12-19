@@ -245,9 +245,11 @@ abstract class Query<T extends DbObject> {
     const ty = this.getField(unresolvedField);
     if (ty && ty.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return ["NOT (", new Arg(value), `= ANY(${resolvedField}) )`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), "])"];
+      } else if (op === "=") {
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), "]"];
       } else {
-        return [new Arg(value), `${op} ANY(${resolvedField})`];
+        throw new Error(`Invalid array operator: ${op}`);
       }
     } else {
       const hint = unresolvedField.indexOf(".") > 0 && resolvedField.indexOf("::") < 0 ? this.getTypeHint(value) : "";
@@ -328,7 +330,7 @@ abstract class Query<T extends DbObject> {
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+          return [`ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""} @> ARRAY[${field}]`];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
@@ -503,7 +505,7 @@ abstract class Query<T extends DbObject> {
 
     if (op === "$in") {
       const [value, array] = expr[op];
-      return [...this.compileExpression(value), "= ANY(", ...this.compileExpression(array), ")"];
+      return [...this.compileExpression(array), "@> {", ...this.compileExpression(value), "}"];
     }
 
     // This algorithm is over-specialized, but we only seem to use it in a very particular way...
