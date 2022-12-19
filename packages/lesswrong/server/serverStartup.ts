@@ -72,6 +72,8 @@ const connectToMongo = async (connectionString: string) => {
 const connectToPostgres = async (connectionString: string) => {
   try {
     if (connectionString) {
+      // eslint-disable-next-line no-console
+      console.log("Connecting to postgres", connectionString)
       const branchDb = await getBranchDbName();
       if (branchDb) {
         connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
