@@ -3,8 +3,9 @@ import { Configuration as OpenAIApiConfiguration, OpenAIApi } from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { encode as gpt3encode } from 'gpt-3-encoder'
+import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
 import drop from 'lodash/drop';
+import take from 'lodash/take';
 
 const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
 const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
@@ -30,8 +31,13 @@ type LanguageModelClassificationTask = "isSpam"|"isFrontpage";
 type LanguageModelGenerationTask = "summarize"|"authorFeedback";
 type LanguageModelTask = LanguageModelClassificationTask|LanguageModelGenerationTask;
 
+export type LanguageModelTemplate = {
+  header: Record<string,string>
+  body: string
+}
+
 type LanguageModelConfig = {
-  template: string,
+  template: LanguageModelTemplate,
   task: LanguageModelTask,
   api: LanguageModelAPI,
   model: string,
@@ -74,7 +80,10 @@ async function getLMConfigForTask(task: LanguageModelTask, context: ResolverCont
     return {
       task,
       api: "stub",
-      template: "Test ${input}", //eslint-disable-line no-template-curly-in-string
+      template: {
+        header: {api: "stub"},
+        body: "Test ${input}", //eslint-disable-line no-template-curly-in-string
+      },
       model: "stub-model",
     };
   }
@@ -83,28 +92,32 @@ async function getLMConfigForTask(task: LanguageModelTask, context: ResolverCont
 function tagToLMConfig(tag: DbTag, task: LanguageModelTask): LanguageModelConfig {
   if (!tag) throw new Error("Tag not found");
   
-  const {header, template} = wikiPageToTemplate(tag);
+  const template = wikiPageToTemplate(tag);
+  const {header, body} = template;
   return {
     api: (header["api"] ?? "disabled") as LanguageModelAPI,
     model: header["model"] ?? "stub",
-    task, template
+    task, template,
   };
 }
 
-export function wikiPageToTemplate(wikiPage: DbTag): {
-  header: Record<string,string>,
-  template: string,
-} {
+export async function wikiSlugToTemplate(slug: string): Promise<LanguageModelTemplate> {
+  const wikiConfig = await Tags.findOne({slug});
+  if (!wikiConfig) throw new Error(`No LM config page ${slug}`);
+  return wikiPageToTemplate(wikiConfig);
+}
+
+export function wikiPageToTemplate(wikiPage: DbTag): LanguageModelTemplate {
   let header: Record<string,string> = {};
-  let template = "";
+  let body = "";
   
   const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description?.originalContents?.type);
-  const lines = descriptionMarkdown.trim().split('\n');
+  const lines = descriptionMarkdown.trim().split('\n').map(line => line.trim());
   
   for (let i=0; i<lines.length; i++) {
     const line = lines[i];
     if (line.trim()==="") {
-      template = drop(lines,i+1).join("\n");
+      body = drop(lines,i+1).join("\n");
       break;
     } else {
       const [_headerLine,headerName,headerValue] = line.match(/^([a-zA-Z0-9_-]+):\s*([^\s]*)\s*$/)
@@ -112,7 +125,7 @@ export function wikiPageToTemplate(wikiPage: DbTag): {
     }
   }
   
-  return {header, template};
+  return {header, body};
 }
 
 /**
@@ -125,12 +138,12 @@ export function wikiPageToTemplate(wikiPage: DbTag): {
  * to quoting. It is intended only for use with language-model prompting.
  */
 export function substituteIntoTemplate({template, variables, maxLengthTokens, truncatableVariable}: {
-  template: string,
+  template: LanguageModelTemplate,
   variables: Record<string,string>
   maxLengthTokens?: number,
   truncatableVariable?: string,
 }): string {
-  let withVarsSubstituted = template;
+  let withVarsSubstituted = template.body;
   
   // Substitute everything except the truncatable variable
   for (let key of Object.keys(variables)) {
@@ -142,7 +155,7 @@ export function substituteIntoTemplate({template, variables, maxLengthTokens, tr
     const withVarsSubstitutedAndTruncVarRemoved = withVarsSubstituted.replace(new RegExp("\\${"+truncatableVariable+"}", "g"), "");
     const tokensSpent = countGptTokens(withVarsSubstitutedAndTruncVarRemoved);
     const tokensAvailable = maxLengthTokens - tokensSpent;
-    const truncatedVar = truncateByTokenCount(variables[truncatableVariable], tokensAvailable);
+    const truncatedVar = truncateByTokenCount(variables[truncatableVariable]||"", tokensAvailable);
     withVarsSubstituted = withVarsSubstituted.replace(new RegExp("\\${"+truncatableVariable+"}", "g"), truncatedVar);
   }
   
@@ -150,7 +163,12 @@ export function substituteIntoTemplate({template, variables, maxLengthTokens, tr
 }
 
 function countGptTokens(str: string): number {
-  return gpt3encode(str).length;
+  if (!str) return 0;
+  try {
+    return gpt3encode(str).length;
+  } catch(e) {
+    return str.length;
+  }
 }
 
 /**
@@ -161,15 +179,37 @@ function countGptTokens(str: string): number {
  * some character sequences don't roundtrip.)
  */
 function truncateByTokenCount(str: string, tokens: number): string {
+  if (!str || !str.length)
+    return "";
+  if (str.length < tokens)
+    return str;
+  
+  // First try an encode-then-decode roundtrip
+  try {
+    const encoded = gpt3encode(str);
+    
+    if (encoded.length <= tokens) return str;
+    const redecoded = gpt3decode(take(encoded,tokens));
+    if (redecoded === str.substring(0,redecoded.length)) {
+      return redecoded;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`GPT-3 encoding did not roundtrip: ${JSON.stringify(str)}`);
+    }
+  } catch {
+    console.log(`Could not encode string for truncation length estimate: ${JSON.stringify(str)}`); //eslint-disable-line no-console
+  }
+  
+  // If that didn't work, binary-search string truncations to find one that has the right token count
   let low=0, high=str.length, mid=(low+high)/2|0;
   
   while (high>low) {
-    mid=(low+high)/2|0;
     if (countGptTokens(str.substring(0,mid)) > tokens) {
       high = mid;
     } else {
       low = mid+1;
     }
+    mid=(low+high)/2|0;
   }
   
   return str.substring(0,mid);

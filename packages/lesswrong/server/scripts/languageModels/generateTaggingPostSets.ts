@@ -4,9 +4,9 @@ import { Tags } from '../../../lib/collections/tags/collection';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postStatuses } from '../../../lib/collections/posts/constants';
 import { dataToMarkdown, htmlToMarkdown } from '../../editor/conversionUtils';
-import { getOpenAI } from '../../languageModels/languageModelIntegration';
+import { getOpenAI, wikiSlugToTemplate } from '../../languageModels/languageModelIntegration';
 import { cheerioParse } from '../../utils/htmlUtil';
-import { postToPrompt, checkTags, getAutoAppliedTags } from '../../languageModels/autoTagCallbacks';
+import { postToPrompt, checkTags, getAutoAppliedTags, generatePostBodyCache, PostBodyCache } from '../../languageModels/autoTagCallbacks';
 import shuffle from 'lodash/shuffle';
 import take from 'lodash/take';
 import drop from 'lodash/drop';
@@ -84,6 +84,7 @@ const frontpagePrompt = "Is this post of broad relevance, timeless, apolitical, 
 
 async function generateFineTuningFile(postIdsFilename: string, outputFilename: string): Promise<void> {
   const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   const posts = await Posts.find({_id: {$in: postIds}}).fetch();
   const postsById = keyBy(posts, post=>post._id);
   const result: string[] = [];
@@ -97,7 +98,10 @@ async function generateFineTuningFile(postIdsFilename: string, outputFilename: s
   for (let postId of postIds) {
     try {
       const post = postsById[postId];
-      const prompt = await postToPrompt(post, postEndMarker);
+      const prompt = await postToPrompt({
+        template, post,
+        promptSuffix: postEndMarker
+      });
       
       let tagsCompletion = "";
       for (let tag of tagsToClassify) {
@@ -127,13 +131,16 @@ async function generateFineTuningFile(postIdsFilename: string, outputFilename: s
 
 async function getCompletionsWithFinetune(finetuneId: string, postIdsFilename: string, outputFilename: string): Promise<void> {
   const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   const posts = await Posts.find({_id: {$in: postIds}}).fetch();
   const results: string[] = [];
   const openAIApi = await getOpenAI();
   if (!openAIApi) throw new Error("OpenAI API is not configured");
   
   for (let post of posts) {
-    const prompt = await postToPrompt(post, postEndMarker);
+    const prompt = await postToPrompt({
+      template, post, promptSuffix: postEndMarker
+    });
     const result = await openAIApi.createCompletion({
       model: finetuneId,
       prompt,
@@ -146,21 +153,23 @@ async function getCompletionsWithFinetune(finetuneId: string, postIdsFilename: s
   //fs.writeFileSync(outputFilename, results.join("\n"));
 }
 
-async function generateClassifierTuningFile({description, posts, outputFilename, promptSuffix, classifyPost}: {
+async function generateClassifierTuningFile({description, posts, postBodyCache, outputFilename, promptSuffix, classifyPost}: {
   description: string,
   posts: DbPost[],
   outputFilename: string,
   promptSuffix: string,
   classifyPost: (post: DbPost)=>boolean,
+  postBodyCache?: PostBodyCache
 }) {
   const postsById = keyBy(posts, post=>post._id);
   const result: string[] = [];
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let postsWritten = 0;
   
   for (let post of posts) {
-    try {
-      const prompt = await postToPrompt(post, promptSuffix);
+    //try {
+      const prompt = await postToPrompt({ template, post, promptSuffix, postBodyCache });
       const hasTag = classifyPost(post);
       
       result.push(JSON.stringify({
@@ -169,34 +178,49 @@ async function generateClassifierTuningFile({description, posts, outputFilename,
       }));
       
       postsWritten++;
-    } catch(e) {
-      console.log(`Error formatting post ${post._id} for finetune training: ${e}`); //eslint-disable-line no-console
-    }
+    //} catch(e) {
+      //console.log(`Error formatting post ${post._id} for finetune training: ${e}`); //eslint-disable-line no-console
+    //}
   }
   
   console.log(`Writing ${description} to ${outputFilename}`); //eslint-disable-line no-console
   fs.writeFileSync(outputFilename, result.join('\n'));
 }
 
-Globals.generateTagClassifierData = async () => {
-  const trainingSetFilename = "ml/tagClassificationPostIds.train.json";
-  const testSetFilename = "ml/tagClassificationPostIds.test.json";
-  
+Globals.generateTagClassifierData = async (args: {
+  tagSlug?: string
+  trainingSetFilename?: string,
+  testSetFilename?: string,
+}) => {
+  const {tagSlug, trainingSetFilename="ml/tagClassificationPostIds.train.json", testSetFilename="ml/tagClassificationPostIds.test.json"} = args||{};
   const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
   
   const trainingSet: DbPost[] = await Posts.find({_id: {$in: trainingSetPostIds}}).fetch();
   const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
   
+  const singleTag = tagSlug ? await Tags.findOne({slug: tagSlug}) : null;
+  if (tagSlug && !singleTag) throw new Error(`Missing tag: ${tagSlug}`);
   
-  const tags = await getAutoAppliedTags();
+  const tags: DbTag[] = tagSlug
+    ? [singleTag!]
+    : await getAutoAppliedTags();
+  
+  console.log(`Will generate training and test sets for ${tags.length} tags: ${tags.map(t=>t.slug).join(', ')}`); //eslint-disable-line no-console
+  console.log(`Preprocessing post body for ${trainingSet.length} posts in training set`); //eslint-disable-line no-console
+  const postBodyCacheTrain = generatePostBodyCache(trainingSet);
+  console.log(`Preprocessing post body for ${testSet.length} posts in test set`); //eslint-disable-line no-console
+  const postBodyCacheTest = generatePostBodyCache(testSet);
   
   for (let tag of tags) {
+    //eslint-disable-next-line no-console
+    console.log(`Generating tag training/test sets for tag ${tag.name}`);
     const tagPrompt = tag.autoTagPrompt;
     
     await generateClassifierTuningFile({
       description: `Train tag ${tag.slug}: ${tagPrompt}`,
       posts: trainingSet,
+      postBodyCache: postBodyCacheTrain,
       outputFilename: `ml/tagClassification.${tag.slug}.train.jsonl`,
       promptSuffix: tagPrompt,
       classifyPost: (post: DbPost) => (
@@ -208,6 +232,7 @@ Globals.generateTagClassifierData = async () => {
     await generateClassifierTuningFile({
       description: `Test tag ${tag.slug}: ${tagPrompt}`,
       posts: testSet,
+      postBodyCache: postBodyCacheTest,
       outputFilename: `ml/tagClassification.${tag.slug}.test.jsonl`,
       promptSuffix: tagPrompt,
       classifyPost: (post: DbPost) => (
@@ -286,6 +311,7 @@ Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilenam
 
 Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   const posts = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
   const postsById = keyBy(posts, post=>post._id);
   const openAIApi = await getOpenAI();
@@ -299,13 +325,13 @@ Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, out
     sb.push(text);
   }
   
-  console.log(`Evaluating front-page classification for ${posts.length} posts`);
+  console.log(`Evaluating front-page classification for ${posts.length} posts`); //eslint-disable-line no-console
   for (let post of shuffle(posts)) {
     humanFrontpagedIt[post._id] = !!post.frontpageDate;
     try {
       const languageModelResult = await openAIApi.createCompletion({
         model: frontpageModel,
-        prompt: await postToPrompt(post, frontpagePrompt),
+        prompt: await postToPrompt({template, post, promptSuffix: frontpagePrompt}),
         max_tokens: 1,
       });
       const completion = languageModelResult.data.choices[0].text!;
@@ -316,7 +342,7 @@ Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, out
     }
   }
   
-  console.log(`Finished evaluations.`);
+  console.log(`Finished evaluations.`); //eslint-disable-line no-console
   
   const sb: string[] = [];
   const agreements = filter(testSetPostIds, postId=>languageModelFrontpagedIt[postId]===humanFrontpagedIt[postId]);
@@ -343,6 +369,13 @@ Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, out
   sb.push(listPosts(filter(testSetPostIds, postId=>languageModelHadError[postId])));
   fs.writeFileSync(outputFilename, sb.join(''));
 }
+
+async function printLanguageModelTemplate(templateName: string) {
+  const template = await wikiSlugToTemplate("lm-config-autotag");
+  //eslint-disable-next-line no-console
+  console.log(JSON.stringify(template));
+}
+Globals.printLanguageModelTemplate = printLanguageModelTemplate;
 
 Globals.weightedPartition = weightedPartition;
 Globals.generateCandidateSetsForTagClassification = generateCandidateSetsForTagClassification;

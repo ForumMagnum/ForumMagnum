@@ -1,4 +1,4 @@
-import { getOpenAI, wikiPageToTemplate, substituteIntoTemplate } from './languageModelIntegration';
+import { LanguageModelTemplate, getOpenAI, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { truncate } from '../../lib/editor/ellipsize';
 import { dataToMarkdown, htmlToMarkdown } from '../editor/conversionUtils';
@@ -7,6 +7,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
+import { cheerioParse } from '../utils/htmlUtil';
 
 /**
  * To set up automatic tagging:
@@ -23,7 +24,7 @@ import { Users } from '../../lib/collections/users/collection';
  *       max-length-tokens: 2040
  *       max-length-truncate-field: text
  *
- *       ${title}
+ *       ${title}${linkpostMeta}
  *
  *       ${text}
  *
@@ -61,7 +62,7 @@ import { Users } from '../../lib/collections/users/collection';
  *    This step is memory-intensive (currently it just loads the whole data set
  *    into memory at once). If it runs out of memory, you may need to configure
  *    node to have a heap-size limit larger than the default of 4GB with:
- *        export NODE_OPTIONS="--max-old-space-size=16000"
+ *        export NODE_OPTIONS="--max_old_space_size=16000"
  *    This will generate two files for each tag,
  *        named ml/tagClassification.TAG.{train,test}.jsonl
  *    Take a look at a few of these and make sure they look right.
@@ -72,43 +73,6 @@ import { Users } from '../../lib/collections/users/collection';
 const bodyWordCountLimit = 1500;
 const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
 
-/*export const tagClassifiers = {
-  "rationality": {
-    prompt: "Is this post about rationality techniques, reasoning techniques, heuristics and biases, or something widely applicable?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-21-47-36",
-    finetuneID: "ft-USVX58sWUQPzgYd46Bc86nrr",
-  },
-  "world-modeling": {
-    prompt: "Is this post about understanding something in the physical world, excluding rationality techniques and AI?",
-    finetuneModel: "babbage:ft-personal-2022-12-08-02-41-08",
-    finetuneID: "ft-i1awtIVhtHdGgen0j5I8CPWG",
-  },
-  "world-optimization": {
-    prompt: "Is this post about strategies for being more effective, making the world better, or acquiring leverage?",
-    finetuneModel: "babbage:ft-personal-2022-12-08-03-43-09",
-    finetuneID: "ft-1aQFhsCwx97oySUTBXFlq0Uw",
-  },
-  "community": {
-    prompt: "Is this post about the rationalist community dynamics, events, people or gossip?",
-    finetuneModel: "babbage:ft-personal-2022-12-08-01-40-46",
-    finetuneID: "ft-m8qvYbS6EbnagXVz418N1KaB",
-  },
-  "practical": {
-    prompt: "Is this post about something you could apply in day to day life, life hacks, or productivity techniques?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-22-48-29",
-    finetuneID: "ft-o9jEgvlssJxABgig6VrIS0ex",
-  },
-  "ai": {
-    prompt: "Is this post about artificial intelligence or machine learning?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-07-55-15",
-    finetuneID: "ft-Zm4L7U6LP3Izt4q4qGMAYmXs",
-  },
-  "covid-19": {
-    prompt: "Is this post about the COVID-19 pandemic?",
-    finetuneModel: "babbage:ft-personal-2022-12-07-23-49-16",
-    finetuneID: "ft-c7fWn5rmGIGtHZzDaUwLaN3C",
-  },
-};*/
 
 /**
  * Strip links from HTML, for purposes of preparing a post to feed into a language
@@ -116,35 +80,61 @@ const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels
  * links don't chew up too much of the context window/length limit.
  */
 function stripLinksFromHTML(html: string): string {
-  return html; // TODO
+  const $ = cheerioParse(html) as any;
+  $('a').contents().unwrap();
+  return $.html();
 }
 
-export async function postToPrompt(post: DbPost, promptSuffix: string): Promise<string> {
-  const wikiConfig = await Tags.findOne({slug: "lm-config-autotag"});
-  if (!wikiConfig) throw new Error("No LM config page for autotagging");
-  const {header, template} = wikiPageToTemplate(wikiConfig);
+export async function postToPrompt({template, post, promptSuffix, postBodyCache}: {
+  template: LanguageModelTemplate,
+  post: DbPost,
+  promptSuffix: string
+  // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
+  postBodyCache?: PostBodyCache
+}): Promise<string> {
+  const {header, body} = template;
   
-  const markdownPostBody = dataToMarkdown(post.contents?.originalContents?.data, post.contents?.originalContents?.type);
-  //const truncatedPostBody = truncate(markdownPostBody, bodyWordCountLimit, "words", "...").substring(0,3000);
+  const markdownPostBody = postBodyCache?.preprocessedBody?.[post._id] ?? preprocessPostBody(post);
+  
+  const linkpostMeta = post.url ? `\nThis is a linkpost for ${post.url}` : '';
+  
   return substituteIntoTemplate({
     template,
     maxLengthTokens: parseInt(header["max-length-tokens"]),
     truncatableVariable: "text",
     variables: {
       title: post.title,
+      linkpostMeta,
       text: markdownPostBody,
       tagPrompt: promptSuffix,
     }
   });
 }
 
+function preprocessPostBody(post: DbPost): string {
+  const postHtml = post.contents?.html;
+  const markdownPostBody = postHtml ? dataToMarkdown(stripLinksFromHTML(postHtml), "html") : "";
+  return markdownPostBody;
+}
+
+export type PostBodyCache = {preprocessedBody: Record<string,string>}
+export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
+  const result = {preprocessedBody: {}};
+  for (let post of posts) {
+    result.preprocessedBody[post._id] = preprocessPostBody(post);
+  }
+  return result;
+}
+
 export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
+  const template = await wikiSlugToTemplate("lm-config-autotag");
+  
   let tagsApplied = {};
   
   for (let tag of tags) {
     const languageModelResult = await openAIApi.createCompletion({
       model: tag.autoTagModel,
-      prompt: await postToPrompt(post, tag.autoTagPrompt),
+      prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),
       max_tokens: 1,
     });
     const completion = languageModelResult.data.choices[0].text!;
