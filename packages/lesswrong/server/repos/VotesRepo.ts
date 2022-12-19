@@ -37,26 +37,27 @@ export default class VotesRepo extends AbstractRepo {
     collectionName: CollectionNameString,
     dataFields: string[],
   ): Promise<T[]> {
-    const powerField = af ? "afPower" : "power";
-    const scoreChangeFilter = showNegative ? "<> 0" : "> 0";
     return this.db.any(`
       SELECT
         v.*,
         '${collectionName}' AS "collectionName",
         ${dataFields.join(", ")}
       FROM (
-        SELECT "documentId" AS "_id", SUM("${powerField}") AS "scoreChange"
+        SELECT
+          "documentId" AS "_id",
+          SUM("${af ? "afPower" : "power"}") AS "scoreChange"
         FROM "Votes"
         WHERE
           ${af ? '"afPower" IS NOT NULL AND' : ''}
           "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
-          ("votedAt" >= $2 AND "votedAt" <= $3) AND
+          "votedAt" >= $2 AND
+          "votedAt" <= $3 AND
           "userId" <> $1 AND
           "collectionName" = '${collectionName}'
         GROUP BY "documentId", "_id"
       ) v
       JOIN "${collectionName}" data ON data."_id" = v."_id"
-      WHERE v."scoreChange" ${scoreChangeFilter}
+      WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0
     `, [userId, startDate, endDate]);
   }
 
@@ -65,7 +66,7 @@ export default class VotesRepo extends AbstractRepo {
       'data."contents"->>\'html\' AS "description"',
       'data."postId"',
       'data."tagId"',
-      'data."tagCommentType"'
+      'data."tagCommentType"',
     ]);
   }
 
