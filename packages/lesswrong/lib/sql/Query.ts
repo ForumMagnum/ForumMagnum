@@ -330,7 +330,7 @@ abstract class Query<T extends DbObject> {
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""} @> ${field}`];
+          return [`ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""} @> ARRAY[${field}]`];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
