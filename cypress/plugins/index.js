@@ -74,7 +74,13 @@ const dropAndSeedPostgres = async () => {
       dropExisting: true,
     }),
   });
-  const data = await result.json();
+
+  let data;
+  try {
+    data = await result.json();
+  } catch (e) {
+    throw new Error(`Failed to parse JSON response: ${await result.text()}`);
+  }
   if (data.status === "error") {
     throw new Error(data.message);
   }
