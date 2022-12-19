@@ -29,7 +29,7 @@ addGraphQLSchema(`
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
   relevance: { label: 'Most Relevant' },
-  ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
+  ...SORT_ORDER_OPTIONS
 }
 
 const schema: SchemaType<DbTag> = {
