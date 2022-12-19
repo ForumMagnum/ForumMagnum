@@ -31,7 +31,7 @@ export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
 
-const getSubforumScoreBoost = (): SubforumCommentBonus => {
+export const getSubforumScoreBoost = (): SubforumCommentBonus => {
   const defaultBonus = {...defaultSubforumCommentBonus};
   const bonus = subforumCommentBonusSetting.get();
   return Object.assign(defaultBonus, bonus);
