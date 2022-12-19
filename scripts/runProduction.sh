@@ -14,6 +14,8 @@ git clone https://$GITHUB_CREDENTIALS_REPO_USER:$GITHUB_CREDENTIALS_REPO_PAT@git
 if [ -n "$TRANSCRYPT_SECRET" ]; then
     echo "Using transcrypt to decrypt credentials"
     cd Credentials
+    echo "Current ForumCredentials commit:"
+    git rev-parse HEAD
     transcrypt -c aes-256-cbc -p "$TRANSCRYPT_SECRET" -y
     cd ..
 else
