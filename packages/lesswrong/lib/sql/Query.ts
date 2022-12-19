@@ -436,6 +436,12 @@ abstract class Query<T extends DbObject> {
       const name = expr.slice(1);
       return [this.resolveFieldName(name), "IS NOT NULL"];
     }
+    if (typeof expr === "object" && expr) {
+      const keys = Object.keys(expr);
+      if (keys[0][0] && keys[0][0] !== "$") {
+        return this.compileSelector(expr);
+      }
+    }
     return this.compileExpression(expr);
   }
 

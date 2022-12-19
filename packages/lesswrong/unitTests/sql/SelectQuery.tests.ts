@@ -265,6 +265,20 @@ describe("SelectQuery", () => {
       expectedArgs: ["default-value", 3],
     },
     {
+      name: "can build select with arbitrary expressions in $cond",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {
+        k: {
+          '$cond': {
+            if: {b: 3},
+            then: 4,
+            else: 5,
+          },
+        },
+      }}),
+      expectedSql: 'SELECT "TestCollection".* , (CASE WHEN "b" = $1 THEN $2 ELSE $3 END) ::INTEGER AS "k" FROM "TestCollection" WHERE "a" = $4',
+      expectedArgs: [3, 4, 5, 3],
+    },
+    {
       name: "can build select with arithmetic synthetic fields",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {
