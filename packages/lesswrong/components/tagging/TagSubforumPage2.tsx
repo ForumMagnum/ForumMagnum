@@ -173,6 +173,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   sidebarBoxWrapperDefaultPadding: {
     padding: "1em 1.5em",
   },
+  welcomeBox: {
+    paddingTop: 2,
+  },
   tableOfContentsWrapper: {
     padding: 24,
   },
@@ -541,7 +544,10 @@ const TagSubforumPage2 = ({classes}: {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
-      <div className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+      <div
+        className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)}
+        dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}}
+      />
     </ContentStyles>
   ) : null;
   const rightSidebarComponents = [
