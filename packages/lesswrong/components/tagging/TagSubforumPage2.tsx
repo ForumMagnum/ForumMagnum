@@ -575,13 +575,13 @@ const TagSubforumPage2 = ({classes}: {
     <LWTooltip
       title={
         canPostDiscussion
-          ? "Create a thread which will only appear in this subforum"
-          : "You must be a member of this subforum to create a thread"
+          ? "Create a discussion which will only appear in this subforum"
+          : "You must be a member of this subforum to create a discussion"
       }
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
       <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
       </SectionButton>
     </LWTooltip>
   );
@@ -676,6 +676,7 @@ const TagSubforumPage2 = ({classes}: {
                   comments={post.recentComments}
                   maxLengthWords={50}
                   refetch={refetch}
+                  smallerFonts
                 />
               </div>
             ),
