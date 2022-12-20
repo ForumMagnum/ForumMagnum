@@ -11,7 +11,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "f56d2f2c10b4b90a9e9ff9b08e98c3bc";
+export const acceptsSchemaHash = "9ff9e6371051f8d49cac5770b07dc0d8";
 
 import { FloatType } from "../../lib/sql/Type";
 import { getAllCollections } from "../vulcan-lib";

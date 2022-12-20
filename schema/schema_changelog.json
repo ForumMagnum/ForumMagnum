@@ -15,7 +15,7 @@
     "timestamp": "2022-12-13T15:39:54.000Z"
   },
   {
-    "acceptsSchemaHash": "f56d2f2c10b4b90a9e9ff9b08e98c3bc",
+    "acceptsSchemaHash": "9ff9e6371051f8d49cac5770b07dc0d8",
     "acceptedByMigration": "20221213T181144.fix_float_precision.ts",
     "timestamp": "2022-12-13T18:11:44.000Z"
   }
