@@ -9,6 +9,7 @@ export const up = async ({db}: MigrationContext) => {
         if (index.isUnique() || index.getPartialFilterExpression()) {
           try {
             await dropIndex(db, collection, index);
+            // eslint-disable-next-line no-empty
           } catch {}
           await createIndex(db, collection, index);
         }
