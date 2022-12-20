@@ -245,9 +245,9 @@ abstract class Query<T extends DbObject> {
     const ty = this.getField(unresolvedField);
     if (ty && ty.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), "])"];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${ty.toString()})`];
       } else if (op === "=") {
-        return [`${resolvedField} @> ARRAY[`, new Arg(value), "]"];
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${ty.toString()}`];
       } else {
         throw new Error(`Invalid array operator: ${op}`);
       }
@@ -330,7 +330,8 @@ abstract class Query<T extends DbObject> {
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""} @> ARRAY[${field}]`];
+          const hint = typeHint ? typeHint + "[]" : "";
+          return [`ARRAY[`, ...args, `]${hint} @> ARRAY[${field}]${hint}`];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
