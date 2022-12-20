@@ -157,8 +157,11 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     ];
   }
 
-  let changedComments = await getKarmaChangesForComments(karmaChangesInCollectionPipeline, votesRepo, queryArgs);
-  let changedPosts = await getKarmaChangesForPosts(karmaChangesInCollectionPipeline, votesRepo, queryArgs);
+  const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
+    getKarmaChangesForComments(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
+    getKarmaChangesForPosts(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
+    getKarmaChangesForTagRevisions(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
+  ]);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
@@ -166,8 +169,6 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     comment.description = htmlToText.fromString(comment.description)
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
-
-  let changedTagRevisions = await getKarmaChangesForTagRevisions(karmaChangesInCollectionPipeline, votesRepo, queryArgs);
 
   // Fill in tag references
   const tagIdsReferenced = new Set<string>();
