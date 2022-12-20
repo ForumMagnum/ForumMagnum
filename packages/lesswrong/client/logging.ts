@@ -4,10 +4,10 @@ import { routerOnUpdate } from '../components/hooks/useOnNavigate';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil, userChangedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
-import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
+import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting, forumTypeSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
-import datadogRum, { configureDatadogRum } from './datadogRum';
+import { configureDatadogRum } from './datadogRum';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()

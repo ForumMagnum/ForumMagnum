@@ -1,5 +1,6 @@
 import { datadogRum } from '@datadog/browser-rum';
-import { getUserEmail } from '../lib/collections/users/helpers';
+import { getDatadogUser } from '../lib/collections/users/helpers';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 datadogRum.init({
   applicationId: '2e902643-baff-466d-8882-db60acbdf13b',
@@ -23,13 +24,10 @@ datadogRum.init({
 });
 
 export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | null) {
-  // Set the user which will appear in traces
-  datadogRum.setUser(user ? {
-    id: user._id,
-    email: getUserEmail(user),
-    name: user.displayName,
-    slug: user.slug,
-  } : {});
+  if (forumTypeSetting.get() !== 'EAForum') return
+
+  // Set the user which will appear in traces. This info should match what
+  datadogRum.setUser(user ? getDatadogUser(user) : {});
 
   if (user && !user.allowDatadogSessionReplay) {
     // eslint-disable-next-line no-console

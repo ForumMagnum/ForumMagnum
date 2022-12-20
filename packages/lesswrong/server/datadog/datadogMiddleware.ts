@@ -1,3 +1,4 @@
+import { getDatadogUser } from '../../lib/collections/users/helpers'
 import tracer from './tracer'
 
 /**
@@ -11,7 +12,7 @@ export const datadogMiddleware = (req, res, next) => {
     const rootSpan = span.context()._trace.started[0]
     const user = req.user
     if (user) {
-      rootSpan.setTag('usr', {id: user._id, name: user.displayName, email: user.email, slug: user.slug})
+      rootSpan.setTag('usr', getDatadogUser(user))
     }
   }
 
