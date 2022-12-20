@@ -245,68 +245,6 @@ export const JOB_AD_DATA = {
       </div>
     </>
   },
-  'marketing-humane-league': {
-    occupationName: 'Communications/Marketing',
-    tagId: 'mPDquzDnkBkgi2iKR', // Marketing
-    logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
-    occupation: 'marketing',
-    feedbackLinkPrefill: 'Head+of+Development,+UK+at+The+Humane+League+UK',
-    bitlyLink: "https://efctv.org/3VsAP9K",
-    role: 'Head of Development, UK',
-    org: 'The Humane League UK',
-    orgSlug: 'the-humane-league',
-    salary: '€58k+',
-    location: 'Remote (UK-centric)',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://thehumaneleague.org.uk/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          The Humane League UK
-        </a> is an organization working to improve <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/animal-welfare-1")} innerHTML="animal welfare"/>
-        </span> standards via corporate campaigns and grassroots outreach.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have at least 5 years experience managing a team and working with large donors</li>
-          <li>Are strong communicators with exceptional interpersonal skills</li>
-          <li>Are passionate about The Humane League's mission of ending the abuse of animals raised for food</li>
-        </ul>
-      </div>
-    </>
-  },
-  'data-science-epoch': {
-    occupationName: 'Data science/Data visualization',
-    tagId: 'M56s5yFziKvHFhNKk', // Data science
-    logo: 'https://80000hours.org/wp-content/uploads/2022/07/Epoch-logo-160x160.png',
-    occupation: 'data science',
-    feedbackLinkPrefill: 'Research+Data+Analyst+at+Epoch',
-    bitlyLink: "https://efctv.org/3Vol57K",
-    role: 'Research Data Analyst',
-    org: 'Epoch',
-    orgSlug: 'epoch',
-    salary: '$60k - $70k',
-    location: 'Remote',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://epochai.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Epoch
-        </a> is a research initiative working on investigating trends in machine learning and <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/forecasting")} innerHTML="forecasting"/>
-        </span> the development of <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/transformative-artificial-intelligence")} innerHTML="transformative AI"/>
-        </span>.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have experience working with data in Python and Pandas</li>
-          <li>Have a strong familiarity with machine learning methods and developments</li>
-          <li>Are highly self-directed and passionate about machine learning research</li>
-        </ul>
-      </div>
-    </>
-  },
   'people-ops-open-phil': {
     occupationName: 'HR/People operations',
     logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
@@ -400,32 +338,6 @@ export const JOB_AD_DATA = {
             </a>”
           </li>
           <li>Are able to improvise and pivot quickly when priorities shift</li>
-        </ul>
-      </div>
-    </>
-  },
-  'policy-training-for-good': {
-    occupationName: 'Policymaking/Civil service',
-    tagId: 'of9xBvR3wpbp6qsZC', // Policy
-    logo: 'https://80000hours.org/wp-content/uploads/2022/11/Training-for-Good-1-160x160.png',
-    occupation: 'policy',
-    feedbackLinkPrefill: 'EU+Tech+Policy+Fellowship+at+Training+for+Good',
-    bitlyLink: "https://efctv.org/3B3cVJL",
-    role: 'EU Tech Policy Fellowship',
-    org: 'Training for Good',
-    orgSlug: 'training-for-good',
-    salary: 'Stipend up to €2,250 per month',
-    location: 'Brussels, Belgium',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        This is an 8-month programme for early-career policy makers intent on improving the world. You must be an EU citizen to apply.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have at least an undergraduate degree, preferably related to AI/computer science and/or public policy or European law</li>
-          <li>Are willing to work hard and be patient yet proactive in their pursuit of policy change</li>
-          <li>Are passionate about AI or related emerging technologies</li>
         </ul>
       </div>
     </>
