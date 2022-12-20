@@ -49,7 +49,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: theme.palette.background.primaryDim2,
+    backgroundColor: theme.palette.background.primaryDim,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -134,7 +134,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
-const dimBackground = requireCssVar("palette", "background", "primaryDim2");
+const dimBackground = requireCssVar("palette", "background", "primaryDim");
 
 const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,

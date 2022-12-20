@@ -110,4 +110,8 @@ import './2022-10-25-fillUserTheme'
 import './2022-11-08-rehostPostImages'
 import './2022-11-28-populateApprovalVoteCount'
 import './2022-12-02-updateSubforumNotificationDefaults'
+<<<<<<< HEAD
 import './2022-12-13-defaultSessionReplay'
+=======
+import './2022-12-15-addDadTagSettings'
+>>>>>>> ad937d946620c095f032575d9b5410ba03a0b43a

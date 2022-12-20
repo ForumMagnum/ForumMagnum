@@ -2040,6 +2040,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
   readonly isSubforum: boolean,
+  readonly subforumModeratorIds: Array<string>,
   readonly tableOfContents: any,
   readonly subforumWelcomeText: TagSubforumFragment_subforumWelcomeText|null,
 }

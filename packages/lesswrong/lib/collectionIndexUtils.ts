@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { isServer, isAnyTest } from './executionEnvironment';
+import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
 
 export type IndexDefinition = {
   key: Record<string, 1>,
@@ -58,7 +58,7 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
 
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (isServer && !isAnyTest) {
+  if (isServer && !isAnyTest && !isMigrations) {
     const buildIndex = async () => {
       if (!collection.isConnected())
         return;
