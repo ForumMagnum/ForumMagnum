@@ -9,6 +9,7 @@ declare global {
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
   let estrellaPid: number;
+  let ddEnv: string;
 }
 
 export const isClient = !bundleIsServer
