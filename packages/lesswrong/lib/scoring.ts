@@ -51,8 +51,8 @@ const getSubforumCommentBonus = (item: VoteableType) => {
 }
 
 // NB: If you want to change this algorithm, make sure to also change the
-// modifier functions below, and the SQL in updateScores.ts (untill the refactor
-// is that is definitely immenent and will not get put off I'm sure ;)
+// modifier functions below, and the SQL in updateScores.ts (until the refactor
+// that is definitely immenent and will not get put off I'm sure ;)
 export const recalculateScore = (item: VoteableType) => {
   // Age Check
   if ((item as any).postedAt) {
