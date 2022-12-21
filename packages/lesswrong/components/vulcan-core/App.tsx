@@ -8,7 +8,7 @@ import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
-import { userIdentifiedCallback } from '../../lib/analyticsEvents';
+import { userChangedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
@@ -37,12 +37,10 @@ class App extends PureComponent<AppProps,any> {
   
   constructor(props: AppProps) {
     super(props);
-    if (props.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
-        iterator: props.currentUser,
-        properties: [],
-      });
-    }
+    void userChangedCallback.runCallbacks({
+      iterator: props.currentUser,
+      properties: [],
+    });
     const locale = localeSetting.get();
     this.state = {
       locale,
@@ -89,8 +87,8 @@ class App extends PureComponent<AppProps,any> {
   }
 
   UNSAFE_componentWillUpdate(nextProps: AppProps) {
-    if (!this.props.currentUser && nextProps.currentUser) {
-      void userIdentifiedCallback.runCallbacks({
+    if (this.props.currentUser?._id !== nextProps.currentUser?._id) {
+      void userChangedCallback.runCallbacks({
         iterator: nextProps.currentUser,
         properties: [],
       });
