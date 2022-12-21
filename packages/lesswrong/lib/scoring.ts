@@ -30,6 +30,7 @@ export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
 export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
+export const SCORE_BIAS = 2;
 
 export const getSubforumScoreBoost = (): SubforumCommentBonus => {
   const defaultBonus = {...defaultSubforumCommentBonus};
@@ -70,7 +71,7 @@ export const recalculateScore = (item: VoteableType) => {
     baseScore = baseScore + frontpageBonus + curatedBonus + subforumBonus;
 
     // HN algorithm
-    const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
+    const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
 
     return newScore;
   } else {
@@ -87,7 +88,7 @@ export const timeDecayExpr = () => {
         ]},
         60 * 60 * 1000
       ] }, // Age in hours
-      2
+      SCORE_BIAS,
     ]},
     TIME_DECAY_FACTOR.get()
   ]}

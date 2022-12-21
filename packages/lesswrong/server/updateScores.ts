@@ -6,6 +6,7 @@ import {
   commentScoreModifiers,
   TIME_DECAY_FACTOR,
   getSubforumScoreBoost,
+  SCORE_BIAS,
 } from '../lib/scoring';
 import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
@@ -17,7 +18,7 @@ const INACTIVITY_THRESHOLD_DAYS = 30;
 
 const getSingleVotePower = () =>
   // score increase amount of a single vote after n days (for n=100, x=0.000040295)
-  1 / Math.pow((INACTIVITY_THRESHOLD_DAYS * 24) + 2, TIME_DECAY_FACTOR.get());
+  1 / Math.pow((INACTIVITY_THRESHOLD_DAYS * 24) + SCORE_BIAS, TIME_DECAY_FACTOR.get());
 
 /*
 
@@ -232,9 +233,9 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
         "postedAt" < CURRENT_TIMESTAMP AND
         ${inactive ? '"inactive" = TRUE' : '("inactive" = FALSE OR "inactive" IS NULL)'}
     ) q, LATERAL (SELECT
-      "baseScore" / POW(${ageHours} + 2, $3) AS "newScore"
+      "baseScore" / POW(${ageHours} + $3, $4) AS "newScore"
     ) ns
-  `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, TIME_DECAY_FACTOR.get()]);
+  `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()]);
 }
 
 const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) =>
