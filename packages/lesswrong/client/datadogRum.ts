@@ -3,8 +3,6 @@ import { getDatadogUser } from '../lib/collections/users/helpers';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 
-console.log(ddRumSampleRate.get())
-
 datadogRum.init({
   applicationId: '2e902643-baff-466d-8882-db60acbdf13b',
   clientToken: 'puba413e9fd2759b4b17c1909d396ba122a',
