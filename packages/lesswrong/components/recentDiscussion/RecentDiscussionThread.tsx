@@ -126,20 +126,17 @@ const RecentDiscussionThread = ({
   classes: ClassesType,
 }) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const { isRead, recordPostView } = useRecordPostView(post);
-  const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
+  const { recordPostView } = useRecordPostView(post);
 
   const markAsRead = useCallback(
     () => {
-      setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
       recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
     },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
+    [setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
   );
   const showHighlight = useCallback(
     () => {
@@ -169,7 +166,6 @@ const RecentDiscussionThread = ({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
     highlightDate: lastVisitedAt,
     refetch: refetch,
     condensed: true,
