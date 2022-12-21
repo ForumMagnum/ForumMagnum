@@ -5,6 +5,7 @@ export type IndexDefinition = {
   key: Record<string, 1>,
   partialFilterExpression?: Record<string, any>,
   unique?: boolean,
+  name?: string,
 }
 
 export const expectedIndexes: Partial<Record<CollectionNameString, Array<IndexDefinition>>> = {};
@@ -52,6 +53,7 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
     key: index,
     partialFilterExpression: options.partialFilterExpression,
     unique: options.unique,
+    name: options.name,
   });
   void ensureIndexAsync(collection, index, options);
 }

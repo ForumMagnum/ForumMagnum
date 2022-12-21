@@ -159,8 +159,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
-    const fields = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
-    const index = this.table.getIndex(fields, options) ?? this.getTable().addIndex(fields, options);
+    const key: Record<string, 1 | -1> = typeof fieldOrSpec === "string" ? {[fieldOrSpec]: 1} : fieldOrSpec;
+    const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
     await this.executeQuery(query, {fieldOrSpec, options})
   }
