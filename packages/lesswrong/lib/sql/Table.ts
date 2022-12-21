@@ -80,7 +80,10 @@ class Table {
 
     const indexes = expectedIndexes[collection.collectionName] ?? [];
     for (const index of indexes) {
-      table.addIndex(Object.keys(index.key));
+      table.addIndex(Object.keys(index.key), {
+        unique: !!index.unique,
+        partialFilterExpression: index.partialFilterExpression,
+      });
     }
 
     return table;

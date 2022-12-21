@@ -58,11 +58,11 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       result = await client.any(sql, args);
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
-      const {collectionName} = this as unknown as CollectionBase<T>;
+      const {collectionName} = this;
       debugData = util.inspect({collectionName, ...debugData}, {depth: null});
       const {sql, args} = query.compile();
       // eslint-disable-next-line no-console
-      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
+      console.error(`SQL Error for ${collectionName}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
       throw error;
     } finally {
       executingQueries--;
@@ -173,11 +173,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
           const result = await this.executeQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
+          const {collectionName} = this;
           // If you see this, you probably built a bad aggregation pipeline, or
           // this file has a bug, or you're using an unsupported aggregation
           // pipeline operator
           // eslint-disable-next-line no-console
-          console.error("Aggregate error:", e, ":", util.inspect(pipeline, {depth: null}));
+          console.error("Aggregate error:", collectionName, ":", e, ":", util.inspect(pipeline, {depth: null}));
           throw e;
         }
       },
