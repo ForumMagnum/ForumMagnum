@@ -1861,6 +1861,7 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
+  readonly autoApplied: boolean,
 }
 
 interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
