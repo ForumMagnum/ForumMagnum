@@ -1,6 +1,9 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { getDatadogUser } from '../lib/collections/users/helpers';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
+
+console.log(ddRumSampleRate.get())
 
 datadogRum.init({
   applicationId: '2e902643-baff-466d-8882-db60acbdf13b',
@@ -9,8 +12,9 @@ datadogRum.init({
   service:'eaforum-client',
   env: ddEnv,
   // version: '1.0.0',
-  sampleRate: 100,
-  sessionReplaySampleRate: 100,
+  tracingSampleRate: ddTracingSampleRate.get(),
+  sampleRate: ddRumSampleRate.get(),
+  sessionReplaySampleRate: ddSessionReplaySampleRate.get(),
   trackInteractions: true,
   trackResources: true,
   trackLongTasks: true,
@@ -21,7 +25,7 @@ datadogRum.init({
     "https://forum-staging.effectivealtruism.org"
     // TODO add LW domains here if they want to use datadog
   ]
-});
+})
 
 export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | null) {
   if (forumTypeSetting.get() !== 'EAForum') return
