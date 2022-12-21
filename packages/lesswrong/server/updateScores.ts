@@ -231,9 +231,9 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
         "postedAt" < CURRENT_TIMESTAMP AND
         ${inactive ? '"inactive" = TRUE' : '("inactive" = FALSE OR "inactive" IS NULL)'}
     ) q, LATERAL (SELECT
-      "baseScore" / POW(EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600 + 2, 1.08) AS "newScore"
+      "baseScore" / POW(EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600 + 2, $3) AS "newScore"
     ) ns
-  `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS]);
+  `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, TIME_DECAY_FACTOR.get()]);
 }
 
 const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) =>
