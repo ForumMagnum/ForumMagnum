@@ -218,12 +218,13 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
   const db = getSqlClientOrThrow();
   const singleVotePower = getSingleVotePower();
 
+  const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
   return db.any(`
     SELECT
       q.*,
       ns."newScore",
       ABS("score" - ns."newScore") > $1 AS "scoreDiffSignificant",
-      (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600) > ($2 * 24) AS "oldEnough"
+      (${ageHours}) > ($2 * 24) AS "oldEnough"
     FROM (
       SELECT ${getPgCollectionProjections(collectionName).join(", ")}
       FROM "${collectionName}"
@@ -231,7 +232,7 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
         "postedAt" < CURRENT_TIMESTAMP AND
         ${inactive ? '"inactive" = TRUE' : '("inactive" = FALSE OR "inactive" IS NULL)'}
     ) q, LATERAL (SELECT
-      "baseScore" / POW(EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600 + 2, $3) AS "newScore"
+      "baseScore" / POW(${ageHours} + 2, $3) AS "newScore"
     ) ns
   `, [singleVotePower, INACTIVITY_THRESHOLD_DAYS, TIME_DECAY_FACTOR.get()]);
 }
