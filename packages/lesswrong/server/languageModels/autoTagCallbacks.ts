@@ -45,7 +45,8 @@ import { cheerioParse } from '../utils/htmlUtil';
  * 4. If you don't already have one, create an OpenAI account at
  *    https://beta.openai.com/ and set up billing information. Get an API key
  *    from https://beta.openai.com/account/api-keys and put the API key in the
- *    database server setting `languageModels.openai.apiKey`.
+ *    database server setting `languageModels.openai.apiKey`. The API key
+ *    starts with `sk-`.
  *
  * 5. Generate lists of post IDs to use as train and test sets. Look at
  *    generateCandidateSetsForTagClassification in
@@ -61,13 +62,40 @@ import { cheerioParse } from '../utils/htmlUtil';
  *        scripts/serverShellCommand.sh 'Globals.generateTagClassifierData()'
  *    This step is memory-intensive (currently it just loads the whole data set
  *    into memory at once). If it runs out of memory, you may need to configure
- *    node to have a heap-size limit larger than the default of 4GB with:
- *        export NODE_OPTIONS="--max_old_space_size=16000"
+ *    node to have a heap-size limit larger than the default of 4GB. To do this,
+ *   edit `serverCli` in `build.js` to add the option
+ *        `--max_old_space_size=16000`
  *    This will generate two files for each tag,
  *        named ml/tagClassification.TAG.{train,test}.jsonl
  *    Take a look at a few of these and make sure they look right.
  *
- * 7.
+   7. Install the OpenAI command-line API (if it isn't already installed.) with:
+           pip install --upgrade openai
+      (Depending on your system this might be `pip3` instead. If this succeeds
+      you should be able to run `openai` from the command ine in any directory.)
+ *
+ * 8. Run fine-tuning jobs. First put the API key into your environment, then start the fine-tuning job using the OpenAI CLI.
+          export OPENAI_API_KEY=YOURAPIKEYHERE
+          openai api fine_tunes.create \
+            -m babbage --compute_classification_metrics --classification_positive_class " yes" \
+            -t ml/tagClassification.${TAG}.train.jsonl \
+            -v ml/tagClassification.${TAG}.test.jsonl
+      Substituting in ${TAG}, and repeat for each tag.
+ *
+ * 9. Retrieve the fine-tuned model IDs. Run
+ *        openai api fine_tunes.list
+ *    This will output a list of fine-tuned models you've created. The field
+ *    you want is named `fine_tuned_model` and looks like
+ *        babbage:ft-personal-YYYY-MM-DD-HH-mm-ss
+ *    For each tag, find the corresponding model ID, go to the corresponding tag
+ *    page, and put the model ID in the "auto-tag classifier model ID" field.
+ *
+ * 10. Generate a comparison list between human-applied and auto-applied tags for
+ *     the test set.
+ *        scripts/serverShellCommand.sh 'Globals.evaluateTagModels("ml/tagClassificationPostIds.test.json", "ml/tagClassificationTestSetResults.txt")'
+ *     This produces a text file ml/tagClassificationTestSetResults.txt with a
+ *     list of post titles/links, how humans tagged them, and how the trained
+ *     models tagged them. Make sure this looks reasonable.
  */
 
 const bodyWordCountLimit = 1500;
@@ -75,11 +103,16 @@ const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels
 
 
 /**
- * Strip links from HTML, for purposes of preparing a post to feed into a language
- * model for classification. We do this prior to Markdown conversion, so that
- * links don't chew up too much of the context window/length limit.
+ * Preprocess HTML before converting to markdown to be then converted into a
+ * language model prompt. Strips links, and replaces images with their alt text
+ * or with "IMAGE". We do this to prevent URLs (which tend to be long, and
+ * uninformative, and prone to future distribution shifts if we change how our
+ * image hosting works) from chewing up limited context-window space.
+ *
+ * TODO: Replace images with their alt text
+ * TODO: Replace any Unicode characters that are going to cause trouble for the GPT-3 tokenizer
  */
-function stripLinksFromHTML(html: string): string {
+function preprocessHtml(html: string): string {
   const $ = cheerioParse(html) as any;
   $('a').contents().unwrap();
   return $.html();
@@ -113,7 +146,7 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache}
 
 function preprocessPostBody(post: DbPost): string {
   const postHtml = post.contents?.html;
-  const markdownPostBody = postHtml ? dataToMarkdown(stripLinksFromHTML(postHtml), "html") : "";
+  const markdownPostBody = postHtml ? dataToMarkdown(preprocessHtml(postHtml), "html") : "";
   return markdownPostBody;
 }
 
@@ -160,16 +193,24 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
 
 async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
-  if (!api) return;
+  if (!api) {
+    //eslint-disable-next-line no-console
+    console.log("Skipping autotagging (API not configured)");
+    return;
+  }
   const tagBot = await getTagBotAccount(context);
-  if (!tagBot) return;
+  if (!tagBot) {
+    //eslint-disable-next-line no-console
+    console.log("Skipping autotagging (no tag-bot account)");
+    return;
+  }
   
   const tags = await getAutoAppliedTags();
+  const tagsApplied = await checkTags(post, tags, api);
   
   //eslint-disable-next-line no-console
-  console.log(`Auto-applying tags to post ${post.title} (${post._id})`);
+  console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
   
-  const tagsApplied = await checkTags(post, tags, api);
   for (let tag of tags) {
     if (tagsApplied[tag.slug]) {
       await addOrUpvoteTag({

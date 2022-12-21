@@ -147,6 +147,7 @@ import './server/fmCrosspost/routes';
 
 import './server/spotlightCron';
 
+import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';
 import './server/languageModels/postSummaryResolver';
 
