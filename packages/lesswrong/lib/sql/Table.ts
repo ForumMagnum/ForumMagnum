@@ -43,8 +43,8 @@ class Table {
     return Object.keys(this.fields).length;
   }
 
-  addIndex(fields: string[], options?: MongoEnsureIndexOptions) {
-    const index = new TableIndex(this.name, fields, options);
+  addIndex(key: Record<string, 1 | -1>, options?: MongoEnsureIndexOptions) {
+    const index = new TableIndex(this.name, key, options);
     this.indexes.push(index);
     return index;
   }
@@ -80,7 +80,8 @@ class Table {
 
     const indexes = expectedIndexes[collection.collectionName] ?? [];
     for (const index of indexes) {
-      table.addIndex(Object.keys(index.key), {
+      table.addIndex(index.key, {
+        name: index.name,
         unique: !!index.unique,
         partialFilterExpression: index.partialFilterExpression,
       });
