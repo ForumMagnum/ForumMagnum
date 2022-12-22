@@ -163,6 +163,7 @@ interface DbComment extends DbObject {
   moderatorHat: boolean
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
+  title: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string

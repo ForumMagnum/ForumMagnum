@@ -253,7 +253,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 FormGroupLayout: Components.DefaultStyleFormGroup
               }}
               alignmentForumPost={post?.af}
-              addFields={currentUser?[]:["contents"]}
+              addFields={currentUser ? [] : ["title", "contents"]}
               removeFields={removeFields}
               formProps={{
                 ...extraFormProps,

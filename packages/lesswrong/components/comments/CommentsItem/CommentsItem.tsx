@@ -10,7 +10,7 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
-import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
@@ -87,6 +87,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
+  withTitleMeta: {
+    paddingTop: ".3em",
+  },
   sideCommentMeta: {
     display: "flex",
     alignItems: "baseline",
@@ -133,6 +136,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[400],
     paddingTop: 10,
     marginBottom: '-3px'
+  },
+  title: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    flexGrow: 1,
+    marginTop: 8,
+    marginBottom: 0,
+    display: "block",
+    fontSize: '1.5rem',
+    lineHeight: '1.6em'
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -198,6 +211,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !showEditState)
+
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
     setShowReplyState(true);
@@ -256,12 +271,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return <Components.CommentBody
-        truncated={truncated}
-        collapsed={collapsed}
-        comment={comment}
-        postPage={postPage}
-      />
+      return (
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} />
+      );
     }
   }
 
@@ -393,8 +405,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </Link>}
         </div>
         <div className={classes.body}>
+          {showCommentTitle && <div className={classes.title}>{comment.title}</div>}
           <div className={classNames(classes.meta, {
             [classes.sideCommentMeta]: treeOptions.isSideComment,
+            [classes.withTitleMeta]: showCommentTitle,
           })}>
             {!parentCommentId && !comment.parentCommentId && isParentComment &&
               <div className={classes.usernameSpacing}>○</div>
