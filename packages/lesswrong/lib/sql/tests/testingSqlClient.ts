@@ -31,6 +31,8 @@ export const preparePgTables = () => {
 }
 
 const buildTables = async (client: SqlClient) => {
+  console.log('buildTables()')
+  console.log('collections.length', Collections.length)
   preparePgTables();
 
   for (let collection of Collections) {
@@ -38,6 +40,7 @@ const buildTables = async (client: SqlClient) => {
       collection = collection.getPgCollection() as unknown as CollectionBase<any>;
     }
     if (collection instanceof PgCollection) {
+      console.log('collection', collection.collectionName)
       const {table} = collection;
       const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
@@ -60,8 +63,11 @@ const buildTables = async (client: SqlClient) => {
           throw new Error(`Create index query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
         }
       }
+    } else {
+      console.log('not a pg collection', collection.collectionName)
     }
   }
+  console.log('done building tables')
 }
 
 const makeDbName = (id?: string) => {
@@ -74,6 +80,7 @@ const createTemporaryConnection = async () => {
   if (client) {
     return client;
   }
+  console.log('no sql client, creating one')
   const {PG_URL} = process.env;
   if (!PG_URL) {
     throw new Error("Can't initialize test DB - PG_URL not set");
@@ -92,12 +99,17 @@ export const createTestingSqlClient = async (
   // eslint-disable-next-line no-console
   console.log(`Creating test database '${dbName}'...`);
   let sql = await createTemporaryConnection();
+  console.log('temp connection created')
   if (dropExisting) {
+    console.log('dropping old')
     await sql.none(`DROP DATABASE IF EXISTS ${dbName}`);
+    console.log('dropped old')
   }
   await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  console.log('gonna connect to the temporary test testUrl', testUrl)
   sql = await createSqlConnection(testUrl);
+  console.log('got it')
   await buildTables(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);

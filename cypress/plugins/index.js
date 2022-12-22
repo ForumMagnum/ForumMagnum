@@ -65,6 +65,7 @@ const dropAndSeedMongo = async (url) => {
 }
 
 const dropAndSeedPostgres = async () => {
+  console.log('drop and seed postgres, cypress side, before fetch')
   const result = await fetch("http://localhost:3000/api/dropAndCreatePg", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -74,6 +75,7 @@ const dropAndSeedPostgres = async () => {
       dropExisting: true,
     }),
   });
+  console.log('result has come back, back in client', result)
 
   let data;
   try {
@@ -81,7 +83,7 @@ const dropAndSeedPostgres = async () => {
   } catch (e) {
     throw new Error(`Failed to parse JSON response: ${await result.text()}`);
   }
-  if (data.status === "error") {
+  if (data.status !== "ok") {
     throw new Error(data.message);
   }
 }
@@ -90,6 +92,7 @@ const dropAndSeedPostgres = async () => {
 module.exports = (on, config) => {
   on('task', {
     async dropAndSeedDatabase() {
+      console.log('task entry')
       await Promise.all([
         dropAndSeedMongo(config.env.TESTING_DB_URL),
         dropAndSeedPostgres(),

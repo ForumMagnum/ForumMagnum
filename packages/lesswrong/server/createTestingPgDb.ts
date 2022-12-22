@@ -58,6 +58,7 @@ export const addCypressRoutes = (app: Application) => {
     const route = "/api/dropAndCreatePg";
     app.use(route, json({ limit: "1mb" }));
     app.post(route, async (req: Request, res: Response) => {
+      console.log('dropAndCreatePg, serverside')
       try {
         const {seed, templateId, dropExisting} = req.body;
         if (
@@ -69,6 +70,7 @@ export const addCypressRoutes = (app: Application) => {
           throw new Error(`Missing seed, templateId or dropExisting: ${JSON.stringify(req.body)}`);
         }
         await dropAndCreatePg({ seed, templateId, dropExisting });
+        console.log('dropAndCreatePg, serverside, done')
         res.status(200).send({status: "ok"});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});
