@@ -229,6 +229,7 @@ function tagToHeadingLevel(tagName: string): number
     return headingTags[lowerCaseTagName as keyof typeof headingTags];
   else if (lowerCaseTagName in headingIfWholeParagraph)
     // TODO: this seems wrong??? It's returning a boolean when it should be returning a number
+    // @ts-ignore
     return headingIfWholeParagraph[lowerCaseTagName as keyof typeof headingIfWholeParagraph];
   else
     return 0;

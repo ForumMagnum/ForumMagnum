@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
-import {SortableContainer, SortableElement, arrayMove, SortableContainerProps} from 'react-sortable-hoc';
-import type {SortEvent, SortEventWithTag} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+// These imports need to be separate to satisfy eslint, for some reason
+import type {SortableContainerProps, SortEvent, SortEventWithTag} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
 export const makeSortableListComponent = ({renderItem}: {

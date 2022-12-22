@@ -38,11 +38,21 @@ const FlashMessages = ({classes}: {
   return (
     <div className={classnames("flash-messages", classes.root)}>
       <Snackbar
-        open={messageObject && !messageObject.hide}
+        // @ts-ignore there is no hide property on the message props!
+        open={!!messageObject && !messageObject.hide}
         message={messageObject && messageObject.message}
         autoHideDuration={6000}
         onClose={clear}
-        action={messageObject?.action && <Button onClick={messageObject?.action} color="primary">{messageObject?.actionName || "UNDO"}</Button>}
+        action={
+          messageObject?.action &&
+          <Button
+            onClick={messageObject?.action}
+            color="primary"
+          >
+            {/* @ts-ignore there is no actionName property on the message props! */}
+            {messageObject?.actionName || "UNDO"}
+          </Button>
+        }
       />
     </div>
   );

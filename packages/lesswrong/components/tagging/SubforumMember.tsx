@@ -203,7 +203,9 @@ const SubforumMember = ({user, isOrganizer, classes}: {
           {user.mapLocation.formatted_address}
         </div>}
         {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
+          {Object
+            .keys(SOCIAL_MEDIA_PROFILE_FIELDS)
+            .map((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => socialMediaIcon(user, field, classes.socialMediaIcon))}
         </div>}
       </div>}
       {bioNode}

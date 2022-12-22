@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib'
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
 
 const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hidePostCount=false}:{
-  clickAction: (id: string) => void,
+  clickAction: (id: string, tag: AlgoliaTag | null) => void,
   placeholder?: string,
   hidePostCount?: boolean
 }) => {
