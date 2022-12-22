@@ -1091,6 +1091,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
   readonly subforumTagId: string,
+  readonly sideComments: any,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1244,6 +1245,7 @@ interface ShortformComments extends CommentsList { // fragment on Comments
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
+  readonly tag: TagBasicInfo|null,
   readonly post: PostsBase|null,
 }
 

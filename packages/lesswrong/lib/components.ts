@@ -410,6 +410,7 @@ importComponent("RecentDiscussionThread", () => require('../components/recentDis
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
 importComponent("RecentDiscussionTagRevisionItem", () => require('../components/recentDiscussion/RecentDiscussionTagRevisionItem'))
+importComponent("RecentDiscussionSubforumThread", () => require('../components/recentDiscussion/RecentDiscussionSubforumThread'))
 importComponent("RecentDiscussionSubscribeReminder", () => require('../components/recentDiscussion/RecentDiscussionSubscribeReminder'));
 importComponent("RecentDiscussionMeetupsPoke", () => require('../components/recentDiscussion/RecentDiscussionMeetupsPoke'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));

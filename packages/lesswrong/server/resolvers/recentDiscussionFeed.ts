@@ -4,6 +4,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
+import Comments from '../../lib/collections/comments/collection';
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -12,7 +13,7 @@ defineFeedResolver<Date>({
   resultTypesGraphQL: `
     postCommented: Post
     tagDiscussed: Tag
-    tagSubforumCommented: Tag
+    tagSubforumComments: Comment
     tagRevised: Revision
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
@@ -63,14 +64,28 @@ defineFeedResolver<Date>({
           },
         }),
         // Tags with subforum comments
+        // viewBasedSubquery({
+        //   type: "tagSubforumCommented",
+        //   collection: Tags,
+        //   sortField: "lastSubforumCommentAt",
+        //   context,
+        //   selector: {
+        //     _id: {$in: subforumTagIds},
+        //     lastSubforumCommentAt: {$exists: true},
+        //     ...(af ? {af: true} : undefined),
+        //   },
+        // }),
+        // Subforum comments
         viewBasedSubquery({
-          type: "tagSubforumCommented",
-          collection: Tags,
-          sortField: "lastSubforumCommentAt",
+          type: "tagSubforumComments",
+          collection: Comments,
+          sortField: "lastSubthreadActivity",
           context,
           selector: {
-            _id: {$in: subforumTagIds},
-            lastSubforumCommentAt: {$exists: true},
+            tagId: {$in: subforumTagIds},
+            tagCommentType: "SUBFORUM",
+            topLevelCommentId: {$exists: false},
+            subforumStickyPriority: {$exists: false},
             ...(af ? {af: true} : undefined),
           },
         }),
