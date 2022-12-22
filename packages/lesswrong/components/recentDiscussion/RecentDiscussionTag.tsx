@@ -29,6 +29,39 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
     fontSize: "1.75rem",
   },
+  subforumTitleRow: {
+    display: 'flex',
+    columnGap: 7,
+    marginBottom: 8,
+    '& svg': {
+      height: 20,
+      width: 20,
+      fill: theme.palette.grey[700]
+    }
+  },
+  subforumIcon: {
+    marginTop: 2
+  },
+  subforumTitleText: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+    columnGap: 12
+  },
+  subforumTitle: {
+    color: theme.palette.grey[900],
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 20,
+    lineHeight: '25px',
+  },
+  subforumSubtitle: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    lineHeight: '18px',
+    marginTop: 4,
+    marginLeft: 1
+  },
   tag: {
     paddingTop: 18,
     paddingLeft: 16,
@@ -67,7 +100,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   tagCommentType?: TagCommentType,
   classes: ClassesType
 }) => {
-  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
+  const { CommentsNode, ContentItemBody, ContentStyles, TopTagIcon } = Components;
   const isSubforum = tagCommentType === "SUBFORUM"
 
   const [truncated, setTruncated] = useState(true);
@@ -105,9 +138,17 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   return <div className={classes.root}>
     <div className={classes.tag}>
-      <Link to={isSubforum ? tagGetSubforumUrl(tag): tagGetDiscussionUrl(tag)} className={classes.title}>
-        {tag.name}{isSubforum && " Subforum"}
-      </Link>
+      {isSubforum ? <div className={classes.subforumTitleRow}>
+        <div className={classes.subforumIcon}>
+          <TopTagIcon tag={tag} />
+        </div>
+        <div className={classes.subforumTitleText}>
+          <Link to={tagGetSubforumUrl(tag)} className={classes.subforumTitle}>{tag.name}</Link>
+          <div className={classes.subforumSubtitle}>Subforum discussion</div>
+        </div>
+      </div> : <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
+        {tag.name}
+      </Link>}
       
       <div className={classes.metadata}>
         {!isSubforum && <span>{metadataWording}</span>}
@@ -136,6 +177,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
               comment={comment.item}
               childComments={comment.children}
               key={comment.item._id}
+              showParentDefault
             />
           </div>
         )}
