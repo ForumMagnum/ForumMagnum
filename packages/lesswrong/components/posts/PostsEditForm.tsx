@@ -11,8 +11,8 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
-import { PostSubmitProps } from './PostSubmit';
+import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, classes }: {
