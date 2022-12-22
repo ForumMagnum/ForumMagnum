@@ -642,7 +642,7 @@ const schema: SchemaType<DbComment> = {
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     order: 10,
     placeholder: "Title (optional)",
-    control: "EditTitle",
+    control: "EditCommentTitle",
     hidden: (props) => {
       // Currently only allow titles for top level subforum comments
       const comment = props?.document

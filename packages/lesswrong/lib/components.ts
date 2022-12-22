@@ -56,6 +56,7 @@ importComponent("LastEditedInWarning", () => require('../components/editor/LastE
 importComponent("LocalStorageCheck", () => require('../components/editor/LocalStorageCheck'));
 importComponent("EditorTypeSelect", () => require('../components/editor/EditorTypeSelect'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
+importComponent("EditCommentTitle", () => require('../components/editor/EditCommentTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
