@@ -154,7 +154,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
         </div>
         <div className={classes.subforumTitleText}>
           <Link to={tagGetSubforumUrl(tag)} className={classes.subforumTitle}>{tag.name}</Link>
-          <div className={classes.subforumSubtitle}>subforum discussion</div>
+          <div className={classes.subforumSubtitle}>Subforum discussion</div>
         </div>
       </div> : <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
         {tag.name}
