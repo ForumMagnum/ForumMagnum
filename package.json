@@ -215,7 +215,7 @@
     "intl": "^1.2.4",
     "io-ts": "^2.2.19",
     "jsdom": "^16.5.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
     "later": "^1.2.0",
     "logrocket": "^1.0.0",

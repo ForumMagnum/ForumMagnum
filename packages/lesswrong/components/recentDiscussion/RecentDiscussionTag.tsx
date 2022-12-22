@@ -105,7 +105,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
 
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
   const {recordTagView} = useRecordTagView(tag);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
@@ -114,15 +113,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
   
   const onClickEventType = isSubforum ? "recentDiscussionSubforumClick" : "recentDiscussionTagClick"
-  const markAsRead = useCallback(
-    () => {
-      setReadStatus(true);
-      setMarkedAsVisitedAt(new Date());
-      setExpandAllThreads(true);
-      recordTagView({tag, extraEventProperties: {type: onClickEventType}})
-    },
-    [recordTagView, tag, onClickEventType]
-  );
+
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
     setExpandAllThreads(true);
@@ -137,7 +128,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
     highlightDate: lastVisitedAt,
     tag: tag,
     condensed: true,
@@ -154,7 +144,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
         </div>
         <div className={classes.subforumTitleText}>
           <Link to={tagGetSubforumUrl(tag)} className={classes.subforumTitle}>{tag.name}</Link>
-          <div className={classes.subforumSubtitle}>subforum discussion</div>
+          <div className={classes.subforumSubtitle}>Subforum discussion</div>
         </div>
       </div> : <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
         {tag.name}
