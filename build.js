@@ -96,6 +96,7 @@ const bundleDefinitions = {
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
   "serverPort": getServerPort(),
+  "ddEnv": `\"${process.env.DD_ENV || "local"}\"`,
 };
 
 const clientBundleDefinitions = {

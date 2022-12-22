@@ -455,6 +455,7 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
+    sideComments
   }
 `);
 

@@ -141,6 +141,7 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    subforumModeratorIds
     tableOfContents
     subforumWelcomeText {
       _id

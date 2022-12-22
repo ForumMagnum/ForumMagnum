@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
+import { ckEditorName } from './Editor';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -91,7 +92,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       flash("Edit the document first to enable sharing");
       return;
     } else if(editorType !== "ckEditorMarkup") {
-      flash("Change the editor type to LessWrong Docs to enable sharing");
+      flash(`Change the editor type to ${ckEditorName} to enable sharing`);
       return;
     }
     
