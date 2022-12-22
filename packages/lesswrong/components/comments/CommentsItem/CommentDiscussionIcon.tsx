@@ -1,20 +1,27 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     color: theme.palette.grey[500],
-    width: 15,
-    height: 15,
+    width: 19,
+    height: 19,
     marginRight: 6,
     position: "relative",
+    top: 3
+  },
+  smallIcon: {
+    width: 15,
+    height: 15,
     top: 2
   }
 });
 
-const CommentDiscussionIcon = ({comment, classes}: {
+const CommentDiscussionIcon = ({comment, small = false, classes}: {
   comment: CommentsList,
+  small?: boolean,
   classes: ClassesType,
 }) => {
   const { LWTooltip } = Components
@@ -22,7 +29,7 @@ const CommentDiscussionIcon = ({comment, classes}: {
 
   return (
     <LWTooltip title="Discussion">
-      <QuestionAnswerIcon className={classes.icon} />
+      <QuestionAnswerIcon className={classNames(classes.icon, {[classes.smallIcon]: small})} />
     </LWTooltip>
   )
 }

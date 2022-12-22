@@ -409,7 +409,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </Link>}
         </div>
         <div className={classes.body}>
-          {showCommentTitle && <div className={classes.title}>{comment.title}</div>}
+          {showCommentTitle && <div className={classes.title}>
+            <CommentDiscussionIcon comment={comment} />
+            {comment.title}
+          </div>}
           <div className={classNames(classes.meta, {
             [classes.sideCommentMeta]: treeOptions.isSideComment,
             [classes.withTitleMeta]: showCommentTitle,
@@ -418,7 +421,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
-            {<CommentDiscussionIcon comment={comment} />}
+            {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
             {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}
