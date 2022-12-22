@@ -534,6 +534,14 @@ abstract class Query<T extends DbObject> {
       return this.compileExpression(expr[op]);
     }
 
+    if (op === "$floor") {
+      return ["FLOOR(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    if (op === "$avg") {
+      return ["AVG(", ...this.compileExpression(expr[op]), ")"];
+    }
+
     if (op === undefined) {
       return ["'{}'::JSONB"];
     }
