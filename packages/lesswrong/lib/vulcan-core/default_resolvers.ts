@@ -164,7 +164,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
   
   // Don't allow API requests with an offset provided >2000. This prevents some
   // extremely-slow queries.
-  if (terms.offset > maxAllowedSkip) {
+  if (terms.offset && (terms.offset > maxAllowedSkip)) {
     throw new Error("Exceeded maximum value for skip");
   }
   
