@@ -542,7 +542,7 @@ const TagSubforumPage2 = ({classes}: {
     </div>
   );
 
-  const subforumIntroBoxComponent = <SubforumIntroBox className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)} key={"intro_box"}/>
+  const subforumIntroBoxComponent = <SubforumIntroBox className={classNames(classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)} key={"intro_box"}/>
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
       <div
