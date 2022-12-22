@@ -4,11 +4,11 @@ import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { getSchema } from '../../lib/utils/getSchema';
-import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
-import { ColumnComponents } from './datatableTypes';
+import type { ColumnComponents } from './datatableTypes';
 
 export interface Column {
   name: string;

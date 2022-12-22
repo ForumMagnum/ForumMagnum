@@ -300,10 +300,6 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   return user.markDownPostEditor
 }
 
-export const userCanEdit = (currentUser: UsersProfile | DbUser | null, user: UsersMinimumInfo | DbUser | DbObject | HasUserIdType) => {
-  return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
-}
-
 export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: HasIdType|HasSlugType|UsersMinimumInfo|DbUser) => {
   // We allow users to call this function with basically "pretend" user objects
   // as the second argument. We know from inspecting userOwns that those pretend

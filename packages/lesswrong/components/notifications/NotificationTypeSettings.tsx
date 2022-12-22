@@ -6,7 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
-import { PickedTime } from '../common/BatchTimePicker';
+import type { PickedTime } from '../common/BatchTimePicker';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

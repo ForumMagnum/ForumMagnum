@@ -261,11 +261,11 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       const linkTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("a"));
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
-        const href = linkTag.getAttribute("href") ?? '';
-        if (linkIsExcludedFromPreview(href))
+        const href = linkTag.getAttribute("href");
+        if (!href || linkIsExcludedFromPreview(href))
           continue;
-        const id = linkTag.getAttribute("id") ?? '';
-        const rel = linkTag.getAttribute("rel") ?? '';
+        const id = linkTag.getAttribute("id") ?? undefined;
+        const rel = linkTag.getAttribute("rel") ?? undefined;
         const replacementElement = <Components.HoverPreviewLink
           href={href}
           innerHTML={tagContentsHTML}

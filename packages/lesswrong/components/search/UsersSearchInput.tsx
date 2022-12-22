@@ -3,7 +3,7 @@ import React from 'react';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import { InputBaseComponentProps } from '@material-ui/core/InputBase';
+import type { InputBaseComponentProps } from '@material-ui/core/InputBase';
 
 const styles = (theme: ThemeType): JssStyles => ({
   input: {

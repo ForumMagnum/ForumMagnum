@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { isMod } from '../../lib/collections/users/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { Column } from '../vulcan-core/Datatable';
+import type { Column } from '../vulcan-core/Datatable';
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,

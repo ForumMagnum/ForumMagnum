@@ -4,7 +4,7 @@ import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
 
 const UsersSearchAutoComplete = ({clickAction, label}: {
   clickAction: (id: string) => void;
-  label: string;
+  label?: string;
 }) => {
   return <Components.SearchAutoComplete
     indexName={getAlgoliaIndexName("Users")}

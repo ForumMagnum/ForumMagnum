@@ -7,12 +7,6 @@ const arrayToIndexMap = (arr: IndexType[]): Record<IndexType, number> =>
   Object.fromEntries(
     Object.entries(arr).map(([key, val]) => [val, parseInt(key)] as const)
   );
-  // TODO: verify that this is identical
-  // Object.keys(arr).reduce(function (map, idxStr) {
-  //   const idx = parseInt(idxStr);
-  //   map[arr[idx]] = idx;
-  //   return map;
-  // }, {});
 
 const indexMapToArray = (map: Record<IndexType, number>): IndexType[] => {
   const unsortedKeys = Object.keys(map);

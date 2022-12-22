@@ -130,7 +130,7 @@ class PickerImp {
     doCall();
   
     function doCall () {
-      callback.call(null, params, req, res, next); 
+      void callback.call(null, params, req, res, next); 
     }
   };
   

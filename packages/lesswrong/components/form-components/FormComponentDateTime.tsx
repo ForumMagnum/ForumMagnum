@@ -238,7 +238,7 @@ const FormComponentDateTime = ({ path, value, name, label, classes }: {
     if (date) context.updateCurrentValues({[path]: date})
   }
 
-  const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+  const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)
   const tzDate = date ? moment(date) : moment();
@@ -249,7 +249,6 @@ const FormComponentDateTime = ({ path, value, name, label, classes }: {
     </InputLabel>
     <div className={classes.wrapper}>
       <DateTimePicker
-        // TODO: DateTimePicker is complaining about the possibility of `null` for `value`, but it's been working?  What do?
         value={date}
         inputProps={{
           name:name,
