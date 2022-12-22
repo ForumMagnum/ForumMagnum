@@ -18,5 +18,10 @@
     "acceptsSchemaHash": "9ff9e6371051f8d49cac5770b07dc0d8",
     "acceptedByMigration": "20221213T181144.fix_float_precision.ts",
     "timestamp": "2022-12-13T18:11:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cb1d2762fdb5ec6a0e0b39181fa61912",
+    "acceptedByMigration": "20221222T104417.add_comment_title.ts",
+    "timestamp": "2022-12-22T10:44:17.000Z"
   }
 ]
