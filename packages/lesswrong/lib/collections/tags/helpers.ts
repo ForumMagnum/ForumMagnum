@@ -75,3 +75,10 @@ export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, ac
 export const subforumGetSubscribedUsers = async ({tagId}: {tagId: string}): Promise<DbUser[]> => {
   return await Users.find({profileTagIds: tagId}).fetch()
 }
+
+export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag: { subforumModeratorIds: string[] }) => {
+  if (!user) return false
+  if (user.isAdmin || user?.groups?.includes("sunshineRegiment")) return true
+  if (tag.subforumModeratorIds.includes(user._id)) return true
+  return false
+}

@@ -760,6 +760,17 @@ const schema: SchemaType<DbUser> = {
     // public settings aren't been loaded yet.
   },
 
+  acceptedTos: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    defaultValue: false,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+  },
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -1231,7 +1242,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "email", batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
   },
 
   // Karma-change notifier settings
@@ -2355,6 +2366,49 @@ const schema: SchemaType<DbUser> = {
     type: 'Object'
   }
 };
+
+/* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
+Object.assign(schema, {
+  experiencedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'experiencedIn.$': {
+    type: String,
+    optional: true
+  },
+  interestedIn: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: [userOwns, 'admins'],
+  },
+  'interestedIn.$': {
+    type: String,
+    optional: true
+  },
+})
+
+/* Privacy settings */
+Object.assign(schema, {
+  allowDatadogSessionReplay: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    label: "Allow Session Replay",
+    tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
+})
 
 /* Alignment Forum fields */
 Object.assign(schema, {

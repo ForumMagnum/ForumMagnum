@@ -48,6 +48,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       zIndex: 2,
       textAlign: "left",
     },
+
+    '& .form-component-EditorFormComponent': {
+      marginTop: 30
+    },
   
     "& .vulcan-form": {
       position: "absolute",

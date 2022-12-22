@@ -36,7 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: "500px"
   },
   content: {
-    padding: `0 ${theme.spacing.unit * 3}px`
+    padding: `0 ${theme.spacing.unit * 3}px`,
+    "& .MuiTypography-root": {
+      color: theme.palette.text.normal,
+    },
   },
   tabbar: {
     marginBottom: theme.spacing.unit * 3

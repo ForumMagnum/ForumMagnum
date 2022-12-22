@@ -71,8 +71,8 @@ describe("SelectQuery", () => {
     },
     {
       name: "can build select query with comparison against null",
-      getQuery: () => new SelectQuery(testTable, {a: null}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" IS NULL',
+      getQuery: () => new SelectQuery(testTable, {a: null, b: {$eq: null}, c: {$ne: null}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" IS NULL AND "b" IS NULL AND "c" IS NOT NULL )',
       expectedArgs: [],
     },
     {
@@ -114,13 +114,13 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$in: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[])',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[] @> ARRAY["a"]::DOUBLE PRECISION[]',
       expectedArgs: [1, 2, 3],
     },
     {
       name: "can build select query with not-in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$nin: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[]) )',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[] @> ARRAY["a"]::DOUBLE PRECISION[] )',
       expectedArgs: [1, 2, 3],
     },
     {
@@ -188,6 +188,12 @@ describe("SelectQuery", () => {
       getQuery: () => new SelectQuery(testTable, {a: 3, $comment: "Test comment"}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" = $1 )',
       expectedArgs: [3],
+    },
+    {
+      name: "can build select query with only a comment",
+      getQuery: () => new SelectQuery(testTable, {$comment: "Test comment"}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection"',
+      expectedArgs: [],
     },
     {
       name: "can build select from a subquery",
@@ -259,6 +265,20 @@ describe("SelectQuery", () => {
       expectedArgs: ["default-value", 3],
     },
     {
+      name: "can build select with arbitrary expressions in $cond",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {
+        k: {
+          '$cond': {
+            if: {b: 3},
+            then: 4,
+            else: 5,
+          },
+        },
+      }}),
+      expectedSql: 'SELECT "TestCollection".* , (CASE WHEN "b" = $1 THEN $2 ELSE $3 END) ::INTEGER AS "k" FROM "TestCollection" WHERE "a" = $4',
+      expectedArgs: [3, 4, 5, 3],
+    },
+    {
       name: "can build select with arithmetic synthetic fields",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {
@@ -288,6 +308,42 @@ describe("SelectQuery", () => {
       }),
       expectedSql: 'SELECT "TestCollection".* , (CASE WHEN "a" IS NOT NULL THEN $1 ELSE $2 END) ::INTEGER AS "k" FROM "TestCollection" WHERE "a" = $3',
       expectedArgs: [2, 4, 3],
+    },
+    {
+      name: "can build select query with $abs",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $abs: "$a",
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , ABS( "a" ) AS "k" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select query with $min",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $min: ["$a", 6],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , LEAST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [6, 3],
+    },
+    {
+      name: "can build select query with $max",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $max: ["$a", 6],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , GREATEST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [6, 3],
     },
     {
       name: "can build select with date diff",

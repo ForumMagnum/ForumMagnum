@@ -5,10 +5,10 @@
  */
 export const subforumSortingTypes = {
   magic: "Float",
-  new: "Date",
-  old: "Date",
   top: "Int",
   recentComments: "Date",
+  new: "Date",
+  old: "Date",
 } as const;
 
 export type SubforumSorting = keyof typeof subforumSortingTypes;

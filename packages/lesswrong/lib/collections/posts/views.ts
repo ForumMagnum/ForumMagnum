@@ -5,11 +5,12 @@ import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionI
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
-import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
+import { postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
+import { getPositiveVoteThreshold, getReviewThreshold } from '../../reviewUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -340,7 +341,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
               else: 0
             }}
           )),
-          ...defaultScoreModifiers(),
+          ...postScoreModifiers(),
           ...frontpageSoftFilter,
         ]},
         ...tagsSoftFiltered.map(t => (
@@ -1358,7 +1359,8 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: 1 },
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() },
+      reviewCount: { $gte: getReviewThreshold() }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1381,8 +1383,8 @@ ensureIndex(Posts,
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: { $gte: 1 },
-      positiveReviewVoteCount: { $gte: 1 }, // TODO: Ray thinks next year this should change to "has at least 4 points"
+      reviewCount: { $gte: getReviewThreshold() },
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1398,7 +1400,7 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
 })
 ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
-  { name: "posts.positiveReviewVoteCount", }
+  { name: "posts.positiveReviewVoteCountReviewCount", }
 );
 
 Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {

@@ -2,7 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  emailPreview: {},
+  emailPreview: {
+    marginBottom: 40
+  },
   headerName: {},
   headerContent: {},
   emailBodyFrame: {
@@ -21,11 +23,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const EmailPreview = ({email, classes}: {
+export const EmailPreview = ({email, sentDate, classes}: {
   email: any,
+  sentDate?: Date,
   classes: ClassesType,
 }) => {
+
   return <div className={classes.emailPreview}>
+    <p>{sentDate}</p>
     <div className={classes.emailHeader}>
       <span className={classes.headerName}>Subject: </span>
       <span className={classes.headerContent}>{email.subject}</span>

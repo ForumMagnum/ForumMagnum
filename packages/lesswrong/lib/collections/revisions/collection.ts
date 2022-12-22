@@ -5,11 +5,12 @@ import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-  collectionType: 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
   // No mutations (revisions are insert-only immutable, and are created as a
@@ -55,6 +56,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
       post: document,
       user: user,
       useAdminPowers: true,
+      context
     });
     if (accessLevelCan(collabEditorAccess, "read")) {
       return true;

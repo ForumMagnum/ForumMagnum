@@ -32,6 +32,10 @@ registerFragment(`
     subforumModerators {
       ...UsersMinimumInfo
     }
+    moderationGuidelines {
+      _id
+      html
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -54,7 +58,6 @@ registerFragment(`
       name
       slug
     }
-    
     description {
       _id
       html
@@ -138,6 +141,7 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    subforumModeratorIds
     tableOfContents
     subforumWelcomeText {
       _id
@@ -280,6 +284,9 @@ registerFragment(`
       ...RevisionEdit
     }
     subforumWelcomeText {
+      ...RevisionEdit
+    }
+    moderationGuidelines {
       ...RevisionEdit
     }
   }

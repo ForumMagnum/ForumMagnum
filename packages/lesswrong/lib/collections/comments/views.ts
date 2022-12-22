@@ -150,6 +150,8 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
 // Uses same index as postCommentsNew
 
 Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
+  if (!terms.postId)
+    throw new Error("Invalid postCommentsNew view: postId is required");
   return {
     selector: {
       postId: terms.postId,
@@ -333,7 +335,6 @@ Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
     }
   };
 });
-ensureIndex(Comments, augmentForDefaultView({tagId:1}));
 
 
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {

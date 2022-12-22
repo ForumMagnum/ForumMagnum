@@ -12,7 +12,7 @@ export const voteTextStyling = (theme: ThemeType): JssStyles => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",
-  width: 28,
+  width: 40,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -53,6 +53,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 24,
     display: "inline-block"
   },
+  voteButton: {
+    border: theme.palette.border.normal,
+    borderRadius: 3,
+    paddingTop: 2,
+    paddingBottom: 2,
+    width: 40,
+    display: "inline-block"
+  },
   card: {
     padding: isEAForum ? "8px 24px" : 8,
     textAlign: "center",
@@ -78,16 +86,14 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
   if (!canNominate(currentUser, post)) return null
 
   const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
-  // TODO: `getCostData` doesn't return anything with `label` in it!
-  // @ts-ignore
-  const displayVote = getCostData({})[voteIndex as VoteIndex]?.label
+  const displayVote = getCostData({})[voteIndex as VoteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
+        {(voteIndex !== 0) ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
       </div>
     </LWTooltip>
 

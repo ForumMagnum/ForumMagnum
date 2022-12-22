@@ -28,6 +28,7 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from "../../lib/subforumSortings";
+import startCase from "lodash/startCase";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -159,6 +160,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
   },
+  newPostLinkHover: {
+    '&:hover': {
+      opacity: 0.5
+    }
+  },
   sidebarBoxWrapper: {
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -166,6 +172,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   sidebarBoxWrapperDefaultPadding: {
     padding: "1em 1.5em",
+  },
+  welcomeBox: {
+    paddingTop: 2,
   },
   tableOfContentsWrapper: {
     padding: 24,
@@ -375,6 +384,8 @@ const TagSubforumPage2 = ({classes}: {
     setHoveredContributorId(userId);
   }, []);
   
+  const [joinedDuringSession, setJoinedDuringSession] = useState(false);
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -510,11 +521,13 @@ const TagSubforumPage2 = ({classes}: {
         </Typography>
         {/* TODO change what appears in SubforumNotificationSettings list */}
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} />)}
+        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
       </div>
+      {/* TODO Tabs component below causes an SSR mismatch, because its subcomponent TabIndicator has its own styles.
+      Importing those into usedMuiStyles.ts didn't fix it; EV of further investigation didn't seem worth it for now. */}
       <Tabs
         value={tab}
         onChange={handleChangeTab}
@@ -531,9 +544,12 @@ const TagSubforumPage2 = ({classes}: {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
-      <div className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+      <div
+        className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)}
+        dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}}
+      />
     </ContentStyles>
-  ) : <></>;
+  ) : null;
   const rightSidebarComponents = [
     welcomeBoxComponent,
     <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
@@ -554,15 +570,49 @@ const TagSubforumPage2 = ({classes}: {
   const maxAgeHours = 18;
   const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
 
-  const discussionButton = isSubscribed || currentUser?.isAdmin ? (
-    <SectionButton onClick={clickNewDiscussion}>
-      <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
-    </SectionButton>
-  ) : (
-    <LWTooltip title="You must be a member of this subforum to start a discussion" className={classes.newPostLink}>
-      <SectionButton>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+  const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
+  const discussionButton = (
+    <LWTooltip
+      title={
+        canPostDiscussion
+          ? "Create a discussion which will only appear in this subforum"
+          : "You must be a member of this subforum to create a discussion"
+      }
+      className={classNames(classes.newPostLink, classes.newPostLinkHover)}
+    >
+      <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
       </SectionButton>
+    </LWTooltip>
+  );
+
+  const newPostButton = (
+    <LWTooltip
+      title={
+        currentUser
+          ? `Create a post tagged with the ${startCase(
+              tag.name
+            )} topic — by default this will appear here and on the frontpage`
+          : "You must be logged in to create a post"
+      }
+      className={classes.newPostLink}
+    >
+      <Link
+        to={`/newPost?subforumTagId=${tag._id}`}
+        onClick={(ev) => {
+          if (!currentUser) {
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {},
+            });
+            ev.preventDefault();
+          }
+        }}
+      >
+        <SectionButton>
+          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
+        </SectionButton>
+      </Link>
     </LWTooltip>
   );
 
@@ -576,11 +626,7 @@ const TagSubforumPage2 = ({classes}: {
       <div className={classes.feedHeader}>
         <div className={classes.feedHeaderButtons}>
           {discussionButton}
-          <Link to={`/newPost?subforumTagId=${tag._id}`} className={classes.newPostLink}>
-            <SectionButton>
-              <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
-            </SectionButton>
-          </Link>
+          {newPostButton}
         </div>
         <PostsListSortDropdown value={sortBy} options={subforumSortings} />
       </div>
@@ -592,7 +638,7 @@ const TagSubforumPage2 = ({classes}: {
             tagCommentType={"SUBFORUM"}
             successCallback={refetch}
             type="reply" // required to make the Cancel button appear
-            enableGuidelines={false}
+            enableGuidelines={true}
             cancelCallback={() => setNewDiscussionOpen(false)}
           />
         </div>
@@ -630,6 +676,7 @@ const TagSubforumPage2 = ({classes}: {
                   comments={post.recentComments}
                   maxLengthWords={50}
                   refetch={refetch}
+                  smallerFonts
                 />
               </div>
             ),

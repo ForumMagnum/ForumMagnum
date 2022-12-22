@@ -30,13 +30,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
     borderRadius: '50%',
   },
+  name: {
+    marginBottom: 4
+  },
   displayName: {
     fontSize: 16,
+    lineHeight: '22px',
     fontWeight: 700,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
+  },
+  userTags: {
+    display: 'flex',
+    marginBottom: 8
+  },
+  userTag: {
+    backgroundColor: theme.palette.background.primaryDim,
+    color: theme.palette.text.primaryDarkOnDim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 11,
+    padding: '5px 11px',
+    borderRadius: 14
   },
   role: {
     fontFamily: theme.typography.fontFamily,
@@ -116,13 +132,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const SubforumMember = ({user, classes}: {
+const SubforumMember = ({user, isOrganizer, classes}: {
   user: UsersProfile,
+  isOrganizer?: boolean,
   classes: ClassesType,
 }) => {
   const bioRef = useRef<HTMLDivElement>(null)
   
-  const currentUser = useCurrentUser()
   const meritsCollapse = useCheckMeritsCollapse({
     ref: bioRef,
     height: COLLAPSED_SECTION_HEIGHT
@@ -173,6 +189,11 @@ const SubforumMember = ({user, classes}: {
           {user.displayName}
         </Link>
       </Typography>
+      {isOrganizer && <div className={classes.userTags}>
+        <div className={classes.userTag}>
+          Organizer
+        </div>
+      </div>}
       {(user.jobTitle || user.organization) && <div className={classes.role}>
         {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
       </div>}

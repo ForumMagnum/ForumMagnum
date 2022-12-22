@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SidebarMembersBox = ({tag, className, classes}: {
-  tag: TagBasicInfo,
+  tag: TagSubforumFragment,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -68,6 +68,16 @@ const SidebarMembersBox = ({tag, className, classes}: {
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
     skip: !tag
+  })
+  
+  const organizers: UsersProfile[] = []
+  const otherMembers: UsersProfile[] = []
+  members?.forEach(member => {
+    if (tag.subforumModeratorIds?.includes(member._id)) {
+      organizers.push(member)
+    } else {
+      otherMembers.push(member)
+    }
   })
   
   const { SubforumSubscribeSection, SubforumMember, Loading } = Components
@@ -80,7 +90,12 @@ const SidebarMembersBox = ({tag, className, classes}: {
       </h2>
       <div className={classes.scrollableList}>
         {loading && <Loading />}
-        {members?.map(user => {
+        {organizers?.map(user => {
+          return <div key={user._id} className={classes.user}>
+            <SubforumMember user={user} isOrganizer />
+          </div>
+        })}
+        {otherMembers?.map(user => {
           return <div key={user._id} className={classes.user}>
             <SubforumMember user={user} />
           </div>

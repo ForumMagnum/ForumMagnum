@@ -1,7 +1,7 @@
 import pick from 'lodash/pick';
 import mjAPI from 'mathjax-node'
 import Revisions from '../../lib/collections/revisions/collection';
-import { isAnyTest } from '../../lib/executionEnvironment';
+import { isAnyTest, isMigrations } from '../../lib/executionEnvironment';
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
@@ -38,7 +38,7 @@ const MATHJAX_OPTIONS = {
   delayStartupTypeset: true,
 }
 
-if (!isAnyTest) {
+if (!isAnyTest && !isMigrations) {
   mjAPI.config({
     MathJax: MATHJAX_OPTIONS
   });

@@ -391,10 +391,11 @@ const EAGApplicationImportForm = ({classes}: {
   
   const handleChangeField = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof EAGApplicationDataType) => {
     e.preventDefault()
+    const val = e.target.value
     setFormValues(currentValues => {
       return {
         ...currentValues,
-        [field]: e.target.value
+        [field]: val
       }
     })
   }

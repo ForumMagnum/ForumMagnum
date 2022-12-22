@@ -40,6 +40,7 @@ const schema: SchemaType<DbSequence> = {
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
         const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
+          {sort: {number: 1}},
         ).fetch();
         return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
       }

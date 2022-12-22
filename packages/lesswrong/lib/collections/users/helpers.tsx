@@ -259,6 +259,21 @@ export function getUserEmail (user: UserWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
 }
 
+type DatadogUser = {
+  id: string,
+  email?: string,
+  name?: string,
+  slug?: string,
+}
+export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName,
+    slug: user.slug,
+  }
+}
+
 // Replaces Users.getProfileUrl from the vulcan-users package.
 export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
   if (!user) return "";

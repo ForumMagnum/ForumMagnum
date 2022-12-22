@@ -120,6 +120,22 @@ class SwitchingCollection<T extends DbObject> {
     });
   }
 
+  addDefaultView(view: Function) {
+    this.mongoCollection.defaultView = view;
+    this.pgCollection.defaultView = view;
+  }
+
+  addView(viewName: string, view: Function) {
+    if (!this.mongoCollection.views) {
+      this.mongoCollection.views = {};
+    }
+    if (!this.pgCollection.views) {
+      this.pgCollection.views = {};
+    }
+    this.mongoCollection.views[viewName] = view;
+    this.pgCollection.views[viewName] = view;
+  }
+
   setTargets(readTarget: ReadTarget, writeTarget: WriteTarget) {
     this.readTarget = readTarget;
     this.writeTarget = writeTarget;
