@@ -242,12 +242,12 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const ty = this.getField(unresolvedField);
-    if (ty && ty.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${ty.toString()})`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
       } else if (op === "=") {
-        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${ty.toString()}`];
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
       } else {
         throw new Error(`Invalid array operator: ${op}`);
       }

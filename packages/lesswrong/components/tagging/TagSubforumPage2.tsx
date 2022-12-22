@@ -173,6 +173,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   sidebarBoxWrapperDefaultPadding: {
     padding: "1em 1.5em",
   },
+  welcomeBox: {
+    paddingTop: 2,
+  },
   tableOfContentsWrapper: {
     padding: 24,
   },
@@ -541,7 +544,10 @@ const TagSubforumPage2 = ({classes}: {
 
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
-      <div className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}} />
+      <div
+        className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)}
+        dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}}
+      />
     </ContentStyles>
   ) : null;
   const rightSidebarComponents = [
@@ -569,13 +575,13 @@ const TagSubforumPage2 = ({classes}: {
     <LWTooltip
       title={
         canPostDiscussion
-          ? "Create a thread which will only appear in this subforum"
-          : "You must be a member of this subforum to create a thread"
+          ? "Create a discussion which will only appear in this subforum"
+          : "You must be a member of this subforum to create a discussion"
       }
       className={classNames(classes.newPostLink, classes.newPostLinkHover)}
     >
       <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
-        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Thread
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
       </SectionButton>
     </LWTooltip>
   );
@@ -670,6 +676,7 @@ const TagSubforumPage2 = ({classes}: {
                   comments={post.recentComments}
                   maxLengthWords={50}
                   refetch={refetch}
+                  smallerFonts
                 />
               </div>
             ),

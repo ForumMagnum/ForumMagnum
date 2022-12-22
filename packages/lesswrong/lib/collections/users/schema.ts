@@ -2393,6 +2393,23 @@ Object.assign(schema, {
   },
 })
 
+/* Privacy settings */
+Object.assign(schema, {
+  allowDatadogSessionReplay: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    label: "Allow Session Replay",
+    tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
+})
+
 /* Alignment Forum fields */
 Object.assign(schema, {
   afPostCount: {

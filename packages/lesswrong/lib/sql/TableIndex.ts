@@ -3,13 +3,15 @@
  * of fields in a table. It may or may not be unique and/or partial.
  */
 class TableIndex {
+  private fields: string[];
   private name: string;
 
   constructor(
     private tableName: string,
-    private fields: string[],
+    private key: Record<string, 1 | -1>,
     private options?: MongoEnsureIndexOptions,
   ) {
+    this.fields = Object.keys(key);
     this.name = options?.name
       ? "idx_" + options.name.replace(/\./g, "_")
       : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
@@ -37,7 +39,7 @@ class TableIndex {
   getDetails() {
     return {
       v: 2, // To match Mongo's output
-      key: this.fields,
+      key: this.key,
       ...this.options,
     };
   }

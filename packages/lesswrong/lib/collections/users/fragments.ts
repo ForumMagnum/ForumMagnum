@@ -194,6 +194,8 @@ registerFragment(`
     
     experiencedIn
     interestedIn
+    
+    allowDatadogSessionReplay
   }
 `);
 
@@ -378,6 +380,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId

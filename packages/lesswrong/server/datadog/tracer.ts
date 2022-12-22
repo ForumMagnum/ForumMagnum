@@ -1,4 +1,5 @@
 import tracer from "dd-trace";
+
 tracer.init({
   hostname: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
   sampleRate: 1,
@@ -9,4 +10,5 @@ tracer.init({
 tracer.use('express', {
   service: 'forummagnum'
 })
+
 export default tracer;
