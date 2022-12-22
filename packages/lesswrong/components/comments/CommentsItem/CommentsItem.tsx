@@ -30,6 +30,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       opacity:1
     }
   },
+  subforumTop: {
+    paddingTop: 4,
+  },
   body: {
     borderStyle: "none",
     padding: 0,
@@ -141,7 +144,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display2,
     ...theme.typography.postStyle,
     flexGrow: 1,
-    marginTop: 8,
+    marginTop: 4,
     marginBottom: 0,
     display: "block",
     fontSize: '1.5rem',
@@ -329,7 +332,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
 
   if (!comment) {
     return null;
@@ -375,6 +378,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
           [classes.sideComment]: treeOptions.isSideComment,
+          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
       )}>
         { comment.parentCommentId && showParentState && (
@@ -414,6 +418,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
+            {<CommentDiscussionIcon comment={comment} />}
             {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}
