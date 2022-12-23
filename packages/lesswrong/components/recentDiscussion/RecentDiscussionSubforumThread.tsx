@@ -78,8 +78,10 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
   // const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null)
 
   // TODO: do we need to default this to be the last time this user viewed the subforum?
+  //       also, do we want to use the "highlightDate" option?
   // const lastVisitedAt = markedAsVisitedAt
 
+  // TODO: do we want to count this as a subforum view?
   // const markAsRead = useCallback(
   //   () => {
   //     setMarkedAsVisitedAt(new Date())
