@@ -169,13 +169,8 @@ const CommentsNode = ({
   useEffect(() => {
     if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-        // This check is redundant with the one in handleExpand, but I don't want to call scrollIntoView twice
-        if (isTruncated || isSingleLine) {
-          handleExpand()
-        }
-        else {
-          scrollIntoView()
-        }
+        void handleExpand()
+        scrollIntoView()
       }, 0);
     }
     //No exhaustive deps because this is supposed to run only on mount
