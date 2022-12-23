@@ -6,15 +6,16 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     color: theme.palette.grey[500],
-    width: 19,
-    height: 19,
-    marginRight: 6,
+    width: 20,
+    height: 20,
+    marginRight: 8,
     position: "relative",
     top: 3
   },
   smallIcon: {
     width: 15,
     height: 15,
+    marginRight: 6,
     top: 2
   }
 });

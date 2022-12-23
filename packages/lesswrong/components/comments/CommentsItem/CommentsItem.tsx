@@ -90,9 +90,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
-  withTitleMeta: {
-    paddingTop: ".3em",
-  },
   sideCommentMeta: {
     display: "flex",
     alignItems: "baseline",
@@ -144,11 +141,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display2,
     ...theme.typography.postStyle,
     flexGrow: 1,
-    marginTop: 4,
+    marginTop: 8,
     marginBottom: 0,
+    marginLeft: 0,
     display: "block",
     fontSize: '1.5rem',
-    lineHeight: '1.6em'
+    lineHeight: '1.5em'
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -168,7 +166,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
   },
-  titleRow: {
+  postTitleRow: {
     display: 'flex',
     columnGap: 8,
     alignItems: 'center'
@@ -393,7 +391,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
         
-        <div className={classes.titleRow}>
+        <div className={classes.postTitleRow}>
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
             <StickyIcon />
           </div>}
@@ -415,7 +413,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>}
           <div className={classNames(classes.meta, {
             [classes.sideCommentMeta]: treeOptions.isSideComment,
-            [classes.withTitleMeta]: showCommentTitle,
           })}>
             {!parentCommentId && !comment.parentCommentId && isParentComment &&
               <div className={classes.usernameSpacing}>○</div>

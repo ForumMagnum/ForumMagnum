@@ -105,7 +105,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallerTitle: {
     fontSize: '1.5rem',
-    lineHeight: '1.6em'
+    lineHeight: '1.5em'
   },
   actions: {
     "& .PostActionsButton-icon": {
