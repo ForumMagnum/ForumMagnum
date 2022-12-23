@@ -15,15 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
-  title: {
-    ...theme.typography.display2,
-    ...theme.typography.commentStyle,
-    fontVariant: "small-caps",
-    marginTop: 0,
-    marginBottom: 8,
-    display: "block",
-    fontSize: "1.75rem",
-  },
   subforumTitleRow: {
     display: 'flex',
     columnGap: 7,
@@ -63,18 +54,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 16,
     background: theme.palette.panelBackground.default,
     borderRadius: 3,
-    marginBottom:4
+    marginBottom: 4
   },
   content: {
     padding: '0 4px 4px 16px',
     [theme.breakpoints.down('sm')]: {
       padding: '0 4px 1px 4px',
     }
-  },
-  metadata: {
-    fontSize: "1.1rem",
-    color: theme.palette.text.dim3,
-    ...theme.typography.commentStyle,
   },
 });
 
