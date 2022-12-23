@@ -274,7 +274,7 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox, CommentPermalink,
     SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
-    SidebarSubtagsBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
+    SidebarSubtagsBox, SubforumIntroBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -542,6 +542,7 @@ const TagSubforumPage2 = ({classes}: {
     </div>
   );
 
+  const subforumIntroBoxComponent = <SubforumIntroBox className={classNames(classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)} key={"intro_box"}/>
   const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
     <ContentStyles contentType="tag" key={`welcome_box`}>
       <div
@@ -551,6 +552,7 @@ const TagSubforumPage2 = ({classes}: {
     </ContentStyles>
   ) : null;
   const rightSidebarComponents = [
+    subforumIntroBoxComponent,
     welcomeBoxComponent,
     <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
     <SidebarSubtagsBox tag={tag} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
