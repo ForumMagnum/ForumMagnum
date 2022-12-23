@@ -29,6 +29,7 @@ import {
   subforumSortingTypes,
 } from "../../lib/subforumSortings";
 import startCase from "lodash/startCase";
+import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -343,6 +344,12 @@ const TagSubforumPage2 = ({classes}: {
     enableTotal: true,
     skip: !tag
   })
+
+  const recordSubforumView = useRecordSubforumView({userId: currentUser?._id, tagId: tag?._id});
+  useEffect(() => {
+    if (!loadingTag && tag?._id)
+      void recordSubforumView();
+  }, [loadingTag, recordSubforumView, tag?._id]);
 
   const onClickMembersList = () => {
     if (!tag) return;
