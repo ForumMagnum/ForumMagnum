@@ -259,7 +259,7 @@ function startWebsocketServer() {
   const server = new WebSocket.Server({
     port: websocketPort,
   });
-  server.on('connection', (ws) => {
+  server.on('connection', async (ws) => {
     openWebsocketConnections.push(ws);
     
     ws.on('message', (data) => {
@@ -270,6 +270,8 @@ function startWebsocketServer() {
         openWebsocketConnections.splice(connectionIndex, 1);
       }
     });
+    
+    await waitForServerReady();
     ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
   });
 }
