@@ -54,6 +54,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1
     },
   },
+  smallerMeta: {
+    '& .PostsItemMeta-info': {
+      fontSize: '1rem'
+    }
+  },
   showHighlight: {
     opacity: 0,
   },
@@ -98,6 +103,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
     fontSize: "1.75rem",
   },
+  smallerTitle: {
+    fontSize: '1.5rem',
+    lineHeight: '1.6em'
+  },
   actions: {
     "& .PostActionsButton-icon": {
       fontSize: "1.5em",
@@ -116,6 +125,7 @@ const RecentDiscussionThread = ({
   comments, refetch,
   expandAllThreads: initialExpandAllThreads,
   maxLengthWords,
+  smallerFonts,
   classes,
 }: {
   post: PostsRecentDiscussion,
@@ -123,23 +133,21 @@ const RecentDiscussionThread = ({
   refetch: any,
   expandAllThreads?: boolean,
   maxLengthWords?: number,
+  smallerFonts?: boolean,
   classes: ClassesType,
 }) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const { isRead, recordPostView } = useRecordPostView(post);
-  const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
+  const { recordPostView } = useRecordPostView(post);
 
   const markAsRead = useCallback(
     () => {
-      setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
       recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
     },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
+    [setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
   );
   const showHighlight = useCallback(
     () => {
@@ -169,7 +177,6 @@ const RecentDiscussionThread = ({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
     highlightDate: lastVisitedAt,
     refetch: refetch,
     condensed: true,
@@ -183,19 +190,19 @@ const RecentDiscussionThread = ({
           <div className={classes.postItem}>
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
             <div className={classes.titleAndActions}>
-              <Link to={postGetPageUrl(post)} className={classes.title}>
+              <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
               <div className={classes.actions}>
                 <PostActionsButton post={post} vertical />
               </div>
             </div>
-            <div className={classes.threadMeta} onClick={showHighlight}>
+            <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
             </div>
           </div>
           <div className={highlightClasses}>
-            <PostsHighlight post={post} maxLengthWords={maxLengthWords ?? lastVisitedAt ? 50 : 170} />
+            <PostsHighlight post={post} maxLengthWords={maxLengthWords ?? lastVisitedAt ? 50 : 170} smallerFonts={smallerFonts} />
           </div>
         </div>
         <div className={classes.content}>

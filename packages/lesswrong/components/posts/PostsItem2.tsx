@@ -411,7 +411,6 @@ const PostsItem2 = ({
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
-  const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
   const { isRead, recordPostView } = useRecordPostView(post);
 
   const currentUser = useCurrentUser();
@@ -425,11 +424,6 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
-  const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
-  }
-
   const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
     const newComments = lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
@@ -437,12 +431,12 @@ const PostsItem2 = ({
 
   const hasUnreadComments = () => {
     const lastCommentedAt = postGetLastCommentedAt(post)
-    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastVisitedAt = post.lastVisitedAt
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
   const hasNewPromotedComments = () => {
-    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastVisitedAt = post.lastVisitedAt
     const lastCommentPromotedAt = postGetLastCommentPromotedAt(post)
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
   }
@@ -632,9 +626,8 @@ const PostsItem2 = ({
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt,
                 condensed: condensedAndHiddenComments,
-                markAsRead: markAsRead,
               }}
             />
           </div>}

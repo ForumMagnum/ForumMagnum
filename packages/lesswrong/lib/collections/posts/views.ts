@@ -1400,7 +1400,7 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
 })
 ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
-  { name: "posts.positiveReviewVoteCount", }
+  { name: "posts.positiveReviewVoteCountReviewCount", }
 );
 
 Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
