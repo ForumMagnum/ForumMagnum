@@ -239,16 +239,20 @@ async function initiateRefresh() {
   // check the process that's being replaced.
   await asyncSleep(100);
   
+  refreshIsPending = true;
+  console.log("Initiated refresh; waiting for server to be ready");
+  await waitForServerReady();
+  
   if (openWebsocketConnections.length > 0) {
-    refreshIsPending = true;
-    console.log("Initiated refresh; waiting for server to be ready");
-    await waitForServerReady();
-    console.log("Notifying connected browser windows to refresh");
+    console.log(`Notifying ${openWebsocketConnections.length} connected browser windows to refresh`);
     for (let connection of openWebsocketConnections) {
       connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
     }
-    refreshIsPending = false;
+  } else {
+    console.log("Not sending auto-refresh notifications (no connected browsers to notify)");
   }
+  
+  refreshIsPending = false;
 }
 
 function startWebsocketServer() {
