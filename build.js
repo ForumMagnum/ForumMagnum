@@ -197,7 +197,7 @@ const openWebsocketConnections = [];
 
 async function isServerReady() {
   try {
-    const response = await fetch(`http://localhost:${serverPort}/robots.txt`);
+    const response = await fetch(`http://localhost:${serverPort}/api/ready`);
     return response.ok;
   } catch(e) {
     return false;
@@ -233,6 +233,11 @@ async function initiateRefresh() {
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }
+  
+  // Wait just long enough to make sure estrella has killed the old server
+  // process so that when we check for server-readiness, we don't accidentally
+  // check the process that's being replaced.
+  await asyncSleep(100);
   
   if (openWebsocketConnections.length > 0) {
     refreshIsPending = true;
