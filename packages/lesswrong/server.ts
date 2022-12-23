@@ -54,6 +54,7 @@ import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
+import "./server/scripts/languageModels/experimentsWithEmbeddings";
 import "./server/scripts/languageModels/generateTaggingPostSets";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
