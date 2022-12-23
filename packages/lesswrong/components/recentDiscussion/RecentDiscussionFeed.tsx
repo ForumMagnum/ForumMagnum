@@ -118,6 +118,7 @@ const RecentDiscussionFeed = ({
                     comment={comment}
                     tag={comment.tag}
                     refetch={refetch}
+                    expandAllThreads={expandAll}
                   />
                 ),
               },

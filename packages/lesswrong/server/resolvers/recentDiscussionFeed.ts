@@ -63,18 +63,6 @@ defineFeedResolver<Date>({
             ...(af ? {af: true} : undefined),
           },
         }),
-        // Tags with subforum comments
-        // viewBasedSubquery({
-        //   type: "tagSubforumCommented",
-        //   collection: Tags,
-        //   sortField: "lastSubforumCommentAt",
-        //   context,
-        //   selector: {
-        //     _id: {$in: subforumTagIds},
-        //     lastSubforumCommentAt: {$exists: true},
-        //     ...(af ? {af: true} : undefined),
-        //   },
-        // }),
         // Subforum comments
         viewBasedSubquery({
           type: "tagSubforumComments",
@@ -85,7 +73,6 @@ defineFeedResolver<Date>({
             tagId: {$in: subforumTagIds},
             tagCommentType: "SUBFORUM",
             topLevelCommentId: {$exists: false},
-            subforumStickyPriority: {$exists: false},
             ...(af ? {af: true} : undefined),
           },
         }),

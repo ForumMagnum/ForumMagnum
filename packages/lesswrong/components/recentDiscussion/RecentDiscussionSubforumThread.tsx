@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   subforumTitleRow: {
     display: 'flex',
     columnGap: 7,
-    marginBottom: 8,
+    marginBottom: 12,
     '& svg': {
       height: 20,
       width: 20,
@@ -71,18 +71,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:4
   },
   content: {
-    marginLeft: 4,
-    marginRight: 4,
-    paddingBottom: 1
-  },
-  commentsList: {
-    marginTop: 12,
-    marginLeft: 12,
-    marginBottom: 8,
+    padding: '0 4px 4px 16px',
     [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-      marginRight: 0,
-      marginBottom: 0
+      padding: '0 4px 1px 4px',
     }
   },
   metadata: {
@@ -101,10 +92,10 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
 }) => {
   const { CommentWithReplies, TopTagIcon } = Components;
 
-  const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
+  const [expandAllThreads, setExpandAllThreads] = useState(false)
+  const [readStatus, setReadStatus] = useState(false)
   // const {recordTagView} = useRecordTagView(tag);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
+  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null)
   
   // const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   // const lastCommentId = comments && comments[0]?._id
@@ -139,14 +130,16 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
       refetch,
       // markAsRead: markAsRead,
       // highlightDate: lastVisitedAt,
-      tag,
+      // tag,
+      showPostTitle: false,
       condensed: true,
-      // replyFormStyle: "minimalist",
+      replyFormStyle: "minimalist" as const,
     },
     startThreadTruncated: true,
     isChild: false,
     enableGuidelines: false,
     displayMode: "minimalist" as const,
+    shortform: false
   }
     
   return <div className={classes.root}>
@@ -157,29 +150,18 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
         </div>
         <div className={classes.subforumTitleText}>
           <Link to={tagGetSubforumUrl(tag)} className={classes.subforumTitle}>{tag.name}</Link>
-          <div className={classes.subforumSubtitle}>subforum discussion</div>
+          <div className={classes.subforumSubtitle}>Subforum discussion</div>
         </div>
       </div>
     </div>
     
     <div className={classes.content}>
-      <div className={classes.commentsList}>
-        {/* <CommentsNode
-          treeOptions={commentTreeOptions}
-          startThreadTruncated={true}
-          expandAllThreads={initialExpandAllThreads || expandAllThreads}
-          nestingLevel={1}
-          comment={comment.item}
-          childComments={comment.children}
-          key={comment.item._id}
-          showParentDefault
-        /> */}
-        <CommentWithReplies
-          comment={comment}
-          commentNodeProps={commentNodeProps}
-          initialMaxChildren={5}
-        />
-      </div>
+      <CommentWithReplies
+        comment={comment}
+        commentNodeProps={commentNodeProps}
+        initialMaxChildren={5}
+        startExpanded={initialExpandAllThreads || expandAllThreads}
+      />
     </div>
   </div>
 }
