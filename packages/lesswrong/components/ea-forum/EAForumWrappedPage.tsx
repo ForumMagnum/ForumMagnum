@@ -2,6 +2,7 @@ import React from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
+import { gql, useQuery } from "@apollo/client";
 
 
 const styles = (theme: ThemeType) => ({
@@ -37,7 +38,25 @@ const styles = (theme: ThemeType) => ({
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   
-  const { SingleColumnSection, Typography } = Components
+  const { data, loading } = useQuery(gql`
+    query getUserMostRead($year: Int!) {
+      UserMostReadByYear(year: $year) {
+        mostReadAuthors {
+          displayName
+          slug
+          count
+        }
+      }
+    }
+  `, {
+    variables: {
+      year: 2022
+    },
+    ssr: true,
+  })
+  console.log('data', data)
+  
+  const { SingleColumnSection, Typography, Loading } = Components
 
   return (
     <div className={classes.root}>
@@ -47,10 +66,14 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             {currentUser?.displayName}'s ✨ 2022 EA Forum Wrapped ✨
           </Typography>
           
-          <div className={classes.summarySection}>
+          {loading ? <Loading /> : <div className={classes.summarySection}>
             <div>Most read authors</div>
             <div>
-              <div>Lizka</div>
+              {data?.UserMostReadByYear?.mostReadAuthors?.map(author => {
+                return <div key={author.slug}>
+                  <Link to={`/user/${author.slug}`}>{author.displayName} ({author.count})</Link>
+                </div>
+              })}
             </div>
             <div>Most read topics</div>
             <div>
@@ -65,7 +88,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             <div>
               +123
             </div>
-          </div>
+          </div>}
         </div>
       </SingleColumnSection>
     </div>

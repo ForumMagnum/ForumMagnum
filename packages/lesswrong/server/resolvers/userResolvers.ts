@@ -1,7 +1,7 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, createMutator, slugify, updateMutator, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
@@ -9,6 +9,13 @@ import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import { Subscriptions } from '../../lib/collections/subscriptions';
 import { randomId } from '../../lib/random';
+import ReadStatuses from '../../lib/collections/readStatus/collection';
+import moment from 'moment';
+import Posts from '../../lib/collections/posts/collection';
+import countBy from 'lodash/countBy';
+import entries from 'lodash/fp/entries';
+import sortBy from 'lodash/sortBy';
+import last from 'lodash/fp/last';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -57,6 +64,17 @@ type NewUserUpdates = {
   subscribeToDigest: boolean
   acceptedTos: boolean
 }
+
+addGraphQLSchema(`
+  type MostReadAuthor {
+    slug: String,
+    displayName: String,
+    count: Int
+  }
+  type MostReadByYear {
+    mostReadAuthors: [MostReadAuthor]
+  }
+`)
 
 addGraphQLResolvers({
   Mutation: {
@@ -146,6 +164,58 @@ addGraphQLResolvers({
       return updatedUser
     },
   },
+  Query: {
+    async UserMostReadByYear(root: void, {year}: {year: number}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view read history')
+      }
+
+      // Get all the user's posts read for the given year
+      const start = moment().year(year).dayOfYear(1)
+      const end = moment().year(year+1).dayOfYear(1)
+      console.log('start', start)
+      console.log('end', end)
+      const readStatuses = await ReadStatuses.find({
+        userId: currentUser._id,
+        isRead: true,
+        lastUpdated: {$gte: start, $lt: end},
+        postId: {$exists: true, $ne: null}
+      }).fetch()
+      console.log('readStatuses', readStatuses)
+      
+      // Filter out the posts that the user themselves authored
+      // TODO: account for coauthorship
+      const posts = (await Posts.find({
+        _id: {$in: readStatuses.map(rs => rs.postId)}
+      }, {projection: {userId: 1}}).fetch()).filter(p => p.userId !== currentUser._id)
+      console.log(posts)
+      
+      // Get the top 3 authors that the user has read
+      const userIds = posts.map(p => p.userId)
+      const authorCounts = countBy(userIds)
+      const topAuthors = sortBy(entries(authorCounts), last).slice(-3)
+      console.log('authorCounts', authorCounts)
+      
+      const authors = await Users.find({
+        _id: {$in: topAuthors.map(a => a[0])}
+      }, {projection: {displayName: 1, slug: 1}}).fetch()
+      console.log(authors)
+      
+      // Get the top 3 topics that the user has read
+      
+      return {
+        mostReadAuthors: authors.map(author => {
+          return {
+            displayName: author.displayName,
+            slug: author.slug,
+            count: authorCounts[author._id]
+          }
+        }),
+        mostReadTopics: []
+      }
+    },
+  },
 })
 
 addGraphQLMutation(
@@ -157,3 +227,4 @@ addGraphQLMutation(
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
+addGraphQLQuery('UserMostReadByYear(year: Int!): MostReadByYear')
