@@ -1,15 +1,10 @@
 import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
+import { tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { truncate } from '../../lib/editor/ellipsize';
-import { useRecordTagView } from '../hooks/useRecordPostView';
-import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { TagCommentType } from '../../lib/collections/comments/types';
-import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { useRecordSubforumView } from '../hooks/useRecordSubforumView';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -90,39 +85,27 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
   expandAllThreads?: boolean
   classes: ClassesType
 }) => {
-  const { CommentWithReplies, TopTagIcon } = Components;
+  // const currentUser = useCurrentUser()
+  // const recordSubforumView = useRecordSubforumView({userId: currentUser?._id, tagId: tag?._id})
 
   const [expandAllThreads, setExpandAllThreads] = useState(false)
-  const [readStatus, setReadStatus] = useState(false)
-  // const {recordTagView} = useRecordTagView(tag);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null)
-  
-  // const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
-  // const lastCommentId = comments && comments[0]?._id
-  // const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
-  
+  // const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null)
+
+  // TODO: do we need to default this to be the last time this user viewed the subforum?
+  // const lastVisitedAt = markedAsVisitedAt
+
   // const markAsRead = useCallback(
   //   () => {
-  //     setReadStatus(true);
-  //     setMarkedAsVisitedAt(new Date());
-  //     setExpandAllThreads(true);
-  //     recordTagView({tag, extraEventProperties: {type: 'recentDiscussionSubforumClick'}})
+  //     setMarkedAsVisitedAt(new Date())
+  //     setExpandAllThreads(true)
+  //     recordSubforumView()
   //   },
-  //   [recordTagView, tag]
+  //   [recordSubforumView]
   // )
   
-  // const commentTreeOptions: CommentTreeOptions = {
-  //   refetch,
-  //   scrollOnExpand: true,
-  //   lastCommentId: lastCommentId,
-  //   markAsRead: markAsRead,
-  //   highlightDate: lastVisitedAt,
-  //   tag: tag,
-  //   condensed: true,
-  //   replyFormStyle: "minimalist",
-  // }
-  
   if (!tag) return null
+  
+  const { CommentWithReplies, TopTagIcon } = Components
   
   const commentNodeProps = {
     treeOptions: {
@@ -130,7 +113,7 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
       refetch,
       // markAsRead: markAsRead,
       // highlightDate: lastVisitedAt,
-      // tag,
+      tag,
       showPostTitle: false,
       condensed: true,
       replyFormStyle: "minimalist" as const,
