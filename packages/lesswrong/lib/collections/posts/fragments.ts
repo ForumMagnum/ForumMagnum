@@ -584,3 +584,13 @@ registerFragment(`
     languageModelSummary
   }
 `);
+
+registerFragment(`
+  fragment PostWithSimilarPosts on Post {
+    _id
+    similarPosts {
+      ...PostsList
+    }
+  }
+`);
+

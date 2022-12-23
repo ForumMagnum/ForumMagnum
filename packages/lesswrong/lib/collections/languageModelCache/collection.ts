@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionIndexUtils';
 
-const schema: SchemaType<DbTagFlag> = {
+const schema: SchemaType<DbLanguageModelCache> = {
   prompt: {
     type: String,
   },

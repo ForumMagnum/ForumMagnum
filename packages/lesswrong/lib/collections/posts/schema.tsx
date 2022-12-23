@@ -2353,6 +2353,14 @@ const schema: SchemaType<DbPost> = {
     canRead: ['admins'],
     // Implementation in postSummaryResolver.ts
   },
+  
+  similarPosts: {
+    type: Array,
+    graphQLType: '[Post!]',
+    optional: true, hidden: true,
+    viewableBy: ['guests'],
+    // Resolver in postSimilarity.ts
+  },
 };
 
 /* subforum-related fields */

@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const Pingback = ({classes, post}: {
+const PostFooterPostLink = ({classes, post}: {
   classes: ClassesType,
   post: PostsList,
 }) => {
@@ -37,11 +37,11 @@ const Pingback = ({classes, post}: {
   </span>
 }
 
-const PingbackComponent = registerComponent("Pingback", Pingback, {styles});
+const PostFooterPostLinkComponent = registerComponent("PostFooterPostLink", PostFooterPostLink, {styles});
 
 declare global {
   interface ComponentTypes {
-    Pingback: typeof PingbackComponent
+    PostFooterPostLink: typeof PostFooterPostLinkComponent
   }
 }
 

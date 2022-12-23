@@ -44,7 +44,7 @@ const PingbacksList = ({classes, postId}: {
   const pingbackIds = (results||[]).map((pingback) => pingback._id)
   useOnMountTracking({eventType: "pingbacksList", eventProps: {pingbackIds}, captureOnMount: eventProps => eventProps.pingbackIds.length, skip: !pingbackIds.length||loading})
 
-  const { Pingback, LWTooltip, LoadMore, Loading } = Components
+  const { PostFooterPostLink, LWTooltip, LoadMore, Loading } = Components
 
   if (results) {
     if (results.length > 0) {
@@ -57,7 +57,7 @@ const PingbacksList = ({classes, postId}: {
         <div className={classes.list}>
           {results.map((post, i) =>
             <div key={post._id} >
-              <Pingback post={post}/>
+              <PostFooterPostLink post={post}/>
             </div>
           )}
         </div>
