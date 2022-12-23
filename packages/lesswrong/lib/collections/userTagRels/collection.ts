@@ -52,7 +52,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
-    ...schemaDefaultValue(true),
+    ...schemaDefaultValue(false),
   },
 };
 
