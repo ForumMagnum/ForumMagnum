@@ -32,7 +32,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "5ea47edb2b8d68d1bcb3967036fdb5b3";
+export const acceptsSchemaHash = "afc7cd96d9085ca54d2a50765d02338f";
 
 import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { updateDefaultValue } from "./meta/utils";
