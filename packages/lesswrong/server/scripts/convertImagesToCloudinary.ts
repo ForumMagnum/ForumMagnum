@@ -165,12 +165,12 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
 }
 
 /**
- * Reupload all images in an object (post, tag, user, etc) to Cloudinary. For each editable
- * field which had an image that needed reuploading, creates a new revision with the updated
- * HTML.
+ * Reupload all images in an object (post, tag, user, etc) to Cloudinary, for a
+ * specific editable field. Creates a new revision with the updated HTML.
  *
- * @param collectionName The collection that this object is in
+ * @param collectionName - The collection that this object is in
  * @param _id - The object to reupload images for
+ * @param fieldName - The content-editable field tos can for images
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
  */
