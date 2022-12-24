@@ -411,6 +411,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
+  readonly title: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -1091,6 +1092,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
   readonly subforumTagId: string,
+  readonly sideComments: any,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1189,6 +1191,7 @@ interface CommentsList { // fragment on Comments
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly descendentCount: number,
+  readonly title: string,
   readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
   readonly repliesBlockedUntil: Date,
