@@ -33,13 +33,23 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumMembersDialog = ({classes, onClose, tag}: {
   classes: ClassesType,
   onClose: () => void,
-  tag: TagBasicInfo,
+  tag: TagSubforumFragment,
 }) => {
   const { results: members, loading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
     collectionName: 'Users',
     fragmentName: 'UsersProfile',
     skip: !tag
+  })
+  
+  const organizers: UsersProfile[] = []
+  const otherMembers: UsersProfile[] = []
+  members?.forEach(member => {
+    if (tag.subforumModeratorIds?.includes(member._id)) {
+      organizers.push(member)
+    } else {
+      otherMembers.push(member)
+    }
   })
   
   const { LWDialog, SubforumSubscribeSection, SubforumMember, Loading } = Components
@@ -52,7 +62,12 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
       </h2>
       <DialogContent>
         {loading && <Loading />}
-        {members?.map(user => {
+        {organizers?.map(user => {
+          return <div key={user._id} className={classes.user}>
+            <SubforumMember user={user} isOrganizer />
+          </div>
+        })}
+        {otherMembers?.map(user => {
           return <div key={user._id} className={classes.user}>
             <SubforumMember user={user} />
           </div>

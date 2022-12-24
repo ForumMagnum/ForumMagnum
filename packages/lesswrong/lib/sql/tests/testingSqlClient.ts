@@ -6,6 +6,7 @@ import { createSqlConnection } from "../../../server/sqlConnection";
 import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
+import SwitchingCollection from "../../SwitchingCollection";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -17,7 +18,10 @@ export const replaceDbNameInPgConnectionString = (connectionString: string, dbNa
 }
 
 export const preparePgTables = () => {
-  for (const collection of Collections) {
+  for (let collection of Collections) {
+    if (collection instanceof SwitchingCollection) {
+      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
+    }
     if (collection instanceof PgCollection) {
       if (!collection.table) {
         collection.buildPostgresTable();
@@ -29,7 +33,10 @@ export const preparePgTables = () => {
 const buildTables = async (client: SqlClient) => {
   preparePgTables();
 
-  for (const collection of Collections) {
+  for (let collection of Collections) {
+    if (collection instanceof SwitchingCollection) {
+      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
+    }
     if (collection instanceof PgCollection) {
       const {table} = collection;
       const createTableQuery = new CreateTableQuery(table);
@@ -43,8 +50,8 @@ const buildTables = async (client: SqlClient) => {
       const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
-        const fields = typeof key === "string" ? [key] : Object.keys(key);
-        const index = table.getIndex(fields, options) ?? table.addIndex(fields, options);
+        const fields: Record<string, 1 | -1> = typeof key === "string" ? {[key]: 1} : key;
+        const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
         const createIndexQuery = new CreateIndexQuery(table, index, true);
         const {sql, args} = createIndexQuery.compile();
         try {

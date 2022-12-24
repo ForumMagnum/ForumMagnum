@@ -1,5 +1,6 @@
 import { userCanUseTags } from "../../betas";
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue } from "../../collectionUtils";
+import { forumTypeSetting } from "../../instanceSettings";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
@@ -51,13 +52,14 @@ const schema: SchemaType<DbUserTagRel> = {
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
-    ...schemaDefaultValue(true),
+    ...schemaDefaultValue(false),
   },
 };
 
 export const UserTagRels: UserTagRelsCollection = createCollection({
   collectionName: 'UserTagRels',
   typeName: 'UserTagRel',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('UserTagRels'),
   mutations: getDefaultMutations('UserTagRels', {

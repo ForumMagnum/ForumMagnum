@@ -242,12 +242,14 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const ty = this.getField(unresolvedField);
-    if (ty && ty.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField);
+    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return ["NOT (", new Arg(value), `= ANY(${resolvedField}) )`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
+      } else if (op === "=") {
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
       } else {
-        return [new Arg(value), `${op} ANY(${resolvedField})`];
+        throw new Error(`Invalid array operator: ${op}`);
       }
     } else {
       const hint = unresolvedField.indexOf(".") > 0 && resolvedField.indexOf("::") < 0 ? this.getTypeHint(value) : "";
@@ -328,7 +330,8 @@ abstract class Query<T extends DbObject> {
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+          const hint = typeHint ? typeHint + "[]" : "";
+          return [`ARRAY[`, ...args, `]${hint} @> ARRAY[${field}]${hint}`];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
@@ -434,6 +437,12 @@ abstract class Query<T extends DbObject> {
       const name = expr.slice(1);
       return [this.resolveFieldName(name), "IS NOT NULL"];
     }
+    if (typeof expr === "object" && expr) {
+      const keys = Object.keys(expr);
+      if (keys[0][0] && keys[0][0] !== "$") {
+        return this.compileSelector(expr);
+      }
+    }
     return this.compileExpression(expr);
   }
 
@@ -487,9 +496,23 @@ abstract class Query<T extends DbObject> {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
+    if (op === "$min" || op === "$max") {
+      const func = op === "$min" ? "LEAST" : "GREATEST";
+      const args = expr[op].map((value: any) => this.compileExpression(value));
+      let prefix = `${func}(`;
+      let result: Atom<T>[] = [];
+      for (const arg of args) {
+        result.push(prefix);
+        result = result.concat(arg);
+        prefix = ",";
+      }
+      result.push(")");
+      return result;
+    }
+
     if (op === "$in") {
       const [value, array] = expr[op];
-      return [...this.compileExpression(value), "= ANY(", ...this.compileExpression(array), ")"];
+      return [...this.compileExpression(array), "@> {", ...this.compileExpression(value), "}"];
     }
 
     // This algorithm is over-specialized, but we only seem to use it in a very particular way...

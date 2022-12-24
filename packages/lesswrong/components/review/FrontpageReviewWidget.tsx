@@ -116,8 +116,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     fontSize: 14,
     color: theme.palette.grey[500]
+  },
+  nominationTimeRemaining: {
+    marginRight: "auto",
+    marginLeft: 4,
+    textAlign: "left"
   }
 })
+
+function isLastDay(date: moment.Moment) {
+  return date.diff(new Date()) < (24 * 60 * 60 * 1000)
+}
 
 /**
  * Get the algorithm for review recommendations
@@ -204,6 +213,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Posts with at least one positive vote proceed to the Review Phase.</li>
       </ul>
       <div>If you've been actively reading {siteNameWithArticleSetting.get()} before now, but didn't register an account, reach out to us on intercom.</div>
+      {activeRange === "NOMINATIONS" && <div><em>{nominationEndDate.fromNow()} remaining</em></div>}
     </div> :
     <div>
       <div>Cast initial votes for the {REVIEW_YEAR} Review.</div>
@@ -213,6 +223,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Any user registered before {REVIEW_YEAR} can nominate posts for review</li>
         <li>Posts will need at least two positive votes to proceed to the Review Phase.</li>
       </ul>
+      {activeRange === "NOMINATIONS" && <div><em>{nominationEndDate.fromNow()} remaining</em></div>}
     </div>
 
   const reviewTooltip = isEAForum ?
@@ -222,6 +233,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Write reviews of posts nominated for the {REVIEW_NAME_IN_SITU}</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
       </ul>
+      {activeRange === "REVIEWS" && <div><em>{reviewEndDate.fromNow()} remaining</em></div>}
     </> :
     <>
       <div>Review posts for the {REVIEW_YEAR} Review (Opens {nominationEndDate.clone().format('MMM Do')})</div>
@@ -229,6 +241,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Write reviews of posts nominated for the {REVIEW_YEAR} Review</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
       </ul>
+      {activeRange === "REVIEWS" && <div><em>{reviewEndDate.fromNow()} remaining</em></div>}
     </>
 
   const voteTooltip = isEAForum ?
@@ -238,6 +251,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {nominationStartDate.format('MMM Do')} can vote in the review</li>
       </ul>
+      {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </> :
     <>
       <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
@@ -246,6 +260,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <li>Any user registered before {REVIEW_YEAR} can vote in the review</li>
         <li>The end result will be compiled into a canonical sequence and best-of {REVIEW_YEAR} book</li>
       </ul>
+      {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
   const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {
@@ -298,8 +313,12 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     </div>
   </div>
 
-const nominationPhaseButtons = <div className={classes.actionButtonRow}>
-    {showFrontpageItems && <LatestReview/>}
+  const nominationPhaseButtons = <div className={classes.actionButtonRow}>
+    {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>}
+    {showFrontpageItems && isLastDay(nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
+      <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
+      <div>(posts need two votes to proceed)</div>
+    </span>}
     {allPhaseButtons}
     <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
       <Link to={`/votesByYear/${REVIEW_YEAR}`} className={classes.actionButton}>
@@ -329,10 +348,12 @@ const nominationPhaseButtons = <div className={classes.actionButtonRow}>
     </LWTooltip>}
   </div>
 
-  const reviewAndVotingPhaseButtons = <div>
-    {/* TODO: make the time-remaining show up correctly throughout the review */}
+  const reviewAndVotingPhaseButtons = <div className={classes.actionButtonRow}>
     {/* If there's less than 24 hours remaining, show the remaining time */}
-    {voteEndDate.diff(new Date()) < (24 * 60 * 60 * 1000) && <span className={classes.timeRemaining}>
+    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
+      {reviewEndDate.fromNow()} remaining
+    </span>}
+    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
       {voteEndDate.fromNow()} remaining
     </span>}
     {eligibleToNominate(currentUser) &&
