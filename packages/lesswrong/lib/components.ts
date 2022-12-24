@@ -547,8 +547,6 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
-importComponent("TagSubforumButton", () => require('../components/tagging/TagSubforumButton'));
-importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
 
@@ -580,18 +578,26 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
+
+importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
+
+
+// Subforums
+importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
+importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
+importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
+importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
+importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));
+importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
 importComponent("SubforumMembersDialog", () => require('../components/tagging/SubforumMembersDialog'));
 importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
 importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
-importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
-importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
-importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
-importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
-importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
-importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));
-importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
+importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
+importComponent("TagSubforumButton", () => require('../components/tagging/TagSubforumButton'));
+importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
+importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
@@ -667,7 +673,6 @@ importComponent("LocationFormComponent", () => require('../components/form-compo
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
 importComponent("MultiSelectButtons", () => require('../components/form-components/MultiSelectButtons'));
 importComponent("FormComponentCheckbox", () => require('../components/form-components/FormComponentCheckbox'));
-importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
 importComponent("FormComponentRadioGroup", () => require('../components/form-components/FormComponentRadioGroup'));
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));

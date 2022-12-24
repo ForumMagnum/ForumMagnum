@@ -279,6 +279,17 @@ interface DbGardenCode extends DbObject {
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
+interface ImagesCollection extends CollectionBase<DbImages, "Images"> {
+}
+
+interface DbImages extends DbObject {
+  __collectionName?: "Images"
+  originalUrl: string
+  cdnHostedUrl: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface LWEventsCollection extends CollectionBase<DbLWEvent, "LWEvents"> {
 }
 
@@ -1246,6 +1257,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
+  Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
@@ -1290,6 +1302,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
+  Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
