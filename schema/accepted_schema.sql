@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: afc7cd96d9085ca54d2a50765d02338f
 
--- Accepted on 2022-12-23T17:02:55.000Z by 20221223T170255.update_subforum_notif_default.ts
+-- Accepted on 2022-12-24T17:14:07.000Z by 20221224T171407.add_comment_title.ts
 
 -- Schema for "AdvisorRequests", hash: 6142b3b4a34dcb3379e8f272be3bf5a0
 CREATE TABLE "AdvisorRequests" (
