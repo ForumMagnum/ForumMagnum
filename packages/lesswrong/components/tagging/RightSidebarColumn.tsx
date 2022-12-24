@@ -104,7 +104,7 @@ export const RightSidebarColumn = ({header, sidebarComponents = [], children, cl
   classes: ClassesType,
   sidebarComponents?: React.ReactNode[],
 }) => {
-
+  const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing
   
   return (
     <div className={classes.root}>
@@ -117,8 +117,8 @@ export const RightSidebarColumn = ({header, sidebarComponents = [], children, cl
         {children}
       </div>
       <div className={classes.gap1}/>
-      {sidebarComponents.length ? <div className={classes.sidebar}>
-        {sidebarComponents}
+      {nonEmptySidebarComponents.length ? <div className={classes.sidebar}>
+        {nonEmptySidebarComponents}
       </div> : <></>}
       <div className={classes.gap2}/>
     </div>
