@@ -37,8 +37,6 @@ import { addField } from "./meta/utils";
 export const acceptsSchemaHash = "746fe67809bf748504782256c202744c";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Tags, "autoTagModel");
-  await addField(db, Tags, "autoTagPrompt");
 }
 
 export const down = async ({db}: MigrationContext) => {
