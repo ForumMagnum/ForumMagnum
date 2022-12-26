@@ -77,6 +77,9 @@ registerFragment(`
     latestChildren {
       ...CommentsList
     }
+    tag {
+      ...TagBasicInfo
+    }
     post {
       ...PostsBase
     }

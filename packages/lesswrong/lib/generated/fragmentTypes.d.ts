@@ -1247,6 +1247,7 @@ interface ShortformComments extends CommentsList { // fragment on Comments
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
+  readonly tag: TagBasicInfo|null,
   readonly post: PostsBase|null,
 }
 

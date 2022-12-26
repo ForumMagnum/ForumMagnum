@@ -568,6 +568,7 @@ const TagSubforumPage2 = ({classes}: {
   const commentNodeProps = {
     treeOptions: {
       postPage: true,
+      showPostTitle: false,
       refetch,
       tag,
     },
