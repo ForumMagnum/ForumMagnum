@@ -67,7 +67,12 @@ if (!bundleIsProduction) {
       setInterval(() => {
         try {
           connectWebsocket();
+        // eslint-disable-next-line no-empty
         } catch {
+          // Deliberately swallow connection-failed errors from the auto-refresh
+          // notification websocket, since the server might not actually be running.
+          // Unfortunately this doesn't get rid of all the browser-console spam,
+          // but it gets rid of some.
         }
       }, 5000);
     }, 3000);
