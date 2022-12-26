@@ -1,7 +1,7 @@
 // Copyright (c) Flaticon. All rights reserved.
 import React from 'react';
 
-export const GiveIcon = () => <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 512 512" strokeWidth={10} stroke="black">
+export const GiveIcon = () => <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 512 512" strokeWidth={10}>
 <g><g><g><path d="M448,309.333c-20.827,0-64,11.598-85.885,17.885c-2.904-30.609-42.125-41.444-82.656-49.677
 c-18.5-3.75-32.271-10.385-45.583-16.813c-16.417-7.917-31.917-15.396-52.542-15.396c-23.618,0-45.142,4.831-57.288,8.173
 c-3.211-11.172-12.32-20.177-24.421-22.59L12.75,213.542c-3.104-0.625-6.375,0.188-8.854,2.208C1.438,217.781,0,220.802,0,224

@@ -141,6 +141,7 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    subforumModeratorIds
     tableOfContents
     subforumWelcomeText {
       _id
@@ -296,16 +297,6 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-      ...CommentsList
-    }
-  }
-`);
-
-registerFragment(`
-  fragment TagRecentSubforumComments on Tag {
-    ...TagFragment
-    lastVisitedAt
-    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }

@@ -271,6 +271,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
+  readonly allowDatadogSessionReplay: boolean | null,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -410,6 +411,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
+  readonly title: string,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -1090,6 +1092,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
   readonly subforumTagId: string,
+  readonly sideComments: any,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1188,6 +1191,7 @@ interface CommentsList { // fragment on Comments
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly descendentCount: number,
+  readonly title: string,
   readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
   readonly repliesBlockedUntil: Date,
@@ -1243,6 +1247,7 @@ interface ShortformComments extends CommentsList { // fragment on Comments
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
+  readonly tag: TagBasicInfo|null,
   readonly post: PostsBase|null,
 }
 
@@ -2039,6 +2044,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
   readonly isSubforum: boolean,
+  readonly subforumModeratorIds: Array<string>,
   readonly tableOfContents: any,
   readonly subforumWelcomeText: TagSubforumFragment_subforumWelcomeText|null,
 }
@@ -2405,6 +2411,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   },
   readonly experiencedIn: Array<string>,
   readonly interestedIn: Array<string>,
+  readonly allowDatadogSessionReplay: boolean | null,
 }
 
 interface UserBookmarkedPosts { // fragment on Users
@@ -2525,6 +2532,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly location: string,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly allowDatadogSessionReplay: boolean | null,
   readonly reviewedByUserId: string,
   readonly reviewForAlignmentForumUserId: string,
   readonly groups: Array<string>,
@@ -3201,5 +3209,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
 

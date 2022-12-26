@@ -142,20 +142,6 @@ addGraphQLResolvers({
         },
         validate: false
       })
-
-      await createMutator({
-        collection: Subscriptions,
-        document: {
-          collectionName: "Tags",
-          documentId: tagId,
-          type: "newTagPosts",
-          state: member ? "subscribed" : "suppressed",
-          deleted: false,
-        },
-        validate: false,
-        context,
-        currentUser,
-      })
       
       return updatedUser
     },

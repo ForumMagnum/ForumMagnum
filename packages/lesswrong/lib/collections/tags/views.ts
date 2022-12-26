@@ -212,7 +212,5 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
 
 ensureIndex(Tags, {name: 1});
 
-// Used in packages/lesswrong/server/defaultTagWeights/cache.ts
-ensureIndex(Tags, {defaultFilterMode: 1});
 // Used in subTags resolver
 ensureIndex(Tags, {parentTagId: 1});

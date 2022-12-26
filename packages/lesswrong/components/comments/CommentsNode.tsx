@@ -7,7 +7,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
-import type { CommentFormDisplayMode } from './CommentsNewForm';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -102,13 +101,13 @@ const CommentsNode = ({
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
   noAutoScroll=false,
-  classes
+  classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, replyFormStyle="default" } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -190,7 +189,6 @@ const CommentsNode = ({
   const handleExpand = async (event: React.MouseEvent) => {
     event.stopPropagation()
     if (isTruncated || isSingleLine) {
-      markAsRead && await markAsRead()
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
