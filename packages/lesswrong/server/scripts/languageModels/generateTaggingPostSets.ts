@@ -216,6 +216,7 @@ Globals.generateTagClassifierData = async (args: {
     //eslint-disable-next-line no-console
     console.log(`Generating tag training/test sets for tag ${tag.name}`);
     const tagPrompt = tag.autoTagPrompt;
+    if (!tagPrompt) continue; // This actually comes from a query that filters it to be nonempty but the type system doesn't know that
     
     await generateClassifierTuningFile({
       description: `Train tag ${tag.slug}: ${tagPrompt}`,

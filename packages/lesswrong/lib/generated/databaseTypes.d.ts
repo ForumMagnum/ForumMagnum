@@ -293,18 +293,6 @@ interface DbLWEvent extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
-interface LanguageModelCacheCollection extends CollectionBase<DbLanguageModelCache, "LanguageModelCache"> {
-}
-
-interface DbLanguageModelCache extends DbObject {
-  __collectionName?: "LanguageModelCache"
-  prompt: string
-  model: string
-  result: string
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-}
-
 interface LegacyDataCollection extends CollectionBase<DbLegacyData, "LegacyData"> {
 }
 
@@ -878,8 +866,8 @@ interface DbTag extends DbObject {
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   parentTagId: string
-  autoTagModel: string
-  autoTagPrompt: string
+  autoTagModel: string | null
+  autoTagPrompt: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -1260,7 +1248,6 @@ interface CollectionsByName {
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
   LWEvents: LWEventsCollection
-  LanguageModelCache: LanguageModelCacheCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
   Messages: MessagesCollection
@@ -1305,7 +1292,6 @@ interface ObjectsByCollectionName {
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
   LWEvents: DbLWEvent
-  LanguageModelCache: DbLanguageModelCache
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
   Messages: DbMessage

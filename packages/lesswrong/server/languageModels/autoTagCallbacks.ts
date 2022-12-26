@@ -162,9 +162,11 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
 export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   
-  let tagsApplied = {};
+  let tagsApplied: Record<string,boolean> = {};
   
   for (let tag of tags) {
+    if (!tag.autoTagPrompt || !tag.autoTagModel)
+      continue;
     const languageModelResult = await openAIApi.createCompletion({
       model: tag.autoTagModel,
       prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),

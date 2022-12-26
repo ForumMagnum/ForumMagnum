@@ -568,6 +568,7 @@ const schema: SchemaType<DbTag> = {
     editableBy: ['admins'],
     insertableBy: ['admins'],
     group: formGroups.advancedOptions,
+    nullable: true,
     ...schemaDefaultValue(""),
   },
   
@@ -579,6 +580,7 @@ const schema: SchemaType<DbTag> = {
     editableBy: ['admins'],
     insertableBy: ['admins'],
     group: formGroups.advancedOptions,
+    nullable: true,
     ...schemaDefaultValue(""),
   },
 }

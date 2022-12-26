@@ -201,7 +201,8 @@ function truncateByTokenCount(str: string, tokens: number): string {
   }
   
   // If that didn't work, binary-search string truncations to find one that has the right token count
-  let low=0, high=str.length, mid=(low+high)/2|0;
+  let low=0, high=str.length;
+  let mid=(low+high)/2 | 0; //Midpoint, round down (bitwise-or-0 is a JS cast-to-int idiom)
   
   while (high>low) {
     if (countGptTokens(str.substring(0,mid)) > tokens) {
@@ -272,9 +273,6 @@ async function languageModelExecute(job: LanguageModelJob): Promise<string> {
   // TODO: Check and populate the cache
   
   switch(job.api) {
-    default: {
-      throw new Error(`Invalid language model API: ${job.api}`);
-    }
     case "disabled": {
       throw new Error(`Language model not available for job type: ${job.task}`);
     }
@@ -289,19 +287,17 @@ async function languageModelExecute(job: LanguageModelJob): Promise<string> {
         template: job.template,
         variables: job.inputs
       });
-      //console.log(`Prompting with: ${JSON.stringify(prompt)}`);
       const response = await api.createCompletion({
         model: job.model,
         prompt: prompt,
         max_tokens: job.maxTokens,
-        //temperature: 0.7,
-        //top_p: 1,
-        //frequency_penalty: 0,
-        //presence_penalty: 0,
       });
       const topResult = response.data.choices[0].text;
       if (topResult) return topResult;
       else throw new Error("API did not return a top result");
+    }
+    default: {
+      throw new Error(`Invalid language model API: ${job.api}`);
     }
   }
 }
