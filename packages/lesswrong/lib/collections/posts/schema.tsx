@@ -2345,6 +2345,14 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     foreignKey: 'Comments',
   },
+  
+  languageModelSummary: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['admins'],
+    // Implementation in postSummaryResolver.ts
+  },
 };
 
 /* subforum-related fields */

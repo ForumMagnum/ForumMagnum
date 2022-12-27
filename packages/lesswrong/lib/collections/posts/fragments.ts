@@ -577,3 +577,10 @@ registerFragment(`
     sideComments
   }
 `);
+
+registerFragment(`
+  fragment PostWithGeneratedSummary on Post {
+    _id
+    languageModelSummary
+  }
+`);

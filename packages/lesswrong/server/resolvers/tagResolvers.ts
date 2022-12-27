@@ -3,6 +3,7 @@ import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortFi
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
+import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
@@ -19,13 +20,8 @@ import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
 import { recordSubforumView } from '../../lib/collections/userTagRels/helpers';
-import {
-  defaultSubforumSorting,
-  SubforumSorting,
-  subforumSortings,
-  subforumSortingToResolverName,
-  subforumSortingTypes,
-} from '../../lib/subforumSortings';
+import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
+import { defaultSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../lib/subforumSortings';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -311,6 +307,19 @@ augmentFieldsDict(Tags, {
         }
       }
     }
+  },
+});
+
+augmentFieldsDict(TagRels, {
+  autoApplied: {
+    resolveAs: {
+      type: "Boolean",
+      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
+        const tagBotUserId = await getTagBotUserId(context);
+        if (!tagBotUserId) return false;
+        return (document.userId===tagBotUserId && document.voteCount===1);
+      },
+    },
   },
 });
 
