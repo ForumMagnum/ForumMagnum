@@ -30,8 +30,7 @@ export function viewTermsToQuery<N extends CollectionNameString>(collectionName:
 
 export function getDefaultViewSelector<N extends CollectionNameString>(collectionName: N) {
   const viewQuery = viewTermsToQuery(collectionName, {})
-  // TODO: Postprocess out viewFieldNullOrMissing
-  return viewQuery.selector;
+  return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
 function getParameters<N extends CollectionNameString, T extends DbObject=ObjectsByCollectionName[N]>(
@@ -96,16 +95,7 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   }
 
   // remove any null fields (setting a field to null means it should be deleted)
-  _.keys(parameters.selector).forEach(key => {
-    if (_.isEqual(parameters.selector[key], viewFieldNullOrMissing)) {
-      parameters.selector[key] = null;
-    } else if (_.isEqual(parameters.selector[key], viewFieldAllowAny)) {
-      delete parameters.selector[key];
-    } else if (parameters.selector[key] === null || parameters.selector[key] === undefined) {
-      //console.log(`Warning: Null key ${key} in query of collection ${collectionName} with view ${terms.view}.`);
-      delete parameters.selector[key];
-    }
-  });
+  parameters.selector = replaceSpecialFieldSelectors(parameters.selector);
   if (parameters.options.sort) {
     _.keys(parameters.options.sort).forEach(key => {
       if (parameters.options.sort[key] === null) {
@@ -122,3 +112,24 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   logger('getParameters(), final parameters:', parameters);
   return parameters;
 }
+
+function replaceSpecialFieldSelectors(selector: any): any {
+  let result: any = {};
+  for (let key of Object.keys(selector)) {
+    if (_.isEqual(selector[key], viewFieldNullOrMissing)) {
+      // Put an explicit null in the selector. In mongodb-query terms, this means
+      // no constraint on the given field.
+      result[key] = null;
+    } else if (_.isEqual(selector[key], viewFieldAllowAny)) {
+      // Skip: The selector has a no-op in this field. Probably a specific view
+      // overriding something that would have been in the default view.
+    } else if (selector[key] === null || selector[key] === undefined) {
+      // Skip: null is like viewFieldAllowAny.
+    } else {
+      // Anything else, copy the selector
+      result[key] = selector[key];
+    }
+  }
+  return result;
+}
+
