@@ -1,4 +1,5 @@
 import { addField } from "./meta/utils";
+import { Tags } from '../../lib/collections/tags/collection';
 
 /**
  * Generated on 2022-12-26T21:08:53.270Z by `yarn makemigrations`
@@ -37,6 +38,10 @@ import { addField } from "./meta/utils";
 export const acceptsSchemaHash = "746fe67809bf748504782256c202744c";
 
 export const up = async ({db}: MigrationContext) => {
+  if (Tags.isPostgres()) {
+    await addField(db, Tags, "autoTagModel");
+    await addField(db, Tags, "autoTagPrompt");
+  }
 }
 
 export const down = async ({db}: MigrationContext) => {
