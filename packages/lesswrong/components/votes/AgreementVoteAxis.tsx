@@ -55,7 +55,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   return <>
     <span className={classes.agreementSection}>
       <LWTooltip
-        title={<div><b>Agreement: Downvote</b><br />How much do you <b>disagree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong downvote, click-and-hold.<br />(Click twice on mobile)</em></div>}
+        title={<div><b>Disagreevote</b><br />How much do you <b>disagree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong downvote, click-and-hold.<br />(Click twice on mobile)</em></div>}
         placement="bottom"
       >
         <AxisVoteButton
@@ -75,7 +75,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
       </span>
       
       <LWTooltip
-        title={<div><b>Agreement: Upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+        title={<div><b>Agreevote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
         placement="bottom"
       >
         <AxisVoteButton
