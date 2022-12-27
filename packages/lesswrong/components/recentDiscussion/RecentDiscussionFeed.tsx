@@ -50,6 +50,7 @@ const RecentDiscussionFeed = ({
     RecentDiscussionSubscribeReminder,
     RecentDiscussionMeetupsPoke,
     AnalyticsInViewTracker,
+    RecentDiscussionSubforumThread,
   } = Components;
   
   const refetch = useCallback(() => {
@@ -110,17 +111,16 @@ const RecentDiscussionFeed = ({
                   />
                 )
               },
-              tagSubforumCommented: {
-                fragmentName: "TagRecentSubforumComments",
-                render: (tag: TagRecentSubforumComments) => (
-                  <RecentDiscussionTag
-                    tag={tag}
+              tagSubforumComments: {
+                fragmentName: "CommentWithRepliesFragment",
+                render: (comment: CommentWithRepliesFragment) => (
+                  <RecentDiscussionSubforumThread
+                    comment={comment}
+                    tag={comment.tag}
                     refetch={refetch}
-                    comments={tag.recentComments}
                     expandAllThreads={expandAll}
-                    tagCommentType={"SUBFORUM"}
                   />
-                )
+                ),
               },
               tagRevised: {
                 fragmentName: "RevisionTagFragment",
