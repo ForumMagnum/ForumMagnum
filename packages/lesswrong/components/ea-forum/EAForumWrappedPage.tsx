@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
@@ -9,18 +9,26 @@ const styles = (theme: ThemeType) => ({
   root: {
     
   },
+  loadingGif: {
+    marginTop: -50
+  },
   summaryCard: {
     maxWidth: 640,
     // backgroundColor: theme.palette.primary.main,
-    background: `linear-gradient(to bottom right, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-    color: theme.palette.grey[0],
+    // background: `linear-gradient(to bottom right, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+    // color: theme.palette.grey[0],
     padding: 40,
-    borderRadius: 12,
+    // borderRadius: 12,
+    borderTopLeftRadius: '255px 15px',
+    borderTopRightRadius: '15px 225px',
+    borderBottomRightRadius: '225px 15px',
+    borderBottomLeftRadius: '15px 255px',
+    border: `2px solid ${theme.palette.primary.main}`,
     margin: '0 auto'
   },
   headline: {
     textAlign: 'center',
-    color: theme.palette.grey[0],
+    // color: theme.palette.grey[0],
     fontSize: 24,
     fontWeight: 600
   },
@@ -37,12 +45,25 @@ const styles = (theme: ThemeType) => ({
 
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
+  const [showAnimation, setShowAnimation] = useState(true)
+  
+  // make sure the full 5 sec gif plays
+  useEffect(() => {
+    setTimeout(() => {
+      setShowAnimation(false)
+    }, 5000);
+  }, []);
   
   const { data, loading } = useQuery(gql`
     query getUserMostRead($year: Int!) {
       UserMostReadByYear(year: $year) {
         mostReadAuthors {
           displayName
+          slug
+          count
+        }
+        mostReadTopics {
+          name
           slug
           count
         }
@@ -56,7 +77,11 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   })
   console.log('data', data)
   
-  const { SingleColumnSection, Typography, Loading } = Components
+  const { SingleColumnSection, Typography } = Components
+  
+  if (showAnimation || loading) {
+    return <img src="https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350,e_loop:0/v1672107610/wrapped_animation_01.gif" className={classes.loadingGif}/>
+  }
 
   return (
     <div className={classes.root}>
@@ -66,7 +91,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             {currentUser?.displayName}'s ✨ 2022 EA Forum Wrapped ✨
           </Typography>
           
-          {loading ? <Loading /> : <div className={classes.summarySection}>
+          <div className={classes.summarySection}>
             <div>Most read authors</div>
             <div>
               {data?.UserMostReadByYear?.mostReadAuthors?.map(author => {
@@ -77,8 +102,11 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             </div>
             <div>Most read topics</div>
             <div>
-              <div>AI Risk</div>
-              <div>Forecasting</div>
+              {data?.UserMostReadByYear?.mostReadTopics?.map(topic => {
+                return <div key={topic.slug}>
+                  <Link to={`/topics/${topic.slug}`}>{topic.name} ({topic.count})</Link>
+                </div>
+              })}
             </div>
             <div>Your posts and comments</div>
             <div>
@@ -88,7 +116,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             <div>
               +123
             </div>
-          </div>}
+          </div>
         </div>
       </SingleColumnSection>
     </div>

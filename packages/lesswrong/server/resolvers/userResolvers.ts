@@ -16,6 +16,7 @@ import countBy from 'lodash/countBy';
 import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
+import Tags from '../../lib/collections/tags/collection';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -71,8 +72,14 @@ addGraphQLSchema(`
     displayName: String,
     count: Int
   }
+  type MostReadTopic {
+    slug: String,
+    name: String,
+    count: Int
+  }
   type MostReadByYear {
-    mostReadAuthors: [MostReadAuthor]
+    mostReadAuthors: [MostReadAuthor],
+    mostReadTopics: [MostReadTopic]
   }
 `)
 
@@ -188,31 +195,47 @@ addGraphQLResolvers({
       // TODO: account for coauthorship
       const posts = (await Posts.find({
         _id: {$in: readStatuses.map(rs => rs.postId)}
-      }, {projection: {userId: 1}}).fetch()).filter(p => p.userId !== currentUser._id)
+      }, {projection: {userId: 1, tagRelevance: 1}}).fetch()).filter(p => p.userId !== currentUser._id)
       console.log(posts)
       
       // Get the top 3 authors that the user has read
       const userIds = posts.map(p => p.userId)
       const authorCounts = countBy(userIds)
-      const topAuthors = sortBy(entries(authorCounts), last).slice(-3)
+      const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a[0])
       console.log('authorCounts', authorCounts)
       
       const authors = await Users.find({
-        _id: {$in: topAuthors.map(a => a[0])}
+        _id: {$in: topAuthors}
       }, {projection: {displayName: 1, slug: 1}}).fetch()
       console.log(authors)
       
       // Get the top 3 topics that the user has read
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance) ?? []).flat()
+      const tagCounts = countBy(tagIds)
+      const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t[0])
+      
+      const topics = await Tags.find({
+        _id: {$in: topTags}
+      }, {projection: {name: 1, slug: 1}}).fetch()
+      console.log(topics)
       
       return {
-        mostReadAuthors: authors.map(author => {
-          return {
+        mostReadAuthors: topAuthors.reverse().map(id => {
+          const author = authors.find(a => a._id === id)
+          return author ? {
             displayName: author.displayName,
             slug: author.slug,
             count: authorCounts[author._id]
-          }
+          } : null
         }),
-        mostReadTopics: []
+        mostReadTopics: topTags.reverse().map(id => {
+          const topic = topics.find(t => t._id === id)
+          return topic ? {
+            name: topic.name,
+            slug: topic.slug,
+            count: tagCounts[topic._id]
+          } : null
+        })
       }
     },
   },
