@@ -40,7 +40,12 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     margin: '20px auto 0'
   },
-  
+  textSection: {
+    marginTop: 40
+  },
+  postsListSection: {
+    
+  }
 });
 
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
@@ -86,6 +91,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
           postId
           baseScore
         }
+        karmaChange
       }
     }
   `, {
@@ -96,10 +102,11 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   })
   console.log('data', data)
   
-  const { SingleColumnSection, Typography, HoverPreviewLink } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink, SectionTitle, PostsByVoteWrapper } = Components
   
   if (showAnimation || loading) {
-    return <img src="https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350,e_loop:0/v1672107610/wrapped_animation_01.gif" className={classes.loadingGif}/>
+    // return <img src="https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350,e_loop:0/v1672107610/wrapped_animation_01.gif" className={classes.loadingGif}/>
+    return <img src="https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350/v1672107610/wrapped_animation_01.gif" className={classes.loadingGif}/>
   }
   
   const results = data?.UserWrappedDataByYear
@@ -152,10 +159,34 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             </div>
             <div>Karma earned this year</div>
             <div>
-              +123
+              +{results.karmaChange}
             </div>
           </div>
         </div>
+      </SingleColumnSection>
+      
+      <SingleColumnSection className={classes.textSection}>
+        <SectionTitle title="Take a moment to reflect on 2022" />
+        <Typography variant="body1" className={classes.body}>
+          Take a look back at everything you enjoyed reading - what did you find most valuable? Your answers will help us encourage more of the most valuable content.
+        </Typography>
+      </SingleColumnSection>
+      
+      <SingleColumnSection className={classes.postsListSection}>
+        <SectionTitle title="Your Strong Upvotes from 2022" />
+        <PostsByVoteWrapper voteType="bigUpvote" year={2022} />
+      </SingleColumnSection>
+      
+      <SingleColumnSection className={classes.postsListSection}>
+        <SectionTitle title="Your Upvotes from 2022" />
+        <PostsByVoteWrapper voteType="smallUpvote" year={2022} />
+      </SingleColumnSection>
+      
+      <SingleColumnSection className={classes.textSection}>
+        <SectionTitle title="Thanks!" />
+        <Typography variant="body1" className={classes.body}>
+          Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world.
+        </Typography>
       </SingleColumnSection>
     </div>
   )

@@ -746,7 +746,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/wrapped',
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
-      background: 'white',
     },
   ],
   LessWrong: [

@@ -18,6 +18,7 @@ import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
 import Tags from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
+import { getKarmaChanges } from '../karmaChanges';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -86,7 +87,8 @@ addGraphQLSchema(`
     commentCount: Int,
     topComment: Comment,
     shortformCount: Int,
-    topShortform: Comment
+    topShortform: Comment,
+    karmaChange: Int
   }
 `)
 
@@ -251,6 +253,7 @@ addGraphQLResolvers({
       }, {projection: {postId: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
       console.log('userShortforms', userShortforms)
       
+      // TODO: check all these numbers
       return {
         mostReadAuthors: topAuthors.reverse().map(id => {
           const author = authors.find(a => a._id === id)
@@ -273,7 +276,13 @@ addGraphQLResolvers({
         commentCount: userComments.length,
         topComment: userComments.shift() ?? null,
         shortformCount: userShortforms.length,
-        topShortform: userShortforms.shift() ?? null
+        topShortform: userShortforms.shift() ?? null,
+        karmaChange: (await getKarmaChanges({
+          user: currentUser,
+          startDate: start.toDate(),
+          endDate: end.toDate(),
+          context,
+        })).totalChange
       }
     },
   },
