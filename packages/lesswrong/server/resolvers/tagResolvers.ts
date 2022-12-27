@@ -26,6 +26,7 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/subforumSortings';
+import { VotesRepo } from '../repos';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -323,6 +324,30 @@ async function getContributorsList(tag: DbTag, version: string|null): Promise<Co
     return await updateDenormalizedContributorsList(tag);
 }
 
+const getSelfVotes = async (tagRevisionIds: string[]): Promise<DbVote[]> => {
+  if (Votes.isPostgres()) {
+    const votesRepo = new VotesRepo();
+    return votesRepo.getSelfVotes(tagRevisionIds);
+  } else {
+    const selfVotes = await Votes.aggregate([
+      // All votes on relevant revisions
+      { $match: {
+        documentId: {$in: tagRevisionIds},
+        collectionName: "Revisions",
+        cancelled: false,
+        isUnvote: false,
+      }},
+      // Filtered by: is a self-vote
+      { $match: {
+        $expr: {
+          $in: ["$userId", "$authorIds"]
+        }
+      }}
+    ]);
+    return selfVotes.toArray();
+  }
+}
+
 async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (!(tag?._id))
     throw new Error("Invalid tag");
@@ -337,21 +362,7 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
     ],
   }).fetch();
   
-  const selfVotes = await Votes.aggregate([
-    // All votes on relevant revisions
-    { $match: {
-      documentId: {$in: tagRevisions.map(r=>r._id)},
-      collectionName: "Revisions",
-      cancelled: false,
-      isUnvote: false,
-    }},
-    // Filtered by: is a self-vote
-    { $match: {
-      $expr: {
-        $in: ["$userId", "$authorIds"]
-      }
-    }}
-  ]).toArray();
+  const selfVotes = await getSelfVotes(tagRevisions.map(r=>r._id));
   const selfVotesByUser = groupBy(selfVotes, v=>v.userId);
   const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
     selfVotes => {
