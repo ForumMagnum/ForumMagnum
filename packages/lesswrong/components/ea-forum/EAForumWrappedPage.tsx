@@ -55,8 +55,8 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   }, []);
   
   const { data, loading } = useQuery(gql`
-    query getUserMostRead($year: Int!) {
-      UserMostReadByYear(year: $year) {
+    query getWrappedData($year: Int!) {
+      UserWrappedDataByYear(year: $year) {
         mostReadAuthors {
           displayName
           slug
@@ -66,6 +66,25 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
           name
           slug
           count
+        }
+        postCount
+        topPost {
+          _id
+          title
+          slug
+          baseScore
+        }
+        commentCount
+        topComment {
+          _id
+          postId
+          baseScore
+        }
+        shortformCount
+        topShortform {
+          _id
+          postId
+          baseScore
         }
       }
     }
@@ -77,11 +96,13 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   })
   console.log('data', data)
   
-  const { SingleColumnSection, Typography } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink } = Components
   
   if (showAnimation || loading) {
     return <img src="https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350,e_loop:0/v1672107610/wrapped_animation_01.gif" className={classes.loadingGif}/>
   }
+  
+  const results = data?.UserWrappedDataByYear
 
   return (
     <div className={classes.root}>
@@ -94,7 +115,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
           <div className={classes.summarySection}>
             <div>Most read authors</div>
             <div>
-              {data?.UserMostReadByYear?.mostReadAuthors?.map(author => {
+              {results.mostReadAuthors.map(author => {
                 return <div key={author.slug}>
                   <Link to={`/user/${author.slug}`}>{author.displayName} ({author.count})</Link>
                 </div>
@@ -102,15 +123,32 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             </div>
             <div>Most read topics</div>
             <div>
-              {data?.UserMostReadByYear?.mostReadTopics?.map(topic => {
+              {results.mostReadTopics.map(topic => {
                 return <div key={topic.slug}>
-                  <Link to={`/topics/${topic.slug}`}>{topic.name} ({topic.count})</Link>
+                  <HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/> ({topic.count})
                 </div>
               })}
             </div>
-            <div>Your posts and comments</div>
+            <div>Your top post</div>
             <div>
-              2 posts, 15 comments
+              <HoverPreviewLink
+                href={`/posts/${results.topPost._id}/${results.topPost.slug}`}
+                innerHTML={results.topPost.title}
+              /> ({results.postCount} posts total)
+            </div>
+            <div>Your top comment</div>
+            <div>
+              <HoverPreviewLink
+                href={`/posts/${results.topComment.postId}?commentId=${results.topComment._id}`}
+                innerHTML="See comment"
+              /> ({results.commentCount} comments total)
+            </div>
+            <div>Your top shortform</div>
+            <div>
+              <HoverPreviewLink
+                href={`/posts/${results.topShortform.postId}?commentId=${results.topShortform._id}`}
+                innerHTML="See shortform"
+              /> ({results.shortformCount} shortforms total)
             </div>
             <div>Karma earned this year</div>
             <div>

@@ -17,6 +17,7 @@ import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
 import Tags from '../../lib/collections/tags/collection';
+import Comments from '../../lib/collections/comments/collection';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -77,9 +78,15 @@ addGraphQLSchema(`
     name: String,
     count: Int
   }
-  type MostReadByYear {
+  type WrappedDataByYear {
     mostReadAuthors: [MostReadAuthor],
-    mostReadTopics: [MostReadTopic]
+    mostReadTopics: [MostReadTopic],
+    postCount: Int,
+    topPost: Post,
+    commentCount: Int,
+    topComment: Comment,
+    shortformCount: Int,
+    topShortform: Comment
   }
 `)
 
@@ -172,7 +179,7 @@ addGraphQLResolvers({
     },
   },
   Query: {
-    async UserMostReadByYear(root: void, {year}: {year: number}, context: ResolverContext) {
+    async UserWrappedDataByYear(root: void, {year}: {year: number}, context: ResolverContext) {
       const { currentUser } = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
@@ -196,18 +203,15 @@ addGraphQLResolvers({
       const posts = (await Posts.find({
         _id: {$in: readStatuses.map(rs => rs.postId)}
       }, {projection: {userId: 1, tagRelevance: 1}}).fetch()).filter(p => p.userId !== currentUser._id)
-      console.log(posts)
       
       // Get the top 3 authors that the user has read
       const userIds = posts.map(p => p.userId)
       const authorCounts = countBy(userIds)
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a[0])
-      console.log('authorCounts', authorCounts)
       
       const authors = await Users.find({
         _id: {$in: topAuthors}
       }, {projection: {displayName: 1, slug: 1}}).fetch()
-      console.log(authors)
       
       // Get the top 3 topics that the user has read
       const tagIds = posts.map(p => Object.keys(p.tagRelevance) ?? []).flat()
@@ -217,7 +221,35 @@ addGraphQLResolvers({
       const topics = await Tags.find({
         _id: {$in: topTags}
       }, {projection: {name: 1, slug: 1}}).fetch()
-      console.log(topics)
+      
+      // Get the number of posts, comments, and shortforms that the user posted this year,
+      // including which were the most popular
+      // TODO: account for coauthorship
+      const userPosts = await Posts.find({
+        userId: currentUser._id,
+        postedAt: {$gte: start, $lt: end},
+        draft: false,
+        deletedDraft: false,
+        isEvent: false,
+        isFuture: false,
+        unlisted: false,
+        shortform: false,
+      }, {projection: {title: 1, slug: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
+      console.log('userPosts', userPosts)
+      const userComments = await Comments.find({
+        userId: currentUser._id,
+        postedAt: {$gte: start, $lt: end},
+        deleted: false,
+        shortform: false,
+      }, {projection: {postId: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
+      console.log('userComments', userComments)
+      const userShortforms = await Comments.find({
+        userId: currentUser._id,
+        postedAt: {$gte: start, $lt: end},
+        deleted: false,
+        shortform: true,
+      }, {projection: {postId: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
+      console.log('userShortforms', userShortforms)
       
       return {
         mostReadAuthors: topAuthors.reverse().map(id => {
@@ -235,7 +267,13 @@ addGraphQLResolvers({
             slug: topic.slug,
             count: tagCounts[topic._id]
           } : null
-        })
+        }),
+        postCount: userPosts.length,
+        topPost: userPosts.shift() ?? null,
+        commentCount: userComments.length,
+        topComment: userComments.shift() ?? null,
+        shortformCount: userShortforms.length,
+        topShortform: userShortforms.shift() ?? null
       }
     },
   },
@@ -250,4 +288,4 @@ addGraphQLMutation(
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
-addGraphQLQuery('UserMostReadByYear(year: Int!): MostReadByYear')
+addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
