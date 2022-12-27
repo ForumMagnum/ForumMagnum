@@ -10,6 +10,7 @@ import TopicIcon from '@material-ui/icons/LocalOffer'
 import PostIcon from '@material-ui/icons/Description'
 import CommentIcon from '@material-ui/icons/Message'
 import ShortformIcon from '@material-ui/icons/Notes'
+import KarmaIcon from '@material-ui/icons/Star'
 import NearMeIcon from '@material-ui/icons/NearMe'
 
 
@@ -23,9 +24,9 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
   },
   loadingGif: {
-    margin: '-50px auto 0',
+    margin: '0 auto',
     [theme.breakpoints.down('sm')]: {
-      marginTop: 0
+      marginTop: 30
     }
   },
   summaryCard: {
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     // backgroundColor: theme.palette.primary.main,
     // background: `linear-gradient(to bottom right, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
     // color: theme.palette.grey[0],
-    padding: '32px 16px 20px',
+    padding: '32px 14px 20px',
     // borderRadius: 12,
     borderTopLeftRadius: '255px 15px',
     borderTopRightRadius: '15px 225px',
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     border: `2px solid ${theme.palette.primary.main}`,
     margin: '0 auto',
     [theme.breakpoints.down('xs')]: {
-      padding: '24px 16px 16px',
+      padding: '24px 14px 16px',
     }
   },
   summaryHeadline: {
@@ -54,7 +55,10 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     // color: theme.palette.grey[0],
     fontSize: 24,
-    fontWeight: 600
+    fontWeight: 600,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 22,
+    }
   },
   loggedOutSection: {
     maxWidth: 300,
@@ -67,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     gridGap: '24px 14px',
     fontFamily: theme.typography.fontFamily,
     padding: '0 30px',
-    margin: '20px auto 0',
+    margin: '24px auto 0',
     [theme.breakpoints.down('xs')]: {
       padding: '0 14px',
     },
@@ -149,7 +153,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   useEffect(() => {
     setTimeout(() => {
       setShowAnimation(false)
-    }, 1400);
+    }, 2200);
   }, []);
   
   const { data, loading } = useQuery(gql`
@@ -203,7 +207,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   })
   console.log('data', data)
   
-  const { SingleColumnSection, Typography, HoverPreviewLink, SectionTitle, PostsByVoteWrapper, WrappedLoginForm, ProfilePhoto } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm } = Components
   
   if (!currentUser) {
     return <div className={classes.root}>
@@ -221,10 +225,9 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   }
   
   if (loading || showAnimation) {
-    // return <img src="https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350,e_loop:0/v1672155607/wrapped_animation_03.gif" className={classes.loadingGif}/>
-    const gifName = theme.name === 'dark' ? 'v1672155607/wrapped_animation_03.gif' : 'v1672156139/wrapped_animation_04.gif'
+    const gifName = theme.name === 'dark' ? 'v1672178471/wrapped_gif_v3_dark_mode.gif' : 'v1672178471/wrapped_gif_v3_light_mode.gif'
     return <div className={classes.loading}>
-      <img src={`https://res.cloudinary.com/cea/image/upload/c_crop,w_350,h_350/${gifName}`} className={classes.loadingGif} />
+      <img src={`https://res.cloudinary.com/cea/image/upload/c_crop,w_250,h_250/${gifName}`} className={classes.loadingGif} />
     </div>
   }
   
@@ -248,7 +251,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
               <div>
                 {results.mostReadAuthors.map(author => {
                   return <div key={author.slug} className={classes.summaryDataVal}>
-                    {/* <ProfilePhoto user={author} from="2022_wrapped" /> */}
                     <Link to={`/user/${author.slug}?from=2022_wrapped`} className={classes.link}>{author.displayName}</Link>
                     <span className={classes.count}>{author.count} post{author.count > 1 ? 's' : ''} read</span>
                   </div>
@@ -336,6 +338,15 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             </>}
             <div className={classes.summaryData}>
               <div className={classes.summaryDataLabel}>
+                <KarmaIcon className={classes.labelIcon} />
+                Your karma change
+              </div>
+              <div className={classes.summaryDataVal}>
+                {results.karmaChange > 0 ? '+' : ''}{results.karmaChange}
+              </div>
+            </div>
+            <div className={classes.summaryData}>
+              <div className={classes.summaryDataLabel}>
                 <NearMeIcon className={classes.labelIcon} />
                 <div>
                   Your EA Forum <a href="https://en.wikipedia.org/wiki/Alignment_(Dungeons_%26_Dragons)#Alignments" target="_blank" rel="noopener noreferrer" className={classes.darkLink}>
@@ -347,10 +358,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                 Chaotic Good
               </div>
             </div>
-            {/* <div>Karma earned this year</div>
-            <div>
-              +{results.karmaChange}
-            </div> */}
           </div>
         </div>
       </SingleColumnSection>

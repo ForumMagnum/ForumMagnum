@@ -19,6 +19,7 @@ import last from 'lodash/fp/last';
 import Tags from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import { getKarmaChanges } from '../karmaChanges';
+import sumBy from 'lodash/sumBy';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -189,8 +190,8 @@ addGraphQLResolvers({
       }
 
       // Get all the user's posts read for the given year
-      const start = moment().year(year).dayOfYear(1)
-      const end = moment().year(year+1).dayOfYear(1)
+      const start = moment().year(year).dayOfYear(1).toDate()
+      const end = moment().year(year+1).dayOfYear(1).toDate()
       console.log('start', start)
       console.log('end', end)
       const readStatuses = await ReadStatuses.find({
@@ -214,47 +215,64 @@ addGraphQLResolvers({
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a[0])
       console.log('topAuthors', topAuthors)
       
-      const authors = await Users.find({
-        _id: {$in: topAuthors}
-      }, {projection: {displayName: 1, slug: 1, profileImageId: 1}}).fetch()
-      
       // Get the top 3 topics that the user has read
       const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat()
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t[0])
       
-      const topics = await Tags.find({
-        _id: {$in: topTags}
-      }, {projection: {name: 1, slug: 1}}).fetch()
-      
       // Get the number of posts, comments, and shortforms that the user posted this year,
       // including which were the most popular
       // TODO: account for coauthorship
-      const userPosts = await Posts.find({
-        userId: currentUser._id,
-        postedAt: {$gte: start, $lt: end},
-        draft: false,
-        deletedDraft: false,
-        isEvent: false,
-        isFuture: false,
-        unlisted: false,
-        shortform: false,
-      }, {projection: {title: 1, slug: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
-      console.log('userPosts', userPosts)
-      const userComments = await Comments.find({
-        userId: currentUser._id,
-        postedAt: {$gte: start, $lt: end},
-        deleted: false,
-        shortform: false,
-      }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
-      console.log('userComments', userComments)
-      const userShortforms = await Comments.find({
-        userId: currentUser._id,
-        postedAt: {$gte: start, $lt: end},
-        deleted: false,
-        shortform: true,
-      }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
-      console.log('userShortforms', userShortforms)
+      const [authors, topics, userPosts, userComments, userShortforms] = await Promise.all([
+        Users.find({
+          _id: {$in: topAuthors}
+        }, {projection: {displayName: 1, slug: 1, profileImageId: 1}}).fetch(),
+        Tags.find({
+          _id: {$in: topTags}
+        }, {projection: {name: 1, slug: 1}}).fetch(),
+        Posts.find({
+          userId: currentUser._id,
+          postedAt: {$gte: start, $lt: end},
+          draft: false,
+          deletedDraft: false,
+          isEvent: false,
+          isFuture: false,
+          unlisted: false,
+          shortform: false,
+        }, {projection: {title: 1, slug: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch(),
+        Comments.find({
+          userId: currentUser._id,
+          postedAt: {$gte: start, $lt: end},
+          deleted: false,
+          shortform: false,
+        }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch(),
+        Comments.find({
+          userId: currentUser._id,
+          postedAt: {$gte: start, $lt: end},
+          deleted: false,
+          shortform: true,
+        }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
+      ])
+      
+      let totalKarmaChange
+      if (context?.repos?.votes) {
+        const karmaQueryArgs = {
+          userId: currentUser._id,
+          startDate: start,
+          endDate: end,
+          af: false,
+          showNegative: true
+        }
+        const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
+          context.repos.votes.getKarmaChangesForComments(karmaQueryArgs),
+          context.repos.votes.getKarmaChangesForPosts(karmaQueryArgs),
+          context.repos.votes.getKarmaChangesForTagRevisions(karmaQueryArgs),
+        ])
+        totalKarmaChange =
+          sumBy(changedPosts, (doc: any)=>doc.scoreChange)
+        + sumBy(changedComments, (doc: any)=>doc.scoreChange)
+        + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
+      }
       
       // TODO: check all these numbers
       return {
@@ -280,12 +298,7 @@ addGraphQLResolvers({
         topComment: userComments.shift() ?? null,
         shortformCount: userShortforms.length,
         topShortform: userShortforms.shift() ?? null,
-        karmaChange: (await getKarmaChanges({
-          user: currentUser,
-          startDate: start.toDate(),
-          endDate: end.toDate(),
-          context,
-        })).totalChange
+        karmaChange: totalKarmaChange
       }
     },
   },
