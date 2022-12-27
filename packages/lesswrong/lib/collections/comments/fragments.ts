@@ -9,6 +9,7 @@ registerFragment(`
     parentCommentId
     topLevelCommentId
     descendentCount
+    title
     contents {
       _id
       html
@@ -75,6 +76,9 @@ registerFragment(`
     lastSubthreadActivity
     latestChildren {
       ...CommentsList
+    }
+    tag {
+      ...TagBasicInfo
     }
     post {
       ...PostsBase

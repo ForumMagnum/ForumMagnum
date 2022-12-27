@@ -12,6 +12,7 @@ type DebouncerEventsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
+type ImagesViewName = never
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers";
 type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
@@ -55,6 +56,7 @@ interface ViewTermsByCollectionName {
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms
+  Images: ViewTermsBase
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
