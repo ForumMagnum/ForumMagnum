@@ -44,14 +44,14 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
     }
   );
   // eslint-disable-next-line no-console
-  console.log(`Result of moving image: ${result.url}`);
+  console.log(`Result of moving image: ${result.secure_url}`);
   
   await Images.rawInsert({
     originalUrl: oldUrl,
-    cdnHostedUrl: result.url,
+    cdnHostedUrl: result.secure_url,
   });
   
-  return result.url;
+  return result.secure_url;
 }
 
 /// If an image has already been re-hosted, return its CDN URL. Otherwise null.
