@@ -5,10 +5,11 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag';
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
-import MessageIcon from '@material-ui/icons/Message'
-import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { hideScrollBars } from '../../themes/styleUtils';
+import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,11 +29,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-  hoverPostIcon: {
-    height: 16,
-    color: theme.palette.grey[700],
-    position: "relative",
-    top: 3
+  legacyReviewTrigger: {
+    marginLeft: 6
+  },
+  referrerLandingPage: {
+    display: 'flex'
   },
   basicInfoRow: {
     padding: 16,
@@ -87,13 +88,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12,
     marginBottom: 12
   },
-  sortButton: {
-    marginLeft: 6,
-    cursor: "pointer"
-  },
-  sortSelected: {
-    color: theme.palette.grey[900]
-  },
   bio: {
     '& a': {
       color: theme.palette.primary.main,
@@ -145,16 +139,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   contentCollapsed: {
     maxHeight: 300,
     overflowY: "scroll",
-    cursor: "pointer"
+    cursor: "pointer",
+    ...hideScrollBars
   },
-  contentSummaryRow: {
-    display: "flex",
-    flexWrap: "wrap"
-  },
-  reviewedAt: {
-    marginTop: 16,
-    fontStyle: "italic"
-  }
 })
 
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
@@ -163,12 +150,12 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType,
 }) => {
-    
-  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
+  const { MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus, Loading, SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
+
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
     
   
-  const { results: posts, loading: postsLoading } = useMulti({
+  const { results: posts = [], loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
@@ -176,24 +163,18 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     limit: 10
   });
   
-  const { results: comments, loading: commentsLoading } = useMulti({
+  const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
     limit: 10
   });
-  
-  const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
-  
-  const { MetaInfo, FormatDate, SunshineUserMessages, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, UsersNameWrapper, Loading, SunshineNewUserPostsList, SunshineNewUserCommentsList, ModeratorActions, UsersName } = Components
-  
-  const hiddenPostCount = user.maxPostCount - user.postCount
-  const hiddenCommentCount = user.maxCommentCount - user.commentCount
+
+  const reviewTrigger = getReasonForReview(user)
+  const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
-
 
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
@@ -201,14 +182,23 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <UsersName user={user}/>
         {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon className={classes.icon}/>}
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
+      <MetaInfo className={classes.referrerLandingPage}>
+        {user.associatedClientId?.firstSeenReferrer && <div>Initial referrer: {user.associatedClientId.firstSeenReferrer}</div>}
+      </MetaInfo>
+      <MetaInfo className={classes.referrerLandingPage}>
+        {user.associatedClientId?.firstSeenLandingPage && <div>Initial landing page: <a href={user.associatedClientId.firstSeenLandingPage}>{user.associatedClientId.firstSeenLandingPage}</a></div>}
+      </MetaInfo>
     </div>
 
     <div className={classes.row}>
       <MetaInfo className={classes.info}>
         { user.karma || 0 } karma
       </MetaInfo>
-      <div>{user.email}</div>
+      <MetaInfo>
+        {user.email}
+      </MetaInfo>
       <MetaInfo className={classes.info}>
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
@@ -239,34 +229,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     </LWTooltip>
   </div>
 
-  const postCommentSortingRow = <div>
-    Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
-        karma
-      </span>
-    <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
-        postedAt
-      </span>
-  </div>
-
-  const postSummaryRow = <div className={classes.contentSummaryRow}>
-    <LWTooltip title="Post count">
-        <span>
-          { user.postCount || 0 }
-          <DescriptionIcon className={classes.hoverPostIcon}/>
-        </span>
-    </LWTooltip>
-    {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
-    { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
-  </div>
-
-  const commentSummaryRow = <div className={classes.contentSummaryRow}>
-    <LWTooltip title="Comment count">
-      { user.commentCount || 0 }
-    </LWTooltip>
-    <MessageIcon className={classes.icon}/>
-    {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
-    { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
-  </div>
+  const renderExpand = !!(posts?.length || comments?.length)
   
   return (
     <div className={classes.root}>
@@ -275,30 +238,23 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            {user.reviewedAt
-              ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></div>
-              : null 
-            }
-            {user.banned
-              ? <p><em>Banned until <FormatDate date={user.banned}/></em></p>
-              : null 
-            }
+            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>
           <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
-          {postCommentSortingRow}
-          {postSummaryRow}
-          {(commentsLoading || postsLoading) && <Loading/>}
-          {commentSummaryRow}
+          <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />
           <div 
-            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(!contentExpanded)}
+            className={classNames(classes.content, {[classes.contentCollapsed]: !contentExpanded})} onClick={() => setContentExpanded(true)}
           >
             <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList comments={comments} user={user}/>
           </div>
+          {renderExpand && <a className={classes.expandButton} onClick={() => setContentExpanded(!contentExpanded)}>
+            <MetaInfo>Expand</MetaInfo>
+          </a>}
         </div>
         <div className={classes.messagesColumn}>
           <SunshineUserMessages user={user} currentUser={currentUser}/>

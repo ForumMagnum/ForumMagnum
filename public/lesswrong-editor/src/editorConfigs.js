@@ -52,7 +52,16 @@ const embedConfig = {
 			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
 			html: ([match, longslug]) => `
 				<div data-manifold-id="${longslug}" class="manifold-preview">
-					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}"/>
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://manifold.markets/embed/${longslug}"/>
+				</div>
+			`
+		},
+		{
+			name: "Metaforecast",
+			url: /^metaforecast\.org\/questions\/([\w-]+)$/,
+			html: ([match, slug]) => `
+				<div data-metaforecast-id="${slug}" class="metaforecast-preview">
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://metaforecast.org/questions/embed/${slug}"/>
 				</div>
 			`
 		},

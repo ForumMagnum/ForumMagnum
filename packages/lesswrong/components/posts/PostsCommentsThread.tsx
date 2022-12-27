@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { unflattenComments } from "../../lib/utils/unflatten";
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
   post?: PostsDetails,
@@ -22,10 +21,9 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
     return null;
   }
 
-  const nestedComments = unflattenComments(results);
   return (
     <Components.CommentsListSection
-      comments={nestedComments}
+      comments={results}
       loadMoreComments={loadMore}
       totalComments={totalCount as number}
       commentCount={(results && results.length) || 0}

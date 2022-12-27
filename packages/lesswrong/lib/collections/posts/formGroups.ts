@@ -1,4 +1,6 @@
-import { taggingNamePluralCapitalSetting } from "../../instanceSettings";
+import { forumTypeSetting, taggingNamePluralCapitalSetting } from "../../instanceSettings";
+
+const isEAForum = forumTypeSetting.get() === "EAForum";
 
 export const formGroups: Partial<Record<string,FormGroup>> = {
   default: {
@@ -57,7 +59,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     startCollapsed: true,
   },
   highlight: {
-    order: 21,
+    order: 23,
     name: "highlight",
     label: "Highlight",
     startCollapsed: true,
@@ -68,8 +70,13 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Audio",
     startCollapsed: true
   },
+  coauthors: {
+    order: 21,
+    name: "coauthors",
+    label: "Coauthors"
+  },
   tags: {
-    order: 60,
+    order: isEAForum ? 22 : 60,
     name: "tags",
     label: `Post ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false

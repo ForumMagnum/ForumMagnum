@@ -376,4 +376,4 @@ function throttledFlushClientEvents() {
   }
 }
 
-export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");
+export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");

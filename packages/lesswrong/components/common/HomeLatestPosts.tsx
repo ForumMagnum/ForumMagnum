@@ -13,6 +13,7 @@ import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
+import { reviewIsActive } from '../../lib/reviewUtils';
 
 const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
   marginBottom: 8
@@ -89,6 +90,11 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     })
   }
   
+
+  const showCurated = 
+    (forumTypeSetting.get() === "EAForum")
+    || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
+
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -130,7 +136,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </div>
         </AnalyticsContext>
         <HideRepeatedPostsProvider>
-          {forumTypeSetting.get() === "EAForum" && <CuratedPostsList />}
+          {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>

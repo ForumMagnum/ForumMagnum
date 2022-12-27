@@ -4,7 +4,7 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
-import GraphQLJSON from 'graphql-type-json';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
@@ -49,26 +49,14 @@ const schema: SchemaType<DbTagRel> = {
     canRead: ['guests'],
     canCreate: ['members'],
   },
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
-  },
 
   currentUserCanVote: resolverOnlyField({
     type: Boolean,
     graphQLtype: 'Boolean',
     viewableBy: ['guests'],
-    resolver: (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+    resolver: async (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
-      return currentUser ? userCanVoteOnTag(currentUser, document.tagId) : true;
+      return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
     },
   }),
 };
@@ -76,6 +64,7 @@ const schema: SchemaType<DbTagRel> = {
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {

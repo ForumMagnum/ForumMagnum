@@ -390,10 +390,11 @@ const EAGApplicationImportForm = ({classes}: {
   
   const handleChangeField = (e, field) => {
     e.preventDefault()
+    const val = e.target.value
     setFormValues(currentValues => {
       return {
         ...currentValues,
-        [field]: e.target.value
+        [field]: val
       }
     })
   }

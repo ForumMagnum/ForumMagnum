@@ -4,6 +4,7 @@ import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   showChildren: {
@@ -20,9 +21,9 @@ export interface CommentWithRepliesProps {
   comment: CommentWithRepliesFragment;
   post?: PostsBase;
   lastRead?: Date;
-  markAsRead?: any;
   initialMaxChildren?: number;
   commentNodeProps?: Partial<CommentsNodeProps>;
+  startExpanded?: boolean;
   classes: ClassesType;
 }
 
@@ -30,24 +31,30 @@ const CommentWithReplies = ({
   comment,
   post,
   lastRead,
-  markAsRead = () => {},
   initialMaxChildren = 3,
   commentNodeProps,
+  startExpanded,
   classes,
 }: CommentWithRepliesProps) => {
-  const [maxChildren, setMaxChildren] = useState(initialMaxChildren);
-  
+  const { hash: focusCommentId } = useLocation();
+
+  const commentId = focusCommentId.slice(1) || null;
+
+  startExpanded ??= comment.latestChildren.some(c => c._id === commentId);
+
+  const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
+
   if (!comment) return null;
   
   const lastCommentId = comment.latestChildren[0]?._id;
   
   const treeOptions: CommentTreeOptions = {
     lastCommentId,
-    markAsRead: markAsRead,
     highlightDate: lastRead,
     condensed: true,
     showPostTitle: true,
     post,
+    noHash: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
 
@@ -71,7 +78,6 @@ const CommentWithReplies = ({
 
   return (
     <CommentsNode
-      noHash
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}
@@ -79,6 +85,8 @@ const CommentWithReplies = ({
       key={comment._id}
       shortform
       showExtraChildrenButton={showExtraChildrenButton}
+      expandAllThreads={startExpanded}
+      expandByDefault={startExpanded}
       {...commentNodeProps}
       treeOptions={treeOptions}
     />

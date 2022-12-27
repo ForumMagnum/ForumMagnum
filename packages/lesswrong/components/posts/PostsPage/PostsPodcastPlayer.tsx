@@ -1,21 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
-import { isClient } from '../../../lib/executionEnvironment';
-import { useCurrentUser } from '../../common/withUser';
-import { getThemeOptions } from '../../../themes/themeNames';
-import { useCookies } from 'react-cookie';
-import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
 
-const styles = (): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   embeddedPlayer: {
-    marginBottom: '2px'
-  },
-  playerDarkMode: {
-    opacity: 0.85
+    marginBottom: '2px',
+    opacity: theme.palette.embeddedPlayer.opacity,
   },
   podcastIconList: {
     paddingLeft: '0px',
@@ -32,16 +25,9 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   postId: string,
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser();
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
-
-  const [cookies] = useCookies();
-  const themeCookie = cookies['theme'];
-
-  const themeOptions = getThemeOptions(themeCookie, currentUser);
-  const isDarkMode = themeOptions.name === 'dark';
 
   // Embed a reference to the generated-per-episode buzzsprout script, which is
   // responsible for hydrating the player div (with the id
@@ -73,7 +59,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   return <>
     <div
       id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
-      className={classNames(classes.embeddedPlayer, { [classes.playerDarkMode]: isDarkMode })}
+      className={classes.embeddedPlayer}
       ref={divRef}
       onMouseOver={() => setMouseOverDiv(true)}
       onMouseOut={() => setMouseOverDiv(false)}

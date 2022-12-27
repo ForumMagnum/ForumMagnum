@@ -32,6 +32,10 @@ registerFragment(`
     subforumModerators {
       ...UsersMinimumInfo
     }
+    moderationGuidelines {
+      _id
+      html
+    }
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
@@ -45,14 +49,15 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
-    
     description {
       _id
       html
@@ -88,10 +93,12 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -114,10 +121,12 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
+      _id
       name
       slug
     }
     subTags {
+      _id
       name
       slug
     }
@@ -132,10 +141,22 @@ registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     isSubforum
+    subforumModeratorIds
     tableOfContents
     subforumWelcomeText {
       _id
       html
+    }
+  }
+`);
+
+// TODO: would prefer to fetch subtags in fewer places
+registerFragment(`
+  fragment TagSubtagFragment on Tag {
+    _id
+    subforumModeratorIds
+    subTags {
+      ...TagPreviewFragment
     }
   }
 `);
@@ -183,6 +204,10 @@ registerFragment(`
     tableOfContents
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -201,6 +226,7 @@ registerFragment(`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    subforumUnreadMessagesCount
   }
 `);
 
@@ -210,6 +236,10 @@ registerFragment(`
     tableOfContents(version: $version)
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -256,6 +286,9 @@ registerFragment(`
     subforumWelcomeText {
       ...RevisionEdit
     }
+    moderationGuidelines {
+      ...RevisionEdit
+    }
   }
 `);
 
@@ -264,16 +297,6 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-      ...CommentsList
-    }
-  }
-`);
-
-registerFragment(`
-  fragment TagRecentSubforumComments on Tag {
-    ...TagFragment
-    lastVisitedAt
-    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }

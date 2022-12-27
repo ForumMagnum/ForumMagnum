@@ -7,10 +7,10 @@ import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhas
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export type ReviewYear = 2018 | 2019 | 2020
+export type ReviewYear = 2018 | 2019 | 2020 | 2021
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2020
+export const REVIEW_YEAR: ReviewYear = 2021
 
 // Probably only used while the EA Forum is doing something sufficiently different
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
@@ -33,6 +33,26 @@ export function getReviewPhase(): ReviewPhase | void {
   return
 }
 
+export function getPositiveVoteThreshold(): Number {
+  // During the nomination phase, posts require 1 positive reviewVote
+  // to appear in review post lists (so a single vote allows others to see it
+  // and get prompted to cast additional votes.
+  // 
+  // Starting in the review phase, posts require at least 2 votes, 
+  // ensuring the post is at least plausibly worth everyone's time to review
+  return getReviewPhase() === "NOMINATIONS" ? 1 : 2
+}
+
+export function getReviewThreshold(): Number {
+  // During the voting phase, only show posts with at least 1 review.
+  // (it's known that users can still go write reviews in the middle of the 
+  // voting phase to add them to lists, and I (Ray) think it's fine. Posts are 
+  // still penalized for not having been visible during the full voting period,
+  // and it seems fine for people who go out of their way to last-minute-review things
+  // to get them at least visible during part of the voting period)
+  return getReviewPhase() === "VOTING" ? 1 : 0
+}
+
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
   if (!(isLWForum || isEAForum)) return false
@@ -53,7 +73,7 @@ export function postEligibleForReview (post: PostsBase) {
 }
 
 export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount > 0
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= getPositiveVoteThreshold()
 }
 
 

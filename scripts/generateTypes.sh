@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo "Checking that a local server is running..."
 scripts/waitForServer.sh
 
 echo "Using a running server to generating type definitions. Errors and warnings may"

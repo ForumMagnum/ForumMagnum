@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as _ from 'underscore';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
@@ -150,6 +150,8 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
 // Uses same index as postCommentsNew
 
 Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
+  if (!terms.postId)
+    throw new Error("Invalid postCommentsNew view: postId is required");
   return {
     selector: {
       postId: terms.postId,
@@ -333,7 +335,6 @@ Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
     }
   };
 });
-ensureIndex(Comments, augmentForDefaultView({tagId:1}));
 
 
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
@@ -514,7 +515,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
     sort: sorting,
   },
 }});
-
+ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

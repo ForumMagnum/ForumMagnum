@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 12,
       marginBottom: 8,
     }
-  },
+  }
 });
 
 const StickiedPosts = ({
@@ -16,7 +16,7 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2 } = Components;
+  const { SingleColumnSection, PostsList2, TargetedJobAd } = Components
 
   return <SingleColumnSection className={classes.root}>
     <PostsList2
@@ -27,7 +27,7 @@ const StickiedPosts = ({
       boxShadow={false}
       curatedIconLeft={false}
     />
-  </SingleColumnSection>;
+  </SingleColumnSection>
 }
 
 const StickiedPostsComponent = registerComponent("StickiedPosts", StickiedPosts, {styles});

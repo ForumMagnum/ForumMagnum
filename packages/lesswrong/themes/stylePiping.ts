@@ -75,6 +75,16 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.metaforecast-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
 const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.owid-preview': {
     '& iframe': {
@@ -255,6 +265,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...tableHeadingStyles(theme)
   },
   '& figure': {
+    maxWidth: '100%',
     margin: '1em auto',
     textAlign: "center"
   },
@@ -276,6 +287,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
@@ -460,6 +472,12 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         },
         '& ol, & ul': {
           listStyleType: "revert !important",
+        },
+        '& ol > li > ol': {
+          listStyle: 'lower-alpha !important',
+        },
+        '& ol > li > ol > li > ol': {
+          listStyle: 'lower-roman !important',
         },
       },
       '& .ck-placeholder:before': {

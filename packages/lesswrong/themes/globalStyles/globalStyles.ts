@@ -36,7 +36,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   button: {
     border: "none",
     boxShadow: "none",
-    cursor: "pointer",
+    cursor: "pointer"
   },
   
   figure: {

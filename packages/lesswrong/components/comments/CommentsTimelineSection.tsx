@@ -5,11 +5,12 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { NEW_COMMENT_MARGIN_BOTTOM } from './CommentsListSection';
 import type { Option } from '../common/InlineSelect';
-import { isEmpty, omit } from 'underscore';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
 import { subforumDiscussionDefaultSorting } from '../../lib/collections/comments/views';
 import { useTracking } from '../../lib/analyticsEvents';
+import isEmpty from 'lodash/isEmpty';
+import omit from 'lodash/omit';
 
 const sortOptions: Option[] = [
   {value: "new", label: "new"},
@@ -108,7 +109,9 @@ const CommentsTimelineSection = ({
         treeOptions={{
           refetch,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
+          replyFormStyle: "minimalist",
         }}
         comments={comments}
         startThreadTruncated={startThreadTruncated}
@@ -140,7 +143,7 @@ const CommentsTimelineSection = ({
               successCallback={refetch}
               type="comment"
               enableGuidelines={false}
-              displayMode="minimalist" />
+              replyFormStyle="minimalist" />
           </div>
         </>
       ) : (

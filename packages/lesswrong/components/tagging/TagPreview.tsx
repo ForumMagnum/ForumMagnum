@@ -7,12 +7,15 @@ import { tagPostTerms } from './TagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  relatedTag: {
-    display: "flex",
+  relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -50,13 +53,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
+export type TagPreviewProps = {
   tag: TagPreviewFragment | null,
   loading?: boolean,
   classes: ClassesType,
   showCount?: boolean,
+  showRelatedTags?: boolean,
   postCount?: number,
-}) => {
+}
+
+const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6}: TagPreviewProps) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results, loading: tagPostsLoading } = useMulti({
     skip: !(tag?._id) || postCount === 0,
@@ -76,10 +82,10 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
     {loading && <Loading />}
     {tag && <>
       <TagPreviewDescription tag={tag}/>
-      {(tag.parentTag || tag.subTags.length) ?
+      {showRelatedTags && (tag.parentTag || tag.subTags.length) ?
         <div className={classes.relatedTags}>
-          {tag.parentTag && <div className={classes.relatedTag}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
+          {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+          {tag.subTags.length ? <div className={classes.relatedTagWrapper}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
             return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
           })}</span></div> : <></>}
         </div> : <></>

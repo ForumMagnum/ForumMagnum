@@ -35,12 +35,15 @@ import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCrosspostRoutes } from './fmCrosspost';
+import { addCypressRoutes } from './createTestingPgDb';
+import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { inspect } from "util";
+import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
+import { datadogMiddleware } from './datadog/datadogMiddleware';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -129,6 +132,7 @@ export function startWebserver() {
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(datadogMiddleware);
   app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
@@ -145,8 +149,9 @@ export function startWebserver() {
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
+      const {message, ...properties} = e;
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
       // TODO: Replace sketchy apollo-errors package with something first-party
       // and that doesn't require a cast here
       return formatError(e) as any;
@@ -241,6 +246,14 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
+  addCypressRoutes(app);
+
+  if (testServerSetting.get()) {
+    app.post('/api/quit', (_req, res) => {
+      res.status(202).send('Quiting server');
+      process.kill(estrellaPid, 'SIGQUIT');
+    })
+  }
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
@@ -260,7 +273,7 @@ export function startWebserver() {
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
-    const stylesheet = getMergedStylesheet(themeOptions);
+    const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
@@ -274,7 +287,7 @@ export function startWebserver() {
       '<!doctype html>\n'
       + '<html lang="en">\n'
       + '<head>\n'
-        + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
         + clientScript

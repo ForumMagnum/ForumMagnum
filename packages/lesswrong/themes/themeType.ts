@@ -2,11 +2,41 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
+import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
   type ColorString = string;
-  
+
+  /**
+   * UserThemeName represents a concrete theme name that can be directly mapped
+   * to a stylesheet (eg; "default", "dark")
+   */
+  type UserThemeName = typeof userThemeNames[number];
+
+  /**
+   * UserThemeSetting is a strict superset of UserThemeName which also includes
+   * "abstract" themes which require some logic to be mapped to a stylesheet
+   * (eg; "auto")
+   */
+  type UserThemeSetting = typeof userThemeSettings[number];
+
+  /**
+   * MuiThemeName includes all theme names that can be directly passed to
+   * MaterialUI (eg; "light", "dark"). This is a 1-to-1 mapping from
+   * UserThemeName.
+   */
+  type MuiThemeName = typeof muiThemeNames[number];
+
+  /**
+   * Overridden forum type (for admins to quickly test AF and EA Forum themes).
+   * This is the form of a partial forum-type=>forum-type mapping, where keys
+   * are the actual forum you're visiting and values are the theme you want.
+   * (So if you override this on LW, then go to AF it isn't overridden there,
+   * and vise versa.)
+   */
+  type SiteThemeOverride = Partial<Record<ForumTypeString, ForumTypeString>>;
+
   type ThemeGreyscale = MuiColorShades & {
     0: ColorString,
     1000: ColorString,
@@ -46,7 +76,7 @@ declare global {
     
     // Used by material-UI for picking some of its own colors, and also by site
     // themes
-    type: "light"|"dark",
+    type: MuiThemeName,
   }
   type ThemeComponentPalette = {
     primary: {
@@ -112,6 +142,7 @@ declare global {
       alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
+      primaryDarkOnDim: ColorString,
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
@@ -134,6 +165,7 @@ declare global {
       grey800: ColorString,
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
+      primaryDim: ColorString,
     },
     icon: {
       normal: ColorString,
@@ -324,7 +356,6 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
-      primaryDim2: ColorString,
     },
     header: {
       text: ColorString,
@@ -339,8 +370,20 @@ declare global {
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
     },
+    blockquoteHighlight: {
+      commentHovered: ColorString,
+      individualQuoteHovered: ColorString,
+      
+      //CSS added to the <style> node of hovered blockquotes. Used for adding
+      //extra top/bottom padding to extend the highlighted region a few pixels,
+      //which is needed with EA Forum's font but not needed with LW's font.
+      addedBlockquoteHighlightStyles: string,
+    },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,
+    },
+    embeddedPlayer: {
+      opacity: number,
     },
     group: ColorString,
     contrastText: ColorString,

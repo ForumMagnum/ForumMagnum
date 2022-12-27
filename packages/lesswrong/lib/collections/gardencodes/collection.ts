@@ -7,6 +7,7 @@ import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
+import { forumTypeSetting } from '../../instanceSettings';
 
 function generateCode(length: number) {
   let result = '';
@@ -83,7 +84,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "Start Time",
     optional: true,
-    defaultValue: new Date,
+    onInsert: () => new Date(),
     order: 20
   },
   endTime: {
@@ -185,6 +186,7 @@ const schema: SchemaType<DbGardenCode> = {
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),

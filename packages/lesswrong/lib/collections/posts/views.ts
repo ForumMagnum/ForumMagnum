@@ -1,15 +1,16 @@
 import moment from 'moment';
 import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
-import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
+import { postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
+import { getPositiveVoteThreshold, getReviewThreshold } from '../../reviewUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -313,11 +314,15 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
   let tagsFilter = {};
+  const tagFilters: any[] = [];
   for (let tag of tagsRequired) {
-    tagsFilter[`tagRelevance.${tag.tagId}`] = {$gte: 1};
+    tagFilters.push({[`tagRelevance.${tag.tagId}`]: {$gte: 1}});
   }
   for (let tag of tagsExcluded) {
-    tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
+    tagFilters.push({$or: [
+      {[`tagRelevance.${tag.tagId}`]: {$lt: 1}},
+      {[`tagRelevance.${tag.tagId}`]: {$exists: false}},
+    ]});
   }
   
   const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
@@ -336,7 +341,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
               else: 0
             }}
           )),
-          ...defaultScoreModifiers(),
+          ...postScoreModifiers(),
           ...frontpageSoftFilter,
         ]},
         ...tagsSoftFiltered.map(t => (
@@ -354,7 +359,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   return {
     selector: {
       ...frontpageFilter,
-      ...tagsFilter
+      ...(tagFilters.length ? {$and: tagFilters} : {}),
     },
     syntheticFields,
   };
@@ -955,7 +960,20 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ] // only show in-person events within 100 miles
+              // $centerSphere takes an array containing the grid coordinates of the circle's center
+              // point and the circle's radius measured in radians. We convert the maximum distance
+              // (which is specified in miles, with a default of 100) into radians by dividing by the
+              // approximate equitorial radius of the earth, 3963.2 miles.
+              // When converting this to Postgres, we actually want the location in the form of a raw
+              // longitude and latitude, which isn't the case for Mongo. To do this, we pass the selector
+              // to the query builder manually here using $comment. This is a hack, but it's the only
+              // place in the codebase where we use this operator so it's probably not worth spending a
+              // ton of time making this beautiful.
+              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ],
+              ...(Posts.isPostgres()
+                ? { $comment: { locationName: `"googleLocation"->'geometry'->'location'` } }
+                : {}
+              ),
             }
           }
         },
@@ -1341,7 +1359,8 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: 1 },
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() },
+      reviewCount: { $gte: getReviewThreshold() }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1364,8 +1383,8 @@ ensureIndex(Posts,
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: { $gte: 1 },
-      positiveReviewVoteCount: { $gte: 1 }, // TODO: Ray thinks next year this should change to "has at least 4 points"
+      reviewCount: { $gte: getReviewThreshold() },
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1381,7 +1400,7 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
 })
 ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
-  { name: "posts.positiveReviewVoteCount", }
+  { name: "posts.positiveReviewVoteCountReviewCount", }
 );
 
 Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {

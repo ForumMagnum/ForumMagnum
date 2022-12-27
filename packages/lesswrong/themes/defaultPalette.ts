@@ -198,6 +198,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     alwaysWhite: "#fff",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
+    primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
 
     eventMaybe: "#d59c00",
     
@@ -218,6 +219,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey800: shades.grey[800],
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
+    primaryDim: "#5caab7"
   },
   linkHover: {
     dim: shades.greyAlpha(.3),
@@ -290,8 +292,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2',
-    primaryDim2: '#e2f1f4',
+    primaryDim: '#e2f1f4',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -427,6 +428,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sideCommentEditorBackground: "#f3f7fb",
     commentMarker: "#fef7a9",
     commentMarkerActive: "#fdf05d",
+  },
+  blockquoteHighlight: {
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
+  },
+  embeddedPlayer: {
+    opacity: 1,
   },
   
   commentParentScrollerHover: shades.greyAlpha(.075),

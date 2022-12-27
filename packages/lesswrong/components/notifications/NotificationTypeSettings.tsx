@@ -29,10 +29,10 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
   }
   
   const channelOptions: Record<NotificationChannelOption, React.ReactChild> = {
-    none: <MenuItem value="none">Don't notify</MenuItem>,
-    onsite: <MenuItem value="onsite">Notify me on-site</MenuItem>,
-    email: <MenuItem value="email">Notify me by email</MenuItem>,
-    both: <MenuItem value="both">Notify me both on-site and by email</MenuItem>
+    none: <MenuItem value="none" key="none">Don't notify</MenuItem>,
+    onsite: <MenuItem value="onsite" key="onsite">Notify me on-site</MenuItem>,
+    email: <MenuItem value="email" key="email">Notify me by email</MenuItem>,
+    both: <MenuItem value="both" key="both">Notify me both on-site and by email</MenuItem>
   }
   
   return <div className={classes.root}>

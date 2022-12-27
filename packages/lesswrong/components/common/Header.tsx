@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { useTheme } from '../themes/useTheme';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import { useCurrentUser } from '../common/withUser';
+import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
@@ -133,11 +133,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, toc, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
-  toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   classes: ClassesType,
 }) => {
@@ -147,9 +146,9 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
+  const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
-  const theme = useTheme();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -191,7 +190,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
     return <React.Fragment>
-      {toc?.sections
+      {toc?.sectionData?.sections
         ? <>
             <div className={classes.hideSmDown}>
               <IconButton
@@ -311,7 +310,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
             open={navigationOpen}
             handleOpen={() => setNavigationOpen(true)}
             handleClose={() => setNavigationOpen(false)}
-            toc={toc}
+            toc={toc?.sectionData ?? null}
           />
         </Headroom>
         {currentUser && <NotificationsMenu

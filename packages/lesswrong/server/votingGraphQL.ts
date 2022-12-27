@@ -75,8 +75,10 @@ function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
         if (!document) throw new Error("No such document ID");
 
         const {userCanVoteOn} = VoteableCollectionOptions[collection.collectionName] ?? {};
-        if (userCanVoteOn && !(await userCanVoteOn(currentUser, document))) {
-          throw new Error("You do not have permission to vote on this");
+        const permissionResult = userCanVoteOn &&
+          await userCanVoteOn(currentUser, document, voteType, extendedVote)
+        if (permissionResult && permissionResult.fail) {
+          throw new Error(permissionResult.reason);
         }
 
         if (!voteType && !extendedVote) {

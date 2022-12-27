@@ -4,6 +4,8 @@ import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms } from '../utils/viewUtils';
 
+const maxAllowedSkip = 2000;
+
 interface DefaultResolverOptions {
   cacheMaxAge: number
 }
@@ -65,7 +67,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           // get total count of documents matching the selector
           // TODO: Make this handle synthetic fields
           if (saturated) {
-            data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+            const { hint } = parameters.options;
+            data.totalCount = await Utils.Connectors.count(collection, parameters.selector, { hint });
           } else {
             data.totalCount = viewableDocs.length;
           }
@@ -158,6 +161,13 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
+  
+  // Don't allow API requests with an offset provided >2000. This prevents some
+  // extremely-slow queries.
+  if (terms.offset && (terms.offset > maxAllowedSkip)) {
+    throw new Error("Exceeded maximum value for skip");
+  }
+  
   const options = {
     ...parameters.options,
     skip: terms.offset,
@@ -189,6 +199,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
+    logger('queryFromViewParameters connector find', selector, terms, options);
     return await Utils.Connectors.find(collection,
       {
         ...selector,

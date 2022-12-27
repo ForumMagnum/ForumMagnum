@@ -157,7 +157,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const autosaveInterval = 3000; //milliseconds
 const checkImgErrsInterval = 500; //milliseconds
-const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
@@ -305,6 +305,23 @@ export const deserializeEditorContents = (contents: SerializedEditorContents): E
   } else {
     return contents;
   }
+}
+
+/**
+ * Editor's `submitData` is called in `EditorFormComponent`.
+ * Curently, the only situation where we (validly) won't have a ckEditorReference is if a podcaster is editing a post to add a podcast episode to it.
+ * 
+ * Podcasters don't have permissions to edit the contents of a post, so the editor itself isn't rendered (due to the field permissions).
+ * 
+ * Simply submitting the post was causing an error in `submitData`, since it expects a ckEditorReference if we're attempting to submit the contents of the post.
+ * We just shouldn't try to submit post contents if we'll blow up by doing so (or know that we can't ahead of time).
+ */
+export const shouldSubmitContents = (editorRef: Editor) => {
+  const editorType = editorRef.props.value.type;
+  const ckEditorReference = editorRef.state.ckEditorReference;
+
+  if (editorType !== 'ckEditorMarkup') return true;
+  return !!ckEditorReference;
 }
 
 export class Editor extends Component<EditorProps,EditorComponentState> {

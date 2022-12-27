@@ -3,6 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbRSSFeed> = {
   newCheck: (user: DbUser|null, document: DbRSSFeed|null) => {
@@ -26,6 +27,7 @@ const options: MutationOptions<DbRSSFeed> = {
 export const RSSFeeds: RSSFeedsCollection = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('RSSFeeds'),
   mutations: getDefaultMutations('RSSFeeds', options),

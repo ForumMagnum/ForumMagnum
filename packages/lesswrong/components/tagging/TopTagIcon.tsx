@@ -11,6 +11,8 @@ import { BirdIcon } from '../icons/birdIcon';
 import { ChickenIcon } from '../icons/chickenIcon';
 import { ChoiceIcon } from '../icons/choiceIcon';
 import { ChipIcon } from '../icons/chipIcon';
+import { GiveIcon } from '../icons/giveIcon';
+import { TelescopeIcon } from '../icons/telescopeIcon';
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 // Mapping from tag slug to icon
@@ -27,7 +29,9 @@ const topTagIconMap = forumSelect<Record<string, any>>({
     'career-choice': ChoiceIcon,
     'ai-risk': ChipIcon,
     'global-health-and-development': EarthIcon,
-    'policy': GavelIcon
+    'policy': GavelIcon,
+    'effective-giving': GiveIcon,
+    'forecasting-and-estimation': TelescopeIcon,
   },
   default: {}
 })

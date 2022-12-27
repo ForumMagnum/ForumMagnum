@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
@@ -116,18 +116,38 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
+const countAnswersAndDescendents = (answers: CommentsList[]) => {
+  const sum = answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0);
+  return sum + answers.length;
+}
+
+const getResponseCounts = (
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  answers: CommentsList[],
+) => {
+  // answers may include some which are deleted:true, deletedPublic:true (in which
+  // case various fields are unpopulated and a deleted-item placeholder is shown
+  // in the UI). These deleted answers are *not* included in post.commentCount.
+  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
+  
+  return {
+    answerCount: nonDeletedAnswers.length,
+    commentCount: post.commentCount - countAnswersAndDescendents(nonDeletedAnswers),
+  };
+};
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  answers?: CommentsList[],
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
+    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
 
   
@@ -137,6 +157,11 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
   const readTime = post.readTimeMinutes ?? 1
+
+  const {
+    answerCount,
+    commentCount,
+  } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -172,7 +197,8 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
           {post.isEvent && <div className={classes.groupLinks}>
             <Components.GroupLinks document={post} noMargin={true} />
           </div>}
-          <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
+          {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
+          <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
           {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
             <a href="#" onClick={toggleEmbeddedPlayer}>
               <VolumeUpIcon />
@@ -184,7 +210,7 @@ const PostsPagePostHeader = ({post, toggleEmbeddedPlayer, hideMenu, hideTags, cl
           {!hideMenu &&
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostsPageActions post={post} />
+                <PostActionsButton post={post} />
               </AnalyticsContext>
             </span>
           }
