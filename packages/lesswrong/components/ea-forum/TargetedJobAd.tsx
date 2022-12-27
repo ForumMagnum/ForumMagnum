@@ -11,6 +11,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -178,195 +179,36 @@ const styles = (theme: ThemeType): JssStyles => ({
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA = {
-  'research-givewell': {
-    occupationName: 'Academic research',
-    tagId: 'hxRMaKvwGqPb43TWB', // Research
-    logo: 'https://80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
-    occupation: 'research',
-    feedbackLinkPrefill: 'Senior+Researcher+at+GiveWell',
-    bitlyLink: "https://efctv.org/3EK7guK",
-    role: 'Senior Researcher',
-    org: 'GiveWell',
-    orgSlug: 'givewell',
-    salary: '$181k - $199k',
-    location: 'Remote (US-centric)',
+  'ai-policy-govai': {
+    occupationName: 'AI strategy & policy',
+    tagId: 'u3Xg8MjDe2e6BvKtv', // AI Governance
+    logo: 'https://80000hours.org/wp-content/uploads/2021/12/centre-for-the-governance-of-ai-160x160.jpeg',
+    occupation: 'AI governance & policy',
+    feedbackLinkPrefill: 'Summer+Fellow+at+GovAI',
+    bitlyLink: "https://efctv.org/3hTf0Sl", // https://www.governance.ai/post/summer-fellowship-2023
+    role: 'Summer Fellow',
+    insertThe: true,
+    org: 'Centre for the Governance of AI',
+    orgSlug: 'centre-for-the-governance-of-ai',
+    salary: '£9,000 - £12,000 stipend',
+    location: 'Oxford, UK (Flexible)',
+    deadline: moment("01-16-2023", "MM-DD-YYYY"),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <a href="https://www.givewell.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          GiveWell
-        </a> is a nonprofit charity evaluator dedicated to finding the most cost-effective giving opportunities
-        in <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/global-health-and-development")} innerHTML="global health and development"/>
+        In this fellowship at the <a href="https://www.governance.ai" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Centre for the Governance of AI (GovAI)
+        </a>, you will conduct independent research on <a href="https://www.governance.ai/post/summer-fellowship-2022-wrap-up" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          a topic of your choice
+        </a>, with mentorship from leading experts in the field of <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-governance")} innerHTML="AI governance"/>
         </span>.
       </div>
       <div className={classes.description}>
         Ideal candidates:
         <ul>
-          <li>Have a quantitatively-oriented advanced degree and/or substantive relevant experience</li>
-          <li>Are passionate about helping to improve global health and alleviate global poverty as much as possible</li>
-          <li>Ask a lot of questions, and are curious, rather than defensive, when interrogating their own or others' work</li>
-        </ul>
-      </div>
-    </>
-  },
-  'research-effective-giving': {
-    standardApplyBtn: true,
-    occupationName: 'Academic research',
-    tagId: 'hxRMaKvwGqPb43TWB', // Research
-    logo: 'https://80000hours.org/wp-content/uploads/2019/12/effective-giving-160x160.png',
-    occupation: 'research',
-    feedbackLinkPrefill: 'Biosecurity+Program+Associate+at+Effective+Giving',
-    bitlyLink: "https://efctv.org/3VNehR8",
-    role: 'Biosecurity Program Associate',
-    org: 'Effective Giving',
-    orgSlug: 'effective-giving-organization',
-    salary: '€50k+',
-    location: 'Remote (Euro-centric)',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://www.effectivegiving.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Effective Giving
-        </a> is a philanthropic advisory and <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> organization, focused primarily on safeguarding future generations.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>Academic or professional experience from a relevant field, such as medicine, biotechnology, public health, or engineering</li>
-          <li>
-            A high-level understanding of the <span className={classes.link}><Components.HoverPreviewLink
-              href={makeAbsolute("/topics/biosecurity")}
-              innerHTML="biosecurity"
-            /></span> field, including context around existing organizations and efforts
-          </li>
-          <li>Excellent written (English) communication</li>
-        </ul>
-      </div>
-    </>
-  },
-  'people-ops-open-phil': {
-    occupationName: 'HR/People operations',
-    logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
-    occupation: 'people operations',
-    feedbackLinkPrefill: 'People+Operations+Generalist+at+Open+Philanthropy',
-    bitlyLink: "https://efctv.org/3XRmiq0",
-    role: 'People Operations Generalist',
-    org: 'Open Philanthropy',
-    orgSlug: 'open-philanthropy',
-    salary: '$104k+',
-    location: 'Remote (US-centric)',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Open Philanthropy
-        </a> is a multi-billion dollar research and <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> foundation, and one of the largest funders in effective altruism.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have at least 2-3 years of operations experience</li>
-          <li>Have a track record of taking on poorly scoped projects and proactively getting them over the finish line</li>
-          <li>Are intensely detail-oriented</li>
-        </ul>
-      </div>
-    </>
-  },
-  'finance-open-phil': {
-    occupationName: 'Finance/Accounting',
-    logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
-    occupation: 'finance',
-    feedbackLinkPrefill: 'Finance+Operations+Assistant+at+Open+Philanthropy',
-    bitlyLink: "https://efctv.org/3OTNpwh",
-    role: 'Finance Operations Assistant',
-    org: 'Open Philanthropy',
-    orgSlug: 'open-philanthropy',
-    salary: '$84k+',
-    location: 'Remote (US-centric)',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Open Philanthropy
-        </a> is a multi-billion dollar research and <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> foundation, and one of the largest funders in effective altruism.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Don't need any previous experience with finance</li>
-          <li>Are extremely organized and detail-oriented in their work</li>
-          <li>Are always looking for systems, tools and strategies to save time and effort, particularly when handling repetitive processes</li>
-        </ul>
-      </div>
-    </>
-  },
-  'ops-open-phil': {
-    occupationName: 'Operations',
-    tagId: 'NNdytpR2E4jYKQCNd', // Operations
-    logo: 'https://80000hours.org/wp-content/uploads/2022/08/OP_Logo-scaled-1-160x160.png',
-    occupation: 'operations',
-    feedbackLinkPrefill: 'Business+Operations+Generalist+at+Open+Philanthropy',
-    bitlyLink: "https://efctv.org/3uBHtyZ",
-    role: 'Business Operations Generalist',
-    org: 'Open Philanthropy',
-    orgSlug: 'open-philanthropy',
-    salary: '$84k+',
-    location: 'Remote (US-centric)',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://openphilanthropy.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Open Philanthropy
-        </a> is a multi-billion dollar research and <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/grantmaking")} innerHTML="grantmaking"/>
-        </span> foundation, and one of the largest funders in effective altruism.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Are excited to contribute to impact-driven work in a supportive capacity</li>
-          <li>
-            Have a track record of demonstrating (or are excited to develop) an “<a
-              href="https://80000hours.org/podcast/episodes/tara-mac-aulay-operations-mindset/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={classes.link}
-            >
-              operations mindset
-            </a>”
-          </li>
-          <li>Are able to improvise and pivot quickly when priorities shift</li>
-        </ul>
-      </div>
-    </>
-  },
-  'writing-evidence-action': {
-    occupationName: 'Writing',
-    logo: 'https://80000hours.org/wp-content/uploads/2018/04/evidence_action-150x150.png',
-    occupation: 'writing',
-    feedbackLinkPrefill: 'Writer+at+Evidence+Action',
-    bitlyLink: "https://efctv.org/3VKjQQ9",
-    role: 'Writer',
-    org: 'Evidence Action',
-    orgSlug: 'evidence-action',
-    salary: null, // TODO
-    location: 'Remote / Washington DC',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://www.evidenceaction.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Evidence Action
-        </a> is a nonprofit working to reduce <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/global-poverty")} innerHTML="global poverty"/>
-        </span> via scaling evidence-based and cost-effective programs.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have a Bachelor's degree and 3 - 5 years of communications-related work experience, or equivalent</li>
-          <li>Have demonstrated an ability to generate high-quality content for a range of technical and non-technical audiences</li>
-          <li>Have meticulous attention to detail when editing</li>
+          <li>Are interested in using their career to study or shape the long-term implications of advanced AI</li>
+          <li>Can produce clearly written, insightful, and even-handed research</li>
+          <li>Have a graduate degree or research experience relevant to AI governance, such as political science, economics, sociology, or law</li>
         </ul>
       </div>
     </>
@@ -502,7 +344,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
         <h2 className={classes.header}>
           <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
             {adData.role}
-          </a> at <span className={classes.link}>
+          </a> at{adData.insertThe ? ' the' : ''} <span className={classes.link}>
             <HoverPreviewLink href={`/topics/${adData.orgSlug}`} innerHTML={adData.org} />
           </span>
         </h2>
