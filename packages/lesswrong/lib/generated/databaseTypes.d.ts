@@ -469,6 +469,18 @@ interface DbPodcast extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface PostEmbeddingsCollection extends CollectionBase<DbPostEmbedding, "PostEmbeddings"> {
+}
+
+interface DbPostEmbedding extends DbObject {
+  __collectionName?: "PostEmbeddings"
+  postId: string
+  embeddingType: string
+  embeddingVector: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
 }
 
@@ -1284,6 +1296,7 @@ interface CollectionsByName {
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
+  PostEmbeddings: PostEmbeddingsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1330,6 +1343,7 @@ interface ObjectsByCollectionName {
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
+  PostEmbeddings: DbPostEmbedding
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed

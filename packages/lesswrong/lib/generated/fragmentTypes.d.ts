@@ -659,6 +659,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
   readonly languageModelSummary: string,
+  readonly similarPosts: Array<Post>,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -2155,11 +2156,6 @@ interface TagRecentDiscussion extends TagFragment { // fragment on Tags
   readonly recentComments: Array<CommentsList>,
 }
 
-interface TagRecentSubforumComments extends TagFragment { // fragment on Tags
-  readonly lastVisitedAt: Date,
-  readonly recentComments: Array<CommentsList>,
-}
-
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
 }
@@ -3007,7 +3003,6 @@ interface FragmentTypes {
   TagFullContributorsList: TagFullContributorsList
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
-  TagRecentSubforumComments: TagRecentSubforumComments
   SunshineTagFragment: SunshineTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
@@ -3186,7 +3181,6 @@ interface CollectionNamesByFragmentName {
   TagFullContributorsList: "Tags"
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
-  TagRecentSubforumComments: "Tags"
   SunshineTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
@@ -3230,5 +3224,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LanguageModelCache"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserTagRels"|"Users"|"Votes"
 

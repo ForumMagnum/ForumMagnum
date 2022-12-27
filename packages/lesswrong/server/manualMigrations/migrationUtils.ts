@@ -25,8 +25,7 @@ interface RegisterMigrationProps {
   action: () => Promise<void>;
 }
 
-export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps)
-{
+export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps) {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)
     throw new Error(`Migration ${name} is missing required field: dateWritten`);
@@ -50,8 +49,7 @@ export function registerMigration({ name, dateWritten, idempotent, action }: Reg
   migrationRunners[name] = async () => await runMigration(name);
 }
 
-export async function runMigration(name: string)
-{
+export async function runMigration(name: string) {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
   // eslint-disable-next-line no-unused-vars
@@ -91,8 +89,7 @@ export async function runMigration(name: string)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>)
-{
+export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>) {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
 
@@ -119,8 +116,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
   fieldName: string,
   batchSize?: number,
   loadFactor?: number
-})
-{
+}) {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
   const schema = getSchema(collection);
@@ -139,7 +135,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
     filter: {
       [fieldName]: null
     },
-    fn: async (bucketSelector) => {
+    fn: async (bucketSelector: MongoSelector<T>) => {
       await runThenSleep(loadFactor, async () => {
         const mutation = { $set: {
           [fieldName]: defaultValue
@@ -181,8 +177,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   unmigratedDocumentQuery?: any,
   migrate: (documents: Array<T>) => Promise<void>,
   loadFactor?: number,
-})
-{
+}) {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
   // if (!unmigratedDocumentQuery) throw new Error("Missing required argument: unmigratedDocumentQuery");
@@ -205,7 +200,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
     return
   }
 
-  let previousDocumentIds = {};
+  let previousDocumentIds: Record<string,boolean> = {};
   let documentsAffected = 0;
   let done = false;
 
@@ -221,7 +216,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
 
       // Check if any of the documents returned were supposed to have been
       // migrated by the previous batch's update operation.
-      let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
+      let docsNotMigrated: T[] = _.filter(documents, (doc: T) => previousDocumentIds[doc._id]);
       if (docsNotMigrated.length > 0) {
         let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
 
@@ -231,7 +226,9 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
       }
 
       previousDocumentIds = {};
-      _.each(documents, doc => previousDocumentIds[doc._id] = true);
+      _.each(documents, (doc: T) => {
+        previousDocumentIds[doc._id] = true
+      });
 
       // Migrate documents in the batch
       try {
@@ -253,7 +250,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   console.log(`Finished migration step: ${description}. ${documentsAffected} documents affected.`);
 }
 
-export async function dropUnusedField(collection, fieldName) {
+export async function dropUnusedField<T extends DbObject>(collection: CollectionBase<T>, fieldName: string) {
   const loadFactor = 0.5;
   let nMatched = 0;
   
@@ -262,7 +259,7 @@ export async function dropUnusedField(collection, fieldName) {
     filter: {
       [fieldName]: {$exists: true}
     },
-    fn: async (bucketSelector) => {
+    fn: async (bucketSelector: MongoSelector<T>) => {
       await runThenSleep(loadFactor, async () => {
         const mutation = { $unset: {
           [fieldName]: 1
@@ -297,10 +294,9 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({coll
   collection: CollectionBase<T>,
   batchSize?: number,
   filter?: MongoSelector<DbObject> | null,
-  callback: (batch: T[]) => void,
+  callback: (batch: T[]) => Promise<void>,
   loadFactor?: number
-})
-{
+}) {
   // As described in the docstring, we need to be able to query on the _id.
   // Without this check, someone trying to use _id in the filter would overwrite
   // this function's query and find themselves with an infinite loop.
@@ -330,15 +326,15 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({coll
   }
 }
 
-export async function forEachDocumentInCollection({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
-  collection: any,
+export async function forEachDocumentInCollection<T extends DbObject>({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+  collection: CollectionBase<T>,
   batchSize?: number,
-  filter?: MongoSelector<DbObject> | null,
-  callback: Function,
+  filter?: MongoSelector<T> | null,
+  callback: (obj: T)=>Promise<void>,
   loadFactor?: number
 }) {
   await forEachDocumentBatchInCollection({collection,batchSize,filter,loadFactor,
-    callback: async (docs: any[]) => {
+    callback: async (docs: T[]) => {
       for (let doc of docs) {
         await callback(doc);
       }
@@ -362,8 +358,12 @@ export async function forEachDocumentInCollection({collection, batchSize=1000, f
 // fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
 //     selector, which includes both an _id range (either one- or two-sided)
 //     and also the selector from `filter`.
-export async function forEachBucketRangeInCollection({collection, filter, bucketSize=1000, fn})
-{
+export async function forEachBucketRangeInCollection<T extends DbObject>({collection, filter, bucketSize=1000, fn}: {
+  collection: CollectionBase<T>,
+  filter: MongoSelector<T>,
+  bucketSize?: number,
+  fn: (selector: MongoSelector<T>)=>Promise<void>
+}) {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();
 

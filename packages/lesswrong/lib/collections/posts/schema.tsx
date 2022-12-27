@@ -2357,10 +2357,13 @@ const schema: SchemaType<DbPost> = {
   
   similarPosts: {
     type: Array,
-    graphQLType: '[Post!]',
     optional: true, hidden: true,
     viewableBy: ['guests'],
     // Resolver in postSimilarity.ts
+  },
+  "similarPosts.$": {
+    type: Object,
+    foreignKey: 'Posts',
   },
 };
 

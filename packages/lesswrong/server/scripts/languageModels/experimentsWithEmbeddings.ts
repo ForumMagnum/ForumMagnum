@@ -4,6 +4,7 @@ import { postToPrompt, generatePostBodyCache, PostBodyCache } from '../../langua
 import { toDictionary } from '../../../lib/utils/toDictionary';
 import { Posts } from '../../../lib/collections/posts/collection';
 import { postStatuses } from '../../../lib/collections/posts/constants';
+import { getPostEmbedding } from '../../languageModels/postSimilarity';
 import keyBy from 'lodash/keyBy';
 import take from 'lodash/take';
 import orderBy from 'lodash/orderBy';
@@ -29,26 +30,6 @@ async function generatePostListForEmbeddings(outputFilename: string) {
   fs.writeFileSync(outputFilename, JSON.stringify(postIds));
 }
 Globals.generatePostListForEmbeddings = generatePostListForEmbeddings;
-
-async function getPostEmbedding(template: LanguageModelTemplate, post: DbPost): Promise<number[]> {
-  const api = await getOpenAI();
-  if (!api) throw new Error("OpenAI API unavailable");
-  
-  const input = await postToPrompt({
-    template, post,
-    promptSuffix: "",
-  });
-  
-  const embeddingApiResult = await api.createEmbedding({
-    model: "text-embedding-ada-002",
-    input,
-  });
-  if (!embeddingApiResult) {
-    throw new Error("Failed to retrieve embedding");
-  }
-  
-  return embeddingApiResult.data.data[0].embedding;
-}
 
 function vectorNorm(v: number[]) {
   let sumSq = 0;
@@ -83,7 +64,8 @@ async function generateEmbeddings(postIdsFilename: string, outputFilename: strin
   for (let postId of postIds) {
     const post = await Posts.findOne({_id:postId});
     if (!post) continue;
-    embeddings[postId] = await getPostEmbedding(template, post);
+    const {embeddingType, embeddingVector} = await getPostEmbedding(template, post);
+    embeddings[postId] = embeddingVector;
   }
   
   fs.writeFileSync(outputFilename, JSON.stringify(embeddings));

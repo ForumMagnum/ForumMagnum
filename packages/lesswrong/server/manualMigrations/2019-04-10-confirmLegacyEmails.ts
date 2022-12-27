@@ -10,7 +10,7 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Users,
       batchSize: 1000,
-      callback: (users: DbUser[]) => {
+      callback: async (users: DbUser[]) => {
         let updates: Array<any> = [];
         
         for(let user of users)
@@ -54,7 +54,7 @@ registerMigration({
           }
         }
         
-        Users.rawCollection().bulkWrite(updates, { ordered: false });
+        await Users.rawCollection().bulkWrite(updates, { ordered: false });
       }
     });
   },
