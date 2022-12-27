@@ -72,6 +72,7 @@ addGraphQLSchema(`
   type MostReadAuthor {
     slug: String,
     displayName: String,
+    profileImageId: String,
     count: Int
   }
   type MostReadTopic {
@@ -200,23 +201,25 @@ addGraphQLResolvers({
       }).fetch()
       console.log('readStatuses', readStatuses)
       
-      // Filter out the posts that the user themselves authored
-      // TODO: account for coauthorship
+      // Filter out the posts that the user themselves authored or co-authored
       const posts = (await Posts.find({
         _id: {$in: readStatuses.map(rs => rs.postId)}
-      }, {projection: {userId: 1, tagRelevance: 1}}).fetch()).filter(p => p.userId !== currentUser._id)
+      }, {projection: {userId: 1, coauthorStatuses: 1, tagRelevance: 1}}).fetch()).filter(p => {
+        return !(p.userId === currentUser._id || p.coauthorStatuses?.some(cs => cs.userId === currentUser._id))
+      })
       
       // Get the top 3 authors that the user has read
       const userIds = posts.map(p => p.userId)
       const authorCounts = countBy(userIds)
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a[0])
+      console.log('topAuthors', topAuthors)
       
       const authors = await Users.find({
         _id: {$in: topAuthors}
-      }, {projection: {displayName: 1, slug: 1}}).fetch()
+      }, {projection: {displayName: 1, slug: 1, profileImageId: 1}}).fetch()
       
       // Get the top 3 topics that the user has read
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance) ?? []).flat()
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat()
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t[0])
       
@@ -243,14 +246,14 @@ addGraphQLResolvers({
         postedAt: {$gte: start, $lt: end},
         deleted: false,
         shortform: false,
-      }, {projection: {postId: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
+      }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
       console.log('userComments', userComments)
       const userShortforms = await Comments.find({
         userId: currentUser._id,
         postedAt: {$gte: start, $lt: end},
         deleted: false,
         shortform: true,
-      }, {projection: {postId: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch()
+      }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
       console.log('userShortforms', userShortforms)
       
       // TODO: check all these numbers
