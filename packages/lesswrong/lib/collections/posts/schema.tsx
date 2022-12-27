@@ -24,6 +24,7 @@ import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
+import { getDefaultViewSelector } from '../../utils/viewUtils';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -2328,7 +2329,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
-        ...Comments.defaultView({}).selector,
+        ...getDefaultViewSelector("Comments"),
         postId: post._id,
         score: {$gt:0},
         deletedPublic: false,

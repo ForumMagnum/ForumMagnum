@@ -25,6 +25,10 @@ import './collections/notifications/collection';
 import './collections/notifications/views';
 import './collections/notifications/permissions';
 import './collections/notifications/fragments';
+
+// Images
+import './collections/images/collection';
+
 // Inbox
 import './collections/messages/collection'
 import './collections/messages/views';

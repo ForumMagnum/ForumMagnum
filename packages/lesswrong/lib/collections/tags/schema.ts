@@ -13,6 +13,7 @@ import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
+import { getDefaultViewSelector } from '../../utils/viewUtils';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -246,7 +247,7 @@ const schema: SchemaType<DbTag> = {
       const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
 
       const comments = await Comments.find({
-        ...Comments.defaultView({}).selector,
+        ...getDefaultViewSelector("Comments"),
         tagId: tag._id,
         score: {$gt:0},
         deletedPublic: false,

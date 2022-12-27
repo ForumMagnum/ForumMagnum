@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 4,
     height: 24,
     position: "relative",
+    flexShrink: 0,
     
     "& .MuiSvgIcon-root": {
       height: "100%",
