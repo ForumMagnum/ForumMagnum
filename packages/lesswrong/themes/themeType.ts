@@ -226,6 +226,7 @@ declare global {
       primaryHighlight2: string,
       secondaryHighlight: string,
       secondaryHighlight2: string,
+      primaryTranslucent: string,
     },
     panelBackground: {
       default: ColorString,

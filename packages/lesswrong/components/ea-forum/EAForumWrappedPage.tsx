@@ -12,6 +12,7 @@ import CommentIcon from '@material-ui/icons/Message'
 import ShortformIcon from '@material-ui/icons/Notes'
 import KarmaIcon from '@material-ui/icons/Star'
 import NearMeIcon from '@material-ui/icons/NearMe'
+import { RibbonIcon } from "../icons/ribbonIcon";
 
 
 const styles = (theme: ThemeType) => ({
@@ -30,7 +31,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   summaryCard: {
+    position: 'relative',
     maxWidth: 640,
+    backgroundColor: theme.palette.background.default,
     // backgroundColor: theme.palette.primary.main,
     // background: `linear-gradient(to bottom right, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
     // color: theme.palette.grey[0],
@@ -40,11 +43,21 @@ const styles = (theme: ThemeType) => ({
     borderTopRightRadius: '15px 225px',
     borderBottomRightRadius: '225px 15px',
     borderBottomLeftRadius: '15px 255px',
-    border: `2px solid ${theme.palette.primary.main}`,
+    border: `3px solid ${theme.palette.border.primaryTranslucent}`,
     margin: '0 auto',
     [theme.breakpoints.down('xs')]: {
       padding: '24px 14px 16px',
     }
+  },
+  ribbonIcon: {
+    position: 'absolute',
+    top: -40,
+    left: -114,
+    width: 220,
+    transform: 'rotate(-40deg)',
+    fill: theme.palette.primary.main,
+    stroke: theme.palette.background.default,
+    zIndex: -1
   },
   summaryHeadline: {
     display: 'flex',
@@ -237,6 +250,8 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     <div className={classes.root}>
       <SingleColumnSection>
         <div className={classes.summaryCard}>
+          <RibbonIcon className={classes.ribbonIcon} />
+          
           <Typography variant="headline" className={classes.summaryHeadline}>
             <div>{currentUser?.displayName}'s</div>
             <div>✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨</div>
