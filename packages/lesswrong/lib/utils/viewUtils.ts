@@ -1,3 +1,4 @@
+import { getCollection } from '../vulcan-lib/getCollection';
 
 // Given a view (which gets translated into a mongo query), provide a string
 // which describes what's being queried (ie the view name, and a list of
@@ -12,4 +13,15 @@ export function describeTerms(terms: ViewTermsBase) {
     return `${viewName}(${otherTerms})`;
   else
     return viewName;
+}
+
+export function viewTermsToQuery<N extends CollectionNameString>(collectionName: N, terms: ViewTermsByCollectionName[N], apolloClient?: any, resolverContext?: ResolverContext) {
+  const collection = getCollection(collectionName);
+  return collection.getParameters(terms, apolloClient, resolverContext);
+}
+
+export function getDefaultViewSelector<N extends CollectionNameString>(collectionName: N) {
+  const viewQuery = viewTermsToQuery(collectionName, {})
+  // TODO: Postprocess out viewFieldNullOrMissing
+  return viewQuery.selector;
 }
