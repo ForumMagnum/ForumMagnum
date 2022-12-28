@@ -24,6 +24,7 @@ import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import DoneIcon from '@material-ui/icons/Done';
 import { NotificationChannelOption } from './collections/users/schema';
 import startCase from 'lodash/startCase';
+import { GiftIcon } from '../components/icons/giftIcon';
 
 interface NotificationType {
   name: string
@@ -88,6 +89,11 @@ const getDocument = async (documentType: string|null, documentId: string|null) =
 const iconStyles = {
   margin: 16,
   fontSize: 20,
+}
+const flatIconStyles = {
+  margin: 16,
+  height: 20,
+  width: 26,
 }
 
 export const NewPostNotification = registerNotificationType({
@@ -287,6 +293,21 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MailIcon style={iconStyles}/>
   },
+});
+
+export const WrappedNotification = registerNotificationType({
+  name: "wrapped",
+  userSettingField: "notificationPrivateMessage",
+  allowedChannels: ["onsite", "email", "both"],
+  async getMessage() {
+    return "Check out your EA Forum Wrapped for 2022"
+  },
+  getIcon() {
+    return <GiftIcon style={flatIconStyles}/>
+  },
+  getLink() {
+    return "/wrapped"
+  }
 });
 
 // TODO(EA): Fix notificationCallbacks getLink, or the associated component to

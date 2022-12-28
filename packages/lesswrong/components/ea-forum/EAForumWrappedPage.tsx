@@ -226,7 +226,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     return <div className={classes.root}>
       <SingleColumnSection>
         <div className={classes.summaryCard}>
-          <Typography variant="headline" className={classes.headline}>
+          <Typography variant="headline" className={classes.summaryHeadline}>
             ✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨
           </Typography>
           <div className={classes.loggedOutSection}>

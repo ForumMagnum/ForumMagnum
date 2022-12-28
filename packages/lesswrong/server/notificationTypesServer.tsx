@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute, getSiteUrl } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -309,6 +309,30 @@ export const NewMessageNotification = serverRegisterNotificationType({
       messages={messages}
       participantsById={participantsById}
     />
+  },
+});
+
+export const WrappedNotification = serverRegisterNotificationType({
+  name: "wrapped",
+  emailSubject: async function() {
+    return 'Your EA Forum Wrapped for 2022';
+  },
+  emailBody: async function({ user }: {user: DbUser}) {
+    return <div>
+      <p>
+        Hi {user.displayName},
+      </p>
+      <p>
+        Thanks for being part of our community in 2022!{' '}
+        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}`}>
+          Check out your 2022 on the EA Forum.
+        </a>{' '}
+        🎁
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
+      </p>
+    </div>
   },
 });
 
