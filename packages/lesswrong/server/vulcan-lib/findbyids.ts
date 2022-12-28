@@ -12,11 +12,11 @@ const findByIds = async <T extends DbObject>(collection: CollectionBase<T>, ids:
   
   // get documents
   const documents = collection.isPostgres()
-    ? await getSqlClientOrThrow().any(`
-      SELECT *
-      FROM "${collection.collectionName}"
-      WHERE _id IN ( $1:csv )
-    `, [ids])
+    ? await getSqlClientOrThrow().any(
+      // `:csv' tells pg-promise to format the ids as comma-separated values
+      ` SELECT * FROM "${collection.collectionName}" WHERE _id IN ( $1:csv )`,
+      [ids],
+    )
     : await collection.find({ _id: { $in: ids }}).fetch();
 
   // order documents in the same order as the ids passed as argument
