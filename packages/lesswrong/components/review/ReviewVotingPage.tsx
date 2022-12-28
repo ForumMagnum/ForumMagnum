@@ -459,7 +459,7 @@ const ReviewVotingPage = ({classes}: {
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </ContentStyles>
   : <ContentStyles contentType="comment" className={classes.instructions}>
-      {reviewPhase === "NOMINATIONS" && <><p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
+      {reviewPhase === "NOMINATIONS" && <><p>During the <em>Nomination Voting Phase</em>, eligible users are encouraged to:</p>
       <ul>
         <li>
           Vote on posts that represent important intellectual progress.
@@ -468,7 +468,7 @@ const ReviewVotingPage = ({classes}: {
       </ul> 
       <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
 
-      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
+      <p>At the end of the Nomination Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
 
 
       {reviewPhase === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
@@ -480,7 +480,7 @@ const ReviewVotingPage = ({classes}: {
       <p><b>FAQ</b></p>
 
       <p className={classes.faqQuestion}>
-        <FaqCard linkText="How exactly do Preliminary Votes work?">
+        <FaqCard linkText="How exactly do Nomination Votes work?">
           <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
           <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
           <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>

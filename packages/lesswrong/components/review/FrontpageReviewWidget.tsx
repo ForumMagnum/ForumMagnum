@@ -188,12 +188,12 @@ export const overviewTooltip = isEAForum ?
   <div>
     <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
     <ul>
-      <li><em>Preliminary Voting</em> ({nominationPhaseDateRange})</li>
+      <li><em>Nomination Voting</em> ({nominationPhaseDateRange})</li>
       <li><em>Review</em> ({reviewPhaseDateRange})</li>
       <li><em>Final Voting</em> ({votingPhaseDateRange})</li>
     </ul>
     <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>
-    <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
+    <p>We're currently in the nomination voting phase. Nominate posts by casting a nomination vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
@@ -218,7 +218,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     <div>
       <div>Cast initial votes for the {REVIEW_YEAR} Review.</div>
       <ul>
-        <li>Nominate a post by casting a <em>preliminary vote</em>, or vote on an existing nomination to help us prioritize it during the Review Phase.</li>
+        <li>Nominate a post by casting a <em>nomination vote</em>. Or, vote on an existing nominated post to help us prioritize it during the Review Phase.</li>
         <li>Any post from {REVIEW_YEAR} can be nominated</li>
         <li>Any user registered before {REVIEW_YEAR} can nominate posts for review</li>
         <li>Posts will need at least two positive votes to proceed to the Review Phase.</li>
@@ -289,7 +289,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
   const reviewTimeline = <div className={classes.reviewTimeline}>
     <div className={classes.nominationBlock}>
       <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
-        <div className={classNames(classes.blockText, classes.blockLabel)}>Preliminary Voting</div>
+        <div className={classNames(classes.blockText, classes.blockLabel)}>Nomination Voting</div>
         <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
         {activeRange === "NOMINATIONS" && <div
           className={classes.coloredProgress}
@@ -337,7 +337,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     {showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
       <p>Reviews Dashboard</p>
       <ul>
-        <li>View all posts with at least one preliminary vote.</li>
+        <li>View all posts with at least one nomination vote.</li>
         <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
         <li>Start writing reviews.</li>
       </ul>
