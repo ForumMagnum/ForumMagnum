@@ -462,6 +462,8 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly parentTagId: string,
+  readonly autoTagModel: string | null,
+  readonly autoTagPrompt: string | null,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -469,6 +471,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly postId: string,
   readonly deleted: boolean,
   readonly userId: string,
+  readonly autoApplied: boolean,
 }
 
 interface BooksDefaultFragment { // fragment on Books
@@ -655,6 +658,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly moderationStyle: string,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly languageModelSummary: string,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1181,6 +1185,11 @@ interface HighlightWithHash_contents { // fragment on Revisions
 interface PostSideComments { // fragment on Posts
   readonly _id: string,
   readonly sideComments: any,
+}
+
+interface PostWithGeneratedSummary { // fragment on Posts
+  readonly _id: string,
+  readonly languageModelSummary: string,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1858,6 +1867,7 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
+  readonly autoApplied: boolean,
 }
 
 interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -2122,6 +2132,8 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
+  readonly autoTagModel: string | null,
+  readonly autoTagPrompt: string | null,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
@@ -2904,6 +2916,7 @@ interface FragmentTypes {
   WithVotePost: WithVotePost
   HighlightWithHash: HighlightWithHash
   PostSideComments: PostSideComments
+  PostWithGeneratedSummary: PostWithGeneratedSummary
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -3081,6 +3094,7 @@ interface CollectionNamesByFragmentName {
   WithVotePost: "Posts"
   HighlightWithHash: "Posts"
   PostSideComments: "Posts"
+  PostWithGeneratedSummary: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"

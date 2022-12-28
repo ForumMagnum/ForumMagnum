@@ -112,7 +112,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
     tagName: tag.name,
     tagSlug: tag.slug
   });
-  const { PopperCard, TagRelCard, TopTagIcon, TagPreview } = Components
+  const { PopperCard, TagRelCard, TopTagIcon } = Components
 
   const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
 

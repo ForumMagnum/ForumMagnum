@@ -49,6 +49,11 @@ const makeOutlookCalendarUrl = (event: CalendarEvent) => makeUrl("https://outloo
   path: "/calendar/view/Month"
 });
 
+const makeUid = (event: CalendarEvent) => {
+  const windowExists = typeof window !== 'undefined';
+  return `${makeTime(Date())}${event.name}${String(Math.random()).substring(2)}${windowExists ? `@${window.location.hostname}`: ''}`;
+};
+
 const makeICSCalendarUrl = (event: CalendarEvent) => {
   const components = [
     "BEGIN:VCALENDAR",
@@ -57,12 +62,12 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
   ];
 
   // The ICS format requires escaping of certain characters
-const escapeText = (text: string | null) => {
-  if(!text) {
-    return null;
+  const escapeText = (text: string | null) => {
+    if(!text) {
+      return null;
+    }
+    return text.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
   }
-  return text.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
-}
 
   // In case of SSR, document won't be defined
   if (typeof document !== "undefined") {
@@ -71,7 +76,7 @@ const escapeText = (text: string | null) => {
 
   components.push(
     `DTSTAMP:${makeTime(Date())}`, // time this file was created, i.e. now
-    `UID:${makeTime(Date()) + event.name + String(Math.random()).substring(2) + '@' + window.location.hostname}`, // guaranteed unique identifier
+    `UID:${makeUid(event)}`, // guaranteed unique identifier
     `DTSTART:${makeTime(event.startsAt)}`,
     `DTEND:${makeTime(event.endsAt)}`,
     `SUMMARY:${escapeText(event.name)}`
