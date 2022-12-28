@@ -82,4 +82,15 @@ export default class VotesRepo extends AbstractRepo {
       'data."documentId" AS "tagId"',
     ]);
   }
+
+  getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {
+    return this.db.any(`
+      SELECT * FROM "Votes" WHERE
+        $1::TEXT[] @> ARRAY["documentId"]::TEXT[] AND
+        "collectionName" = 'Revisions' AND
+        "cancelled" = FALSE AND
+        "isUnvote" = FALSE AND
+        "authorIds" @> ARRAY["userId"]
+    `, [tagRevisionIds]);
+  }
 }

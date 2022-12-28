@@ -242,7 +242,7 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const fieldType = this.getField(unresolvedField);
+    const fieldType = this.getField(unresolvedField)?.toConcrete();
     if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
         return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
@@ -532,6 +532,14 @@ abstract class Query<T extends DbObject> {
 
     if (op === "$first") {
       return this.compileExpression(expr[op]);
+    }
+
+    if (op === "$floor") {
+      return ["FLOOR(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    if (op === "$avg") {
+      return ["AVG(", ...this.compileExpression(expr[op]), ")"];
     }
 
     if (op === undefined) {

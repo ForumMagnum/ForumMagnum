@@ -7,7 +7,6 @@ import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
-import { createNotifications } from '../notificationCallbacksHelpers';
 
 function isValidTagName(name: string) {
   return true;
@@ -22,7 +21,13 @@ function normalizeTagName(name: string) {
 }
 
 export async function updatePostDenormalizedTags(postId: string) {
-  const tagRels: Array<DbTagRel> = await TagRels.find({postId: postId, deleted:false}).fetch();
+  if (!postId) {
+    // eslint-disable-next-line no-console
+    console.warn("Warning: Trying to update tagRelevance with an invalid post ID:", postId);
+    return;
+  }
+
+  const tagRels: Array<DbTagRel> = await TagRels.find({postId, deleted: false}).fetch();
   const tagRelDict: Partial<Record<string,number>> = {};
   
   for (let tagRel of tagRels) {
@@ -93,11 +98,16 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   return {...tagRel, ...votedTagRel} as DbTagRel;
 });
 
-function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
-  newDocument: DbTagRel,
-  vote: DbVote
-}) {
-  void updatePostDenormalizedTags(tagRel.postId);
+function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
+  let postId: string;
+  if ("postId" in newDocument) {
+    postId = newDocument["postId"];
+  } else if ("tagRelevance" in newDocument) {
+    postId = newDocument["_id"];
+  } else {
+    return;
+  }
+  void updatePostDenormalizedTags(postId);
 }
 
 voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
