@@ -155,7 +155,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
-  const standardFilterModes = getStandardFilterModes(currentUser);
+  const standardFilterModes = getStandardFilterModes();
 
   if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
@@ -210,7 +210,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   }
 
   const otherValue =
-    isCustomFilterMode(currentUser, mode) || (standardFilterModes.includes(mode) && inputTime > 0)
+    isCustomFilterMode(mode) || (standardFilterModes.includes(mode) && inputTime > 0)
       ? mode
       : "";
 

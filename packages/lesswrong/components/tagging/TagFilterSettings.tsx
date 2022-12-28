@@ -86,7 +86,7 @@ const TagFilterSettings = ({
         onChangeMode={(mode: FilterMode) => {
           // If user has clicked on, eg, "Hidden" after it's already selected, return it to default
           // ... but don't apply that to manually input filter settings
-          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(currentUser, mode) ? 0 : mode
+          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(mode) ? 0 : mode
           setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
         }}
         onRemove={() => {
