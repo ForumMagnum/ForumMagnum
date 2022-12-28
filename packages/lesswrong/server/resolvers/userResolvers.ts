@@ -20,6 +20,7 @@ import Tags from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import { getKarmaChanges } from '../karmaChanges';
 import sumBy from 'lodash/sumBy';
+import { getAnalyticsConnection } from "../analytics/postgresConnection";
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -90,7 +91,8 @@ addGraphQLSchema(`
     topComment: Comment,
     shortformCount: Int,
     topShortform: Comment,
-    karmaChange: Int
+    karmaChange: Int,
+    totalSeconds: Int
   }
 `)
 
@@ -298,11 +300,28 @@ addGraphQLResolvers({
         topComment: userComments.shift() ?? null,
         shortformCount: userShortforms.length,
         topShortform: userShortforms.shift() ?? null,
-        karmaChange: totalKarmaChange
+        karmaChange: totalKarmaChange,
+        totalSeconds: await getEngagement(currentUser._id)
       }
     },
   },
 })
+
+/*
+  Note: this just returns the values from a materialized view that never automatically refreshes
+  So the code for the materialized view will need to be changed if we do this in future years
+*/
+async function getEngagement (userId : string) : Promise<number> {    
+  const postgres = getAnalyticsConnection();
+  if (!postgres) throw new Error("Unable to connect to analytics database - no database configured");
+
+  const query = `select total_seconds 
+                  from user_engagement_wrapped
+                  where user_id = $1`
+  const pgResult = await postgres.query(query, [userId]);
+
+  return pgResult[0]['total_seconds']
+}
 
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
