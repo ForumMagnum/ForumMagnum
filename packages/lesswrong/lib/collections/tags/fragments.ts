@@ -280,6 +280,10 @@ registerFragment(`
     }
     tagFlagsIds
     postsDefaultSortOrder
+    
+    autoTagModel
+    autoTagPrompt
+    
     description {
       ...RevisionEdit
     }
