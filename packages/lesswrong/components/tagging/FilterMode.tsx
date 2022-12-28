@@ -260,15 +260,16 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               </span>
             </LWTooltip>
             <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
-              <Input
-                className={classes.filterInput}
-                placeholder="Other"
-                type="number"
-                disableUnderline
-                classes={{input:classes.input}}
-                value={otherValue}
-                onChange={ev => handleCustomInput(ev.target.value || "")}
-              />
+              <span className={classes.filterButton}>
+                <Input
+                  placeholder="Other"
+                  type="number"
+                  disableUnderline
+                  classes={{input:classes.input}}
+                  value={otherValue}
+                  onChange={ev => handleCustomInput(ev.target.value || "")}
+                />
+              </span>
             </LWTooltip>
             <div className={classes.rightContainer}>
               {canRemove && !tag?.suggestedAsFilter &&
