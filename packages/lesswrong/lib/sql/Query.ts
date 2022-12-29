@@ -58,6 +58,12 @@ const arithmeticOps = {
   ...comparisonOps,
 };
 
+const variadicFunctions = {
+  $min: "LEAST",
+  $max: "GREATEST",
+  $ifNull: "COALESCE",
+};
+
 /**
  * Query is the base class of the query builder which defines a number of common
  * functionalities (such as compiling artitrary expressions or selectors), as well
@@ -507,8 +513,8 @@ abstract class Query<T extends DbObject> {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
-    if (op === "$min" || op === "$max") {
-      const func = op === "$min" ? "LEAST" : "GREATEST";
+    if (variadicFunctions[op]) {
+      const func = variadicFunctions[op];
       const args = expr[op].map((value: any) => this.compileExpression(value));
       let prefix = `${func}(`;
       let result: Atom<T>[] = [];

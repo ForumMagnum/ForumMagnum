@@ -358,6 +358,21 @@ describe("SelectQuery", () => {
       expectedArgs: [6, 3],
     },
     {
+      name: "can build select query with $ifNull",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $ifNull: [
+              "$a",
+              4,
+            ],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , COALESCE( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [4, 3],
+    },
+    {
       name: "can build select with date diff",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {
