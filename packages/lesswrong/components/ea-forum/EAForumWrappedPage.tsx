@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import moment from "moment";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { gql, useQuery } from "@apollo/client";
 import { truncatise } from "../../lib/truncatise";
 import { useConcreteThemeOptions } from "../themes/useTheme";
+import ReadIcon from '@material-ui/icons/LibraryBooks'
+import ClockIcon from '@material-ui/icons/Schedule'
 import PersonIcon from '@material-ui/icons/Person'
 import TopicIcon from '@material-ui/icons/LocalOffer'
 import PostIcon from '@material-ui/icons/Description'
@@ -34,11 +37,7 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     maxWidth: 640,
     backgroundColor: theme.palette.background.default,
-    // backgroundColor: theme.palette.primary.main,
-    // background: `linear-gradient(to bottom right, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-    // color: theme.palette.grey[0],
     padding: '32px 14px 20px',
-    // borderRadius: 12,
     borderTopLeftRadius: '255px 15px',
     borderTopRightRadius: '15px 225px',
     borderBottomRightRadius: '225px 15px',
@@ -66,7 +65,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     columnGap: 5,
     textAlign: 'center',
-    // color: theme.palette.grey[0],
     fontSize: 24,
     fontWeight: 600,
     [theme.breakpoints.down('xs')]: {
@@ -77,63 +75,80 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 300,
     margin: '20px auto 0'
   },
+  unqualifiedUserSection: {
+    maxWidth: 435,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[800],
+    fontSize: 16,
+    lineHeight: '24px',
+    padding: '0 20px',
+    margin: '20px auto 14px'
+  },
   summarySection: {
-    // maxWidth: 500,
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gridGap: '24px 14px',
+    gridTemplateColumns: '50% 50%',
+    gridGap: '14px 14px',
     fontFamily: theme.typography.fontFamily,
     padding: '0 30px',
-    margin: '24px auto 0',
+    margin: '16px auto 0',
     [theme.breakpoints.down('xs')]: {
       padding: '0 14px',
     },
-    '@media (max-width: 400px)': {
-      maxWidth: 300,
+    '@media (max-width: 500px)': {
       gridTemplateColumns: '1fr',
-      
     }
   },
+  summarySectionTitleRow: {
+    padding: '0 30px',
+    margin: '20px auto 0',
+    [theme.breakpoints.down('xs')]: {
+      padding: '0 14px',
+    },
+  },
+  summarySectionTitle: {
+    display: 'inline-block',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 18,
+    lineHeight: '24px',
+    paddingBottom: 4,
+    // borderBottom: `2px solid ${theme.palette.grey[400]}`
+    // borderBottom: `2px solid #ffc257`
+    borderBottom: `2px solid rgba(255, 168, 50, 0.6)`
+  },
   summaryData: {
-    // textAlign: 'center'
   },
   summaryDataLabel: {
     display: 'flex',
     columnGap: 6,
     fontFamily: theme.typography.fontFamily,
-    fontSize: 13,
-    lineHeight: '16px',
-    marginBottom: 10
+    color: theme.palette.grey[900],
+    fontSize: 14,
+    lineHeight: '18px',
+    marginBottom: 8
   },
   labelIcon: {
-    fontSize: 14,
+    fontSize: 16,
     fill: theme.palette.grey[600]
   },
-  // author: {
-  //   display: 'flex',
-  //   alignItems: 'center',
-  //   columnGap: 8,
-  //   fontFamily: theme.typography.headline.fontFamily,
-  //   fontSize: 16,
-  //   lineHeight: '20px',
-  // },
   summaryDataVal: {
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'baseline',
     columnGap: 8,
-    rowGap: '4px',
+    rowGap: '3px',
     fontFamily: theme.typography.headline.fontFamily,
     color: theme.palette.grey[800],
     fontSize: 16,
-    lineHeight: '20px',
-    marginBottom: 6
+    lineHeight: '24px',
+    marginBottom: 5
   },
   count: {
     color: theme.palette.grey[600],
     fontSize: 12,
+    lineHeight: '16px'
   },
   link: {
+    overflowWrap: 'anywhere',
     color: theme.palette.primary.main,
   },
   darkLink: {
@@ -172,6 +187,8 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const { data, loading } = useQuery(gql`
     query getWrappedData($year: Int!) {
       UserWrappedDataByYear(year: $year) {
+        totalSeconds
+        postsReadCount
         mostReadAuthors {
           displayName
           slug
@@ -222,6 +239,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   
   const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm } = Components
   
+  // if there's no logged in user, prompt them to login
   if (!currentUser) {
     return <div className={classes.root}>
       <SingleColumnSection>
@@ -237,6 +255,26 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     </div>
   }
   
+  // calculate the user's # of years on the site at Dec 31, 2022
+  const userCreatedAt = moment(currentUser.createdAt)
+  const endOf2022 = moment().year(2023).dayOfYear(0)
+  const userAge = endOf2022.diff(moment(currentUser.createdAt), 'years') + 1
+  // if their account was created after 2022, show this message
+  if (userCreatedAt.isAfter(endOf2022)) {
+    return <div className={classes.root}>
+      <SingleColumnSection>
+        <div className={classes.summaryCard}>
+          <Typography variant="headline" className={classes.summaryHeadline}>
+            ✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨
+          </Typography>
+          <div className={classes.unqualifiedUserSection}>
+            Looks like you didn't have an account in 2022 - check back in at the end of 2023!
+          </div>
+        </div>
+      </SingleColumnSection>
+    </div>
+  }
+  
   if (loading || showAnimation) {
     const gifName = theme.name === 'dark' ? 'v1672178471/wrapped_gif_v3_dark_mode.gif' : 'v1672178471/wrapped_gif_v3_light_mode.gif'
     return <div className={classes.loading}>
@@ -245,6 +283,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   }
   
   const results = data?.UserWrappedDataByYear
+  const hasPublishedContent = results.topPost || results.topComment || results.topShortform
 
   return (
     <div className={classes.root}>
@@ -257,7 +296,61 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             <div>✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨</div>
           </Typography>
           
+          <h2 className={classes.summarySectionTitleRow}>
+            <div className={classes.summarySectionTitle}>
+              It's your {moment.localeData().ordinal(userAge)} year on the EA Forum
+            </div>
+          </h2>
           <div className={classes.summarySection}>
+            <div className={classes.summaryData}>
+              <div className={classes.summaryDataLabel}>
+                <ClockIcon className={classes.labelIcon} />
+                Hours spent here this year
+              </div>
+              <div className={classes.summaryDataVal}>
+                {Math.round(results.totalSeconds / 360) / 10}
+                <span className={classes.count}>
+                  That's {Math.round(results.totalSeconds / 360) / 100} episodes of the <a
+                    href="https://80000hours.org/podcast"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={classes.link}
+                  >
+                    80,000 Hours Podcast
+                  </a>!
+                </span>
+              </div>
+            </div>
+            <div className={classes.summaryData}>
+              <div className={classes.summaryDataLabel}>
+                <NearMeIcon className={classes.labelIcon} />
+                <div>
+                  Your EA Forum <a href="https://en.wikipedia.org/wiki/Alignment_(Dungeons_%26_Dragons)#Alignments" target="_blank" rel="noopener noreferrer" className={classes.darkLink}>
+                    alignment
+                  </a>
+                </div>
+              </div>
+              <div className={classes.summaryDataVal}>
+                Chaotic Good
+              </div>
+            </div>
+          </div>
+          
+          <h2 className={classes.summarySectionTitleRow}>
+            <div className={classes.summarySectionTitle}>
+              You read {results.postsReadCount} post{results.postsReadCount > 1 ? 's' : ''} this year
+            </div>
+          </h2>
+          <div className={classes.summarySection}>
+            {/* <div className={classes.summaryData}>
+              <div className={classes.summaryDataLabel}>
+                <ReadIcon className={classes.labelIcon} />
+                Posts Read
+              </div>
+              <div className={classes.summaryDataVal}>
+                {results.postsReadCount}
+              </div>
+            </div> */}
             <div className={classes.summaryData}>
               <div className={classes.summaryDataLabel}>
                 <PersonIcon className={classes.labelIcon} />
@@ -286,94 +379,95 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                 })}
               </div>
             </div>
-            {results.topPost && <>
-              <div className={classes.summaryData}>
-                <div className={classes.summaryDataLabel}>
-                  <PostIcon className={classes.labelIcon} />
-                  Your top post
-                </div>
-                <div className={classes.summaryDataVal}>
-                  <span className={classes.link}>
-                    <HoverPreviewLink
-                      href={`/posts/${results.topPost._id}/${results.topPost.slug}`}
-                      innerHTML={results.topPost.title}
-                    />
-                  </span>
-                  <span className={classes.count}>
-                    {results.postCount} post{results.postCount > 1 ? 's' : ''} total
-                  </span>
-                </div>
-              </div>
-            </>}
-            {results.topComment && <>
-              <div className={classes.summaryData}>
-                <div className={classes.summaryDataLabel}>
-                  <CommentIcon className={classes.labelIcon} />
-                  Your top comment
-                </div>
-                <div className={classes.summaryDataVal}>
-                  <span className={classes.link}>
-                    <HoverPreviewLink
-                      href={`/posts/${results.topComment.postId}?commentId=${results.topComment._id}`}
-                      innerHTML={truncatise(results.topComment.contents.plaintextMainText, {
-                        TruncateLength: 25,
-                        TruncateBy: 'characters',
-                        Suffix: '...',
-                      })}
-                    />
-                  </span>
-                  <span className={classes.count}>
-                    {results.commentCount} comment{results.commentCount > 1 ? 's' : ''} total
-                  </span>
-                </div>
-              </div>
-            </>}
-            {results.topShortform && <>
-              <div className={classes.summaryData}>
-                <div className={classes.summaryDataLabel}>
-                  <ShortformIcon className={classes.labelIcon} />
-                  Your top shortform
-                </div>
-                <div className={classes.summaryDataVal}>
-                  <span className={classes.link}>
-                    <HoverPreviewLink
-                      href={`/posts/${results.topShortform.postId}?commentId=${results.topShortform._id}`}
-                      innerHTML={truncatise(results.topShortform.contents.plaintextMainText, {
-                        TruncateLength: 25,
-                        TruncateBy: 'characters',
-                        Suffix: '...',
-                      })}
-                    />
-                  </span>
-                  <span className={classes.count}>
-                    {results.shortformCount} shortform{results.shortformCount > 1 ? 's' : ''} total
-                  </span>
-                </div>
-              </div>
-            </>}
-            <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <KarmaIcon className={classes.labelIcon} />
-                Your karma change
-              </div>
-              <div className={classes.summaryDataVal}>
-                {results.karmaChange > 0 ? '+' : ''}{results.karmaChange}
-              </div>
-            </div>
-            <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <NearMeIcon className={classes.labelIcon} />
-                <div>
-                  Your EA Forum <a href="https://en.wikipedia.org/wiki/Alignment_(Dungeons_%26_Dragons)#Alignments" target="_blank" rel="noopener noreferrer" className={classes.darkLink}>
-                    alignment
-                  </a>
-                </div>
-              </div>
-              <div className={classes.summaryDataVal}>
-                Chaotic Good
-              </div>
-            </div>
           </div>
+          
+          {hasPublishedContent && <>
+            <h2 className={classes.summarySectionTitleRow}>
+              <div className={classes.summarySectionTitle}>
+                You joined the conversation this year
+              </div>
+            </h2>
+            <div className={classes.summarySection}>
+              {results.topPost && <>
+                <div className={classes.summaryData}>
+                  <div className={classes.summaryDataLabel}>
+                    <PostIcon className={classes.labelIcon} />
+                    Your highest-karma post
+                  </div>
+                  <div className={classes.summaryDataVal}>
+                    <span className={classes.link}>
+                      <HoverPreviewLink
+                        href={`/posts/${results.topPost._id}/${results.topPost.slug}`}
+                        innerHTML={truncatise(results.topPost.title, {
+                          TruncateLength: 50,
+                          TruncateBy: 'characters',
+                          Suffix: '...',
+                        })}
+                      />
+                    </span>
+                    <span className={classes.count}>
+                      {results.postCount} post{results.postCount > 1 ? 's' : ''} total
+                    </span>
+                  </div>
+                </div>
+              </>}
+              {results.topComment && <>
+                <div className={classes.summaryData}>
+                  <div className={classes.summaryDataLabel}>
+                    <CommentIcon className={classes.labelIcon} />
+                    Your highest-karma comment
+                  </div>
+                  <div className={classes.summaryDataVal}>
+                    <span className={classes.link}>
+                      <HoverPreviewLink
+                        href={`/posts/${results.topComment.postId}?commentId=${results.topComment._id}`}
+                        innerHTML={truncatise(results.topComment.contents.plaintextMainText, {
+                          TruncateLength: 50,
+                          TruncateBy: 'characters',
+                          Suffix: '...',
+                        })}
+                      />
+                    </span>
+                    <span className={classes.count}>
+                      {results.commentCount} comment{results.commentCount > 1 ? 's' : ''} total
+                    </span>
+                  </div>
+                </div>
+              </>}
+              {results.topShortform && <>
+                <div className={classes.summaryData}>
+                  <div className={classes.summaryDataLabel}>
+                    <ShortformIcon className={classes.labelIcon} />
+                    Your highest-karma shortform
+                  </div>
+                  <div className={classes.summaryDataVal}>
+                    <span className={classes.link}>
+                      <HoverPreviewLink
+                        href={`/posts/${results.topShortform.postId}?commentId=${results.topShortform._id}`}
+                        innerHTML={truncatise(results.topShortform.contents.plaintextMainText, {
+                          TruncateLength: 50,
+                          TruncateBy: 'characters',
+                          Suffix: '...',
+                        })}
+                      />
+                    </span>
+                    <span className={classes.count}>
+                      {results.shortformCount} shortform{results.shortformCount > 1 ? 's' : ''} total
+                    </span>
+                  </div>
+                </div>
+              </>}
+              {(results.karmaChange !== undefined) && <div className={classes.summaryData}>
+                <div className={classes.summaryDataLabel}>
+                  <KarmaIcon className={classes.labelIcon} />
+                  Your overall karma change
+                </div>
+                <div className={classes.summaryDataVal}>
+                  {results.karmaChange > 0 ? '+' : ''}{results.karmaChange}
+                </div>
+              </div>}
+            </div>
+          </>}
         </div>
       </SingleColumnSection>
       

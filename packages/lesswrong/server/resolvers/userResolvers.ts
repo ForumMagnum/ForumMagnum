@@ -83,6 +83,8 @@ addGraphQLSchema(`
     count: Int
   }
   type WrappedDataByYear {
+    totalSeconds: Int,
+    postsReadCount: Int,
     mostReadAuthors: [MostReadAuthor],
     mostReadTopics: [MostReadTopic],
     postCount: Int,
@@ -91,8 +93,7 @@ addGraphQLSchema(`
     topComment: Comment,
     shortformCount: Int,
     topShortform: Comment,
-    karmaChange: Int,
-    totalSeconds: Int
+    karmaChange: Int
   }
 `)
 
@@ -193,13 +194,13 @@ addGraphQLResolvers({
 
       // Get all the user's posts read for the given year
       const start = moment().year(year).dayOfYear(1).toDate()
-      const end = moment().year(year+1).dayOfYear(1).toDate()
+      const end = moment().year(year+1).dayOfYear(0).toDate()
       console.log('start', start)
       console.log('end', end)
       const readStatuses = await ReadStatuses.find({
         userId: currentUser._id,
         isRead: true,
-        lastUpdated: {$gte: start, $lt: end},
+        lastUpdated: {$gte: start, $lte: end},
         postId: {$exists: true, $ne: null}
       }).fetch()
       console.log('readStatuses', readStatuses)
@@ -234,7 +235,7 @@ addGraphQLResolvers({
         }, {projection: {name: 1, slug: 1}}).fetch(),
         Posts.find({
           userId: currentUser._id,
-          postedAt: {$gte: start, $lt: end},
+          postedAt: {$gte: start, $lte: end},
           draft: false,
           deletedDraft: false,
           isEvent: false,
@@ -244,13 +245,13 @@ addGraphQLResolvers({
         }, {projection: {title: 1, slug: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch(),
         Comments.find({
           userId: currentUser._id,
-          postedAt: {$gte: start, $lt: end},
+          postedAt: {$gte: start, $lte: end},
           deleted: false,
           shortform: false,
         }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch(),
         Comments.find({
           userId: currentUser._id,
-          postedAt: {$gte: start, $lt: end},
+          postedAt: {$gte: start, $lte: end},
           deleted: false,
           shortform: true,
         }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
@@ -278,6 +279,8 @@ addGraphQLResolvers({
       
       // TODO: check all these numbers
       return {
+        totalSeconds: await getEngagement(currentUser._id),
+        postsReadCount: posts.length,
         mostReadAuthors: topAuthors.reverse().map(id => {
           const author = authors.find(a => a._id === id)
           return author ? {
@@ -300,8 +303,7 @@ addGraphQLResolvers({
         topComment: userComments.shift() ?? null,
         shortformCount: userShortforms.length,
         topShortform: userShortforms.shift() ?? null,
-        karmaChange: totalKarmaChange,
-        totalSeconds: await getEngagement(currentUser._id)
+        karmaChange: totalKarmaChange
       }
     },
   },
