@@ -329,9 +329,11 @@ abstract class Query<T extends DbObject> {
             throw new Error("$in expects an array");
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
-          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          const hint = typeHint ? typeHint + "[]" : "";
-          return [`ARRAY[`, ...args, `]${hint} @> ARRAY[${field}]${hint}`];
+          const hint = typeHint ?? "";
+          const args = value[comparer].flatMap((item: any) => [
+            ",", new Arg(item), hint,
+          ]).slice(1);
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
