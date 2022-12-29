@@ -16,6 +16,7 @@ import ShortformIcon from '@material-ui/icons/Notes'
 import KarmaIcon from '@material-ui/icons/Star'
 import NearMeIcon from '@material-ui/icons/NearMe'
 import { RibbonIcon } from "../icons/ribbonIcon";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 
 const styles = (theme: ThemeType) => ({
@@ -286,223 +287,235 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const hasPublishedContent = results.topPost || results.topComment || results.topShortform
 
   return (
-    <div className={classes.root}>
-      <SingleColumnSection>
-        <div className={classes.summaryCard}>
-          <RibbonIcon className={classes.ribbonIcon} />
-          
-          <Typography variant="headline" className={classes.summaryHeadline}>
-            <div>{currentUser?.displayName}'s</div>
-            <div>✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨</div>
-          </Typography>
-          
-          <h2 className={classes.summarySectionTitleRow}>
-            <div className={classes.summarySectionTitle}>
-              It's your {moment.localeData().ordinal(userAge)} year on the EA Forum
-            </div>
-          </h2>
-          <div className={classes.summarySection}>
-            <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <ClockIcon className={classes.labelIcon} />
-                Hours spent here this year
-              </div>
-              <div className={classes.summaryDataVal}>
-                {Math.round(results.totalSeconds / 360) / 10}
-                <span className={classes.count}>
-                  That's {Math.round(results.totalSeconds / 360) / 100} episodes of the <a
-                    href="https://80000hours.org/podcast"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={classes.link}
-                  >
-                    80,000 Hours Podcast
-                  </a>!
-                </span>
-              </div>
-            </div>
-            <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <NearMeIcon className={classes.labelIcon} />
-                <div>
-                  Your EA Forum <a href="https://en.wikipedia.org/wiki/Alignment_(Dungeons_%26_Dragons)#Alignments" target="_blank" rel="noopener noreferrer" className={classes.darkLink}>
-                    alignment
-                  </a>
-                </div>
-              </div>
-              <div className={classes.summaryDataVal}>
-                Chaotic Good
-              </div>
-            </div>
-          </div>
-          
-          <h2 className={classes.summarySectionTitleRow}>
-            <div className={classes.summarySectionTitle}>
-              You read {results.postsReadCount} post{results.postsReadCount > 1 ? 's' : ''} this year
-            </div>
-          </h2>
-          <div className={classes.summarySection}>
-            {/* <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <ReadIcon className={classes.labelIcon} />
-                Posts Read
-              </div>
-              <div className={classes.summaryDataVal}>
-                {results.postsReadCount}
-              </div>
-            </div> */}
-            <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <PersonIcon className={classes.labelIcon} />
-                Your favorite authors
-              </div>
-              <div>
-                {results.mostReadAuthors.map(author => {
-                  return <div key={author.slug} className={classes.summaryDataVal}>
-                    <Link to={`/user/${author.slug}?from=2022_wrapped`} className={classes.link}>{author.displayName}</Link>
-                    <span className={classes.count}>{author.count} post{author.count > 1 ? 's' : ''} read</span>
-                  </div>
-                })}
-              </div>
-            </div>
-            <div className={classes.summaryData}>
-              <div className={classes.summaryDataLabel}>
-                <TopicIcon className={classes.labelIcon} />
-                Your favorite topics
-              </div>
-              <div>
-                {results.mostReadTopics.map(topic => {
-                  return <div key={topic.slug} className={classes.summaryDataVal}>
-                    <span className={classes.link}><HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/></span>
-                    <span className={classes.count}>{topic.count} post{topic.count > 1 ? 's' : ''} read</span>
-                  </div>
-                })}
-              </div>
-            </div>
-          </div>
-          
-          {hasPublishedContent && <>
+    <AnalyticsContext pageContext="eaYearWrapped">
+      <div className={classes.root}>
+        <SingleColumnSection>
+          <div className={classes.summaryCard}>
+            <RibbonIcon className={classes.ribbonIcon} />
+            
+            <Typography variant="headline" className={classes.summaryHeadline}>
+              <div>{currentUser?.displayName}'s</div>
+              <div>✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨</div>
+            </Typography>
+            
             <h2 className={classes.summarySectionTitleRow}>
               <div className={classes.summarySectionTitle}>
-                You joined the conversation this year
+                It's your {moment.localeData().ordinal(userAge)} year on the EA Forum
               </div>
             </h2>
             <div className={classes.summarySection}>
-              {results.topPost && <>
+              <AnalyticsContext pageSectionContext="hoursSpent">
                 <div className={classes.summaryData}>
                   <div className={classes.summaryDataLabel}>
-                    <PostIcon className={classes.labelIcon} />
-                    Your highest-karma post
+                    <ClockIcon className={classes.labelIcon} />
+                    Hours spent here this year
                   </div>
                   <div className={classes.summaryDataVal}>
-                    <span className={classes.link}>
-                      <HoverPreviewLink
-                        href={`/posts/${results.topPost._id}/${results.topPost.slug}`}
-                        innerHTML={truncatise(results.topPost.title, {
-                          TruncateLength: 50,
-                          TruncateBy: 'characters',
-                          Suffix: '...',
-                        })}
-                      />
-                    </span>
+                    {Math.round(results.totalSeconds / 360) / 10}
                     <span className={classes.count}>
-                      {results.postCount} post{results.postCount > 1 ? 's' : ''} total
+                      That's {Math.round(results.totalSeconds / 360) / 100} episodes of the <a
+                        href="https://80000hours.org/podcast"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={classes.link}
+                      >
+                        80,000 Hours Podcast
+                      </a>!
                     </span>
                   </div>
                 </div>
-              </>}
-              {results.topComment && <>
-                <div className={classes.summaryData}>
-                  <div className={classes.summaryDataLabel}>
-                    <CommentIcon className={classes.labelIcon} />
-                    Your highest-karma comment
-                  </div>
-                  <div className={classes.summaryDataVal}>
-                    <span className={classes.link}>
-                      <HoverPreviewLink
-                        href={`/posts/${results.topComment.postId}?commentId=${results.topComment._id}`}
-                        innerHTML={truncatise(results.topComment.contents.plaintextMainText, {
-                          TruncateLength: 50,
-                          TruncateBy: 'characters',
-                          Suffix: '...',
-                        })}
-                      />
-                    </span>
-                    <span className={classes.count}>
-                      {results.commentCount} comment{results.commentCount > 1 ? 's' : ''} total
-                    </span>
-                  </div>
-                </div>
-              </>}
-              {results.topShortform && <>
-                <div className={classes.summaryData}>
-                  <div className={classes.summaryDataLabel}>
-                    <ShortformIcon className={classes.labelIcon} />
-                    Your highest-karma shortform
-                  </div>
-                  <div className={classes.summaryDataVal}>
-                    <span className={classes.link}>
-                      <HoverPreviewLink
-                        href={`/posts/${results.topShortform.postId}?commentId=${results.topShortform._id}`}
-                        innerHTML={truncatise(results.topShortform.contents.plaintextMainText, {
-                          TruncateLength: 50,
-                          TruncateBy: 'characters',
-                          Suffix: '...',
-                        })}
-                      />
-                    </span>
-                    <span className={classes.count}>
-                      {results.shortformCount} shortform{results.shortformCount > 1 ? 's' : ''} total
-                    </span>
-                  </div>
-                </div>
-              </>}
-              {(results.karmaChange !== undefined) && <div className={classes.summaryData}>
+              </AnalyticsContext>
+              <div className={classes.summaryData}>
                 <div className={classes.summaryDataLabel}>
-                  <KarmaIcon className={classes.labelIcon} />
-                  Your overall karma change
+                  <NearMeIcon className={classes.labelIcon} />
+                  <div>
+                    Your EA Forum <a href="https://en.wikipedia.org/wiki/Alignment_(Dungeons_%26_Dragons)#Alignments" target="_blank" rel="noopener noreferrer" className={classes.darkLink}>
+                      alignment
+                    </a>
+                  </div>
                 </div>
                 <div className={classes.summaryDataVal}>
-                  {results.karmaChange > 0 ? '+' : ''}{results.karmaChange}
+                  Chaotic Good
                 </div>
-              </div>}
+              </div>
             </div>
-          </>}
-        </div>
-      </SingleColumnSection>
-      
-      <SingleColumnSection>
-        <div className={classes.textSection}>
-          <Typography variant="headline" className={classes.sectionHeadline}>Take a moment to reflect on 2022</Typography>
-          <Typography variant="body2" className={classes.body}>
-            Look back at everything you enjoyed reading - what did you find most valuable? Your answers will help us encourage more of the most valuable content.
-          </Typography>
-        </div>
-      </SingleColumnSection>
-      
-      <SingleColumnSection>
-        <div className={classes.postsListSection}>
-          <Typography variant="headline" className={classes.sectionHeadline}>Your Strong Upvotes from 2022</Typography>
-          <PostsByVoteWrapper voteType="bigUpvote" year={2022} />
-        </div>
-      </SingleColumnSection>
-      
-      <SingleColumnSection>
-        <div className={classes.postsListSection}>
-          <Typography variant="headline" className={classes.sectionHeadline}>Your Upvotes from 2022</Typography>
-          <PostsByVoteWrapper voteType="smallUpvote" year={2022} />
-        </div>
-      </SingleColumnSection>
-      
-      <SingleColumnSection>
-        <div className={classes.textSection}>
-          <Typography variant="headline" className={classes.sectionHeadline}>Thanks!</Typography>
-          <Typography variant="body2" className={classes.body}>
-            Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world.
-          </Typography>
-        </div>
-      </SingleColumnSection>
-    </div>
+            
+            <h2 className={classes.summarySectionTitleRow}>
+              <div className={classes.summarySectionTitle}>
+                You read {results.postsReadCount} post{results.postsReadCount > 1 ? 's' : ''} this year
+              </div>
+            </h2>
+            <div className={classes.summarySection}>
+              {/* <div className={classes.summaryData}>
+                <div className={classes.summaryDataLabel}>
+                  <ReadIcon className={classes.labelIcon} />
+                  Posts Read
+                </div>
+                <div className={classes.summaryDataVal}>
+                  {results.postsReadCount}
+                </div>
+              </div> */}
+              <AnalyticsContext pageSectionContext="mostReadAuthors">
+                <div className={classes.summaryData}>
+                  <div className={classes.summaryDataLabel}>
+                    <PersonIcon className={classes.labelIcon} />
+                    Your favorite authors
+                  </div>
+                    <div>
+                      {results.mostReadAuthors.map(author => {
+                        return <div key={author.slug} className={classes.summaryDataVal}>
+                          <Link to={`/user/${author.slug}?from=2022_wrapped`} className={classes.link}>{author.displayName}</Link>
+                          <span className={classes.count}>{author.count} post{author.count > 1 ? 's' : ''} read</span>
+                        </div>
+                      })}
+                    </div>
+                </div>
+              </AnalyticsContext>
+              <AnalyticsContext pageSectionContext="mostReadTopics">
+                <div className={classes.summaryData}>
+                  <div className={classes.summaryDataLabel}>
+                    <TopicIcon className={classes.labelIcon} />
+                    Your favorite topics
+                  </div>
+                  <div>
+                    {results.mostReadTopics.map(topic => {
+                      return <div key={topic.slug} className={classes.summaryDataVal}>
+                        <span className={classes.link}><HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/></span>
+                        <span className={classes.count}>{topic.count} post{topic.count > 1 ? 's' : ''} read</span>
+                      </div>
+                    })}
+                  </div>
+                </div>
+              </AnalyticsContext>
+            </div>
+            
+            {hasPublishedContent && <>
+              <h2 className={classes.summarySectionTitleRow}>
+                <div className={classes.summarySectionTitle}>
+                  You joined the conversation this year
+                </div>
+              </h2>
+              <div className={classes.summarySection}>
+                {results.topPost && <AnalyticsContext pageSectionContext="topPost">
+                  <div className={classes.summaryData}>
+                    <div className={classes.summaryDataLabel}>
+                      <PostIcon className={classes.labelIcon} />
+                      Your highest-karma post
+                    </div>
+                    <div className={classes.summaryDataVal}>
+                      <span className={classes.link}>
+                        <HoverPreviewLink
+                          href={`/posts/${results.topPost._id}/${results.topPost.slug}`}
+                          innerHTML={truncatise(results.topPost.title, {
+                            TruncateLength: 50,
+                            TruncateBy: 'characters',
+                            Suffix: '...',
+                          })}
+                        />
+                      </span>
+                      <span className={classes.count}>
+                        {results.postCount} post{results.postCount > 1 ? 's' : ''} total
+                      </span>
+                    </div>
+                  </div>
+                </AnalyticsContext>}
+                {results.topComment && <AnalyticsContext pageSectionContext="topComment">
+                    <div className={classes.summaryData}>
+                      <div className={classes.summaryDataLabel}>
+                        <CommentIcon className={classes.labelIcon} />
+                        Your highest-karma comment
+                      </div>
+                      <div className={classes.summaryDataVal}>
+                        <span className={classes.link}>
+                          <HoverPreviewLink
+                            href={`/posts/${results.topComment.postId}?commentId=${results.topComment._id}`}
+                            innerHTML={truncatise(results.topComment.contents.plaintextMainText, {
+                              TruncateLength: 50,
+                              TruncateBy: 'characters',
+                              Suffix: '...',
+                            })}
+                          />
+                        </span>
+                        <span className={classes.count}>
+                          {results.commentCount} comment{results.commentCount > 1 ? 's' : ''} total
+                        </span>
+                      </div>
+                    </div>
+                </AnalyticsContext>}
+                {results.topShortform && <AnalyticsContext pageSectionContext="topShortform">
+                  <div className={classes.summaryData}>
+                    <div className={classes.summaryDataLabel}>
+                      <ShortformIcon className={classes.labelIcon} />
+                      Your highest-karma shortform
+                    </div>
+                    <div className={classes.summaryDataVal}>
+                      <span className={classes.link}>
+                        <HoverPreviewLink
+                          href={`/posts/${results.topShortform.postId}?commentId=${results.topShortform._id}`}
+                          innerHTML={truncatise(results.topShortform.contents.plaintextMainText, {
+                            TruncateLength: 50,
+                            TruncateBy: 'characters',
+                            Suffix: '...',
+                          })}
+                        />
+                      </span>
+                      <span className={classes.count}>
+                        {results.shortformCount} shortform{results.shortformCount > 1 ? 's' : ''} total
+                      </span>
+                    </div>
+                  </div>
+                </AnalyticsContext>}
+                {(results.karmaChange !== undefined) && <div className={classes.summaryData}>
+                  <div className={classes.summaryDataLabel}>
+                    <KarmaIcon className={classes.labelIcon} />
+                    Your overall karma change
+                  </div>
+                  <div className={classes.summaryDataVal}>
+                    {results.karmaChange > 0 ? '+' : ''}{results.karmaChange}
+                  </div>
+                </div>}
+              </div>
+            </>}
+          </div>
+        </SingleColumnSection>
+        
+        <SingleColumnSection>
+          <div className={classes.textSection}>
+            <Typography variant="headline" className={classes.sectionHeadline}>Take a moment to reflect on 2022</Typography>
+            <Typography variant="body2" className={classes.body}>
+              Look back at everything you enjoyed reading - what did you find most valuable? Your answers will help us encourage more of the most valuable content.
+            </Typography>
+          </div>
+        </SingleColumnSection>
+        
+        <AnalyticsContext pageSectionContext="bigUpvotes">
+          <SingleColumnSection>
+            <div className={classes.postsListSection}>
+              <Typography variant="headline" className={classes.sectionHeadline}>Your Strong Upvotes from 2022</Typography>
+              <PostsByVoteWrapper voteType="bigUpvote" year={2022} />
+            </div>
+          </SingleColumnSection>
+        </AnalyticsContext>
+        
+        <AnalyticsContext pageSectionContext="smallUpvotes">
+          <SingleColumnSection>
+            <div className={classes.postsListSection}>
+              <Typography variant="headline" className={classes.sectionHeadline}>Your Upvotes from 2022</Typography>
+              <PostsByVoteWrapper voteType="smallUpvote" year={2022} />
+            </div>
+          </SingleColumnSection>
+        </AnalyticsContext>
+        
+        <SingleColumnSection>
+          <div className={classes.textSection}>
+            <Typography variant="headline" className={classes.sectionHeadline}>Thanks!</Typography>
+            <Typography variant="body2" className={classes.body}>
+              Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world.
+            </Typography>
+          </div>
+        </SingleColumnSection>
+      </div>
+    </AnalyticsContext>
   )
 }
 
