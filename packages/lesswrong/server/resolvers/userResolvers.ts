@@ -84,6 +84,7 @@ addGraphQLSchema(`
   }
   type WrappedDataByYear {
     totalSeconds: Int,
+    engagementPercentile: Float,
     postsReadCount: Int,
     mostReadAuthors: [MostReadAuthor],
     mostReadTopics: [MostReadTopic],
@@ -279,7 +280,7 @@ addGraphQLResolvers({
       
       // TODO: check all these numbers
       return {
-        totalSeconds: await getEngagement(currentUser._id),
+        ...await getEngagement(currentUser._id),
         postsReadCount: posts.length,
         mostReadAuthors: topAuthors.reverse().map(id => {
           const author = authors.find(a => a._id === id)
@@ -313,16 +314,23 @@ addGraphQLResolvers({
   Note: this just returns the values from a materialized view that never automatically refreshes
   So the code for the materialized view will need to be changed if we do this in future years
 */
-async function getEngagement (userId : string) : Promise<number> {
+async function getEngagement (userId : string): Promise<{totalSeconds: number, engagementPercentile: number}> {
   const postgres = getAnalyticsConnection();
   if (!postgres) throw new Error("Unable to connect to analytics database - no database configured");
 
-  const query = `select total_seconds 
-                  from user_engagement_wrapped
-                  where user_id = $1`
+  const query = `
+    with ranked as (
+      select user_id
+        , total_seconds
+        , percent_rank() over (order by total_seconds asc) engagementPercentile
+      from user_engagement_wrapped
+    )
+    select total_seconds, engagementPercentile
+    from ranked
+    where user_id = $1`
   const pgResult = await postgres.query(query, [userId]);
-
-  return pgResult[0]['total_seconds']
+  
+  return {totalSeconds: pgResult[0]['total_seconds'], engagementPercentile: pgResult[0]['engagementpercentile']}
 }
 
 addGraphQLMutation(
