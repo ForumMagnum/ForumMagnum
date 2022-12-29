@@ -63,7 +63,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       const milliseconds = endTime - startTime;
       if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS) {
         // eslint-disable-next-line no-console
-        console.warn(`Slow Postgres query detected (${milliseconds} ms):`, sql, args);
+        console.trace(`Slow Postgres query detected (${milliseconds} ms): ${sql}: ${JSON.stringify(args)}`);
       }
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
