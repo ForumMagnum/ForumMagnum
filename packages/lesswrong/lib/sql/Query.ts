@@ -331,8 +331,8 @@ abstract class Query<T extends DbObject> {
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const hint = typeHint ?? "";
           const args = value[comparer].flatMap((item: any) => [
-            ",", new Arg(item)], hint,
-          ).slice(1);
+            ",", new Arg(item), hint,
+          ]).slice(1);
           return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
