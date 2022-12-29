@@ -330,9 +330,11 @@ abstract class Query<T extends DbObject> {
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
           const hint = typeHint ?? "";
-          const args = value[comparer].flatMap((item: any) => [
-            ",", new Arg(item), hint,
-          ]).slice(1);
+          const args = value[comparer].length
+            ? value[comparer].flatMap((item: any) => [
+              ",", new Arg(item), hint,
+            ]).slice(1)
+            : [`SELECT NULL${hint}`];
           return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
