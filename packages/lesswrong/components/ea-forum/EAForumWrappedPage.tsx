@@ -155,10 +155,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.dark,
   },
   textSection: {
-    margin: '40px 12px 0'
+    margin: '40px 12px 0',
+    '@media (max-width: 500px)': {
+      margin: '40px 0 0',
+    },
   },
   postsListSection: {
-    margin: '0 12px'
+    margin: '0 12px',
+    '@media (max-width: 500px)': {
+      margin: 0,
+    },
   },
   sectionHeadline: {
     fontSize: 25,
@@ -483,14 +489,14 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
       <SingleColumnSection>
         <div className={classes.postsListSection}>
           <Typography variant="headline" className={classes.sectionHeadline}>Your Strong Upvotes from 2022</Typography>
-          <PostsByVoteWrapper voteType="bigUpvote" year={2022} />
+          <PostsByVoteWrapper voteType="bigUpvote" year={2022} showMostValuableCheckbox />
         </div>
       </SingleColumnSection>
       
       <SingleColumnSection>
         <div className={classes.postsListSection}>
           <Typography variant="headline" className={classes.sectionHeadline}>Your Upvotes from 2022</Typography>
-          <PostsByVoteWrapper voteType="smallUpvote" year={2022} />
+          <PostsByVoteWrapper voteType="smallUpvote" year={2022} showMostValuableCheckbox />
         </div>
       </SingleColumnSection>
       

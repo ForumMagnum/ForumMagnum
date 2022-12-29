@@ -239,6 +239,7 @@ importComponent("PostsItemTooltipWrapper", () => require('../components/posts/Po
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
 importComponent("PostReadCheckbox", () => require('../components/posts/PostReadCheckbox'))
+importComponent("PostMostValuableCheckbox", () => require('../components/posts/PostMostValuableCheckbox'))
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip'));
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle'));
 importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltipSingle'));

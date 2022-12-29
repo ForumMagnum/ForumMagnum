@@ -215,13 +215,13 @@ addGraphQLResolvers({
       // Get the top 3 authors that the user has read
       const userIds = posts.map(p => p.userId)
       const authorCounts = countBy(userIds)
-      const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a[0])
+      const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a![0])
       console.log('topAuthors', topAuthors)
       
       // Get the top 3 topics that the user has read
       const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat()
       const tagCounts = countBy(tagIds)
-      const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t[0])
+      const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t![0])
       
       // Get the number of posts, comments, and shortforms that the user posted this year,
       // including which were the most popular
@@ -313,7 +313,7 @@ addGraphQLResolvers({
   Note: this just returns the values from a materialized view that never automatically refreshes
   So the code for the materialized view will need to be changed if we do this in future years
 */
-async function getEngagement (userId : string) : Promise<number> {    
+async function getEngagement (userId : string) : Promise<number> {
   const postgres = getAnalyticsConnection();
   if (!postgres) throw new Error("Unable to connect to analytics database - no database configured");
 
