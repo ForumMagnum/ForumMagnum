@@ -52,6 +52,11 @@ const TargetedJobAdSection = () => {
     const userJobAds = results[0]?.jobAds ?? {}
     
     for (let jobName in JOB_AD_DATA) {
+      // skip any jobs where the deadline to apply has passed
+      if (JOB_AD_DATA[jobName].deadline?.isBefore(moment())) {
+        continue
+      }
+      
       const occupationName = JOB_AD_DATA[jobName].occupationName
       const occupationTag = JOB_AD_DATA[jobName].tagId
       const jobAdState = userJobAds[jobName]?.state

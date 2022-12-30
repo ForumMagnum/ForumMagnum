@@ -283,6 +283,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryHighlight2: '#bae2e8',
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
+    primaryTranslucent: 'rgba(12,134,155,.7)'
   },
   background: {
     default: shades.grey[60],

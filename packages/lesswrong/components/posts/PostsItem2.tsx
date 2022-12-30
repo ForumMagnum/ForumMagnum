@@ -307,6 +307,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     marginRight: 10
+  },
+  mostValuableCheckbox: {
+    marginLeft: 5
   }
 })
 
@@ -355,7 +358,8 @@ const PostsItem2 = ({
   strikethroughTitle=false,
   translucentBackground=false,
   forceSticky=false,
-  showReadCheckbox=false
+  showReadCheckbox=false,
+  showMostValuableCheckbox=false
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -408,6 +412,7 @@ const PostsItem2 = ({
   translucentBackground?: boolean,
   forceSticky?: boolean,
   showReadCheckbox?: boolean
+  showMostValuableCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -449,7 +454,8 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox } = (Components as ComponentTypes)
+    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
+    PostMostValuableCheckbox } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
   const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
@@ -612,7 +618,7 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {!hideTrailingButtons && <>
+          {!hideTrailingButtons && !showMostValuableCheckbox && <>
             {<div className={classes.actions}>
               {dismissButton}
               {!resumeReading && <PostActionsButton post={post} vertical />}
@@ -632,6 +638,9 @@ const PostsItem2 = ({
             />
           </div>}
         </div>
+        {showMostValuableCheckbox && <div className={classes.mostValuableCheckbox}>
+          <PostMostValuableCheckbox post={post} />
+        </div>}
       </div>
     </AnalyticsContext>
   )

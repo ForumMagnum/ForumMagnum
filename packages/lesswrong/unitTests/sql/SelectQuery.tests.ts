@@ -114,13 +114,19 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$in: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[] @> ARRAY["a"]::DOUBLE PRECISION[]',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION )',
       expectedArgs: [1, 2, 3],
+    },
+    {
+      name: "can build select query with in comparison with empty array",
+      getQuery: () => new SelectQuery(testTable, {a: {$in: []}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" ::DOUBLE PRECISION IN ( SELECT NULL::DOUBLE PRECISION )',
+      expectedArgs: [],
     },
     {
       name: "can build select query with not-in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$nin: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[] @> ARRAY["a"]::DOUBLE PRECISION[] )',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION ) )',
       expectedArgs: [1, 2, 3],
     },
     {

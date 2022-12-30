@@ -10,7 +10,7 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
-import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
@@ -29,6 +29,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     "&:hover $menu": {
       opacity:1
     }
+  },
+  subforumTop: {
+    paddingTop: 4,
   },
   body: {
     borderStyle: "none",
@@ -134,6 +137,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px'
   },
+  title: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    flexGrow: 1,
+    marginTop: 8,
+    marginBottom: 0,
+    marginLeft: 0,
+    display: "block",
+    fontSize: '1.5rem',
+    lineHeight: '1.5em'
+  },
   postTitle: {
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
@@ -152,7 +166,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
   },
-  titleRow: {
+  postTitleRow: {
     display: 'flex',
     columnGap: 8,
     alignItems: 'center'
@@ -197,6 +211,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const currentUser = useCurrentUser();
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -256,12 +272,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return <Components.CommentBody
-        truncated={truncated}
-        collapsed={collapsed}
-        comment={comment}
-        postPage={postPage}
-      />
+      return (
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} />
+      );
     }
   }
 
@@ -317,7 +330,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
 
   if (!comment) {
     return null;
@@ -363,6 +376,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
           [classes.sideComment]: treeOptions.isSideComment,
+          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
       )}>
         { comment.parentCommentId && showParentState && (
@@ -377,7 +391,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
         
-        <div className={classes.titleRow}>
+        <div className={classes.postTitleRow}>
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
             <StickyIcon />
           </div>}
@@ -393,6 +407,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </Link>}
         </div>
         <div className={classes.body}>
+          {showCommentTitle && <div className={classes.title}>
+            <CommentDiscussionIcon comment={comment} />
+            {comment.title}
+          </div>}
           <div className={classNames(classes.meta, {
             [classes.sideCommentMeta]: treeOptions.isSideComment,
           })}>
@@ -400,6 +418,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
+            {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
             {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}

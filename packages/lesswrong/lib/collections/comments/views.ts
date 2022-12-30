@@ -515,7 +515,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
     sort: sorting,
   },
 }});
-
+ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

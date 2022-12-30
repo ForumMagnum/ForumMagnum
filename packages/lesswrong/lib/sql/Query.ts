@@ -242,7 +242,7 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const fieldType = this.getField(unresolvedField);
+    const fieldType = this.getField(unresolvedField)?.toConcrete();
     if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
         return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
@@ -329,9 +329,13 @@ abstract class Query<T extends DbObject> {
             throw new Error("$in expects an array");
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
-          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          const hint = typeHint ? typeHint + "[]" : "";
-          return [`ARRAY[`, ...args, `]${hint} @> ARRAY[${field}]${hint}`];
+          const hint = typeHint ?? "";
+          const args = value[comparer].length
+            ? value[comparer].flatMap((item: any) => [
+              ",", new Arg(item), hint,
+            ]).slice(1)
+            : [`SELECT NULL${hint}`];
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
@@ -532,6 +536,14 @@ abstract class Query<T extends DbObject> {
 
     if (op === "$first") {
       return this.compileExpression(expr[op]);
+    }
+
+    if (op === "$floor") {
+      return ["FLOOR(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    if (op === "$avg") {
+      return ["AVG(", ...this.compileExpression(expr[op]), ")"];
     }
 
     if (op === undefined) {

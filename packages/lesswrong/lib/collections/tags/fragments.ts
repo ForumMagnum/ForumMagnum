@@ -280,6 +280,10 @@ registerFragment(`
     }
     tagFlagsIds
     postsDefaultSortOrder
+    
+    autoTagModel
+    autoTagPrompt
+    
     description {
       ...RevisionEdit
     }
@@ -297,16 +301,6 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-      ...CommentsList
-    }
-  }
-`);
-
-registerFragment(`
-  fragment TagRecentSubforumComments on Tag {
-    ...TagFragment
-    lastVisitedAt
-    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }
