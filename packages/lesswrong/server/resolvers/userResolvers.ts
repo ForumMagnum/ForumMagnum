@@ -1,14 +1,12 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator, slugify, updateMutator, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
-import { Subscriptions } from '../../lib/collections/subscriptions';
-import { randomId } from '../../lib/random';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
 import Posts from '../../lib/collections/posts/collection';
@@ -18,7 +16,6 @@ import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
 import Tags from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
-import { getKarmaChanges } from '../karmaChanges';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 
@@ -214,19 +211,22 @@ addGraphQLResolvers({
       })
       
       // Get the top 3 authors that the user has read
-      const userIds = posts.map(p => p.userId)
+      const userIds = posts.map(p => {
+        let authors = p.coauthorStatuses?.map(cs => cs.userId) ?? []
+        authors.push(p.userId)
+        return authors
+      }).flat()
       const authorCounts = countBy(userIds)
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a![0])
       console.log('topAuthors', topAuthors)
       
-      // Get the top 3 topics that the user has read
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat()
+      // Get the top 3 topics that the user has read (filtering out the Community topic)
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== 'ZCihBFp5P64JCvQY6')
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t![0])
       
       // Get the number of posts, comments, and shortforms that the user posted this year,
       // including which were the most popular
-      // TODO: account for coauthorship
       const [authors, topics, userPosts, userComments, userShortforms] = await Promise.all([
         Users.find({
           _id: {$in: topAuthors}
@@ -235,7 +235,10 @@ addGraphQLResolvers({
           _id: {$in: topTags}
         }, {projection: {name: 1, slug: 1}}).fetch(),
         Posts.find({
-          userId: currentUser._id,
+          $or: [
+            {userId: currentUser._id},
+            {"coauthorStatuses.userId": currentUser._id}
+          ],
           postedAt: {$gte: start, $lte: end},
           draft: false,
           deletedDraft: false,
@@ -289,7 +292,7 @@ addGraphQLResolvers({
             slug: author.slug,
             count: authorCounts[author._id]
           } : null
-        }),
+        }).filter(a => !!a),
         mostReadTopics: topTags.reverse().map(id => {
           const topic = topics.find(t => t._id === id)
           return topic ? {
@@ -297,7 +300,7 @@ addGraphQLResolvers({
             slug: topic.slug,
             count: tagCounts[topic._id]
           } : null
-        }),
+        }).filter(t => !!t),
         postCount: userPosts.length,
         topPost: userPosts.shift() ?? null,
         commentCount: userComments.length,
@@ -330,7 +333,17 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
     where user_id = $1`
   const pgResult = await postgres.query(query, [userId]);
   
-  return {totalSeconds: pgResult[0]['total_seconds'], engagementPercentile: pgResult[0]['engagementpercentile']}
+  if (!pgResult || !pgResult.length) {
+    return {
+      totalSeconds: 0,
+      engagementPercentile: 0
+    }
+  }
+  
+  return {
+    totalSeconds: pgResult[0]['total_seconds'],
+    engagementPercentile: pgResult[0]['engagementpercentile']
+  }
 }
 
 addGraphQLMutation(

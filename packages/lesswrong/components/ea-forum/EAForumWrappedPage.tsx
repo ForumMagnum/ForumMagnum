@@ -6,7 +6,7 @@ import { useCurrentUser } from "../common/withUser";
 import { gql, useQuery } from "@apollo/client";
 import { truncatise } from "../../lib/truncatise";
 import { useConcreteThemeOptions } from "../themes/useTheme";
-import ReadIcon from '@material-ui/icons/LibraryBooks'
+import InfoIcon from '@material-ui/icons/Info'
 import ClockIcon from '@material-ui/icons/Schedule'
 import PersonIcon from '@material-ui/icons/Person'
 import TopicIcon from '@material-ui/icons/LocalOffer'
@@ -131,6 +131,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fill: theme.palette.grey[600]
   },
+  infoIcon: {
+    fontSize: 14,
+    color: theme.palette.grey[400],
+  },
   summaryDataVal: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -156,21 +160,28 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.dark,
   },
   textSection: {
-    margin: '40px 12px 0',
-    '@media (max-width: 500px)': {
-      margin: '40px 0 0',
-    },
+    margin: '40px 0 0',
   },
   postsListSection: {
-    margin: '0 12px',
-    '@media (max-width: 500px)': {
-      margin: 0,
-    },
+  },
+  sectionHeadlineRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 8
   },
   sectionHeadline: {
     fontSize: 25,
     lineHeight: '32px',
     marginBottom: 8
+  },
+  mvpLabel: {
+    maxWidth: 54,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[700],
+    fontSize: 12,
+    lineHeight: '16px',
+    textAlign: 'center'
   },
   body: {
     color: theme.palette.grey[800],
@@ -195,6 +206,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     query getWrappedData($year: Int!) {
       UserWrappedDataByYear(year: $year) {
         totalSeconds
+        engagementPercentile
         postsReadCount
         mostReadAuthors {
           displayName
@@ -244,7 +256,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   })
   console.log('data', data)
   
-  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm, LWTooltip } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -283,6 +295,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   }
   
   if (loading || showAnimation) {
+    console.log('theme name', theme.name)
     const gifName = theme.name === 'dark' ? 'v1672178471/wrapped_gif_v3_dark_mode.gif' : 'v1672178471/wrapped_gif_v3_light_mode.gif'
     return <div className={classes.loading}>
       <img src={`https://res.cloudinary.com/cea/image/upload/c_crop,w_250,h_250/${gifName}`} className={classes.loadingGif} />
@@ -290,6 +303,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   }
   
   const results = data?.UserWrappedDataByYear
+  const hasReadContent = results.postsReadCount > 0
   const hasPublishedContent = results.topPost || results.topComment || results.topShortform
 
   return (
@@ -318,7 +332,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                   </div>
                   <div className={classes.summaryDataVal}>
                     {Math.round(results.totalSeconds / 360) / 10}
-                    <span className={classes.count}>
+                    {/* <span className={classes.count}>
                       That's {Math.round(results.totalSeconds / 360) / 100} episodes of the <a
                         href="https://80000hours.org/podcast"
                         target="_blank"
@@ -327,6 +341,9 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                       >
                         80,000 Hours Podcast
                       </a>!
+                    </span> */}
+                    <span className={classes.count}>
+                      That's more time than {Math.trunc(results.engagementPercentile * 100)}% of other users!
                     </span>
                   </div>
                 </div>
@@ -346,54 +363,49 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
               </div>
             </div>
             
-            <h2 className={classes.summarySectionTitleRow}>
-              <div className={classes.summarySectionTitle}>
-                You read {results.postsReadCount} post{results.postsReadCount > 1 ? 's' : ''} this year
-              </div>
-            </h2>
-            <div className={classes.summarySection}>
-              {/* <div className={classes.summaryData}>
-                <div className={classes.summaryDataLabel}>
-                  <ReadIcon className={classes.labelIcon} />
-                  Posts Read
+            {hasReadContent && <>
+              <h2 className={classes.summarySectionTitleRow}>
+                <div className={classes.summarySectionTitle}>
+                  You read {results.postsReadCount} post{results.postsReadCount === 1 ? '' : 's'} this year
                 </div>
-                <div className={classes.summaryDataVal}>
-                  {results.postsReadCount}
-                </div>
-              </div> */}
-              <AnalyticsContext pageSectionContext="mostReadAuthors">
-                <div className={classes.summaryData}>
-                  <div className={classes.summaryDataLabel}>
-                    <PersonIcon className={classes.labelIcon} />
-                    Your favorite authors
+              </h2>
+              <div className={classes.summarySection}>
+                <AnalyticsContext pageSectionContext="mostReadAuthors">
+                  <div className={classes.summaryData}>
+                    <div className={classes.summaryDataLabel}>
+                      <PersonIcon className={classes.labelIcon} />
+                      Your favorite authors
+                    </div>
+                      <div>
+                        {results.mostReadAuthors.map(author => {
+                          return <div key={author.slug} className={classes.summaryDataVal}>
+                            <Link to={`/users/${author.slug}?from=2022_wrapped`} className={classes.link}>{author.displayName}</Link>
+                            <span className={classes.count}>{author.count} post{author.count === 1 ? '' : 's'} read</span>
+                          </div>
+                        })}
+                      </div>
                   </div>
+                </AnalyticsContext>
+                {results.mostReadTopics?.length > 0 && <AnalyticsContext pageSectionContext="mostReadTopics">
+                  <div className={classes.summaryData}>
+                    <div className={classes.summaryDataLabel}>
+                      <TopicIcon className={classes.labelIcon} />
+                      Your favorite topics <LWTooltip title="We've disqualified Community from this stat because it gets applied to a lot of posts, and doesn't function like other topics.">
+                        <InfoIcon className={classes.infoIcon} />
+                      </LWTooltip>
+                    </div>
                     <div>
-                      {results.mostReadAuthors.map(author => {
-                        return <div key={author.slug} className={classes.summaryDataVal}>
-                          <Link to={`/user/${author.slug}?from=2022_wrapped`} className={classes.link}>{author.displayName}</Link>
-                          <span className={classes.count}>{author.count} post{author.count > 1 ? 's' : ''} read</span>
+                      {results.mostReadTopics.map(topic => {
+                        return <div key={topic.slug} className={classes.summaryDataVal}>
+                          <span className={classes.link}><HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/></span>
+                          <span className={classes.count}>{topic.count} post{topic.count === 1 ? '' : 's'} read</span>
                         </div>
                       })}
                     </div>
-                </div>
-              </AnalyticsContext>
-              <AnalyticsContext pageSectionContext="mostReadTopics">
-                <div className={classes.summaryData}>
-                  <div className={classes.summaryDataLabel}>
-                    <TopicIcon className={classes.labelIcon} />
-                    Your favorite topics
                   </div>
-                  <div>
-                    {results.mostReadTopics.map(topic => {
-                      return <div key={topic.slug} className={classes.summaryDataVal}>
-                        <span className={classes.link}><HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/></span>
-                        <span className={classes.count}>{topic.count} post{topic.count > 1 ? 's' : ''} read</span>
-                      </div>
-                    })}
-                  </div>
-                </div>
-              </AnalyticsContext>
-            </div>
+                </AnalyticsContext>}
+              </div>
+            </>}
             
             {hasPublishedContent && <>
               <h2 className={classes.summarySectionTitleRow}>
@@ -420,7 +432,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                         />
                       </span>
                       <span className={classes.count}>
-                        {results.postCount} post{results.postCount > 1 ? 's' : ''} total
+                        {results.postCount} post{results.postCount === 1 ? '' : 's'} total
                       </span>
                     </div>
                   </div>
@@ -443,7 +455,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                           />
                         </span>
                         <span className={classes.count}>
-                          {results.commentCount} comment{results.commentCount > 1 ? 's' : ''} total
+                          {results.commentCount} comment{results.commentCount === 1 ? '' : 's'} total
                         </span>
                       </div>
                     </div>
@@ -466,12 +478,12 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                         />
                       </span>
                       <span className={classes.count}>
-                        {results.shortformCount} shortform{results.shortformCount > 1 ? 's' : ''} total
+                        {results.shortformCount} shortform{results.shortformCount === 1 ? '' : 's'} total
                       </span>
                     </div>
                   </div>
                 </AnalyticsContext>}
-                {(results.karmaChange !== undefined) && <div className={classes.summaryData}>
+                {(results.karmaChange !== null) && <div className={classes.summaryData}>
                   <div className={classes.summaryDataLabel}>
                     <KarmaIcon className={classes.labelIcon} />
                     Your overall karma change
@@ -485,36 +497,44 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
           </div>
         </SingleColumnSection>
         
-        <SingleColumnSection>
-          <div className={classes.textSection}>
-            <Typography variant="headline" className={classes.sectionHeadline}>Take a moment to reflect on 2022</Typography>
-            <Typography variant="body2" className={classes.body}>
-              Look back at everything you enjoyed reading - what did you find most valuable? Your answers will help us encourage more of the most valuable content.
-            </Typography>
-          </div>
-        </SingleColumnSection>
-        
-        <AnalyticsContext pageSectionContext="bigUpvotes">
+        {hasReadContent && <>
           <SingleColumnSection>
-            <div className={classes.postsListSection}>
-              <Typography variant="headline" className={classes.sectionHeadline}>Your Strong Upvotes from 2022</Typography>
-              <PostsByVoteWrapper voteType="bigUpvote" year={2022} showMostValuableCheckbox />
+            <div className={classes.textSection}>
+              <Typography variant="headline" className={classes.sectionHeadline}>Take a moment to reflect on 2022</Typography>
+              <Typography variant="body2" className={classes.body}>
+                Look back at everything you enjoyed reading - what did you find most valuable? Your answers will help us encourage more of the most valuable content.
+              </Typography>
             </div>
           </SingleColumnSection>
-        </AnalyticsContext>
-        
-        <AnalyticsContext pageSectionContext="smallUpvotes">
-          <SingleColumnSection>
-            <div className={classes.postsListSection}>
-              <Typography variant="headline" className={classes.sectionHeadline}>Your Upvotes from 2022</Typography>
-              <PostsByVoteWrapper voteType="smallUpvote" year={2022} showMostValuableCheckbox />
-            </div>
-          </SingleColumnSection>
-        </AnalyticsContext>
+          
+          <AnalyticsContext pageSectionContext="bigUpvotes">
+            <SingleColumnSection>
+              <div className={classes.postsListSection}>
+                <div className={classes.sectionHeadlineRow}>
+                  <Typography variant="headline" className={classes.sectionHeadline}>Your Strong Upvotes from 2022</Typography>
+                  <div className={classes.mvpLabel}>Most Valuable</div>
+                </div>
+                <PostsByVoteWrapper voteType="bigUpvote" year={2022} showMostValuableCheckbox />
+              </div>
+            </SingleColumnSection>
+          </AnalyticsContext>
+          
+          <AnalyticsContext pageSectionContext="smallUpvotes">
+            <SingleColumnSection>
+              <div className={classes.postsListSection}>
+                <div className={classes.sectionHeadlineRow}>
+                  <Typography variant="headline" className={classes.sectionHeadline}>Your Upvotes from 2022</Typography>
+                  <div className={classes.mvpLabel}>Most Valuable</div>
+                </div>
+                <PostsByVoteWrapper voteType="smallUpvote" year={2022} showMostValuableCheckbox />
+              </div>
+            </SingleColumnSection>
+          </AnalyticsContext>
+        </>}
         
         <SingleColumnSection>
           <div className={classes.textSection}>
-            <Typography variant="headline" className={classes.sectionHeadline}>Thanks!</Typography>
+            <Typography variant="headline" className={classes.sectionHeadline}>Thank you! 💜</Typography>
             <Typography variant="body2" className={classes.body}>
               Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world.
             </Typography>

@@ -309,7 +309,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 10
   },
   mostValuableCheckbox: {
-    marginLeft: 10
+    marginLeft: 5
   }
 })
 
