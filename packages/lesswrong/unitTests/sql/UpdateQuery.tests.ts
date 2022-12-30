@@ -57,5 +57,11 @@ describe("UpdateQuery", () => {
       expectedSql: 'UPDATE "TestCollection" SET "b" = ARRAY_APPEND( "b" , $1 ) WHERE "a" = $2',
       expectedArgs: [2, 3],
     },
+    {
+      name: "can build update with $inc",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$inc: {a: 1}}),
+      expectedSql: 'UPDATE "TestCollection" SET "a" = COALESCE( "a" , 0 ) + $1 WHERE "a" = $2',
+      expectedArgs: [1, 3],
+    },
   ]);
 });
