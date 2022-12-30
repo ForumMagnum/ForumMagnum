@@ -30,15 +30,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%",
     }
   },
-  footerCount: {
+  footer: {
     borderTop: theme.palette.border.extraFaint,
     paddingTop: 6,
-    textAlign: "right",
+    display: "flex",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
     marginTop: 6,
     marginBottom: 2
+  },
+  autoApplied: {
+    flexGrow: 1,
+  },
+  footerCount: {
   },
   posts: {
     marginTop: 10,
@@ -60,9 +65,10 @@ export type TagPreviewProps = {
   showCount?: boolean,
   showRelatedTags?: boolean,
   postCount?: number,
+  autoApplied?: boolean,
 }
 
-const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6}: TagPreviewProps) => {
+const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false}: TagPreviewProps) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
@@ -77,6 +83,8 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
   if (!loading && !tag) {
     return null
   }
+  
+  const hasFooter = (showCount || autoApplied);
   
   return (<div className={classes.card}>
     {loading && <Loading />}
@@ -94,8 +102,13 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
         {results ? <div className={classes.posts}>
           {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
         </div> : <Loading /> }
-        {showCount && <div className={classes.footerCount}>
-          <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
+        {hasFooter && <div className={classes.footer}>
+          {autoApplied && <span className={classes.autoApplied}>
+            Tag was auto-applied
+          </span>}
+          {showCount && <span className={classes.footerCount}>
+            <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
+          </span>}
         </div>}
       </>}
     </>}

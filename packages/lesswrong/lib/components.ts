@@ -692,6 +692,8 @@ importComponent("PrefixedInput", () => require('../components/form-components/Pr
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 importComponent("ThemeSelect", () => require('../components/form-components/ThemeSelect'));
 
+importComponent(["PostSummaryAction","PostSummaryDialog"], () => require('../components/languageModels/PostSummaryAction'));
+
 importComponent(["CommentOnSelectionPageWrapper","SelectedTextToolbar","CommentOnSelectionContentWrapper"], () => require('../components/comments/CommentOnSelection'));
 importComponent("PopupCommentEditor", () => require('../components/comments/PopupCommentEditor'));
 

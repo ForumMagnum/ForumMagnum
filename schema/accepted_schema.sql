@@ -782,7 +782,7 @@ CREATE TABLE "TagRels" (
     "afVoteCount" double precision
 );
 
--- Schema for "Tags", hash: c8efd9b78aa33886899a3cc6ef6425d1
+-- Schema for "Tags", hash: b913160871861a340a4047d39c047b52
 CREATE TABLE "Tags" (
     _id varchar(27) PRIMARY KEY,
     "name" text,
@@ -818,6 +818,8 @@ CREATE TABLE "Tags" (
     "isSubforum" bool DEFAULT false,
     "subforumModeratorIds" varchar(27)[] DEFAULT '{}' ::varchar(27)[],
     "parentTagId" varchar(27),
+    "autoTagModel" text DEFAULT '',
+    "autoTagPrompt" text DEFAULT '',
     "schemaVersion" double precision DEFAULT 1,
     "createdAt" timestamptz,
     "legacyData" jsonb,

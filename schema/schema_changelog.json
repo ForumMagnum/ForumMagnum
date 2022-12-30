@@ -30,6 +30,11 @@
     "timestamp": "2022-12-24T17:14:07.000Z"
   },
   {
+    "acceptsSchemaHash": "746fe67809bf748504782256c202744c",
+    "acceptedByMigration": "20221226T210853.auto.ts",
+    "timestamp": "2022-12-26T21:08:53.000Z"
+  },
+  {
     "acceptsSchemaHash": "f4f463411c2e217e442be3f540ae0f74",
     "acceptedByMigration": "20221229T220817.20221229T170831.add_UserMostValuablePosts_table.ts",
     "timestamp": "2022-12-29T22:08:17.000Z"
