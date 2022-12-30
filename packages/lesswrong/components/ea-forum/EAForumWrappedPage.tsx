@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import moment from "moment";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -112,8 +112,6 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18,
     lineHeight: '24px',
     paddingBottom: 4,
-    // borderBottom: `2px solid ${theme.palette.grey[400]}`
-    // borderBottom: `2px solid #ffc257`
     borderBottom: `2px solid rgba(255, 168, 50, 0.6)`
   },
   summaryData: {
@@ -187,19 +185,23 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[800],
     lineHeight: '22px'
   }
-});
+})
 
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   const theme = useConcreteThemeOptions()
-  console.log('theme', theme)
-  const [showAnimation, setShowAnimation] = useState(true)
+  // animation gif depends on whether the user has light or dark mode,
+  // but due to "auto" we need to make that determination on the client
+  const [showAnimation, setShowAnimation] = useState(false)
+  const [animationCompleted, setAnimationCompleted] = useState(false)
   
   // make sure the full 3 sec gif plays
   useEffect(() => {
+    setShowAnimation(true)
     setTimeout(() => {
       setShowAnimation(false)
-    }, 2200);
+      setAnimationCompleted(true)
+    }, 2900);
   }, []);
   
   const { data, loading } = useQuery(gql`
@@ -254,9 +256,36 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     ssr: true,
     skip: !currentUser
   })
-  console.log('data', data)
+
+  // randomly assign the user a D&D alignment
+  const alignment = useMemo(() => {
+    if (!currentUser) return null
+    const x = currentUser._id.split('').reduce((prev, next) => {
+      return prev + next.charCodeAt(0)
+    }, 0)
+    switch (x % 9) {
+      case 0:
+        return 'Lawful good'
+      case 1:
+        return 'Lawful neutral'
+      case 2:
+        return 'Lawful evil'
+      case 3:
+        return 'Neutral good'
+      case 4:
+        return 'True neutral'
+      case 5:
+        return 'Neutral evil'
+      case 6:
+        return 'Chaotic good'
+      case 7:
+        return 'Chaotic neutral'
+      case 8:
+        return 'Chaotic evil'
+    }
+  }, [currentUser])
   
-  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm, LWTooltip } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm, LWTooltip, Loading } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -294,12 +323,15 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     </div>
   }
   
-  if (loading || showAnimation) {
-    console.log('theme name', theme.name)
+  if (showAnimation) {
     const gifName = theme.name === 'dark' ? 'v1672178471/wrapped_gif_v3_dark_mode.gif' : 'v1672178471/wrapped_gif_v3_light_mode.gif'
     return <div className={classes.loading}>
       <img src={`https://res.cloudinary.com/cea/image/upload/c_crop,w_250,h_250/${gifName}`} className={classes.loadingGif} />
     </div>
+  }
+  // we start out with the loading animation, before we know if we need the light or dark mode gif
+  if (!animationCompleted || loading) {
+    return <Loading />
   }
   
   const results = data?.UserWrappedDataByYear
@@ -332,16 +364,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                   </div>
                   <div className={classes.summaryDataVal}>
                     {Math.round(results.totalSeconds / 360) / 10}
-                    {/* <span className={classes.count}>
-                      That's {Math.round(results.totalSeconds / 360) / 100} episodes of the <a
-                        href="https://80000hours.org/podcast"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={classes.link}
-                      >
-                        80,000 Hours Podcast
-                      </a>!
-                    </span> */}
                     <span className={classes.count}>
                       That's more time than {Math.trunc(results.engagementPercentile * 100)}% of other users!
                     </span>
@@ -358,7 +380,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                   </div>
                 </div>
                 <div className={classes.summaryDataVal}>
-                  Chaotic Good
+                  {alignment}
                 </div>
               </div>
             </div>

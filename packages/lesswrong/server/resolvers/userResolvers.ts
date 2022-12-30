@@ -193,15 +193,12 @@ addGraphQLResolvers({
       // Get all the user's posts read for the given year
       const start = moment().year(year).dayOfYear(1).toDate()
       const end = moment().year(year+1).dayOfYear(0).toDate()
-      console.log('start', start)
-      console.log('end', end)
       const readStatuses = await ReadStatuses.find({
         userId: currentUser._id,
         isRead: true,
         lastUpdated: {$gte: start, $lte: end},
         postId: {$exists: true, $ne: null}
       }).fetch()
-      console.log('readStatuses', readStatuses)
       
       // Filter out the posts that the user themselves authored or co-authored
       const posts = (await Posts.find({
@@ -218,7 +215,6 @@ addGraphQLResolvers({
       }).flat()
       const authorCounts = countBy(userIds)
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a![0])
-      console.log('topAuthors', topAuthors)
       
       // Get the top 3 topics that the user has read (filtering out the Community topic)
       const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== 'ZCihBFp5P64JCvQY6')
@@ -319,7 +315,12 @@ addGraphQLResolvers({
 */
 async function getEngagement (userId : string): Promise<{totalSeconds: number, engagementPercentile: number}> {
   const postgres = getAnalyticsConnection();
-  if (!postgres) throw new Error("Unable to connect to analytics database - no database configured");
+  if (!postgres) {
+    return {
+      totalSeconds: 0,
+      engagementPercentile: 0
+    }
+  }
 
   const query = `
     with ranked as (
