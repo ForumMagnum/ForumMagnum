@@ -111,7 +111,7 @@ const schema: SchemaType<DbVote> = {
     canRead: [userOwns, docIsTagRel, 'admins'],
   },
   
-  // Whether this vote has been cancelled (by un-voting or pg to a
+  // Whether this vote has been cancelled (by un-voting or switching to a
   // different vote type) or is itself an unvote/cancellation.
   cancelled: {
     type: Boolean,
