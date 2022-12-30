@@ -5,6 +5,8 @@ import UpdateFieldTypeQuery from "../../../lib/sql/UpdateFieldTypeQuery";
 import TableIndex from "../../../lib/sql/TableIndex";
 import DropIndexQuery from "../../../lib/sql/DropIndexQuery";
 import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
+import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
+import DropTableQuery from "../../../lib/sql/DropTableQuery";
 
 export const addField = async <T extends DbObject>(
   db: SqlClient,
@@ -50,4 +52,25 @@ export const createIndex = async <T extends DbObject>(
 ): Promise<void> => {
   const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists).compile();
   await db.none(sql, args);
+}
+
+export const dropTable = async <T extends DbObject>(
+  db: SqlClient,
+  collection: PgCollection<T>,
+): Promise<void> => {
+  const {sql, args} = new DropTableQuery(collection.getTable()).compile();
+  await db.none(sql, args);
+}
+
+export const createTable = async <T extends DbObject>(
+  db: SqlClient,
+  collection: PgCollection<T>,
+  ifNotExists = true,
+): Promise<void> => {
+  const table = collection.getTable();
+  const {sql, args} = new CreateTableQuery(table, ifNotExists).compile();
+  await db.none(sql, args);
+  for (const index of table.getIndexes()) {
+    await createIndex(db, collection, index, ifNotExists);
+  }
 }

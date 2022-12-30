@@ -33,5 +33,10 @@
     "acceptsSchemaHash": "746fe67809bf748504782256c202744c",
     "acceptedByMigration": "20221226T210853.auto.ts",
     "timestamp": "2022-12-26T21:08:53.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f9a5c9f182dad6b94bd1361b603906fd",
+    "acceptedByMigration": "20221229T220817.20221229T170831.add_UserMostValuablePosts_table.ts",
+    "timestamp": "2022-12-29T22:08:17.000Z"
   }
 ]
