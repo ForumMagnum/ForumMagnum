@@ -251,13 +251,17 @@ addGraphQLResolvers({
           userId: currentUser._id,
           postedAt: {$gte: start, $lte: end},
           deleted: false,
-          shortform: false,
+          $or: [
+            {shortform: false},
+            {topLevelCommentId: {$exists: true}}
+          ]
         }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch(),
         Comments.find({
           userId: currentUser._id,
           postedAt: {$gte: start, $lte: end},
           deleted: false,
           shortform: true,
+          topLevelCommentId: {$exists: false},
         }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
       ])
       

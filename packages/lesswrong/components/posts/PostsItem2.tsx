@@ -27,6 +27,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   root: {
     position: "relative",
+    minWidth: 0,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     },
