@@ -28,17 +28,55 @@ export const up = async ({db}: MigrationContext) => {
     {collection: Users, fieldName: 'howICanHelpOthers'},
     {collection: Users, fieldName: 'biography'},
   ]
+
   for (const {collection, fieldName} of collectionsAndFieldsToMigrate) {
     if (collection.isPostgres()) {
+      // eslint-disable-next-line no-console
+      console.log(`Migrating ${collection.collectionName} ${fieldName}`);
+
       // Hand-jamming these types, it was annoying to do it properly, and we can
       // tell they're correct by looking just above
       await addField(db, collection as  PgCollection<DbObject>, fieldName as keyof DbObject);
-      
-      // TODO: migrate data
+
+      const ids = await db.any(`SELECT _id FROM "${collection.collectionName}"`);
+
+      // eslint-disable-next-line no-console
+      console.log(`  Updating ${ids.length} documents`);
+
+      const promises: Promise<null>[] = [];
+      for (const {_id} of ids) {
+        promises.push(db.none(`
+          UPDATE "${collection.collectionName}"
+          SET "${fieldName}" = (
+            SELECT row_to_json(q.*)
+            FROM (
+              SELECT
+                r."html",
+                r."userId",
+                r."version",
+                r."editedAt",
+                r."wordCount",
+                r."updateType",
+                r."commitMessage",
+                r."originalContents"
+              FROM "Revisions" r
+              JOIN "${collection.collectionName}" t ON
+                t."_id" = $1 AND
+                t."${fieldName}_latest" = r."_id") q
+            )
+          WHERE "_id" = $1
+        `, [_id]));
+      }
+      await Promise.all(promises);
+
+      // eslint-disable-next-line no-console
+      console.log("    Done!");
+    } else {
+      console.log(`Skipping ${collection.collectionName} ${fieldName}`);
     }
   }
 }
 
-export const down = async ({db}: MigrationContext) => {
+export const down = async ({}: MigrationContext) => {
   // Nah
 }
