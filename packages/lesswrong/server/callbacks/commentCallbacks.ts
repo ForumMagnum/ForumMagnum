@@ -423,13 +423,15 @@ getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallback
   await triggerReviewIfNeeded(document.userId);
 })
 
-getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({oldDocument, currentUser}: UpdateCallbackProperties<DbComment>) {
-  currentUser?.snoozedUntilContentCount && await updateMutator({
+getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<DbComment>) {
+  if (!currentUser) return;
+  currentUser.snoozedUntilContentCount && await updateMutator({
     collection: Users,
     documentId: currentUser._id,
     set: {
       snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
     },
+    validate: false,
   })
-  await triggerReviewIfNeeded(oldDocument.userId)
+  await triggerReviewIfNeeded(currentUser._id)
 });
