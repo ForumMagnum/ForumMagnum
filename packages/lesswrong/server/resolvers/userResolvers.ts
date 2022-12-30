@@ -315,11 +315,11 @@ addGraphQLResolvers({
 })
 
 function getAlignment(results) {
-  let goodEvil = 'Neutral', lawfulChaotic = 'Neutral';
+  let goodEvil = 'neutral', lawfulChaotic = 'Neutral';
   if (results.engagementPercentile < 0.33) {
-    goodEvil = 'Evil'
+    goodEvil = 'evil'
   } else if  (results.engagementPercentile > 0.66) {
-    goodEvil = 'Good'
+    goodEvil = 'good'
   }
   const ratio = results.commentCount / results.postCount;
   if (ratio < 3) {
@@ -327,10 +327,9 @@ function getAlignment(results) {
   } else if  (ratio > 6) {
     lawfulChaotic = 'Lawful'
   }
-  if(lawfulChaotic == 'Neutral' && goodEvil  == 'Neutral'){
-    return 'True Neutral'
+  if (lawfulChaotic == 'Neutral' && goodEvil  == 'neutral') {
+    return 'True neutral'
   }
-
   return lawfulChaotic + ' ' + goodEvil
 }
 
