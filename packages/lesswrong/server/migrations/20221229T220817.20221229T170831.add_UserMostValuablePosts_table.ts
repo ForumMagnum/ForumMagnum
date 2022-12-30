@@ -1,3 +1,6 @@
+import UserMostValuablePosts from "../../lib/collections/userMostValuablePosts/collection";
+import { createTable, dropTable } from "./meta/utils";
+
 /**
  * Generated on 2022-12-29T22:08:17.869Z by `yarn makemigrations`
  * The following schema changes were detected:
@@ -39,19 +42,13 @@
 export const acceptsSchemaHash = "f4f463411c2e217e442be3f540ae0f74";
 
 export const up = async ({db}: MigrationContext) => {
-  void db.none(`
-    CREATE TABLE "UserMostValuablePosts" (
-      _id varchar(27) PRIMARY KEY,
-      "userId" varchar(27),
-      "postId" varchar(27),
-      "deleted" bool DEFAULT false,
-      "schemaVersion" double precision DEFAULT 1,
-      "createdAt" timestamptz,
-      "legacyData" jsonb
-    );
-  `)
+  if (UserMostValuablePosts.isPostgres()) {
+    await createTable(db, UserMostValuablePosts);
+  }
 }
 
 export const down = async ({db}: MigrationContext) => {
-  void db.none(`DROP TABLE If EXISTS "UserMostValuablePosts"`)
+  if (UserMostValuablePosts.isPostgres()) {
+    await dropTable(db, UserMostValuablePosts);
+  }
 }
