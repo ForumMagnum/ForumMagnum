@@ -38,6 +38,7 @@ export const up = async ({db}: MigrationContext) => {
       // tell they're correct by looking just above
       await addField(db, collection as  PgCollection<DbObject>, fieldName as keyof DbObject);
 
+      // -- Migrate data --
       const ids = await db.any(`SELECT _id FROM "${collection.collectionName}"`);
 
       // eslint-disable-next-line no-console
