@@ -251,6 +251,7 @@ addGraphQLResolvers({
           userId: currentUser._id,
           postedAt: {$gte: start, $lte: end},
           deleted: false,
+          postId: {$exists: true},
           $or: [
             {shortform: false},
             {topLevelCommentId: {$exists: true}}
