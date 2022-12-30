@@ -186,7 +186,7 @@ addGraphQLResolvers({
     async UserWrappedDataByYear(root: void, {year}: {year: number}, context: ResolverContext) {
       const { currentUser } = context
       if (!currentUser) {
-        throw new Error('Must be logged in to view read history')
+        throw new Error('Must be logged in to view forum wrapped data')
       }
 
       // Get all the user's posts read for the given year
@@ -203,10 +203,11 @@ addGraphQLResolvers({
       // plus events and shortform posts
       const posts = (await Posts.find({
         _id: {$in: readStatuses.map(rs => rs.postId)},
+        userId: {$ne: currentUser._id},
         isEvent: false,
         shortform: false,
       }, {projection: {userId: 1, coauthorStatuses: 1, tagRelevance: 1}}).fetch()).filter(p => {
-        return !(p.userId === currentUser._id || p.coauthorStatuses?.some(cs => cs.userId === currentUser._id))
+        return !p.coauthorStatuses?.some(cs => cs.userId === currentUser._id)
       })
       
       // Get the top 3 authors that the user has read
@@ -279,7 +280,6 @@ addGraphQLResolvers({
         + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
       }
       
-      // TODO: check all these numbers
       return {
         ...await getEngagement(currentUser._id),
         postsReadCount: posts.length,

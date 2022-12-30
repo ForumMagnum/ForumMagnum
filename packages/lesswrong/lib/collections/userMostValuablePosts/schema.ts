@@ -2,7 +2,7 @@ import { schemaDefaultValue } from '../../collectionUtils';
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 
-const schema: SchemaType<DbAdvisorRequest> = {
+const schema: SchemaType<DbUserMostValuablePost> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
