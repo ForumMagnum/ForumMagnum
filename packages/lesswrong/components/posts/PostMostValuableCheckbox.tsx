@@ -33,7 +33,7 @@ export const PostMostValuableCheckbox = ({post}: {
     if (loading || !currentUser) return
     
     if (results && results.length) {
-      setMostValuable({
+      void setMostValuable({
         selector: {
           _id: results[0]._id
         },
@@ -42,7 +42,7 @@ export const PostMostValuableCheckbox = ({post}: {
         }
       })
     } else {
-      createMostValuable({
+      void createMostValuable({
         data: {
           userId: currentUser._id,
           postId: post._id

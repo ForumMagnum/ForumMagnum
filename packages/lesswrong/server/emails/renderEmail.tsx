@@ -271,7 +271,7 @@ function validateSheets(sheetsRegistry: SheetsRegistry)
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
-  if (process.env.NODE_ENV === 'production' || true /* || enableDevelopmentEmailsSetting.get() */) {
+  if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line

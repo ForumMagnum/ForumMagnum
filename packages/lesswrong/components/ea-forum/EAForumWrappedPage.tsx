@@ -213,7 +213,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
         mostReadAuthors {
           displayName
           slug
-          profileImageId
           count
         }
         mostReadTopics {

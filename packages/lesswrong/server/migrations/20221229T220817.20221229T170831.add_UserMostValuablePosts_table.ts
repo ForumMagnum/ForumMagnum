@@ -36,10 +36,10 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "f4f463411c2e217e442be3f540ae0f74";
+export const acceptsSchemaHash = "f4f463411c2e217e442be3f540ae0f74";
 
 export const up = async ({db}: MigrationContext) => {
-  db.none(`
+  void db.none(`
     CREATE TABLE "UserMostValuablePosts" (
       _id varchar(27) PRIMARY KEY,
       "userId" varchar(27),
@@ -53,5 +53,5 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  db.none(`DROP TABLE If EXISTS "UserMostValuablePosts"`)
+  void db.none(`DROP TABLE If EXISTS "UserMostValuablePosts"`)
 }

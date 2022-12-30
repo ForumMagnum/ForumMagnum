@@ -71,7 +71,6 @@ addGraphQLSchema(`
   type MostReadAuthor {
     slug: String,
     displayName: String,
-    profileImageId: String,
     count: Int
   }
   type MostReadTopic {
@@ -200,9 +199,12 @@ addGraphQLResolvers({
         postId: {$exists: true, $ne: null}
       }).fetch()
       
-      // Filter out the posts that the user themselves authored or co-authored
+      // Filter out the posts that the user themselves authored or co-authored,
+      // plus events and shortform posts
       const posts = (await Posts.find({
-        _id: {$in: readStatuses.map(rs => rs.postId)}
+        _id: {$in: readStatuses.map(rs => rs.postId)},
+        isEvent: false,
+        shortform: false,
       }, {projection: {userId: 1, coauthorStatuses: 1, tagRelevance: 1}}).fetch()).filter(p => {
         return !(p.userId === currentUser._id || p.coauthorStatuses?.some(cs => cs.userId === currentUser._id))
       })
@@ -226,7 +228,7 @@ addGraphQLResolvers({
       const [authors, topics, userPosts, userComments, userShortforms] = await Promise.all([
         Users.find({
           _id: {$in: topAuthors}
-        }, {projection: {displayName: 1, slug: 1, profileImageId: 1}}).fetch(),
+        }, {projection: {displayName: 1, slug: 1}}).fetch(),
         Tags.find({
           _id: {$in: topTags}
         }, {projection: {name: 1, slug: 1}}).fetch(),

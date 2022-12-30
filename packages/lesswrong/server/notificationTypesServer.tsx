@@ -323,9 +323,9 @@ export const WrappedNotification = serverRegisterNotificationType({
         Hi {user.displayName},
       </p>
       <p>
-        Thanks for being part of our community in 2022!{' '}
+        Thanks for being part of our community this year!{' '}
         <a href={`${combineUrls(getSiteUrl(), 'wrapped')}`}>
-          Check out your 2022 on the EA Forum.
+          Check out your 2022 EA Forum Wrapped.
         </a>{' '}
         🎁
       </p>

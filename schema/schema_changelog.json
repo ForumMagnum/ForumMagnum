@@ -28,5 +28,10 @@
     "acceptsSchemaHash": "afc7cd96d9085ca54d2a50765d02338f",
     "acceptedByMigration": "20221224T171407.add_comment_title.ts",
     "timestamp": "2022-12-24T17:14:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f4f463411c2e217e442be3f540ae0f74",
+    "acceptedByMigration": "20221229T220817.20221229T170831.add_UserMostValuablePosts_table.ts",
+    "timestamp": "2022-12-29T22:08:17.000Z"
   }
 ]
