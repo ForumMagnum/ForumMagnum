@@ -39,7 +39,7 @@ import { createTable, dropTable } from "./meta/utils";
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "f4f463411c2e217e442be3f540ae0f74";
+export const acceptsSchemaHash = "f9a5c9f182dad6b94bd1361b603906fd";
 
 export const up = async ({db}: MigrationContext) => {
   if (UserMostValuablePosts.isPostgres()) {
