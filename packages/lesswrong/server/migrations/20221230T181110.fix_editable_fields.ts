@@ -11,7 +11,7 @@
  * - [x] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "ca6355fc4797fdc6049c10e0a9dbb947";
+export const acceptsSchemaHash = "ea71916ffaa87ae0a21302ce831261e6";
 
 import Spotlights from "../../lib/collections/spotlights/collection"
 import Tags from "../../lib/collections/tags/collection"

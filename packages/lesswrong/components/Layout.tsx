@@ -31,7 +31,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'advice', 'advisorRequest', 'tagsSubforum'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'advice', 'advisorRequest', 'tagsSubforum', 'EAForumWrapped'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
