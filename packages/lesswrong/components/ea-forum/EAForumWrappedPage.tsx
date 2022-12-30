@@ -207,6 +207,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const { data, loading } = useQuery(gql`
     query getWrappedData($year: Int!) {
       UserWrappedDataByYear(year: $year) {
+        alignment
         totalSeconds
         engagementPercentile
         postsReadCount
@@ -255,34 +256,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     ssr: true,
     skip: !currentUser
   })
-
-  // randomly assign the user a D&D alignment
-  const alignment = useMemo(() => {
-    if (!currentUser) return null
-    const x = currentUser._id.split('').reduce((prev, next) => {
-      return prev + next.charCodeAt(0)
-    }, 0)
-    switch (x % 9) {
-      case 0:
-        return 'Lawful good'
-      case 1:
-        return 'Lawful neutral'
-      case 2:
-        return 'Lawful evil'
-      case 3:
-        return 'Neutral good'
-      case 4:
-        return 'True neutral'
-      case 5:
-        return 'Neutral evil'
-      case 6:
-        return 'Chaotic good'
-      case 7:
-        return 'Chaotic neutral'
-      case 8:
-        return 'Chaotic evil'
-    }
-  }, [currentUser])
   
   const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm, LWTooltip, Loading } = Components
   
@@ -379,7 +352,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                   </div>
                 </div>
                 <div className={classes.summaryDataVal}>
-                  {alignment}
+                  {results?.alignment}
                 </div>
               </div>
             </div>

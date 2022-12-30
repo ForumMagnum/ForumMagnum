@@ -79,6 +79,7 @@ addGraphQLSchema(`
     count: Int
   }
   type WrappedDataByYear {
+    alignment: String,
     totalSeconds: Int,
     engagementPercentile: Float,
     postsReadCount: Int,
@@ -280,7 +281,7 @@ addGraphQLResolvers({
         + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
       }
       
-      return {
+      const results = {
         ...await getEngagement(currentUser._id),
         postsReadCount: posts.length,
         mostReadAuthors: topAuthors.reverse().map(id => {
@@ -307,9 +308,31 @@ addGraphQLResolvers({
         topShortform: userShortforms.shift() ?? null,
         karmaChange: totalKarmaChange
       }
+      results['alignment'] = getAlignment(results)
+      return results
     },
   },
 })
+
+function getAlignment(results) {
+  let goodEvil = 'Neutral', lawfulChaotic = 'Neutral';
+  if (results.engagementPercentile < 0.33) {
+    goodEvil = 'Evil'
+  } else if  (results.engagementPercentile > 0.66) {
+    goodEvil = 'Good'
+  }
+  const ratio = results.commentCount / results.postCount;
+  if (ratio < 3) {
+    lawfulChaotic = 'Chaotic'
+  } else if  (ratio > 6) {
+    lawfulChaotic = 'Lawful'
+  }
+  if(lawfulChaotic == 'Neutral' && goodEvil  == 'Neutral'){
+    return 'True Neutral'
+  }
+
+  return lawfulChaotic + ' ' + goodEvil
+}
 
 /*
   Note: this just returns the values from a materialized view that never automatically refreshes
