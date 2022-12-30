@@ -73,11 +73,12 @@ export const up = async ({db}: MigrationContext) => {
       // eslint-disable-next-line no-console
       console.log("    Done!");
     } else {
+      // eslint-disable-next-line no-console
       console.log(`Skipping ${collection.collectionName} ${fieldName}`);
     }
   }
 }
 
-export const down = async ({}: MigrationContext) => {
+export const down = async (_: MigrationContext) => {
   // Nah
 }
