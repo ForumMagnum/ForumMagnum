@@ -10,7 +10,7 @@ import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { getCollectionHooks, CreateCallbackProperties } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -422,3 +422,14 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
   await triggerReviewIfNeeded(document.userId);
 })
+
+getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({oldDocument, currentUser}: UpdateCallbackProperties<DbComment>) {
+  currentUser?.snoozedUntilContentCount && await updateMutator({
+    collection: Users,
+    documentId: currentUser._id,
+    set: {
+      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+    },
+  })
+  await triggerReviewIfNeeded(oldDocument.userId)
+});
