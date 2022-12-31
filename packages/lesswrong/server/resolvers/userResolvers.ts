@@ -354,13 +354,19 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
   const query = `
     with ranked as (
       select user_id
-        , total_seconds
+        , total_seconds 
         , percent_rank() over (order by total_seconds asc) engagementPercentile
       from user_engagement_wrapped
+      -- semi-arbitrarily exclude users with less than 1000 seconds from the ranking
+      where total_seconds > 1000
     )
-    select total_seconds, engagementPercentile
-    from ranked
+    select user_id
+      , user_engagement_wrapped.total_seconds
+      , coalesce(engagementPercentile, 0) engagementPercentile
+    from user_engagement_wrapped
+    left join ranked using (user_id)
     where user_id = $1`
+
   const pgResult = await postgres.query(query, [userId]);
   
   if (!pgResult || !pgResult.length) {
