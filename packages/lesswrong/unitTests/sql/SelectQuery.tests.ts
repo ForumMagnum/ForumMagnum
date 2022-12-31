@@ -130,6 +130,12 @@ describe("SelectQuery", () => {
       expectedArgs: [1, 2, 3],
     },
     {
+      name: "can build select query with array length filter",
+      getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a") = $1',
+      expectedArgs: [2],
+    },
+    {
       name: "can build select query with combined selector",
       getQuery: () => new SelectQuery(testTable, {a: {$gt: 2, $lt: 10}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" > $1 AND "a" < $2 )',

@@ -340,6 +340,13 @@ abstract class Query<T extends DbObject> {
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
 
+        case "$size":
+          const arraySize = value[comparer];
+          if (typeof arraySize !== "number") {
+            throw new Error(`Invalid array size: ${arraySize}`);
+          }
+          return [`ARRAY_LENGTH(${field}) =`, new Arg(arraySize)];
+
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
           // when we search for events within a certain maximum distance of the user ("nearbyEvents"
