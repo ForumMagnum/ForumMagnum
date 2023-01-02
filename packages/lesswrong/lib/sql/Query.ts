@@ -233,7 +233,7 @@ abstract class Query<T extends DbObject> {
       }
     }
 
-    if (this.getField(field)) {
+    if (this.getField(field) || this.syntheticFields[field]) {
       return `"${field}"`;
     }
 
