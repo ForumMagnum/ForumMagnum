@@ -488,6 +488,24 @@ Posts.addView("top", (terms: PostsViewTerms) => ({
 //   }
 // );
 
+// Used by "topAdjusted" sort
+ensureIndex(Posts,
+  augmentForDefaultView({ postedAt: 1, baseScore: 1, maxBaseScore: 1 }),
+  {
+    name: "posts.sort_by_topAdjusted",
+    partialFilterExpression: {
+      status: postStatuses.STATUS_APPROVED,
+      draft: false,
+      unlisted: false,
+      isFuture: false,
+      shortform: false,
+      authorIsUnreviewed: false,
+      hiddenRelatedQuestion: false,
+      isEvent: false,
+    },
+  }
+);
+
 Posts.addView("new", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.new, terms)}
 }))
