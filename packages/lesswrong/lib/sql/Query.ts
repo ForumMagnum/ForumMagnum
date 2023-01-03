@@ -532,6 +532,7 @@ abstract class Query<T extends DbObject> {
       return [...this.compileExpression(array), "@> {", ...this.compileExpression(value), "}"];
     }
 
+    // https://www.mongodb.com/docs/manual/reference/operator/aggregation/arrayElemAt/
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
       let field;
