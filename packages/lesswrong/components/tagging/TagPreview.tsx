@@ -70,8 +70,9 @@ export type TagPreviewProps = {
 
 const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false}: TagPreviewProps) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
+  const showPosts = postCount > 0 && !!(tag?._id)
   const { results, loading: tagPostsLoading } = useMulti({
-    skip: !(tag?._id) || postCount === 0,
+    skip: !showPosts,
     terms: tagPostTerms(tag, {}),
     collectionName: "Posts",
     fragmentName: "PostsList",
@@ -99,9 +100,9 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
         </div> : <></>
       }
       {!tag.wikiOnly && <>
-        {results ? <div className={classes.posts}>
+        {showPosts && (results ? <div className={classes.posts}>
           {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-        </div> : <Loading /> }
+        </div> : <Loading /> )}
         {hasFooter && <div className={classes.footer}>
           {autoApplied && <span className={classes.autoApplied}>
             Tag was auto-applied
