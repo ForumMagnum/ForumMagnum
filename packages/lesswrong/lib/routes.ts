@@ -741,6 +741,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
     },
+    {
+      name: 'EAForumWrapped',
+      path: '/wrapped',
+      componentName: 'EAForumWrappedPage',
+      title: 'EA Forum Wrapped',
+    },
   ],
   LessWrong: [
     {

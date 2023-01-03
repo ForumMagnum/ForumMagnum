@@ -71,7 +71,7 @@ const schema: SchemaType<DbTagRel> = {
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {

@@ -1,6 +1,7 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { getDatadogUser } from '../lib/collections/users/helpers';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 
 function initDatadog() {
   if (forumTypeSetting.get() !== 'EAForum') return
@@ -12,8 +13,9 @@ function initDatadog() {
     service:'eaforum-client',
     env: ddEnv,
     // version: '1.0.0',
-    sampleRate: 100,
-    sessionReplaySampleRate: 100,
+    tracingSampleRate: ddTracingSampleRate.get(),
+    sampleRate: ddRumSampleRate.get(),
+    sessionReplaySampleRate: ddSessionReplaySampleRate.get(),
     trackInteractions: true,
     trackResources: true,
     trackLongTasks: true,

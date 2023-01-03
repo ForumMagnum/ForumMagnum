@@ -46,7 +46,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
 export const Comments: ExtendedCommentsCollection = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),

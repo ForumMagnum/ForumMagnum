@@ -4,16 +4,16 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { forumTypeSetting } from '../../instanceSettings';
 
-export const CommentModeratorActions: CommentModeratorActionsCollection = createCollection({
-  collectionName: 'CommentModeratorActions',
-  typeName: 'CommentModeratorAction',
+export const UserMostValuablePosts: UserMostValuablePostsCollection = createCollection({
+  collectionName: 'UserMostValuablePosts',
+  typeName: 'UserMostValuablePost',
   collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
-  resolvers: getDefaultResolvers('CommentModeratorActions'),
-  mutations: getDefaultMutations('CommentModeratorActions'),
+  resolvers: getDefaultResolvers('UserMostValuablePosts'),
+  mutations: getDefaultMutations('UserMostValuablePosts'),
   logChanges: true,
 });
 
-addUniversalFields({collection: CommentModeratorActions});
+addUniversalFields({collection: UserMostValuablePosts})
 
-export default CommentModeratorActions;
+export default UserMostValuablePosts;

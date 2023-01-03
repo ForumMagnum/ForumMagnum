@@ -31,7 +31,17 @@
   },
   {
     "acceptsSchemaHash": "746fe67809bf748504782256c202744c",
-    "acceptedByMigration": "20221226T210853.auto.ts",
+    "acceptedByMigration": "20221226T210853.add_initial_language_model_fields.ts",
     "timestamp": "2022-12-26T21:08:53.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f9a5c9f182dad6b94bd1361b603906fd",
+    "acceptedByMigration": "20221229T220817.20221229T170831.add_UserMostValuablePosts_table.ts",
+    "timestamp": "2022-12-29T22:08:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea71916ffaa87ae0a21302ce831261e6",
+    "acceptedByMigration": "20221230T181110.fix_editable_fields.ts",
+    "timestamp": "2022-12-30T18:11:10.000Z"
   }
 ]

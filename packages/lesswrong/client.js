@@ -6,7 +6,7 @@ import './client/start';
 // Make sure to register settings before everything else
 import './client/publicSettings'
 
-// Then import the google analytics and datadog stuff
+// Then import google analytics and datadog
 import './client/ga';
 import './client/datadogRum';
 

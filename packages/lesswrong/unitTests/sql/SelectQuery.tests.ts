@@ -114,14 +114,26 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$in: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[] @> ARRAY["a"]::DOUBLE PRECISION[]',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION )',
       expectedArgs: [1, 2, 3],
+    },
+    {
+      name: "can build select query with in comparison with empty array",
+      getQuery: () => new SelectQuery(testTable, {a: {$in: []}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" ::DOUBLE PRECISION IN ( SELECT NULL::DOUBLE PRECISION )',
+      expectedArgs: [],
     },
     {
       name: "can build select query with not-in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$nin: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( ARRAY[ $1 , $2 , $3 ]::DOUBLE PRECISION[] @> ARRAY["a"]::DOUBLE PRECISION[] )',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION ) )',
       expectedArgs: [1, 2, 3],
+    },
+    {
+      name: "can build select query with array length filter",
+      getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a") = $1',
+      expectedArgs: [2],
     },
     {
       name: "can build select query with combined selector",
@@ -156,13 +168,13 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with descending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST',
       expectedArgs: [3],
     },
     {
       name: "can build select query with ascending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: 1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC NULLS FIRST',
       expectedArgs: [3],
     },
     {
@@ -180,7 +192,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with multiple options",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 OFFSET $3',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST LIMIT $2 OFFSET $3',
       expectedArgs: [3, 10, 20],
     },
     {
