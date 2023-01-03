@@ -168,13 +168,13 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with descending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST',
       expectedArgs: [3],
     },
     {
       name: "can build select query with ascending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: 1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC NULLS FIRST',
       expectedArgs: [3],
     },
     {
@@ -192,7 +192,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with multiple options",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 OFFSET $3',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST LIMIT $2 OFFSET $3',
       expectedArgs: [3, 10, 20],
     },
     {
@@ -356,6 +356,21 @@ describe("SelectQuery", () => {
       }),
       expectedSql: 'SELECT "TestCollection".* , GREATEST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
       expectedArgs: [6, 3],
+    },
+    {
+      name: "can build select query with $ifNull",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $ifNull: [
+              "$a",
+              4,
+            ],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , COALESCE( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [4, 3],
     },
     {
       name: "can build select with date diff",
