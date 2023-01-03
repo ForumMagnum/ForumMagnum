@@ -47,7 +47,7 @@ const comparisonOps = {
   $lte: "<=",
   $gt: ">",
   $gte: ">=",
-};
+} as const;
 
 const arithmeticOps = {
   $add: "+",
@@ -56,7 +56,7 @@ const arithmeticOps = {
   $divide: "/",
   $pow: "^",
   ...comparisonOps,
-};
+} as const;
 
 const variadicFunctions = {
   $min: "LEAST",
@@ -535,15 +535,16 @@ abstract class Query<T extends DbObject> {
     // https://www.mongodb.com/docs/manual/reference/operator/aggregation/arrayElemAt/
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
-      let field;
-      // e.g. "$cats"
-      if (typeof array === "string" || array[0] === "$") {
+      // This is over specialized, but most of our usage follows this pattern
+      if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
         const tokens = array.split(".");
-        const field = tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0];
+        const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
         const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
         if (path.length) {
           path[path.length - 2] = "->>";
         }
+        // Postgres array are 1-indexed
+        return [`("${field}")[1 + ${index}]${path.join("")}`];
       }
       return [
         "(",
