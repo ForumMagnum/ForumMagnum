@@ -17,13 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const CoreTagCustomDescriptions: Record<string, string> = {
-  'AI': `I'm afraid I can't do that, Dave.`,
-  'World Modeling': '',
-  'Site Meta': '',
-  'Community': '',
-  'World Optimization': '',
-  'Rationality': '',
-  'Practical': ''
+  'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and make decisions that result in attainment of your goals.",
+  'AI': "The <strong>AI</strong> tag is for anything related to AI and ML, including technical alignment, strategy/governance, and timelines forecasting.",
+  'World Modeling': "<p>The <strong>World Modeling</strong> tag is for posts that simply describe how the world is, e.g. physics, math, history, etc.</p><p>Often this tag is superceded by a more specific one like <em>Rationality</em>, <em>AI</em>, or <em>World Optimization</em>.</p>",
+  'World Optimization': 'The <strong>World Optimization</strong> tag is posts about how to make the world better at scale, e.g. altruistic cause areas, society-wide interventions, moral philosophy, etc.',
+  'Practical': 'The <strong>Practical</strong> tag is for posts about things you can use to make your life locally better, e.g. health, productivity, relationships, DIY, etc.',
+  'Site Meta': '<strong>Site Meta</strong> is for posts about the site itself, including bugs, feature requests, and site policy.',
+  'Community': 'The <strong>Community</strong> tag is for both for posts about the specific community associated with LessWrong (online and offline).',
 };
 
 
