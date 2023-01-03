@@ -729,6 +729,7 @@ interface PostsMinimumInfo { // fragment on Posts
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
   readonly _id: string,
   readonly qualitativeScore: number,
+  readonly quadraticScore: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -2138,11 +2139,6 @@ interface TagRecentDiscussion extends TagFragment { // fragment on Tags
   readonly recentComments: Array<CommentsList>,
 }
 
-interface TagRecentSubforumComments extends TagFragment { // fragment on Tags
-  readonly lastVisitedAt: Date,
-  readonly recentComments: Array<CommentsList>,
-}
-
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
 }
@@ -2988,7 +2984,6 @@ interface FragmentTypes {
   TagFullContributorsList: TagFullContributorsList
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
-  TagRecentSubforumComments: TagRecentSubforumComments
   SunshineTagFragment: SunshineTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
@@ -3165,7 +3160,6 @@ interface CollectionNamesByFragmentName {
   TagFullContributorsList: "Tags"
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
-  TagRecentSubforumComments: "Tags"
   SunshineTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"

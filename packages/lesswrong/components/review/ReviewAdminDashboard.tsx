@@ -46,6 +46,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
   })
+  console.log(votes)
 
   const { results: users, loading: usersLoading } = useMulti({
     terms: {view: "reviewAdminUsers", limit: 500},

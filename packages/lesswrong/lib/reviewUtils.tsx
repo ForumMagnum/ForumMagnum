@@ -9,16 +9,38 @@ const isLWForum = forumTypeSetting.get() === "LessWrong"
 
 export type ReviewYear = 2018 | 2019 | 2020 | 2021
 
+export function getReviewYearFromString(str) {
+  const year = parseInt(str)
+  if ([2018, 2019, 2020, 2021].includes(year)) {
+    const reviewYear = year as ReviewYear
+    return reviewYear
+  }
+}
+
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR: ReviewYear = 2021
 
-// Probably only used while the EA Forum is doing something sufficiently different
+// Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
+// This is broken out partly to allow EA Forum or other fora to do reviews with different names
+// (previously EA Forum did a "decade review" rather than a single year review)
+export function getReviewTitle(reviewYear) {
+ return `The ${reviewYear} Review`
+}
+
+export function getReviewShortTitle(reviewYear) {
+  return `${reviewYear} Review`
+}
+
 export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 
-export function getReviewPhase(): ReviewPhase | void {
+export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase | void {
+  if (reviewYear && reviewYear !== REVIEW_YEAR) {
+    return
+  }
+
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
 

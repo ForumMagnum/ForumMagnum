@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
-import { eligibleToNominate, getReviewPhase, ReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, ReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
@@ -164,6 +164,19 @@ const styles = (theme: ThemeType) => ({
   cantVote: {
     width: 188,
     textAlign: "center"
+  },
+  quadraticScore: {
+    border: theme.palette.border.faint,
+    width: 40,
+    display: "inline-block",
+    textAlign: "center"
+  },
+  qualitativeScore: {
+    border: theme.palette.border.answerBorder,
+    borderRadius: 3,
+    width: 40,
+    display: "inline-block",
+    textAlign: "center"
   }
 });
 
@@ -185,7 +198,7 @@ const ReviewVoteTableRow = (
     classes:ClassesType,
     expandedPostId?: string|null,
     currentVote: SyntheticQualitativeVote|null,
-    reviewPhase: ReviewPhase | void
+    reviewPhase?: ReviewPhase | void
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
@@ -224,6 +237,16 @@ const ReviewVoteTableRow = (
     positiveVoteCountText = "2+"
     positiveVoteCountTooltip = "2 or more positive votes"
   }
+
+  const userReviewVote = 
+    post.currentUserReviewVote?.quadraticScore 
+    || (post.currentUserReviewVote?.qualitativeScore ? getCostData({costTotal})[post.currentUserReviewVote?.qualitativeScore].value : "")
+  
+  
+  const userReviewVoteClass = post.currentUserReviewVote?.quadraticScore 
+    ? classes.quadraticScore : post.currentUserReviewVote?.qualitativeScore ? classes.qualitativeScore : null
+  
+    
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
@@ -267,7 +290,7 @@ const ReviewVoteTableRow = (
             { positiveVoteCountText }
           </LWTooltip>
         </PostsItem2MetaInfo>}
-        {reviewPhase !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
+        {reviewPhase === "NOMINATIONS" || reviewPhase === "REVIEWS" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount !== 1 ? "s" : ""}`}>
             { post.reviewCount }
           </LWTooltip>
@@ -293,11 +316,13 @@ const ReviewVoteTableRow = (
             <div className={classes.disabledVote}>Can't Vote</div>
           </LWTooltip>}
         </div>}
-        {reviewPhase !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
+        {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
-
+        {!reviewPhase && <LWTooltip title={"test"}>
+          <MetaInfo className={userReviewVoteClass}>{userReviewVote}</MetaInfo>
+        </LWTooltip>}
       </div>
     </div>
   </AnalyticsContext>

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { reviewIsActive } from '../../lib/reviewUtils';
+import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { useCurrentUser } from './withUser';
 
 const Home2 = () => {
@@ -16,7 +16,7 @@ const Home2 = () => {
           {!reviewIsActive() && <RecommendationsAndCurated configName="frontpage" />}
         
           {reviewIsActive() && <SingleColumnSection>
-            <FrontpageReviewWidget />
+            <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           
           <AnalyticsInViewTracker

@@ -10,7 +10,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { eligibleToNominate, getCostData, getReviewPhase, ReviewYear, REVIEW_YEAR, ReviewPhase } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, getReviewPhase, ReviewYear, REVIEW_YEAR, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
@@ -245,13 +245,17 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles, Error404 } = Components
+
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { params, query } = useLocation()
-  const reviewYear = parseInt(params.year)
+  const reviewYear = getReviewYearFromString(params.year)
+  if (!reviewYear) return <Error404 />
+
   const reviewIsActive = reviewYear === REVIEW_YEAR && getReviewPhase()
 
-  let reviewPhase = getReviewPhase()
+  let reviewPhase = getReviewPhase(reviewYear)
   if (reviewIsActive && query.phase) {
     reviewPhase = query.phase as ReviewPhase
   }
@@ -336,8 +340,6 @@ const ReviewVotingPage = ({classes}: {
     })
   }, [submitVote, postsResults]);
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles } = Components
-
   const canInitialResort = !!postsResults
 
   const reSortPosts = useCallback((sortPosts, sortReversed) => {
@@ -352,6 +354,9 @@ const ReviewVotingPage = ({classes}: {
 
         const post1Score = post1.currentUserReviewVote?.qualitativeScore || 0
         const post2Score = post2.currentUserReviewVote?.qualitativeScore || 0
+        const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore || 0
+        const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore || 0
+
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
@@ -385,6 +390,11 @@ const ReviewVotingPage = ({classes}: {
         }
 
         if (sortPosts === "yourVote") {
+          if (post1QuadraticScore || post2QuadraticScore) {
+            if (post1QuadraticScore < post2QuadraticScore) return 1
+            if (post1QuadraticScore > post2QuadraticScore) return -1   
+          }
+
           if (post1Score < post2Score) return 1
           if (post1Score > post2Score) return -1
         }
@@ -521,7 +531,7 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
-              <FrontpageReviewWidget showFrontpageItems={false}/>
+              <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             </div>
             {instructions}
             <SectionTitle title="Reviews">
