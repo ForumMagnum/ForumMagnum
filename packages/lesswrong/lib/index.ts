@@ -133,6 +133,11 @@ import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
+import './collections/userMostValuablePosts/collection';
+import './collections/userMostValuablePosts/fragments';
+import './collections/userMostValuablePosts/permissions';
+import './collections/userMostValuablePosts/views';
+
 
 // Subscriptions
 import './collections/subscriptions';

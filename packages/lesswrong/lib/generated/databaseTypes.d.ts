@@ -878,6 +878,8 @@ interface DbTag extends DbObject {
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   parentTagId: string
+  autoTagModel: string | null
+  autoTagPrompt: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -886,6 +888,18 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
+}
+
+interface DbUserMostValuablePost extends DbObject {
+  __collectionName?: "UserMostValuablePosts"
+  userId: string
+  postId: string
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
@@ -1283,6 +1297,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserMostValuablePosts: UserMostValuablePostsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1328,6 +1343,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserMostValuablePosts: DbUserMostValuablePost
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

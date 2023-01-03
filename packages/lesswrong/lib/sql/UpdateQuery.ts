@@ -28,21 +28,17 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     const set: Partial<Record<keyof T, any>> = modifier.$set ?? {};
     const push: Partial<Record<keyof T, any>> = modifier.$push ?? {};
+    const inc: Partial<Record<keyof T, any>> = modifier.$inc ?? {};
     for (const operation of Object.keys(modifier)) {
       switch (operation) {
         case "$set":
+        case "$inc":
+        case "$push":
           break;
         case "$unset":
           for (const field of Object.keys(modifier.$unset)) {
             set[field] = null;
           }
-          break;
-        case "$inc":
-          for (const field of Object.keys(modifier.$inc)) {
-            set[field] = {$add: [`$${field}`, 1]};
-          }
-          break;
-        case "$push":
           break;
         default:
           throw new Error(`Unimplemented update operation: ${operation}`);
@@ -52,6 +48,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     const compiledUpdates = [
       ...this.compileSetFields(set),
       ...this.compilePushFields(push),
+      ...this.compileIncFields(inc),
     ];
 
     this.atoms = this.atoms.concat(compiledUpdates.slice(1));
@@ -98,6 +95,12 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
       [",", resolvedField, "= ARRAY_APPEND(", resolvedField, ",",  ...updateValue, ")"];
     return this.compileUpdateFields(pushes, format);
+  }
+
+  private compileIncFields(incs: Partial<Record<keyof T, any>>): Atom<T>[] {
+    const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
+      [",", resolvedField, "= COALESCE(", resolvedField, ", 0 ) +",  ...updateValue];
+    return this.compileUpdateFields(incs, format);
   }
 
   private compileUpdateFields(

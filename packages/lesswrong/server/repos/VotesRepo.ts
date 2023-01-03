@@ -54,7 +54,7 @@ export default class VotesRepo extends AbstractRepo {
           "votedAt" <= $3 AND
           "userId" <> $1 AND
           "collectionName" = '${collectionName}'
-        GROUP BY "documentId", "_id"
+        GROUP BY "Votes"."documentId"
       ) v
       JOIN "${collectionName}" data ON data."_id" = v."_id"
       WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0
@@ -81,5 +81,16 @@ export default class VotesRepo extends AbstractRepo {
     return this.getKarmaChanges(args, "Revisions", [
       'data."documentId" AS "tagId"',
     ]);
+  }
+
+  getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {
+    return this.db.any(`
+      SELECT * FROM "Votes" WHERE
+        $1::TEXT[] @> ARRAY["documentId"]::TEXT[] AND
+        "collectionName" = 'Revisions' AND
+        "cancelled" = FALSE AND
+        "isUnvote" = FALSE AND
+        "authorIds" @> ARRAY["userId"]
+    `, [tagRevisionIds]);
   }
 }
