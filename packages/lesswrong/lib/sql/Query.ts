@@ -62,7 +62,7 @@ const variadicFunctions = {
   $min: "LEAST",
   $max: "GREATEST",
   $ifNull: "COALESCE",
-};
+} as const;
 
 /**
  * Query is the base class of the query builder which defines a number of common
