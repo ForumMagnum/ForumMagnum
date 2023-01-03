@@ -296,7 +296,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("ORDER BY");
       const sorts: string[] = [];
       for (const field in sort) {
-        sorts.push(`${this.resolveFieldName(field)} ${sort[field] === 1 ? "ASC" : "DESC"}`);
+        const pgSorting = sort[field] === 1
+            ? "ASC NULLS FIRST"
+            : "DESC NULLS LAST"
+        sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));
     }
