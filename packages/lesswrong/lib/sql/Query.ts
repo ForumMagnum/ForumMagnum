@@ -535,6 +535,7 @@ abstract class Query<T extends DbObject> {
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
       let field;
+      // e.g. "$cats"
       if (typeof array === "string" || array[0] === "$") {
         const tokens = array.split(".");
         const field = tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0];
