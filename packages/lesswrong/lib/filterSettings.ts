@@ -41,16 +41,16 @@ export const getDefaultFilterSettings = (): FilterSettings => {
   }
 }
 
-const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
+const addSuggestedTagsToSettings = (existingFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};
-  for (let tag of oldFilterSettings.tags)
+  for (let tag of existingFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
   const tagsNotIncluded = filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
 
   return {
-    ...oldFilterSettings,
+    ...existingFilterSettings,
     tags: [
-      ...oldFilterSettings.tags,
+      ...existingFilterSettings.tags,
       ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
         tagId: tag._id,
         tagName: tag.name,
@@ -83,10 +83,9 @@ export const useFilterSettings = () => {
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   
-  const defaultSettings = currentUser?.frontpageFilterSettings ?
-    currentUser.frontpageFilterSettings :
-    getDefaultFilterSettings()
+  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
+  console.log({currentUserFilterSettings: currentUser?.frontpageFilterSettings, defaultSettings, filterSettings})
   
   const { results: suggestedTags, loading: loadingSuggestedTags, error: errorLoadingSuggestedTags } = useMulti({
     terms: {
