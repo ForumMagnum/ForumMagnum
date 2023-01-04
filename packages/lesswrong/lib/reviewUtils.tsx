@@ -36,9 +36,10 @@ export function getReviewShortTitle(reviewYear): string {
   return `${reviewYear} Review`
 }
 
-export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING" | "COMPLETE"
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'COMPLETE'] as const);
+export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
-export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase | void {
+export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
@@ -50,11 +51,11 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase | void {
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return
+  if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
   if (currentDate < reviewEnd) return "VOTING"
-  return
+  return "COMPLETE"
 }
 
 export function getPositiveVoteThreshold(): Number {
@@ -80,7 +81,7 @@ export function getReviewThreshold(): Number {
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
   if (!(isLWForum || isEAForum)) return false
-  return !!getReviewPhase()
+  return getReviewPhase() !== "COMPLETE"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {

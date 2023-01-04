@@ -253,10 +253,8 @@ const ReviewVotingPage = ({classes}: {
   const reviewYear = getReviewYearFromString(params.year)
 
 
-  const reviewIsActive = reviewYear === REVIEW_YEAR && getReviewPhase()
-
   let reviewPhase = getReviewPhase(reviewYear)
-  if (reviewIsActive && query.phase) {
+  if (query.phase) {
     reviewPhase = query.phase as ReviewPhase
   }
 
@@ -342,7 +340,7 @@ const ReviewVotingPage = ({classes}: {
         submitReviewVote: newPost
       }
     })
-  }, [submitVote, postsResults]);
+  }, [submitVote, postsResults, reviewYear]);
 
   const canInitialResort = !!postsResults
 
@@ -672,6 +670,7 @@ const ReviewVotingPage = ({classes}: {
                   currentVote={currentVote}
                   expandedPostId={expandedPost?._id}
                   reviewPhase={reviewPhase}
+                  reviewYear={reviewYear}
                 />
               </div>
             })}

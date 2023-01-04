@@ -41,8 +41,7 @@ ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesVi
   return {
     selector: {
       year: year,
-      dummy: false,
-      deleted: false
+      dummy: false
     },
     options: {
       sort: {

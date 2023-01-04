@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
-import { eligibleToNominate, getCostData, ReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
@@ -186,7 +186,7 @@ const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
 }
 
 const ReviewVoteTableRow = (
-  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase }: {
+  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear }: {
     post: PostsListWithVotes,
     costTotal?: number,
     dispatch: React.Dispatch<SyntheticQualitativeVote>,
@@ -194,7 +194,8 @@ const ReviewVoteTableRow = (
     classes:ClassesType,
     expandedPostId?: string|null,
     currentVote: SyntheticQualitativeVote|null,
-    reviewPhase?: ReviewPhase | void
+    reviewPhase: ReviewPhase,
+    reviewYear: ReviewYear
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
@@ -258,7 +259,7 @@ const ReviewVoteTableRow = (
             placeholderCount={post.reviewCount}
             terms={{
               view: "reviews",
-              reviewYear: REVIEW_YEAR, 
+              reviewYear: reviewYear, 
               postId: post._id
             }}
             post={post}
