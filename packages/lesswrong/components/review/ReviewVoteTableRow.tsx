@@ -235,9 +235,11 @@ const ReviewVoteTableRow = (
     positiveVoteCountTooltip = "2 or more positive votes"
   }
 
-  const userReviewVote = 
-    post.currentUserReviewVote?.quadraticScore 
-    || (post.currentUserReviewVote?.qualitativeScore ? getCostData({costTotal})[post.currentUserReviewVote?.qualitativeScore].value : "")
+  // get the user's review vote. Use the quadraticScore if it exists (used in 2018 and 2019), 
+  // otherwise use the qualitative score display. 
+  const qualitativeScore = post.currentUserReviewVote?.qualitativeScore;
+  const qualitativeScoreDisplay = qualitativeScore ? getCostData({costTotal})[qualitativeScore].value : "";
+  const userReviewVote = post.currentUserReviewVote?.quadraticScore ?? qualitativeScoreDisplay;
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
