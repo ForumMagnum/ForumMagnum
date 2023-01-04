@@ -1,12 +1,12 @@
 import classNames from "classnames";
 import React, { useState } from "react";
-import { useSingle } from "../../lib/crud/withSingle";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { taggingNameSetting } from "../../lib/instanceSettings";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
-import { sortTags } from "./FooterTagList";
-import { TagPreviewProps } from "./TagPreview";
+import { useSingle } from "../../../lib/crud/withSingle";
+import { useUpdate } from "../../../lib/crud/withUpdate";
+import { taggingNameSetting } from "../../../lib/instanceSettings";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { useCurrentUser } from "../../common/withUser";
+import { sortTags } from "../FooterTagList";
+import { TagPreviewProps } from "../TagPreview";
 
 const styles = (theme: ThemeType): JssStyles => ({
   previewWrapperRow: {

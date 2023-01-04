@@ -1,25 +1,25 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
-import { truncate } from '../../lib/editor/ellipsize';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
-import { EditTagForm } from './EditTagPage';
-import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
+import { useMulti } from '../../../lib/crud/withMulti';
+import { truncate } from '../../../lib/editor/ellipsize';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useCurrentUser } from '../../common/withUser';
+import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { EditTagForm } from '../EditTagPage';
+import { useTagBySlug } from '../useTag';
+import { forumTypeSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
+import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
-import { useDialog } from "../common/withDialog";
+import { useDialog } from "../../common/withDialog";
 import {
   defaultSubforumSorting,
   isSubforumSorting,
@@ -27,9 +27,9 @@ import {
   subforumSortings,
   subforumSortingToResolverName,
   subforumSortingTypes,
-} from "../../lib/subforumSortings";
+} from "../../../lib/collections/tags/subforumSortings";
 import startCase from "lodash/startCase";
-import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
+import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
