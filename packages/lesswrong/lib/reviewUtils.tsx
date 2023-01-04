@@ -3,18 +3,20 @@ import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export type ReviewYear = 2018 | 2019 | 2020 | 2021
+const years = new TupleSet([2018, 2019, 2020, 2021] as const);
+type ReviewYear = UnionOf<typeof years>;
 
-export function getReviewYearFromString(str) {
-  const year = parseInt(str)
-  if ([2018, 2019, 2020, 2021].includes(year)) {
-    const reviewYear = year as ReviewYear
-    return reviewYear
+export function getReviewYearFromString(yearParam: string): ReviewYear {
+  const year = parseInt(yearParam)
+  if (years.has(year)) {
+    return year
   }
+  throw Error
 }
 
 /** Review year is the year under review, not the year in which the review takes place. */
@@ -26,11 +28,11 @@ export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR}
 
 // This is broken out partly to allow EA Forum or other fora to do reviews with different names
 // (previously EA Forum did a "decade review" rather than a single year review)
-export function getReviewTitle(reviewYear) {
+export function getReviewTitle(reviewYear): string {
  return `The ${reviewYear} Review`
 }
 
-export function getReviewShortTitle(reviewYear) {
+export function getReviewShortTitle(reviewYear): string {
   return `${reviewYear} Review`
 }
 
