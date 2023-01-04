@@ -219,6 +219,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     default: 3
   });
 
+  // Show a `+` in front of the custom "other" input if there's a custom additive value (rather than multiplicative)
+  const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
+
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {tag ? (
@@ -260,6 +263,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               </span>
             </LWTooltip>
             <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
+              {showPlusSign && <span>+</span>}
               <span className={classes.filterButton}>
                 <Input
                   placeholder="Other"
