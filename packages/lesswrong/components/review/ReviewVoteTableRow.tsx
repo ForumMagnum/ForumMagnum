@@ -10,6 +10,7 @@ import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -165,18 +166,13 @@ const styles = (theme: ThemeType) => ({
     width: 188,
     textAlign: "center"
   },
-  quadraticScore: {
-    border: theme.palette.border.faint,
-    width: 40,
+  oldVote: {
+    border: theme.palette.border.grey300,
+    width: 30,
     display: "inline-block",
-    textAlign: "center"
-  },
-  qualitativeScore: {
-    border: theme.palette.border.answerBorder,
-    borderRadius: 3,
-    width: 40,
-    display: "inline-block",
-    textAlign: "center"
+    textAlign: "center",
+    ...commentBodyStyles(theme),
+    fontSize: "1rem"
   }
 });
 
@@ -201,7 +197,7 @@ const ReviewVoteTableRow = (
     reviewPhase?: ReviewPhase | void
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
 
   const currentUser = useCurrentUser()
 
@@ -241,12 +237,6 @@ const ReviewVoteTableRow = (
   const userReviewVote = 
     post.currentUserReviewVote?.quadraticScore 
     || (post.currentUserReviewVote?.qualitativeScore ? getCostData({costTotal})[post.currentUserReviewVote?.qualitativeScore].value : "")
-  
-  
-  const userReviewVoteClass = post.currentUserReviewVote?.quadraticScore 
-    ? classes.quadraticScore : post.currentUserReviewVote?.qualitativeScore ? classes.qualitativeScore : null
-  
-    
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
@@ -290,12 +280,12 @@ const ReviewVoteTableRow = (
             { positiveVoteCountText }
           </LWTooltip>
         </PostsItem2MetaInfo>}
-        {reviewPhase === "NOMINATIONS" || reviewPhase === "REVIEWS" && <PostsItem2MetaInfo className={classes.count}>
+        {(reviewPhase === "NOMINATIONS" || reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount !== 1 ? "s" : ""}`}>
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>}
-        {reviewPhase === "REVIEWS" && <div className={classes.votes}>
+        {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
           <div className={classes.voteResults}>
             { highVotes.map((v, i)=>
               <LWTooltip className={classes.highVote} title="Voters with 1000+ karma" key={`${post._id}${i}H`}>
@@ -315,14 +305,16 @@ const ReviewVoteTableRow = (
           {currentUserIsAuthor && <LWTooltip title="You can't vote on your own posts">
             <div className={classes.disabledVote}>Can't Vote</div>
           </LWTooltip>}
+          
+          {/* if you're looking at an old review, just show your vote (without the ability to change it) */}
+          {reviewPhase === "COMPLETE" && !currentUserIsAuthor && <LWTooltip title={"Your review vote for this post"}>
+            <span className={classes.oldVote}>{userReviewVote}</span>
+          </LWTooltip>}
         </div>}
         {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
-        {!reviewPhase && <LWTooltip title={"test"}>
-          <MetaInfo className={userReviewVoteClass}>{userReviewVote}</MetaInfo>
-        </LWTooltip>}
       </div>
     </div>
   </AnalyticsContext>

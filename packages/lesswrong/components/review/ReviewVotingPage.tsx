@@ -245,13 +245,13 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles, Error404 } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { params, query } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)
-  if (!reviewYear) return <Error404 />
+
 
   const reviewIsActive = reviewYear === REVIEW_YEAR && getReviewPhase()
 
@@ -270,6 +270,7 @@ const ReviewVotingPage = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsReviewVotingList',
     fetchPolicy: 'cache-and-network',
+    skip: !reviewYear
   });
   // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
@@ -310,6 +311,9 @@ const ReviewVotingPage = ({classes}: {
       break;
     case 'VOTING':
       defaultSort = "needsFinalVote";
+      break;
+    case 'COMPLETE':
+      defaultSort = 'finalReviewVoteScoreHighKarma';
       break;
     default:
       defaultSort = "reviewCount";
@@ -524,6 +528,10 @@ const ReviewVotingPage = ({classes}: {
 
   const costTotalTooltip = costTotal > 500 ? <div>You have spent more than 500 points. Your vote strength will be reduced to account for this.</div> : <div>You have {500 - costTotal} points remaining before your vote-weight begins to reduce.</div>
 
+  if (!reviewYear) return <SingleColumnSection>
+  {params.year} is not a valid review year.
+  </SingleColumnSection>
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -632,6 +640,15 @@ const ReviewVotingPage = ({classes}: {
                     <span className={classes.sortBy}>Sort by</span> Needs Vote
                   </MenuItem>
                 }
+                {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (1000+ Karma Users)
+                </MenuItem>}
+                {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreAllKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (All Users)
+                </MenuItem>}
+                {reviewPhase === "COMPLETE" && isLW && <MenuItem value={'finalReviewVoteScoreAF'}>
+                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (Alignment Forum Users)
+                </MenuItem>}
               </Select>
             </div>
           </div>

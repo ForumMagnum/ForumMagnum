@@ -40,13 +40,13 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()
 
+  // TODO: fix the bug where for some reason this doesn't work for 2020 votes
   const { results: votes, loading: votesLoading } = useMulti({
     terms: {view: "reviewVotesAdminDashboard", limit: 10000, year: year},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
   })
-  console.log(votes)
 
   const { results: users, loading: usersLoading } = useMulti({
     terms: {view: "reviewAdminUsers", limit: 500},

@@ -34,11 +34,11 @@ export function getReviewShortTitle(reviewYear) {
   return `${reviewYear} Review`
 }
 
-export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
+export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING" | "COMPLETE"
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase | void {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
-    return
+    return "COMPLETE"
   }
 
   const currentDate = moment.utc()
