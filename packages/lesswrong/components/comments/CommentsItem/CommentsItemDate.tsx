@@ -60,14 +60,17 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
   const { location, query } = useLocation();
   const { captureEvent } = useTracking();
 
+  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, permalink})
+
   const handleLinkClick = (event: React.MouseEvent) => {
+    // If the current location is not the same as the link's location (e.g. if a comment on a post is showing on the frontpage), fall back to just following the link
+    if (location.pathname !== url.split("?")[0]) return
+
     event.preventDefault()
     history.replace({...location, search: qs.stringify({...query, commentId: comment._id})})
     if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };
-
-  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, permalink})
 
   const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
