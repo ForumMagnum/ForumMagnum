@@ -43,5 +43,10 @@
     "acceptsSchemaHash": "ea71916ffaa87ae0a21302ce831261e6",
     "acceptedByMigration": "20221230T181110.fix_editable_fields.ts",
     "timestamp": "2022-12-30T18:11:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c46af5d867666c2447ff14368afc0df2",
+    "acceptedByMigration": "20230104T011731.auto.ts",
+    "timestamp": "2023-01-04T01:17:31.000Z"
   }
 ]
