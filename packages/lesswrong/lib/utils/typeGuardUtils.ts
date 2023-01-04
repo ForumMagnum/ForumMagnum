@@ -1,5 +1,5 @@
-type Literal<T> = string extends T ? never : T;
-type Tuple<T extends ReadonlyArray<string>> = Literal<T[number]> extends never ? never : T;
+type Literal<T> = string|number extends T ? never : T;
+type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
 /**
  * We fairly frequently encounter the following pattern:
