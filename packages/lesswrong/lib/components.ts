@@ -594,6 +594,7 @@ importComponent("SubforumNotificationSettings", () => require('../components/tag
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
 importComponent("TagSubforumButton", () => require('../components/tagging/subforums/TagSubforumButton'));
 importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
+importComponent("SubforumWelcomeBox", () => require('../components/tagging/subforums/SubforumWelcomeBox'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
