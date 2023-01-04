@@ -9,7 +9,7 @@ const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
 const years = new TupleSet([2018, 2019, 2020, 2021] as const);
-type ReviewYear = UnionOf<typeof years>;
+export type ReviewYear = UnionOf<typeof years>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
   const year = parseInt(yearParam)
