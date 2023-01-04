@@ -127,6 +127,7 @@ importComponent("TagPageRevisionSelect", () => require('../components/revisions/
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
 importComponent("NewFeatureTooltip", () => require('../components/common/NewFeatureTooltip'));
+importComponent("NewFeaturePulse", () => require('../components/common/NewFeaturePulse'));
 importComponent("Typography", () => require('../components/common/Typography'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
 importComponent("Footer", () => require('../components/common/Footer'));

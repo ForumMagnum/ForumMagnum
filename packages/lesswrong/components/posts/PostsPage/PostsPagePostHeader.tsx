@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -7,8 +7,11 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import { useCookies } from 'react-cookie';
+import moment from 'moment';
 
 const SECONDARY_SPACING = 20
+const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -148,8 +151,19 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag, NewFeaturePulse} = Components;
+  const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
+  const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
+  console.log("HAYYYYYYYY", cachedTooltipSeen)
 
+  useEffect(() => {
+    if(!cachedTooltipSeen) {
+      setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
+        expires: moment().add(10, 'years').toDate(),
+      });
+      console.log(cookies[PODCAST_TOOLTIP_SEEN_COOKIE])
+    }
+  }, [])
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -199,11 +213,22 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           </div>}
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
           <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
-          {toggleEmbeddedPlayer && <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
-            <a href="#" onClick={toggleEmbeddedPlayer}>
-              <VolumeUpIcon />
-            </a>
-          </LWTooltip>}
+          {toggleEmbeddedPlayer &&
+            (cachedTooltipSeen ?
+              <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+                <a href="#" onClick={toggleEmbeddedPlayer}>
+                  <VolumeUpIcon />
+                </a>
+              </LWTooltip> :
+              <NewFeaturePulse dx={-10} dy={4}>
+                <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
+                <a href="#" onClick={toggleEmbeddedPlayer}>
+                  <VolumeUpIcon />
+                </a>
+                </LWTooltip>
+              </NewFeaturePulse>
+            )
+          }
           <div className={classes.commentsLink}>
             <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
