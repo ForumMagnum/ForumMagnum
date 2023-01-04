@@ -25,6 +25,28 @@ interface RegisterMigrationProps {
   action: () => Promise<void>;
 }
 
+interface MigrationProgressStats {
+  /** The number of rows processed so far by a migration */
+  rowsFinished: number
+  
+  /**
+   * Estimate of the total number of rows affected by a migration. Counted once
+   * at the beginning, so not guaranteed to be exact, if other writes happen
+   * during a migration.
+   */
+  estimatedRowsTotal: number
+  
+  startedAt: Date
+  elapsedMS: number
+  estimatedCompletion: Date
+  
+  /**
+   * Progress of migration, in the form of a nice printable string that looks
+   * like: "10250/52000 (19.7%)"
+   */
+  asStr: string
+}
+
 export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps) {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)
@@ -294,7 +316,7 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({coll
   collection: CollectionBase<T>,
   batchSize?: number,
   filter?: MongoSelector<DbObject> | null,
-  callback: (batch: T[]) => Promise<void>,
+  callback: (batch: T[], progress: MigrationProgressStats) => Promise<void>,
   loadFactor?: number
 }) {
   // As described in the docstring, we need to be able to query on the _id.
@@ -303,6 +325,11 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({coll
   if (filter && '_id' in filter) {
     throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
   }
+  
+  const estimatedRowsTotal = await collection.find(filter).count();
+  const startedAt = new Date();
+  let rowsFinished = 0;
+  
   const sort = {_id: 1} as Record<keyof T, number>;
   let rows = await collection.find({ ...filter },
     {
@@ -313,7 +340,15 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({coll
   
   while(rows.length > 0) {
     await runThenSleep(loadFactor, async () => {
-      await callback(rows);
+      const progress = makeMigrationProgressStats({
+        numFinished: rowsFinished,
+        numTotal: estimatedRowsTotal,
+        startedAt
+      });
+      
+      await callback(rows, progress);
+      
+      rowsFinished += rows.length;
       const lastID = rows[rows.length - 1]._id
       rows = await collection.find(
         { _id: {$gt: lastID}, ...filter },
@@ -406,6 +441,27 @@ export async function forEachBucketRangeInCollection<T extends DbObject>({collec
     _id: {$gte: bucketBoundaries[bucketBoundaries.length-1].value},
     ...filter
   });
+}
+
+
+export function makeMigrationProgressStats({numFinished, numTotal,startedAt}: {
+  numFinished: number,
+  numTotal: number,
+  startedAt: Date
+}): MigrationProgressStats {
+  const elapsedMS = Math.max(new Date().getTime() - startedAt.getTime(), 1);
+  const estimatedRowsPerMS = numFinished / elapsedMS;
+  const estimatedRowsRemaining = Math.max(numTotal-numFinished, 1);
+  const estimatedTimeRemainingMS = estimatedRowsRemaining / estimatedRowsPerMS;
+  const estimatedCompletion = new Date(startedAt.getTime() + estimatedTimeRemainingMS);
+  
+  const asStr = `${numFinished}/${numTotal} (${(numFinished/numTotal*100).toFixed(1)}%) (${estimatedCompletion.toLocaleTimeString()})`;
+  
+  return {
+    numFinished, numTotal,
+    startedAt, elapsedMS, estimatedCompletion,
+    asStr,
+  };
 }
 
 Vulcan.dropUnusedField = dropUnusedField
