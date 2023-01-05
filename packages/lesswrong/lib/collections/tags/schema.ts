@@ -559,6 +559,30 @@ const schema: SchemaType<DbTag> = {
     type: Object,
     foreignKey: 'Tags',
   },
+  
+  autoTagModel: {
+    type: String,
+    label: "Auto-tag classifier model ID",
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.advancedOptions,
+    nullable: true,
+    ...schemaDefaultValue(""),
+  },
+  
+  autoTagPrompt: {
+    type: String,
+    label: "Auto-tag classifier prompt string",
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.advancedOptions,
+    nullable: true,
+    ...schemaDefaultValue(""),
+  },
 }
 
 export default schema;

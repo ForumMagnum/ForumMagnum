@@ -41,6 +41,7 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -54,6 +55,7 @@ import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
 import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
+import "./server/scripts/languageModels/generateTaggingPostSets";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
@@ -146,8 +148,11 @@ import './server/fmCrosspost/routes';
 
 import './server/spotlightCron';
 
-import './server/codegen/generateTypes';
+import "./server/languageModels/autoTagCallbacks";
+import './server/languageModels/languageModelIntegration';
+import './server/languageModels/postSummaryResolver';
 
+import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 // Algolia Search Integration

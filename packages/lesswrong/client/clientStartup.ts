@@ -1,4 +1,3 @@
-import './datadogRum';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 
 async function clientStartup() {

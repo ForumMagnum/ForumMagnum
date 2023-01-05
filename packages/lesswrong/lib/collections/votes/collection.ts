@@ -6,7 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const Votes: VotesCollection = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Votes'),
 });

@@ -101,7 +101,7 @@ const CommentsNode = ({
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
   noAutoScroll=false,
-  classes
+  classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
@@ -153,10 +153,23 @@ const CommentsNode = ({
     }, HIGHLIGHT_DURATION*1000);
   }, []);
 
+  const handleExpand = async (event?: React.MouseEvent) => {
+    event?.stopPropagation()
+    if (isTruncated || isSingleLine) {
+      setTruncated(false);
+      setSingleLine(false);
+      setTruncatedStateSet(true);
+      if (scrollOnExpand) {
+        scrollIntoView("auto") // should scroll instantly
+      }
+    }
+  }
+
   const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
     if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        void handleExpand()
         scrollIntoView()
       }, 0);
     }
@@ -185,18 +198,6 @@ const CommentsNode = ({
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
-
-  const handleExpand = async (event: React.MouseEvent) => {
-    event.stopPropagation()
-    if (isTruncated || isSingleLine) {
-      setTruncated(false);
-      setSingleLine(false);
-      setTruncatedStateSet(true);
-      if (scrollOnExpand) {
-        scrollIntoView("auto") // should scroll instantly
-      }
-    }
-  }
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
