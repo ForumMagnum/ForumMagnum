@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const CoreTagCustomDescriptions: Record<string, string> = {
-  'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and make decisions that result in attainment of your goals.",
+  'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and making decisions that result in attainment of your goals.",
   'AI': "The <strong>AI</strong> tag is for anything related to AI and ML, including technical alignment, strategy/governance, and timelines forecasting.",
   'World Modeling': "<p>The <strong>World Modeling</strong> tag is for posts that simply describe how the world is, e.g. physics, math, history, etc.</p><p>Often this tag is superceded by a more specific one like <em>Rationality</em>, <em>AI</em>, or <em>World Optimization</em>.</p>",
   'World Optimization': 'The <strong>World Optimization</strong> tag is for posts about how to make the world better at scale, e.g. altruistic cause areas, society-wide interventions, moral philosophy, etc.',
