@@ -19,7 +19,7 @@ import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
-import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
+import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
@@ -111,7 +111,7 @@ export const NominatedPostNotification = serverRegisterNotificationType({
   name: "postNominated",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    return `Your post was nominated for the ${REVIEW_NAME_TITLE}`
+    return `Your post was nominated for the ${getReviewTitle(REVIEW_YEAR)}`
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;

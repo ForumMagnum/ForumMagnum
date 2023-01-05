@@ -15,6 +15,7 @@ import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
+import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const YEAR = 2019
 const NOMINATIONS_VIEW = "nominations2019"
@@ -441,8 +442,11 @@ const ReviewVotingPage2019 = ({classes}: {
                   setExpandedPost(post)
                   captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
                 >
+                  {/* reviewPhase and reviewYear added later to avoid type failure, not part of original design */}
                   <ReviewVoteTableRow
                     post={post}
+                    reviewYear={REVIEW_YEAR}
+                    reviewPhase={getReviewPhase()}
                     showKarmaVotes={showKarmaVotes}
                     dispatch={dispatchQualitativeVote as any}
                     currentVote={(useQuadratic ? currentQuadraticVote : currentQualitativeVote) as any}
