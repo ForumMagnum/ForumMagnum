@@ -75,7 +75,6 @@ const TagFilterSettings = ({
     tooltip: personalBlogpostTooltip,
   } = usePersonalBlogpostInfo();
 
-  console.log({filterSettings})
   
   return <span className={classes.root}>
     {filterSettings.tags.map(tagSettings =>

@@ -85,7 +85,6 @@ export const useFilterSettings = () => {
   
   const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
-  console.log({currentUserFilterSettings: currentUser?.frontpageFilterSettings, defaultSettings, filterSettings})
   
   const { results: suggestedTags, loading: loadingSuggestedTags, error: errorLoadingSuggestedTags } = useMulti({
     terms: {

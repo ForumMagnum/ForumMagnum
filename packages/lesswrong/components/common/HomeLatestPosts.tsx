@@ -94,8 +94,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const showCurated = 
     (forumTypeSetting.get() === "EAForum")
     || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
-  
-  console.log({homeLatestPosts_filterSettings: filterSettings})
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
