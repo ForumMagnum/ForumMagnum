@@ -3,22 +3,47 @@ import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export type ReviewYear = 2018 | 2019 | 2020 | 2021
+const years = new TupleSet([2018, 2019, 2020, 2021] as const);
+export type ReviewYear = UnionOf<typeof years>;
+
+export function getReviewYearFromString(yearParam: string): ReviewYear {
+  const year = parseInt(yearParam)
+  if (years.has(year)) {
+    return year
+  }
+  throw Error("Not a valid Review Year")
+}
 
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR: ReviewYear = 2021
 
-// Probably only used while the EA Forum is doing something sufficiently different
+// Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
-export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
+// This is broken out partly to allow EA Forum or other fora to do reviews with different names
+// (previously EA Forum did a "decade review" rather than a single year review)
+export function getReviewTitle(reviewYear: ReviewYear): string {
+ return `The ${reviewYear} Review`
+}
 
-export function getReviewPhase(): ReviewPhase | void {
+export function getReviewShortTitle(reviewYear: ReviewYear): string {
+  return `${reviewYear} Review`
+}
+
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'COMPLETE'] as const);
+export type ReviewPhase = UnionOf<typeof reviewPhases>;
+
+export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (reviewYear && reviewYear !== REVIEW_YEAR) {
+    return "COMPLETE"
+  }
+
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
 
@@ -26,11 +51,11 @@ export function getReviewPhase(): ReviewPhase | void {
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return
+  if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
   if (currentDate < reviewEnd) return "VOTING"
-  return
+  return "COMPLETE"
 }
 
 export function getPositiveVoteThreshold(): Number {
@@ -56,7 +81,7 @@ export function getReviewThreshold(): Number {
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
   if (!(isLWForum || isEAForum)) return false
-  return !!getReviewPhase()
+  return getReviewPhase() !== "COMPLETE"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
