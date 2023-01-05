@@ -239,7 +239,8 @@ const ReviewVoteTableRow = (
   // otherwise use the qualitative score display. 
   const qualitativeScore = post.currentUserReviewVote?.qualitativeScore;
   const qualitativeScoreDisplay = qualitativeScore ? getCostData({costTotal})[qualitativeScore].value : "";
-  const userReviewVote = post.currentUserReviewVote?.quadraticScore ?? qualitativeScoreDisplay;
+  // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
+  const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
