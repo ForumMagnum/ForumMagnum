@@ -11,7 +11,6 @@ import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
-import { EditTagForm } from '../EditTagPage';
 import { useTagBySlug } from '../useTag';
 import { forumTypeSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
@@ -30,6 +29,7 @@ import {
 } from "../../../lib/collections/tags/subforumSortings";
 import startCase from "lodash/startCase";
 import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
+import { tagPostTerms } from "../TagPage";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -108,20 +108,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
-  },
-  tagHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-  },
-  postsTaggedTitle: {
-    color: theme.palette.grey[600]
-  },
-  pastRevisionNotice: {
-    ...theme.typography.commentStyle,
-    fontStyle: 'italic'
   },
   nextLink: {
     ...theme.typography.commentStyle
@@ -216,16 +202,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
-  if (!tag) return
-  return ({
-    ...query,
-    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
-    view: "tagRelevance",
-    tagId: tag._id,
-  })
-}
-
 const subforumTabs = ["subforum", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "subforum"
@@ -234,12 +210,30 @@ const TagSubforumPage2 = ({classes}: {
   classes: ClassesType
 }) => {
   const {
-    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, LWTooltip,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
-    TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox, CommentPermalink,
-    SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
-    SidebarSubtagsBox, SubforumIntroBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread,
-    CommentsNewForm, SubforumWelcomeBox
+    PostsListSortDropdown,
+    Loading,
+    Error404,
+    LWTooltip,
+    PermanentRedirect,
+    HeadTags,
+    TagFlagItem,
+    Typography,
+    RightSidebarColumn,
+    CloudinaryImage2,
+    SidebarMembersBox,
+    CommentPermalink,
+    SubforumNotificationSettings,
+    SubforumSubscribeSection,
+    TagTableOfContents,
+    SidebarSubtagsBox,
+    SubforumIntroBox,
+    MixedTypeFeed,
+    SectionButton,
+    CommentWithReplies,
+    RecentDiscussionThread,
+    CommentsNewForm,
+    SubforumWelcomeBox,
+    SubforumWikiTab,
   } = Components;
 
   const currentUser = useCurrentUser();
@@ -256,7 +250,7 @@ const TagSubforumPage2 = ({classes}: {
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
-  const revision = queryVersion ?? queryRevision ?? null;
+  const revision = queryVersion ?? queryRevision ?? undefined;
   
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
@@ -274,12 +268,11 @@ const TagSubforumPage2 = ({classes}: {
     },
   });
   
-  const [truncated, setTruncated] = useState(true)
+  const [truncated, setTruncated] = useState(true) // Used in SubforumWikiTab, defined here because it can be controlled from the sidebar
   const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
-  const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
-  const client = useApolloClient()
+  const [joinedDuringSession, setJoinedDuringSession] = useState(false);
 
   const refetchRef = useRef<null|(()=>void)>(null);
   const refetch = useCallback(() => {
@@ -325,8 +318,6 @@ const TagSubforumPage2 = ({classes}: {
       closeOnNavigate: true
     })
   }
-  
-  useOnSearchHotkey(() => setTruncated(false));
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -356,8 +347,6 @@ const TagSubforumPage2 = ({classes}: {
     setHoveredContributorId(userId);
   }, []);
   
-  const [joinedDuringSession, setJoinedDuringSession] = useState(false);
-  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -365,9 +354,6 @@ const TagSubforumPage2 = ({classes}: {
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
-  }
-  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
   }
 
   const isSubscribed = !!currentUser?.profileTagIds?.includes(tag._id)
@@ -380,25 +366,9 @@ const TagSubforumPage2 = ({classes}: {
     limit: 15
   }
 
-  const clickReadMore = () => {
-    setTruncated(false)
-    captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
-  }
-
   const clickNewDiscussion = () => {
     setNewDiscussionOpen(true)
     captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
-  }
-
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
-  let description = htmlWithAnchors;
-  // EA Forum wants to truncate much less than LW
-  if(isEAForum) {
-    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
   }
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
@@ -407,66 +377,6 @@ const TagSubforumPage2 = ({classes}: {
     allPages: "allPages",
     myPages: "userPages"
   }
-  
-  // TODO: put this in a separate file
-  const wikiComponent = (
-    <>
-      <div className={classNames(classes.wikiSection, classes.centralColumn)}>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
-        <AnalyticsContext pageSectionContext="wikiSection">
-          {revision && tag.description && (tag.description as TagRevisionFragment_description).user && (
-            <div className={classes.pastRevisionNotice}>
-              You are viewing revision {tag.description.version}, last edited by{" "}
-              <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user} />
-            </div>
-          )}
-          {editing ? (
-            <EditTagForm
-              tag={tag}
-              successCallback={async () => {
-                setEditing(false);
-                await client.resetStore();
-              }}
-              cancelCallback={() => setEditing(false)}
-            />
-          ) : (
-            <div onClick={clickReadMore}>
-              <ContentStyles contentType="tag">
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{ __html: description || "" }}
-                  description={`tag ${tag.name}`}
-                  className={classes.description}
-                />
-              </ContentStyles>
-            </div>
-          )}
-        </AnalyticsContext>
-      </div>
-      <div className={classes.centralColumn}>
-        {editing && <TagDiscussionSection key={tag._id} tag={tag} />}
-        {tag.sequence && <TagIntroSequence tag={tag} />}
-        {!tag.wikiOnly && (
-          <AnalyticsContext pageSectionContext="tagsSection">
-            {tag.sequence ? (
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              </SectionTitle>
-            ) : (
-              <div className={classes.tagHeader}>
-                <div className={classes.postsTaggedTitle}>
-                  Posts tagged <em>{tag.name}</em>
-                </div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              </div>
-            )}
-            <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={200}>
-              <AddPostsToTag tag={tag} />
-            </PostsList2>
-          </AnalyticsContext>
-        )}
-      </div>
-    </>
-  );
   
   const headerComponent = (
     <div className={classNames(classes.header, classes.centralColumn)}>
@@ -479,7 +389,7 @@ const TagSubforumPage2 = ({classes}: {
             />
           </Link>
           {nextTag && (
-            <span onClick={() => setEditing(true)}>
+            <span>
               <Link className={classes.nextLink} to={tagGetUrl(nextTag, { flagId: query.flagId, edit: true })}>
                 Next Tag ({nextTag.name})
               </Link>
@@ -492,7 +402,7 @@ const TagSubforumPage2 = ({classes}: {
           {tag.name}
         </Typography>
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
+        {!!currentUser && (isSubscribed ? <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
@@ -717,7 +627,7 @@ const TagSubforumPage2 = ({classes}: {
           }
           header={headerComponent}
         >
-          {tab === "wiki" ? wikiComponent : subforumFeedComponent}
+          {tab === "wiki" ? <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} /> : subforumFeedComponent}
         </RightSidebarColumn>
       </div>
     </AnalyticsContext>
