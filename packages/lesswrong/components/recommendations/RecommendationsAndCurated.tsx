@@ -103,7 +103,7 @@ const RecommendationsAndCurated = ({
   const toggleSettings = useCallback(() => {
     captureEvent("toggleSettings", {action: !showSettings})
     setShowSettings(!showSettings);
-  }, [showSettings, setShowSettings]);
+  }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
     const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
