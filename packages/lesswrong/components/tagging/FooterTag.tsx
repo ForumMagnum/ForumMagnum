@@ -94,7 +94,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: 8,
-  }
+  },
+  robotIcon: {
+    "& svg": {
+      height: 12,
+      opacity: 0.7,
+      marginLeft: 4,
+    },
+  },
 });
 
 const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard, link=true, isTopTag=false, highlightAsAutoApplied=false}: {
@@ -137,7 +144,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, popperCard
     })}>
       {link ? <Link to={tagGetUrl(tag)} className={!!isTopTag ? classes.flexContainer : null}>
         {renderedTag}
-        {highlightAsAutoApplied && <RobotIcon/>}
+        {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
       </Link> : renderedTag}
       {<PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
         <div className={classes.hovercard}>

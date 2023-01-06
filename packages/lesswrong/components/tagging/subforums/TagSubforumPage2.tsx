@@ -1,25 +1,25 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
-import { truncate } from '../../lib/editor/ellipsize';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
-import { EditTagForm } from './EditTagPage';
-import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
+import { useMulti } from '../../../lib/crud/withMulti';
+import { truncate } from '../../../lib/editor/ellipsize';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useCurrentUser } from '../../common/withUser';
+import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { EditTagForm } from '../EditTagPage';
+import { useTagBySlug } from '../useTag';
+import { forumTypeSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
+import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import qs from "qs";
-import { useDialog } from "../common/withDialog";
+import { useDialog } from "../../common/withDialog";
 import {
   defaultSubforumSorting,
   isSubforumSorting,
@@ -27,16 +27,13 @@ import {
   subforumSortings,
   subforumSortingToResolverName,
   subforumSortingTypes,
-} from "../../lib/subforumSortings";
+} from "../../../lib/collections/tags/subforumSortings";
 import startCase from "lodash/startCase";
-import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
+import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 export const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    width: "100%"
-  },
   tabs: {
     margin: '0 auto 0px',
     '& .MuiTab-root': {
@@ -104,17 +101,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       fontSize: "2.4rem",
     }
   },
-  notifyMeButton: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 6,
-    },
-  },
-  editMenu: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 16,
-      marginBottom: 8,
-    },
-  },
   wikiSection: {
     paddingTop: 12,
     paddingLeft: 42,
@@ -122,23 +108,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
-  },
-  subHeading: {
-    paddingLeft: 42,
-    paddingRight: 42,
-    marginTop: -2,
-    background: theme.palette.panelBackground.default,
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
-  },
-  subHeadingInner: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    borderTop: theme.palette.border.extraFaint,
-    borderBottom: theme.palette.border.extraFaint,
-  },
-  relatedTagLink : {
-    color: theme.palette.lwTertiary.dark
   },
   tagHeader: {
     display: "flex",
@@ -170,11 +139,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     marginBottom: 24,
-  },
-  sidebarBoxWrapperDefaultPadding: {
-    padding: "1em 1.5em",
-  },
-  welcomeBox: {
   },
   tableOfContentsWrapper: {
     padding: 24,
@@ -274,8 +238,10 @@ const TagSubforumPage2 = ({classes}: {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, RightSidebarColumn, CloudinaryImage2, TagIntroSequence, SidebarMembersBox, CommentPermalink,
     SubforumNotificationSettings, SubforumSubscribeSection, SectionTitle, TagTableOfContents, ContentStyles,
-    SidebarSubtagsBox, SubforumIntroBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread, CommentsNewForm
+    SidebarSubtagsBox, SubforumIntroBox, MixedTypeFeed, SectionButton, CommentWithReplies, RecentDiscussionThread,
+    CommentsNewForm, SubforumWelcomeBox
   } = Components;
+
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { history } = useNavigation();
@@ -525,7 +491,6 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {/* TODO change what appears in SubforumNotificationSettings list */}
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
         {!!currentUser && !editing && (isSubscribed ? <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
       </div>
@@ -548,20 +513,13 @@ const TagSubforumPage2 = ({classes}: {
     </div>
   );
 
-  const subforumIntroBoxComponent = <SubforumIntroBox className={classNames(classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)} key={"intro_box"}/>
-  const welcomeBoxComponent = tag.subforumWelcomeText?.html  ? (
-    <ContentStyles contentType="tag" key={`welcome_box`}>
-      <div
-        className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding, classes.welcomeBox)}
-        dangerouslySetInnerHTML={{ __html: truncateTagDescription(tag.subforumWelcomeText.html, false)}}
-      />
-    </ContentStyles>
-  ) : null;
   const rightSidebarComponents = [
-    subforumIntroBoxComponent,
-    welcomeBoxComponent,
+    // Intro box: "What is a subforum?"
+    <SubforumIntroBox key={"intro_box"}/>,
+    // Welcome box: "Welcome to the [subforum name] subforum!"
+    <SubforumWelcomeBox html={tag.subforumWelcomeText?.html} className={classes.sidebarBoxWrapper} key={"welcome_box"}/>,
     <SidebarMembersBox tag={tag} className={classes.sidebarBoxWrapper} key={`members_box`} />,
-    <SidebarSubtagsBox tag={tag} className={classNames(classes.sidebarBoxWrapper, classes.sidebarBoxWrapperDefaultPadding)} key={`subtags_box`} />,
+    <SidebarSubtagsBox tag={tag} className={classes.sidebarBoxWrapper} key={`subtags_box`} />,
   ];
 
   const commentNodeProps = {

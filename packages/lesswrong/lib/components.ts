@@ -420,8 +420,6 @@ importComponent("RecentDiscussionMeetupsPoke", () => require('../components/rece
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
-importComponent("CommentsTimelineSection", () => require('../components/comments/CommentsTimelineSection'));
-importComponent("CommentsTimeline", () => require('../components/comments/CommentsTimeline'));
 importComponent("CommentsList", () => require('../components/comments/CommentsList'));
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
@@ -582,25 +580,21 @@ importComponent("TagActivityFeed", () => require('../components/tagging/TagActiv
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 
-importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
-
-
 // Subforums
-importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
-importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
-importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
-importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
-importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));
-importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
+importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
+importComponent("TagSubforumPage2", () => require('../components/tagging/subforums/TagSubforumPage2'));
+importComponent("RightSidebarColumn", () => require('../components/tagging/subforums/RightSidebarColumn'));
+importComponent("SidebarSubtagsBox", () => require('../components/tagging/subforums/SidebarSubtagsBox'));
+importComponent("SidebarMembersBox", () => require('../components/tagging/subforums/SidebarMembersBox'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
-importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
-importComponent("SubforumMembersDialog", () => require('../components/tagging/SubforumMembersDialog'));
-importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
-importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
+importComponent("SubforumSubscribeSection", () => require('../components/tagging/subforums/SubforumSubscribeSection'));
+importComponent("SubforumMembersDialog", () => require('../components/tagging/subforums/SubforumMembersDialog'));
+importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
+importComponent("SubforumNotificationSettings", () => require('../components/tagging/subforums/SubforumNotificationSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
-importComponent("TagSubforumButton", () => require('../components/tagging/TagSubforumButton'));
-importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
+importComponent("TagSubforumButton", () => require('../components/tagging/subforums/TagSubforumButton'));
 importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
+importComponent("SubforumWelcomeBox", () => require('../components/tagging/subforums/SubforumWelcomeBox'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));

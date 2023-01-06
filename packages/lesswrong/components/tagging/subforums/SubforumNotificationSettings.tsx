@@ -1,21 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
+import { Components, getFragment, registerComponent } from "../../../lib/vulcan-lib";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import Checkbox from '@material-ui/core/Checkbox';
-import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
+import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
-import UserTagRels from "../../lib/collections/userTagRels/collection";
-import { useMulti } from "../../lib/crud/withMulti";
-import { Link } from "../../lib/reactRouterWrapper";
-import { useRecordSubforumView } from "../hooks/useRecordSubforumView";
-import { useFilterSettings } from '../../lib/filterSettings';
-import { useMessages } from "../common/withMessages";
-import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
-import { useCreate } from "../../lib/crud/withCreate";
+import UserTagRels from "../../../lib/collections/userTagRels/collection";
+import { useMulti } from "../../../lib/crud/withMulti";
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
+import { useFilterSettings } from '../../../lib/filterSettings';
+import { useMessages } from "../../common/withMessages";
+import { userIsDefaultSubscribed } from "../../../lib/subscriptionUtil";
+import { useCreate } from "../../../lib/crud/withCreate";
 import { max } from "underscore";
-import { useForceRerender } from "../hooks/useFirstRender";
+import { useForceRerender } from "../../hooks/useFirstRender";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -122,8 +122,7 @@ const SubforumNotificationSettings = ({
   const recordSubforumView = useRecordSubforumView({userId: currentUser._id, tagId: tag._id});
   const userTagRel = results?.length ? results[0] : undefined;
   
-  // This is to ensure the userTagRel exists, which it almost always should because it is created as a result of loading `SubforumCommentsThread`
-  // but there are some weird edge cases related to logging in and out
+  // This is to ensure the userTagRel exists, TODO refactor so this isn't necessary
   useEffect(() => {
     if (!loading && !userTagRel) {
       void recordSubforumView().then(() => refetch())
