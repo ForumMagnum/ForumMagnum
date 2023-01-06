@@ -175,7 +175,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     padding: "1em 1.5em",
   },
   welcomeBox: {
-    paddingTop: 2,
   },
   tableOfContentsWrapper: {
     padding: 24,
