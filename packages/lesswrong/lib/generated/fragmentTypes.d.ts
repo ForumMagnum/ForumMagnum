@@ -733,6 +733,7 @@ interface PostsMinimumInfo { // fragment on Posts
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
   readonly _id: string,
   readonly qualitativeScore: number,
+  readonly quadraticScore: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
