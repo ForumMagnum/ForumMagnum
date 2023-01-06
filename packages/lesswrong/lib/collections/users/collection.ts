@@ -15,6 +15,7 @@ export const Users: ExtendedUsersCollection = createCollection({
   collectionName: 'Users',
   typeName: 'User',
   schema,
+  // FIXME: switching this to postgres will cause `insertHashedLoginToken` to fail at the moment because $addToSet hasn't yet been implemented
   resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
     editCheck: (user: DbUser|null, document: DbUser) => {
