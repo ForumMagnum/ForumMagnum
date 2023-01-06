@@ -21,7 +21,6 @@ export interface CommentWithRepliesProps {
   comment: CommentWithRepliesFragment;
   post?: PostsBase;
   lastRead?: Date;
-  markAsRead?: any;
   initialMaxChildren?: number;
   commentNodeProps?: Partial<CommentsNodeProps>;
   startExpanded?: boolean;
@@ -32,7 +31,6 @@ const CommentWithReplies = ({
   comment,
   post,
   lastRead,
-  markAsRead = () => {},
   initialMaxChildren = 3,
   commentNodeProps,
   startExpanded,
@@ -52,7 +50,6 @@ const CommentWithReplies = ({
   
   const treeOptions: CommentTreeOptions = {
     lastCommentId,
-    markAsRead: markAsRead,
     highlightDate: lastRead,
     condensed: true,
     showPostTitle: true,

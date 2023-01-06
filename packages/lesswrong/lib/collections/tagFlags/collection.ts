@@ -5,7 +5,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
-
+import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbTagFlag> = {
   name: {
@@ -75,6 +75,7 @@ const options: MutationOptions<DbTagFlag> = {
 export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),

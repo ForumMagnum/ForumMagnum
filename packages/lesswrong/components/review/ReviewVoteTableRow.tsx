@@ -5,11 +5,12 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
-import { eligibleToNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,7 +114,7 @@ const styles = (theme: ThemeType) => ({
   },
   votes: {
     backgroundColor: theme.palette.grey[200],
-    padding: 8,
+    padding: 10,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -126,12 +127,14 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "unset",
   },
   yourVote: {
+    marginLeft: 6,
     [theme.breakpoints.down('xs')]: {
       order: 0,
       marginRight: 10
     }
   },
   voteResults: {
+    width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
     [theme.breakpoints.down('xs')]: {
@@ -162,6 +165,14 @@ const styles = (theme: ThemeType) => ({
   cantVote: {
     width: 188,
     textAlign: "center"
+  },
+  oldVote: {
+    border: theme.palette.border.grey300,
+    width: 30,
+    display: "inline-block",
+    textAlign: "center",
+    ...commentBodyStyles(theme),
+    fontSize: "1rem"
   }
 });
 
@@ -175,7 +186,7 @@ const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
 }
 
 const ReviewVoteTableRow = (
-  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes }: {
+  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear }: {
     post: PostsListWithVotes,
     costTotal?: number,
     dispatch: React.Dispatch<SyntheticQualitativeVote>,
@@ -183,9 +194,11 @@ const ReviewVoteTableRow = (
     classes:ClassesType,
     expandedPostId?: string|null,
     currentVote: SyntheticQualitativeVote|null,
+    reviewPhase: ReviewPhase,
+    reviewYear: ReviewYear
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
 
   const currentUser = useCurrentUser()
 
@@ -222,19 +235,26 @@ const ReviewVoteTableRow = (
     positiveVoteCountTooltip = "2 or more positive votes"
   }
 
+  // get the user's review vote. Use the quadraticScore if it exists (used in 2018 and 2019), 
+  // otherwise use the qualitative score display. 
+  const qualitativeScore = post.currentUserReviewVote?.qualitativeScore;
+  const qualitativeScoreDisplay = qualitativeScore ? getCostData({costTotal})[qualitativeScore].value : "";
+  // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
+  const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
+
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: getReviewPhase() === "VOTING" })} onClick={markAsRead}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You previously gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
-      <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: getReviewPhase() === "VOTING"})}>
-        <div className={classNames(classes.post, {[classes.postVotingPhase]: getReviewPhase() === "VOTING"})}>
+      <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
+        <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
           <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
             <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
           </LWTooltip>
         </div>
-        {getReviewPhase() === "VOTING" && <div className={classes.reviews}>
+        {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
             hideReviewVoteButtons
@@ -242,7 +262,7 @@ const ReviewVoteTableRow = (
             placeholderCount={post.reviewCount}
             terms={{
               view: "reviews",
-              reviewYear: REVIEW_YEAR, 
+              reviewYear: reviewYear, 
               postId: post._id
             }}
             post={post}
@@ -256,7 +276,7 @@ const ReviewVoteTableRow = (
             newPromotedComments={false}
           />
         </div>
-        {getReviewPhase() === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
+        {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={<div>
             <div>This post has {positiveVoteCountTooltip}.</div>
             <div><em>(It needs at least 2 to proceed to the Review Phase.)</em></div>
@@ -264,12 +284,12 @@ const ReviewVoteTableRow = (
             { positiveVoteCountText }
           </LWTooltip>
         </PostsItem2MetaInfo>}
-        {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
+        {(reviewPhase === "NOMINATIONS" || reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount !== 1 ? "s" : ""}`}>
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>}
-        {getReviewPhase() === "REVIEWS" && <div className={classes.votes}>
+        {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
           <div className={classes.voteResults}>
             { highVotes.map((v, i)=>
               <LWTooltip className={classes.highVote} title="Voters with 1000+ karma" key={`${post._id}${i}H`}>
@@ -289,12 +309,16 @@ const ReviewVoteTableRow = (
           {currentUserIsAuthor && <LWTooltip title="You can't vote on your own posts">
             <div className={classes.disabledVote}>Can't Vote</div>
           </LWTooltip>}
+          
+          {/* if you're looking at an old review, just show your vote (without the ability to change it) */}
+          {reviewPhase === "COMPLETE" && !currentUserIsAuthor && <LWTooltip title={"Your review vote for this post"}>
+            <span className={classes.oldVote}>{userReviewVote}</span>
+          </LWTooltip>}
         </div>}
-        {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
+        {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
-
       </div>
     </div>
   </AnalyticsContext>

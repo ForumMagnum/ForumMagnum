@@ -12,6 +12,8 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 
+const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+
 let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
@@ -55,14 +57,21 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow();
+      const startTime = new Date().getTime();
       result = await client.any(sql, args);
+      const endTime = new Date().getTime();
+      const milliseconds = endTime - startTime;
+      if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS) {
+        // eslint-disable-next-line no-console
+        console.trace(`Slow Postgres query detected (${milliseconds} ms): ${sql}: ${JSON.stringify(args)}`);
+      }
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
-      const {collectionName} = this as unknown as CollectionBase<T>;
+      const {collectionName} = this;
       debugData = util.inspect({collectionName, ...debugData}, {depth: null});
       const {sql, args} = query.compile();
       // eslint-disable-next-line no-console
-      console.error(`SQL Error: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
+      console.error(`SQL Error for ${collectionName}: ${error.message}: \`${sql}\`: ${util.inspect(args)}: ${debugData}`);
       throw error;
     } finally {
       executingQueries--;
@@ -159,8 +168,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   _ensureIndex = async (fieldOrSpec: MongoIndexSpec, options?: MongoEnsureIndexOptions) => {
-    const fields = typeof fieldOrSpec === "string" ? [fieldOrSpec] : Object.keys(fieldOrSpec);
-    const index = this.table.getIndex(fields, options) ?? this.getTable().addIndex(fields, options);
+    const key: Record<string, 1 | -1> = typeof fieldOrSpec === "string" ? {[fieldOrSpec]: 1} : fieldOrSpec;
+    const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
     await this.executeQuery(query, {fieldOrSpec, options})
   }
@@ -173,11 +182,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
           const result = await this.executeQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
+          const {collectionName} = this;
           // If you see this, you probably built a bad aggregation pipeline, or
           // this file has a bug, or you're using an unsupported aggregation
           // pipeline operator
           // eslint-disable-next-line no-console
-          console.error("Aggregate error:", e, ":", util.inspect(pipeline, {depth: null}));
+          console.error("Aggregate error:", collectionName, ":", e, ":", util.inspect(pipeline, {depth: null}));
           throw e;
         }
       },

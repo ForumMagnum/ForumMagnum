@@ -124,10 +124,17 @@ const countAnswersAndDescendents = (answers: CommentsList[]) => {
 const getResponseCounts = (
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers: CommentsList[],
-) => ({
-  answerCount: answers.length,
-  commentCount: post.commentCount - countAnswersAndDescendents(answers),
-});
+) => {
+  // answers may include some which are deleted:true, deletedPublic:true (in which
+  // case various fields are unpopulated and a deleted-item placeholder is shown
+  // in the UI). These deleted answers are *not* included in post.commentCount.
+  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
+  
+  return {
+    answerCount: nonDeletedAnswers.length,
+    commentCount: post.commentCount - countAnswersAndDescendents(nonDeletedAnswers),
+  };
+};
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.

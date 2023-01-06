@@ -27,6 +27,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   root: {
     position: "relative",
+    minWidth: 0,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     },
@@ -307,6 +308,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     marginRight: 10
+  },
+  mostValuableCheckbox: {
+    marginLeft: 5
   }
 })
 
@@ -355,7 +359,8 @@ const PostsItem2 = ({
   strikethroughTitle=false,
   translucentBackground=false,
   forceSticky=false,
-  showReadCheckbox=false
+  showReadCheckbox=false,
+  showMostValuableCheckbox=false
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -408,10 +413,10 @@ const PostsItem2 = ({
   translucentBackground?: boolean,
   forceSticky?: boolean,
   showReadCheckbox?: boolean
+  showMostValuableCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
-  const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
   const { isRead, recordPostView } = useRecordPostView(post);
 
   const currentUser = useCurrentUser();
@@ -425,11 +430,6 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
-  const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
-  }
-
   const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
     const newComments = lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
@@ -437,12 +437,12 @@ const PostsItem2 = ({
 
   const hasUnreadComments = () => {
     const lastCommentedAt = postGetLastCommentedAt(post)
-    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastVisitedAt = post.lastVisitedAt
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
   const hasNewPromotedComments = () => {
-    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastVisitedAt = post.lastVisitedAt
     const lastCommentPromotedAt = postGetLastCommentPromotedAt(post)
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
   }
@@ -455,7 +455,8 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox } = (Components as ComponentTypes)
+    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
+    PostMostValuableCheckbox } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
   const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
@@ -618,7 +619,7 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {!hideTrailingButtons && <>
+          {!hideTrailingButtons && !showMostValuableCheckbox && <>
             {<div className={classes.actions}>
               {dismissButton}
               {!resumeReading && <PostActionsButton post={post} vertical />}
@@ -632,13 +633,15 @@ const PostsItem2 = ({
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt,
                 condensed: condensedAndHiddenComments,
-                markAsRead: markAsRead,
               }}
             />
           </div>}
         </div>
+        {showMostValuableCheckbox && <div className={classes.mostValuableCheckbox}>
+          <PostMostValuableCheckbox post={post} />
+        </div>}
       </div>
     </AnalyticsContext>
   )

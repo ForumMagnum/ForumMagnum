@@ -47,7 +47,7 @@ const comparisonOps = {
   $lte: "<=",
   $gt: ">",
   $gte: ">=",
-};
+} as const;
 
 const arithmeticOps = {
   $add: "+",
@@ -56,7 +56,13 @@ const arithmeticOps = {
   $divide: "/",
   $pow: "^",
   ...comparisonOps,
-};
+} as const;
+
+const variadicFunctions = {
+  $min: "LEAST",
+  $max: "GREATEST",
+  $ifNull: "COALESCE",
+} as const;
 
 /**
  * Query is the base class of the query builder which defines a number of common
@@ -227,7 +233,7 @@ abstract class Query<T extends DbObject> {
       }
     }
 
-    if (this.getField(field)) {
+    if (this.getField(field) || this.syntheticFields[field]) {
       return `"${field}"`;
     }
 
@@ -242,12 +248,14 @@ abstract class Query<T extends DbObject> {
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
-    const ty = this.getField(unresolvedField);
-    if (ty && ty.isArray() && !Array.isArray(value)) {
+    const fieldType = this.getField(unresolvedField)?.toConcrete();
+    if (fieldType && fieldType.isArray() && !Array.isArray(value)) {
       if (op === "<>") {
-        return ["NOT (", new Arg(value), `= ANY(${resolvedField}) )`];
+        return [`NOT (${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()})`];
+      } else if (op === "=") {
+        return [`${resolvedField} @> ARRAY[`, new Arg(value), `]::${fieldType.toString()}`];
       } else {
-        return [new Arg(value), `${op} ANY(${resolvedField})`];
+        throw new Error(`Invalid array operator: ${op}`);
       }
     } else {
       const hint = unresolvedField.indexOf(".") > 0 && resolvedField.indexOf("::") < 0 ? this.getTypeHint(value) : "";
@@ -327,11 +335,23 @@ abstract class Query<T extends DbObject> {
             throw new Error("$in expects an array");
           }
           const typeHint = this.getTypeHint(this.getField(fieldName));
-          const args = value[comparer].flatMap((item: any) => [",", new Arg(item)]).slice(1);
-          return [`${field} = ANY(ARRAY[`, ...args, `]${typeHint ? typeHint + "[]" : ""})`];
+          const hint = typeHint ?? "";
+          const args = value[comparer].length
+            ? value[comparer].flatMap((item: any) => [
+              ",", new Arg(item), hint,
+            ]).slice(1)
+            : [`SELECT NULL${hint}`];
+          return [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
+
+        case "$size":
+          const arraySize = value[comparer];
+          if (typeof arraySize !== "number") {
+            throw new Error(`Invalid array size: ${arraySize}`);
+          }
+          return [`ARRAY_LENGTH(${field}) =`, new Arg(arraySize)];
 
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
@@ -434,6 +454,12 @@ abstract class Query<T extends DbObject> {
       const name = expr.slice(1);
       return [this.resolveFieldName(name), "IS NOT NULL"];
     }
+    if (typeof expr === "object" && expr) {
+      const keys = Object.keys(expr);
+      if (keys[0][0] && keys[0][0] !== "$") {
+        return this.compileSelector(expr);
+      }
+    }
     return this.compileExpression(expr);
   }
 
@@ -487,28 +513,58 @@ abstract class Query<T extends DbObject> {
       return ["SUM(", ...this.compileExpression(expr[op]), ")"];
     }
 
-    if (op === "$in") {
-      const [value, array] = expr[op];
-      return [...this.compileExpression(value), "= ANY(", ...this.compileExpression(array), ")"];
+    if (variadicFunctions[op]) {
+      const func = variadicFunctions[op];
+      const args = expr[op].map((value: any) => this.compileExpression(value));
+      let prefix = `${func}(`;
+      let result: Atom<T>[] = [];
+      for (const arg of args) {
+        result.push(prefix);
+        result = result.concat(arg);
+        prefix = ",";
+      }
+      result.push(")");
+      return result;
     }
 
-    // This algorithm is over-specialized, but we only seem to use it in a very particular way...
+    if (op === "$in") {
+      const [value, array] = expr[op];
+      return [...this.compileExpression(array), "@> {", ...this.compileExpression(value), "}"];
+    }
+
+    // https://www.mongodb.com/docs/manual/reference/operator/aggregation/arrayElemAt/
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
-      if (typeof array !== "string" || array[0] !== "$" || typeof index !== "number") {
-        throw new Error("Invalid arguments to $arrayElemAt");
+      // This is over specialized, but most of our usage follows this pattern
+      if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
+        const tokens = array.split(".");
+        const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
+        const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
+        if (path.length) {
+          path[path.length - 2] = "->>";
+        }
+        // Postgres array are 1-indexed
+        return [`("${field}")[1 + ${index}]${path.join("")}`];
       }
-      const tokens = array.split(".");
-      const field = tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0];
-      const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
-      if (path.length) {
-        path[path.length - 2] = "->>";
-      }
-      return [`("${field}")[${index}]${path.join("")}`];
+      return [
+        "(",
+        ...this.compileExpression(array),
+        ")[ 1 +", // Postgres arrays are 1-indexed
+        ...this.compileExpression(index),
+        "]",
+      ];
     }
 
     if (op === "$first") {
       return this.compileExpression(expr[op]);
+    }
+
+    if (op === "$floor") {
+      return ["FLOOR(", ...this.compileExpression(expr[op]), ")"];
+    }
+
+    if (op === "$avg") {
+      return ["AVG(", ...this.compileExpression(expr[op]), ")"];
     }
 
     if (op === undefined) {

@@ -34,7 +34,7 @@ import { addField } from "./meta/utils";
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "dc1ea5409f03e1b22c4c5835fd70e2a3";
+export const acceptsSchemaHash = "346664785a7ca60371b76fd9d92a4f30";
 
 export const up = async ({db}: MigrationContext) => {
   if (Books.isPostgres()) {

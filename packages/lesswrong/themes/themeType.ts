@@ -142,6 +142,7 @@ declare global {
       alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
+      primaryDarkOnDim: ColorString,
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
@@ -225,6 +226,7 @@ declare global {
       primaryHighlight2: string,
       secondaryHighlight: string,
       secondaryHighlight2: string,
+      primaryTranslucent: string,
     },
     panelBackground: {
       default: ColorString,
@@ -355,7 +357,6 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
-      primaryDim2: ColorString,
     },
     header: {
       text: ColorString,

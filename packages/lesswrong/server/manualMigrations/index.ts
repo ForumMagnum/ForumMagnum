@@ -111,4 +111,5 @@ import './2022-11-08-rehostPostImages'
 import './2022-11-28-populateApprovalVoteCount'
 import './2022-12-02-updateSubforumNotificationDefaults'
 import './2022-12-13-updateReviewVotes'
+import './2022-12-15-addDadTagSettings'
 

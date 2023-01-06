@@ -3,7 +3,7 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNameP
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
-import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
+import { REVIEW_YEAR, getReviewShortTitle } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
@@ -21,7 +21,6 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
-const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
@@ -265,7 +264,7 @@ addRoute(
     path: '/reviewVoting/:year',
     title: "Review Voting",
     componentName: "ReviewVotingPage",
-    ...reviewSubtitle
+    subtitleComponentName: "ReviewHeaderTitle"
   },
 
   // Sequences
@@ -740,6 +739,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
+    },
+    {
+      name: 'EAForumWrapped',
+      path: '/wrapped',
+      componentName: 'EAForumWrappedPage',
+      title: 'EA Forum Wrapped',
     },
   ],
   LessWrong: [

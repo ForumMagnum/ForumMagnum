@@ -4,7 +4,7 @@ import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
-import GraphQLJSON from 'graphql-type-json';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
@@ -59,11 +59,19 @@ const schema: SchemaType<DbTagRel> = {
       return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
     },
   }),
+  
+  autoApplied: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    optional: true, hidden: true,
+    // Implementation in tagResolvers.ts
+  },
 };
 
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
