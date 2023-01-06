@@ -53,6 +53,19 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   setTruncated: (truncated: boolean) => void,
   classes: ClassesType,
 }) => {
+  const {
+    PostsListSortDropdown,
+    PostsList2,
+    ContentItemBody,
+    AddPostsToTag,
+    UsersNameDisplay,
+    TagDiscussionSection,
+    TagPageButtonRow,
+    TagIntroSequence,
+    SectionTitle,
+    ContentStyles,
+  } = Components;
+
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const client = useApolloClient()
@@ -84,20 +97,6 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
   }
-
-  const {
-    PostsListSortDropdown,
-    PostsList2,
-    ContentItemBody,
-    AddPostsToTag,
-    UsersNameDisplay,
-    TagDiscussionSection,
-    TagPageButtonRow,
-    TagIntroSequence,
-    SectionTitle,
-    ContentStyles,
-    TagFlagItem
-  } = Components;
 
   return <>
       <div className={classNames(classes.wikiSection, classes.centralColumn)}>
