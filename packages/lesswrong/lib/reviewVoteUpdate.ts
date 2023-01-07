@@ -20,8 +20,11 @@ function updatePost(postList, vote, total: number) {
   }
 }
 
-// takes a user's reviewVotes and updates the list of posts to include
-async function updatePreliminaryVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>) {
+type reviewVotePhase = 'nominationVote'|'finalVote'
+
+// takes a user's reviewVotes and updates the list of posts to include the vote totals,
+// weighting 
+async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase) {
   let postsAllUsers = {}
   let postsHighKarmaUsers = {}
   let postsAFUsers = {}
@@ -57,32 +60,57 @@ async function updatePreliminaryVoteTotals(usersByUserId: Dictionary<DbUser[]>, 
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
     // console.log({postId, reviewVoteScoreAllKarma, reviewVotesAllKarma})
-    await Posts.rawUpdateOne({_id:postId}, {$set: { 
-      reviewVotesAllKarma,
-      reviewVoteScoreAllKarma 
-    }})
+
+    if (votePhase === 'nominationVote') {
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
+        reviewVotesAllKarma,
+        reviewVoteScoreAllKarma 
+      }})
+    }
+    if (votePhase === 'finalVote') {
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
+        finalReviewVotesAllKarma: reviewVotesAllKarma,
+        finalReviewVoteScoreAllKarma: reviewVoteScoreAllKarma
+      }})
+    }
   }
   for (let postId in postsHighKarmaUsers) {
     const reviewVoteScoreHighKarma = postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0)
     const reviewVotesHighKarma = postsHighKarmaUsers[postId].sort((a,b) => b - a)
-    // console.log({postId, reviewVoteScoreHighKarma, reviewVotesHighKarma})
-    await Posts.rawUpdateOne({_id:postId}, {$set: { 
-      reviewVotesHighKarma,
-      reviewVoteScoreHighKarma,
-    }})
+
+    if (votePhase === 'nominationVote') {
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
+        reviewVotesHighKarma,
+        reviewVoteScoreHighKarma,
+      }})
+    }
+    if (votePhase === 'finalVote') {
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
+        finalReviewVotesHighKarma: reviewVotesHighKarma,
+        finalReviewVoteScoreHighKarma: reviewVoteScoreHighKarma,
+      }})
+    }
   }
   for (let postId in postsAFUsers) {
     const reviewVoteScoreAF =  postsAFUsers[postId].reduce((x, y) => x + y, 0)
     const reviewVotesAF =  postsAFUsers[postId].sort((a,b) => b - a)
-    // console.log({postId, reviewVoteScoreAF, reviewVotesAF})
-    await Posts.rawUpdateOne({_id:postId}, {$set: { 
-      reviewVotesAF,
-      reviewVoteScoreAF,
-     }})
+
+    if (votePhase === 'nominationVote') {
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
+        reviewVotesAF,
+        reviewVoteScoreAF,
+      }})
+    }
+    if (votePhase === 'finalVote') {
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
+        finalReviewVotesAF: reviewVotesAF,
+        finalReviewVoteScoreAF: reviewVoteScoreAF,
+      }})
+    }
   }
 } 
 
-export async function updateReviewVoteTotals (phase) {
+export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
 
   // we group each user's votes, so we can weight them appropriately
@@ -97,12 +125,13 @@ export async function updateReviewVoteTotals (phase) {
   // organizes users by userId to make them easy to grab later.
   const usersByUserId = groupBy(users, user => user._id)
 
-  if (phase === "nominationVote") {
-    await updatePreliminaryVoteTotals(usersByUserId, votesByUserId)
+  if (votePhase === "nominationVote") {
+    await updateVoteTotals(usersByUserId, votesByUserId, votePhase)
   }
-  if (phase === "finalVote") {
+  if (votePhase === "finalVote") {
     // Only used during final voting phase
     // const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
     // const postIds = posts.map(post=>post._id)
+    await updateVoteTotals(usersByUserId, votesByUserId, votePhase)
   }
 }

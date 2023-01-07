@@ -10,3 +10,13 @@ registerMigration({
     await updateReviewVoteTotals("nominationVote") 
   }
 })
+
+
+registerMigration({
+  name: "updateReviewVotesFina",
+  dateWritten: "2023-01-01",
+  idempotent: true,
+  action: async () => {
+    await updateReviewVoteTotals("finalVote") 
+  }
+})
