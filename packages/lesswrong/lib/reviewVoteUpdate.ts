@@ -24,23 +24,21 @@ type reviewVotePhase = 'nominationVote'|'finalVote'
 
 // takes a user's reviewVotes and updates the list of posts to include the vote totals,
 // weighting 
-async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase) {
+async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase, postIds: Array<string>) {
   let postsAllUsers = {}
   let postsHighKarmaUsers = {}
   let postsAFUsers = {}
-
-  throw Error("WIP – finish checking what the finalVote pass needs")
 
   for (let userId of Object.keys(votesByUserId)) {
     let totalUserPoints = 0 
     // eslint-disable-next-line no-console
     console.log(userId)
     const user = usersByUserId[userId][0]
+    
     const userVotes = votesByUserId[userId]
-      // only used after final voting phase.
-      //.filter(vote => postIds.includes(vote.postId)) 
+    const filteredUserVotes = votePhase === 'finalVote' ? userVotes.filter(vote => postIds.includes(vote.postId)) : userVotes
 
-    const costTotal = userVotes.reduce((total,vote) => total + getCost(vote), 0)
+    const costTotal = filteredUserVotes.reduce((total,vote) => total + getCost(vote), 0)
     // eslint-disable-next-line no-console
     console.log(userId, costTotal, (costTotal > 500) ? "500+" : "")
     for (let vote of votesByUserId[userId]) {
@@ -59,6 +57,8 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   }
 
   for (let postId in postsAllUsers) {
+    // eslint-disable-next-line no-console
+    console.log("Updating vote totals for All Users")
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
     // console.log({postId, reviewVoteScoreAllKarma, reviewVotesAllKarma})
@@ -77,6 +77,8 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
     }
   }
   for (let postId in postsHighKarmaUsers) {
+    // eslint-disable-next-line no-console
+    console.log("Updating vote totals for High Karma Users")
     const reviewVoteScoreHighKarma = postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0)
     const reviewVotesHighKarma = postsHighKarmaUsers[postId].sort((a,b) => b - a)
 
@@ -94,6 +96,8 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
     }
   }
   for (let postId in postsAFUsers) {
+    // eslint-disable-next-line no-console
+    console.log("Updating vote totals for AF Users")
     const reviewVoteScoreAF =  postsAFUsers[postId].reduce((x, y) => x + y, 0)
     const reviewVotesAF =  postsAFUsers[postId].sort((a,b) => b - a)
 
@@ -110,6 +114,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
       }})
     }
   }
+  console.log("finished updating review vote toals")
 } 
 
 export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
@@ -128,12 +133,38 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   const usersByUserId = groupBy(users, user => user._id)
 
   if (votePhase === "nominationVote") {
-    await updateVoteTotals(usersByUserId, votesByUserId, votePhase)
+    await updateVoteTotals(usersByUserId, votesByUserId, votePhase, [])
   }
   if (votePhase === "finalVote") {
     // Only used during final voting phase
-    // const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
-    // const postIds = posts.map(post=>post._id)
-    await updateVoteTotals(usersByUserId, votesByUserId, votePhase)
+    const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
+    const postIds = posts.map(post=>post._id)
+    await updateVoteTotals(usersByUserId, votesByUserId, votePhase, postIds)
   }
 }
+
+//
+// Once you've run the migration, you should copy the results into a spreadsheet for easier analysis, and for posterity.
+// 
+
+// This is the code to run in NosqlBooster or equivalent. 
+// After running it, you may need to download the results as a csv and then
+// import them into Google Sheets. (NosqlBooster doesn't have an easy copy-paste
+// table option. Other tools might be fewer steps)
+
+// db.posts.find({postedAt: {$gte:ISODate("2021-01-01"), $lt:ISODate("2022-01-01")}, positiveReviewVoteCount: {$gt:0}})
+//   .projection({
+//     title:1, 
+//     _id:1, 
+//     userId:1, 
+//     author:1, 
+//     reviewCount:1, 
+//     positiveReviewVoteCount:1, 
+//     reviewVotesAllKarma:1, 
+//     reviewVoteScoreAllKarma:1, 
+//     reviewVotesHighKarma:1, 
+//     reviewVoteScoreHighKarma:1, 
+//     reviewVotesAF:1, 
+//     reviewVoteScoreAF:1
+//   })
+//   .sort({reviewVoteScoreAllKarma:-1})
