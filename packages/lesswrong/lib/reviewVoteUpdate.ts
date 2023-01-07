@@ -29,6 +29,8 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   let postsHighKarmaUsers = {}
   let postsAFUsers = {}
 
+  throw Error("WIP – finish checking what the finalVote pass needs")
+
   for (let userId of Object.keys(votesByUserId)) {
     let totalUserPoints = 0 
     // eslint-disable-next-line no-console
