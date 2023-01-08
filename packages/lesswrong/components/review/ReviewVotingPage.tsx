@@ -597,7 +597,7 @@ const ReviewVotingPage = ({classes}: {
                 >
                 {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
                   <LWTooltip placement="left" title={<div>Prioritizes posts with at least one review, which you haven't yet voted on<div><em>(intended to reward reviews by making reviewed posts more prominent</em></div></div>}>
-                    <span><span className={classes.sortBy}>Sort by</span> Prioritized</span>
+                    <span><span className={classes.sortBy}>Sort by</span> Magic (Prioritize reviewed)</span>
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
@@ -633,13 +633,15 @@ const ReviewVotingPage = ({classes}: {
                     <LWTooltip title={<div><p>Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points.</p>
                       <p><em>(i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)</em></p>
                     </div>}>
-                      <span><span className={classes.sortBy}>Sort by</span> Needs Review</span>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Review)</span>
                     </LWTooltip>
                   </MenuItem>
                 }
                 {reviewPhase === "VOTING" && 
                   <MenuItem value={'needsFinalVote'}>
-                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                    <LWTooltip title={<div>Prioritizes posts you haven't voted on yet</div>}>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Vote)</span>
+                    </LWTooltip>
                   </MenuItem>
                 }
                 {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
