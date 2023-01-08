@@ -52,14 +52,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: theme.palette.review.activeProgress, // ea-forum look here
+    backgroundColor: isEAForum ? theme.palette.primary.main : theme.palette.review.activeProgress,
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: theme.palette.review.progressBar // ea-forum look here
+    backgroundColor: isEAForum ? theme.palette.lwTertiary.main : theme.palette.review.progressBar,
   },
   nominationDate: {},
   actionButtonRow: {
