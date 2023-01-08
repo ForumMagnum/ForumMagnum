@@ -53,14 +53,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: isLW ? theme.palette.review.activeProgress : theme.palette.primary.main,
+    backgroundColor: theme.palette.review.activeProgress,
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: isLW ? theme.palette.review.progressBar :  theme.palette.lwTertiary.main,
+    backgroundColor: theme.palette.review.progressBar
   },
   nominationDate: {},
   actionButtonRow: {
