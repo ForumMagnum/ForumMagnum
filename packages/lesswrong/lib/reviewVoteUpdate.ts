@@ -3,7 +3,11 @@ import Users from "./collections/users/collection"
 import { getCostData, REVIEW_YEAR } from "./reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
-import { Dictionary } from "lodash";
+// import Dictionary from "lodash/Dictionary";  //TODO figure out whether/how to import this
+
+export interface Dictionary<T> {
+  [index: string]: T;
+}
 
 const getCost = (vote: reviewVoteFragment) => {
   return getCostData({})[vote.qualitativeScore].cost
