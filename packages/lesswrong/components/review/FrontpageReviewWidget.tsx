@@ -11,7 +11,6 @@ import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { userIsAdmin } from '../../lib/vulcan-users';
 
-const isLW = forumTypeSetting.get() === "LessWrong"
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -53,14 +52,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: theme.palette.review.activeProgress,
+    backgroundColor: theme.palette.review.activeProgress, // ea-forum look here
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: theme.palette.review.progressBar
+    backgroundColor: theme.palette.review.progressBar // ea-forum look here
   },
   nominationDate: {},
   actionButtonRow: {
