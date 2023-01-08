@@ -3,16 +3,20 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { Link } from '../../lib/reactRouterWrapper';
+import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 
-export const ReviewsList = ({classes, reviewYear}: {
-  classes: ClassesType,
+const sortOptions = new TupleSet(["top", "new", "groupByPost"] as const);
+export type ReviewSortOption = UnionOf<typeof sortOptions>;
+
+export const ReviewsList = ({title, defaultSort, reviewYear}: {
+  title: React.ReactNode | string,
+  defaultSort: ReviewSortOption,
   reviewYear: ReviewYear
 }) => {
   const { RecentComments, SectionTitle} = Components
-  const [sortReviews, setSortReviews ] = useState<string>("new")
+  const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   return <div>
-      <SectionTitle title={<Link to={`/reviews`}>Reviews</Link>}>
+      <SectionTitle title={title}>
         <Select
           value={sortReviews}
           onChange={(e)=>setSortReviews(e.target.value)}

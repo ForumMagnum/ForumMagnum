@@ -3,16 +3,14 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString } from '../../lib/reviewUtils';
 
-export const ReviewsPage = ({classes}: {
-  classes: ClassesType,
-}) => {
+export const ReviewsPage = () => {
   const { SingleColumnSection, ReviewsList } = Components
 
   const { params } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)
 
   return <SingleColumnSection>
-    <ReviewsList reviewYear={reviewYear}/>
+    <ReviewsList reviewYear={reviewYear} title={`Reviews ${reviewYear}`} defaultSort="top"/>
   </SingleColumnSection>;
 }
 

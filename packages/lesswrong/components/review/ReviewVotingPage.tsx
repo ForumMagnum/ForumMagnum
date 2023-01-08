@@ -539,7 +539,7 @@ const ReviewVotingPage = ({classes}: {
               <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             </div>
             {instructions}
-            <ReviewsList reviewYear={reviewYear}/>
+            <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
           </div>}
           <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
         </div>
