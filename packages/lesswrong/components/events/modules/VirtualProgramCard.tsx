@@ -113,13 +113,8 @@ const VirtualProgramCard = ({program, classes}: {
     deadline = moment().add(1, 'months').date(28).day(0)
   }
   
-  // VP starts 8 days after the deadline, on a Monday
-  let startOfVp = moment(deadline).add(8, 'days')
-  // Unless that date is still in the same month as the deadline, in which case they start one week later
-  if (startOfVp.month() === deadline.month()) {
-    startOfVp.add(1, 'weeks')
-  }
-  
+  // VP starts 15 days after the deadline, on a Monday
+  const startOfVp = moment(deadline).add(15, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 
