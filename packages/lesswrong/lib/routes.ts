@@ -1389,7 +1389,7 @@ addRoute(
     title: "User Comment Replies",
   },
   {
-    name: 'reviews',
+    name: 'reviewsReroute',
     path: '/reviews',
     redirect: () => `/reviews/${REVIEW_YEAR}`,
   },

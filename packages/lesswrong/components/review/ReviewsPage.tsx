@@ -11,7 +11,7 @@ export const ReviewsPage = ({classes}: {
   const { params } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)
 
-  return <SingleColumnSection className={classes.root}>
+  return <SingleColumnSection>
     <ReviewsList reviewYear={reviewYear}/>
   </SingleColumnSection>;
 }
