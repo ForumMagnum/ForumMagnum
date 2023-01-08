@@ -11,7 +11,7 @@ export type ReviewSortOption = UnionOf<typeof sortOptions>;
 export const ReviewsList = ({title, defaultSort, reviewYear}: {
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
-  reviewYear: ReviewYear
+  reviewYear?: ReviewYear
 }) => {
   const { RecentComments, SectionTitle} = Components
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
