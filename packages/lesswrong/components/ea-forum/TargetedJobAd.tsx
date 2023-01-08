@@ -178,20 +178,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type JobAdDataType = {
   [key: string]: {
-    occupationName?: string,  // used to match on EAG experience + interests
-    interestedIn?: string,    // used to match on EAG interests
-    tagId?: string,           // used to match on a topic
+    standardApplyBtn?: boolean, // set to show the "Apply now" button instead of "Yes, I'm interested"
+    occupationName?: string,    // used to match on EAG experience + interests
+    interestedIn?: string,      // used to match on EAG interests
+    tagId?: string,             // used to match on a topic
     logo: string,
-    occupation: string,       // text displayed in the tooltip
+    occupation: string,         // text displayed in the tooltip
     feedbackLinkPrefill: string,
-    bitlyLink: string,        // bitly link to the job ad page
+    bitlyLink: string,          // bitly link to the job ad page
     role: string,
-    insertThe?: boolean,      // set if you want to insert a "the" before the org name
+    insertThe?: boolean,        // set if you want to insert a "the" before the org name
     org: string,
     orgLink: string,
     salary?: string,
     location: string,
-    deadline?: moment.Moment, // not displayed, only used to hide the ad after this date
+    deadline?: moment.Moment,   // not displayed, only used to hide the ad after this date
     getDescription: (classes: ClassesType) => JSX.Element
   }
 }
