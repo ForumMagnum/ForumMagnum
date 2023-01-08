@@ -1400,11 +1400,6 @@ addRoute(
     title: "Reviews",
   },
   {
-    name: 'reviews-2020',
-    path: '/reviews/2020',
-    redirect: () => `/reviewVoting/2020`,
-  },
-  {
     name: 'reviewAdmin',
     path: '/reviewAdmin',
     redirect: () => `/reviewAdmin/${REVIEW_YEAR}`,
