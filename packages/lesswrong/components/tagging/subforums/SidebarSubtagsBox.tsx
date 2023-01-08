@@ -1,14 +1,17 @@
 import classNames from "classnames";
 import React, { useState } from "react";
-import { useSingle } from "../../lib/crud/withSingle";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { taggingNameSetting } from "../../lib/instanceSettings";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
-import { sortTags } from "./FooterTagList";
-import { TagPreviewProps } from "./TagPreview";
+import { useSingle } from "../../../lib/crud/withSingle";
+import { useUpdate } from "../../../lib/crud/withUpdate";
+import { taggingNameSetting } from "../../../lib/instanceSettings";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { useCurrentUser } from "../../common/withUser";
+import { sortTags } from "../FooterTagList";
+import { TagPreviewProps } from "../TagPreview";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    padding: "1em 1.5em",
+  },
   previewWrapperRow: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -77,11 +80,11 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
   };
 
   return (
-    <div className={className}>
+    <div className={classNames(className, classes.root)}>
       <ContentStyles contentType="tag">
         <h2>Posts in this space are about</h2>
       </ContentStyles>
-      <span className={classes.root}>
+      <span>
         <FooterTag
           key={tag._id}
           tag={tag}

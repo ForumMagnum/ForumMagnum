@@ -1,9 +1,9 @@
 import React from "react";
-import { registerComponent } from '../../lib/vulcan-lib';
-import { Link } from "../../lib/reactRouterWrapper";
+import { registerComponent } from '../../../lib/vulcan-lib';
+import { Link } from "../../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
-import { tagGetSubforumUrl } from "../../lib/collections/tags/helpers";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
