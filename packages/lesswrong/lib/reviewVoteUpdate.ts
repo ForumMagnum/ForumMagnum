@@ -118,6 +118,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
       }})
     }
   }
+  // eslint-disable-next-line no-console
   console.log("finished updating review vote toals")
 } 
 
