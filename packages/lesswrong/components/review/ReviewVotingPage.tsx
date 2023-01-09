@@ -17,8 +17,9 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
+import qs from 'qs';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -291,6 +292,9 @@ const ReviewVotingPage = ({classes}: {
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
+  const { history } = useNavigation();
+  const location = useLocation();
+
   if (postsError) {
     // eslint-disable-next-line no-console
     console.error('Error loading posts', postsError);
@@ -320,8 +324,15 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
-  const [sortPosts, setSortPosts] = useState(defaultSort)
+  const querySort = location.query.sort
+  const [sortPosts, setSortPosts] = useState(querySort ?? defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
+
+  const updatePostSort = (sort) => {
+    setSortPosts(sort)
+    const newQuery = {...location.query, sort}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
@@ -604,7 +615,7 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>
               <Select
                 value={sortPosts}
-                onChange={(e)=>{setSortPosts(e.target.value)}}
+                onChange={(e)=>{updatePostSort(e.target.value)}}
                 disableUnderline
                 >
                 {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
