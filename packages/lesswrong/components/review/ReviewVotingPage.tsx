@@ -227,7 +227,7 @@ export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITA
 export type SyntheticQualitativeVote = {_id: string, postId: string, score: number, type: 'QUALITATIVE'}
 export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
-const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
+export const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
@@ -553,7 +553,7 @@ const ReviewVotingPage = ({classes}: {
             </SectionTitle>
             <RecentComments terms={{ view: "reviews", reviewYear, sortBy: sortReviews}} truncated/>
           </div>}
-          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
+         <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>

@@ -938,6 +938,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
+      name: 'reviewQuickPage',
+      path: '/reviewQuickPage',
+      componentName: 'ReviewQuickPage',
+      title: "Review Quick Page",
+    },
+    {
       name: 'library',
       path: '/library',
       componentName: 'LibraryPage',

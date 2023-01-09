@@ -278,13 +278,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     console.error("No review announcement post path set")
   }
 
-  const allPhaseButtons = <>        
-    {!showFrontpageItems && userIsAdmin(currentUser) && <LWTooltip className={classes.buttonWrapper} title={`Look at metrics related to the Review`}>
-      <Link to={`/reviewAdmin/${reviewYear}`} className={classNames(classes.actionButton, classes.adminButton)}>
-        Review Admin
-      </Link>
-    </LWTooltip>}
-  </>
 
   const reviewTimeline = <div className={classes.reviewTimeline}>
     <div className={classes.nominationBlock}>
@@ -319,7 +312,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
-    {allPhaseButtons}
     <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
       <Link to={`/votesByYear/${reviewYear}`} className={classes.actionButton}>
         <span>
@@ -400,14 +392,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
         {/* Post list */}
         {showFrontpageItems && postList}
-        {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && nominationPhaseButtons}
-        {activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
+        {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}
+        {activeRange !== "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
 
-        {!showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
-          {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-            {allPhaseButtons}
-          </div>}
-        </AnalyticsContext>}
       </div>
     </AnalyticsContext>
   )

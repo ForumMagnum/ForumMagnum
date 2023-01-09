@@ -53,8 +53,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postsItem: {
     display: "flex",
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -360,7 +359,8 @@ const PostsItem2 = ({
   translucentBackground=false,
   forceSticky=false,
   showReadCheckbox=false,
-  showMostValuableCheckbox=false
+  showMostValuableCheckbox=false,
+  showKarma=true
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -412,7 +412,8 @@ const PostsItem2 = ({
   strikethroughTitle?: boolean
   translucentBackground?: boolean,
   forceSticky?: boolean,
-  showReadCheckbox?: boolean
+  showReadCheckbox?: boolean,
+  showKarma?: boolean,
   showMostValuableCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
@@ -514,9 +515,9 @@ const PostsItem2 = ({
             )}
           >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
-                <PostsItem2MetaInfo className={classes.karma}>
+                {showKarma && <PostsItem2MetaInfo className={classes.karma}>
                   {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
-                </PostsItem2MetaInfo>
+                </PostsItem2MetaInfo>}
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
