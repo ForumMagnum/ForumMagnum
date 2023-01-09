@@ -18,9 +18,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
+import { voteTooltipType } from './ReviewVoteTableRow';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
+const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -530,6 +532,16 @@ const ReviewVotingPage = ({classes}: {
   {params.year} is not a valid review year.
   </SingleColumnSection>
 
+  let voteTooltip = "Showing all votes" as voteTooltipType
+  switch (sortPosts) {
+    case ("reviewVoteScoreHighKarma"):
+      voteTooltip = "Showing votes by 1000+ Karma users";
+      break;
+    case ("reviewVoteScoreAF"):
+      voteTooltip = "Showing votes from Alignment Forum members"
+      break;
+  }
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -603,13 +615,13 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
                 </MenuItem>
-                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
+                {reviewPhase === "REVIEWS" && !isAF &&  <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
                 </MenuItem>}
-                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
+                {reviewPhase === "REVIEWS" && !isAF && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
                 </MenuItem>}
-                {reviewPhase === "REVIEWS" && isLW && <MenuItem value={'reviewVoteScoreAF'}>
+                {reviewPhase === "REVIEWS" && (isLW || isAF) && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
@@ -671,6 +683,7 @@ const ReviewVotingPage = ({classes}: {
                   expandedPostId={expandedPost?._id}
                   reviewPhase={reviewPhase}
                   reviewYear={reviewYear}
+                  voteTooltip={voteTooltip}
                 />
               </div>
             })}
