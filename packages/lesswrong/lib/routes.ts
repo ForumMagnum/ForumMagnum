@@ -925,12 +925,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/reviews2019',
       redirect: () => `/reviews/2019`,
     },
-    // {
-    //   name: 'reviews2019',
-    //   path: '/reviews/2019',
-    //   componentName: 'Reviews2019',
-    //   title: "2019 Reviews",
-    // },
     {
       name: 'library',
       path: '/library',
