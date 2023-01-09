@@ -80,7 +80,6 @@ export function getReviewThreshold(): Number {
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  if (!(isLWForum || isEAForum)) return false
   return getReviewPhase() !== "COMPLETE"
 }
 

@@ -178,6 +178,21 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build a select query with a nearby sort",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        a: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [10, 20],
+            },
+          },
+        },
+      }),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE 1=1 ORDER BY EARTH_DISTANCE(LL_TO_EARTH(( "a" ->'coordinates'->0)::FLOAT8, ( "a" ->'coordinates'->1)::FLOAT8), LL_TO_EARTH( $1 , $2 )) ASC NULLS LAST`,
+      expectedArgs: [10, 20],
+    },
+    {
       name: "can build select query with limit",
       getQuery: () => new SelectQuery(testTable, {a: 3}, {limit: 10}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 LIMIT $2',
