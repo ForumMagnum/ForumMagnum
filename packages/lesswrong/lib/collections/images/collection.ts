@@ -16,7 +16,7 @@ const schema: SchemaType<DbImages> = {
 export const Images: ImagesCollection = createCollection({
   collectionName: "Images",
   typeName: "Images",
-  collectionType: forumTypeSetting.get() === "EAForum" ? "switching" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
   schema,
 });
 addUniversalFields({collection: Images});
