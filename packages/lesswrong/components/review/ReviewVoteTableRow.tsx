@@ -217,7 +217,7 @@ const ReviewVoteTableRow = (
 
   let displayedVotes = allVotes
   switch (voteTooltip) {
-    case 'Showing votes by 1000+ Karma users':
+    case 'Showing votes by 1000+ Karma LessWrong users':
       displayedVotes = highVotes;
       break;
     case 'Showing votes from Alignment Forum members':
