@@ -141,7 +141,7 @@ export const ReviewQuickPage = ({classes}: {
           <p>Let's be real, there's a hella lotta posts you could review. But if you review three posts, you can call it a day and bask in the warm glow of knowing you helped LessWrong reflect upon itself, improving our longterm reward signal.</p>
           <p>({yourReviewsMessage})</p>
           <p><b>Review Prizes</b></p>
-          <p>It's fine to write quick reviews that simply describe a time a post was useful to you. But the LessWrong team awards a $50 prize for each review that seems offers some substantive information, and $100-$500 for high effort reviews that engage deeply with a post's factual claims, arguments or broader implications.</p>
+          <p>It's fine to write quick reviews that simply describe a time a post was useful to you. But the LessWrong team awards a $50 prize for each review that offers at least some substantive information, and $100-$500 for high effort reviews that engage deeply with a post's factual claims, arguments or broader implications.</p>
         </div>
         <SectionFooter>
           {userIsAdmin(currentUser) && <LWTooltip title={`Look at metrics related to the Review`}>
