@@ -532,10 +532,10 @@ const ReviewVotingPage = ({classes}: {
   {params.year} is not a valid review year.
   </SingleColumnSection>
 
-  let voteTooltip = "Showing all votes" as voteTooltipType
+  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
   switch (sortPosts) {
     case ("reviewVoteScoreHighKarma"):
-      voteTooltip = "Showing votes by 1000+ Karma users";
+      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
       break;
     case ("reviewVoteScoreAF"):
       voteTooltip = "Showing votes from Alignment Forum members"
@@ -615,10 +615,10 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
                 </MenuItem>
-                {reviewPhase === "REVIEWS" && !isAF &&  <MenuItem value={'reviewVoteScoreHighKarma'}>
+                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
                 </MenuItem>}
-                {reviewPhase === "REVIEWS" && !isAF && <MenuItem value={'reviewVoteScoreAllKarma'}>
+                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
                 </MenuItem>}
                 {reviewPhase === "REVIEWS" && (isLW || isAF) && <MenuItem value={'reviewVoteScoreAF'}>

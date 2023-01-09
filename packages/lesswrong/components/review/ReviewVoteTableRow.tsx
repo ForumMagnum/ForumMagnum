@@ -145,6 +145,7 @@ const styles = (theme: ThemeType) => ({
   },
   reviewVote: {
     color: theme.palette.text.slightlyDim,
+    display: "inline-block",
     fontWeight: 500,
     padding: 2,
     marginRight: 3,
@@ -172,7 +173,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export type voteTooltipType = 'Showing votes by 1000+ Karma users'|'Showing all votes'|'Showing votes from Alignment Forum members'
+export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
 const ReviewVoteTableRow = (
   { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
@@ -290,13 +291,15 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </PostsItem2MetaInfo>}
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
-          <div className={classes.voteResults}>
-            { displayedVotes.map((v, i)=>
-              <LWTooltip className={classes.reviewVote} title={voteTooltip} key={`${post._id}${i}H`}>
+          <LWTooltip title={voteTooltip}>
+            <div className={classes.voteResults}>
+              { displayedVotes.map((v, i)=>
+                <span className={classes.reviewVote} key={`${post._id}${i}H`}>
                   {v}
-              </LWTooltip>
-            )}
-          </div>
+                </span>
+              )}
+            </div>
+          </LWTooltip>
           {eligibleToNominate(currentUser) && <div className={classes.yourVote}>
             <PostsItemReviewVote post={post} marginRight={false}/>
           </div>}
