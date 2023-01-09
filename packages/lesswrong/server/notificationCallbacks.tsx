@@ -282,7 +282,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     type: subscriptionTypes.newTagPosts
   })
   const post = await Posts.findOne({_id:tagRel.postId})
-  if (post && postIsPublic(post)) {
+  if (post && postIsPublic(post) && !post.authorIsUnreviewed) {
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel
