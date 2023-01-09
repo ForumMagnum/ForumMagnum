@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentsIconLarge: {
-    width: 48,
+    width: 26,
     height: 24,
     cursor: "pointer",
     position: "relative",

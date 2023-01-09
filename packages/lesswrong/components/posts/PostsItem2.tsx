@@ -17,7 +17,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import qs from "qs";
 import { PopperPlacementType } from '@material-ui/core/Popper';
 export const MENU_WIDTH = 18
-export const KARMA_WIDTH = 42
+export const KARMA_WIDTH = 32
 
 export const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -310,6 +310,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   mostValuableCheckbox: {
     marginLeft: 5
+  },
+  commentsIcon: {
+    marginLeft: 8
   }
 })
 
@@ -409,7 +412,7 @@ const PostsItem2 = ({
   tooltipPlacement?: PopperPlacementType,
   classes: ClassesType,
   curatedIconLeft?: boolean,
-  strikethroughTitle?: boolean
+  strikethroughTitle?: boolean,
   translucentBackground?: boolean,
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
@@ -577,13 +580,15 @@ const PostsItem2 = ({
                   <PostsItemIcons post={post}/>
                 </div>}
 
-                {!resumeReading && <PostsItemComments
-                  small={false}
-                  commentCount={postGetCommentCount(post)}
-                  onClick={toggleComments}
-                  unreadComments={hasUnreadComments()}
-                  newPromotedComments={hasNewPromotedComments()}
-                />}
+                {!resumeReading && <div className={classes.commentsIcon}>
+                  <PostsItemComments
+                    small={false}
+                    commentCount={postGetCommentCount(post)}
+                    onClick={toggleComments}
+                    unreadComments={hasUnreadComments()}
+                    newPromotedComments={hasNewPromotedComments()}
+                  />
+                </div>}
 
                 {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
                 
