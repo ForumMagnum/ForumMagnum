@@ -63,7 +63,7 @@ const TargetedJobAdSection = () => {
       const jobAdState = userJobAds[jobName]?.state
       // check if the ad fits the user's interests
       const userIsMatch = (occupationName && userEAGInterests.includes(occupationName)) ||
-        (interestedIn && currentUser.interestedIn.includes(interestedIn)) ||
+        (interestedIn && currentUser.interestedIn?.includes(interestedIn)) ||
         (occupationTag && userTags.includes(occupationTag))
       // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
       const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)
