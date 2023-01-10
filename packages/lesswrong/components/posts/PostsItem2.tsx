@@ -592,7 +592,7 @@ const PostsItem2 = ({
 
                 {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
                 
-                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="bottom">
+                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
                   Review
                 </LWTooltip>}/>}
 
