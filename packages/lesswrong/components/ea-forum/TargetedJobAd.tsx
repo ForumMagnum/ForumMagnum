@@ -176,9 +176,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+type JobAdData = {
+  standardApplyBtn?: boolean, // set to show the "Apply now" button instead of "Yes, I'm interested"
+  occupationName?: string,    // used to match on EAG experience + interests
+  interestedIn?: string,      // used to match on EAG interests
+  tagId?: string,             // used to match on a topic
+  logo: string,
+  occupation: string,         // text displayed in the tooltip
+  feedbackLinkPrefill: string,
+  bitlyLink: string,          // bitly link to the job ad page
+  role: string,
+  insertThe?: boolean,        // set if you want to insert a "the" before the org name
+  org: string,
+  orgLink: string,
+  salary?: string,
+  location: string,
+  deadline?: moment.Moment,   // not displayed, only used to hide the ad after this date
+  getDescription: (classes: ClassesType) => JSX.Element
+}
+
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
-export const JOB_AD_DATA = {
+export const JOB_AD_DATA: Record<string, JobAdData> = {
   'ai-policy-govai': {
     occupationName: 'AI strategy & policy',
     tagId: 'u3Xg8MjDe2e6BvKtv', // AI Governance
@@ -189,7 +208,7 @@ export const JOB_AD_DATA = {
     role: 'Summer Fellow',
     insertThe: true,
     org: 'Centre for the Governance of AI',
-    orgSlug: 'centre-for-the-governance-of-ai',
+    orgLink: '/topics/centre-for-the-governance-of-ai',
     salary: '£9,000 - £12,000 stipend',
     location: 'Oxford, UK (Flexible)',
     deadline: moment("01-16-2023", "MM-DD-YYYY"),
@@ -209,6 +228,66 @@ export const JOB_AD_DATA = {
           <li>Are interested in using their career to study or shape the long-term implications of advanced AI</li>
           <li>Can produce clearly written, insightful, and even-handed research</li>
           <li>Have a graduate degree or research experience relevant to AI governance, such as political science, economics, sociology, or law</li>
+        </ul>
+      </div>
+    </>
+  },
+  'biosecurity-warwick': {
+    interestedIn: 'Biosecurity',
+    tagId: 'aELNHEKtcZtMwEkdK', // Biosecurity
+    logo: 'https://80000hours.org/wp-content/uploads/2022/12/Warwick-University-160x160.png',
+    occupation: 'biosecurity',
+    feedbackLinkPrefill: 'PhD+Student+at+University+of+Warwick',
+    bitlyLink: "https://efctv.org/3IxWcD3", // https://warwick.ac.uk/fac/cross_fac/igpp/ab101/
+    role: 'PhD Student',
+    insertThe: true,
+    org: 'University of Warwick, Institute for Global Pandemic Planning',
+    orgLink: '/posts/gnk3FbdxJjZrrvoGA/link-post-fully-funded-phds-in-pandemic-planning',
+    location: 'Warwick, UK',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        This is a 4-year fully funded scholarship to work on a PhD in Public Health
+        at <a href="https://warwick.ac.uk/fac/cross_fac/igpp/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          IGPP
+        </a>, with the option to focus on Behavioural Science, Mathematical Epidemiology,
+        Pathogen Diagnostics or Pandemic Response Planning.
+      </div>
+      <div className={classes.description}>
+        General entry requirements for the university:
+        <ul>
+          <li>At least an upper second class UK honours degree or international equivalent</li>
+          <li>Evidence of English language capability</li>
+          <li>Two strong academic references</li>
+        </ul>
+      </div>
+    </>
+  },
+  'communications-cea': {
+    occupationName: 'Communications/Marketing',
+    tagId: 'mPDquzDnkBkgi2iKR', // Marketing
+    logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
+    occupation: 'communications/marketing',
+    feedbackLinkPrefill: 'Social+Media+Specialist+at+CEA',
+    bitlyLink: "https://efctv.org/3vTkVtP", // https://www.centreforeffectivealtruism.org/careers/social-media-specialist
+    role: 'Social Media Specialist',
+    insertThe: true,
+    org: 'Centre for Effective Altruism',
+    orgLink: '/topics/centre-for-effective-altruism-1',
+    salary: '£49k - £77k',
+    location: 'Remote',
+    deadline: moment("01-16-2023", "MM-DD-YYYY"),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        You'll be working at <a href="https://www.centreforeffectivealtruism.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          CEA
+        </a> to develop a social media strategy for effective altruism and work with EA organisations and spokespeople to implement it.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>Familiarity with EA ideas</li>
+          <li>Clear, nuanced, and compelling writing</li>
+          <li>Sound judgement about the risks and benefits of different communications strategies and tactics</li>
         </ul>
       </div>
     </>
@@ -345,7 +424,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
           <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
             {adData.role}
           </a> at{adData.insertThe ? ' the' : ''} <span className={classes.link}>
-            <HoverPreviewLink href={`/topics/${adData.orgSlug}`} innerHTML={adData.org} />
+            <HoverPreviewLink href={adData.orgLink} innerHTML={adData.org} />
           </span>
         </h2>
         <div className={classes.metadataRow}>
