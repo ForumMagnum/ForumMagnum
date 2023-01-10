@@ -736,7 +736,7 @@ importComponent("CurrentSpotlightItem", () => require('../components/spotlights/
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
 importComponent("ReviewQuickPage", () => require('../components/review/ReviewQuickPage'));
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
-
+importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));

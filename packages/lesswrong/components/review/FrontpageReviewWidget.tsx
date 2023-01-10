@@ -10,6 +10,7 @@ import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewN
 import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { userIsAdmin } from '../../lib/vulcan-users';
+import { UserReviewsProgressBar } from './UserReviewsProgressBar';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -134,6 +135,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto",
     marginLeft: 4,
     textAlign: "left"
+  },
+  progressBar: {
+    marginRight: "auto",
   }
 })
 
@@ -210,7 +214,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2 } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -354,6 +358,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const reviewPhaseButtons = <div className={classes.actionButtonRow}>
+    <span className={classes.progressBar}>
+      <UserReviewsProgressBar reviewYear={reviewYear}/>
+    </span>
     {/* If there's less than 24 hours remaining, show the remaining time */}
     {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
