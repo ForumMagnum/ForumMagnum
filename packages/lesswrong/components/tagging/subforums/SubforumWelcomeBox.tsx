@@ -5,11 +5,7 @@ import truncateTagDescription from '../../../lib/utils/truncateTagDescription';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-     // FIXME: headers add a lot of padding, this is a hack to make it look right when there is a header but it still looks bad when there isn't one
-    paddingTop: 2,
-    paddingBottom: "1em",
-    paddingLeft: "1.5em",
-    paddingRight: "1.5em",
+    padding: "1em 1.5em",
   },
 })
 

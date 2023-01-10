@@ -734,6 +734,9 @@ importComponent("CurrentSpotlightItem", () => require('../components/spotlights/
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
+importComponent("ReviewQuickPage", () => require('../components/review/ReviewQuickPage'));
+importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
+importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));
@@ -742,6 +745,8 @@ importComponent("Nominations2018", () => require('../components/review/Nominatio
 importComponent("Nominations2019", () => require('../components/review/Nominations2019'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018'));
 importComponent("Reviews2019", () => require('../components/review/Reviews2019'));
+importComponent("ReviewsPage", () => require('../components/review/ReviewsPage'));
+importComponent("ReviewsList", () => require('../components/review/ReviewsList'));
 importComponent("ReviewPostButton", () => require('../components/review/ReviewPostButton'));
 importComponent("ReviewPostForm", () => require('../components/review/ReviewPostForm'));
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem'));

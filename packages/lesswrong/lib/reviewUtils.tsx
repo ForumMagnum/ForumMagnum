@@ -8,7 +8,8 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-const years = new TupleSet([2018, 2019, 2020, 2021] as const);
+export const reviewYears = [2018, 2019, 2020, 2021] as const
+const years = new TupleSet(reviewYears);
 export type ReviewYear = UnionOf<typeof years>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
@@ -80,7 +81,6 @@ export function getReviewThreshold(): Number {
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  if (!(isLWForum || isEAForum)) return false
   return getReviewPhase() !== "COMPLETE"
 }
 
