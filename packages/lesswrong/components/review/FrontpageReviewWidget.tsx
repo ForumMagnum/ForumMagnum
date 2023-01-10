@@ -356,9 +356,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const reviewPhaseButtons = <div className={classes.actionButtonRow}>
-    <span className={classes.reviewProgressBar}>
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <UserReviewsProgressBar reviewYear={reviewYear}/>
-    </span>
+    </span>}
     {/* If there's less than 24 hours remaining, show the remaining time */}
     {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining

@@ -143,15 +143,12 @@ const styles = (theme: ThemeType) => ({
       marginLeft: "auto"
     }
   },
-  highVote: {
+  reviewVote: {
     color: theme.palette.text.slightlyDim,
-    fontWeight: 600,
+    display: "inline-block",
+    fontWeight: 500,
     padding: 2,
-    cursor: "pointer"
-  },
-  lowVote: {
-    color: theme.palette.text.dim45,
-    padding: 2,
+    marginRight: 3,
     cursor: "pointer"
   },
   disabledVote: {
@@ -177,17 +174,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-// TODO: this should probably live in some utility folder
-const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
-  let output = [...arr1]
-  arr2.forEach((value) => {
-    pullAt(output, indexOf(output, value))
-  })
-  return output
-}
+export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
 const ReviewVoteTableRow = (
-  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear }: {
+  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
     post: PostsListWithVotes,
     costTotal?: number,
     dispatch: React.Dispatch<SyntheticQualitativeVote>,
@@ -196,7 +186,8 @@ const ReviewVoteTableRow = (
     expandedPostId?: string|null,
     currentVote: SyntheticQualitativeVote|null,
     reviewPhase: ReviewPhase,
-    reviewYear: ReviewYear
+    reviewYear: ReviewYear,
+    voteTooltip: voteTooltipType
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
@@ -223,7 +214,17 @@ const ReviewVoteTableRow = (
 
   const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
-  const lowVotes = arrayDiff(allVotes, highVotes)
+  const afVotes = post.reviewVotesAF || []
+
+  let displayedVotes = allVotes
+  switch (voteTooltip) {
+    case 'Showing votes by 1000+ Karma LessWrong users':
+      displayedVotes = highVotes;
+      break;
+    case 'Showing votes from Alignment Forum members':
+      displayedVotes = afVotes;
+      break;
+  }
 
   let positiveVoteCountText = "0"
   let positiveVoteCountTooltip = "0 positive votes"
@@ -291,19 +292,15 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </PostsItem2MetaInfo>}
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
-          <div className={classes.voteResults}>
-            { highVotes.map((v, i)=>
-              <LWTooltip className={classes.highVote} title="Voters with 1000+ karma" key={`${post._id}${i}H`}>
+          <LWTooltip title={voteTooltip}>
+            <div className={classes.voteResults}>
+              { displayedVotes.map((v, i)=>
+                <span className={classes.reviewVote} key={`${post._id}${i}H`}>
                   {v}
-              </LWTooltip>
-            )}
-            { lowVotes.map((v, i)=>
-              <LWTooltip className={classes.lowVote} title="Voters with less than 1000 karma" key={`${post._id}${i}L`}>
-                  {v}
-              </LWTooltip>
-            )}
-            
-          </div>
+                </span>
+              )}
+            </div>
+          </LWTooltip>
           {eligibleToNominate(currentUser) && <div className={classes.yourVote}>
             <PostsItemReviewVote post={post} marginRight={false}/>
           </div>}

@@ -17,10 +17,13 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { voteTooltipType } from './ReviewVoteTableRow';
+import qs from 'qs';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
+const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -288,6 +291,9 @@ const ReviewVotingPage = ({classes}: {
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
+  const { history } = useNavigation();
+  const location = useLocation();
+
   if (postsError) {
     // eslint-disable-next-line no-console
     console.error('Error loading posts', postsError);
@@ -317,8 +323,15 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
-  const [sortPosts, setSortPosts] = useState(defaultSort)
+  const querySort = location.query.sort
+  const [sortPosts, setSortPosts] = useState(querySort ?? defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
+
+  const updatePostSort = (sort) => {
+    setSortPosts(sort)
+    const newQuery = {...location.query, sort}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
@@ -529,6 +542,16 @@ const ReviewVotingPage = ({classes}: {
   {params.year} is not a valid review year.
   </SingleColumnSection>
 
+  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
+  switch (sortPosts) {
+    case ("reviewVoteScoreHighKarma"):
+      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
+      break;
+    case ("reviewVoteScoreAF"):
+      voteTooltip = "Showing votes from Alignment Forum members"
+      break;
+  }
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -580,7 +603,7 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>
               <Select
                 value={sortPosts}
-                onChange={(e)=>{setSortPosts(e.target.value)}}
+                onChange={(e)=>{updatePostSort(e.target.value)}}
                 disableUnderline
                 >
                 {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
@@ -597,7 +620,7 @@ const ReviewVotingPage = ({classes}: {
                 {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
                 </MenuItem>}
-                {reviewPhase === "REVIEWS" && isLW && <MenuItem value={'reviewVoteScoreAF'}>
+                {reviewPhase === "REVIEWS" && (isLW || isAF) && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
@@ -665,6 +688,7 @@ const ReviewVotingPage = ({classes}: {
                   expandedPostId={expandedPost?._id}
                   reviewPhase={reviewPhase}
                   reviewYear={reviewYear}
+                  voteTooltip={voteTooltip}
                 />
               </div>
             })}
