@@ -157,7 +157,8 @@ const styles = (theme: ThemeType) => ({
     cursor: "default"
   },
   commentsCount: {
-    paddingBottom: 8
+    paddingBottom: 8,
+    marginRight: 8
   },
   cantVote: {
     width: 188,

@@ -10,7 +10,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { eligibleToNominate, getCostData, getReviewPhase, ReviewYear, REVIEW_YEAR, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
@@ -230,7 +230,7 @@ export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITA
 export type SyntheticQualitativeVote = {_id: string, postId: string, score: number, type: 'QUALITATIVE'}
 export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
-const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
+export const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
@@ -248,7 +248,7 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -287,7 +287,6 @@ const ReviewVotingPage = ({classes}: {
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
-  const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
@@ -563,20 +562,9 @@ const ReviewVotingPage = ({classes}: {
               <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             </div>
             {instructions}
-            <SectionTitle title="Reviews">
-              <Select
-                value={sortReviews}
-                onChange={(e)=>setSortReviews(e.target.value)}
-                disableUnderline
-                >
-                <MenuItem value={'top'}>Sorted by Top</MenuItem>
-                <MenuItem value={'new'}>Sorted by New</MenuItem>
-                <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
-              </Select>
-            </SectionTitle>
-            <RecentComments terms={{ view: "reviews", reviewYear, sortBy: sortReviews}} truncated/>
+            <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
           </div>}
-          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
+         <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>

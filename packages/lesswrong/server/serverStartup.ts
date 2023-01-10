@@ -19,6 +19,7 @@ import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlCl
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
+import { basename, join } from 'path';
 
 const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
   for (let functionName of ["log", "info", "warn", "error", "trace"]) {
@@ -218,7 +219,8 @@ const watchForShellCommands = () => {
     const fileContents = fs.readFileSync(path, 'utf8');
     // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
-    fs.unlinkSync(path);
+    const newPath = join("tmp/runningShellCommands", basename(path));
+    fs.renameSync(path, newPath);
     try {
       const func = compileWithGlobals(fileContents);
       const result = await func();
@@ -229,6 +231,8 @@ const watchForShellCommands = () => {
       console.log("Failed.");
       // eslint-disable-next-line no-console
       console.log(e);
+    } finally {
+      fs.unlinkSync(newPath);
     }
   });
 }

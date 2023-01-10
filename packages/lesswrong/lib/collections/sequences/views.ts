@@ -105,9 +105,12 @@ Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
       userId: terms.userId,
       curatedOrder: {$exists: false},
       gridImageId: {$ne: null },
-      canonicalCollectionSlug: { $in: [null, ""] },
       isDeleted: false,
       draft: false,
+      $or: [
+        {canonicalCollectionSlug: ""},
+        {canonicalCollectionSlug: {$exists: false}},
+      ],
     },
     options: {
       sort: {

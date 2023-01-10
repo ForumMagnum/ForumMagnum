@@ -1397,6 +1397,22 @@ ensureIndex(Posts,
   { name: "posts.positiveReviewVoteCount", }
 );
 
+Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      reviewCount: 0,
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() },
+      reviewVoteScoreAllKarma: { $gte: 4 }
+    },
+    options: {
+      sort: {
+        reviewVoteScoreHighKarma: -1
+      }
+    }
+  }
+})
+
+
 // During the Final Voting phase, posts need at least one positive vote and at least one review to qualify
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
