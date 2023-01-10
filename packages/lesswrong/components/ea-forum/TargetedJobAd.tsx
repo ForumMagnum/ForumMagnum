@@ -176,30 +176,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-type JobAdDataType = {
-  [key: string]: {
-    standardApplyBtn?: boolean, // set to show the "Apply now" button instead of "Yes, I'm interested"
-    occupationName?: string,    // used to match on EAG experience + interests
-    interestedIn?: string,      // used to match on EAG interests
-    tagId?: string,             // used to match on a topic
-    logo: string,
-    occupation: string,         // text displayed in the tooltip
-    feedbackLinkPrefill: string,
-    bitlyLink: string,          // bitly link to the job ad page
-    role: string,
-    insertThe?: boolean,        // set if you want to insert a "the" before the org name
-    org: string,
-    orgLink: string,
-    salary?: string,
-    location: string,
-    deadline?: moment.Moment,   // not displayed, only used to hide the ad after this date
-    getDescription: (classes: ClassesType) => JSX.Element
-  }
+type JobAdData = {
+  standardApplyBtn?: boolean, // set to show the "Apply now" button instead of "Yes, I'm interested"
+  occupationName?: string,    // used to match on EAG experience + interests
+  interestedIn?: string,      // used to match on EAG interests
+  tagId?: string,             // used to match on a topic
+  logo: string,
+  occupation: string,         // text displayed in the tooltip
+  feedbackLinkPrefill: string,
+  bitlyLink: string,          // bitly link to the job ad page
+  role: string,
+  insertThe?: boolean,        // set if you want to insert a "the" before the org name
+  org: string,
+  orgLink: string,
+  salary?: string,
+  location: string,
+  deadline?: moment.Moment,   // not displayed, only used to hide the ad after this date
+  getDescription: (classes: ClassesType) => JSX.Element
 }
 
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
-export const JOB_AD_DATA: JobAdDataType = {
+export const JOB_AD_DATA: Record<string, JobAdData> = {
   'ai-policy-govai': {
     occupationName: 'AI strategy & policy',
     tagId: 'u3Xg8MjDe2e6BvKtv', // AI Governance
