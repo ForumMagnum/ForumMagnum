@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import { range } from 'lodash';
+import range from 'lodash/range';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,7 +60,6 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
   const totalReviews = totalCount || 0
 
   const uncheckedBoxes = 3 - Math.min(totalReviews, 3)
-  console.log(uncheckedBoxes)
 
   return <LWTooltip title={<div>
       <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= 3 ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
