@@ -53,6 +53,7 @@ export type SelectSqlOptions = Partial<{
    * in a suitable position for a join (for example usage, see server/recommendations.ts).
    */
   joinHook: string,
+  joinedFields: Record<string, 0 | 1 | boolean>,
   /**
    * Select for an atomic update.
    */
@@ -111,9 +112,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
 
     this.hasLateralJoin = !!sqlOptions?.lookup;
+    this.joinedFields = sqlOptions?.joinedFields || {};
 
     const {addFields, projection} = this.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
-    this.atoms = this.atoms.concat(this.getProjectedFields(table, sqlOptions?.count, projection));
+    this.atoms = this.atoms.concat(this.getProjectedFields(table, sqlOptions?.count, projection, sqlOptions?.joinedFields));
     if (addFields) {
       this.atoms = this.atoms.concat(this.getSyntheticFields(addFields));
     }
@@ -164,7 +166,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
   }
 
   private appendGroup<U extends {}>(group: U) {
-    this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group, false));
+    this.atoms = this.atoms.concat(this.getProjectedFields(this.table, undefined, group, undefined, false));
     this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
     const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression(group[key]));
     const fields = keys.map((key) =>
@@ -227,6 +229,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     table: Table | Query<T>,
     count?: boolean,
     projection?: MongoProjection<T>,
+    joinedFields?: Record<string, 0 | 1 | boolean>,
     autoIncludeId = true,
   ): Atom<T>[] {
     if (count) {
@@ -234,7 +237,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
 
     if (!projection) {
-      return [this.getStarSelector()];
+      return [[this.getStarSelector(), ...Object.keys(joinedFields || {}).map((field) => `"${field}"`)].join(", ")];
     }
 
     const include: string[] = [];

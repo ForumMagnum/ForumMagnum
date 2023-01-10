@@ -87,6 +87,7 @@ const variadicFunctions = {
  */
 abstract class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
+  protected joinedFields: Record<string, 0 | 1 | boolean> = {};
   protected nameSubqueries = true;
   protected isIndex = false;
 
@@ -233,7 +234,7 @@ abstract class Query<T extends DbObject> {
       }
     }
 
-    if (this.getField(field) || this.syntheticFields[field]) {
+    if (this.getField(field) || this.syntheticFields[field] || this.joinedFields[field]) {
       return `"${field}"`;
     }
 

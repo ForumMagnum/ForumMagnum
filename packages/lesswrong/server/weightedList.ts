@@ -90,7 +90,7 @@ export class WeightedList
     if (typeof weight !== typeof 1) {
       throw new Error('Weight must be numeric (got ' + (weight as any).toString() + ')');
     }
-    if (weight <= 0)  {
+    if (weight < 0)  {
       throw new Error('Weight must be >= 0 (got ' + weight + ')');
     }
 

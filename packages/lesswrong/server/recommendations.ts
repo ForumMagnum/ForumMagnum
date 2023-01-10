@@ -167,12 +167,12 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 }): Promise<Array<DbPost>> => {
   if (Posts.isPostgres()) {
     const joinHook = algorithm.onlyUnread && currentUser
-      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" = FALSE`
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" IS TRUE` // only include the isRead = true rows so we can filter them out via null comparison
       : undefined;
     const query = new SelectQuery(
-      new SelectQuery(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
+      new SelectQuery(Posts.getTable(), {...recommendablePostFilter(algorithm), ...(joinHook ? {isRead: null} : {})}, {}, {joinHook, joinedFields: {...(joinHook ? {isRead: 1} : {})}}),
       {},
-      {projection: scoreRelevantFields},
+      {projection: {...scoreRelevantFields}},
     );
     return Posts.executeQuery(query) as Promise<DbPost[]>;
   } else {
