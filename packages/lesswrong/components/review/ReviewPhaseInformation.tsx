@@ -1,10 +1,7 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { useCurrentUser } from '../common/withUser';
-import { UserReviewsProgressBar } from './UserReviewsProgressBar';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

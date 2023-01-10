@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -72,6 +71,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 4
     }
   },
+  reviewProgressBar: {
+    marginRight: "auto"
+  }
 });
 
 export const ReviewQuickPage = ({classes}: {

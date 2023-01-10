@@ -9,8 +9,6 @@ import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from 
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { userIsAdmin } from '../../lib/vulcan-users';
-import { UserReviewsProgressBar } from './UserReviewsProgressBar';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -136,7 +134,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
     textAlign: "left"
   },
-  progressBar: {
+  reviewProgressBar: {
     marginRight: "auto",
   }
 })
@@ -358,7 +356,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const reviewPhaseButtons = <div className={classes.actionButtonRow}>
-    <span className={classes.progressBar}>
+    <span className={classes.reviewProgressBar}>
       <UserReviewsProgressBar reviewYear={reviewYear}/>
     </span>
     {/* If there's less than 24 hours remaining, show the remaining time */}
