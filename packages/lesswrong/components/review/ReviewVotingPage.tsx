@@ -10,17 +10,20 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { eligibleToNominate, getCostData, getReviewPhase, ReviewYear, REVIEW_YEAR, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { voteTooltipType } from './ReviewVoteTableRow';
+import qs from 'qs';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
+const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -227,7 +230,7 @@ export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITA
 export type SyntheticQualitativeVote = {_id: string, postId: string, score: number, type: 'QUALITATIVE'}
 export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
-const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
+export const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
@@ -245,7 +248,7 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -284,10 +287,12 @@ const ReviewVotingPage = ({classes}: {
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
-  const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+
+  const { history } = useNavigation();
+  const location = useLocation();
 
   if (postsError) {
     // eslint-disable-next-line no-console
@@ -318,8 +323,15 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
-  const [sortPosts, setSortPosts] = useState(defaultSort)
+  const querySort = location.query.sort
+  const [sortPosts, setSortPosts] = useState(querySort ?? defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
+
+  const updatePostSort = (sort) => {
+    setSortPosts(sort)
+    const newQuery = {...location.query, sort}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
@@ -530,6 +542,16 @@ const ReviewVotingPage = ({classes}: {
   {params.year} is not a valid review year.
   </SingleColumnSection>
 
+  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
+  switch (sortPosts) {
+    case ("reviewVoteScoreHighKarma"):
+      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
+      break;
+    case ("reviewVoteScoreAF"):
+      voteTooltip = "Showing votes from Alignment Forum members"
+      break;
+  }
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -540,20 +562,9 @@ const ReviewVotingPage = ({classes}: {
               <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             </div>
             {instructions}
-            <SectionTitle title="Reviews">
-              <Select
-                value={sortReviews}
-                onChange={(e)=>setSortReviews(e.target.value)}
-                disableUnderline
-                >
-                <MenuItem value={'top'}>Sorted by Top</MenuItem>
-                <MenuItem value={'new'}>Sorted by New</MenuItem>
-                <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
-              </Select>
-            </SectionTitle>
-            <RecentComments terms={{ view: "reviews", reviewYear, sortBy: sortReviews}} truncated/>
+            <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
           </div>}
-          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
+         <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>
@@ -592,12 +603,12 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>
               <Select
                 value={sortPosts}
-                onChange={(e)=>{setSortPosts(e.target.value)}}
+                onChange={(e)=>{updatePostSort(e.target.value)}}
                 disableUnderline
                 >
                 {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
-                  <LWTooltip placement="left" title="Prioritizes posts with at least one Review, which you haven't yet voted on">
-                    <span><span className={classes.sortBy}>Sort by</span> Prioritized</span>
+                  <LWTooltip placement="left" title={<div>Prioritizes posts with at least one review, which you haven't yet voted on<div><em>(intended to reward reviews by making reviewed posts more prominent</em></div></div>}>
+                    <span><span className={classes.sortBy}>Sort by</span> Magic (Prioritize reviewed)</span>
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
@@ -609,7 +620,7 @@ const ReviewVotingPage = ({classes}: {
                 {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
                 </MenuItem>}
-                {reviewPhase === "REVIEWS" && isLW && <MenuItem value={'reviewVoteScoreAF'}>
+                {reviewPhase === "REVIEWS" && (isLW || isAF) && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
@@ -630,12 +641,18 @@ const ReviewVotingPage = ({classes}: {
                 }
                 {reviewPhase === "REVIEWS" && 
                   <MenuItem value={'needsReview'}>
-                    <span className={classes.sortBy}>Sort by</span> Needs Review
+                    <LWTooltip title={<div><p>Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points.</p>
+                      <p><em>(i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)</em></p>
+                    </div>}>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Review)</span>
+                    </LWTooltip>
                   </MenuItem>
                 }
                 {reviewPhase === "VOTING" && 
                   <MenuItem value={'needsFinalVote'}>
-                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                    <LWTooltip title={<div>Prioritizes posts you haven't voted on yet</div>}>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Vote)</span>
+                    </LWTooltip>
                   </MenuItem>
                 }
                 {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
@@ -671,6 +688,7 @@ const ReviewVotingPage = ({classes}: {
                   expandedPostId={expandedPost?._id}
                   reviewPhase={reviewPhase}
                   reviewYear={reviewYear}
+                  voteTooltip={voteTooltip}
                 />
               </div>
             })}

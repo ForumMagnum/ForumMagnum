@@ -5,6 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 
 const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
@@ -33,9 +34,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: `dashed 1px ${theme.palette.greyAlpha(0.25)}`,
     color: theme.palette.grey[400]
   },
+  backButton: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 30,
+    ...theme.typography.body2,
+    color: theme.palette.grey[400],
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
+  },
+  backIcon: {
+    marginRight: 12
+  }
 })
 
-const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}:{
+  classes: ClassesType, 
+  post?: PostsListWithVotes|null,
+  setExpandedPost: (post: PostsListWithVotes|null) => void
+}) => {
   const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
   const {document: postWithContents, loading} = useSingle({
@@ -50,6 +69,9 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
   if (!newPost) return null
 
   return <div>
+    <div className={classes.backButton} onClick={() => setExpandedPost(null)}>
+      <KeyboardBackspaceIcon className={classes.backIcon}/> Back
+    </div>
     <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>{newPost.title}</Link>
     {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
     {loading && <Loading/>}
@@ -72,12 +94,11 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
         post={newPost}
       />}
       <ReviewPostComments
-        title="Unread Comment"
+        title="Recent Comments"
         terms={{
           view: "postsItemComments", 
           postId: newPost._id,
-          limit:7, 
-          after: newPost.lastVisitedAt
+          limit:7
         }}
         post={newPost}
       />

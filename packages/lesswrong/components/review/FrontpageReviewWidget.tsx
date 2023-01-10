@@ -9,7 +9,6 @@ import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from 
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { userIsAdmin } from '../../lib/vulcan-users';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -72,8 +71,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingTop: 8,
+    paddingBottom: 8,
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 3,
@@ -82,10 +81,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginLeft: 10
   },
+  actionButtonCTA2: {
+    backgroundColor: theme.palette.panelBackground.default,
+    border: `solid 2px ${theme.palette.primary.light}`,
+    paddingTop: 7,
+    paddingBottom: 7,
+    paddingLeft: 14,
+    paddingRight: 14,
+    borderRadius: 3,
+    color: theme.palette.primary.dark,
+    ...theme.typography.commentStyle,
+    display: "inline-block",
+    marginLeft: 10
+  },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingTop: 8,
+    paddingBottom: 8,
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 3,
@@ -121,6 +133,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto",
     marginLeft: 4,
     textAlign: "left"
+  },
+  reviewProgressBar: {
+    marginRight: "auto",
   }
 })
 
@@ -197,7 +212,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2 } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -278,13 +293,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     console.error("No review announcement post path set")
   }
 
-  const allPhaseButtons = <>        
-    {!showFrontpageItems && userIsAdmin(currentUser) && <LWTooltip className={classes.buttonWrapper} title={`Look at metrics related to the Review`}>
-      <Link to={`/reviewAdmin/${reviewYear}`} className={classNames(classes.actionButton, classes.adminButton)}>
-        Review Admin
-      </Link>
-    </LWTooltip>}
-  </>
 
   const reviewTimeline = <div className={classes.reviewTimeline}>
     <div className={classes.nominationBlock}>
@@ -319,7 +327,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
-    {allPhaseButtons}
     <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
       <Link to={`/votesByYear/${reviewYear}`} className={classes.actionButton}>
         <span>
@@ -348,18 +355,34 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </LWTooltip>}
   </div>
 
-  const reviewAndVotingPhaseButtons = <div className={classes.actionButtonRow}>
+  const reviewPhaseButtons = <div className={classes.actionButtonRow}>
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
+      <UserReviewsProgressBar reviewYear={reviewYear}/>
+    </span>}
     {/* If there's less than 24 hours remaining, show the remaining time */}
     {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
     </span>}
+    <LWTooltip title="A detailed view of all nominated posts">
+      <Link to={"/reviewVoting"} className={classes.actionButton}>
+        Advanced Dashboard
+      </Link>
+    </LWTooltip>
+    <LWTooltip title="Find a top unreviewed post, and review it">
+      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA2}>
+        Quick Review
+      </Link>
+    </LWTooltip>
+  </div>
+
+  const votingPhaseButtons = <div className={classes.actionButtonRow}>
+    {/* If there's less than 24 hours remaining, show the remaining time */}
     {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
       {voteEndDate.fromNow()} remaining
     </span>}
-    {eligibleToNominate(currentUser) && (activeRange === "REVIEWS" || activeRange === "VOTING") && 
+    {
       <Link to={"/reviews"} className={classes.actionButtonCTA}>
-        {activeRange === "REVIEWS" && <span>Review {reviewYear} Posts</span>}
-        {activeRange === "VOTING" && <span>Cast Final Votes</span>}
+        Cast Final Votes
       </Link>
     }
   </div>
@@ -400,14 +423,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
         {/* Post list */}
         {showFrontpageItems && postList}
-        {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && nominationPhaseButtons}
-        {activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) && reviewAndVotingPhaseButtons}
+        {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}
+        {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+        {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
 
-        {!showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
-          {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-            {allPhaseButtons}
-          </div>}
-        </AnalyticsContext>}
       </div>
     </AnalyticsContext>
   )
