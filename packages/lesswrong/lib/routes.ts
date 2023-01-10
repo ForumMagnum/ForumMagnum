@@ -3,7 +3,7 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNameP
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
-import { REVIEW_YEAR, getReviewShortTitle } from './reviewUtils';
+import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
@@ -924,6 +924,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'reviews2019-old',
       path: '/reviews2019',
       redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviewQuickPage',
+      path: '/reviewQuickPage',
+      componentName: 'ReviewQuickPage',
+      title: "Review Quick Page",
     },
     {
       name: 'library',
