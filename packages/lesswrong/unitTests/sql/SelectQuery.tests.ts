@@ -130,9 +130,15 @@ describe("SelectQuery", () => {
       expectedArgs: [1, 2, 3],
     },
     {
+      name: "can build select query with all comparison",
+      getQuery: () => new SelectQuery(testTable, {a: {$all: [10, 20]}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> ARRAY[ $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION ]',
+      expectedArgs: [10, 20],
+    },
+    {
       name: "can build select query with array length filter",
       getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a") = $1',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a", 1) = $1',
       expectedArgs: [2],
     },
     {
