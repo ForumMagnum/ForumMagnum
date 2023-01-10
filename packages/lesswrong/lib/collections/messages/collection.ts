@@ -33,7 +33,7 @@ const options: MutationOptions<DbMessage> = {
 export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "switching" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
   schema,
   resolvers: getDefaultResolvers('Messages'),
   mutations: getDefaultMutations('Messages', options),
