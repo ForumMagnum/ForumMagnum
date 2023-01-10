@@ -363,7 +363,7 @@ abstract class Query<T extends DbObject> {
           if (typeof arraySize !== "number") {
             throw new Error(`Invalid array size: ${arraySize}`);
           }
-          return [`ARRAY_LENGTH(${field}) =`, new Arg(arraySize)];
+          return [`ARRAY_LENGTH(${field}, 1) =`, new Arg(arraySize)];
 
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
