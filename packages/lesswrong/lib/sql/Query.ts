@@ -343,17 +343,23 @@ abstract class Query<T extends DbObject> {
           return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
 
         case "$in":
+        case "$all":
           if (!Array.isArray(value[comparer])) {
-            throw new Error("$in expects an array");
+            throw new Error(`${comparer} expects an array`);
           }
-          const typeHint = this.getTypeHint(this.getField(fieldName));
-          const hint = typeHint ?? "";
+          const fieldType = this.getField(fieldName)?.toConcrete();
+          const hintType = fieldType?.isArray() && comparer === "$all"
+            ? fieldType.subtype
+            : fieldType;
+          const hint = this.getTypeHint(hintType) ?? "";
           const args = value[comparer].length
             ? value[comparer].flatMap((item: any) => [
               ",", new Arg(item), hint,
             ]).slice(1)
             : [`SELECT NULL${hint}`];
-          return [field, hint, "IN (", ...args, ")"];
+          return comparer === "$all"
+            ? [field, "@> ARRAY[", ...args, "]"]
+            : [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
