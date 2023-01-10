@@ -55,8 +55,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
-      primaryDim: '#d3edf2',
-      primaryDim2: '#e2f1f4',
+      primaryDim: '#e2f1f4',
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),

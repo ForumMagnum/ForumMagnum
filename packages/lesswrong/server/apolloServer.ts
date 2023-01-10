@@ -40,10 +40,10 @@ import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './createTestingPgDb';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
-import { addServerShellCommandRoutes } from './serverShellCommand';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
+import { datadogMiddleware } from './datadog/datadogMiddleware';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -132,6 +132,7 @@ export function startWebserver() {
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(datadogMiddleware);
   app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
@@ -246,7 +247,6 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
-  addServerShellCommandRoutes(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

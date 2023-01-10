@@ -97,6 +97,7 @@ type ViewQueryAndOptions<
     limit?: number
     skip?: number
     projection?: MongoProjection<T>
+    hint?: string
   }
 }
 
@@ -109,6 +110,7 @@ interface MergedViewQueryAndOptions<
     sort: MongoSort<T>
     limit: number
     skip?: number
+    hint?: string
   }
 }
 
@@ -130,7 +132,7 @@ type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
-type MongoIndexSpec = Record<string, number | string> | string;
+type MongoIndexSpec = Record<string, 1 | -1> | string;
 type MongoEnsureIndexOptions = Record<string, any>;
 type MongoDropIndexOptions = {};
 
@@ -219,7 +221,8 @@ interface ResolverContext extends CollectionsByName {
   }
   extraLoaders: Record<string,any>
   req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: Response
+  res?: Response,
+  repos: Repos,
 }
 
 type FragmentName = keyof FragmentTypes;

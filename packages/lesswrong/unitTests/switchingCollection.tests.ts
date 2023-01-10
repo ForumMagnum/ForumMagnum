@@ -93,6 +93,35 @@ describe("SwitchingCollection", () => {
     expect(mongoCollection.table).toBe(3);
     expect(pgCollection.table).toBe(3);
   });
+  it("can set defaultView", () => {
+    const collection = new SwitchingCollection("test");
+    const mongoCollection = collection.getMongoCollection();
+    const pgCollection = collection.getPgCollection();
+    expect(mongoCollection).toBeInstanceOf(MongoCollection);
+    expect(pgCollection).toBeInstanceOf(PgCollection);
+
+    const view = (_terms: any) => ({selector: {}});
+    (collection as unknown as CollectionBase<DbObject>).addDefaultView(view);
+
+    expect((collection as any).defaultView).toBe(view);
+    expect(mongoCollection.defaultView).toBe(view);
+    expect(pgCollection.defaultView).toBe(view);
+  });
+  it("can add views", () => {
+    const collection = new SwitchingCollection("test");
+    const mongoCollection = collection.getMongoCollection();
+    const pgCollection = collection.getPgCollection();
+    expect(mongoCollection).toBeInstanceOf(MongoCollection);
+    expect(pgCollection).toBeInstanceOf(PgCollection);
+
+    const viewName = "some-view";
+    const view = (_terms: any) => ({selector: {}});
+    (collection as unknown as CollectionBase<DbObject>).addView(viewName, view);
+
+    expect((collection as any).views[viewName]).toBe(view);
+    expect(mongoCollection.views[viewName]).toBe(view);
+    expect(pgCollection.views[viewName]).toBe(view);
+  });
   it("passes arguments through `proxiedWrite`", async () => {
     const collection = new SwitchingCollection("test");
     const mockCollection1 = {

@@ -56,6 +56,16 @@ else
   echo
 fi
 
+echo -n "Checking for perl... "
+if which perl >/dev/null; then
+  echo "yes"
+else
+  echo "no"
+  echo "You do not have perl installed. The server will still run, you will not be able"
+  echo "to run makemigrations"
+  echo
+fi
+
 if [ ! -f settings.json ]; then
   echo "Creating settings.json"
   cp sample_settings.json settings.json

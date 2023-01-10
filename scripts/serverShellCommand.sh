@@ -1,17 +1,30 @@
 #!/bin/bash
-# Run Javascript in an existing server process - note that this is disabled on
-# prod and staging servers for security reasons
+# Run Javascript in an existing server process. This works by putting the script
+# into ./tmp/pendingShellCommands, where the server will detect it, run it then
+# delete it. (See watchForShellCommands in serverStartup.ts)
 
-WAIT=false
+WAIT=0
 if [ "$1" = "--wait" ]; then
-	WAIT=true
+	WAIT=1
 	shift
 fi
 
-COMMAND=`sed 's/"/\\\\"/g' <<< $1`
+COMMAND="$1"
 echo "Checking that a local server is running..."
 scripts/waitForServer.sh
 
-curl -X POST http://localhost:3000/api/serverShellCommand \
-	-d "{\"command\": \"$COMMAND\", \"wait\": $WAIT}" \
-	-H "Content-Type: application/json"
+OUTFILE=tmp/pendingShellCommands/command$$.js
+
+mkdir -p tmp/pendingShellCommands
+mkdir -p tmp/runningShellCommands
+echo "$COMMAND" >$OUTFILE
+
+if [ $WAIT = 1 ]; then
+	while test -f "$OUTFILE"; do
+		sleep 0.2
+	done
+	echo "Command started..."
+	while test -f "tmp/runningShellCommands/$(basename "$OUTFILE")"; do
+		sleep 0.2
+	done
+fi

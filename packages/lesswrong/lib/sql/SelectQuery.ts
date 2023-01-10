@@ -131,21 +131,36 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       selector = {_id: selector};
     }
 
-    if (selector && Object.keys(selector).length > 0) {
+    if (!this.selectorIsEmpty(selector)) {
       this.atoms.push("WHERE");
       this.appendSelector(selector);
     }
 
-    if (options) {
-      if (options.collation) {
+    if (options || this.nearbySort) {
+      if (options?.collation) {
         throw new Error("Collation not implemented")
       }
-      this.appendOptions(options);
+      this.appendOptions(options ?? {});
     }
 
     if (sqlOptions?.forUpdate) {
       this.atoms.push("FOR UPDATE");
     }
+  }
+
+  private selectorIsEmpty(selector?: string | MongoSelector<T>): boolean {
+    if (!selector) {
+      return true;
+    }
+
+    if (typeof selector === "string") {
+      return false;
+    }
+
+    const keys = Object.keys(selector);
+    return keys.length === 1
+      ? keys[0] === "$comment"
+      : keys.length === 0;
   }
 
   private appendGroup<U extends {}>(group: U) {
@@ -281,9 +296,25 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("ORDER BY");
       const sorts: string[] = [];
       for (const field in sort) {
-        sorts.push(`${this.resolveFieldName(field)} ${sort[field] === 1 ? "ASC" : "DESC"}`);
+        const pgSorting = sort[field] === 1
+            ? "ASC NULLS FIRST"
+            : "DESC NULLS LAST"
+        sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));
+    } else if (this.nearbySort) { // Nearby sort is overriden by a sort in `options`
+      const {field, lng, lat} = this.nearbySort;
+      this.atoms = this.atoms.concat([
+        "ORDER BY EARTH_DISTANCE(LL_TO_EARTH((",
+        field,
+        "->'coordinates'->0)::FLOAT8, (",
+        field,
+        "->'coordinates'->1)::FLOAT8), LL_TO_EARTH(",
+        this.createArg(lng),
+        ",",
+        this.createArg(lat),
+        ")) ASC NULLS LAST",
+      ]);
     }
 
     if (limit) {

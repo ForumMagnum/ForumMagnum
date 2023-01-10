@@ -3,22 +3,48 @@ import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export type ReviewYear = 2018 | 2019 | 2020 | 2021
+export const reviewYears = [2018, 2019, 2020, 2021] as const
+const years = new TupleSet(reviewYears);
+export type ReviewYear = UnionOf<typeof years>;
+
+export function getReviewYearFromString(yearParam: string): ReviewYear {
+  const year = parseInt(yearParam)
+  if (years.has(year)) {
+    return year
+  }
+  throw Error("Not a valid Review Year")
+}
 
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR: ReviewYear = 2021
 
-// Probably only used while the EA Forum is doing something sufficiently different
+// Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
-export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
+// This is broken out partly to allow EA Forum or other fora to do reviews with different names
+// (previously EA Forum did a "decade review" rather than a single year review)
+export function getReviewTitle(reviewYear: ReviewYear): string {
+ return `The ${reviewYear} Review`
+}
 
-export function getReviewPhase(): ReviewPhase | void {
+export function getReviewShortTitle(reviewYear: ReviewYear): string {
+  return `${reviewYear} Review`
+}
+
+const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'COMPLETE'] as const);
+export type ReviewPhase = UnionOf<typeof reviewPhases>;
+
+export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (reviewYear && reviewYear !== REVIEW_YEAR) {
+    return "COMPLETE"
+  }
+
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
 
@@ -26,17 +52,36 @@ export function getReviewPhase(): ReviewPhase | void {
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart) return
+  if (currentDate < reviewStart) return "UNSTARTED"
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
   if (currentDate < reviewEnd) return "VOTING"
-  return
+  return "COMPLETE"
+}
+
+export function getPositiveVoteThreshold(): Number {
+  // During the nomination phase, posts require 1 positive reviewVote
+  // to appear in review post lists (so a single vote allows others to see it
+  // and get prompted to cast additional votes.
+  // 
+  // Starting in the review phase, posts require at least 2 votes, 
+  // ensuring the post is at least plausibly worth everyone's time to review
+  return getReviewPhase() === "NOMINATIONS" ? 1 : 2
+}
+
+export function getReviewThreshold(): Number {
+  // During the voting phase, only show posts with at least 1 review.
+  // (it's known that users can still go write reviews in the middle of the 
+  // voting phase to add them to lists, and I (Ray) think it's fine. Posts are 
+  // still penalized for not having been visible during the full voting period,
+  // and it seems fine for people who go out of their way to last-minute-review things
+  // to get them at least visible during part of the voting period)
+  return getReviewPhase() === "VOTING" ? 1 : 0
 }
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  if (!(isLWForum || isEAForum)) return false
-  return !!getReviewPhase()
+  return getReviewPhase() !== "COMPLETE"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
@@ -53,7 +98,7 @@ export function postEligibleForReview (post: PostsBase) {
 }
 
 export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount > 0
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= getPositiveVoteThreshold()
 }
 
 

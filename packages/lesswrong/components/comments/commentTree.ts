@@ -37,13 +37,6 @@ export interface CommentTreeOptions {
   lastCommentId?: string,
   
   /**
-   * Callback invoked when the comment is expanded. Typically marks the
-   * *post* as read (not just the individual comment, we don't track
-   * individual comment read statuses).
-   */
-  markAsRead?: ()=>void|Promise<void>,
-  
-  /**
    * If passed, comments are highlighted (with a bar on the left edge)
    * if they're newer than this date.
    */

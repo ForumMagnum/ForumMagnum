@@ -150,6 +150,8 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
 // Uses same index as postCommentsNew
 
 Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
+  if (!terms.postId)
+    throw new Error("Invalid postCommentsNew view: postId is required");
   return {
     selector: {
       postId: terms.postId,
@@ -333,7 +335,6 @@ Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
     }
   };
 });
-ensureIndex(Comments, augmentForDefaultView({tagId:1}));
 
 
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
@@ -466,11 +467,12 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
 
 // TODO: try to refactor this
 Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+  const reviewingForReviewQuery = reviewYear ? reviewYear+"" : {$ne: null}
   return {
     selector: { 
       userId, 
       postId, 
-      reviewingForReview: reviewYear+"",
+      reviewingForReview: reviewingForReviewQuery,
       deleted: false
     },
     options: {
@@ -514,7 +516,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
     sort: sorting,
   },
 }});
-
+ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
-import { useIsFirstRender } from "../hooks/useIsFirstRender";
+import { useIsFirstRender } from "../hooks/useFirstRender";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

@@ -29,7 +29,7 @@ addGraphQLSchema(`
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
   relevance: { label: 'Most Relevant' },
-  ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
+  ...SORT_ORDER_OPTIONS,
 }
 
 const schema: SchemaType<DbTag> = {
@@ -558,6 +558,30 @@ const schema: SchemaType<DbTag> = {
   'subTags.$': {
     type: Object,
     foreignKey: 'Tags',
+  },
+  
+  autoTagModel: {
+    type: String,
+    label: "Auto-tag classifier model ID",
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.advancedOptions,
+    nullable: true,
+    ...schemaDefaultValue(""),
+  },
+  
+  autoTagPrompt: {
+    type: String,
+    label: "Auto-tag classifier prompt string",
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.advancedOptions,
+    nullable: true,
+    ...schemaDefaultValue(""),
   },
 }
 

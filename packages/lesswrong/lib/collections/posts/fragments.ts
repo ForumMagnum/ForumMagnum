@@ -13,6 +13,7 @@ registerFragment(`
     currentUserReviewVote {
       _id
       qualitativeScore
+      quadraticScore
     }
     userId
   }
@@ -455,6 +456,7 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
+    sideComments
   }
 `);
 
@@ -574,5 +576,12 @@ registerFragment(`
   fragment PostSideComments on Post {
     _id
     sideComments
+  }
+`);
+
+registerFragment(`
+  fragment PostWithGeneratedSummary on Post {
+    _id
+    languageModelSummary
   }
 `);

@@ -3,7 +3,7 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
-import { reviewIsActive } from '../../lib/reviewUtils'
+import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
@@ -37,7 +37,7 @@ const EAHome = () => {
       <StickiedPosts />
 
       {reviewIsActive() && <SingleColumnSection>
-        <FrontpageReviewWidget />
+        <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
       
       <HomeLatestPosts />

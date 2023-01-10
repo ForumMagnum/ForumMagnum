@@ -259,6 +259,21 @@ export function getUserEmail (user: UserWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
 }
 
+type DatadogUser = {
+  id: string,
+  email?: string,
+  name?: string,
+  slug?: string,
+}
+export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName,
+    slug: user.slug,
+  }
+}
+
 // Replaces Users.getProfileUrl from the vulcan-users package.
 export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
   if (!user) return "";
@@ -461,6 +476,9 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }
 
+// TODO: I (JP) think this should be configurable in the function parameters
+/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
+ * we get from auth0 but is ultimately from google this function will throw. */
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {
