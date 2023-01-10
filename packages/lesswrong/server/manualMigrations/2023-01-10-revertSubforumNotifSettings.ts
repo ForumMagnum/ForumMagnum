@@ -2,10 +2,9 @@
 import { LWEvents } from '../../lib/collections/lwevents';
 import { Subscriptions } from '../../lib/collections/subscriptions';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
-import { updateReviewVoteTotals } from '../../lib/reviewVoteUpdate';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { getSchema } from '../../lib/utils/getSchema';
-import { fillDefaultValues, registerMigration } from './migrationUtils';
+import { registerMigration } from './migrationUtils';
 
 registerMigration({
   name: "revertSubforumNotifSettings",
