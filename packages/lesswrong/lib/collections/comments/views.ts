@@ -467,11 +467,12 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
 
 // TODO: try to refactor this
 Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+  const reviewingForReviewQuery = reviewYear ? reviewYear+"" : {$ne: null}
   return {
     selector: { 
       userId, 
       postId, 
-      reviewingForReview: reviewYear+"",
+      reviewingForReview: reviewingForReviewQuery,
       deleted: false
     },
     options: {
