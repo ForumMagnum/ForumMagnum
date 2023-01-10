@@ -29,7 +29,7 @@ registerMigration({
        * As it happens, the subscriptions created by updateSubforumNotificationDefaults were dropped in the migration to postgres (due to _id being an ObjectId rather than a string),
        * so there is nothing to do there.
        *
-       * For the others, I couldn't find a straighforward way to distinguish between ones created by joining a subforum and ones created by deliberately ticking the box. But there are only 11 between the dates when
+       * For the others, I couldn't find a straightforward way to distinguish between ones created by joining a subforum and ones created by deliberately ticking the box. But there are only 11 between the dates when
        * the notifications defaulted to ON and from eyeballing them it looks like they were all created by joining a subforum, so I'm just using the date range to filter them out.
        */
 
