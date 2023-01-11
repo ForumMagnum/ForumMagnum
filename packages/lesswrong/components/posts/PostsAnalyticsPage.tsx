@@ -108,7 +108,7 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
   if (loading) {
     return <>
       <Typography variant="body1" className={classNames(classes.gutterBottom, classes.calculating)}>
-        <em>Calculating metrics. This can might be slow for popular posts - if you get an error, try refreshing the page!</em>
+        <em>Calculating metrics. This might be slow for popular posts - if you get an error, try refreshing the page!</em>
       </Typography>
       <Loading />
     </>
