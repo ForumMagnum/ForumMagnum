@@ -146,7 +146,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
 
-  const plaintextMainText = comment.contents?.plaintextMainText;
+  const contentToRender = comment.title || comment.contents?.plaintextMainText;
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
@@ -179,7 +179,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
-          {plaintextMainText}
+          {contentToRender}
         </ContentStyles>}
         {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
           small={true}
@@ -221,4 +221,3 @@ declare global {
     SingleLineComment: typeof SingleLineCommentComponent,
   }
 }
-
