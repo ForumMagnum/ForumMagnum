@@ -97,7 +97,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
         const result = await this.executeQuery(select, {selector, options});
-        return result?.[0].count ?? 0;
+        return parseInt(result?.[0].count ?? 0);
       },
     };
   }
