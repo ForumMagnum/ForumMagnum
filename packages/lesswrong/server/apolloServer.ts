@@ -353,4 +353,11 @@ export function startWebserver() {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
+  
+  // Route used for checking whether the server is ready for an auto-refresh
+  // trigger. Added last so that async stuff can't lead to auto-refresh
+  // happening before the server is ready.
+  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+    res.end('true');
+  });
 }
