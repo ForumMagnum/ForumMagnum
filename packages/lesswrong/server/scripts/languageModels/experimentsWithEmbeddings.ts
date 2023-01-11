@@ -5,6 +5,7 @@ import { toDictionary } from '../../../lib/utils/toDictionary';
 import { Posts } from '../../../lib/collections/posts/collection';
 import { postStatuses } from '../../../lib/collections/posts/constants';
 import { getPostEmbedding } from '../../languageModels/postSimilarity';
+import { cosineSimilarity } from '../../utils/vectorUtil';
 import keyBy from 'lodash/keyBy';
 import take from 'lodash/take';
 import orderBy from 'lodash/orderBy';
@@ -31,20 +32,6 @@ async function generatePostListForEmbeddings(outputFilename: string) {
 }
 Globals.generatePostListForEmbeddings = generatePostListForEmbeddings;
 
-function vectorNorm(v: number[]) {
-  let sumSq = 0;
-  for (let i=0; i<v.length; i++)
-    sumSq += v[i]*v[i];
-  return Math.sqrt(sumSq);
-}
-
-function embeddingSimilarity(a: number[], b: number[]): number {
-  if(a.length !== b.length) throw new Error("Embeddings are different sizes");
-  let dotProduct=0;
-  for (let i=0; i<a.length; i++)
-    dotProduct += a[i]*b[i];
-  return dotProduct / (vectorNorm(a)*vectorNorm(b));
-}
 
 async function generateEmbeddings(postIdsFilename: string, outputFilename: string) {
   const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
@@ -90,7 +77,7 @@ async function generateSimilarities(embeddingsFilename: string, outputFilename: 
       otherPostId => {
         const postEmbedding = embeddings[postId];
         const otherPostEmbedding = embeddings[otherPostId];
-        return embeddingSimilarity(postEmbedding, otherPostEmbedding);
+        return cosineSimilarity(postEmbedding, otherPostEmbedding);
       }
     );
     const postsExceptSelf = filter(postIds, id=>id!==postId)

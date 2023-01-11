@@ -6,6 +6,9 @@ const schema: SchemaType<DbPostEmbedding> = {
   postId: {
     type: String,
   },
+  revisionId: {
+    type: String,
+  },
   embeddingType: {
     type: String,
   },

@@ -27,14 +27,14 @@ interface RegisterMigrationProps {
 
 interface MigrationProgressStats {
   /** The number of rows processed so far by a migration */
-  rowsFinished: number
+  numFinished: number
   
   /**
    * Estimate of the total number of rows affected by a migration. Counted once
    * at the beginning, so not guaranteed to be exact, if other writes happen
    * during a migration.
    */
-  estimatedRowsTotal: number
+  numTotal: number
   
   startedAt: Date
   elapsedMS: number

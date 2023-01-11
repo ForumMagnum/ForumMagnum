@@ -475,6 +475,7 @@ interface PostEmbeddingsCollection extends CollectionBase<DbPostEmbedding, "Post
 interface DbPostEmbedding extends DbObject {
   __collectionName?: "PostEmbeddings"
   postId: string
+  revisionId: string
   embeddingType: string
   embeddingVector: Array<number>
   createdAt: Date
