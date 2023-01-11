@@ -3,20 +3,20 @@ import { createTestingSqlClient } from "../lib/sql/tests/testingSqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { setSqlClient, getSqlClient } from "../lib/sql/sqlClient";
 import { testServerSetting } from "../lib/instanceSettings";
-// import Posts from "../lib/collections/posts/collection";
-// import Comments from "../lib/collections/comments/collection";
-// TODO: Import data for these collections when they're migrated to postgres
+import Posts from "../lib/collections/posts/collection";
+import Comments from "../lib/collections/comments/collection";
+import Conversations from "../lib/collections/conversations/collection";
+import Messages from "../lib/collections/messages/collection";
+import LocalGroups from "../lib/collections/localgroups/collection";
+// TODO: Import this when Users is migrated to postgres
 // import Users from "../lib/collections/users/collection";
-// import Conversations from "../lib/collections/conversations/collection";
-// import Messages from "../lib/collections/messages/collection";
-// import LocalGroups from "../lib/collections/localgroups/collection";
 
-// import seedPosts from "../../../cypress/fixtures/posts";
-// import seedComments from "../../../cypress/fixtures/comments";
+import seedPosts from "../../../cypress/fixtures/posts";
+import seedComments from "../../../cypress/fixtures/comments";
+import seedConversations from "../../../cypress/fixtures/conversations";
+import seedMessages from "../../../cypress/fixtures/messages";
+import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 // import seedUsers from "../../../cypress/fixtures/users";
-// import seedConversations from "../../../cypress/fixtures/conversations";
-// import seedMessages from "../../../cypress/fixtures/messages";
-// import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 
 const importData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
   // eslint-disable-next-line no-console
@@ -41,12 +41,12 @@ const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePg
     // eslint-disable-next-line no-console
     console.log("Seeding PG database");
     await Promise.all([
-      // importData(Posts, seedPosts),
-      // importData(Comments, seedComments),
+      importData(Posts, seedPosts),
+      importData(Comments, seedComments),
+      importData(Conversations, seedConversations),
+      importData(Messages, seedMessages),
+      importData(LocalGroups, seedLocalGroups),
       // importData(Users, seedUsers),
-      // importData(Conversations, seedConversations),
-      // importData(Messages, seedMessages),
-      // importData(LocalGroups, seedLocalGroups),
     ]);
   }
 }
