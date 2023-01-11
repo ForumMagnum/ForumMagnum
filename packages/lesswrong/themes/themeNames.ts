@@ -13,6 +13,7 @@ export type ThemeOptions = {
 export type AbstractThemeOptions = {
   name: UserThemeSetting,
   siteThemeOverride?: SiteThemeOverride,
+  extraData?: any,
 }
 
 export const themeOptionsAreConcrete = (themeOptions: AbstractThemeOptions): themeOptions is ThemeOptions =>

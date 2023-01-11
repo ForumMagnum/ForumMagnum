@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import { useTheme } from './themes/useTheme';
+import { useTheme, useThemeOptions } from './themes/useTheme';
 import { subforumSlugsSetting, useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
@@ -18,6 +18,7 @@ import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
+import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -159,8 +160,10 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
+  const themeOptions = useThemeOptions();
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const isSubforum = subforumSlugsSetting.get().includes(slug); // FIXME remove this hack and find a way to always use the isSubforum field on the tag
+  const layoutOptionsState = React.useContext(LayoutOptionsContext);
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -202,6 +205,10 @@ const Layout = ({currentUser, children, classes}: {
     }
   }, [useWhiteBackground, classes.whiteBackground]);
   
+  if (!layoutOptionsState) {
+    throw new Error("LayoutOptionsContext not set");
+  }
+  
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
 
@@ -211,13 +218,34 @@ const Layout = ({currentUser, children, classes}: {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
 
-    const standaloneNavigation =
-      !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum;
+    // const standaloneNavigation =
+    //   !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum;
 
-    const renderSunshineSidebar = currentRoute?.sunshineSidebar && (userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
+    // const renderSunshineSidebar = !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
     
-    const shouldUseGridLayout = standaloneNavigation
-    const unspacedGridLayout = currentRoute?.unspacedGrid || isSubforum
+    // const shouldUseGridLayout = standaloneNavigation
+    // const unspacedGridLayout = !!currentRoute?.unspacedGrid
+
+    const defaultLayoutOptions: LayoutOptions = {
+      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum,
+      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
+      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum,
+      unspacedGridLayout: !!currentRoute?.unspacedGrid,
+    }
+    if (JSON.stringify(defaultLayoutOptions) != JSON.stringify(layoutOptionsState.defaultLayoutOptions)) {
+      // TODO update unchange overrideLayoutOptions as well
+      layoutOptionsState.setDefaultLayoutOptions(defaultLayoutOptions)
+    }
+
+    const layoutOptions = layoutOptionsState.overrideLayoutOptions
+
+    const standaloneNavigation = layoutOptions.standaloneNavigation ?? defaultLayoutOptions.standaloneNavigation
+    const renderSunshineSidebar = layoutOptions.renderSunshineSidebar ?? defaultLayoutOptions.renderSunshineSidebar
+    const shouldUseGridLayout = layoutOptions.shouldUseGridLayout ?? defaultLayoutOptions.shouldUseGridLayout
+    const unspacedGridLayout = layoutOptions.unspacedGridLayout ?? defaultLayoutOptions.unspacedGridLayout
+    
+    console.log("Layout render with (overriden) layout options:", {standaloneNavigation, renderSunshineSidebar, shouldUseGridLayout, unspacedGridLayout})
+    console.log("Default options are:", layoutOptionsState.defaultLayoutOptions)
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()

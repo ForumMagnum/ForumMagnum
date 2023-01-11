@@ -28,7 +28,7 @@ export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get(
 export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
+export const tagGetUrl = (tag: {slug: string, isSubforum: boolean}, urlOptions?: GetUrlOptions) => {
   // Assume links that are not explicitly for the subforum should go to the wiki tab (this may change in the future)
   const urlSearchParams = subforumSlugsSetting.get().includes(tag.slug) ? {tab: "wiki", ...urlOptions} : urlOptions
   const search = qs.stringify(urlSearchParams)
@@ -37,7 +37,8 @@ export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
   return `${url}${search ? `?${search}` : ''}`
 }
 
-export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl(tag)}/history`
+// TODO would prefer to say "no query string" or something
+export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl({...tag, isSubforum: false})}/history`
 
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
   const suffix = `/${tagUrlBase}/${tag.slug}/discussion`
