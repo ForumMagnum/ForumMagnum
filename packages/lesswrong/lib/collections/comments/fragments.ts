@@ -135,6 +135,8 @@ registerFragment(`
   }
 `);
 
+// TODO: This is now the same as CommentWithRepliesFragment, now that said
+// fragment gets the tag field
 registerFragment(`
   fragment StickySubforumCommentFragment on Comment {
     ...CommentWithRepliesFragment

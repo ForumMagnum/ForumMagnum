@@ -518,6 +518,22 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
 }});
 ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
+// For 'Discussion from your subforums' on the homepage
+Comments.addView('latestSubforumDiscussion', (_terms: CommentsViewTerms, _, context?: ResolverContext) => {
+  return {
+    selector: {
+      tagId: {$in: context?.currentUser?.profileTagIds ?? []},
+      tagCommentType: "SUBFORUM",
+      topLevelCommentId: viewFieldNullOrMissing,
+      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
+    },
+    options: {
+      sort: subforumSorting.recentDiscussion,
+      limit: 3,
+    },
+  }
+});
+
 Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
   selector: {
     moderatorHat: true,

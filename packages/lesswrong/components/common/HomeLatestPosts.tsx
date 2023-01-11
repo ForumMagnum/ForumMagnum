@@ -12,6 +12,9 @@ import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import { reviewIsActive } from '../../lib/reviewUtils';
+import { useMulti } from '../../lib/crud/withMulti';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -48,7 +51,10 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography, CuratedPostsList } = Components
+  const {
+    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
+    CuratedPostsList
+  } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -63,9 +69,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     limit:limit
   }
 
-  const showCurated = 
-    (forumTypeSetting.get() === "EAForum")
-    || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
+  const subforumDiscussionCommentsQuery = useMulti({
+    terms: {view: 'latestSubforumDiscussion'},
+    collectionName: "Comments",
+    fragmentName: 'CommentWithRepliesFragment',
+    skip: !isEAForum || !currentUser?.profileTagIds?.length,
+  })
+
+  const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -105,7 +116,16 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+              <PostsList2
+                terms={recentPostsTerms}
+                alwaysShowLoadMore
+                hideHiddenFrontPagePosts
+                commentsSection={{
+                  title: 'Discussion from your subforums',
+                  comments: subforumDiscussionCommentsQuery.results || [],
+                  loading: subforumDiscussionCommentsQuery.loading
+                }}
+              >
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
