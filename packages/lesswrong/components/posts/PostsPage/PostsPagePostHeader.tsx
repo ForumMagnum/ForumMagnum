@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
@@ -132,7 +132,7 @@ const getResponseCounts = (
   
   return {
     answerCount: nonDeletedAnswers.length,
-    commentCount: post.commentCount - countAnswersAndDescendents(nonDeletedAnswers),
+    commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
   };
 };
 

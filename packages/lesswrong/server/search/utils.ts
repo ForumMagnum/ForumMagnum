@@ -196,6 +196,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     curated: !!post.curatedDate,
     legacy: post.legacy,
     commentCount: post.commentCount,
+    // TODO: handle afCommentCount
     userIP: post.userIP,
     createdAt: post.createdAt,
     postedAt: post.postedAt,
