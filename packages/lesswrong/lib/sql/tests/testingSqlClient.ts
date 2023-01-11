@@ -88,6 +88,10 @@ export const createTestingSqlClient = async (
   dropExisting = false,
   setAsGlobalClient = true,
 ): Promise<SqlClient> => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't create testing SQL client - PG_URL not set");
+  }
   const dbName = makeDbName(id);
   // eslint-disable-next-line no-console
   console.log(`Creating test database '${dbName}'...`);
@@ -96,7 +100,7 @@ export const createTestingSqlClient = async (
     await sql.none(`DROP DATABASE IF EXISTS ${dbName}`);
   }
   await sql.none(`CREATE DATABASE ${dbName}`);
-  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   await buildTables(sql);
   if (setAsGlobalClient) {
@@ -106,13 +110,17 @@ export const createTestingSqlClient = async (
 }
 
 export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
+  const {PG_URL} = process.env;
+  if (!PG_URL) {
+    throw new Error("Can't create testing SQL client from template - PG_URL not set");
+  }
   if (!template) {
     throw new Error("No template database provided");
   }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
   await sql.any(`CREATE DATABASE ${dbName} TEMPLATE ${template}`);
-  const testUrl = replaceDbNameInPgConnectionString(process.env.PG_URL!, dbName);
+  const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);
   return sql;
