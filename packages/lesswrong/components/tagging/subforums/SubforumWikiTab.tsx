@@ -75,7 +75,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
     limit: 15
   }
   
-  const [editing, setEditing] = useState(!!query.edit || !!query.flagId) //, TODO note behaviour change
+  const [editing, setEditing] = useState(!!query.edit || !!query.flagId)
   useOnSearchHotkey(() => setTruncated(false));
   
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
