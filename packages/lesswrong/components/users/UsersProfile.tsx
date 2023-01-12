@@ -181,7 +181,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
-      SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      SortButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
       Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
     if (loading) {
@@ -330,7 +330,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                <SortButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings

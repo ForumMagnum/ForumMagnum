@@ -286,7 +286,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   })
 
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
-    SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList } = Components
@@ -596,7 +596,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
+            <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings
