@@ -204,6 +204,9 @@ registerFragment(`
     tableOfContents
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumIntroPost {
+      ...PostsList
+    }
     subforumWelcomeText {
       _id
       html
@@ -236,6 +239,9 @@ registerFragment(`
     tableOfContents(version: $version)
     postsDefaultSortOrder
     subforumUnreadMessagesCount
+    subforumIntroPost {
+      ...PostsList
+    }
     subforumWelcomeText {
       _id
       html
@@ -278,6 +284,7 @@ registerFragment(`
       name
       slug
     }
+    subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
     

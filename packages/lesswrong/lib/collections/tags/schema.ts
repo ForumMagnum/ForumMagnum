@@ -13,6 +13,7 @@ import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
+import { userIsSubforumModerator } from './collection';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -500,6 +501,22 @@ const schema: SchemaType<DbTag> = {
     type: String,
     foreignKey: "Users",
     optional: true,
+  },
+  subforumIntroPostId: {
+    ...foreignKeyField({
+      idFieldName: "subforumIntroPostId",
+      resolverName: "subforumIntroPost",
+      collectionName: "Posts",
+      type: "Post",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Subforum Intro Post",
+    tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
+    group: formGroups.advancedOptions,
+    // control: 'TagSelect',
   },
   parentTagId: {
     ...foreignKeyField({

@@ -877,6 +877,7 @@ interface DbTag extends DbObject {
   canVoteOnRels: Array<string>
   isSubforum: boolean
   subforumModeratorIds: Array<string>
+  subforumIntroPostId: string
   parentTagId: string
   autoTagModel: string | null
   autoTagPrompt: string | null

@@ -461,6 +461,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly canVoteOnRels: Array<string>,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
+  readonly subforumIntroPostId: string,
   readonly parentTagId: string,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
@@ -2098,6 +2099,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2116,6 +2118,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
   readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2131,6 +2134,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
+  readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly autoTagModel: string | null,

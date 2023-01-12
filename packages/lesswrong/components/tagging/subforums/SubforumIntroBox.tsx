@@ -1,5 +1,4 @@
 import Button from '@material-ui/core/Button';
-import classNames from 'classnames';
 import moment from 'moment';
 import React from 'react';
 import useCookies from 'react-cookie/cjs/useCookies';

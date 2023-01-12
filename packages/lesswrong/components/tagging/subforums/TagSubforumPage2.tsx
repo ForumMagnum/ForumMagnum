@@ -610,6 +610,19 @@ const TagSubforumPage2 = ({classes}: {
           />
         </div>
       )}
+      {tag.subforumIntroPost && (
+        <div className={classes.feedPostWrapper}>
+          <RecentDiscussionThread
+            key={tag.subforumIntroPost._id}
+            post={{ ...tag.subforumIntroPost, recentComments: [] }}
+            comments={[]}
+            maxLengthWords={50}
+            refetch={refetch}
+            smallerFonts
+            subforumIntroPost
+          />
+        </div>
+      )}
       <MixedTypeFeed
         firstPageSize={15}
         pageSize={20}
@@ -635,18 +648,20 @@ const TagSubforumPage2 = ({classes}: {
         renderers={{
           tagSubforumPosts: {
             fragmentName: "PostsRecentDiscussion",
-            render: (post: PostsRecentDiscussion) => (
-              <div className={classes.feedPostWrapper}>
-                <RecentDiscussionThread
-                  key={post._id}
-                  post={{ ...post }}
-                  comments={post.recentComments}
-                  maxLengthWords={50}
-                  refetch={refetch}
-                  smallerFonts
-                />
-              </div>
-            ),
+            render: (post: PostsRecentDiscussion) => {
+              post._id !== tag.subforumIntroPost?._id && (
+                <div className={classes.feedPostWrapper}>
+                  <RecentDiscussionThread
+                    key={post._id}
+                    post={{ ...post }}
+                    comments={post.recentComments}
+                    maxLengthWords={50}
+                    refetch={refetch}
+                    smallerFonts
+                  />
+                </div>
+              );
+            },
           },
           tagSubforumComments: {
             fragmentName: "CommentWithRepliesFragment",

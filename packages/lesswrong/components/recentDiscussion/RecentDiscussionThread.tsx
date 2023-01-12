@@ -1,8 +1,10 @@
 import React, { useState, useCallback } from 'react';
+import Button from '@material-ui/core/Button';
 import {
   Components,
   registerComponent,
 } from '../../lib/vulcan-lib';
+import CloseIcon from '@material-ui/icons/Close';
 
 import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
@@ -21,7 +23,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    // backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    backgroundColor: theme.palette.background.primaryDim,
   },
   postStyle: theme.typography.postStyle,
   postItem: {
@@ -81,7 +84,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: theme.palette.panelBackground.default,
+    // background: theme.palette.panelBackground.default,
+    backgroundColor: theme.palette.background.primaryDim,
     borderRadius: 3,
     marginBottom:4,
     
@@ -118,14 +122,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -8,
     marginTop: -8,
   },
+  closeButton: {
+    padding: '.25em',
+    margin: "0 -1em -1.4em 0",
+    minHeight: '.75em',
+    minWidth: '.75em',
+  },
+  closeIcon: {
+    width: '1em',
+    height: '1em',
+    color: theme.palette.icon.dim6,
+  },
 })
 
-const RecentDiscussionThread = ({
+const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in multiple places
   post,
   comments, refetch,
   expandAllThreads: initialExpandAllThreads,
   maxLengthWords,
   smallerFonts,
+  subforumIntroPost,
   classes,
 }: {
   post: PostsRecentDiscussion,
@@ -134,6 +150,7 @@ const RecentDiscussionThread = ({
   expandAllThreads?: boolean,
   maxLengthWords?: number,
   smallerFonts?: boolean,
+  subforumIntroPost?: boolean,
   classes: ClassesType,
 }) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
@@ -193,9 +210,11 @@ const RecentDiscussionThread = ({
               <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
-              <div className={classes.actions}>
+              {subforumIntroPost ? <Button className={classes.closeButton} onClick={() => {}}>
+                  <CloseIcon className={classes.closeIcon} />
+                </Button> : <div className={classes.actions}>
                 <PostActionsButton post={post} vertical />
-              </div>
+              </div>}
             </div>
             <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
