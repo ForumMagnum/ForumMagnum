@@ -42,7 +42,7 @@
     "ea-start-xpost-dev": "PORT=4000 ./build.js -run -watch --settings ../ForumCredentials/xpost-dev-settings.json --mongoUrlFile ../ForumCredentials/xpost-dev-db-conn.txt --postgresUrlFile ../ForumCredentials/xpost-dev-pg-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --settings ../ForumCredentials/settings-local-dev-staging-db.json --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --postgresUrlFile ../ForumCredentials/staging-pg-conn.txt",
     "ea-start-prod-db": "./build.js -run --watch --settings ../ForumCredentials/settings-local-dev-prod-db.json --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --postgresUrlFile ../ForumCredentials/prod-pg-conn.txt",
-    "ea-start-testing-db": "./build.js -run --settings ./settings-test.json --mongoUrl ${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)} --postgresUrl ${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
+    "ea-start-testing-db": "./build.js -run --watch --settings ./settings-test.json --mongoUrl ${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)} --postgresUrl ${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
     "ci-cypress-run": "yarn wait-on tcp:3000 && yarn ea-cypress-run",
     "ea-cypress-run": "yarn cypress run --env TESTING_DB_URL=${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)} PG_URL=${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
     "ea-cypress-open": "yarn cypress open --env TESTING_DB_URL=${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)} PG_URL=${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",

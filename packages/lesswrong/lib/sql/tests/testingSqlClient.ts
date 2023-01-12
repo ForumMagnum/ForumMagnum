@@ -7,6 +7,7 @@ import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
+import { Globals } from "../../vulcan-lib";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -65,7 +66,8 @@ const buildTables = async (client: SqlClient) => {
 }
 
 const makeDbName = (id?: string) => {
-  id = id ?? `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}_${process.env.JEST_WORKER_ID}`;
+  const jestWorkerIdSuffix = process.env.JEST_WORKER_ID ? `_${process.env.JEST_WORKER_ID}` : "";
+  id = id ?? `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}${jestWorkerIdSuffix}`;
   return `unittest_${id}`.toLowerCase();
 }
 
@@ -109,6 +111,8 @@ export const createTestingSqlClient = async (
   return sql;
 }
 
+Globals.createTestingSqlClient = createTestingSqlClient;
+
 export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
   const {PG_URL} = process.env;
   if (!PG_URL) {
@@ -119,7 +123,7 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
-  await sql.any(`CREATE DATABASE ${dbName} TEMPLATE ${template}`);
+  await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl);
   setSqlClient(sql);

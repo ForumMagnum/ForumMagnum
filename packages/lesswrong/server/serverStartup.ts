@@ -141,7 +141,7 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
     const result = await func();
     // eslint-disable-next-line no-console
     console.log("Finished. Result: ", result);
-    process.exit(0);
+    process.kill(estrellaPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
     // eslint-disable-next-line no-console

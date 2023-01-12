@@ -55,23 +55,21 @@ const dropAndSeedMongo = async (url) => {
   }));
 
   await Promise.all([
-    db.collection('comments').insertMany(seedComments),
+    // db.collection('comments').insertMany(seedComments),
     db.collection('users').insertMany(seedUsers),
-    db.collection('conversations').insertMany(seedConversations),
-    db.collection('posts').insertMany(seedPosts),
-    db.collection('messages').insertMany(seedMessages),
-    db.collection('localgroups').insertMany(seedLocalgroups),
+    // db.collection('conversations').insertMany(seedConversations),
+    // db.collection('posts').insertMany(seedPosts),
+    // db.collection('messages').insertMany(seedMessages),
+    // db.collection('localgroups').insertMany(seedLocalgroups),
   ]);
 }
 
 const dropAndSeedPostgres = async () => {
-  const result = await fetch("http://localhost:3000/api/dropAndCreatePg", {
+  const result = await fetch("http://localhost:3000/api/recreateCypressPgDb", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
-      seed: true,
-      templateId: "cypress_template",
-      dropExisting: true,
+      templateId: "unittest_cypress_template",
     }),
   });
 
