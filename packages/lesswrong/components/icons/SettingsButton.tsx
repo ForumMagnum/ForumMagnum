@@ -15,7 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   iconWithLabel: {
-    marginRight: theme.spacing.unit,
     marginRight: 4,
     marginLeft: 4,
   },
