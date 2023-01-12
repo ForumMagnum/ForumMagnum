@@ -93,6 +93,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+    'align-items': "center",
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
