@@ -1,5 +1,7 @@
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { Posts } from '../lib/collections/posts/collection';
+import { Votes } from '../lib/collections/votes/collection';
+import { Comments } from '../lib/collections/comments/collection';
 import { PostEmbeddings } from '../lib/collections/postEmbeddings/collection';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { scoringFeatureConstructors,ScoringContext,PostScoringFeature,ServerPostScoringFeature,PostScoringKarmaOptions,PostScoringKarma,PostScoringTimeDecayOptions,PostScoringTimeDecay,PostScoringSimilarityOptions,PostScoringSimilarity,PostScoringRecentCommentsOptions,PostScoringRecentComments,RecommendationsQuery,RecommendationResult,FeatureName,RecommendationRubric } from '../lib/recommendationTypes';
@@ -8,11 +10,15 @@ import moment from "moment";
 import orderBy from 'lodash/orderBy';
 import take from 'lodash/take';
 import keyBy from 'lodash/keyBy';
+import sumBy from 'lodash/sumBy';
 
 class PostScoringKarmaServer extends PostScoringKarma {
   scoreBatch = async (posts: DbPost[], ctx: ScoringContext, options: PostScoringKarmaOptions): Promise<number[]> => {
-    return posts.map(post =>
-      this.rescaleKarma(options, post.baseScore)
+    const karmaAtTime = await Promise.all(posts.map(async (post) => {
+      return await getKarmaAtTime(post, ctx.now);
+    }));
+    return posts.map((post,i) =>
+      this.rescaleKarma(options, karmaAtTime[i])
     );
   }
 }
@@ -69,9 +75,59 @@ class PostScoringSimilarityServer extends PostScoringSimilarity {
 
 class PostScoringRecentCommentsServer extends PostScoringRecentComments {
   scoreBatch = async (posts: DbPost[], ctx: ScoringContext, options: PostScoringRecentCommentsOptions): Promise<number[]> => {
-    // TODO
-    return posts.map(post => 0); //TODO
+    const mostRecentCommentSince: (Date|null)[] = await Promise.all(posts.map(async (post) => {
+      if (post.lastCommentedAt < ctx.now) {
+        return post.lastCommentedAt;
+      } else {
+        return await getDateOfLastCommentBefore(post, ctx.now);
+      }
+    }));
+    return posts.map((post,i) => {
+      const commentDate = mostRecentCommentSince[i];
+      if (!commentDate) return 0;
+      const commentAgeMs = ctx.now.getTime() - commentDate.getTime();
+      const commentAgeHours = commentAgeMs / (1000*60*60);
+      return (commentAgeHours < 24) ? 1.0 : 0.0;
+    });
   }
+}
+
+/**
+ * Get a post's karma at a given timestamp (for purposes of recommendations with a simulated date).
+ * (This is pretty slow.)
+ */
+async function getKarmaAtTime(post: DbPost, date: Date|null): Promise<number> {
+  if (!date) {
+    return post.baseScore;
+  }
+  
+  const applicableVotes = await Votes.find({
+    documentId: post._id,
+    cancelled: false,
+    votedAt: {$lt: date},
+  }, {
+    projection: {power:1}
+  }).fetch();
+  return sumBy(applicableVotes, v=>v.power);
+}
+
+async function getDateOfLastCommentBefore(post: DbPost, date: Date): Promise<Date|null> {
+  if (!post.commentCount)
+    return null;
+  
+  const lastCommentBefore = await Comments.find({
+    ...getDefaultViewSelector("Comments"),
+    postId: post._id,
+    postedAt: {$lte: date},
+  }, {
+    limit: 1,
+    sort: {postedAt:-1},
+    projection: {postedAt:1},
+  }).fetch();
+  
+  if (!lastCommentBefore.length)
+    return null;
+  return lastCommentBefore[0].postedAt;
 }
 
 // TODO: PostScoringTagModifiers
@@ -117,7 +173,7 @@ defineQuery({
         $lte: simulatedDate,
       },
     }).fetch();
-    console.log(`Found ${candidatePosts.length} candidate posts within the specified date range (${ninetyDaysAgo.toString()} to ${simulatedDate.toString()})`);
+    //console.log(`Found ${candidatePosts.length} candidate posts within the specified date range (${ninetyDaysAgo.toString()} to ${simulatedDate.toString()})`);
     
     // Extract features
     const featureCtx = {

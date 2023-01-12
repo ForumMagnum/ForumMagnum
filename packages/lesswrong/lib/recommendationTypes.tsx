@@ -24,7 +24,12 @@ export class PostScoringKarma extends PostScoringFeature<PostScoringKarmaOptions
   description = "Karma"
   getDefaultOptions = ()=>({exponent:1})
   optionsForm = ({options, setOptions}: {options: PostScoringKarmaOptions, setOptions: (newOptions: PostScoringKarmaOptions)=>void}) => {
-    return <div/>; //TODO
+    return <div>
+      Exponent <Input
+        value={options.exponent}
+        onChange={(e) => setOptions({...options, exponent: parseFloat(e.target.value)})}
+      />
+    </div>
   }
   rescaleKarma(options: {exponent: number}, karma: number): number {
     return Math.pow(karma, options.exponent);
