@@ -182,7 +182,6 @@ import './collections/featuredResources/fragments'
 import './collections/votes';
 
 // Language-model related collections
-import './collections/languageModelCache/collection';
 import './collections/postEmbeddings/collection';
 
 // Spotlights
