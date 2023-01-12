@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import Sort from '@material-ui/icons/Sort';
+import SwapVert from '@material-ui/icons/SwapVert';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -34,11 +34,11 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: 
 }) => {
   if (label) {
     return <span className={classes.iconWithLabelGroup} onClick={onClick}>
-      {showIcon && <Sort className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
+      {showIcon && <SwapVert className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
       <span className={classes.label}>{ label }</span>
     </span>
   }
-  return <Sort className={classNames(classes.icon, className)} onClick={onClick}/>
+  return <SwapVert className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
 const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {styles});
