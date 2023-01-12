@@ -112,4 +112,5 @@ import './2022-11-28-populateApprovalVoteCount'
 import './2022-12-02-updateSubforumNotificationDefaults'
 import './2022-12-13-updateReviewVotes'
 import './2022-12-15-addDadTagSettings'
+import './2023-01-10-revertSubforumNotifSettings'
 
