@@ -3,7 +3,7 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -60,9 +60,9 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                 <MetaInfo>
                   <FormatDate date={post.postedAt}/>
                 </MetaInfo>
-                {post.commentCount && <MetaInfo>
+                {postGetCommentCount(post) && <MetaInfo>
                   <Link to={`${postGetPageUrl(post)}#comments`}>
-                    {post.commentCount} comments
+                    {postGetCommentCountStr(post)}
                   </Link>
                 </MetaInfo>}
               </span>
