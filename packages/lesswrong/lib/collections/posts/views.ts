@@ -488,6 +488,24 @@ Posts.addView("top", (terms: PostsViewTerms) => ({
 //   }
 // );
 
+// Used by "topAdjusted" sort
+ensureIndex(Posts,
+  augmentForDefaultView({ postedAt: 1, baseScore: 1, maxBaseScore: 1 }),
+  {
+    name: "posts.sort_by_topAdjusted",
+    partialFilterExpression: {
+      status: postStatuses.STATUS_APPROVED,
+      draft: false,
+      unlisted: false,
+      isFuture: false,
+      shortform: false,
+      authorIsUnreviewed: false,
+      hiddenRelatedQuestion: false,
+      isEvent: false,
+    },
+  }
+);
+
 Posts.addView("new", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.new, terms)}
 }))
@@ -1378,6 +1396,22 @@ ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
+
+Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      reviewCount: 0,
+      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold() },
+      reviewVoteScoreAllKarma: { $gte: 4 }
+    },
+    options: {
+      sort: {
+        reviewVoteScoreHighKarma: -1
+      }
+    }
+  }
+})
+
 
 // During the Final Voting phase, posts need at least one positive vote and at least one review to qualify
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {

@@ -9,7 +9,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
   },
   karma: {
-    width: KARMA_WIDTH
+    width: KARMA_WIDTH,
+    marginRight: 8
   }
 });
 

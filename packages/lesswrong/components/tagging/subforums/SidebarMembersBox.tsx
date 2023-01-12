@@ -1,6 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({

@@ -10,16 +10,20 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { eligibleToNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { voteTooltipType } from './ReviewVoteTableRow';
+import qs from 'qs';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
+const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -226,7 +230,7 @@ export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITA
 export type SyntheticQualitativeVote = {_id: string, postId: string, score: number, type: 'QUALITATIVE'}
 export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
-const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
+export const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
@@ -242,22 +246,32 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
 
 
 const ReviewVotingPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType
 }) => {
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
+
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
-  
+  const { params, query } = useLocation()
+  const reviewYear = getReviewYearFromString(params.year)
+
+
+  let reviewPhase = getReviewPhase(reviewYear)
+  if (query.phase) {
+    reviewPhase = query.phase as ReviewPhase
+  }
 
   const { results, loading: postsLoading, error: postsError } = useMulti({
     terms: {
-      view: getReviewPhase() === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
-      before: `${REVIEW_YEAR+1}-01-01`,
-      ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
+      view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
+      before: `${reviewYear+1}-01-01`,
+      ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
       limit: 600,
     },
     collectionName: "Posts",
     fragmentName: 'PostsReviewVotingList',
     fetchPolicy: 'cache-and-network',
+    skip: !reviewYear
   });
   // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
@@ -273,10 +287,12 @@ const ReviewVotingPage = ({classes}: {
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
-  const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+
+  const { history } = useNavigation();
+  const location = useLocation();
 
   if (postsError) {
     // eslint-disable-next-line no-console
@@ -289,7 +305,7 @@ const ReviewVotingPage = ({classes}: {
   const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
   let defaultSort = ""
-  switch (getReviewPhase()) {
+  switch (reviewPhase) {
     case 'NOMINATIONS':
       defaultSort = "needsPreliminaryVote";
       break;
@@ -299,13 +315,23 @@ const ReviewVotingPage = ({classes}: {
     case 'VOTING':
       defaultSort = "needsFinalVote";
       break;
+    case 'COMPLETE':
+      defaultSort = 'finalReviewVoteScoreHighKarma';
+      break;
     default:
       defaultSort = "reviewCount";
       break;
   }
 
-  const [sortPosts, setSortPosts] = useState(defaultSort)
+  const querySort = location.query.sort
+  const [sortPosts, setSortPosts] = useState(querySort ?? defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
+
+  const updatePostSort = (sort) => {
+    setSortPosts(sort)
+    const newQuery = {...location.query, sort}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
@@ -321,14 +347,12 @@ const ReviewVotingPage = ({classes}: {
     }
 
     return await submitVote({
-      variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false},
+      variables: {postId, qualitativeScore: score, year: reviewYear+"", dummy: false},
       optimisticResponse: {
         submitReviewVote: newPost
       }
     })
-  }, [submitVote, postsResults]);
-
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles } = Components
+  }, [submitVote, postsResults, reviewYear]);
 
   const canInitialResort = !!postsResults
 
@@ -344,6 +368,9 @@ const ReviewVotingPage = ({classes}: {
 
         const post1Score = post1.currentUserReviewVote?.qualitativeScore || 0
         const post2Score = post2.currentUserReviewVote?.qualitativeScore || 0
+        const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore || 0
+        const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore || 0
+
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
@@ -377,6 +404,11 @@ const ReviewVotingPage = ({classes}: {
         }
 
         if (sortPosts === "yourVote") {
+          if (post1QuadraticScore || post2QuadraticScore) {
+            if (post1QuadraticScore < post2QuadraticScore) return 1
+            if (post1QuadraticScore > post2QuadraticScore) return -1   
+          }
+
           if (post1Score < post2Score) return 1
           if (post1Score > post2Score) return -1
         }
@@ -451,7 +483,7 @@ const ReviewVotingPage = ({classes}: {
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </ContentStyles>
   : <ContentStyles contentType="comment" className={classes.instructions}>
-      {getReviewPhase() === "NOMINATIONS" && <><p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
+      {reviewPhase === "NOMINATIONS" && <><p>During the <em>Nomination Voting Phase</em>, eligible users are encouraged to:</p>
       <ul>
         <li>
           Vote on posts that represent important intellectual progress.
@@ -460,10 +492,10 @@ const ReviewVotingPage = ({classes}: {
       </ul> 
       <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
 
-      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
+      <p>At the end of the Nomination Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
 
 
-      {getReviewPhase() === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
+      {reviewPhase === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
 
       <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
@@ -472,7 +504,7 @@ const ReviewVotingPage = ({classes}: {
       <p><b>FAQ</b></p>
 
       <p className={classes.faqQuestion}>
-        <FaqCard linkText="How exactly do Preliminary Votes work?">
+        <FaqCard linkText="How exactly do Nomination Votes work?">
           <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
           <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
           <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
@@ -489,7 +521,7 @@ const ReviewVotingPage = ({classes}: {
       <p className={classes.faqQuestion}>
         <FaqCard linkText="Who is eligible?">
           <ul>
-            <li>Any user registered before {REVIEW_YEAR} can vote on posts.</li>
+            <li>Any user registered before {reviewYear} can vote on posts.</li>
             <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
             <li>Any user can write reviews.</li>
           </ul>
@@ -506,6 +538,20 @@ const ReviewVotingPage = ({classes}: {
 
   const costTotalTooltip = costTotal > 500 ? <div>You have spent more than 500 points. Your vote strength will be reduced to account for this.</div> : <div>You have {500 - costTotal} points remaining before your vote-weight begins to reduce.</div>
 
+  if (!reviewYear) return <SingleColumnSection>
+  {params.year} is not a valid review year.
+  </SingleColumnSection>
+
+  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
+  switch (sortPosts) {
+    case ("reviewVoteScoreHighKarma"):
+      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
+      break;
+    case ("reviewVoteScoreAF"):
+      voteTooltip = "Showing votes from Alignment Forum members"
+      break;
+  }
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -513,23 +559,12 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
-              <FrontpageReviewWidget showFrontpageItems={false}/>
+              <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             </div>
             {instructions}
-            <SectionTitle title="Reviews">
-              <Select
-                value={sortReviews}
-                onChange={(e)=>setSortReviews(e.target.value)}
-                disableUnderline
-                >
-                <MenuItem value={'top'}>Sorted by Top</MenuItem>
-                <MenuItem value={'new'}>Sorted by New</MenuItem>
-                <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
-              </Select>
-            </SectionTitle>
-            <RecentComments terms={{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: sortReviews}} truncated/>
+            <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
           </div>}
-          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
+         <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>
@@ -545,7 +580,7 @@ const ReviewVotingPage = ({classes}: {
                     {reviewedPosts?.length || 0} Reviewed Posts
                   </span>
                 </LWTooltip> 
-                {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
+                {reviewPhase !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
               </div>
             }
             {(postsLoading || loading) && <Loading/>}
@@ -568,24 +603,24 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>
               <Select
                 value={sortPosts}
-                onChange={(e)=>{setSortPosts(e.target.value)}}
+                onChange={(e)=>{updatePostSort(e.target.value)}}
                 disableUnderline
                 >
-                {getReviewPhase() === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
-                  <LWTooltip placement="left" title="Prioritizes posts with at least one Review, which you haven't yet voted on">
-                    <span><span className={classes.sortBy}>Sort by</span> Prioritized</span>
+                {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
+                  <LWTooltip placement="left" title={<div>Prioritizes posts with at least one review, which you haven't yet voted on<div><em>(intended to reward reviews by making reviewed posts more prominent</em></div></div>}>
+                    <span><span className={classes.sortBy}>Sort by</span> Magic (Prioritize reviewed)</span>
                   </LWTooltip>
                 </MenuItem>}
                 <MenuItem value={'lastCommentedAt'}>
                   <span className={classes.sortBy}>Sort by</span> Last Commented
                 </MenuItem>
-                {getReviewPhase() === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
+                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
                 </MenuItem>}
-                {getReviewPhase() === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
+                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
                 </MenuItem>}
-                {getReviewPhase() === "REVIEWS" && isLW && <MenuItem value={'reviewVoteScoreAF'}>
+                {reviewPhase === "REVIEWS" && (isLW || isAF) && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
@@ -594,7 +629,7 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count
                 </MenuItem>
-                {getReviewPhase() === "NOMINATIONS" && 
+                {reviewPhase === "NOMINATIONS" && 
                   <MenuItem value={'positiveReviewVoteCount'}>
                     <LWTooltip title={<div>
                       <div>Sort by how many positive votes the post has</div>
@@ -604,20 +639,35 @@ const ReviewVotingPage = ({classes}: {
                     </LWTooltip>
                   </MenuItem>
                 }
-                {getReviewPhase() === "REVIEWS" && 
+                {reviewPhase === "REVIEWS" && 
                   <MenuItem value={'needsReview'}>
-                    <span className={classes.sortBy}>Sort by</span> Needs Review
+                    <LWTooltip title={<div><p>Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points.</p>
+                      <p><em>(i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)</em></p>
+                    </div>}>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Review)</span>
+                    </LWTooltip>
                   </MenuItem>
                 }
-                {getReviewPhase() === "VOTING" && 
+                {reviewPhase === "VOTING" && 
                   <MenuItem value={'needsFinalVote'}>
-                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                    <LWTooltip title={<div>Prioritizes posts you haven't voted on yet</div>}>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Vote)</span>
+                    </LWTooltip>
                   </MenuItem>
                 }
+                {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (1000+ Karma Users)
+                </MenuItem>}
+                {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreAllKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (All Users)
+                </MenuItem>}
+                {reviewPhase === "COMPLETE" && isLW && <MenuItem value={'finalReviewVoteScoreAF'}>
+                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (Alignment Forum Users)
+                </MenuItem>}
               </Select>
             </div>
           </div>
-          <div className={classNames({[classes.postList]: getReviewPhase() !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
+          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
                 _id: post.currentUserReviewVote._id,
@@ -636,6 +686,9 @@ const ReviewVotingPage = ({classes}: {
                   dispatch={dispatchQualitativeVote}
                   currentVote={currentVote}
                   expandedPostId={expandedPost?._id}
+                  reviewPhase={reviewPhase}
+                  reviewYear={reviewYear}
+                  voteTooltip={voteTooltip}
                 />
               </div>
             })}

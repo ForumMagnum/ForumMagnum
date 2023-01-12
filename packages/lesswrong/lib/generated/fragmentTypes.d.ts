@@ -462,8 +462,9 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly parentTagId: string,
-  readonly autoTagModel: string,
-  readonly autoTagPrompt: string,
+  readonly subTagIds: Array<string>,
+  readonly autoTagModel: string | null,
+  readonly autoTagPrompt: string | null,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -734,6 +735,7 @@ interface PostsMinimumInfo { // fragment on Posts
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
   readonly _id: string,
   readonly qualitativeScore: number,
+  readonly quadraticScore: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -2138,8 +2140,8 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
-  readonly autoTagModel: string,
-  readonly autoTagPrompt: string,
+  readonly autoTagModel: string | null,
+  readonly autoTagPrompt: string | null,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
@@ -2172,6 +2174,19 @@ interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly createdAt: Date,
   readonly interestedInMetaculus: boolean,
   readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface UserMostValuablePostsDefaultFragment { // fragment on UserMostValuablePosts
+  readonly userId: string,
+  readonly postId: string,
+  readonly deleted: boolean,
+}
+
+interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
+  readonly _id: string,
+  readonly userId: string,
+  readonly postId: string,
+  readonly deleted: boolean,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -3006,6 +3021,8 @@ interface FragmentTypes {
   SunshineTagFragment: SunshineTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
+  UserMostValuablePostsDefaultFragment: UserMostValuablePostsDefaultFragment
+  UserMostValuablePostInfo: UserMostValuablePostInfo
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
@@ -3184,6 +3201,8 @@ interface CollectionNamesByFragmentName {
   SunshineTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
+  UserMostValuablePostsDefaultFragment: "UserMostValuablePosts"
+  UserMostValuablePostInfo: "UserMostValuablePosts"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"

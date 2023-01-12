@@ -81,78 +81,6 @@ async function generateCandidateSetsForTagClassification(): Promise<void> {
 const frontpageModel = "babbage:ft-personal-2022-12-08-22-23-33";
 const frontpagePrompt = "Is this post of broad relevance, timeless, apolitical, and aiming to explain rather than persuade?";
 
-
-async function generateFineTuningFile(postIdsFilename: string, outputFilename: string): Promise<void> {
-  const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
-  const template = await wikiSlugToTemplate("lm-config-autotag");
-  const posts = await Posts.find({_id: {$in: postIds}}).fetch();
-  const postsById = keyBy(posts, post=>post._id);
-  const result: string[] = [];
-  
-  const tagsToClassify = await getAutoAppliedTags();
-  const tagsBySlug = keyBy(tagsToClassify, tag=>tag.slug);
-  
-  let numPostsWithTag = mapValues(tagsBySlug, t=>0);
-  let postsWritten = 0;
-  
-  for (let postId of postIds) {
-    try {
-      const post = postsById[postId];
-      const prompt = await postToPrompt({
-        template, post,
-        promptSuffix: postEndMarker
-      });
-      
-      let tagsCompletion = "";
-      for (let tag of tagsToClassify) {
-        const hasTag = (tag._id in post.tagRelevance) && (post.tagRelevance[tag._id] > 0);
-        if (hasTag) numPostsWithTag[tag.slug]++;
-        tagsCompletion += `${tag.name}: ${hasTag ? "Yes" : "No"}\n`;
-      }
-      
-      result.push(JSON.stringify({
-        prompt,
-        completion: tagsCompletion,
-      }));
-      
-      postsWritten++;
-    } catch(e) {
-      console.log(`Error formatting post ${postId} for finetune training: ${e}`); //eslint-disable-line no-console
-    }
-  }
-  
-  for (let tag of tagsToClassify) {
-    const tagSlug = tag.slug;
-    console.log(`Posts with tag ${tagSlug}: ${numPostsWithTag[tagSlug] / postsWritten}`); //eslint-disable-line no-console
-  }
-  
-  fs.writeFileSync(outputFilename, result.join('\n'));
-}
-
-async function getCompletionsWithFinetune(finetuneId: string, postIdsFilename: string, outputFilename: string): Promise<void> {
-  const postIds = JSON.parse(fs.readFileSync(postIdsFilename, 'utf-8'));
-  const template = await wikiSlugToTemplate("lm-config-autotag");
-  const posts = await Posts.find({_id: {$in: postIds}}).fetch();
-  const results: string[] = [];
-  const openAIApi = await getOpenAI();
-  if (!openAIApi) throw new Error("OpenAI API is not configured");
-  
-  for (let post of posts) {
-    const prompt = await postToPrompt({
-      template, post, promptSuffix: postEndMarker
-    });
-    const result = await openAIApi.createCompletion({
-      model: finetuneId,
-      prompt,
-    });
-    const completion = result.data.choices[0].text;
-    console.log(`Completion for post ${post._id} (title ${post.title}): ${completion}`); //eslint-disable-line no-console
-    // TODO
-  }
-  
-  //fs.writeFileSync(outputFilename, results.join("\n"));
-}
-
 async function generateClassifierTuningFile({description, posts, postBodyCache, outputFilename, promptSuffix, classifyPost}: {
   description: string,
   posts: DbPost[],
@@ -216,6 +144,7 @@ Globals.generateTagClassifierData = async (args: {
     //eslint-disable-next-line no-console
     console.log(`Generating tag training/test sets for tag ${tag.name}`);
     const tagPrompt = tag.autoTagPrompt;
+    if (!tagPrompt) continue; // This actually comes from a query that filters it to be nonempty but the type system doesn't know that
     
     await generateClassifierTuningFile({
       description: `Train tag ${tag.slug}: ${tagPrompt}`,
@@ -370,6 +299,7 @@ Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, out
   fs.writeFileSync(outputFilename, sb.join(''));
 }
 
+
 async function printLanguageModelTemplate(templateName: string) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   //eslint-disable-next-line no-console
@@ -379,5 +309,3 @@ Globals.printLanguageModelTemplate = printLanguageModelTemplate;
 
 Globals.weightedPartition = weightedPartition;
 Globals.generateCandidateSetsForTagClassification = generateCandidateSetsForTagClassification;
-Globals.generateFineTuningFile = generateFineTuningFile;
-Globals.getCompletionsWithFinetune = getCompletionsWithFinetune;

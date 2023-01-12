@@ -133,6 +133,11 @@ export async function postsNewNotifications (post: DbPost) {
 postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
+  // TODO: We have a bug that sends users way too many of these emails,
+  //       and I might not have time to debug this today but I think it's pretty bad to spam email users,
+  //       so adding this as a temp fix
+  if (forumTypeSetting.get() === 'EAForum') return false
+  
   if (!!oldPost.mongoLocation !== !!newPost.mongoLocation) {
     //Location added or removed
     return true;
@@ -282,7 +287,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     type: subscriptionTypes.newTagPosts
   })
   const post = await Posts.findOne({_id:tagRel.postId})
-  if (post && postIsPublic(post)) {
+  if (post && postIsPublic(post) && !post.authorIsUnreviewed) {
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel

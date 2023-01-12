@@ -305,18 +305,6 @@ interface DbLWEvent extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
-interface LanguageModelCacheCollection extends CollectionBase<DbLanguageModelCache, "LanguageModelCache"> {
-}
-
-interface DbLanguageModelCache extends DbObject {
-  __collectionName?: "LanguageModelCache"
-  prompt: string
-  model: string
-  result: string
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-}
-
 interface LegacyDataCollection extends CollectionBase<DbLegacyData, "LegacyData"> {
 }
 
@@ -903,8 +891,9 @@ interface DbTag extends DbObject {
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   parentTagId: string
-  autoTagModel: string
-  autoTagPrompt: string
+  subTagIds: Array<string>
+  autoTagModel: string | null
+  autoTagPrompt: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -913,6 +902,18 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
+}
+
+interface DbUserMostValuablePost extends DbObject {
+  __collectionName?: "UserMostValuablePosts"
+  userId: string
+  postId: string
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
@@ -1286,7 +1287,6 @@ interface CollectionsByName {
   GardenCodes: GardenCodesCollection
   Images: ImagesCollection
   LWEvents: LWEventsCollection
-  LanguageModelCache: LanguageModelCacheCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
   Messages: MessagesCollection
@@ -1311,6 +1311,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserMostValuablePosts: UserMostValuablePostsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1333,7 +1334,6 @@ interface ObjectsByCollectionName {
   GardenCodes: DbGardenCode
   Images: DbImages
   LWEvents: DbLWEvent
-  LanguageModelCache: DbLanguageModelCache
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
   Messages: DbMessage
@@ -1358,6 +1358,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserMostValuablePosts: DbUserMostValuablePost
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

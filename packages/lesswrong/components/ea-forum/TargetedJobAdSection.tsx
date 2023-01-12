@@ -46,17 +46,24 @@ const TargetedJobAdSection = () => {
     if (!currentUser || !results || activeJob) return
     
     // user's relevant interests from EAG, such as "software engineering"
-    const userInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
+    const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
     // the topics that the user has displayed on their profile
     const userTags = currentUser.profileTagIds ?? []
     const userJobAds = results[0]?.jobAds ?? {}
     
     for (let jobName in JOB_AD_DATA) {
+      // skip any jobs where the deadline to apply has passed
+      if (JOB_AD_DATA[jobName].deadline?.isBefore(moment())) {
+        continue
+      }
+      
       const occupationName = JOB_AD_DATA[jobName].occupationName
+      const interestedIn = JOB_AD_DATA[jobName].interestedIn
       const occupationTag = JOB_AD_DATA[jobName].tagId
       const jobAdState = userJobAds[jobName]?.state
       // check if the ad fits the user's interests
-      const userIsMatch = (occupationName && userInterests.includes(occupationName)) ||
+      const userIsMatch = (occupationName && userEAGInterests.includes(occupationName)) ||
+        (interestedIn && currentUser.interestedIn?.includes(interestedIn)) ||
         (occupationTag && userTags.includes(occupationTag))
       // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
       const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)

@@ -21,6 +21,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+  importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
@@ -238,6 +239,7 @@ importComponent("PostsItemTooltipWrapper", () => require('../components/posts/Po
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
 importComponent("PostReadCheckbox", () => require('../components/posts/PostReadCheckbox'))
+importComponent("PostMostValuableCheckbox", () => require('../components/posts/PostMostValuableCheckbox'))
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip'));
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle'));
 importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltipSingle'));
@@ -418,8 +420,6 @@ importComponent("RecentDiscussionMeetupsPoke", () => require('../components/rece
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
-importComponent("CommentsTimelineSection", () => require('../components/comments/CommentsTimelineSection'));
-importComponent("CommentsTimeline", () => require('../components/comments/CommentsTimeline'));
 importComponent("CommentsList", () => require('../components/comments/CommentsList'));
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
@@ -580,25 +580,21 @@ importComponent("TagActivityFeed", () => require('../components/tagging/TagActiv
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 
-importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
-
-
 // Subforums
-importComponent("TagSubforumPage", () => require('../components/tagging/TagSubforumPage'));
-importComponent("TagSubforumPage2", () => require('../components/tagging/TagSubforumPage2'));
-importComponent("RightSidebarColumn", () => require('../components/tagging/RightSidebarColumn'));
-importComponent("SidebarSubtagsBox", () => require('../components/tagging/SidebarSubtagsBox'));
-importComponent("SidebarMembersBox", () => require('../components/tagging/SidebarMembersBox'));
-importComponent("TagSubforumPostsSection", () => require('../components/tagging/TagSubforumPostsSection'));
+importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
+importComponent("TagSubforumPage2", () => require('../components/tagging/subforums/TagSubforumPage2'));
+importComponent("RightSidebarColumn", () => require('../components/tagging/subforums/RightSidebarColumn'));
+importComponent("SidebarSubtagsBox", () => require('../components/tagging/subforums/SidebarSubtagsBox'));
+importComponent("SidebarMembersBox", () => require('../components/tagging/subforums/SidebarMembersBox'));
 importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
-importComponent("SubforumSubscribeSection", () => require('../components/tagging/SubforumSubscribeSection'));
-importComponent("SubforumMembersDialog", () => require('../components/tagging/SubforumMembersDialog'));
-importComponent("SubforumMember", () => require('../components/tagging/SubforumMember'));
-importComponent("SubforumNotificationSettings", () => require('../components/tagging/SubforumNotificationSettings'));
+importComponent("SubforumSubscribeSection", () => require('../components/tagging/subforums/SubforumSubscribeSection'));
+importComponent("SubforumMembersDialog", () => require('../components/tagging/subforums/SubforumMembersDialog'));
+importComponent("SubforumMember", () => require('../components/tagging/subforums/SubforumMember'));
+importComponent("SubforumNotificationSettings", () => require('../components/tagging/subforums/SubforumNotificationSettings'));
 importComponent("SubforumNotifications", () => require('../components/form-components/SubforumNotifications'));
-importComponent("TagSubforumButton", () => require('../components/tagging/TagSubforumButton'));
-importComponent("SubforumCommentsThread", () => require('../components/tagging/SubforumCommentsThread'));
+importComponent("TagSubforumButton", () => require('../components/tagging/subforums/TagSubforumButton'));
 importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
+importComponent("SubforumWelcomeBox", () => require('../components/tagging/subforums/SubforumWelcomeBox'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
@@ -710,7 +706,6 @@ importComponent("AFNonMemberSuccessPopup", () => require('../components/alignmen
 importComponent("AFUnreviewedCommentCount", () => require('../components/alignment-forum/AFUnreviewedCommentCount'));
 importComponent("AlignmentPendingApprovalMessage", () => require('../components/alignment-forum/AlignmentPendingApprovalMessage'));
 
-importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));
 importComponent("NewRelatedQuestionForm", () => require('../components/questions/NewRelatedQuestionForm'));
 importComponent("NewAnswerForm", () => require('../components/questions/NewAnswerForm'));
 importComponent("PostsPageQuestionContent", () => require('../components/questions/PostsPageQuestionContent'));
@@ -743,13 +738,19 @@ importComponent("CurrentSpotlightItem", () => require('../components/spotlights/
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
+importComponent("ReviewQuickPage", () => require('../components/review/ReviewQuickPage'));
+importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
+importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));
+importComponent("ReviewHeaderTitle", () => require('../components/review/ReviewHeaderTitle'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018'));
 importComponent("Nominations2019", () => require('../components/review/Nominations2019'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018'));
 importComponent("Reviews2019", () => require('../components/review/Reviews2019'));
+importComponent("ReviewsPage", () => require('../components/review/ReviewsPage'));
+importComponent("ReviewsList", () => require('../components/review/ReviewsList'));
 importComponent("ReviewPostButton", () => require('../components/review/ReviewPostButton'));
 importComponent("ReviewPostForm", () => require('../components/review/ReviewPostForm'));
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem'));

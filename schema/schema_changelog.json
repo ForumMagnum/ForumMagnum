@@ -28,5 +28,25 @@
     "acceptsSchemaHash": "afc7cd96d9085ca54d2a50765d02338f",
     "acceptedByMigration": "20221224T171407.add_comment_title.ts",
     "timestamp": "2022-12-24T17:14:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "746fe67809bf748504782256c202744c",
+    "acceptedByMigration": "20221226T210853.add_initial_language_model_fields.ts",
+    "timestamp": "2022-12-26T21:08:53.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f9a5c9f182dad6b94bd1361b603906fd",
+    "acceptedByMigration": "20221229T220817.20221229T170831.add_UserMostValuablePosts_table.ts",
+    "timestamp": "2022-12-29T22:08:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea71916ffaa87ae0a21302ce831261e6",
+    "acceptedByMigration": "20221230T181110.fix_editable_fields.ts",
+    "timestamp": "2022-12-30T18:11:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "82e629fdd1fb2659bd379e8503ec8b6d",
+    "acceptedByMigration": "20230110T105025.init_sub_tag_ids.ts",
+    "timestamp": "2023-01-10T10:50:25.000Z"
   }
 ]
