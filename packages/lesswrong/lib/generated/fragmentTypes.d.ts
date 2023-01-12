@@ -462,6 +462,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly parentTagId: string,
+  readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
 }
