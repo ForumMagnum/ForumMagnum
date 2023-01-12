@@ -1221,9 +1221,6 @@ addRoute(
     path: '/imageUpload',
     componentName: 'ImageUpload'
   },
-);
-
-addRoute(
   {
     name:'posts.single',
     path:'/posts/:_id/:slug?',
@@ -1293,6 +1290,12 @@ addRoute(
     title: "Moderation Message Templates"
   },
   {
+    name: 'recommendationsTester',
+    path: '/admin/recommendationsTester',
+    componentName: "RecommendationsExperimentationPage",
+    title: "Recommendations Experimenter",
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
@@ -1314,9 +1317,6 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
-);
-
-addRoute(
   {
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',
@@ -1326,10 +1326,7 @@ addRoute(
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
     noIndex: true,
     // TODO: Handle pingbacks leading to comments.
-  }
-);
-
-addRoute(
+  },
   {
     name: 'home2',
     path: '/home2',

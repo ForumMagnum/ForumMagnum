@@ -85,6 +85,7 @@ import './server/notificationCallbacks';
 import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
+import './server/recommendations2';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';
