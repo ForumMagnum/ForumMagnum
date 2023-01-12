@@ -1,12 +1,14 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import Settings from '@material-ui/icons/Settings';
+import Sort from '@material-ui/icons/Sort';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[400],
+    width: 20,
+    height: 20,
   },
   iconWithLabelGroup: {
     display: "flex",
@@ -20,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontSize: 14,
     color: theme.palette.grey[600],
-    fontStyle: "italic"
   }
 })
 
@@ -33,11 +34,11 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: 
 }) => {
   if (label) {
     return <span className={classes.iconWithLabelGroup} onClick={onClick}>
-      {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
+      {showIcon && <Sort className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
       <span className={classes.label}>{ label }</span>
     </span>
   }
-  return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
+  return <Sort className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
 const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {styles});
