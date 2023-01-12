@@ -167,10 +167,18 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 }): Promise<Array<DbPost>> => {
   if (Posts.isPostgres()) {
     const joinHook = algorithm.onlyUnread && currentUser
-      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" = FALSE`
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
       : undefined;
     const query = new SelectQuery(
-      new SelectQuery(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
+      new SelectQuery(
+        new SelectQuery(
+          Posts.getTable(),
+          {},
+          {},
+          {joinHook},
+        ),
+        recommendablePostFilter(algorithm),
+      ),
       {},
       {projection: scoreRelevantFields},
     );
