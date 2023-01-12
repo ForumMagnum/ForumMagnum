@@ -21,7 +21,7 @@ import sumBy from 'lodash/sumBy';
 //      cache, we don't want to start many rerenders of it in parallel
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
-const maxCacheAgeMs = 90*1000;
+const maxCacheAgeMs = 1;
 
 const pageCache = new LRU<string,RenderResult>({
   max: maxPageCacheSizeBytes,

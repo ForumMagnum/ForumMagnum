@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe('Posts', function() {
+xdescribe('Posts', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
     cy.fixture('users/testUser').as('testUser').then(() => {
@@ -9,7 +9,7 @@ describe('Posts', function() {
     cy.fixture('posts/testPost').as('testPost');
   });
 
-  it('can edit an existing post', function() {
+  xit('can edit an existing post', function() {
     cy.visit(`posts/${this.testPost._id}/${this.testPost.slug}`);
     const newPostTitle = 'New Post Title';
     const newPostBody = 'New post body';

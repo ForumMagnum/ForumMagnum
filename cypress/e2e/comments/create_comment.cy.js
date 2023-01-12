@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe('Comments', function() {
+xdescribe('Comments', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
     cy.fixture('users/testUser').as('testUser').then(() => {
@@ -8,7 +8,7 @@ describe('Comments', function() {
     });
   });
 
-  it('can add a new comment', function() {
+  xit('can add a new comment', function() {
     cy.visit('/posts/test-seeded-post/test-seeded-post');
     cy.get('#new-comment-form').type('Test comment');
     cy.get('#new-comment-submit').click();

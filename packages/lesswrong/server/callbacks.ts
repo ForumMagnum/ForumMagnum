@@ -59,6 +59,10 @@ getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNa
 });
 
 getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+  console.log('----------------')
+  console.log('user update callback', newDocument.displayName, newDocument.deleteContent, oldDocument.deleteContent, currentUser?.displayName)
+  console.log('newDocument', newDocument)
+  console.log('----------------')
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
@@ -108,6 +112,16 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
 export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
+  console.warn("----------------------------------------")
   const posts = await Posts.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);

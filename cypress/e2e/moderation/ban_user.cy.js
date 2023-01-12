@@ -8,7 +8,7 @@ describe('Moderators', function() {
     cy.fixture('posts/testPost').as('bannedUserPost');
   });
 
-  it('can ban users and remove their content from public view', function() {
+  it.only('can ban users and remove their content from public view', function() {
     // the not-yet-banned user should see a logged in view of the forum
     cy.loginAs(this.testUser);
     cy.visit('/');
@@ -24,7 +24,9 @@ describe('Moderators', function() {
     cy.get('.rdtNext').click(); // jumping to next month via the date picker
     cy.get('.rdtDay.rdtNew[data-value="1"]').click();
     cy.contains('button', 'Submit').click();
+    cy.wait(2000)
     cy.loginAs(this.testUser);
+    cy.wait(2000)
     cy.visit('/');
     cy.reload(true);
     

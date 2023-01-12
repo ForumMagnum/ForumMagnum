@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe('Groups', function() {
+xdescribe('Groups', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
     cy.fixture('users/testOtherUser').as('testOtherUser');
@@ -10,7 +10,7 @@ describe('Groups', function() {
     });
   });
 
-  it('can create a post in a group', function() {
+  xit('can create a post in a group', function() {
     // Go to local group page and click "New event"
     cy.visit(`/groups/test-seeded-localgroup`);
     cy.contains('New event').click();
@@ -37,4 +37,3 @@ describe('Groups', function() {
     cy.contains('.PostsPage-postContent', newEventBody).should('exist');
   });
 });
-

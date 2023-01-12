@@ -45,6 +45,7 @@ export const AnalyticsUtil: any = {
 };
 
 function getShowAnalyticsDebug() {
+  return false
   if (isAnyTest)
     return false;
   const debug = getPublicSettingsLoaded() ? showAnalyticsDebug.get() : "dev";

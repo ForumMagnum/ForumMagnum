@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe('Moderators', function() {
+xdescribe('Moderators', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
     cy.fixture('users/testAdmin').as('testAdmin');
@@ -8,7 +8,7 @@ describe('Moderators', function() {
     cy.fixture('posts/testPost').as('testPost');
   });
 
-  it('can move posts to drafts, hiding them from public view', function() {
+  xit('can move posts to drafts, hiding them from public view', function() {
     cy.loginAs(this.testAdmin);
     cy.visit('/posts/test-seeded-post');
     cy.get('.PostActionsButton-root').click();

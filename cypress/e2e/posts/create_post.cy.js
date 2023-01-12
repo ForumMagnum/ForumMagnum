@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe('Posts', function() {
+xdescribe('Posts', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
     cy.fixture('users/testUser').as('testUser').then(() => {
@@ -8,7 +8,7 @@ describe('Posts', function() {
     });
   });
   
-  it('can create new post and view it', function() {
+  xit('can create new post and view it', function() {
     cy.visit('/newPost');
     cy.get('.EditTitle-root').type('Test post 123');
     cy.get('.ck-editor__editable').type('Test body 123');

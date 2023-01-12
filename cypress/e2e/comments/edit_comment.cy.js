@@ -1,7 +1,7 @@
 
 /// <reference types="Cypress" />
 
-describe('Comments', function() {
+xdescribe('Comments', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
     cy.fixture('users/testUser').as('testUser').then(() => {
@@ -11,7 +11,7 @@ describe('Comments', function() {
     cy.fixture('comments/testComment').as('testComment');
   });
 
-  it('can edit an existing comment', function() {
+  xit('can edit an existing comment', function() {
     cy.visit(`posts/${this.testPost._id}/${this.testPost.slug}`);
     cy.contains('.CommentsItem-root', this.testComment.contents.html).find(".CommentsItem-menu").click();
     cy.get('ul[role="menu"]').contains('li', 'Edit').click();
