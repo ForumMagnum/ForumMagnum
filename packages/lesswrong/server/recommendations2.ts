@@ -2,7 +2,7 @@ import { defineQuery } from './utils/serverGraphqlUtil';
 import { Posts } from '../lib/collections/posts/collection';
 import { PostEmbeddings } from '../lib/collections/postEmbeddings/collection';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { scoringFeatureConstructors,ScoringContext,PostScoringFeature,ServerPostScoringFeature,PostScoringKarmaOptions,PostScoringKarma,PostScoringSimilarityOptions,PostScoringSimilarity,PostScoringRecentCommentsOptions,PostScoringRecentComments,RecommendationsQuery,RecommendationResult,FeatureName } from '../lib/recommendationTypes';
+import { scoringFeatureConstructors,ScoringContext,PostScoringFeature,ServerPostScoringFeature,PostScoringKarmaOptions,PostScoringKarma,PostScoringTimeDecayOptions,PostScoringTimeDecay,PostScoringSimilarityOptions,PostScoringSimilarity,PostScoringRecentCommentsOptions,PostScoringRecentComments,RecommendationsQuery,RecommendationResult,FeatureName,RecommendationRubric } from '../lib/recommendationTypes';
 import { normalizeVector, vectorSum, scaleVector, vectorDotProduct } from './utils/vectorUtil';
 import moment from "moment";
 import orderBy from 'lodash/orderBy';
@@ -14,6 +14,17 @@ class PostScoringKarmaServer extends PostScoringKarma {
     return posts.map(post =>
       this.rescaleKarma(options, post.baseScore)
     );
+  }
+}
+
+class PostScoringTimeDecayServer extends PostScoringTimeDecay {
+  scoreBatch = async (posts: DbPost[], ctx: ScoringContext, options: PostScoringTimeDecayOptions): Promise<number[]> => {
+    return posts.map(post => {
+      const ageInMS = ctx.now.getTime() - post.postedAt.getTime()
+      const ageInHours = ageInMS / (1000*60*60);
+      if (ageInHours <= 0) return 1.0;
+      return 1.0 / Math.pow(options.ageOffset+ageInHours, options.exponent);
+    });
   }
 }
 
@@ -76,21 +87,26 @@ type ServerScoringFeatures<T extends readonly (new (...args: any) => PostScoring
 
 const serverScoringFeatures: ServerScoringFeatures<typeof scoringFeatureConstructors> = [
   new PostScoringKarmaServer(),
+  new PostScoringTimeDecayServer(),
   new PostScoringSimilarityServer(),
   new PostScoringRecentCommentsServer(),
 ];
-
+const serverScoringFeaturesByName = keyBy(serverScoringFeatures, f=>f.name);
 
 defineQuery({
   name: "getCustomRecommendations",
   resultType: "JSON!",
   argTypes: "(options: JSON!)",
   fn: async (root: void, {options}: {options: RecommendationsQuery}, context: ResolverContext): Promise<RecommendationResult[]> => {
+    /*if (!context.currentUser || !context.currentUser.isAdmin) {
+      throw new Error("This API is only accessible to admins");
+    }*/
+    
     // eslint-disable-next-line no-console
     console.log(`getCustomRecommendations(${JSON.stringify(options)})`);
     
     // Unpack arguments
-    const simulatedDate = options.overrideDate || new Date();
+    const simulatedDate = options.overrideDate ? new Date(options.overrideDate) : new Date();
     
     // Fetch candidate posts
     const ninetyDaysAgo = moment(simulatedDate).add(-90,'days').toDate();
@@ -119,15 +135,19 @@ defineQuery({
       featureScoresByFeatureName[serverScoringFeatures[i].name] = featureScores[i];
     }
     
-    // Combine features into overall scores
+    // Combine additive features
     const overallScores: RecommendationResult[] = candidatePosts.map((post,i) => {
       let overallScore = 0;
-      const featuresRubric: Array<{feature:string,value:number}> = [];
+      const featuresRubric: RecommendationRubric = [];
       for (let feature of options.features) {
-        const featureScore =featureScoresByFeatureName[feature.name][i]; 
+        if (serverScoringFeaturesByName[feature.name].scoreMode !== "additive")
+          continue;
+        
+        const featureScore = featureScoresByFeatureName[feature.name][i];
         overallScore += featureScore;
         featuresRubric.push({
           feature: feature.name,
+          mode: "additive", //TODO
           value: featureScore,
         });
       }
@@ -137,6 +157,22 @@ defineQuery({
         featuresRubric,
       };
     });
+    
+    // Apply multiplicative features
+    for (let [i,feature] of options.features.entries()) {
+      const featureImpl = serverScoringFeatures[i];
+      if (featureImpl.scoreMode !== "multiplicative")
+        continue;
+      
+      for (let [j,overallScore] of overallScores.entries()) {
+        overallScore.score *= featureScores[i][j];
+        overallScore.featuresRubric.push({
+          feature: feature.name,
+          mode: featureImpl.scoreMode,
+          value: featureScores[i][j],
+        });
+      }
+    }
     
     // Return top candidate posts
     const sortedResults = orderBy(overallScores, r=>-r.score);

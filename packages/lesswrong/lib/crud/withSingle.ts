@@ -44,7 +44,7 @@ export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, colle
     ${fragment}
   `;
   
-  return query
+  return query;
 }
 
 export function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {

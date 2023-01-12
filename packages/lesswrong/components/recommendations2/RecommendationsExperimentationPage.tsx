@@ -2,12 +2,52 @@ import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { PostSamplingAlgorithm, RecommendationsExperimentSettings, RecommendationsQuery, scoringFeatures, FeatureName, RecommendationResult, RecommendationRubric } from '../../lib/recommendationTypes';
 import { useQuery, gql } from '@apollo/client';
+import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import keyBy from 'lodash/keyBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  experimentConfigBlock: {
+    ...theme.typography.commentStyle,
+    background: theme.palette.panelBackground.default,
+    padding: 10,
+    margin: 8,
+    width: 656,
+  },
+  experimentConfigRow: {
+  },
+  experimentConfigLabel: {
+    display: "inline-block",
+    fontSize: 14,
+    width: 120,
+  },
+  experimentConfigValue: {
+    display: "inline-block",
+  },
+  scoringFeature: {
+    ...theme.typography.commentStyle,
+    background: theme.palette.panelBackground.default,
+    display: "inline-block",
+    verticalAlign: "top",
+    padding: 10,
+    margin: 8,
+    width: 320,
+    
+    "& h2": {
+      marginBlockStart: 0,
+    },
+    "& input": {
+      background: theme.palette.panelBackground.darken03,
+    },
+  },
+  getRecommendationsButton: {
+    margin: "8px auto",
+    display: "block",
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.normal,
+  },
 });
 
 const defaultSamplingAlgorithm: PostSamplingAlgorithm = {
@@ -21,6 +61,8 @@ const defaultSamplingAlgorithm: PostSamplingAlgorithm = {
 const defaultRecommendationsExperimentSettings: RecommendationsExperimentSettings = {
   date: null,
   outputFormat: "list",
+  perspective: "myself",
+  limit: 20,
 };
 
 const RecommendationsExperimentationPage = ({classes}: {
@@ -32,7 +74,7 @@ const RecommendationsExperimentationPage = ({classes}: {
   const [selectedQuery,setSelectedQuery] = useState<RecommendationsQuery|null>(null);
   const [presentationFormat,setPresentationFormat] = useState<"list"|"feed">("list");
   
-  const { SingleColumnSection, SectionTitle, RecommendationsExperimentSettingsPicker, PostSamplingAlgorithmPicker, RecommendationsRubric, RecommendationExperimentResult } = Components;
+  const { SingleColumnSection, SectionTitle, RecommendationsExperimentSettingsPicker, PostSamplingAlgorithmPicker, RecommendationsRubric, RecommendationExperimentListItem, RecommendationExperimentFeedItem } = Components;
   
   const { data, loading } = useQuery(gql`
     query RecommendationsExperiment($options: JSON!) {
@@ -49,8 +91,8 @@ const RecommendationsExperimentationPage = ({classes}: {
   
   function applySettings() {
     setSelectedQuery({
-      overrideDate: experimentSettings.date ?? undefined,
-      limit: 20, //TODO
+      overrideDate: experimentSettings.date?.toString() ?? undefined,
+      limit: experimentSettings.limit,
       features: samplingAlgorithm.features,
     });
   }
@@ -61,17 +103,27 @@ const RecommendationsExperimentationPage = ({classes}: {
     <RecommendationsExperimentSettingsPicker settings={experimentSettings} setSettings={setExperimentSettings}/>
     <PostSamplingAlgorithmPicker algorithm={samplingAlgorithm} setAlgorithm={setSamplingAlgorithm} />
     
-    <Button onClick={applySettings}>
-      Apply
+    <Button onClick={applySettings} className={classes.getRecommendationsButton}>
+      Get Recommendations
     </Button>
     
-    {data?.getCustomRecommendations?.map(rec => <RecommendationExperimentResult
-      key={rec.postId}
-      displayStyle={experimentSettings.outputFormat}
-      postId={rec.postId}
-      rubric={rec.featuresRubric}
-      overallScore={rec.score}
-    />)}
+    {data?.getCustomRecommendations?.map((rec) => {
+      if (experimentSettings.outputFormat === "list") {
+        return <RecommendationExperimentListItem
+          key={rec.postId}
+          postId={rec.postId}
+          rubric={rec.featuresRubric}
+          overallScore={rec.score}
+        />
+      } else {
+        return <RecommendationExperimentFeedItem
+          key={rec.postId}
+          postId={rec.postId}
+          rubric={rec.featuresRubric}
+          overallScore={rec.score}
+        />
+      }
+    })}
   </SingleColumnSection>
 }
 
@@ -80,27 +132,54 @@ const RecommendationsExperimentSettingsPicker = ({settings, setSettings, classes
   setSettings: (newSettings: RecommendationsExperimentSettings)=>void,
   classes: ClassesType
 }) => {
-  return <div>
-    <div>
-      Simulated date:
-      <Components.ReactDateTime
-        name={"simulatedDate"}
-        value={settings.date ?? undefined}
-        position={"below"}
-        onChange={(newDate) => setSettings({...settings, date: newDate??null})}
-      />
+  return <div className={classes.experimentConfigBlock}>
+    <div className={classes.experimentConfigRow}>
+      <div className={classes.experimentConfigLabel}>Simulated date</div>
+      <div className={classes.experimentConfigValue}>
+        <Components.ReactDateTime
+          name={"simulatedDate"}
+          value={settings.date ?? undefined}
+          position={"below"}
+          onChange={(newDate) => setSettings({...settings, date: newDate??null})}
+        />
+      </div>
     </div>
-    <div>
-      Display format:
-      <Select
-        value={settings.outputFormat}
-        onChange={(e) => {
-          setSettings({...settings, outputFormat: e.target.value as any});
-        }}
-      >
-        <MenuItem value="list">List</MenuItem>
-        <MenuItem value="feed">Feed</MenuItem>
-      </Select>
+    <div className={classes.experimentConfigRow}>
+      <div className={classes.experimentConfigLabel}>Display Format</div>
+      <div className={classes.experimentConfigValue}>
+        <Select
+          value={settings.outputFormat}
+          onChange={(e) => {
+            setSettings({...settings, outputFormat: e.target.value as any});
+          }}
+        >
+          <MenuItem value="list">List</MenuItem>
+          <MenuItem value="feed">Feed</MenuItem>
+        </Select>
+      </div>
+    </div>
+    <div className={classes.experimentConfigRow}>
+      <div className={classes.experimentConfigLabel}>Perspective</div>
+      <div className={classes.experimentConfigValue}>
+        <Select
+          value={settings.perspective}
+          onChange={(e) => {
+            setSettings({...settings, perspective: e.target.value as any});
+          }}
+        >
+          <MenuItem value="myself">Myself</MenuItem>
+          <MenuItem value="loggedOut">Logged Out</MenuItem>
+        </Select>
+      </div>
+    </div>
+    <div className={classes.experimentConfigRow}>
+      <div className={classes.experimentConfigLabel}>Limit</div>
+      <div className={classes.experimentConfigValue}>
+        <Input type="number"
+          value={settings.limit}
+          onChange={(e) => setSettings({...settings, limit: parseInt(e.target.value)})}
+        />
+      </div>
     </div>
   </div>
 }
@@ -125,7 +204,7 @@ const PostSamplingAlgorithmPicker = ({algorithm, setAlgorithm, classes}: {
   return <div>
     {scoringFeatures.map((feature) => {
       const OptionsForm = feature.optionsForm;
-      return <div key={feature.name}>
+      return <div key={feature.name} className={classes.scoringFeature}>
         <h2>{feature.description}</h2>
         <div>
           Weight{" "}
@@ -142,13 +221,6 @@ const PostSamplingAlgorithmPicker = ({algorithm, setAlgorithm, classes}: {
             setOptions={(newOptions) => {
               const newFeatures = algorithm.features.map(f => (f.name===feature.name) ? {...f, options: newOptions} : f);
               setAlgorithm({...algorithm, features: newFeatures});
-              /*setAlgorithm({
-                ...algorithm,
-                features: algorithm.features.map(
-                  f => (f.name===feature.name)
-                    ? {...f, options: newOptions} : f
-                )
-              });*/
             }}
           />}
         </div>

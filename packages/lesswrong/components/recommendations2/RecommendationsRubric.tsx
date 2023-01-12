@@ -7,6 +7,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   fullRubric: {
+    background: theme.palette.panelBackground.default,
+    marginTop: 16,
+    marginLeft: 64,
+    padding: 16,
+    width: 300,
   },
   compactFeature: {
     padding: 8,
@@ -14,6 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   featureRow: {
   },
 });
+
+function renderRubricNumber(mode: "additive"|"multiplicative", value: number): string {
+  if (mode==="multiplicative") {
+    return "*" + value.toPrecision(3);
+  } else {
+    return (value>0 ? "+" : "") + value;
+  }
+}
 
 const RecommendationsRubric = ({format, rubric, overallScore, classes}: {
   format: "compact"|"full",
@@ -25,30 +38,30 @@ const RecommendationsRubric = ({format, rubric, overallScore, classes}: {
   
   if (format === "compact") {
     return <span className={classes.compactRubric}>
-      {rubric.map(({feature: featureName, value}) => <LWTooltip
+      {rubric.map(({feature: featureName, mode, value}) => <LWTooltip
         key={featureName}
         className={classes.compactFeature}
         title={<div>
           {scoringFeaturesByName[featureName].description}
         </div>}
       >
-        <>{value>0 ? "+":""}{value}</>
+        {renderRubricNumber(mode, value)}
       </LWTooltip>)}
 
       <LWTooltip
         className={classes.compactFeature}
         title={<div>Overall Score</div>}
       >
-        ={overallScore}
+        ={overallScore.toPrecision(3)}
       </LWTooltip>
     </span>
   } else {
     return <div className={classes.fullRubric}>
-      {rubric.map(({feature: featureName, value}) => <div key={featureName} className={classes.featureRow}>
-        {scoringFeaturesByName[featureName].description}: {value}
+      {rubric.map(({feature: featureName, mode, value}) => <div key={featureName} className={classes.featureRow}>
+        {scoringFeaturesByName[featureName].description}: {renderRubricNumber(mode, value)}
       </div>)}
       <div>
-        Overall: {overallScore}
+        Overall: {overallScore.toPrecision(3)}
       </div>
     </div>
   }

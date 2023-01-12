@@ -6,7 +6,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 const styles = (theme: ThemeType): JssStyles => ({
   postsListItemWithRubrics: {
     display: "flex",
-    width: 765,
+    width: 900,
   },
   postsItemWithRubric: {
     display: "inline-block",
@@ -17,8 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const RecommendationExperimentResult = ({displayStyle, postId, rubric, overallScore, classes}: {
-  displayStyle: "list"|"feed",
+const RecommendationExperimentListItem = ({postId, rubric, overallScore, classes}: {
   postId: "string",
   rubric: RecommendationRubric,
   overallScore: number,
@@ -29,34 +28,66 @@ const RecommendationExperimentResult = ({displayStyle, postId, rubric, overallSc
     collectionName: "Posts",
     fragmentName: "PostsList",
   });
-  const { Loading, PostsItem2, RecommendationsRubric } = Components;
+  const { Loading, PostsItem2, RecommendationsRubric, RecentDiscussionThread } = Components;
   
   if (loading || !post) {
     return <Loading/>;
   }
   
-  if (displayStyle === "list") {
-    return <div className={classes.postsListItemWithRubrics}>
-      <span className={classes.postsItemWithRubric}>
-        <PostsItem2 post={post} hideTrailingButtons={true}/>
-      </span>
-      <span className={classes.compactRubricWrapper}>
-        <RecommendationsRubric format="compact" rubric={rubric} overallScore={overallScore} />
-      </span>
-    </div>
-  } else {
-    return <div>
-      <PostsItem2 post={post}/> {/*TODO*/}
-      <RecommendationsRubric format="full" rubric={rubric} overallScore={overallScore} />
-    </div>
-  }
+  return <div className={classes.postsListItemWithRubrics}>
+    <span className={classes.postsItemWithRubric}>
+      <PostsItem2 post={post} hideTrailingButtons={true}/>
+    </span>
+    <span className={classes.compactRubricWrapper}>
+      <RecommendationsRubric format="compact" rubric={rubric} overallScore={overallScore} />
+    </span>
+  </div>
 }
 
-const RecommendationExperimentResultComponent = registerComponent("RecommendationExperimentResult", RecommendationExperimentResult, {styles});
+const RecommendationExperimentFeedItem = ({postId, rubric, overallScore, classes}: {
+  postId: "string",
+  rubric: RecommendationRubric,
+  overallScore: number,
+  classes: ClassesType,
+}) => {
+  const {document: post, loading} = useSingle({
+    documentId: postId,
+    collectionName: "Posts",
+    fragmentName: "PostsRecentDiscussion",
+    extraVariables: {
+      af: 'Boolean',
+      commentsLimit: 'Int',
+      maxAgeHours: 'Int',
+    },
+    extraVariablesValues: {
+      af: false,
+      commentsLimit: 4,
+      maxAgeHours: 18, //TODO: given a current-date override, `maxAgeHours` won't work sensibly
+    },
+  });
+  const { Loading, PostsItem2, RecommendationsRubric, RecentDiscussionThread } = Components;
+  
+  if (loading || !post) {
+    return <Loading/>;
+  }
+  
+  return <div>
+    <RecentDiscussionThread
+      post={post}
+      comments={post.recentComments}
+      refetch={()=>{}}
+    />
+    <RecommendationsRubric format="full" rubric={rubric} overallScore={overallScore} />
+  </div>
+}
+
+const RecommendationExperimentListItemComponent = registerComponent("RecommendationExperimentListItem", RecommendationExperimentListItem, {styles});
+const RecommendationExperimentFeedItemComponent = registerComponent("RecommendationExperimentFeedItem", RecommendationExperimentFeedItem, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationExperimentResult: typeof RecommendationExperimentResultComponent
+    RecommendationExperimentListItem: typeof RecommendationExperimentListItemComponent
+    RecommendationExperimentFeedItem: typeof RecommendationExperimentFeedItemComponent
   }
 }
 
