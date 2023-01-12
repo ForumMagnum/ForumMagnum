@@ -448,9 +448,13 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
   }
   
   // 3. If this comment is in a subforum, notify members with email notifications enabled
-  if (comment.tagId && comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId) {
-    const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId }))
-      .map((u) => u._id)
+  if (
+    comment.tagId &&
+    comment.tagCommentType === "SUBFORUM" &&
+    !comment.topLevelCommentId &&
+    !comment.authorIsUnreviewed // FIXME: make this more general, and possibly queue up notifications from unreviewed users to send once they are approved
+  ) {
+    const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId })).map((u) => u._id);
     const subforumSubscriberIdsMaybeNotify = (
       await UserTagRels.find({
         userId: { $in: subforumSubscriberIds },
