@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    'align-items': 'center',
+    alignItems: 'center',
     color: theme.palette.grey[600]
   }
 })
