@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import classNames from 'classnames';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Link } from '../../lib/reactRouterWrapper';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userIsAdmin } from '../../lib/vulcan-users';
-import { useCurrentUser } from '../common/withUser';
-import { ReviewDashboardButtons } from './ReviewDashboardButtons';
-
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
@@ -104,7 +98,7 @@ export const ReviewQuickPage = ({classes}: {
     <div className={classes.leftColumn}>
       {!expandedPost && <div>
         <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-        <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={getReviewPhase()}/>
+        <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={"REVIEWS"}/>
         <ReviewDashboardButtons 
           reviewYear={reviewYear} 
           reviewPhase={getReviewPhase()}

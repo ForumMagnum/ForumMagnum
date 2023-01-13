@@ -135,12 +135,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewProgressBar: {
     marginRight: "auto",
-  },
-  icon: {
-    fontSize: 18,
-    color: 'inherit',
-    marginRight: 8,
-    marginLeft: -2
   }
 })
 

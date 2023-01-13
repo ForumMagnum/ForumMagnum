@@ -83,9 +83,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 600,
     marginBottom: 175,
   },
-  section: {
-    marginBottom: 32
-  },
   menu: {
     position: "sticky",
     top:0,
@@ -248,7 +245,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, ContentStyles, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
