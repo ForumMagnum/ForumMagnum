@@ -1,13 +1,13 @@
-import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
-import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
+import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import { subforumSlugsSetting } from './routeUtil';
+import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
 
 
 export const communityPath = '/community';
@@ -26,33 +26,6 @@ const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
-
-async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
-  if (!postId)
-    return null;
-
-  // If the URL contains a hash, it leads to either a comment, a landmark within
-  // the post, or a builtin ID.
-  // TODO: In the case of a comment, we should generate a comment-specific
-  // pingback in addition to the pingback to the post the comment is on.
-  // TODO: In the case of a landmark, we want to customize the hover preview to
-  // reflect where in the post the link was to.
-  return ({ collectionName: "Posts", documentId: postId })
-}
-
-async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
-  const parsedId = parseInt(legacyId, 36);
-  const post = await Posts.findOne({"legacyId": parsedId.toString()});
-  if (!post) return null;
-  return await getPostPingbackById(parsedUrl, post._id);
-}
-
-async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
-  const post = await Posts.findOne({slug: slug});
-  if (!post) return null;
-  return await getPostPingbackById(parsedUrl, post._id);
-}
-
 
 const postBackground = "white"
 
@@ -120,7 +93,8 @@ addRoute(
     path:'/users/:slug',
     componentName: 'UsersSingle',
     //titleHoC: userPageTitleHoC,
-    titleComponentName: 'UserPageTitle'
+    titleComponentName: 'UserPageTitle',
+    getPingback: getUserPingbackBySlug,
   },
   {
     name:'users.single.user',
