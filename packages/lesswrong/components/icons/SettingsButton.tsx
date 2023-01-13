@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontSize: 14,
     color: theme.palette.grey[600],
-  },
+  }
 })
 
 const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: {
