@@ -116,16 +116,36 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const resolvedField = this.resolveFieldName(field);
       const updateValue = typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
         ? this.compileExpression(value)
         : [this.createArg(value)];
+
+      // If we're updating the value of a JSON blob without totally replacing
+      // it then we need to wrap the update in a call to `JSONB_SET`.
+      if (field.includes(".")) {
+        const {column, path} = this.buildJsonUpdatePath(field);
+        return format(
+          column,
+          ["JSONB_SET(", column, ",", path, ",", ...updateValue, ", TRUE)"],
+        );
+      }
+
+      const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch {
       // eslint-disable-next-line no-console
       console.warn(`Field "${field}" is not recognized - is it missing from the schema?`);
       return [];
     }
+  }
+
+  private buildJsonUpdatePath(field: string) {
+    const tokens = field.split(".");
+    const path = `'{${tokens.slice(1).join(", ")}}'`;
+    return {
+      column: `"${tokens[0]}"`,
+      path,
+    };
   }
 }
 
