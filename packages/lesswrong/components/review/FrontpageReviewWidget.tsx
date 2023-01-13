@@ -135,6 +135,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewProgressBar: {
     marginRight: "auto",
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 })
 
@@ -388,15 +391,19 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
     <PostsList2 
+      itemsPerPage={10}
       terms={{
         view:"reviewVoting",
         before: `${reviewYear+1}-01-01`,
         ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
         limit: 3,
-        itemsPerPage: 10,
       }}
     >
+      {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}  
+
       {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+
+      {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
     </PostsList2>
   </AnalyticsContext>
 
@@ -423,9 +430,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
         {/* Post list */}
         {showFrontpageItems && postList}
-        {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}
-        
-        {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
+
 
       </div>
     </AnalyticsContext>
