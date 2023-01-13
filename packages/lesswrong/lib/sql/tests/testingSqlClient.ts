@@ -7,7 +7,6 @@ import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
-import { Globals } from "../../vulcan-lib";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -110,8 +109,6 @@ export const createTestingSqlClient = async (
   }
   return sql;
 }
-
-Globals.createTestingSqlClient = createTestingSqlClient;
 
 export const createTestingSqlClientFromTemplate = async (template: string): Promise<SqlClient> => {
   const {PG_URL} = process.env;
