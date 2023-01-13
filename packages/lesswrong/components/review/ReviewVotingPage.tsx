@@ -17,6 +17,7 @@ import { randomId } from '../../lib/random';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -219,6 +220,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       boxShadow: "unset"
     }
+  },
+  reviewsList: {
+    marginTop: 50
   }
 });
 
@@ -475,6 +479,9 @@ const ReviewVotingPage = ({classes}: {
                 reviewPhase={reviewPhase}
                 showQuickReview
               />
+            <div className={classes.reviewsList}>
+              <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
+            </div>
           </>}
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
