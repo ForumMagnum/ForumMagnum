@@ -19,24 +19,32 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
   private isUnique: boolean;
 
   constructor(table: Table, index: TableIndex, ifNotExists = true) {
-    super(table, [
-      `CREATE ${index.isUnique() ? "UNIQUE " : ""}INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
+    super(table);
+    this.isIndex = true;
+    this.calculateIsUnique(index);
+
+    const {useGin, fields} = this.getFieldList(index);
+    this.atoms = [
+      `CREATE ${this.isUnique ? "UNIQUE " : ""}INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
       `"${index.getName()}"`,
       "ON",
       table,
       "USING",
-    ]);
-
-    this.isIndex = true;
-    this.isUnique = index.isUnique();
-    const {useGin, fields} = this.getFieldList(index);
-    this.atoms = this.atoms.concat([useGin ? "gin (" : "btree (", ...fields, ")"]);
+      useGin ? "gin (" : "btree (",
+      ...fields,
+      ")",
+    ];
 
     const filter = index.getPartialFilterExpression();
     if (filter) {
       this.atoms.push("WHERE");
       this.atoms = this.atoms.concat(this.compileSelector(filter));
     }
+  }
+
+  private calculateIsUnique(index: TableIndex) {
+    const {useGin} = this.getFieldList(index);
+    this.isUnique = index.isUnique() && !useGin;
   }
 
   private getFieldList(index: TableIndex): {useGin: boolean, fields: Atom<T>[]} {
