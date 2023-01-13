@@ -21,14 +21,14 @@ export const NewLongformReviewForm = ({classes}: {
   classes: ClassesType,
 }) => {
   const { PostsNewForm, SingleColumnSection, Row } = Components
-  
+
+  const [showText, setShowText] = useState(true)
+
   if (!reviewIsActive()) {
     return <SingleColumnSection>
       <h2>The {REVIEW_YEAR} is over.</h2>
     </SingleColumnSection>
   }
-
-  const [showText, setShowText] = useState(true)
 
   return <div>
     {showText && <div className={classes.text}>
