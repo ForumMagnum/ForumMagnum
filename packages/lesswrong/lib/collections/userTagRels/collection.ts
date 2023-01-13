@@ -54,6 +54,17 @@ const schema: SchemaType<DbUserTagRel> = {
     canUpdate: [userOwns, 'admins'],
     ...schemaDefaultValue(false),
   },
+  subforumHideIntroPost: {
+    type: Boolean,
+    nullable: false,
+    optional: false,
+    label: "Don't show the intro post at the top of the subforum feed",
+    // control: "SubforumNotifications", // TODO: Possibly add this back in (it shows the batching settings in the menu)
+    canRead: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(false),
+  }
 };
 
 export const UserTagRels: UserTagRelsCollection = createCollection({

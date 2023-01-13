@@ -1,0 +1,293 @@
+import classNames from 'classnames';
+import React, { useCallback, useRef, useState } from 'react';
+import AddBoxIcon from "@material-ui/icons/AddBox";
+import { useLocation } from '../../../lib/routeUtil';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useTracking } from "../../../lib/analyticsEvents";
+import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { useCurrentUser } from '../../common/withUser';
+import { useDialog } from '../../common/withDialog';
+import startCase from 'lodash/startCase';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
+import { useUpdate } from '../../../lib/crud/withUpdate';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  centralColumn: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    maxWidth: MAX_COLUMN_WIDTH,
+  },
+  newPostLink: {
+    display: "flex",
+    alignItems: "center",
+  },
+  newPostLinkHover: {
+    '&:hover': {
+      opacity: 0.5
+    }
+  },
+  feedWrapper: {
+    padding: "0 10px",
+  },
+  feedHeader: {
+    display: "flex",
+    marginBottom: -16,
+    marginLeft: 10,
+    [theme.breakpoints.down('xs')]: {
+      '& .PostsListSortDropdown-root': {
+        marginRight: "0px !important",
+      }
+    }
+  },
+  feedHeaderButtons: {
+    display: "flex",
+    flexGrow: 1,
+    columnGap: 16,
+  },
+  newDiscussionContainer: {
+    background: theme.palette.grey[0],
+    marginTop: 32,
+    padding: "0px 8px 8px 8px",
+  },
+  feedPostWrapper: {
+    marginTop: 32,
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
+  },
+  commentPermalink: {
+    marginBottom: 8,
+  }
+})
+
+const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
+  tag: TagPageFragment | TagPageWithRevisionFragment,
+  isSubscribed: boolean,
+  classes: ClassesType,
+}) => {
+  const {
+    PostsListSortDropdown,
+    CommentPermalink,
+    LWTooltip,
+    SectionButton,
+    CommentsNewForm,
+    MixedTypeFeed,
+    RecentDiscussionThread,
+    CommentWithReplies,
+  } = Components;
+
+  const { query } = useLocation();
+  const currentUser = useCurrentUser();
+  const { captureEvent } =  useTracking()
+  const { openDialog } = useDialog()
+  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetch = useCallback(() => {
+    if (refetchRef.current)
+      refetchRef.current();
+  }, [refetchRef]);
+
+  const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
+  const [showIntroPost, setShowIntroPost] = useState(true)
+  
+  const clickNewDiscussion = useCallback(() => {
+    setNewDiscussionOpen(true)
+    captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
+  }, [captureEvent, tag._id, tag.name])
+
+  const dismissIntroPost = useCallback(() => {
+    setShowIntroPost(false)
+    // update UserTagRel
+    
+  }, [setShowIntroPost])
+
+  // if no sort order was selected, try to use the tag page's default sort order for posts
+  const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
+  
+  const commentNodeProps = {
+    treeOptions: {
+      postPage: true,
+      showPostTitle: false,
+      refetch,
+      tag,
+    },
+    startThreadTruncated: true,
+    isChild: false,
+    enableGuidelines: false,
+    displayMode: "minimalist" as const,
+  };
+  const maxAgeHours = 18;
+  const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+
+  const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
+  const discussionButton = (
+    <LWTooltip
+      title={
+        canPostDiscussion
+          ? "Create a discussion which will only appear in this subforum"
+          : "You must be a member of this subforum to create a discussion"
+      }
+      className={classNames(classes.newPostLink, classes.newPostLinkHover)}
+    >
+      <SectionButton onClick={canPostDiscussion ? clickNewDiscussion : () => {}}>
+        <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Discussion
+      </SectionButton>
+    </LWTooltip>
+  );
+
+  const newPostButton = (
+    <LWTooltip
+      title={
+        currentUser
+          ? `Create a post tagged with the ${startCase(
+              tag.name
+            )} topic — by default this will appear here and on the frontpage`
+          : "You must be logged in to create a post"
+      }
+      className={classes.newPostLink}
+    >
+      <Link
+        to={`/newPost?subforumTagId=${tag._id}`}
+        onClick={(ev) => {
+          if (!currentUser) {
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {},
+            });
+            ev.preventDefault();
+          }
+        }}
+      >
+        <SectionButton>
+          <AddBoxIcon /> <span className={classes.hideOnMobile}>New</span>&nbsp;Post
+        </SectionButton>
+      </Link>
+    </LWTooltip>
+  );
+
+  return (
+    <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
+      {query.commentId && (
+        <div className={classes.commentPermalink}>
+          <CommentPermalink documentId={query.commentId} />
+        </div>
+      )}
+      <div className={classes.feedHeader}>
+        <div className={classes.feedHeaderButtons}>
+          {discussionButton}
+          {newPostButton}
+        </div>
+        <PostsListSortDropdown value={sortBy} options={subforumSortings} />
+      </div>
+      {newDiscussionOpen && (
+        <div className={classes.newDiscussionContainer}>
+          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
+          <CommentsNewForm
+            tag={tag}
+            tagCommentType={"SUBFORUM"}
+            successCallback={refetch}
+            type="reply" // required to make the Cancel button appear
+            enableGuidelines={true}
+            cancelCallback={() => setNewDiscussionOpen(false)}
+          />
+        </div>
+      )}
+      {tag.subforumIntroPost && (
+        <div className={classes.feedPostWrapper}>
+          <RecentDiscussionThread
+            key={tag.subforumIntroPost._id}
+            post={{ ...tag.subforumIntroPost, recentComments: [] }}
+            comments={[]}
+            maxLengthWords={50}
+            refetch={refetch}
+            smallerFonts
+            dismissCallback={dismissIntroPost}
+            subforumIntroPost
+          />
+        </div>
+      )}
+      <MixedTypeFeed
+        firstPageSize={15}
+        pageSize={20}
+        refetchRef={refetchRef}
+        resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
+        sortKeyType={subforumSortingTypes[sortBy]}
+        resolverArgs={{
+          tagId: "String!",
+          af: "Boolean",
+        }}
+        resolverArgsValues={{
+          tagId: tag._id,
+          af: false,
+        }}
+        fragmentArgs={{
+          maxAgeHours: "Int",
+          commentsLimit: "Int",
+        }}
+        fragmentArgsValues={{
+          maxAgeHours,
+          commentsLimit,
+        }}
+        renderers={{
+          tagSubforumPosts: {
+            fragmentName: "PostsRecentDiscussion",
+            render: (post: PostsRecentDiscussion) => (
+              <div className={classes.feedPostWrapper}>
+                <RecentDiscussionThread
+                  key={post._id}
+                  post={{ ...post }}
+                  comments={post.recentComments}
+                  maxLengthWords={50}
+                  refetch={refetch}
+                  smallerFonts
+                />
+              </div>
+            ),
+          },
+          tagSubforumComments: {
+            fragmentName: "CommentWithRepliesFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={comment}
+                commentNodeProps={commentNodeProps}
+                initialMaxChildren={5}
+              />
+            ),
+          },
+          tagSubforumStickyComments: {
+            fragmentName: "StickySubforumCommentFragment",
+            render: (comment: CommentWithRepliesFragment) => (
+              <CommentWithReplies
+                key={comment._id}
+                comment={{ ...comment, isPinnedOnProfile: true }}
+                commentNodeProps={{
+                  ...commentNodeProps,
+                  showPinnedOnProfile: true,
+                  treeOptions: {
+                    ...commentNodeProps.treeOptions,
+                    showPostTitle: true,
+                  },
+                }}
+                initialMaxChildren={3}
+                startExpanded={false}
+              />
+            ),
+          },
+        }}
+      />
+    </div>
+  );
+}
+
+const SubforumSubforumTabComponent = registerComponent(
+  'SubforumSubforumTab', SubforumSubforumTab, {styles}
+);
+
+declare global {
+  interface ComponentTypes {
+    SubforumSubforumTab: typeof SubforumSubforumTabComponent
+  }
+}

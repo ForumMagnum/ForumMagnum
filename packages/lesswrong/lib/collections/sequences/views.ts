@@ -55,7 +55,7 @@ Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
     },
     options: {
       sort: {
-        drafts: -1,
+        draft: -1,
         userProfileOrder: 1,
         createdAt: -1,
       }
@@ -71,7 +71,7 @@ Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
     },
     options: {
       sort: {
-        drafts: -1,
+        draft: -1,
         hideFromAuthorPage: 1,
         userProfileOrder: 1,
         createdAt: -1
@@ -79,6 +79,7 @@ Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
     },
   };
 });
+ensureIndex(Sequences, augmentForDefaultView({ userId: 1, draft: 1, hideFromAuthorPage: 1, userProfileOrder: 1 }))
 
 Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
   return {

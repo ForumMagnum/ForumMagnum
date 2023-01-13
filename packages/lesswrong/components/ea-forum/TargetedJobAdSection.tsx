@@ -10,6 +10,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
+import intersection from 'lodash/intersection';
 
 const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
 
@@ -53,17 +54,18 @@ const TargetedJobAdSection = () => {
     
     for (let jobName in JOB_AD_DATA) {
       // skip any jobs where the deadline to apply has passed
-      if (JOB_AD_DATA[jobName].deadline?.isBefore(moment())) {
+      const deadline = JOB_AD_DATA[jobName].deadline
+      if (deadline && moment().isAfter(deadline, 'day')) {
         continue
       }
       
-      const occupationName = JOB_AD_DATA[jobName].occupationName
+      const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
       const interestedIn = JOB_AD_DATA[jobName].interestedIn
       const occupationTag = JOB_AD_DATA[jobName].tagId
       const jobAdState = userJobAds[jobName]?.state
       // check if the ad fits the user's interests
-      const userIsMatch = (occupationName && userEAGInterests.includes(occupationName)) ||
-        (interestedIn && currentUser.interestedIn?.includes(interestedIn)) ||
+      const userIsMatch = intersection(userEAGInterests, eagOccupations).length ||
+        intersection(currentUser.interestedIn, interestedIn).length ||
         (occupationTag && userTags.includes(occupationTag))
       // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
       const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)

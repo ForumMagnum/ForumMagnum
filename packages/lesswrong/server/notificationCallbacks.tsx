@@ -133,6 +133,11 @@ export async function postsNewNotifications (post: DbPost) {
 postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
+  // TODO: We have a bug that sends users way too many of these emails,
+  //       and I might not have time to debug this today but I think it's pretty bad to spam email users,
+  //       so adding this as a temp fix
+  if (forumTypeSetting.get() === 'EAForum') return false
+  
   if (!!oldPost.mongoLocation !== !!newPost.mongoLocation) {
     //Location added or removed
     return true;

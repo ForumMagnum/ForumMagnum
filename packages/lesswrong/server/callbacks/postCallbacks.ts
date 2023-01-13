@@ -246,6 +246,7 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 // admin or site feature updates postedAt that should change the "newness" of
 // the post unless there's been active comments.
 async function oldPostsLastCommentedAt (post: DbPost) {
+  // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
   if (post.commentCount) return
 
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})

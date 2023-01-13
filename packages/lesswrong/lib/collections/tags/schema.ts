@@ -550,33 +550,33 @@ const schema: SchemaType<DbTag> = {
         }
         const { Tags } = context;
         // don't allow chained parent tag relationships
-        if ((await Tags.find({parentTagId: oldDocument._id}).count())) {
+        if (await Tags.find({parentTagId: oldDocument._id}).count()) {
           throw Error(`Tag ${oldDocument.name} is a parent tag of another tag.`);
         }
       }
       return data.parentTagId
     },
   },
-  subTags: resolverOnlyField({
-    type: Array,
-    graphQLtype: "[Tag]",
-    viewableBy: ['guests'],
-    resolver: async (tag, args: void, context: ResolverContext) => {
-      const { currentUser, Tags } = context;
-
-      const tags = await Tags.find({
-        parentTagId: tag._id
-      }, {
-        sort: {name: 1}
-      }).fetch();
-      return await accessFilterMultiple(currentUser, Tags, tags, context);
-    }
-  }),
-  'subTags.$': {
-    type: Object,
-    foreignKey: 'Tags',
+  subTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "subTagIds",
+      resolverName: "subTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    optional: true,
+    // To edit this, you have to edit the parent tag of the tag you are adding, and this will be automatically updated. It's like this for
+    // largely historical reasons, we didn't used to materialise the sub tag ids at all, but this had performance issues
+    hidden: true,
+    viewableBy: ["guests"],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
   },
-  
+  'subTagIds.$': {
+    type: String,
+    foreignKey: "Tags",
+    optional: true,
+  },
   autoTagModel: {
     type: String,
     label: "Auto-tag classifier model ID",
