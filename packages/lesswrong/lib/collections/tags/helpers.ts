@@ -79,6 +79,6 @@ export const subforumGetSubscribedUsers = async ({tagId}: {tagId: string}): Prom
 export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag: { subforumModeratorIds: string[] }) => {
   if (!user) return false
   if (user.isAdmin || user?.groups?.includes("sunshineRegiment")) return true
-  if (tag.subforumModeratorIds.includes(user._id)) return true
+  if (tag.subforumModeratorIds?.includes(user._id)) return true
   return false
 }
