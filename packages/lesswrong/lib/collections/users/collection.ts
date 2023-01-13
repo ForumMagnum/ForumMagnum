@@ -16,7 +16,6 @@ export const Users: ExtendedUsersCollection = createCollection({
   typeName: 'User',
   collectionType: forumTypeSetting.get() === "EAForum" ? "switching" : "mongo",
   schema,
-  // FIXME: switching this to postgres will cause `insertHashedLoginToken` to fail at the moment because $addToSet hasn't yet been implemented
   resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
     editCheck: (user: DbUser|null, document: DbUser) => {

@@ -33,6 +33,20 @@ declare global {
   };
 }
 
+/**
+ * When a new database connection is created we run these queries to
+ * ensure the environment is setup correctly. The order in which they
+ * are run is undefined.
+ */
+const onConnectQueries: string[] = [
+  `SET default_toast_compression = lz4`,
+  `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
+  `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
+  `CREATE OR REPLACE FUNCTION fm_add_to_set(anyarray, anyelement)
+    RETURNS anyarray LANGUAGE sql IMMUTABLE AS
+   'SELECT CASE WHEN array_position($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;'`,
+];
+
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
   url = url ?? process.env.PG_URL;
   if (!url) {
@@ -43,13 +57,12 @@ export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
     connectionString: url,
     max: MAX_CONNECTIONS,
   });
-  await db.none("SET default_toast_compression = lz4");
+
   try {
-    await db.none("CREATE EXTENSION IF NOT EXISTS \"btree_gin\" CASCADE");
-    await db.none("CREATE EXTENSION IF NOT EXISTS \"earthdistance\" CASCADE");
+    await Promise.all(onConnectQueries.map((query) => db.any(query)));
   } catch (e) {
-    // eslint-disable-next-line
-    console.error("Failed to create Postgres extensions:", e);
+    // eslint-disable-next-line no-console
+    console.error("Failed to run Postgres onConnectQuery:", e);
   }
 
   return {

@@ -69,5 +69,11 @@ describe("UpdateQuery", () => {
       expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' , $1 , TRUE) WHERE "a" = $2`,
       expectedArgs: ["hello world", 3],
     },
+    {
+      name: "can add a value to a set",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$addToSet: {b: "hello world"}}),
+      expectedSql: `UPDATE "TestCollection" SET "b" = fm_add_to_set( "b" , $1 ) WHERE "a" = $2`,
+      expectedArgs: ["hello world", 3],
+    },
   ]);
 });

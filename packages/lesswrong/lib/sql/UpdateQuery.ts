@@ -29,11 +29,13 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     const set: Partial<Record<keyof T, any>> = modifier.$set ?? {};
     const push: Partial<Record<keyof T, any>> = modifier.$push ?? {};
     const inc: Partial<Record<keyof T, any>> = modifier.$inc ?? {};
+    const addToSet: Partial<Record<keyof T, any>> = modifier.$addToSet ?? {};
     for (const operation of Object.keys(modifier)) {
       switch (operation) {
         case "$set":
         case "$inc":
         case "$push":
+        case "$addToSet":
           break;
         case "$unset":
           for (const field of Object.keys(modifier.$unset)) {
@@ -49,6 +51,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       ...this.compileSetFields(set),
       ...this.compilePushFields(push),
       ...this.compileIncFields(inc),
+      ...this.compileAddToSetFields(addToSet),
     ];
 
     this.atoms = this.atoms.concat(compiledUpdates.slice(1));
@@ -101,6 +104,12 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
       [",", resolvedField, "= COALESCE(", resolvedField, ", 0 ) +",  ...updateValue];
     return this.compileUpdateFields(incs, format);
+  }
+
+  private compileAddToSetFields(addToSets: Partial<Record<keyof T, any>>): Atom<T>[] {
+    const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
+      [",", resolvedField, "= fm_add_to_set(", resolvedField, ",",  ...updateValue, ")"];
+    return this.compileUpdateFields(addToSets, format);
   }
 
   private compileUpdateFields(
