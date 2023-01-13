@@ -67,7 +67,7 @@ const buildTables = async (client: SqlClient) => {
 
 const makeDbName = (id?: string) => {
   const jestWorkerIdSuffix = process.env.JEST_WORKER_ID ? `_${process.env.JEST_WORKER_ID}` : "";
-  id = id ?? `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}${jestWorkerIdSuffix}`;
+  id ??= `${new Date().toISOString().replace(/[:.-]/g, "_")}_${process.pid}${jestWorkerIdSuffix}`;
   return `unittest_${id}`.toLowerCase();
 }
 
