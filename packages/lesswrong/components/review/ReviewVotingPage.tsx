@@ -7,19 +7,17 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
-import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -54,9 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "sticky",
     top: 72,
     height: "90vh",
-    overflow: "scroll",
     paddingLeft: 24,
     paddingRight: 36,
+    overflow: "scroll",
     [theme.breakpoints.down('sm')]: {
       gridArea: "unset",
       paddingLeft: 0,
@@ -85,9 +83,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   expandedInfo: {
     maxWidth: 600,
     marginBottom: 175,
-  },
-  widget: {
-    marginBottom: 32
   },
   menu: {
     position: "sticky",
@@ -223,6 +218,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       boxShadow: "unset"
     }
+  },
+  reviewsList: {
+    marginTop: 50
   }
 });
 
@@ -248,7 +246,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, ContentStyles, SingleColumnSection } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -448,92 +446,6 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
 
-  const FaqCard = ({linkText, children}) => (
-    <LWTooltip tooltip={false} clickable title={
-      <Card className={classes.faqCard}>
-        <ContentStyles contentType="comment">
-          {children}
-        </ContentStyles>
-      </Card>}
-    >
-      {linkText}
-    </LWTooltip>
-  )
-  
-  const instructions = isEAForum ?
-    <ContentStyles contentType="comment" className={classes.instructions}>
-      <p>This is the Final Voting phase. During this phase, you'll read reviews, reconsider posts in the context of today, and cast or update your votes. At the end we'll have a final ordering of the Forum's favorite EA writings of all time.</p>
-      
-      <p><b>FAQ</b></p>
-      
-      <p className={classes.faqQuestion}>
-        <FaqCard linkText="How exactly do the votes work?">
-          <p>If you intuitively sort posts into "good", "important", "crucial", etc., you'll probably do fine. But here are some details on how it works under the hood:</p>
-
-          <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
-        </FaqCard>
-      </p>
-
-      <p className={classes.faqQuestion}>
-        <FaqCard linkText="Submitting reviews">
-          <p>The Review phase involves writing reviews of posts, with the advantage of hindsight. They can be brief or very detailed. You can write multiple reviews if your thoughts evolve over the course of the event.</p>
-        </FaqCard>
-      </p>
-      
-      <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
-    </ContentStyles>
-  : <ContentStyles contentType="comment" className={classes.instructions}>
-      {reviewPhase === "NOMINATIONS" && <><p>During the <em>Nomination Voting Phase</em>, eligible users are encouraged to:</p>
-      <ul>
-        <li>
-          Vote on posts that represent important intellectual progress.
-        </li>
-        <li>Write short reviews that explain why those posts seem important</li>
-      </ul> 
-      <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
-
-      <p>At the end of the Nomination Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
-
-
-      {reviewPhase === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
-
-      <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
-
-      <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p></>}
-
-      <p><b>FAQ</b></p>
-
-      <p className={classes.faqQuestion}>
-        <FaqCard linkText="How exactly do Nomination Votes work?">
-          <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
-          <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
-          <p>You can change your votes during the Final Voting Phase.</p>
-        </FaqCard>
-      </p>
-
-      <p className={classes.faqQuestion}>
-        <FaqCard linkText="How many votes does a post need to proceed to the Review Phase?">
-          <p>Posts will need at least two positive Preliminary Votes to proceed to the Review Phase.</p>
-        </FaqCard>
-      </p>
-
-      <p className={classes.faqQuestion}>
-        <FaqCard linkText="Who is eligible?">
-          <ul>
-            <li>Any user registered before {reviewYear} can vote on posts.</li>
-            <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
-            <li>Any user can write reviews.</li>
-          </ul>
-        </FaqCard>
-      </p>
-
-      <br />
-      <p>
-        Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
-      </p>
-    </ContentStyles>
-
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 
   const costTotalTooltip = costTotal > 500 ? <div>You have spent more than 500 points. Your vote strength will be reduced to account for this.</div> : <div>You have {500 - costTotal} points remaining before your vote-weight begins to reduce.</div>
@@ -557,13 +469,18 @@ const ReviewVotingPage = ({classes}: {
     <div>
       <div className={classes.grid}>
         <div className={classes.leftColumn}>
-          {!expandedPost && <div>
-            <div className={classes.widget}>
-              <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
+          {!expandedPost && <>
+            <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
+            <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
+            <ReviewDashboardButtons 
+                reviewYear={reviewYear} 
+                reviewPhase={reviewPhase}
+                showQuickReview
+              />
+            <div className={classes.reviewsList}>
+              <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
             </div>
-            {instructions}
-            <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
-          </div>}
+          </>}
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>

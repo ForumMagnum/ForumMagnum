@@ -5,14 +5,14 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
-import AddBoxIcon from '@material-ui/icons/AddBox';
 import range from 'lodash/range';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center",
-    marginLeft: 4
+    marginLeft: 4,
+    marginRight: 10
   },
   text: {
     ...theme.typography.body2,
@@ -40,7 +40,7 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
 }) => {
   const currentUser = useCurrentUser()
 
-  const { LWTooltip } = Components
+  const { LWTooltip, MetaInfo } = Components
 
   const { results: reviewsResults, totalCount } = useMulti({
     terms: {
@@ -72,7 +72,6 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
         return <CheckBoxTwoToneIcon className={classes.filledIcon} key={review._id}/>
       })}
       {range(0, uncheckedBoxes).map(a => <CheckBoxOutlineBlankIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
-      {((totalCount || 0) > 3) && <AddBoxIcon className={classes.extraIcon}/>}
     </div>
   </LWTooltip>
 }
