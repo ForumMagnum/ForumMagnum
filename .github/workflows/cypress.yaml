@@ -37,7 +37,10 @@ jobs:
       uses: ./.github/actions/setupEnvironment
 
     - name: Setup database template
-      run: yarn init-cypress-db
+      env:
+        TESTING_DB_URL: mongodb://127.0.0.1:27017/test?retryWrites=true
+        PG_URL: postgres://postgres:postgres@localhost:5432/postgres
+      run: yarn ci-init-cypress-db
 
     - name: Cypress run
       uses: cypress-io/github-action@v4
