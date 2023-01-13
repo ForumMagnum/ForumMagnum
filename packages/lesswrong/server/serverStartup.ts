@@ -16,10 +16,14 @@ import { createVoteableUnionType } from './votingGraphQL';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
+import { dropAndCreatePg } from './createTestingPgDb';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
+
+// Do this here to avoid a dependency cycle
+Globals.dropAndCreatePg = dropAndCreatePg;
 
 const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
   for (let functionName of ["log", "info", "warn", "error", "trace"]) {

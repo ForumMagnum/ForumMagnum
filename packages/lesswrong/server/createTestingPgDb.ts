@@ -16,7 +16,6 @@ import seedComments from "../../../cypress/fixtures/comments";
 import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
-import { Globals } from "./vulcan-lib";
 // import seedUsers from "../../../cypress/fixtures/users";
 
 const seedData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
@@ -31,7 +30,7 @@ type DropAndCreatePgArgs = {
   dropExisting?: boolean,
 }
 
-const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePgArgs) => {
+export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePgArgs) => {
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());
   await oldClient?.$pool.end();
@@ -51,8 +50,6 @@ const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePg
     ]);
   }
 }
-
-Globals.dropAndCreatePg = dropAndCreatePg;
 
 // In development mode, we need a clean way to reseed the test database for Cypress.
 // We definitely don't ever want this in prod though.
