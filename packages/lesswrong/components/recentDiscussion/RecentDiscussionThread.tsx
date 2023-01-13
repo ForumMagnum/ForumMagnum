@@ -24,7 +24,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    // backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+  },
+  plainBackground: {
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+  },
+  primaryBackground: {
     backgroundColor: theme.palette.background.primaryDim,
   },
   postStyle: theme.typography.postStyle,
@@ -85,8 +89,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    // background: theme.palette.panelBackground.default,
-    backgroundColor: theme.palette.background.primaryDim,
     borderRadius: 3,
     marginBottom:4,
     
@@ -124,8 +126,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: -8,
   },
   closeButton: {
-    padding: '.25em',
-    margin: "-0.5em -1.5em 0em 0em",
+    padding: 0,
+    margin: "-6px 4px 0em 0em",
+    width: 32,
+    height: 32,
+    minHeight: 'unset',
+    minWidth: 'unset',
   },
   closeIcon: {
     width: '1em',
@@ -206,18 +212,33 @@ const RecentDiscussionThread = ({
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
-      <div className={classes.root}>
-        {/* TODo separate the post and comment parts */}
-        <div className={classes.post}>
+      <div className={classNames(
+        classes.root,
+        {
+          [classes.plainBackground]: !subforumIntroPost,
+          [classes.primaryBackground]: subforumIntroPost
+        }
+      )}>
+        {/* TODO separate the post and comment parts */}
+        <div className={classNames(
+          classes.post,
+          {
+            [classes.plainBackground]: !subforumIntroPost,
+            [classes.primaryBackground]: subforumIntroPost
+          }
+        )}>
           <div className={classes.postItem}>
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
             <div className={classes.titleAndActions}>
               <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
-              {subforumIntroPost && currentUser ? <Button className={classes.closeButton} onClick={dismissCallback}>
-                  <CloseIcon className={classes.closeIcon} />
-                </Button> : <div className={classes.actions}>
+              {subforumIntroPost && currentUser ? <Button
+                className={classes.closeButton}
+                onClick={dismissCallback}
+              >
+                <CloseIcon className={classes.closeIcon} />
+              </Button> : <div className={classes.actions}>
                 <PostActionsButton post={post} vertical />
               </div>}
             </div>
@@ -268,4 +289,3 @@ declare global {
     RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
   }
 }
-
