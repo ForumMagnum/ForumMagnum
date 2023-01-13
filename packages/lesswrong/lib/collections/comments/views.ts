@@ -33,7 +33,9 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
   const hideUnreviewedAuthorComments = hideUnreviewedAuthorCommentsSettings.get()
-    ? {$or: [{authorIsUnreviewed: {$ne: true}}, {userId: context?.currentUser?._id}]}
+    ? {$or: [
+      {authorIsUnreviewed: {$ne: true}},
+      ...(context?.currentUser?._id ? [{userId: context?.currentUser?._id}] : [])]}
     : {}
   return ({
     selector: {
