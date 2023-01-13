@@ -177,7 +177,7 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
     }
   }
 })
-ensureIndex(Users, {profileTagIds: 1, deleted: 1, deletedContent: 1, karma: 1})
+ensureIndex(Users, {profileTagIds: 1, deleted: 1, deleteContent: 1, karma: 1})
 
 Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   return {
