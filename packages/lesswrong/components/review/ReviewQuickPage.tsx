@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
+import { ReviewDashboardButtons } from './ReviewDashboardButtons';
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewProgressBar: {
     marginRight: "auto"
-  }
+  },
 });
 
 export const ReviewQuickPage = ({classes}: {
@@ -81,8 +82,6 @@ export const ReviewQuickPage = ({classes}: {
 }) => {
   const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
-
-  const currentUser = useCurrentUser()
 
   const { results: posts, loadMoreProps } = useMulti({
     terms: {
@@ -102,30 +101,18 @@ export const ReviewQuickPage = ({classes}: {
   // useMulti is incorrectly typed
   const postsResults = posts as PostsListWithVotes[] | null;
 
-  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, LoadMore, LWTooltip, ReviewPhaseInformation } = Components
+  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, LoadMore, ReviewPhaseInformation, ReviewDashboardButtons } = Components
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
       {!expandedPost && <div>
         <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-        <ReviewPhaseInformation reviewYear={reviewYear}/>
-        <SectionFooter>
-          {userIsAdmin(currentUser) && <LWTooltip title={`Look at metrics related to the Review`}>
-            <Link to={`/reviewAdmin/${reviewYear}`} className={classNames(classes.actionButton, classes.adminButton)}>
-              Review Admin
-            </Link>
-          </LWTooltip>}
-          <LWTooltip title={`Look over your upvotes from ${reviewYear}. (This is most useful during the nomination phase, but you may still enjoy looking them over in the latter phases to help compare)`}>
-            <Link to={`/votesByYear/${reviewYear}`}>
-              Your {reviewYear} Upvotes
-            </Link>
-          </LWTooltip>
-          <LWTooltip title="Look at reviews, update your votes, and see more detailed info from the Nomination Vote results">
-           <Link to={`/reviewVoting/${reviewYear}`}>
-              Advanced Dashboard
-            </Link>
-          </LWTooltip>
-        </SectionFooter>
+        <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={getReviewPhase()}/>
+        <ReviewDashboardButtons 
+          reviewYear={reviewYear} 
+          reviewPhase={getReviewPhase()}
+          showAdvancedDashboard
+        />
       </div>}
       {expandedPost && <ReviewVotingExpandedPost
         post={expandedPost}

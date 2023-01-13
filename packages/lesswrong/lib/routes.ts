@@ -220,7 +220,6 @@ addRoute(
     background: "white",
     initialScroll: "bottom",
   },
-
   {
     name: 'newPost',
     path: '/newPost',
@@ -265,6 +264,13 @@ addRoute(
     title: "Review Voting",
     componentName: "ReviewVotingPage",
     subtitleComponentName: "ReviewHeaderTitle"
+  },
+
+  {
+    name: "newLongformReviewForm",
+    path: '/newLongformReview',
+    title: "New Longform Review",
+    componentName: "NewLongformReviewForm",
   },
 
   // Sequences

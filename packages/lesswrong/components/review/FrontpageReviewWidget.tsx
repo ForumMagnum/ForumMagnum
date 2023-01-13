@@ -66,13 +66,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: 8
   },
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 7,
+    paddingBottom: 7,
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 3,
@@ -84,8 +83,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   actionButtonCTA2: {
     backgroundColor: theme.palette.panelBackground.default,
     border: `solid 2px ${theme.palette.primary.light}`,
-    paddingTop: 7,
-    paddingBottom: 7,
+    paddingTop: 6,
+    paddingBottom: 6,
     paddingLeft: 14,
     paddingRight: 14,
     borderRadius: 3,
@@ -96,8 +95,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 7,
+    paddingBottom: 7,
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 3,
@@ -136,6 +135,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewProgressBar: {
     marginRight: "auto",
+  },
+  icon: {
+    fontSize: 18,
+    color: 'inherit',
+    marginRight: 8,
+    marginLeft: -2
   }
 })
 
@@ -397,7 +402,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
         limit: 3,
         itemsPerPage: 10,
       }}
-    />
+    >
+      {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+    </PostsList2>
   </AnalyticsContext>
 
   return (
@@ -424,7 +431,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
         {/* Post list */}
         {showFrontpageItems && postList}
         {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}
-        {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+        
         {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
 
       </div>
