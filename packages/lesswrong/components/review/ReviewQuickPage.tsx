@@ -44,9 +44,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       gridArea: "unset"
     },
   },
-  faded: {
-    opacity: .25
-  },
   root: {
     display: "flex"
   },
@@ -119,7 +116,7 @@ export const ReviewQuickPage = ({classes}: {
         setExpandedPost={setExpandedPost}
       />}
     </div>
-    <div className={classNames(classes.rightColumn, {[classes.faded]: !!expandedPost})}>
+    <div className={classes.rightColumn}>
       <div className={classes.menu}>
         Top Unreviewed Posts
       </div>

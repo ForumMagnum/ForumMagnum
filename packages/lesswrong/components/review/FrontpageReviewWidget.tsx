@@ -394,7 +394,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
     <PostsList2 
-      showLoadMore={false}
       terms={{
         view:"reviewVoting",
         before: `${reviewYear+1}-01-01`,

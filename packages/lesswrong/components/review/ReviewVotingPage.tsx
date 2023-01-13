@@ -51,7 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "sticky",
     top: 72,
     height: "90vh",
-    overflow: "scroll",
     paddingLeft: 24,
     paddingRight: 36,
     [theme.breakpoints.down('sm')]: {
