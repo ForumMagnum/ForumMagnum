@@ -36,6 +36,9 @@ jobs:
       id: setup-environment
       uses: ./.github/actions/setupEnvironment
 
+    - name: Setup database template
+      run: yarn init-cypress-db
+
     - name: Cypress run
       uses: cypress-io/github-action@v4
       env:
