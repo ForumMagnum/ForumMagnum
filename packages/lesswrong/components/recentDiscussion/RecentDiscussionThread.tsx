@@ -142,6 +142,7 @@ const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in
   maxLengthWords,
   smallerFonts,
   subforumIntroPost,
+  dismissCallback = () => {},
   classes,
 }: {
   post: PostsRecentDiscussion,
@@ -151,6 +152,7 @@ const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in
   maxLengthWords?: number,
   smallerFonts?: boolean,
   subforumIntroPost?: boolean,
+  dismissCallback: () => void,
   classes: ClassesType,
 }) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
@@ -210,7 +212,7 @@ const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in
               <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
-              {subforumIntroPost ? <Button className={classes.closeButton} onClick={() => {}}>
+              {subforumIntroPost ? <Button className={classes.closeButton} onClick={dismissCallback}>
                   <CloseIcon className={classes.closeIcon} />
                 </Button> : <div className={classes.actions}>
                 <PostActionsButton post={post} vertical />
