@@ -14,6 +14,7 @@ interface ExtendedUsersCollection extends UsersCollection {
 export const Users: ExtendedUsersCollection = createCollection({
   collectionName: 'Users',
   typeName: 'User',
+  collectionType: forumTypeSetting.get() === "EAForum" ? "switching" : "mongo",
   schema,
   // FIXME: switching this to postgres will cause `insertHashedLoginToken` to fail at the moment because $addToSet hasn't yet been implemented
   resolvers: getDefaultResolvers('Users'),
