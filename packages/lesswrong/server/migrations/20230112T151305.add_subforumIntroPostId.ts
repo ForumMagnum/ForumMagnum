@@ -31,15 +31,17 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "d0d774d029dff33d300b1f8fc8a421e5";
+export const acceptsSchemaHash = "86992f0fe5773d391be424a760838ef3";
 
 import Tags from "../../lib/collections/tags/collection"
+import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { addField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Tags.isPostgres()) return;
+  if (!Tags.isPostgres() || !UserTagRels.isPostgres()) return;
   
   await addField(db, Tags, "subforumIntroPostId");
+  await addField(db, UserTagRels, "subforumHideIntroPost");
 }
 
 export const down = async ({db}: MigrationContext) => {

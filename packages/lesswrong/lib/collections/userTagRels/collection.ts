@@ -14,7 +14,7 @@ const schema: SchemaType<DbUserTagRel> = {
       type: "Tag",
     }),
     canRead: ['guests'],
-    canCreate: [],
+    canCreate: ['members'],
   },
   userId: {
     ...foreignKeyField({
@@ -24,7 +24,7 @@ const schema: SchemaType<DbUserTagRel> = {
       type: "User",
     }),
     canRead: ['guests'],
-    canCreate: [],
+    canCreate: ['members'],
   },
   subforumLastVisitedAt: {
     type: Date,
@@ -34,8 +34,7 @@ const schema: SchemaType<DbUserTagRel> = {
   },
   subforumShowUnreadInSidebar: {
     type: Boolean,
-    nullable: false,
-    optional: false,
+    optional: true,
     label: "Unread count in sidebar",
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
@@ -45,8 +44,7 @@ const schema: SchemaType<DbUserTagRel> = {
   },
   subforumEmailNotifications: {
     type: Boolean,
-    nullable: false,
-    optional: false,
+    optional: true,
     label: "Notify me of new discussions",
     // control: "SubforumNotifications", // TODO: Possibly add this back in (it shows the batching settings in the menu)
     canRead: [userOwns, 'admins'],
@@ -56,10 +54,9 @@ const schema: SchemaType<DbUserTagRel> = {
   },
   subforumHideIntroPost: {
     type: Boolean,
-    nullable: false,
-    optional: false,
+    optional: true,
+    hidden: true,
     label: "Don't show the intro post at the top of the subforum feed",
-    // control: "SubforumNotifications", // TODO: Possibly add this back in (it shows the batching settings in the menu)
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],

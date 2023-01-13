@@ -16,6 +16,7 @@ import { userIsDefaultSubscribed } from "../../../lib/subscriptionUtil";
 import { useCreate } from "../../../lib/crud/withCreate";
 import { max } from "underscore";
 import { useForceRerender } from "../../hooks/useFirstRender";
+import { useUpdate } from "../../../lib/crud/withUpdate";
 
 const styles = (theme: ThemeType): JssStyles => ({
   notificationsButton: {
@@ -54,12 +55,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SubforumNotificationSettings = ({
   tag,
+  userTagRel,
   currentUser,
   startOpen = false,
   className,
   classes,
 }: {
   tag: TagBasicInfo;
+  userTagRel: UserTagRelDetails;
   currentUser: UsersCurrent;
   startOpen?: boolean;
   className?: string;
@@ -71,16 +74,8 @@ const SubforumNotificationSettings = ({
   const [open, setOpen] = useState(startOpen);
   const { flash } = useMessages();
 
-  const { LWClickAwayListener, LWPopper, WrappedSmartForm, Typography, Loading } = Components;
+  const { LWClickAwayListener, LWPopper, Typography, Loading } = Components;
 
-  const { loading, results, refetch } = useMulti({
-    terms: { view: "single", tagId: tag._id, userId: currentUser._id },
-    collectionName: "UserTagRels",
-    fragmentName: "UserTagRelNotifications",
-    fetchPolicy: "cache-and-network",
-  });
-
-  // This is all a mess because we had to launch subforums quickly, I can only apologize
   // Get existing subscription, if there is one
   const subscriptionType = "newTagPosts"
   const { results: subscriptions, loading: loadingSubscriptions } = useMulti({
@@ -100,8 +95,13 @@ const SubforumNotificationSettings = ({
     collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',
   });
+  
+  const { mutate: updateUserTagRel } = useUpdate({
+    collectionName: 'UserTagRels',
+    fragmentName: 'UserTagRelDetails',
+  });
 
-  const getIsSubscribed = () => {
+  const getIsSubscribedToPosts = () => {
     // Get the last element of the results array, which will be the most recent subscription
     if (subscriptions && subscriptions.length > 0) {
       // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
@@ -117,36 +117,23 @@ const SubforumNotificationSettings = ({
       subscriptionType, collectionName: "Tags", document: tag
     });
   }
-  const isSubscribed = getIsSubscribed();
-
-  const recordSubforumView = useRecordSubforumView({userId: currentUser._id, tagId: tag._id});
-  const userTagRel = results?.length ? results[0] : undefined;
-  
-  // This is to ensure the userTagRel exists, TODO refactor so this isn't necessary
-  useEffect(() => {
-    if (!loading && !userTagRel) {
-      void recordSubforumView().then(() => refetch())
-    }
-  }, [userTagRel, recordSubforumView, refetch, loading]);
-
-  // Don't show notification settings if the user is not subscribed to the tag
-  if (!currentUser || !currentUser.profileTagIds?.includes(tag._id)) return null;
-  if (!userTagRel) return null
+  const isSubscribedToPosts = getIsSubscribedToPosts();
 
   const filterSetting = filterSettings?.tags?.find(({tagId}) => tag._id === tagId);
   const isFrontpageSubscribed = filterSetting?.filterMode === "Subscribed";
 
-  const toggleIsFrontpageSubscribed = () =>
+  const toggleIsFrontpageSubscribed = () => {
     setTagFilter({
       tagId: tag._id,
       tagName: tag.name,
       filterMode: isFrontpageSubscribed ? 0 : "Subscribed",
     });
+  }
 
   const togglePostsSubscribed = async (e) => {
     try {
       e.preventDefault();
-      const subscriptionState = isSubscribed ? 'suppressed' : 'subscribed'
+      const subscriptionState = isSubscribedToPosts ? 'suppressed' : 'subscribed'
       captureEvent("subscribeClicked", {state: subscriptionState})
 
       const newSubscription = {
@@ -157,6 +144,15 @@ const SubforumNotificationSettings = ({
       } as const;
 
       await createSubscription({data: newSubscription})
+    } catch(error) {
+      flash({messageString: error.message});
+    }
+  }
+  
+  const toggleDiscussionsSubscribed = async (e) => {
+    try {
+      e.preventDefault();
+      await updateUserTagRel({selector: {_id: userTagRel._id}, data: {subforumEmailNotifications: !userTagRel.subforumEmailNotifications}})
     } catch(error) {
       flash({messageString: error.message});
     }
@@ -177,21 +173,18 @@ const SubforumNotificationSettings = ({
         <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-end">
           <LWClickAwayListener onClickAway={() => setOpen(false)}>
             <Paper className={classes.popout}>
-              {loading || loadingSubscriptions ? (
+              {loadingSubscriptions ? (
                 <Loading />
               ) : (
                 <>
                   <span className={classes.checkbox}>
-                    <Checkbox checked={isSubscribed} onChange={togglePostsSubscribed} disableRipple />
+                    <Checkbox checked={isSubscribedToPosts} onChange={togglePostsSubscribed} disableRipple />
                     <Typography variant="body2">Notify me of new posts</Typography>
                   </span>
-                  <WrappedSmartForm
-                    collection={UserTagRels}
-                    documentId={userTagRel?._id}
-                    queryFragment={getFragment("UserTagRelNotifications")}
-                    mutationFragment={getFragment("UserTagRelNotifications")}
-                    autoSubmit
-                  />
+                  <span className={classes.checkbox}>
+                    <Checkbox checked={userTagRel.subforumEmailNotifications} onChange={toggleDiscussionsSubscribed} disableRipple />
+                    <Typography variant="body2">Notify me of new discussions</Typography>
+                  </span>
                   <span className={classes.checkbox}>
                     <Checkbox checked={isFrontpageSubscribed} onChange={toggleIsFrontpageSubscribed} disableRipple />
                     <Typography variant="body2">Upweight on frontpage</Typography>

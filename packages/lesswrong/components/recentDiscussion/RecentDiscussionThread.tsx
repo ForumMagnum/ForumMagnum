@@ -15,6 +15,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -124,9 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   closeButton: {
     padding: '.25em',
-    margin: "0 -1em -1.4em 0",
-    minHeight: '.75em',
-    minWidth: '.75em',
+    margin: "-0.5em -1.5em 0em 0em",
   },
   closeIcon: {
     width: '1em',
@@ -135,7 +134,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in multiple places
+const RecentDiscussionThread = ({
   post,
   comments, refetch,
   expandAllThreads: initialExpandAllThreads,
@@ -159,6 +158,7 @@ const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { recordPostView } = useRecordPostView(post);
+  const currentUser = useCurrentUser();
 
   const markAsRead = useCallback(
     () => {
@@ -207,6 +207,7 @@ const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
       <div className={classes.root}>
+        {/* TODo separate the post and comment parts */}
         <div className={classes.post}>
           <div className={classes.postItem}>
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
@@ -214,7 +215,7 @@ const RecentDiscussionThread = ({ // TODO possibly rename as this is now used in
               <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
-              {subforumIntroPost ? <Button className={classes.closeButton} onClick={dismissCallback}>
+              {subforumIntroPost && currentUser ? <Button className={classes.closeButton} onClick={dismissCallback}>
                   <CloseIcon className={classes.closeIcon} />
                 </Button> : <div className={classes.actions}>
                 <PostActionsButton post={post} vertical />

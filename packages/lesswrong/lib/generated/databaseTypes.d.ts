@@ -914,6 +914,7 @@ interface DbUserTagRel extends DbObject {
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
   subforumEmailNotifications: boolean
+  subforumHideIntroPost: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
