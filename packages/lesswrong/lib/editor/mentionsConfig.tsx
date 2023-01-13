@@ -3,6 +3,7 @@ import {promisify} from '../utils/asyncUtils'
 import {getSiteUrl, Components} from '../vulcan-lib'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {userGetDisplayName} from '../collections/users/helpers'
 
 
 interface PostSearchHit {
@@ -13,6 +14,7 @@ interface PostSearchHit {
 
 interface UserSearchHit {
   displayName: string
+  fullName?: string
   slug: string
   _id: string
   username: string
@@ -54,24 +56,27 @@ async function fetchUserSuggestions(searchString: string) {
   const search = initSearchForIndex('Users')
   const searchResults = await search({
     query: searchString,
-    attributesToRetrieve: ['displayName', 'slug', '_id', 'username', 'groups', 'karma', 'createdAt'],
+    attributesToRetrieve: ['displayName', 'slug', '_id', 'username', 'groups', 'karma', 'createdAt', 'fullName'],
     hitsPerPage: 20,
   }) as { hits: UserSearchHit[] }
 
-  return searchResults.hits.map(hit => ({
-    id: markers.user + hit.displayName,
-    // Query string is intended for later use in detecting the ping
-    link: `${linkPrefix}users/${hit.slug}?mention=user`,
-    text: hit.displayName,
-    karma: hit.karma,
-    createdAt: new Date(hit.createdAt),
-  }))
+  return searchResults.hits.map(hit => {
+    const displayName = userGetDisplayName(hit)
+    return ({
+      id: markers.user + displayName,
+      // Query string is intended for later use in detecting the ping
+      link: `${linkPrefix}users/${hit.slug}?mention=user`,
+      text: displayName,
+      karma: hit.karma,
+      createdAt: new Date(hit.createdAt),
+    })
+  })
 }
 
 const renderUserItem = (item: { text: string, karma?: number, createdAt: Date }) => {
   const itemElement = document.createElement('button')
 
-  ReactDOM.render(<Components.UsersSearchAutocompleteHit {...item} displayName={item.text}/>, itemElement)
+  ReactDOM.render(<Components.UsersSearchAutocompleteHit {...item} name={item.text}/>, itemElement)
 
   return itemElement
 }

@@ -9,7 +9,7 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
+export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
   if (!user) {
     return "";
   } else {
@@ -20,7 +20,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+export const getUserName = function(user: {username: string} | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {

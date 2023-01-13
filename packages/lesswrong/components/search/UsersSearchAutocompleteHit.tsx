@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface UsersSearchAutocompleteHitProps {
   classes: ClassesType
-  displayName: string
+  name: string
   createdAt: Date
   karma?: number
 }
@@ -26,9 +26,9 @@ interface UsersSearchAutocompleteHitProps {
 const UsersSearchAutocompleteHit = (props: UsersSearchAutocompleteHitProps) => {
   const {MetaInfo, FormatDate} = Components
 
-  const metaClassName = `${props.classes.userHitLabel} ${specificityFmClass} ${specificityCkClass} ck-override`
+  const metaClassName = `${props.classes.userHitLabel} ${specificityFmClass} ${specificityCkClass}`
   return <span>
-    {props.displayName}
+    {props.name}
     <MetaInfo className={metaClassName}>
       <FormatDate date={props.createdAt}/>
     </MetaInfo>
