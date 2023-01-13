@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
@@ -149,9 +149,9 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
             <MetaInfo>
               <FormatDate date={post.postedAt}/>
             </MetaInfo>
-            {post.commentCount && <MetaInfo>
+            {postGetCommentCount(post) && <MetaInfo>
               <Link to={`${postGetPageUrl(post)}#comments`}>
-                {post.commentCount} comments
+                {postGetCommentCountStr(post)}
               </Link>
             </MetaInfo>}
           </div>

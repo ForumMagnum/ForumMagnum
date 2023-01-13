@@ -462,6 +462,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly parentTagId: string,
+  readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
 }
@@ -1049,6 +1050,7 @@ interface PostSequenceNavigation_prevPost { // fragment on Posts
   readonly title: string,
   readonly slug: string,
   readonly commentCount: number,
+  readonly afCommentCount: number,
   readonly baseScore: number,
   readonly sequence: PostSequenceNavigation_prevPost_sequence|null,
 }
@@ -1062,6 +1064,7 @@ interface PostSequenceNavigation_nextPost { // fragment on Posts
   readonly title: string,
   readonly slug: string,
   readonly commentCount: number,
+  readonly afCommentCount: number,
   readonly baseScore: number,
   readonly sequence: PostSequenceNavigation_nextPost_sequence|null,
 }
