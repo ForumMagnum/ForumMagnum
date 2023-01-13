@@ -1213,6 +1213,7 @@ interface CommentsList { // fragment on Comments
   readonly deletedPublic: boolean,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
+  readonly authorIsUnreviewed: boolean,
   readonly user: UsersMinimumInfo|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
