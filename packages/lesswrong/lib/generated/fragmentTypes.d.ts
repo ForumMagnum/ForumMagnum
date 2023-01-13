@@ -212,6 +212,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly smallDownvoteCount: number,
   readonly bigUpvoteCount: number,
   readonly bigDownvoteCount: number,
+  readonly usersContactedBeforeReview: Array<string>,
   readonly fullName: string,
   readonly shortformFeedId: string,
   readonly viewUnreviewedComments: boolean,
