@@ -95,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 18,
     lineHeight: '24px',
     color: theme.palette.grey[700],
-    margin: '3px 0'
+    margin: '3px 0 5px'
   },
   link: {
     color: theme.palette.primary.main
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 30,
-    rowGap: '3px'
+    rowGap: '5px'
   },
   metadata: {
     display: 'flex',
@@ -115,6 +115,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadataIcon: {
     fontSize: 12,
+  },
+  deadline: {
+    fontWeight: 600,
+    color: theme.palette.primary.dark
   },
   readMore: {
     display: 'flex',
@@ -176,6 +180,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+// list of options from EAG
 type EAGOccupation =
   'Academic research'|
   'Operations'|
@@ -667,6 +672,14 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
             <LocationIcon className={classes.metadataIcon} />
             {adData.location}
           </div>
+          {
+            // display the deadline when it's within 2 days away
+            adData.deadline &&
+            moment().add(2, 'days').isSameOrAfter(adData.deadline, 'day') &&
+            <div className={classNames(classes.metadata, classes.deadline)}>
+              Apply by {adData.deadline.format('MMM Do')}
+            </div>
+          }
         </div>
         {!expanded ? <button onClick={handleExpand} className={classes.readMore}>
           <ChevronRight className={classes.readMoreIcon} /> Expand
