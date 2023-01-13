@@ -1,11 +1,11 @@
 import moment from 'moment';
-import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import pick from 'lodash/pick';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -25,15 +25,15 @@ declare global {
   }
 }
 
-Comments.addDefaultView((terms: CommentsViewTerms) => {
-  const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
+Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
+  const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
   const hideUnreviewedAuthorComments = hideUnreviewedAuthorCommentsSettings.get()
-    ? {authorIsUnreviewed: {$ne: true}}
+    ? {$or: [{authorIsUnreviewed: {$ne: true}}, {userId: context?.currentUser?._id}]}
     : {}
   return ({
     selector: {
