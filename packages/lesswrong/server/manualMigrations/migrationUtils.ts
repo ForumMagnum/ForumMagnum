@@ -84,7 +84,7 @@ export async function runMigration(name: string)
 
   // TODO: do this atomically in a single transaction
   try {
-    safeRun(`remove_lowercase_views`) // Remove any views before we change the underlying tables
+    await safeRun(`remove_lowercase_views`) // Remove any views before we change the underlying tables
     await action();
     
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
@@ -103,7 +103,7 @@ export async function runMigration(name: string)
       finished: true, succeeded: false,
     }});
   } finally {
-    safeRun(`refresh_lowercase_views`) // add the views back in
+    await safeRun(`refresh_lowercase_views`) // add the views back in
   }
 }
 
