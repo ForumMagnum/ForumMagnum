@@ -18,7 +18,7 @@ registerMigration({
     BEGIN
       FOR rec IN 
         select table_name,
-          STRING_AGG('"' || column_name || '" as ' || column_name, ', ') cols
+          string_agg(format('%I as %s', column_name, column_name), ', ') cols
         from information_schema."columns"
         inner join information_schema."tables" using (table_name)
         where "columns".table_schema = 'public'
@@ -39,8 +39,7 @@ registerMigration({
         rec record;
     BEGIN
       FOR rec IN 
-        select table_name,
-          STRING_AGG('"' || column_name || '" as ' || column_name, ', ') cols
+        select distinct table_name
         from information_schema."columns"
         inner join information_schema."tables" using (table_name)
         where "columns".table_schema = 'public'
