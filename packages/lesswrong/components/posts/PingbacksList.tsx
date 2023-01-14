@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PingbacksList = ({classes, postId, limit=5}: {
   classes: ClassesType,
   postId: string,
-  limit: number
+  limit?: number
 }) => {
   const { results, loadMoreProps, loading } = useMulti({
     terms: {
