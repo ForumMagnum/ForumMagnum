@@ -1,6 +1,6 @@
-import classNames from 'classnames';
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
