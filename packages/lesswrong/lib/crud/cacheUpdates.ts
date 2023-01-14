@@ -1,7 +1,8 @@
-import { Utils } from '../vulcan-lib';
+import { pluralize, Utils } from '../vulcan-lib';
 import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
+import { loggerConstructor } from '../utils/logging';
 
 export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
   const mutationName = getCreateMutationName(typeName);
@@ -51,12 +52,15 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
   typeName: string
   document: any
 }) => {
+  const mingoLogger = loggerConstructor(`mingo-${pluralize(typeName.toLowerCase())}`)
   const watches = (store as any).watches; // Use a private variable on ApolloCache to cover an API hole (no good way to enumerate queries in the cache)
   
   const watchesToCheck = findWatchesByTypeName(Array.from(watches), typeName)
   watchesToCheck.forEach(({query, variables }) => {
     const { input: { terms } } = variables
     const parameters = getParametersByTypeName(terms, typeName);
+    mingoLogger('parameters', parameters);
+    mingoLogger('document', document);
     if (Utils.mingoBelongsToSet(document, parameters.selector)) {
       invalidateQuery({client, query, variables});
     }

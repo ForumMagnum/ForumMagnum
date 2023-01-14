@@ -15,6 +15,9 @@ const CommentBottomCaveats = ({comment, classes}: {
 }) => {
   const now = useCurrentTime();
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const commentHidden = hideSince && new Date(hideSince) < new Date(comment.postedAt) &&
+    comment.authorIsUnreviewed
   
   return <>
     { blockedReplies &&
@@ -23,11 +26,10 @@ const CommentBottomCaveats = ({comment, classes}: {
       </div>
     }
     { comment.retracted && <Components.MetaInfo>[This comment is no longer endorsed by its author]</Components.MetaInfo>}
-    { hideUnreviewedAuthorCommentsSettings.get() && comment.authorIsUnreviewed &&
-      <Components.MetaInfo>
-        [This comment will not be visible to other users until the moderation
-        team checks it for spam or norm violations.]
-      </Components.MetaInfo>
+    { commentHidden && <Components.MetaInfo>
+      [This comment will not be visible to other users until the moderation
+      team checks it for spam or norm violations.]
+    </Components.MetaInfo>
     }
   </>
 }

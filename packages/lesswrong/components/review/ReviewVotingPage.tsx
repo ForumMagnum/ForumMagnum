@@ -368,7 +368,8 @@ const ReviewVotingPage = ({classes}: {
         const post2Score = post2.currentUserReviewVote?.qualitativeScore || 0
         const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore || 0
         const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore || 0
-
+        const post1NotKarmaVoted = post1.currentUserVote === null 
+        const post2NotKarmaVoted = post2.currentUserVote === null
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
@@ -389,8 +390,6 @@ const ReviewVotingPage = ({classes}: {
         if (sortPosts === "needsFinalVote") {
           const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
           const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
-          const post1NotKarmaVoted = post1.currentUserVote === null 
-          const post2NotKarmaVoted = post2.currentUserVote === null
           if (post1NotReviewVoted && !post2NotReviewVoted) return -1
           if (post2NotReviewVoted && !post1NotReviewVoted) return 1
           if (post1Score < post2Score) return 1
@@ -410,6 +409,10 @@ const ReviewVotingPage = ({classes}: {
           if (post1Score < post2Score) return 1
           if (post1Score > post2Score) return -1
         }
+        if (sortPosts === "yourKarmaVote") {
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+        }        
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
         if (post1[sortPosts] < post2[sortPosts]) return 1
@@ -541,7 +544,10 @@ const ReviewVotingPage = ({classes}: {
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
-                  <span className={classes.sortBy}>Sort by</span> Your Vote
+                  <span className={classes.sortBy}>Sort by</span> Your Review Vote
+                </MenuItem>
+                <MenuItem value={'yourKarmaVote'}>
+                  <span className={classes.sortBy}>Sort by</span> Your Karma Vote
                 </MenuItem>
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count
