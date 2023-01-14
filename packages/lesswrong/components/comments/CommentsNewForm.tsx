@@ -221,7 +221,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
-  const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
+  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
+    currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
   return (
