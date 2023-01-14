@@ -3,6 +3,7 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep } from '../../lib/helpers';
+import { getSqlClient } from '../../lib/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -65,13 +66,17 @@ export async function runMigration(name: string)
     started: new Date(),
   });
   
+  const db = getSqlClient();
+
+  // TODO: do this atomically in a single transaction
   try {
+    if(db) await db.any(`select remove_lowercase_views();`) // Remove any views before we change the underlying tables
     await action();
     
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: true,
     }});
-
+    
     // eslint-disable-next-line no-console
     console.log(`Finished migration: ${name}`);
   } catch(e) {
@@ -83,6 +88,8 @@ export async function runMigration(name: string)
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: false,
     }});
+  } finally {
+    if(db) await db.any(`select refresh_lowercase_views();`) // add the views back in
   }
 }
 
