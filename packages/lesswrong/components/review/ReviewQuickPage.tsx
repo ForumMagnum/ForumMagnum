@@ -69,11 +69,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto"
   },
   postRoot: {
-    position: "relative"
+    position: "relative",
+    paddingLeft: 6,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    borderBottomWidth: 2,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
   },
   loading: {
     opacity: .5
-  },
+  },  
   loadMore: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
@@ -134,6 +138,7 @@ export const ReviewQuickPage = ({classes}: {
         />
       </div>}
       {expandedPost && <ReviewVotingExpandedPost
+        showReviewButton={false}
         post={expandedPost}
         setExpandedPost={setExpandedPost}
       />}

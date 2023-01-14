@@ -50,9 +50,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}:{
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewButton=true}:{
   classes: ClassesType, 
   post?: PostsListWithVotes|null,
+  showReviewButton?: boolean,
   setExpandedPost: (post: PostsListWithVotes|null) => void
 }) => {
   const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
@@ -75,26 +76,26 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}:{
     <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>{newPost.title}</Link>
     {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
     {loading && <Loading/>}
-    <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
+    {showReviewButton && <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
       <div className={classes.writeAReview}>
         <div className={classes.reviewPrompt}>Write a review for "{newPost.title}"</div>
         <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
       </div>
-    </div>}/>
+    </div>}/>}
 
     <div className={classes.comments}>
-      <PingbacksList postId={newPost._id}/>
+      <PingbacksList postId={newPost._id} limit={3}/>
       {(getReviewPhase() !== "VOTING") && <ReviewPostComments
         title="Review"
         terms={{
           view: "reviews",
           reviewYear: REVIEW_YEAR, 
-          postId: newPost._id
+          postId: newPost._id,
         }}
         post={newPost}
       />}
       <ReviewPostComments
-        title="Recent Comments"
+        title="Recent Comment"
         terms={{
           view: "postsItemComments", 
           postId: newPost._id,
