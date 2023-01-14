@@ -544,7 +544,7 @@ const ReviewVotingPage = ({classes}: {
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
-                  <span className={classes.sortBy}>Sort by</span> Your Vote
+                  <span className={classes.sortBy}>Sort by</span> Your Review Vote
                 </MenuItem>
                 <MenuItem value={'yourKarmaVote'}>
                   <span className={classes.sortBy}>Sort by</span> Your Karma Vote
