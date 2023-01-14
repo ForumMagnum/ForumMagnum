@@ -769,6 +769,7 @@ importComponent("PostNominatedNotification", () => require('../components/review
 importComponent("SingleLineReviewsList", () => require('../components/review/SingleLineReviewsList'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
+importComponent("KarmaVoteStripe", () => require('../components/review/KarmaVoteStripe'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
 

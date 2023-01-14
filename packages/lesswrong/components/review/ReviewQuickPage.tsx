@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import sortBy from 'lodash/sortBy';
+
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
@@ -66,6 +68,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   reviewProgressBar: {
     marginRight: "auto"
   },
+  postRoot: {
+    position: "relative"
+  },
+  loading: {
+    opacity: .5
+  },
+  loadMore: {
+    ...theme.typography.body2,
+    color: theme.palette.primary.main,
+    marginRight: "auto"
+  }
 });
 
 export const ReviewQuickPage = ({classes}: {
@@ -73,13 +86,14 @@ export const ReviewQuickPage = ({classes}: {
 }) => {
   const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
+  const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
 
-  const { results: posts, loadMoreProps } = useMulti({
+  const { results: posts, loadMore, loading, totalCount } = useMulti({
     terms: {
       view: "reviewQuickPage",
       before: `${reviewYear+1}-01-01`,
       after: `${reviewYear}-01-01`,
-      limit: 12,
+      limit: 25,
     },
     collectionName: "Posts",
     fragmentName: 'PostsReviewVotingList',
@@ -92,7 +106,21 @@ export const ReviewQuickPage = ({classes}: {
   // useMulti is incorrectly typed
   const postsResults = posts as PostsListWithVotes[] | null;
 
-  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, LoadMore, ReviewPhaseInformation, ReviewDashboardButtons } = Components
+  const { PostsItem2, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
+
+  const sortedPostsResults = !!postsResults ? sortBy(posts, (post1,post2) => {
+    return post1.currentUserVote === null
+  }) as PostsListWithVotes[] : []
+
+  const truncatedPostsResults = truncatePosts ? sortedPostsResults.slice(0,12) : sortedPostsResults
+
+  const handleLoadMore = () => {
+    if (truncatePosts) {
+      setTruncatePosts(false)
+    } else {
+      loadMore()
+    }
+  }
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
@@ -114,17 +142,23 @@ export const ReviewQuickPage = ({classes}: {
       <div className={classes.menu}>
         Top Unreviewed Posts
       </div>
-      {postsResults?.map(post => {
-        return <div key={post._id} onClick={() => setExpandedPost(post)}>
-          <PostsItem2 
-            post={post} 
-            showKarma={false}
-            showPostedAt={false}
-          />
-        </div>
-      })}
+      <div className={loading ? classes.loading : null}>
+        {truncatedPostsResults.map(post => {
+          return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
+            <PostsItem2 
+              post={post} 
+              showKarma={false}
+              showPostedAt={false}
+            />
+            <KarmaVoteStripe post={post}/>
+          </div>
+        })}
+      </div>
       <SectionFooter>
-        <LoadMore {...loadMoreProps} sectionFooterStyles/>
+        <div className={classes.loadMore}>
+          {loading && <Loading/>}
+          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
+        </div>
       </SectionFooter>
     </div>
   </div>;
