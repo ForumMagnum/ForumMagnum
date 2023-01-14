@@ -34,10 +34,13 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
   //  * The author is reviewed
   //  * The comment was posted before the hideSince date
   //  * The comment was posted by the current user
+  // Do not run this on the client (ie: Mingo), because we will not have the
+  // resolver context, and return unreviewed comments to ensure cache is
+  // properly invalidated.
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const hideNewUnreviewedAuthorComments = hideSince
+  const hideNewUnreviewedAuthorComments = (hideSince && bundleIsServer)
     ? {$or: [
       {authorIsUnreviewed: {$ne: true}},
       {postedAt: {$lt: new Date(hideSince)}},
