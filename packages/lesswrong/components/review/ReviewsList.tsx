@@ -5,8 +5,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
+import sortBy from 'lodash/sortBy';
 
-const sortOptions = new TupleSet(["top", "new", "groupByPost"] as const);
+const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
 export const ReviewsList = ({title, defaultSort, reviewYear}: {
@@ -17,17 +18,21 @@ export const ReviewsList = ({title, defaultSort, reviewYear}: {
   const { CommentsNode, SectionTitle, ReviewsLeaderboard, Loading } = Components
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
-  const { loadingInitial, loading, results: reviews } = useMulti({
+  const { loading, results: reviews } = useMulti({
     terms: { 
       view: "reviews", 
       reviewYear,
-       sortBy: sortReviews
+       sortBy: "new"
     },
     limit: 1000,
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: false,
   });
+  const sortedReviews = sortBy(reviews, obj => {
+    if (sortReviews === "top") return -obj.baseScore
+    if (sortReviews === "new") return -obj.postedAt 
+  })
   
   return <div>
       <SectionTitle title={title}>
@@ -38,30 +43,28 @@ export const ReviewsList = ({title, defaultSort, reviewYear}: {
           >
           <MenuItem value={'top'}>Sorted by Top</MenuItem>
           <MenuItem value={'new'}>Sorted by New</MenuItem>
-          <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
         </Select>
       </SectionTitle>
       {reviews && <ReviewsLeaderboard reviews={reviews} reviewYear={reviewYear} />}
-      {loading && <Loading/>}
-      {!loadingInitial && reviews && !reviews.length && <Components.Typography variant="body2">   
+      {!loading && reviews && !reviews.length && <Components.Typography variant="body2">   
         No Reviews Found
       </Components.Typography>}
-      {loadingInitial || !reviews && <Components.Loading />}
-      {reviews?.map(comment =>
-      <div key={comment._id} id={comment._id}>
-        <CommentsNode
-          treeOptions={{
-            condensed: false,
-            post: comment.post || undefined,
-            tag: comment.tag || undefined,
-            showPostTitle: true,
-            forceNotSingleLine: true
-          }}
-          comment={comment}
-          startThreadTruncated={true}
-        />
-      </div>
-    )}
+      {(loading) && <Loading />}
+      {sortedReviews.map(comment =>
+        <div key={comment._id} id={comment._id}>
+          <CommentsNode
+            treeOptions={{
+              condensed: false,
+              post: comment.post ?? undefined,
+              tag: comment.tag ?? undefined,
+              showPostTitle: true,
+              forceNotSingleLine: true
+            }}
+            comment={comment}
+            startThreadTruncated={true}
+          />
+        </div>
+      )}
   </div>;
 }
 

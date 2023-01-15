@@ -58,12 +58,14 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
   const truncatedRows = truncated ? sortedUserRows.slice(0,5) : sortedUserRows
 
+  const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
+
   return <div className={classes.root}>
     <Row>
       <h3>Leaderboard</h3>
       {reviews && <div>
         <MetaInfo>{ reviews.length } Reviews</MetaInfo>
-        <MetaInfo>{ reviews.reduce((v, r) => v + r.baseScore, 0)} Karma</MetaInfo>
+        <MetaInfo>{ totalKarma } Karma</MetaInfo>
       </div>}
     </Row>
     {truncatedRows.map(reviewUser => {
