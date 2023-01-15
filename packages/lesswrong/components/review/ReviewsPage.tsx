@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
-import { getReviewYearFromString, reviewYears } from '../../lib/reviewUtils';
+import { getReviewYearFromString, reviewIsActive, reviewYears, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 
@@ -32,6 +32,8 @@ export const ReviewsPage = ({classes}:{classes: ClassesType}) => {
     reviewYear = getReviewYearFromString(params.year)
   }
 
+  const defaultSort = reviewYear === REVIEW_YEAR ? 'new' : 'top'
+
   return <SingleColumnSection>
     <div>
       <Link className={classNames(classes.yearLink, {[classes.selected]: "all" === params.year})} to="/reviews/all">All</Link>
@@ -39,7 +41,7 @@ export const ReviewsPage = ({classes}:{classes: ClassesType}) => {
         {year}
       </Link>)}
     </div>
-    <ReviewsList reviewYear={reviewYear} title={`Reviews ${reviewYear ?? "(All Years)"}`} defaultSort="top"/>
+    <ReviewsList reviewYear={reviewYear} title={`Reviews ${reviewYear ?? "(All Years)"}`} defaultSort={defaultSort}/>
   </SingleColumnSection>;
 }
 

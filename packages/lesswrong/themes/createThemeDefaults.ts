@@ -40,6 +40,7 @@ export const zIndexes = {
   singleLineCommentHover: 4,
   questionPageWhitescreen: 4,
   footerNav: 4,
+  reviewLeaderboard: 5,
   textbox: 5,
   styledMapPopup: 6,
   nextUnread: 999,
