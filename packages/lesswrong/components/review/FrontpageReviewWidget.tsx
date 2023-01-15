@@ -126,7 +126,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
     ...theme.typography.commentStyle,
     fontSize: 14,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    marginLeft: 12
   },
   nominationTimeRemaining: {
     marginRight: "auto",
@@ -134,7 +135,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "left"
   },
   reviewProgressBar: {
-    marginRight: "auto",
+    marginRight: 2,
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
@@ -361,10 +362,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <UserReviewsProgressBar reviewYear={reviewYear}/>
     </span>}
-    {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
-      {reviewEndDate.fromNow()} remaining
-    </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
         Review Leaderboard
@@ -380,6 +377,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
         Quick Review
       </Link>
     </LWTooltip>
+    {/* If there's less than 24 hours remaining, show the remaining time */}
+    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
+      {reviewEndDate.fromNow()} remaining
+    </span>}
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
