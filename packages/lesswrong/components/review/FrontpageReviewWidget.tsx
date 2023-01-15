@@ -365,13 +365,18 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
     </span>}
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
+      <Link to={"/reviews"} className={classes.actionButton}>
+        Review Leaderboard
+      </Link>
+    </LWTooltip>
     <LWTooltip title="A detailed view of all nominated posts">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
         Advanced Dashboard
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
-      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA2}>
+      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA}>
         Quick Review
       </Link>
     </LWTooltip>
