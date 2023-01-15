@@ -365,7 +365,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
     </span>}
-    <LWTooltip title="A list of all reviews, with the top review-authors by total karma">
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
         Review Leaderboard
       </Link>
