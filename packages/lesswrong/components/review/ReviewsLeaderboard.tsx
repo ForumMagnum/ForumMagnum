@@ -13,10 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     paddingBottom: 10,
     border: theme.palette.border.commentBorder,
-    marginBottom: 16,
-    position: "sticky",
-    top: -48,
-    zIndex: theme.zIndexes.reviewLeaderboard
+    marginBottom: 16
   },
   username: {
     width: 160,
