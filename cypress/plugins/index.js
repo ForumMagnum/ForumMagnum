@@ -3,12 +3,8 @@
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 
-const seedPosts = require('../fixtures/posts');
-const seedComments = require('../fixtures/comments');
+// TODO: Remove this when the Users collection is migrated
 const seedUsers = require('../fixtures/users');
-const seedConversations = require('../fixtures/conversations');
-const seedMessages = require('../fixtures/messages');
-const seedLocalgroups = require('../fixtures/localgroups');
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -55,23 +51,16 @@ const dropAndSeedMongo = async (url) => {
   }));
 
   await Promise.all([
-    db.collection('comments').insertMany(seedComments),
     db.collection('users').insertMany(seedUsers),
-    db.collection('conversations').insertMany(seedConversations),
-    db.collection('posts').insertMany(seedPosts),
-    db.collection('messages').insertMany(seedMessages),
-    db.collection('localgroups').insertMany(seedLocalgroups),
   ]);
 }
 
 const dropAndSeedPostgres = async () => {
-  const result = await fetch("http://localhost:3000/api/dropAndCreatePg", {
+  const result = await fetch("http://localhost:3000/api/recreateCypressPgDb", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
-      seed: true,
-      templateId: "cypress_template",
-      dropExisting: true,
+      templateId: "unittest_cypress_template",
     }),
   });
 
