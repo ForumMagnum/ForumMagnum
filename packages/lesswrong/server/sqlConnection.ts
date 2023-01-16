@@ -69,7 +69,7 @@ const onConnectQueries: string[] = [
     THEN base_field
     ELSE JSONB_INSERT(
       base_field,
-      (SUBSTRING(target_path::TEXT FROM ''(.*)\}.*$'') || '', -1}'')::TEXT[],
+      (SUBSTRING(target_path::TEXT FROM ''(.*)}.*$'') || '', -1}'')::TEXT[],
       TO_JSONB(value_to_add),
       TRUE
     )
