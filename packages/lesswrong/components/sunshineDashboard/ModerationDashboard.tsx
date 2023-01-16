@@ -78,6 +78,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     paddingLeft: 12,
     paddingTop: 12
+  },
+  flagged: {
+    color: theme.palette.error.main
   }
 });
 
@@ -160,9 +163,9 @@ const ModerationDashboard = ({ classes }: {
         <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
           <div className={classes.toc}>
             {usersToReview.map(user => {
-              return <div key={user._id} className={classes.tocListing}>
+              return <div key={user._id} className={classNames(classes.tocListing, {[classes.flagged]: user.sunshineFlagged})}>
                 <a href={`${location.pathname}${location.search ?? ''}#${user._id}`}>
-                  {user.displayName}
+                  {user.displayName} 
                 </a>
               </div>
             })}
