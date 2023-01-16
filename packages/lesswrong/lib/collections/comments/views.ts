@@ -1,11 +1,11 @@
 import moment from 'moment';
-import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import pick from 'lodash/pick';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -25,22 +25,33 @@ declare global {
   }
 }
 
-Comments.addDefaultView((terms: CommentsViewTerms) => {
-  const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
+Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
+  const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  // When we're hiding unreviewed comments, we allow comments that meet any of:
+  //  * The author is reviewed
+  //  * The comment was posted before the hideSince date
+  //  * The comment was posted by the current user
+  // Do not run this on the client (ie: Mingo), because we will not have the
+  // resolver context, and return unreviewed comments to ensure cache is
+  // properly invalidated.
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const hideUnreviewedAuthorComments = hideUnreviewedAuthorCommentsSettings.get()
-    ? {authorIsUnreviewed: {$ne: true}}
+  const hideNewUnreviewedAuthorComments = (hideSince && bundleIsServer)
+    ? {$or: [
+      {authorIsUnreviewed: {$ne: true}},
+      {postedAt: {$lt: new Date(hideSince)}},
+      ...(context?.currentUser?._id ? [{userId: context?.currentUser?._id}] : [])]}
     : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
-      ...hideUnreviewedAuthorComments,
+      ...hideNewUnreviewedAuthorComments,
       ...validFields,
     },
     options: {
@@ -60,7 +71,7 @@ export function augmentForDefaultView(indexFields)
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
     prefix: {},
-    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1},
   });
 }
 
