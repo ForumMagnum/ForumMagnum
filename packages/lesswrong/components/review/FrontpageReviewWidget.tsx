@@ -384,15 +384,20 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
-    {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
-      {voteEndDate.fromNow()} remaining
-    </span>}
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
+      <Link to={"/reviews"} className={classes.actionButton}>
+        Review Leaderboard
+      </Link>
+    </LWTooltip>
     {
-      <Link to={"/reviews"} className={classes.actionButtonCTA}>
+      <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
         Cast Final Votes
       </Link>
     }
+    {/* If there's less than 24 hours remaining, show the remaining time */}
+    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
+      {voteEndDate.fromNow()} remaining
+    </span>}  
   </div>
 
   const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
