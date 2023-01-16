@@ -104,7 +104,7 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
   });
 
   const dismissIntroPost = useCallback(() => {
-    if (!userTagRel) return; // TODO maybe make only dismissable if logged in
+    if (!userTagRel) return;
     void updateUserTagRel({selector: {_id: userTagRel?._id}, data: {subforumHideIntroPost: true}})
   }, [updateUserTagRel, userTagRel])
 
@@ -239,7 +239,8 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
           tagSubforumPosts: {
             fragmentName: "PostsRecentDiscussion",
             render: (post: PostsRecentDiscussion) => {
-              return post._id !== tag.subforumIntroPost?._id && (
+              // Remove the intro post from the feed IFF it has not been dismissed from the top
+              return post._id !== tag.subforumIntroPost?._id && !hideIntroPost && (
                 <div className={classes.feedPostWrapper}>
                   <RecentDiscussionThread
                     key={post._id}

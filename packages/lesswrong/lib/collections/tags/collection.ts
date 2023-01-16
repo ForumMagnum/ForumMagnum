@@ -63,11 +63,6 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
 
 addUniversalFields({collection: Tags})
 
-export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
-  if (!user || !tag) return false;
-  return tag.subforumModeratorIds?.includes(user._id);
-}
-
 makeEditable({
   collection: Tags,
   options: {

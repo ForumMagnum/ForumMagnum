@@ -13,7 +13,6 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { useDialog } from "../../common/withDialog";
-import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
 import { useUserTagRel } from '../../hooks/useUserTagRel';
 
 export const styles = (theme: ThemeType): JssStyles => ({

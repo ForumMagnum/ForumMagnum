@@ -6,10 +6,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
-import UserTagRels from "../../../lib/collections/userTagRels/collection";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
 import { useFilterSettings } from '../../../lib/filterSettings';
 import { useMessages } from "../../common/withMessages";
 import { userIsDefaultSubscribed } from "../../../lib/subscriptionUtil";
@@ -134,7 +132,7 @@ const SubforumNotificationSettings = ({
     try {
       e.preventDefault();
       const subscriptionState = isSubscribedToPosts ? 'suppressed' : 'subscribed'
-      captureEvent("subscribeClicked", {state: subscriptionState})
+      captureEvent("subscribeClicked", {state: subscriptionState}) // TODO capture better events
 
       const newSubscription = {
         state: subscriptionState,

@@ -26,6 +26,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canRead: ['guests'],
     canCreate: ['members'],
   },
+  // DEPRECATED: may be reintroduced in the future but currently this isn't used anywhere and keeping it up to date adds extra complexity
   subforumLastVisitedAt: {
     type: Date,
     optional: true,

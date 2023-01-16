@@ -9,11 +9,10 @@ import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
-import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
-import { userIsSubforumModerator } from './collection';
+import { userIsSubforumModerator } from './helpers';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -516,7 +515,6 @@ const schema: SchemaType<DbTag> = {
     label: "Subforum Intro Post",
     tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
     group: formGroups.advancedOptions,
-    // control: 'TagSelect',
   },
   parentTagId: {
     ...foreignKeyField({

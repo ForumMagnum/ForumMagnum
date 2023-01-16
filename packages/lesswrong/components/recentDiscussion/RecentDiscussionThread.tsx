@@ -219,7 +219,6 @@ const RecentDiscussionThread = ({
           [classes.primaryBackground]: subforumIntroPost
         }
       )}>
-        {/* TODO separate the post and comment parts */}
         <div className={classNames(
           classes.post,
           {

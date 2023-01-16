@@ -29,14 +29,12 @@ const SubforumSubscribeSection = ({
   tag,
   joinCallback = () => {},
   leaveCallback = () => {},
-  errorCallback = () => {},
   className,
   classes,
 }: {
   tag: TagBasicInfo,
   joinCallback?: () => void,
   leaveCallback?: () => void,
-  errorCallback?: () => void,
   className?: string,
   classes: ClassesType,
 }) => {
