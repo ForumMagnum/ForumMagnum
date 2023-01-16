@@ -29,6 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getCommentDescription = (comment: CommentWithRepliesFragment) => {
+  if (comment.deleted) return '[Comment deleted]'
+
   return `Comment ${comment.user ? 
     `by ${comment.user.displayName} ` : 
     ''
