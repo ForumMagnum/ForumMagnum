@@ -64,7 +64,7 @@ describe("UpdateQuery", () => {
       expectedArgs: [1, 3],
     },
     {
-      name: "can set a value insude a JSON blob",
+      name: "can set a value inside a JSON blob",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.d.e": "hello world"}}),
       expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' , $1 , TRUE) WHERE "a" = $2`,
       expectedArgs: ["hello world", 3],
