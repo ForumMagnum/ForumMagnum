@@ -39,12 +39,42 @@ declare global {
  * are run is undefined.
  */
 const onConnectQueries: string[] = [
+  // The default TOAST compression in PG uses pglz - here we switch to lz4 which
+  // uses slightly more disk space in exchange for _much_ faster compression and
+  // decompression times
   `SET default_toast_compression = lz4`,
+  // Enable to btree_gin extension - this allows us to use a lot of BTREE operators
+  // with GIN indexes that otherwise wouldn't work
   `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
+  // Enable the earthdistance extension - this is used for finding nearby events
   `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
-  `CREATE OR REPLACE FUNCTION fm_add_to_set(anyarray, anyelement)
-    RETURNS anyarray LANGUAGE sql IMMUTABLE AS
-   'SELECT CASE WHEN array_position($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;'`,
+  // Implement Mongo's $addToSet for native PG arrays
+  `CREATE OR REPLACE FUNCTION fm_add_to_set(ANYARRAY, ANYELEMENT)
+    RETURNS ANYARRAY LANGUAGE sql IMMUTABLE AS
+   'SELECT CASE WHEN ARRAY_POSITION($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;'
+  `,
+  // Implement Mongo's $addToSet for JSON fields - this requires a lot more work
+  // than for native PG arrays
+  `CREATE OR REPLACE FUNCTION fm_add_to_set(
+    base_field JSONB,
+    target_path TEXT[],
+    value JSONB
+  )
+    RETURNS JSONB LANGUAGE sql IMMUTABLE AS
+   'SELECT CASE WHEN EXISTS (
+      SELECT *
+      FROM JSONB_ARRAY_ELEMENTS(base_field #> target_path) AS elem
+      WHERE elem = value
+    )
+    THEN base_field
+    ELSE JSONB_INSERT(
+      base_field,
+      (SUBSTRING(target_path::TEXT FROM ''(.*)\}.*$'') || '', -1}'')::TEXT[],
+      value,
+      TRUE
+    )
+    END;'
+  `,
 ];
 
 export const createSqlConnection = async (url?: string): Promise<SqlClient> => {
