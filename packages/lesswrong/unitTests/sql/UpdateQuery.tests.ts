@@ -70,10 +70,16 @@ describe("UpdateQuery", () => {
       expectedArgs: ["hello world", 3],
     },
     {
-      name: "can add a value to a set",
+      name: "can add a value to a set (native arrays)",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$addToSet: {b: "hello world"}}),
       expectedSql: `UPDATE "TestCollection" SET "b" = fm_add_to_set( "b" , $1 ) WHERE "a" = $2`,
       expectedArgs: ["hello world", 3],
+    },
+    {
+      name: "can add a value to a set (JSON arrays)",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$addToSet: {"c.d": 4}}),
+      expectedSql: `UPDATE "TestCollection" SET "c" = fm_add_to_set( "c" , '{d}' , $1 ) WHERE "a" = $2`,
+      expectedArgs: [4, 3],
     },
   ]);
 });

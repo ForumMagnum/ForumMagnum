@@ -58,19 +58,19 @@ const onConnectQueries: string[] = [
   `CREATE OR REPLACE FUNCTION fm_add_to_set(
     base_field JSONB,
     target_path TEXT[],
-    value JSONB
+    value_to_add ANYELEMENT
   )
     RETURNS JSONB LANGUAGE sql IMMUTABLE AS
    'SELECT CASE WHEN EXISTS (
       SELECT *
       FROM JSONB_ARRAY_ELEMENTS(base_field #> target_path) AS elem
-      WHERE elem = value
+      WHERE elem = TO_JSONB(value_to_add)
     )
     THEN base_field
     ELSE JSONB_INSERT(
       base_field,
       (SUBSTRING(target_path::TEXT FROM ''(.*)\}.*$'') || '', -1}'')::TEXT[],
-      value,
+      TO_JSONB(value_to_add),
       TRUE
     )
     END;'

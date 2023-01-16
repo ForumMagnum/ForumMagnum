@@ -1,6 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
+import { JsonType } from "./Type";
 
 export type UpdateOptions = Partial<{
   limit: number,
@@ -107,9 +108,44 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
   }
 
   private compileAddToSetFields(addToSets: Partial<Record<keyof T, any>>): Atom<T>[] {
+    const nativeArrays: Partial<Record<keyof T, any>> = {};
+    const jsonArrays: Partial<Record<keyof T, any>> = {};
+
+    for (const update of Object.keys(addToSets)) {
+      const dot = update.indexOf(".");
+      const column = dot > 0 ? update.substring(0, dot) : update;
+      const columnType = this.getField(column);
+      if (columnType?.toConcrete() instanceof JsonType) {
+        jsonArrays[update] = addToSets[update];
+      } else {
+        nativeArrays[update] = addToSets[update];
+      }
+    }
+
+    let jsonUpdates: Atom<T>[] = [];
+
+    for (const jsonUpdate of Object.keys(jsonArrays)) {
+      const {column, path} = this.buildJsonUpdatePath(jsonUpdate);
+      const updateValue = this.compileUpdateExpression(jsonArrays[jsonUpdate]);
+      jsonUpdates = jsonUpdates.concat(
+        ",",
+        column,
+        "= fm_add_to_set(",
+        column,
+        ",",
+        path,
+        ",",
+        ...updateValue,
+        ")",
+      );
+    }
+
     const format = (resolvedField: string, updateValue: Atom<T>[]): Atom<T>[] =>
       [",", resolvedField, "= fm_add_to_set(", resolvedField, ",",  ...updateValue, ")"];
-    return this.compileUpdateFields(addToSets, format);
+    return [
+      ...jsonUpdates,
+      ...this.compileUpdateFields(nativeArrays, format),
+    ];
   }
 
   private compileUpdateFields(
@@ -125,9 +161,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const updateValue = typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
-        ? this.compileExpression(value)
-        : [this.createArg(value)];
+      const updateValue = this.compileUpdateExpression(value);
 
       // If we're updating the value of a JSON blob without totally replacing
       // it then we need to wrap the update in a call to `JSONB_SET`.
@@ -146,6 +180,12 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       console.warn(`Field "${field}" is not recognized - is it missing from the schema?`);
       return [];
     }
+  }
+
+  private compileUpdateExpression(value: unknown, typeHint?: any) {
+    return typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
+      ? this.compileExpression(value, typeHint)
+      : [this.createArg(value)];
   }
 
   private buildJsonUpdatePath(field: string) {
