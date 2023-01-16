@@ -141,6 +141,25 @@ makeEditable({
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
-})
+});
+
+// TODO: When everything is migrated to Postgres, we can come up with a much nicer
+// way to define this, but for now there's a lot of cruft around CollectionBase/
+// MongoCollection/PgCollection and casting here seems to be the simplest thing to
+// do.
+(Users as unknown as CollectionBase<DbUser>).postProcess = (user: DbUser): DbUser => {
+  // The `node-postgres` library is smart enough to automatically convert string
+  // representations of dates into Javascript Date objects when we have columns
+  // of type TIMESTAMPTZ, however, it can't do this automatic conversion when the
+  // date is hidden inside a JSON blob. Here, `partiallyReadSequences` is a
+  // strongly typed JSON blob (using SimpleSchema) so we need to manually convert
+  // to a Date object to avoid a GraphQL error.
+  if (user.partiallyReadSequences) {
+    for (const partiallyReadSequence of user.partiallyReadSequences) {
+      partiallyReadSequence.lastReadTime = new Date(partiallyReadSequence.lastReadTime);
+    }
+  }
+  return user;
+}
 
 export default Users;
