@@ -29,6 +29,7 @@ export const useUserTagRel = ({userId, tagId}: {userId: string|undefined, tagId:
   }
 
   if (results !== undefined && results.length == 0 && !createInflight.current) {
+    createInflight.current = true; // Prevent (rare) race condition where multiple calls to createUserTagRel() are made
     void createUserTagRel()
   }
 
