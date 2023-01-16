@@ -31,7 +31,7 @@ import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
-import { getPositiveVoteThreshold } from '../lib/reviewUtils';
+import { REVIEWVOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -358,7 +358,7 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
 // This may have been sending out duplicate notifications in previous years, maybe just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on.
 getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
   const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
-  if (post && post.positiveReviewVoteCount >= getPositiveVoteThreshold()) {
+  if (post && post.positiveReviewVoteCount >= REVIEWVOTING_PHASE_VOTECOUNT_THRESHOLD) {
     const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
     if (!notifications.length) {
       await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})

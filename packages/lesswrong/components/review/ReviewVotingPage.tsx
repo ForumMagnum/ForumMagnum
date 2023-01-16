@@ -260,6 +260,7 @@ const ReviewVotingPage = ({classes}: {
     terms: {
       view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${reviewYear+1}-01-01`,
+      reviewPhase: reviewPhase,
       ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
       limit: 600,
     },
