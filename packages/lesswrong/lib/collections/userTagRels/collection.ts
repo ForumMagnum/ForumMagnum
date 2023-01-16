@@ -35,6 +35,7 @@ const schema: SchemaType<DbUserTagRel> = {
   },
   subforumShowUnreadInSidebar: {
     type: Boolean,
+    nullable: false,
     optional: true,
     label: "Unread count in sidebar",
     canRead: [userOwns, 'admins'],
@@ -45,6 +46,7 @@ const schema: SchemaType<DbUserTagRel> = {
   },
   subforumEmailNotifications: {
     type: Boolean,
+    nullable: false,
     optional: true,
     label: "Notify me of new discussions",
     // control: "SubforumNotifications", // TODO: Possibly add this back in (it shows the batching settings in the menu)
