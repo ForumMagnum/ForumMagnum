@@ -69,11 +69,20 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     const type = this.table.getField(fieldName);
     const coalesceValue = type?.getIndexCoalesceValue();
     const tokens = fieldName.split(".");
-    const name = `"${tokens[0]}"`;
+    const name = this.getIndexFieldName(tokens);
     return {
       useGin: tokens.length > 1 || this.table.getField(fieldName)?.isArray(),
       field: coalesceValue && this.isUnique ? `COALESCE(${name}, ${coalesceValue})` : name,
     };
+  }
+
+  private getIndexFieldName(tokens: string[]): string {
+    if (tokens.length < 1) {
+      throw new Error(`Invalid index field tokens: ${JSON.stringify(tokens)}`);
+    }
+    return tokens.length === 1 || this.getField(tokens[0])?.isArray()
+      ? `"${tokens[0]}"`
+      : `("${tokens[0]}"${tokens.slice(1).map((field) => `->'${field}'`).join("")})`;
   }
 }
 

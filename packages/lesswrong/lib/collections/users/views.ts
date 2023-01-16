@@ -47,6 +47,9 @@ ensureIndex(Users, {isAdmin:1});
 ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
+// Used by UsersRepo.getUserByLoginToken
+ensureIndex(Users, {"services.resume.loginTokens": 1});
+
 // Case-insensitive email index
 ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
 ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email

@@ -12,7 +12,7 @@ describe("CreateIndexQuery", () => {
     {
       name: "can build create index query with json field",
       getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[1]),
-      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_c" ON "TestCollection" USING gin ( "a" , "c" )',
+      expectedSql: `CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_c__d" ON "TestCollection" USING gin ( "a" , ("c"->'d') )`,
       expectedArgs: [],
     },
     {

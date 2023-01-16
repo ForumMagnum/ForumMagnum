@@ -24,12 +24,8 @@ class TableIndex {
     return this.fields;
   }
 
-  // TODO: This is lossy and may lead to collisions
   private getSanitizedFieldNames() {
-    return this.fields.map((field) => {
-      const index = field.indexOf(".");
-      return index >= 0 ? field.slice(0, index) : field;
-    });
+    return this.fields.map((field) => field.replace(/\./g, "__"));
   }
 
   getName() {
