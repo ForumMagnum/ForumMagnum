@@ -21,7 +21,7 @@ import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
-import { getAllRepos } from '../../repos';
+import { getAllRepos, UsersRepo } from '../../repos';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -31,9 +31,9 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
 
     const hashedToken = hashLoginToken(loginToken)
 
-    const user = await Users.findOne({
-      'services.resume.loginTokens.hashedToken': hashedToken
-    })
+    const user = await (Users.isPostgres()
+      ? new UsersRepo().getUserByLoginToken(hashedToken)
+      : Users.findOne({'services.resume.loginTokens.hashedToken': hashedToken}));
 
     if (user && !userIsBanned(user)) {
       // find the right login token corresponding, the current user may have
