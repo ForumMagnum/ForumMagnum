@@ -1,7 +1,7 @@
 import { createMutator, updateMutator } from "../../../server/vulcan-lib/mutators";
 import UserTagRels from "./collection";
 
-// DEPRECATED: here for backwards compatibility but we now get-or-create userTagRels in the frontend
+// DEPRECATED: here for backwards compatibility
 export async function recordSubforumView(userId: string, tagId: string) {
   const existingRel = await UserTagRels.findOne({userId, tagId});
   if (existingRel) {
