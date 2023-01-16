@@ -49,7 +49,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)
 
-  if (!results?.length) return null
+  if (!results?.length && !placeholderCount) return null
 
   return (
     <div>
@@ -60,7 +60,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {(!results || results.length !== 1) && "s"}
       </div>}
       <SubSection>
-        {loading && <div>
+        {loading && !results && <div>
           {placeholderArray.map((pl,i) =>
             <ContentStyles contentType="comment"
               className={classes.singleLinePlaceholder}
