@@ -153,16 +153,16 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag, NewFeaturePulse} = Components;
   const [cookies, setCookie] = useCookies([PODCAST_TOOLTIP_SEEN_COOKIE]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
-  console.log("HAYYYYYYYY", cachedTooltipSeen)
 
   useEffect(() => {
     if(!cachedTooltipSeen) {
       setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
         expires: moment().add(10, 'years').toDate(),
       });
-      console.log(cookies[PODCAST_TOOLTIP_SEEN_COOKIE])
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [])
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
