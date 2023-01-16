@@ -134,7 +134,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         column,
         ",",
         path,
-        ",",
+        "::TEXT[] ,",
         ...updateValue,
         ")",
       );
@@ -182,10 +182,14 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private compileUpdateExpression(value: unknown, typeHint?: any) {
-    return typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")
-      ? this.compileExpression(value, typeHint)
-      : [this.createArg(value)];
+  private compileUpdateExpression(value: unknown): Atom<T>[] {
+    if (typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")) {
+      return this.compileExpression(value);
+    } else {
+      const arg = this.createArg(value);
+      arg.typehint = this.getTypeHint(value);
+      return [arg];
+    }
   }
 
   private buildJsonUpdatePath(field: string) {

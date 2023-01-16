@@ -180,7 +180,10 @@ abstract class Query<T extends DbObject> {
    * If `typeHint` is an instance of `Type` then that type will be used, otherwise
    * `typeHint` is assumed to be the value we are getting the type for.
    */
-  private getTypeHint(typeHint?: any): string {
+  protected getTypeHint(typeHint?: any): string {
+    if (typeHint === null || typeHint === undefined) {
+      return "";
+    }
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
     }
@@ -191,6 +194,10 @@ abstract class Query<T extends DbObject> {
         return "::TEXT";
       case "boolean":
         return "::BOOL";
+      case "object":
+        return Object.keys(typeHint).some((key) => key[0] === "$")
+          ? ""
+          : "::JSONB";
     }
     if (typeHint instanceof Date) {
       return "::TIMESTAMPTZ";
