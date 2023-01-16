@@ -2,7 +2,7 @@
 // import { useCallback } from "react";
 
 // DEPRECATED: We didn't actually use the timestamp inserted by this mutation. Plus we have changed from assuming this will be called first to create the UserTagRel,
-// to using useUserTagRel which is a get-or-create wrapper for UserTagRel. We probably do want to record subforum views in the future but this will need to be rearchitected.
+// to using `createIfMissing`. We probably do want to record subforum views in the future but this will need to be rearchitected.
 // export const useRecordSubforumView = ({userId, tagId}: {userId: string|undefined, tagId: string|undefined}) => {
 //   const [recordSubforumViewMutation] = useMutation(gql`
 //     mutation recordSubforumView($userId: String!, $tagId: String!) {

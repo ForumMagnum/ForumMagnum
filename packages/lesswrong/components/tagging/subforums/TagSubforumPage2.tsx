@@ -13,7 +13,6 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { useDialog } from "../../common/withDialog";
-import { useUserTagRel } from '../../hooks/useUserTagRel';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
@@ -227,7 +226,17 @@ const TagSubforumPage2 = ({classes}: {
     skip: !tag
   })
 
-  const { userTagRel } = useUserTagRel({tagId: tag?._id, userId: currentUser?._id})
+  const { results: userTagRelResults } = useMulti({
+    terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
+    collectionName: "UserTagRels",
+    fragmentName: "UserTagRelDetails",
+    // Create a new UserTagRel if none exists. The check for the existence of tagId and userId is
+    // in principle redundant because of `skip`, but it would be bad to create a UserTagRel with
+    // a null tagId or userId so be extra careful.
+    createIfMissing: tag?._id && currentUser?._id ? { tagId: tag?._id, userId: currentUser?._id } : undefined,
+    skip: !tag || !currentUser
+  });
+  const userTagRel = userTagRelResults?.[0];
 
   const onClickMembersList = () => {
     if (!tag) return;
