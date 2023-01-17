@@ -83,7 +83,7 @@ export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
   return phase === "NOMINATIONS" ? INITIAL_VOTECOUNT_THRESHOLD : REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 }
 
-export const DEFAULT_REVIEW_THRESHOLD = 0
+export const INITIAL_REVIEW_THRESHOLD = 0
 export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
