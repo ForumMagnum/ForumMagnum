@@ -3,6 +3,7 @@ import Table from "./Table";
 import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
 import { inspect } from "util";
+import { getCollationType } from "./collation";
 
 export type SimpleLookup = {
   from: string,
@@ -96,6 +97,7 @@ export const isGroupByAggregateExpression = (value: any) => {
  */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
+  private isCaseInsensitive = false;
 
   constructor(
     table: Table | Query<T>,
@@ -104,6 +106,11 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     sqlOptions?: SelectSqlOptions,
   ) {
     super(table, ["SELECT"]);
+
+    if (options?.collation) {
+      const collation = getCollationType(options.collation);
+      this.isCaseInsensitive = collation === "case-insensitive";
+    }
 
     if (sqlOptions?.group) {
       this.appendGroup(sqlOptions.group);
@@ -137,9 +144,6 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
 
     if (options || this.nearbySort) {
-      if (options?.collation) {
-        throw new Error("Collation not implemented")
-      }
       this.appendOptions(options ?? {});
     }
 

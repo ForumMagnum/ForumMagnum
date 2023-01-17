@@ -437,9 +437,14 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
-      name: "collation is not implemented",
-      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple"}}),
-      expectedError: "Collation not implemented",
+      name: "collation (if used) must have locale 'en'",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "simple", strength: 2}}),
+      expectedError: `Unsupported collation type: {"locale":"simple","strength":2}`,
+    },
+    {
+      name: "collation (if used) must have strength 2",
+      getQuery: () => new SelectQuery(testTable, {}, {collation: {locale: "en", strength: 1}}),
+      expectedError: `Unsupported collation type: {"locale":"en","strength":1}`,
     },
     {
       name: "pipeline lookups are not implemented",
