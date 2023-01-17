@@ -25,7 +25,7 @@ const options: MutationOptions<DbNotification> = {
 export const Notifications: NotificationsCollection = createCollection({
   collectionName: 'Notifications',
   typeName: 'Notification',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "switching" : "mongo",
+  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
   schema,
   resolvers: getDefaultResolvers('Notifications'),
   mutations: getDefaultMutations('Notifications', options),

@@ -136,11 +136,11 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.appendSelector(selector);
     }
 
-    if (options) {
-      if (options.collation) {
+    if (options || this.nearbySort) {
+      if (options?.collation) {
         throw new Error("Collation not implemented")
       }
-      this.appendOptions(options);
+      this.appendOptions(options ?? {});
     }
 
     if (sqlOptions?.forUpdate) {
@@ -302,6 +302,19 @@ class SelectQuery<T extends DbObject> extends Query<T> {
         sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));
+    } else if (this.nearbySort) { // Nearby sort is overriden by a sort in `options`
+      const {field, lng, lat} = this.nearbySort;
+      this.atoms = this.atoms.concat([
+        "ORDER BY EARTH_DISTANCE(LL_TO_EARTH((",
+        field,
+        "->'coordinates'->0)::FLOAT8, (",
+        field,
+        "->'coordinates'->1)::FLOAT8), LL_TO_EARTH(",
+        this.createArg(lng),
+        ",",
+        this.createArg(lat),
+        ")) ASC NULLS LAST",
+      ]);
     }
 
     if (limit) {

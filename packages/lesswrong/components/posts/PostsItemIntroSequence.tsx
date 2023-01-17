@@ -29,8 +29,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     gridTemplateColumns: "min-content 1fr min-content",
     gridTemplateAreas: '"karma title author"',
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {

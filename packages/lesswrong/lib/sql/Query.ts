@@ -65,6 +65,17 @@ const variadicFunctions = {
 } as const;
 
 /**
+ * Sorting locations by distance is done in Mongo using the `$near` selector operator
+ * instead of using `sort` - this means we have to save the value when building the
+ * selector for later use.
+ */
+type NearbySort = {
+  field: string,
+  lng: number,
+  lat: number,
+}
+
+/**
  * Query is the base class of the query builder which defines a number of common
  * functionalities (such as compiling artitrary expressions or selectors), as well
  * as the generic compilation algorithm. This class is extended by several concrete
@@ -89,6 +100,7 @@ abstract class Query<T extends DbObject> {
   protected syntheticFields: Record<string, Type> = {};
   protected nameSubqueries = true;
   protected isIndex = false;
+  protected nearbySort: NearbySort | undefined;
 
   protected constructor(
     protected table: Table | Query<T>,
@@ -331,17 +343,23 @@ abstract class Query<T extends DbObject> {
           return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
 
         case "$in":
+        case "$all":
           if (!Array.isArray(value[comparer])) {
-            throw new Error("$in expects an array");
+            throw new Error(`${comparer} expects an array`);
           }
-          const typeHint = this.getTypeHint(this.getField(fieldName));
-          const hint = typeHint ?? "";
+          const fieldType = this.getField(fieldName)?.toConcrete();
+          const hintType = fieldType?.isArray() && comparer === "$all"
+            ? fieldType.subtype
+            : fieldType;
+          const hint = this.getTypeHint(hintType) ?? "";
           const args = value[comparer].length
             ? value[comparer].flatMap((item: any) => [
               ",", new Arg(item), hint,
             ]).slice(1)
             : [`SELECT NULL${hint}`];
-          return [field, hint, "IN (", ...args, ")"];
+          return comparer === "$all"
+            ? [field, "@> ARRAY[", ...args, "]"]
+            : [field, hint, "IN (", ...args, ")"];
 
         case "$exists":
           return [`${field} ${value["$exists"] ? "IS NOT NULL" : "IS NULL"}`];
@@ -351,7 +369,7 @@ abstract class Query<T extends DbObject> {
           if (typeof arraySize !== "number") {
             throw new Error(`Invalid array size: ${arraySize}`);
           }
-          return [`ARRAY_LENGTH(${field}) =`, new Arg(arraySize)];
+          return [`ARRAY_LENGTH(${field}, 1) =`, new Arg(arraySize)];
 
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
@@ -377,6 +395,23 @@ abstract class Query<T extends DbObject> {
             ")) * 0.000621371) <", // Convert metres to miles
             this.createArg(distance),
           ];
+
+        // `$near` is implemented by Mongo as a selector but it's actually a sort
+        // operation. We handle it as a no-op here but save the value for later
+        // use when we actually care about sorting.
+        case "$near":
+          const {$geometry: {type, coordinates}} = value[comparer];
+          if (type !== "Point" ||
+              typeof coordinates[0] !== "number" ||
+              typeof coordinates[1] !== "number") {
+            throw new Error("Invalid $near selector");
+          }
+          this.nearbySort = {
+            field,
+            lng: coordinates[0],
+            lat: coordinates[1],
+          };
+          return ["1=1"];
 
         default:
           break;

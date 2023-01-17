@@ -164,6 +164,7 @@ const RecentDiscussionThread = ({
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
+  // TODO verify whether/how this should be interacting with afCommentCount
   if (comments && !comments.length && post.commentCount != null) {
     // New posts should render (to display their highlight).
     // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
@@ -171,6 +172,7 @@ const RecentDiscussionThread = ({
   }
 
   const highlightClasses = classNames(classes.postHighlight, {
+    // TODO verify whether/how this should be interacting with afCommentCount
     [classes.noComments]: post.commentCount === null
   })
   

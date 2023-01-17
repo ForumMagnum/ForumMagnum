@@ -130,9 +130,15 @@ describe("SelectQuery", () => {
       expectedArgs: [1, 2, 3],
     },
     {
+      name: "can build select query with all comparison",
+      getQuery: () => new SelectQuery(testTable, {a: {$all: [10, 20]}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> ARRAY[ $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION ]',
+      expectedArgs: [10, 20],
+    },
+    {
       name: "can build select query with array length filter",
       getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a") = $1',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a", 1) = $1',
       expectedArgs: [2],
     },
     {
@@ -176,6 +182,21 @@ describe("SelectQuery", () => {
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: 1}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC NULLS FIRST',
       expectedArgs: [3],
+    },
+    {
+      name: "can build a select query with a nearby sort",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        a: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [10, 20],
+            },
+          },
+        },
+      }),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE 1=1 ORDER BY EARTH_DISTANCE(LL_TO_EARTH(( "a" ->'coordinates'->0)::FLOAT8, ( "a" ->'coordinates'->1)::FLOAT8), LL_TO_EARTH( $1 , $2 )) ASC NULLS LAST`,
+      expectedArgs: [10, 20],
     },
     {
       name: "can build select query with limit",
