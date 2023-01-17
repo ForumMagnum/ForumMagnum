@@ -17,7 +17,6 @@ import { randomId } from '../../lib/random';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
-import { Link } from '../../lib/reactRouterWrapper';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'

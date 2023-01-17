@@ -58,8 +58,18 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (currentDate < reviewEnd) return "VOTING"
   return "COMPLETE"
 }
+
+// The number of positive review votes required for a post to appear in the ReviewVotingPage  
+// during the nominations phase
 export const INITIAL_VOTECOUNT_THRESHOLD = 1
-export const REVIEWVOTING_PHASE_VOTECOUNT_THRESHOLD = 2
+
+// The number of positive review votes required for a post to enter the Review Phase
+export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
+
+// The Quick Review Page is optimized for prioritizing people's attention.
+// Among other things, this means only loading posts that got at either at least one
+// person thought was reasonably important, or at least 4 people thought were "maybe important?"
+export const QUICK_REVIEW_SCORE_THRESHOLD = 4
 
 export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
   // During the nomination phase, posts require 1 positive reviewVote
@@ -70,7 +80,7 @@ export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
   // ensuring the post is at least plausibly worth everyone's time to review
   const phase = reviewPhase ?? getReviewPhase()
   
-  return phase === "NOMINATIONS" ? INITIAL_VOTECOUNT_THRESHOLD : REVIEWVOTING_PHASE_VOTECOUNT_THRESHOLD
+  return phase === "NOMINATIONS" ? INITIAL_VOTECOUNT_THRESHOLD : REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 }
 
 export const DEFAULT_REVIEW_THRESHOLD = 0
@@ -95,7 +105,7 @@ export function postEligibleForReview (post: PostsBase) {
 }
 
 export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEWVOTING_PHASE_VOTECOUNT_THRESHOLD
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 
 }
 
