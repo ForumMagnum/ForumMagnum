@@ -19,6 +19,7 @@ import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
+import { isServer } from '../lib/executionEnvironment';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -202,7 +203,7 @@ const Layout = ({currentUser, children, classes}: {
       }
     }
   }, [useWhiteBackground, classes.whiteBackground]);
-  
+
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
@@ -221,17 +222,13 @@ const Layout = ({currentUser, children, classes}: {
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
-    layoutOptionsState.baseLayoutOptions.current = baseLayoutOptions
 
-    const { overrideLayoutOptions } = layoutOptionsState
+    const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    
-    console.log("Layout render with (overriden) layout options:", {standaloneNavigation, renderSunshineSidebar, shouldUseGridLayout, unspacedGridLayout})
-    console.log("Default options are:", layoutOptionsState.baseLayoutOptions)
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()

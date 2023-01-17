@@ -398,7 +398,6 @@ declare global {
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
   type ThemeType = {
-    extraData?: any,
     forumType: ForumTypeString,
     
     breakpoints: {

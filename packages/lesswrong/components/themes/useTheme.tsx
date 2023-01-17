@@ -13,7 +13,6 @@ type ThemeContextObj = {
   theme: ThemeType,
   themeOptions: AbstractThemeOptions,
   setThemeOptions: (options: AbstractThemeOptions)=>void
-  extraData?: any
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
 
