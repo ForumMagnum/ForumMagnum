@@ -22,6 +22,7 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     reviewYear?: ReviewYear
+    profileTagIds?: string[],
   }
 }
 
@@ -521,10 +522,10 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
 ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
 // For 'Discussion from your subforums' on the homepage
-Comments.addView('latestSubforumDiscussion', (_terms: CommentsViewTerms, _, context?: ResolverContext) => {
+Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
   return {
     selector: {
-      tagId: {$in: context?.currentUser?.profileTagIds ?? []},
+      tagId: {$in: terms.profileTagIds ?? []},
       tagCommentType: "SUBFORUM",
       topLevelCommentId: viewFieldNullOrMissing,
       lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}

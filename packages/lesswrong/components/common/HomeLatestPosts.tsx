@@ -53,7 +53,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList
+    CuratedPostsList, LatestPostsDiscussion
   } = Components
   const limit = parseInt(query.limit) || 13
   
@@ -68,13 +68,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     forum: true,
     limit:limit
   }
-
-  const subforumDiscussionCommentsQuery = useMulti({
-    terms: {view: 'latestSubforumDiscussion'},
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
-    skip: !isEAForum || !currentUser?.profileTagIds?.length,
-  })
 
   const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
@@ -120,15 +113,11 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 terms={recentPostsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
-                commentsSection={{
-                  title: 'Discussion from your subforums',
-                  comments: subforumDiscussionCommentsQuery.results || [],
-                  loading: subforumDiscussionCommentsQuery.loading
-                }}
               >
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
+            <LatestPostsDiscussion />
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

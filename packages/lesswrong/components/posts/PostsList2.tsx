@@ -10,10 +10,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useHideRepeatedPosts } from '../posts/HideRepeatedPostsContext';
 import * as _ from 'underscore';
 import { PopperPlacementType } from '@material-ui/core/Popper';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-
-const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -25,20 +21,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
-  },
-  commentSectionTitle: {
-    marginTop: 10,
-    marginBottom: 6,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-  },
-  commentSectionIcon: {
-    position: 'relative',
-    top: 2,
-    marginRight: 6,
-    width: 15,
-    height: 15,
-    color: theme.palette.grey[500],
   },
 })
 
@@ -234,31 +216,6 @@ const PostsList2 = ({
           }
         })}
       </div>
-      {commentsSection && isEAForum && currentUser?.profileTagIds?.length && <>
-        {commentsSection.loading ?
-          <Loading /> :
-          <>
-            {!!commentsSection.comments.length && <Typography
-              variant="body2" className={classes.commentSectionTitle}
-            >
-              <QuestionAnswerIcon className={classes.commentSectionIcon} />
-              {commentsSection.title}
-            </Typography>}
-            {commentsSection.comments.map((comment) => {
-              return <CommentsNode
-                treeOptions={{
-                  // F7U12
-                  tag: comment.tag ?? undefined,
-                  forceSingleLine: true
-                }}
-                comment={comment}
-                key={comment._id}
-                loadChildrenSeparately
-              />
-            })}
-          </>
-        }
-      </>}
       {showLoadMore && <SectionFooter>
         <LoadMore
           {...loadMoreProps}
