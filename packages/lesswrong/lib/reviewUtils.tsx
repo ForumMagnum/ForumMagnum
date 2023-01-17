@@ -59,25 +59,32 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   return "COMPLETE"
 }
 
-export function getPositiveVoteThreshold(): Number {
+// The number of positive review votes required for a post to appear in the ReviewVotingPage  
+// during the nominations phase
+export const INITIAL_VOTECOUNT_THRESHOLD = 1
+
+// The number of positive review votes required for a post to enter the Review Phase
+export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
+
+// The Quick Review Page is optimized for prioritizing people's attention.
+// Among other things, this means only loading posts that got at either at least one
+// person thought was reasonably important, or at least 4 people thought were "maybe important?"
+export const QUICK_REVIEW_SCORE_THRESHOLD = 4
+
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
   // During the nomination phase, posts require 1 positive reviewVote
   // to appear in review post lists (so a single vote allows others to see it
   // and get prompted to cast additional votes.
   // 
   // Starting in the review phase, posts require at least 2 votes, 
   // ensuring the post is at least plausibly worth everyone's time to review
-  return getReviewPhase() === "NOMINATIONS" ? 1 : 2
+  const phase = reviewPhase ?? getReviewPhase()
+  
+  return phase === "NOMINATIONS" ? INITIAL_VOTECOUNT_THRESHOLD : REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 }
 
-export function getReviewThreshold(): Number {
-  // During the voting phase, only show posts with at least 1 review.
-  // (it's known that users can still go write reviews in the middle of the 
-  // voting phase to add them to lists, and I (Ray) think it's fine. Posts are 
-  // still penalized for not having been visible during the full voting period,
-  // and it seems fine for people who go out of their way to last-minute-review things
-  // to get them at least visible during part of the voting period)
-  return getReviewPhase() === "VOTING" ? 1 : 0
-}
+export const INITIAL_REVIEW_THRESHOLD = 0
+export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
@@ -98,7 +105,8 @@ export function postEligibleForReview (post: PostsBase) {
 }
 
 export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= getPositiveVoteThreshold()
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+
 }
 
 

@@ -26,9 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PingbacksList = ({classes, postId}: {
+const PingbacksList = ({classes, postId, limit=5}: {
   classes: ClassesType,
   postId: string,
+  limit?: number
 }) => {
   const { results, loadMoreProps, loading } = useMulti({
     terms: {
@@ -37,7 +38,7 @@ const PingbacksList = ({classes, postId}: {
     },
     collectionName: "Posts",
     fragmentName: "PostsList",
-    limit: 5,
+    limit: limit,
     enableTotal: true,
   });
 

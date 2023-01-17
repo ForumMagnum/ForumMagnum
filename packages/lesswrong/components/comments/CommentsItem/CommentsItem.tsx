@@ -212,7 +212,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
-  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !showEditState)
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();

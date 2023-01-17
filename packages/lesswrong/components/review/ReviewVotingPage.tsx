@@ -17,7 +17,6 @@ import { randomId } from '../../lib/random';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
-import { Link } from '../../lib/reactRouterWrapper';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -219,9 +218,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       boxShadow: "unset"
     }
   },
-  reviewsList: {
-    marginTop: 50
-  }
 });
 
 export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
@@ -246,7 +242,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -263,6 +259,7 @@ const ReviewVotingPage = ({classes}: {
     terms: {
       view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${reviewYear+1}-01-01`,
+      reviewPhase: reviewPhase,
       ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
       limit: 600,
     },
@@ -476,13 +473,10 @@ const ReviewVotingPage = ({classes}: {
             <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
             <ReviewDashboardButtons 
-                reviewYear={reviewYear} 
-                reviewPhase={reviewPhase}
-                showQuickReview
-              />
-            <div className={classes.reviewsList}>
-              <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
-            </div>
+              reviewYear={reviewYear} 
+              reviewPhase={reviewPhase}
+              showQuickReview
+            />
           </>}
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
