@@ -36,8 +36,7 @@ export const tagGetUrl = (tag: {slug: string, isSubforum: boolean}, urlOptions?:
   return `${url}${search ? `?${search}` : ''}`
 }
 
-// TODO would prefer to say "no query string" or something
-export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl({...tag, isSubforum: false})}/history`
+export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBase}/${tag.slug}/history`
 
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
   const suffix = `/${tagUrlBase}/${tag.slug}/discussion`

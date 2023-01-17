@@ -24,7 +24,7 @@ export const useOverrideLayoutOptions = (): [Partial<LayoutOptions>, (newOptions
   useEffect(() => {
     // if the component using this hook is unmounted, clear all overriden options
     return () => {
-      if (Object.keys(layoutOptionsState.overridenLayoutOptions).length === 0) return
+      if (Object.keys(layoutOptionsState.overridenLayoutOptions).length !== 0) return
       layoutOptionsState.setOverridenLayoutOptions({})
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

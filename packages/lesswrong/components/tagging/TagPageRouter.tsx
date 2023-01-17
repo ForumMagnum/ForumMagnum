@@ -16,8 +16,8 @@ const TagPageRouter = () => {
   const contributorsLimit = 7;
 
   // NOTE: In order to keep things decoupled I don't pass this down to either of the child pages (I think SomethingPage components
-  // should be able to be rendered without having data passed into them), but this shouldn't result in any extra queries the queries in the
-  // child pages should hit the cache. Also ~all other queries in the child pages require the tag to be loaded, so I think this shouldn't have
+  // should be able to be rendered without having data passed into them), but this shouldn't result in any extra queries as the queries in the
+  // child pages should hit the cache. Also ~all other queries in the child pages require the tag to be loaded first, so this shouldn't have
   // any performance cost.
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
