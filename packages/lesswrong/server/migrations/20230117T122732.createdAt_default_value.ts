@@ -11,4 +11,4 @@ export const up = async ({db}: MigrationContext) => {
   }
 }
 
-export const down = async ({}: MigrationContext) => {}
+export const down = async (_: MigrationContext) => {}
