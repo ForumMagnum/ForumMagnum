@@ -7,7 +7,6 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { subforumSlugsSetting } from './routeUtil';
 
 
 export const communityPath = '/community';

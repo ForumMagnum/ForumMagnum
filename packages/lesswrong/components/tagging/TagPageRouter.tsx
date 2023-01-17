@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "react";
-import { subforumSlugsSetting, useLocation } from "../../lib/routeUtil";
+import React from "react";
+import { useLocation } from "../../lib/routeUtil";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLayoutOptions } from "../hooks/useLayoutOptions";
-import { useSetTheme, useTheme, useThemeOptions } from "../themes/useTheme";
 import { useTagBySlug } from "./useTag";
 
+/**
+ * TODO
+ */
 const TagPageRouter = () => {
   const { query, params: { slug } } = useLocation();
   const [layoutOptions, setLayoutOptions] = useLayoutOptions();
@@ -12,8 +14,6 @@ const TagPageRouter = () => {
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? undefined;
   const contributorsLimit = 7;
-
-  const isSubforum = subforumSlugsSetting.get().includes(slug);
 
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
@@ -32,12 +32,20 @@ const TagPageRouter = () => {
 
   if (!tag || loadingTag) return null;
   
-  if (tag.isSubforum !== layoutOptions.unspacedGridLayout) {
-    setLayoutOptions({unspacedGridLayout: isSubforum})
+  if (
+    tag.isSubforum !== layoutOptions.unspacedGridLayout ||
+    tag.isSubforum !== layoutOptions.standaloneNavigation ||
+    tag.isSubforum !== layoutOptions.shouldUseGridLayout
+  ) {
+    setLayoutOptions({
+      unspacedGridLayout: tag.isSubforum,
+      standaloneNavigation: tag.isSubforum,
+      shouldUseGridLayout: tag.isSubforum,
+    });
   }
 
   const {TagPage, TagSubforumPage2} = Components
-  return isSubforum ? <TagSubforumPage2/> : <TagPage/>
+  return tag.isSubforum ? <TagSubforumPage2/> : <TagPage/>
 }
 
 const TagPageRouterComponent = registerComponent("TagPageRouter", TagPageRouter);

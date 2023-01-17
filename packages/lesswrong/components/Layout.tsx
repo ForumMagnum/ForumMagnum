@@ -3,8 +3,8 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import { useTheme, useThemeOptions } from './themes/useTheme';
-import { subforumSlugsSetting, useLocation } from '../lib/routeUtil';
+import { useTheme } from './themes/useTheme';
+import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
@@ -160,9 +160,7 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const themeOptions = useThemeOptions();
   const { currentRoute, params: { slug }, pathname} = useLocation();
-  const isSubforum = subforumSlugsSetting.get().includes(slug); // FIXME remove this hack and find a way to always use the isSubforum field on the tag
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   
   const {mutate: updateUser} = useUpdate({
@@ -227,14 +225,14 @@ const Layout = ({currentUser, children, classes}: {
     // const unspacedGridLayout = !!currentRoute?.unspacedGrid
 
     const defaultLayoutOptions: LayoutOptions = {
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum,
+      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum,
+      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
     if (JSON.stringify(defaultLayoutOptions) != JSON.stringify(layoutOptionsState.defaultLayoutOptions)) {
       // TODO update unchange overrideLayoutOptions as well
-      layoutOptionsState.setDefaultLayoutOptions(defaultLayoutOptions)
+      // layoutOptionsState.setDefaultLayoutOptions(defaultLayoutOptions)
     }
 
     const layoutOptions = layoutOptionsState.overrideLayoutOptions

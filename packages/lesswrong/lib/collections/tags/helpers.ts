@@ -1,7 +1,6 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
-import { subforumSlugsSetting } from "../../routeUtil";
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
@@ -30,7 +29,7 @@ export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
 export const tagGetUrl = (tag: {slug: string, isSubforum: boolean}, urlOptions?: GetUrlOptions) => {
   // Assume links that are not explicitly for the subforum should go to the wiki tab (this may change in the future)
-  const urlSearchParams = subforumSlugsSetting.get().includes(tag.slug) ? {tab: "wiki", ...urlOptions} : urlOptions
+  const urlSearchParams = tag.isSubforum ? {tab: "wiki", ...urlOptions} : urlOptions
   const search = qs.stringify(urlSearchParams)
 
   const url = `/${tagUrlBase}/${tag.slug}`
