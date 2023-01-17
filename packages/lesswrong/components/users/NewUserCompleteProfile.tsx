@@ -125,12 +125,13 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       <div className={classes.section}>
         <Typography variant='display1' gutterBottom>Please choose a username</Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          This is the name that people will see when you post or comment.
-        </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          We encourage you to use your real name, because this will help other
-          people in the community to identify you, but you can choose a pseudonym
-          if you'd prefer.
+          We encourage you to use your real name, as it will help other people
+          in the community to identify you, but you can choose a pseudonym. If
+          you do, try to choose{' '}
+          <a href="https://jimpix.co.uk/words/random-username-generator.asp" target="_blank" rel="noopener noreferrer">
+            something recognizable like "WobblyPanda",
+          </a>{' '}
+          instead of a variation of anon7.
         </Typography>
         <TextField
           label='Username'
