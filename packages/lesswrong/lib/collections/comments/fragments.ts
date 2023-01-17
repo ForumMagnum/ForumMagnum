@@ -5,6 +5,9 @@ registerFragment(`
     _id
     postId
     tagId
+    tag {
+      slug
+    }
     tagCommentType
     parentCommentId
     topLevelCommentId

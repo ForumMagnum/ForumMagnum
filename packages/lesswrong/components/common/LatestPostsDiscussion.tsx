@@ -50,6 +50,7 @@ const LatestPostsDiscussion = ({classes}: {
         comment={comment}
         key={comment._id}
         loadChildrenSeparately
+        displayTagIcon
       />
     })}
     {!loadMoreCalled && <LoadMore {...{
