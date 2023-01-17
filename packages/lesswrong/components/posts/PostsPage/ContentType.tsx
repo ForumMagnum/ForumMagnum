@@ -292,7 +292,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
 
 const ContentType = ({classes, className, type, label}: {
   classes: ClassesType,
-  className: string,
+  className?: string,
   type: ContentTypeString,
   label?: string
 }) => {
