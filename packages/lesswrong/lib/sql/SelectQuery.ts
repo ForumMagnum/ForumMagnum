@@ -97,7 +97,6 @@ export const isGroupByAggregateExpression = (value: any) => {
  */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
-  private isCaseInsensitive = false;
 
   constructor(
     table: Table | Query<T>,

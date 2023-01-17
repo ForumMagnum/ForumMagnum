@@ -101,6 +101,7 @@ abstract class Query<T extends DbObject> {
   protected nameSubqueries = true;
   protected isIndex = false;
   protected nearbySort: NearbySort | undefined;
+  protected isCaseInsensitive = false;
 
   protected constructor(
     protected table: Table | Query<T>,
@@ -287,6 +288,9 @@ abstract class Query<T extends DbObject> {
         } else if (op === "<>") {
           return [`${resolvedField}${hint} IS NOT NULL`];
         }
+      }
+      if (op === "=" && this.isCaseInsensitive && typeof value === "string") {
+        return [`LOWER(${resolvedField}) ${op} LOWER(`, new Arg(value), ")"];
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
     }

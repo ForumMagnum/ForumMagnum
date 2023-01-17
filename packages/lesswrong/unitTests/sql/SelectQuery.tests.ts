@@ -22,6 +22,16 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build case-insensitive select query",
+      getQuery: () => new SelectQuery(
+        testTable,
+        {b: "test"},
+        {collation: {locale: "en", strength: 2}},
+      ),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE LOWER("b") = LOWER( $1 )',
+      expectedArgs: ["test"],
+    },
+    {
       name: "can build select query with string selector",
       getQuery: () => new SelectQuery(testTable, "some-id"),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "_id" = $1',
