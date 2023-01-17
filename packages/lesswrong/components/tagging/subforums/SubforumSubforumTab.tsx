@@ -10,6 +10,7 @@ import { useDialog } from '../../common/withDialog';
 import startCase from 'lodash/startCase';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
+import { tagPostTerms } from '../TagPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -31,8 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   feedHeader: {
     display: "flex",
-    marginBottom: -16,
     marginLeft: 10,
+    marginBottom: -16,
     [theme.breakpoints.down('xs')]: {
       '& .PostsListSortDropdown-root': {
         marginRight: "0px !important",
@@ -59,8 +60,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentPermalink: {
     marginBottom: 8,
+  },
+  listLayout: {
+    paddingTop: 32,
   }
 })
+
+const subforumLayouts = ["feed", "list"] as const
+export type SubforumLayout = typeof subforumLayouts[number]
+export const isSubforumLayout = (tab: string): tab is SubforumLayout => (subforumLayouts as readonly string[]).includes(tab)
+export const defaultSubforumLayout: SubforumLayout = "feed"
 
 const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
@@ -76,6 +85,8 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
     MixedTypeFeed,
     RecentDiscussionThread,
     CommentWithReplies,
+    PostsList2,
+    AddPostsToTag,
   } = Components;
 
   const { query } = useLocation();
@@ -87,6 +98,8 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
     if (refetchRef.current)
       refetchRef.current();
   }, [refetchRef]);
+
+  const layout = isSubforumLayout(query.layout) ? query.layout : defaultSubforumLayout
 
   const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
   
@@ -158,6 +171,96 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
       </Link>
     </LWTooltip>
   );
+  
+  const feedLayoutComponent = (
+    <MixedTypeFeed
+      firstPageSize={15}
+      pageSize={20}
+      refetchRef={refetchRef}
+      resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
+      sortKeyType={subforumSortingTypes[sortBy]}
+      resolverArgs={{
+        tagId: "String!",
+        af: "Boolean",
+      }}
+      resolverArgsValues={{
+        tagId: tag._id,
+        af: false,
+      }}
+      fragmentArgs={{
+        maxAgeHours: "Int",
+        commentsLimit: "Int",
+      }}
+      fragmentArgsValues={{
+        maxAgeHours,
+        commentsLimit,
+      }}
+      renderers={{
+        tagSubforumPosts: {
+          fragmentName: "PostsRecentDiscussion",
+          render: (post: PostsRecentDiscussion) => (
+            <div className={classes.feedPostWrapper}>
+              <RecentDiscussionThread
+                key={post._id}
+                post={{ ...post }}
+                comments={post.recentComments}
+                maxLengthWords={50}
+                refetch={refetch}
+                smallerFonts
+              />
+            </div>
+          ),
+        },
+        tagSubforumComments: {
+          fragmentName: "CommentWithRepliesFragment",
+          render: (comment: CommentWithRepliesFragment) => (
+            <CommentWithReplies
+              key={comment._id}
+              comment={comment}
+              commentNodeProps={commentNodeProps}
+              initialMaxChildren={5}
+            />
+          ),
+        },
+        tagSubforumStickyComments: {
+          fragmentName: "StickySubforumCommentFragment",
+          render: (comment: CommentWithRepliesFragment) => (
+            <CommentWithReplies
+              key={comment._id}
+              comment={{ ...comment, isPinnedOnProfile: true }}
+              commentNodeProps={{
+                ...commentNodeProps,
+                showPinnedOnProfile: true,
+                treeOptions: {
+                  ...commentNodeProps.treeOptions,
+                  showPostTitle: true,
+                },
+              }}
+              initialMaxChildren={3}
+              startExpanded={false}
+            />
+          ),
+        },
+      }}
+    />
+  );
+
+  const terms = {
+    ...tagPostTerms(tag, query),
+    limit: 15
+  }
+  const listLayoutComponent = (
+    <div className={classes.listLayout}>
+      <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={50}>
+        <AddPostsToTag tag={tag} />
+      </PostsList2>
+    </div>
+  );
+
+  const layoutComponents: Record<SubforumLayout, JSX.Element> = {
+    feed: feedLayoutComponent,
+    list: listLayoutComponent
+  }
 
   return (
     <div className={classNames(classes.centralColumn, classes.feedWrapper)}>
@@ -186,76 +289,7 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
           />
         </div>
       )}
-      <MixedTypeFeed
-        firstPageSize={15}
-        pageSize={20}
-        refetchRef={refetchRef}
-        resolverName={`Subforum${subforumSortingToResolverName(sortBy)}Feed`}
-        sortKeyType={subforumSortingTypes[sortBy]}
-        resolverArgs={{
-          tagId: "String!",
-          af: "Boolean",
-        }}
-        resolverArgsValues={{
-          tagId: tag._id,
-          af: false,
-        }}
-        fragmentArgs={{
-          maxAgeHours: "Int",
-          commentsLimit: "Int",
-        }}
-        fragmentArgsValues={{
-          maxAgeHours,
-          commentsLimit,
-        }}
-        renderers={{
-          tagSubforumPosts: {
-            fragmentName: "PostsRecentDiscussion",
-            render: (post: PostsRecentDiscussion) => (
-              <div className={classes.feedPostWrapper}>
-                <RecentDiscussionThread
-                  key={post._id}
-                  post={{ ...post }}
-                  comments={post.recentComments}
-                  maxLengthWords={50}
-                  refetch={refetch}
-                  smallerFonts
-                />
-              </div>
-            ),
-          },
-          tagSubforumComments: {
-            fragmentName: "CommentWithRepliesFragment",
-            render: (comment: CommentWithRepliesFragment) => (
-              <CommentWithReplies
-                key={comment._id}
-                comment={comment}
-                commentNodeProps={commentNodeProps}
-                initialMaxChildren={5}
-              />
-            ),
-          },
-          tagSubforumStickyComments: {
-            fragmentName: "StickySubforumCommentFragment",
-            render: (comment: CommentWithRepliesFragment) => (
-              <CommentWithReplies
-                key={comment._id}
-                comment={{ ...comment, isPinnedOnProfile: true }}
-                commentNodeProps={{
-                  ...commentNodeProps,
-                  showPinnedOnProfile: true,
-                  treeOptions: {
-                    ...commentNodeProps.treeOptions,
-                    showPostTitle: true,
-                  },
-                }}
-                initialMaxChildren={3}
-                startExpanded={false}
-              />
-            ),
-          },
-        }}
-      />
+      {layoutComponents[layout]}
     </div>
   );
 }

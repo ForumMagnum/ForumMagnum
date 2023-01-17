@@ -54,6 +54,15 @@ const schema: SchemaType<DbUserTagRel> = {
     canUpdate: [userOwns, 'admins'],
     ...schemaDefaultValue(false),
   },
+  subforumPreferredLayout: {
+    type: Boolean,
+    nullable: false,
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(true),
+  },
 };
 
 export const UserTagRels: UserTagRelsCollection = createCollection({
