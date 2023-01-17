@@ -4,12 +4,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
 
-/**
- * TODO
- */
 const TagPageRouter = () => {
   const { query, params: { slug } } = useLocation();
-  const [layoutOptions, setLayoutOptions] = useLayoutOptions();
+  const [overridenLayoutOptions, setLayoutOptions] = useLayoutOptions();
 
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? undefined;
@@ -33,15 +30,18 @@ const TagPageRouter = () => {
   if (!tag || loadingTag) return null;
   
   if (
-    tag.isSubforum !== layoutOptions.unspacedGridLayout ||
-    tag.isSubforum !== layoutOptions.standaloneNavigation ||
-    tag.isSubforum !== layoutOptions.shouldUseGridLayout
+    tag.isSubforum !== overridenLayoutOptions.unspacedGridLayout ||
+    tag.isSubforum !== overridenLayoutOptions.standaloneNavigation ||
+    tag.isSubforum !== overridenLayoutOptions.shouldUseGridLayout
   ) {
-    setLayoutOptions({
-      unspacedGridLayout: tag.isSubforum,
-      standaloneNavigation: tag.isSubforum,
-      shouldUseGridLayout: tag.isSubforum,
-    });
+    // NOTE: There is an edge case here where if you navigate from one tag page to another, this component isn't
+    // unmounted, so the overriden layout options aren't automatically cleared by the callback in useLayoutOptions.tsx.
+    // So we have to explicitly clear them here.
+    setLayoutOptions(tag.isSubforum ? {
+      unspacedGridLayout: true,
+      standaloneNavigation: true,
+      shouldUseGridLayout: true,
+    } : {});
   }
 
   const {TagPage, TagSubforumPage2} = Components

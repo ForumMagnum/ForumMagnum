@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export type LayoutOptions = {
   standaloneNavigation: boolean,
@@ -7,9 +7,8 @@ export type LayoutOptions = {
   unspacedGridLayout: boolean,
 }
 type LayoutOptionsState = {
-  defaultLayoutOptions: LayoutOptions, // The default layout options determined in Layout.tsx mainly from the route + current user
-  setDefaultLayoutOptions: (newOptions: LayoutOptions) => void, // A function that sets the layout options that are currently being overridden (by child components)
-  overrideLayoutOptions: Partial<LayoutOptions>, // The layout options that are currently being overridden (by child components)
+  baseLayoutOptions: React.MutableRefObject<LayoutOptions>, // The default layout options determined in Layout.tsx mainly from the route + current user
+  overrideLayoutOptions: Partial<LayoutOptions>, // The layout options that are currently being overridden by child components
   setOverrideLayoutOptions: (newOptions: Partial<LayoutOptions>) => void, // A function that sets the layout options that are currently being overridden (by child components)
 }
 
@@ -24,7 +23,6 @@ const typicalLayoutOptions: LayoutOptions = {
 
 export const LayoutOptionsContext = React.createContext<LayoutOptionsState|null>(null);
 
-// TODO type
 export const useLayoutOptions = (startingOptions?: LayoutOptions): [Partial<LayoutOptions>, (newOptions: Partial<LayoutOptions>) => void] => {
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   if (!layoutOptionsState) throw "useLayoutOptions() used without the context available";
@@ -40,12 +38,11 @@ export const useLayoutOptions = (startingOptions?: LayoutOptions): [Partial<Layo
 export const LayoutOptionsContextProvider = ({children}: {
   children: React.ReactNode,
 }) => {
-  const [defaultLayoutOptions, setDefaultLayoutOptions] = useState<LayoutOptions>(typicalLayoutOptions)
+  const baseLayoutOptions = useRef<LayoutOptions>(typicalLayoutOptions)
   const [overrideLayoutOptions, setOverrideLayoutOptions] = useState<Partial<LayoutOptions>>({})
 
   const layoutOptionsState: LayoutOptionsState = {
-    defaultLayoutOptions,
-    setDefaultLayoutOptions,
+    baseLayoutOptions,
     overrideLayoutOptions,
     setOverrideLayoutOptions: (v) => {
       console.log("Setting layout options", v)

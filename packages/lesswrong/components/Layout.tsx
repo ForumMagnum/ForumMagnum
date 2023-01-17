@@ -210,40 +210,28 @@ const Layout = ({currentUser, children, classes}: {
   const render = () => {
     const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper } = Components
 
-    // Check whether the current route is one which should have standalone
-    // navigation on the side. If there is no current route (ie, a 404 page),
-    // then it should.
-    // FIXME: This is using route names, but it would be better if this was
-    // a property on routes themselves.
-
-    // const standaloneNavigation =
-    //   !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name) || isSubforum;
-
-    // const renderSunshineSidebar = !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins'))
-    
-    // const shouldUseGridLayout = standaloneNavigation
-    // const unspacedGridLayout = !!currentRoute?.unspacedGrid
-
-    const defaultLayoutOptions: LayoutOptions = {
+    const baseLayoutOptions: LayoutOptions = {
+      // Check whether the current route is one which should have standalone
+      // navigation on the side. If there is no current route (ie, a 404 page),
+      // then it should.
+      // FIXME: This is using route names, but it would be better if this was
+      // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute?.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
-    if (JSON.stringify(defaultLayoutOptions) != JSON.stringify(layoutOptionsState.defaultLayoutOptions)) {
-      // TODO update unchange overrideLayoutOptions as well
-      // layoutOptionsState.setDefaultLayoutOptions(defaultLayoutOptions)
-    }
+    layoutOptionsState.baseLayoutOptions.current = baseLayoutOptions
 
-    const layoutOptions = layoutOptionsState.overrideLayoutOptions
+    const { overrideLayoutOptions } = layoutOptionsState
 
-    const standaloneNavigation = layoutOptions.standaloneNavigation ?? defaultLayoutOptions.standaloneNavigation
-    const renderSunshineSidebar = layoutOptions.renderSunshineSidebar ?? defaultLayoutOptions.renderSunshineSidebar
-    const shouldUseGridLayout = layoutOptions.shouldUseGridLayout ?? defaultLayoutOptions.shouldUseGridLayout
-    const unspacedGridLayout = layoutOptions.unspacedGridLayout ?? defaultLayoutOptions.unspacedGridLayout
+    const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
+    const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
+    const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     
     console.log("Layout render with (overriden) layout options:", {standaloneNavigation, renderSunshineSidebar, shouldUseGridLayout, unspacedGridLayout})
-    console.log("Default options are:", layoutOptionsState.defaultLayoutOptions)
+    console.log("Default options are:", layoutOptionsState.baseLayoutOptions)
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
