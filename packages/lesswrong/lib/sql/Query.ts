@@ -190,6 +190,9 @@ abstract class Query<T extends DbObject> {
     if (typeHint instanceof Date) {
       return "::TIMESTAMPTZ";
     }
+    if (Array.isArray(typeHint)) {
+      return "";
+    }
     switch (typeof typeHint) {
       case "number":
         return Number.isInteger(typeHint) ? "::INTEGER" : "::REAL";
