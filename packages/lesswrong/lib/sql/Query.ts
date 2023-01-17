@@ -187,6 +187,9 @@ abstract class Query<T extends DbObject> {
     if (typeHint instanceof Type) {
       return "::" + typeHint.toConcrete().toString();
     }
+    if (typeHint instanceof Date) {
+      return "::TIMESTAMPTZ";
+    }
     switch (typeof typeHint) {
       case "number":
         return Number.isInteger(typeHint) ? "::INTEGER" : "::REAL";
@@ -198,9 +201,6 @@ abstract class Query<T extends DbObject> {
         return Object.keys(typeHint).some((key) => key[0] === "$")
           ? ""
           : "::JSONB";
-    }
-    if (typeHint instanceof Date) {
-      return "::TIMESTAMPTZ";
     }
     return "";
   }
