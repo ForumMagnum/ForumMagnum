@@ -75,7 +75,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       question: true
     }
   }
-  // NOTE: this section is currently unused and should probably be removed -Ray	
+  // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
     if (isEAForum) {
       return {
