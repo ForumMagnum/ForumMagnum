@@ -76,20 +76,20 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
     }
   }
   // NOTE: this section is currently unused and should probably be removed -Ray	
-  if (algorithm.reviewReviews) {	
-    if (isEAForum) {	
-      return {	
-        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},	
-        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here	
-      }	
-    }	
-    return {	
-      postedAt: {	
-        $gt: new Date(`${algorithm.reviewReviews}-01-01`),	
-        $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)	
-      },	
-      positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()},	
-    }	
+  if (algorithm.reviewReviews) {
+    if (isEAForum) {
+      return {
+        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
+        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
+      }
+    }
+    return {
+      postedAt: {
+        $gt: new Date(`${algorithm.reviewReviews}-01-01`),
+        $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
+      },
+      positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()},
+    }
   }
   if (algorithm.lwRationalityOnly) {
     return {
