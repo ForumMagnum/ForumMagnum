@@ -27,5 +27,11 @@ describe("CreateIndexQuery", () => {
       expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_a_b_filtered" ON "TestCollection" USING btree ( "a" , "b" ) WHERE ( "a" > $1 AND "b" = $2 )',
       expectedArgs: [3, "test"],
     },
+    {
+      name: "can build case-insensitive create index query",
+      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[4]),
+      expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_b_ci" ON "TestCollection" USING btree ( LOWER("b") )',
+      expectedArgs: [],
+    },
   ]);
 });

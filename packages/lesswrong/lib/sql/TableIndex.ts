@@ -1,3 +1,5 @@
+import { CollationType, DEFAULT_COLLATION, getCollationType } from "./collation";
+
 /**
  * TableIndex represents a named Postgres index on a particular group
  * of fields in a table. It may or may not be unique and/or partial.
@@ -5,6 +7,7 @@
 class TableIndex {
   private fields: string[];
   private name: string;
+  private collationType: CollationType = DEFAULT_COLLATION;
 
   constructor(
     private tableName: string,
@@ -17,6 +20,12 @@ class TableIndex {
       : `idx_${this.tableName}_${this.getSanitizedFieldNames().join("_")}`;
     if (options?.partialFilterExpression && !options.name) {
       this.name += "_filtered";
+    }
+    if (options?.collation) {
+      this.collationType = getCollationType(options.collation);
+      if (this.collationType === "case-insensitive") {
+        this.name += "_ci";
+      }
     }
   }
 
@@ -48,6 +57,10 @@ class TableIndex {
     return !!this.options?.unique;
   }
 
+  isCaseInsensitive() {
+    return this.collationType === "case-insensitive";
+  }
+
   equals(fields: string[], options?: MongoEnsureIndexOptions) {
     if (this.fields.length !== fields.length) {
       return false;
@@ -60,8 +73,18 @@ class TableIndex {
     if (options?.unique !== this.options?.unique) {
       return false;
     }
-    if (options?.partialFilterExpression !== this.options?.partialFilterExpression) {
+    if (JSON.stringify(options?.partialFilterExpression) !== JSON.stringify(this.options?.partialFilterExpression)) {
       return false;
+    }
+    try {
+      const collationType = getCollationType(options?.collation);
+      if (collationType !== this.collationType) {
+        return false;
+      }
+    } catch {
+      if (this.collationType !== DEFAULT_COLLATION) {
+        return false;
+      }
     }
     return true;
   }

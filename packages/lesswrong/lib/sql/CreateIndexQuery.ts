@@ -1,6 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import TableIndex from "./TableIndex";
+import { StringType } from "./Type";
 
 /**
  * Builds a Postgres query to create a new index on the given table.
@@ -48,7 +49,10 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
   }
 
   private getFieldList(index: TableIndex): {useGin: boolean, fields: Atom<T>[]} {
-    const fields = index.getFields().map((field) => this.fieldNameToIndexField(field));
+    const isCaseInsensitive = index.isCaseInsensitive();
+    const fields = index.getFields().map((field) =>
+      this.fieldNameToIndexField(field, isCaseInsensitive),
+    );
     const useGin = fields.some(({useGin}) => useGin);
     return {
       useGin,
@@ -65,14 +69,19 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
    * beta (it would also be an awkward special case for us to use a constraint for this
    * instead of an index). A simple workaround is to simply coalesce where needed.
    */
-  private fieldNameToIndexField(fieldName: string) {
+  private fieldNameToIndexField(fieldName: string, isCaseInsensitive: boolean) {
     const type = this.table.getField(fieldName);
     const coalesceValue = type?.getIndexCoalesceValue();
     const tokens = fieldName.split(".");
     const name = this.getIndexFieldName(tokens);
+    const field = coalesceValue && this.isUnique
+      ? `COALESCE(${name}, ${coalesceValue})`
+      : name;
     return {
       useGin: tokens.length > 1 || this.table.getField(fieldName)?.isArray(),
-      field: coalesceValue && this.isUnique ? `COALESCE(${name}, ${coalesceValue})` : name,
+      field: isCaseInsensitive && type?.toConcrete() instanceof StringType
+        ? `LOWER(${field})`
+        : field,
     };
   }
 
