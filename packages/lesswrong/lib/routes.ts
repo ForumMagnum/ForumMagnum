@@ -220,7 +220,6 @@ addRoute(
     background: "white",
     initialScroll: "bottom",
   },
-
   {
     name: 'newPost',
     path: '/newPost',
@@ -265,6 +264,21 @@ addRoute(
     title: "Review Voting",
     componentName: "ReviewVotingPage",
     subtitleComponentName: "ReviewHeaderTitle"
+  },
+
+  {
+    name: 'reviewQuickPage',
+    path: '/reviewQuickPage',
+    componentName: 'ReviewQuickPage',
+    title: "Review Quick Page",
+    subtitle: "Quick Review Page"
+  },
+
+  {
+    name: "newLongformReviewForm",
+    path: '/newLongformReview',
+    title: "New Longform Review",
+    componentName: "NewLongformReviewForm",
   },
 
   // Sequences
@@ -924,12 +938,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'reviews2019-old',
       path: '/reviews2019',
       redirect: () => `/reviews/2019`,
-    },
-    {
-      name: 'reviewQuickPage',
-      path: '/reviewQuickPage',
-      componentName: 'ReviewQuickPage',
-      title: "Review Quick Page",
     },
     {
       name: 'library',

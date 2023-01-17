@@ -23,6 +23,7 @@ registerFragment(`
     deletedPublic
     deletedReason
     hideAuthor
+    authorIsUnreviewed
     user {
       ...UsersMinimumInfo
     }

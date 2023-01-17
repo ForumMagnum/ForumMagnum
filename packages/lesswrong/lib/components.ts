@@ -595,6 +595,8 @@ importComponent("SubforumNotifications", () => require('../components/form-compo
 importComponent("TagSubforumButton", () => require('../components/tagging/subforums/TagSubforumButton'));
 importComponent("SubforumIntroBox", () => require('../components/tagging/subforums/SubforumIntroBox'));
 importComponent("SubforumWelcomeBox", () => require('../components/tagging/subforums/SubforumWelcomeBox'));
+importComponent("SubforumWikiTab", () => require('../components/tagging/subforums/SubforumWikiTab'));
+importComponent("SubforumSubforumTab", () => require('../components/tagging/subforums/SubforumSubforumTab'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
@@ -735,6 +737,8 @@ importComponent("CurrentSpotlightItem", () => require('../components/spotlights/
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
 importComponent("ReviewQuickPage", () => require('../components/review/ReviewQuickPage'));
+importComponent("NewLongformReviewForm", () => require('../components/review/NewLongformReviewForm'));
+importComponent("ReviewDashboardButtons", () => require('../components/review/ReviewDashboardButtons'));
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
 importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
@@ -765,6 +769,7 @@ importComponent("PostNominatedNotification", () => require('../components/review
 importComponent("SingleLineReviewsList", () => require('../components/review/SingleLineReviewsList'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
+importComponent("KarmaVoteStripe", () => require('../components/review/KarmaVoteStripe'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
 
