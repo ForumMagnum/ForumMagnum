@@ -60,11 +60,11 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                 <MetaInfo>
                   <FormatDate date={post.postedAt}/>
                 </MetaInfo>
-                {postGetCommentCount(post) && <MetaInfo>
+                <MetaInfo>
                   <Link to={`${postGetPageUrl(post)}#comments`}>
                     {postGetCommentCountStr(post)}
                   </Link>
-                </MetaInfo>}
+                </MetaInfo>
               </span>
             </div>
           </div>
