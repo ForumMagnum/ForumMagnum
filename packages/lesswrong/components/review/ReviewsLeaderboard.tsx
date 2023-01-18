@@ -61,7 +61,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
     return ({
       user: user,
       totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getKarmaPower(user), 0),
-      reviews: sortBy(userTuple[1], obj => -obj.baseScore - getKarmaPower(user))
+      reviews: sortBy(userTuple[1], obj => -obj.baseScore)
   })})
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
   const truncatedRows = truncated ? sortedUserRows.slice(0,5) : sortedUserRows
