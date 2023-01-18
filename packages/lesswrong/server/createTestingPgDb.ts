@@ -45,12 +45,8 @@ export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndC
       seedData(Conversations, seedConversations),
       seedData(Messages, seedMessages),
       seedData(LocalGroups, seedLocalGroups),
+      seedData(Users, seedUsers),
     ]);
-
-    // TODO: Move this into the above Promise.all when Users is fully migrated
-    if (Users.isPostgres()) {
-      await seedData(Users, seedUsers);
-    }
   }
 }
 
