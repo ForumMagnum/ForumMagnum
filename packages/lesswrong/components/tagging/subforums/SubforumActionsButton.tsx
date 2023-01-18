@@ -6,7 +6,7 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import Paper from "@material-ui/core/Paper";
 import Checkbox from '@material-ui/core/Checkbox';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
-import { defaultSubforumLayout, isSubforumLayout } from './SubforumSubforumTab';
+import { defaultSubforumLayout, isSubforumLayout, SubforumLayout } from './SubforumSubforumTab';
 import qs from 'qs';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
@@ -45,7 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SubforumActionsButton = ({tag, userTagRel, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
-  userTagRel?: UserTagRelNotifications, // TODO merge with open PRs
+  userTagRel?: UserTagRelDetails,
+  layout: SubforumLayout,
   classes: ClassesType,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -53,12 +54,10 @@ const SubforumActionsButton = ({tag, userTagRel, classes}: {
   const {captureEvent} = useTracking();
   const { query } = useLocation();
   const { history } = useNavigation();
-
-  const layout = isSubforumLayout(query.layout) ? query.layout : defaultSubforumLayout
   
   const { mutate: updateUserTagRel } = useUpdate({
     collectionName: "UserTagRels",
-    fragmentName: "UserTagRelNotifications",
+    fragmentName: "UserTagRelDetails",
   })
 
   const handleSetOpen = (open: boolean) => {
