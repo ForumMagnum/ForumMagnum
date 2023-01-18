@@ -86,6 +86,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     CommentWithReplies,
     PostsList2,
     AddPostsToTag,
+    LatestPostsDiscussion,
   } = Components;
 
   const { query } = useLocation();
@@ -279,6 +280,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={50}>
         <AddPostsToTag tag={tag} />
       </PostsList2>
+      <LatestPostsDiscussion />
     </div>
   );
 
