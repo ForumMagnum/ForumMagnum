@@ -671,6 +671,22 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly agentFoundationsId: string,
 }
 
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
+  readonly archivedByIds: Array<string>,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -718,6 +734,12 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
+  readonly userId: string,
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered",
+  readonly endedAt: Date | null,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -1419,22 +1441,6 @@ interface NotificationsList { // fragment on Notifications
   readonly type: string,
   readonly viewed: boolean,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -2821,17 +2827,11 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
   readonly description: RevisionEdit|null,
 }
 
-interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
-  readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
-  readonly endedAt: Date | null,
-}
-
 interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -2898,9 +2898,12 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  ConversationsDefaultFragment: ConversationsDefaultFragment
+  MessagesDefaultFragment: MessagesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
+  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
@@ -2949,8 +2952,6 @@ interface FragmentTypes {
   WithVoteRevision: WithVoteRevision
   NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
-  ConversationsDefaultFragment: ConversationsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
@@ -3050,7 +3051,6 @@ interface FragmentTypes {
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
-  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
@@ -3077,9 +3077,12 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  ConversationsDefaultFragment: "Conversations"
+  MessagesDefaultFragment: "Messages"
   VotesDefaultFragment: "Votes"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
+  ModeratorActionsDefaultFragment: "ModeratorActions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
@@ -3128,8 +3131,6 @@ interface CollectionNamesByFragmentName {
   WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
-  ConversationsDefaultFragment: "Conversations"
-  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
@@ -3229,7 +3230,6 @@ interface CollectionNamesByFragmentName {
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
-  ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentModeratorActionDisplay: "CommentModeratorActions"

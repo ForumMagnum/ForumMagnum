@@ -39,13 +39,13 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
     return tagRel.data;
   } else {
     // Upvote the tag
-    // TODO: Don't *remove* an upvote in this case
-    const votedTagRel = await performVoteServer({
+    const {modifiedDocument: votedTagRel} = await performVoteServer({
       document: existingTagRel,
       voteType: 'smallUpvote',
       collection: TagRels,
       user: currentUser,
       toggleIfAlreadyVoted: false,
+      skipRateLimits: true,
     });
     return votedTagRel;
   }
