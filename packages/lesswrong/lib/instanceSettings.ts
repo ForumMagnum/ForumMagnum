@@ -156,3 +156,5 @@ export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<str
 
 //Test vs Production Setting
 export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
+
+export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");

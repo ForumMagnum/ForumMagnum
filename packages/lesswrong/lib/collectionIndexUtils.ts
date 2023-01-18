@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
+import { disableEnsureIndexSetting } from './instanceSettings';
 
 export type IndexDefinition = {
   key: Record<string, 1>,
@@ -62,7 +63,7 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
 
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (isServer && !isAnyTest && !isMigrations) {
+  if (isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get()) {
     const buildIndex = async () => {
       if (!collection.isConnected())
         return;
