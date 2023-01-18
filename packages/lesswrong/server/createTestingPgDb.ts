@@ -63,8 +63,8 @@ export const addCypressRoutes = (app: Application) => {
         if (!templateId || typeof templateId !== "string") {
           throw new Error("No templateId provided");
         }
-        await createTestingSqlClientFromTemplate(templateId)
-        res.status(200).send({status: "ok"});
+        const {dbName} = await createTestingSqlClientFromTemplate(templateId)
+        res.status(200).send({status: "ok", dbName});
       } catch (e) {
         res.status(500).send({status: "error", message: e.message});
       }

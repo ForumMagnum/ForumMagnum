@@ -1,10 +1,16 @@
 /// <reference types="cypress" />
 
+const pgp = require('pg-promise');
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 
 // TODO: Remove this when the Users collection is migrated
 const seedUsers = require('../fixtures/users');
+
+const pgDbTemplate = "unittest_cypress_template";
+let pgDbName;
+
+const pgPromiseLib = pgp();
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -13,6 +19,7 @@ function hashLoginToken(loginToken) {
 };
 
 let dbConnection = null;
+let pgConnection = null;
 
 /**
  * Note:
@@ -60,7 +67,7 @@ const dropAndSeedPostgres = async () => {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
-      templateId: "unittest_cypress_template",
+      templateId: pgDbTemplate,
     }),
   });
 
@@ -73,6 +80,56 @@ const dropAndSeedPostgres = async () => {
   if (data.status === "error") {
     throw new Error(data.message);
   }
+  pgDbName = data.dbName;
+}
+
+const replaceDbNameInPgConnectionString = (connectionString, dbName) => {
+  if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
+    throw `Incorrectly formatted connection string or unrecognized connection string format: ${connectionString}`;
+  }
+  const lastSlash = connectionString.lastIndexOf('/');
+  const withoutDbName = connectionString.slice(0, lastSlash);
+  return `${withoutDbName}/${dbName}`;
+}
+
+const associateLoginTokenMongo = async (config, {user, loginToken}) => {
+  if (!dbConnection) {
+    dbConnection = new MongoClient(config.env.TESTING_DB_URL);
+    await dbConnection.connect();
+  }
+  const db = await dbConnection.db();
+  await db.collection("users").updateOne({_id: user._id}, {
+    $addToSet: {
+      "services.resume.loginTokens": {
+        when: new Date(),
+        hashedToken: hashLoginToken(loginToken),
+      },
+    },
+  });
+}
+
+const associateLoginTokenPostgres = async (config, {user, loginToken}) => {
+  const connectionString = replaceDbNameInPgConnectionString(
+    config.env.PG_URL,
+    pgDbName ?? pgDbTemplate,
+  );
+  pgConnection = pgPromiseLib({
+    connectionString,
+    max: 5,
+  });
+  const tokenData = {
+    when: new Date(),
+    hashedToken: hashLoginToken(loginToken),
+  };
+  await pgConnection.none(`
+    UPDATE "Users"
+    SET "services" = fm_add_to_set(
+      "services",
+      '{resume, loginTokens}'::TEXT[],
+      $1::JSONB
+    )
+    WHERE _id = $2
+  `, [tokenData, user._id]);
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -85,20 +142,11 @@ module.exports = (on, config) => {
       ]);
       return null;
     },
-    async associateLoginToken({user, loginToken}) {
-      if (!dbConnection) {
-        dbConnection = new MongoClient(config.env.TESTING_DB_URL);
-        await dbConnection.connect();
-      }
-      const db = await dbConnection.db();
-      await db.collection('users').updateOne({_id: user._id}, {
-        $addToSet: {
-          "services.resume.loginTokens": {
-            when: new Date(),
-            hashedToken: hashLoginToken(loginToken),
-          },
-        },
-      });
+    async associateLoginToken(data) {
+      await Promise.all([
+        associateLoginTokenMongo(config, data),
+        associateLoginTokenPostgres(config, data),
+      ]);
       return null;
     },
   });
