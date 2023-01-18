@@ -11,7 +11,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   currentUser: DbUser,
   ignoreParent?: boolean,
   context: ResolverContext,
-}): Promise<any> => {
+}): Promise<DbTagRel> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.
   const post = await Posts.findOne({_id: postId});
@@ -47,7 +47,8 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
       toggleIfAlreadyVoted: false,
       skipRateLimits: true,
     });
-    return votedTagRel;
+    // performVoteServer should be generic but it ain't, and returns a DbVoteableType
+    return votedTagRel as DbTagRel;
   }
 }
 
