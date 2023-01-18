@@ -22,6 +22,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     color: theme.palette.grey[500]
   },
+  anchor: {
+    // Invisible div that the PopperCard attaches to in order to not overlap with the Join button
+    position: "relative",
+    top: 6,
+  },
   popout: {
     padding: "4px 0px 4px 0px",
     maxWidth: 260,
@@ -99,9 +104,10 @@ const SubforumActionsButton = ({tag, layout, classes}: {
   );
 
   return <div className={classes.root}>
-    <div ref={anchorEl}>
+    <div>
       <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
     </div>
+    <div className={classes.anchor} ref={anchorEl} />
     <PopperCard
       open={isOpen}
       anchorEl={anchorEl.current}

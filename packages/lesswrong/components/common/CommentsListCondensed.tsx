@@ -27,7 +27,6 @@ const CommentsListCondensed = ({label, contentType, terms, initialLimit, itemsPe
   classes: ClassesType,
 }) => {
   const { Loading, ContentType, CommentsNode, LoadMore } = Components;
-  const currentUser  = useCurrentUser();
   const { results, loading, count, totalCount, loadMoreProps } = useMulti({
     terms: terms,
     limit: initialLimit,
@@ -35,12 +34,8 @@ const CommentsListCondensed = ({label, contentType, terms, initialLimit, itemsPe
     enableTotal: true,
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
-    skip: !isEAForum || !currentUser?.profileTagIds?.length,
-  })
-  
-  if (!isEAForum) {
-    return null;
-  }
+  });
+
   if (loading && !results?.length) {
     return <Loading/>;
   }
