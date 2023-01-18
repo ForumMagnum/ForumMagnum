@@ -8,12 +8,14 @@ import merge from 'lodash/merge';
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
 
-// Given a view (which gets translated into a mongo query), provide a string
-// which describes what's being queried (ie the view name, and a list of
-// parameters that were attached, but not the values of those parameters). This
-// is attached to the mongodb query by putting a $comment in the selector, so
-// that when we see slow queries in the profiler, we can easily identify the
-// source.
+/**
+ * Given a view (which gets translated into a mongo query), provide a string
+ * which describes what's being queried (ie the view name, and a list of
+ * parameters that were attached, but not the values of those parameters). This
+ * is attached to the mongodb query by putting a $comment in the selector, so
+ * that when we see slow queries in the profiler, we can easily identify the
+ * source.
+ */
 export function describeTerms(terms: ViewTermsBase) {
   const viewName = terms.view || "defaultView";
   const otherTerms = Object.keys(terms).filter(key => key!=='view').join(',');
@@ -23,16 +25,30 @@ export function describeTerms(terms: ViewTermsBase) {
     return viewName;
 }
 
+/**
+ * Given a set of terms describing a view, translate them into a mongodb selector
+ * and options, which is ready to execute (but don't execute it yet).
+ */
 export function viewTermsToQuery<N extends CollectionNameString>(collectionName: N, terms: ViewTermsByCollectionName[N], apolloClient?: any, resolverContext?: ResolverContext) {
   const collection = getCollection(collectionName);
   return getParameters(collection, terms, apolloClient, resolverContext);
 }
 
+/**
+ * Return the default selector for a given collection. This is generally a filter
+ * which handles things like soft deletion, hidden drafts, etc; if you're building
+ * a query that doesn't pass through the views system, you probably want to use
+ * this selector as a starting point.
+ */
 export function getDefaultViewSelector<N extends CollectionNameString>(collectionName: N) {
   const viewQuery = viewTermsToQuery(collectionName, {})
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
+/**
+ * Given a set of terms describing a view, translate them into a mongodb selector
+ * and options, which is ready to execute (but don't execute it yet).
+ */
 function getParameters<N extends CollectionNameString, T extends DbObject=ObjectsByCollectionName[N]>(
   collection: CollectionBase<T>,
   terms: ViewTermsByCollectionName[N] = {},
@@ -113,12 +129,20 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   return parameters;
 }
 
+/**
+ * Take a selector, which is a mongodb selector except that some fields may be
+ * the special values `viewFieldNullOrMissing` or `viewFieldAllowAny`, and turn
+ * it into a mongodb selector without those special cases. (These special-case
+ * values exist to support merging a specific-view selector with a default view;
+ * in that context, the specific-view needs something other than `undefined` to
+ * replace the default-view's constraint with.)
+ */
 function replaceSpecialFieldSelectors(selector: any): any {
   let result: any = {};
   for (let key of Object.keys(selector)) {
     if (_.isEqual(selector[key], viewFieldNullOrMissing)) {
       // Put an explicit null in the selector. In mongodb-query terms, this means
-      // no constraint on the given field.
+      // the field must either contain the value null, or be missing.
       result[key] = null;
     } else if (_.isEqual(selector[key], viewFieldAllowAny)) {
       // Skip: The selector has a no-op in this field. Probably a specific view
