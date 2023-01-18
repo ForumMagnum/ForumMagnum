@@ -18,6 +18,7 @@ import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
+import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -284,6 +285,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
+    const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+    const commentHidden = hideSince && new Date(hideSince) < new Date(comment.postedAt) &&
+      comment.authorIsUnreviewed
     const showReplyButton = (
       !hideReply &&
       !comment.deleted &&
@@ -293,7 +297,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
+      !commentHidden
     )
 
     const showInlineCancel = showReplyState && isMinimalist
