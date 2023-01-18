@@ -47,7 +47,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
 
   // TODO find the place in the code where this is normally set
-  const getKarmaPower = (user: UsersMinimumInfo|null) => {
+  const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
     if (user?.karma && user?.karma >= 1000) {
       return 2
     } else {
@@ -60,7 +60,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
     const user = userTuple[1][0].user
     return ({
       user: user,
-      totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getKarmaPower(user), 0),
+      totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getSelfUpvotePower(user), 0),
       reviews: sortBy(userTuple[1], obj => -obj.baseScore)
   })})
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
@@ -88,7 +88,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
           <div className={classes.reviews}>{reviewUser.reviews.map(review => {
             return <LWTooltip placement="bottom-start" title={<div className={classes.card}><CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
               <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
-                <MetaInfo>{review.baseScore - getKarmaPower(review.user)}</MetaInfo>
+                <MetaInfo>{review.baseScore - getSelfUpvotePower(review.user)}</MetaInfo>
               </a>
             </LWTooltip>
           })}</div>
