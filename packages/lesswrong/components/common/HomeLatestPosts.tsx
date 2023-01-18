@@ -68,6 +68,12 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     forum: true,
     limit:limit
   }
+  
+  const recentSubforumDiscussionTerms = {
+    view: "latestSubforumDiscussion" as const,
+    profileTagIds: currentUser?.profileTagIds,
+    limit: 3,
+  };
 
   const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
@@ -117,7 +123,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            <LatestPostsDiscussion />
+            <LatestPostsDiscussion terms={recentSubforumDiscussionTerms}/>
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

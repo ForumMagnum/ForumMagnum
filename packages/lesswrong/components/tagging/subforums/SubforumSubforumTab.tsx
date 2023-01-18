@@ -280,7 +280,14 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={50}>
         <AddPostsToTag tag={tag} />
       </PostsList2>
-      <LatestPostsDiscussion />
+      <LatestPostsDiscussion
+        terms={{
+          view: "tagSubforumComments" as const,
+          tagId: tag._id,
+          sortBy,
+          limit: 5,
+        }}
+      />
     </div>
   );
 

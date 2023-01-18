@@ -503,11 +503,15 @@ ensureIndex(Comments,
   { name: "comments.tagId" }
 );
 
+//, TODO merge with feed sortings
 export const subforumSorting = {
+  magic: { score: -1 },
   new: { postedAt: -1 },
-  recentDiscussion: { lastSubthreadActivity: -1 },
+  old: { postedAt: 1 },
+  top: { baseScore: -1 },
+  recentComments: { lastSubthreadActivity: -1 },
 }
-export const subforumDiscussionDefaultSorting = "recentDiscussion"
+export const subforumDiscussionDefaultSorting = "recentComments"
 
 Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
   selector: {
@@ -540,7 +544,7 @@ Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
       lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
     },
     options: {
-      sort: subforumSorting.recentDiscussion,
+      sort: subforumSorting.recentComments,
       limit: 3,
     },
   }

@@ -16,13 +16,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const LatestPostsDiscussion = ({classes}: {
+// TODO rename
+const LatestPostsDiscussion = ({terms, classes}: {
+  terms: CommentsViewTerms
   classes: ClassesType,
 }) => {
   const { Loading, ContentType, CommentsNode, LoadMore } = Components;
   const currentUser  = useCurrentUser();
   const subforumDiscussionCommentsQuery = useMulti({
-    terms: {view: 'latestSubforumDiscussion', profileTagIds: currentUser?.profileTagIds, limit: 3},
+    // terms: {view: 'latestSubforumDiscussion', profileTagIds: currentUser?.profileTagIds, limit: 3},
+    terms: terms,
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
     skip: !isEAForum || !currentUser?.profileTagIds?.length,
