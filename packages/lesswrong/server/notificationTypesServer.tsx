@@ -26,6 +26,7 @@ import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
+import { NotificationDocument } from '../lib/notificationTypes'
 
 interface ServerNotificationType {
   name: string,
@@ -141,7 +142,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const {documentId, documentType} = notifications[0]
-    return await taggedPostMessage({documentId, documentType})
+    return await taggedPostMessage({documentId, documentType: documentType as NotificationDocument})
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const {documentId, documentType} = notifications[0]
