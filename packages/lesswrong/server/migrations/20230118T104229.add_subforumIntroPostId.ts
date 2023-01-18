@@ -35,7 +35,7 @@ export const acceptsSchemaHash = "d92682d72d3bee6deb63b3b6419e027c";
 
 import Tags from "../../lib/collections/tags/collection"
 import UserTagRels from "../../lib/collections/userTagRels/collection";
-import { addField } from "./meta/utils";
+import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   if (!Tags.isPostgres() || !UserTagRels.isPostgres()) return;
@@ -45,5 +45,8 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  if (!Tags.isPostgres() || !UserTagRels.isPostgres()) return;
+
+  await dropField(db, Tags, "subforumIntroPostId");
+  await dropField(db, UserTagRels, "subforumHideIntroPost");
 }

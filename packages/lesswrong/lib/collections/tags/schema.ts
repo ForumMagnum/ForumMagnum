@@ -510,7 +510,7 @@ const schema: SchemaType<DbTag> = {
     }),
     optional: true,
     viewableBy: ['guests'],
-    editableBy: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     label: "Subforum intro post ID",
     tooltip: "Dismissable intro post that will appear at the top of the subforum feed",

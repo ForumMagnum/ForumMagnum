@@ -146,7 +146,7 @@ const RecentDiscussionThread = ({
   expandAllThreads: initialExpandAllThreads,
   maxLengthWords,
   smallerFonts,
-  subforumIntroPost,
+  isSubforumIntroPost,
   dismissCallback = () => {},
   classes,
 }: {
@@ -156,7 +156,7 @@ const RecentDiscussionThread = ({
   expandAllThreads?: boolean,
   maxLengthWords?: number,
   smallerFonts?: boolean,
-  subforumIntroPost?: boolean,
+  isSubforumIntroPost?: boolean,
   dismissCallback?: () => void,
   classes: ClassesType,
 }) => {
@@ -215,15 +215,15 @@ const RecentDiscussionThread = ({
       <div className={classNames(
         classes.root,
         {
-          [classes.plainBackground]: !subforumIntroPost,
-          [classes.primaryBackground]: subforumIntroPost
+          [classes.plainBackground]: !isSubforumIntroPost,
+          [classes.primaryBackground]: isSubforumIntroPost
         }
       )}>
         <div className={classNames(
           classes.post,
           {
-            [classes.plainBackground]: !subforumIntroPost,
-            [classes.primaryBackground]: subforumIntroPost
+            [classes.plainBackground]: !isSubforumIntroPost,
+            [classes.primaryBackground]: isSubforumIntroPost
           }
         )}>
           <div className={classes.postItem}>
@@ -232,7 +232,7 @@ const RecentDiscussionThread = ({
               <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
-              {subforumIntroPost && currentUser ? <Button
+              {isSubforumIntroPost && currentUser ? <Button
                 className={classes.closeButton}
                 onClick={dismissCallback}
               >

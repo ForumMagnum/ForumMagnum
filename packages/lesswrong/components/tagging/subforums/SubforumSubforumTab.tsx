@@ -209,7 +209,7 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
             refetch={refetch}
             smallerFonts
             dismissCallback={dismissIntroPost}
-            subforumIntroPost
+            isSubforumIntroPost
           />
         </div>
       )}
