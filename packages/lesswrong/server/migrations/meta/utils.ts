@@ -7,6 +7,7 @@ import DropIndexQuery from "../../../lib/sql/DropIndexQuery";
 import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
 import DropTableQuery from "../../../lib/sql/DropTableQuery";
+import DropFieldQuery from "../../../lib/sql/DropFieldQuery";
 
 export const addField = async <T extends DbObject>(
   db: SqlClient,
@@ -14,6 +15,15 @@ export const addField = async <T extends DbObject>(
   fieldName: keyof T & string,
 ): Promise<void> => {
   const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName).compile();
+  await db.none(sql, args);
+}
+
+export const dropField = async <T extends DbObject>(
+  db: SqlClient,
+  collection: PgCollection<T>,
+  fieldName: keyof T & string,
+): Promise<void> => {
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
   await db.none(sql, args);
 }
 

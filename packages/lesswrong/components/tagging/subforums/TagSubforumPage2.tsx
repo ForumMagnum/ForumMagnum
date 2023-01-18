@@ -13,7 +13,6 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { useDialog } from "../../common/withDialog";
-import { useRecordSubforumView } from "../../hooks/useRecordSubforumView";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
@@ -171,6 +170,7 @@ const TagSubforumPage2 = ({classes}: {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { history } = useNavigation();
+  const { openDialog } = useDialog();
   
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
@@ -218,7 +218,6 @@ const TagSubforumPage2 = ({classes}: {
     skip: !query.flagId
   })
 
-  const { openDialog } = useDialog();
   const { totalCount: membersCount, loading: membersCountLoading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 0},
     collectionName: 'Users',
@@ -227,11 +226,17 @@ const TagSubforumPage2 = ({classes}: {
     skip: !tag
   })
 
-  const recordSubforumView = useRecordSubforumView({userId: currentUser?._id, tagId: tag?._id});
-  useEffect(() => {
-    if (!loadingTag && tag?._id)
-      void recordSubforumView();
-  }, [loadingTag, recordSubforumView, tag?._id]);
+  const { results: userTagRelResults } = useMulti({
+    terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
+    collectionName: "UserTagRels",
+    fragmentName: "UserTagRelDetails",
+    // Create a new UserTagRel if none exists. The check for the existence of tagId and userId is
+    // in principle redundant because of `skip`, but it would be bad to create a UserTagRel with
+    // a null tagId or userId so be extra careful.
+    createIfMissing: tag?._id && currentUser?._id ? { tagId: tag?._id, userId: currentUser?._id } : undefined,
+    skip: !tag || !currentUser
+  });
+  const userTagRel = userTagRelResults?.[0];
 
   const onClickMembersList = () => {
     if (!tag) return;
@@ -312,7 +317,10 @@ const TagSubforumPage2 = ({classes}: {
           {tag.name}
         </Typography>
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-        {!!currentUser && (isSubscribed ? <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} currentUser={currentUser} className={classes.notificationSettings} /> : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
+        {!!currentUser && !!userTagRel && (
+          isSubscribed ?
+            <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
+            : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
@@ -353,14 +361,13 @@ const TagSubforumPage2 = ({classes}: {
           expandAll={expandAll}
           showContributors={true}
           onHoverContributor={onHoverContributor}
-          allowSubforumLink={false}
         />
       </div>,
     ],
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} />,
+    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} />,
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
   }
 

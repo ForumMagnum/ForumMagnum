@@ -1,8 +1,10 @@
 import React, { useState, useCallback } from 'react';
+import Button from '@material-ui/core/Button';
 import {
   Components,
   registerComponent,
 } from '../../lib/vulcan-lib';
+import CloseIcon from '@material-ui/icons/Close';
 
 import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
@@ -13,6 +15,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,7 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
+  },
+  plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+  },
+  primaryBackground: {
+    backgroundColor: theme.palette.background.primaryDim,
   },
   postStyle: theme.typography.postStyle,
   postItem: {
@@ -81,7 +89,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: theme.palette.panelBackground.default,
     borderRadius: 3,
     marginBottom:4,
     
@@ -118,6 +125,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -8,
     marginTop: -8,
   },
+  closeButton: {
+    padding: 0,
+    margin: "-6px 4px 0em 0em",
+    width: 32,
+    height: 32,
+    minHeight: 'unset',
+    minWidth: 'unset',
+  },
+  closeIcon: {
+    width: '1em',
+    height: '1em',
+    color: theme.palette.icon.dim6,
+  },
 })
 
 const RecentDiscussionThread = ({
@@ -126,6 +146,8 @@ const RecentDiscussionThread = ({
   expandAllThreads: initialExpandAllThreads,
   maxLengthWords,
   smallerFonts,
+  isSubforumIntroPost,
+  dismissCallback = () => {},
   classes,
 }: {
   post: PostsRecentDiscussion,
@@ -134,12 +156,15 @@ const RecentDiscussionThread = ({
   expandAllThreads?: boolean,
   maxLengthWords?: number,
   smallerFonts?: boolean,
+  isSubforumIntroPost?: boolean,
+  dismissCallback?: () => void,
   classes: ClassesType,
 }) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { recordPostView } = useRecordPostView(post);
+  const currentUser = useCurrentUser();
 
   const markAsRead = useCallback(
     () => {
@@ -187,17 +212,34 @@ const RecentDiscussionThread = ({
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
-      <div className={classes.root}>
-        <div className={classes.post}>
+      <div className={classNames(
+        classes.root,
+        {
+          [classes.plainBackground]: !isSubforumIntroPost,
+          [classes.primaryBackground]: isSubforumIntroPost
+        }
+      )}>
+        <div className={classNames(
+          classes.post,
+          {
+            [classes.plainBackground]: !isSubforumIntroPost,
+            [classes.primaryBackground]: isSubforumIntroPost
+          }
+        )}>
           <div className={classes.postItem}>
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
             <div className={classes.titleAndActions}>
               <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})}>
                 {post.title}
               </Link>
-              <div className={classes.actions}>
+              {isSubforumIntroPost && currentUser ? <Button
+                className={classes.closeButton}
+                onClick={dismissCallback}
+              >
+                <CloseIcon className={classes.closeIcon} />
+              </Button> : <div className={classes.actions}>
                 <PostActionsButton post={post} vertical />
-              </div>
+              </div>}
             </div>
             <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
@@ -246,4 +288,3 @@ declare global {
     RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
   }
 }
-
