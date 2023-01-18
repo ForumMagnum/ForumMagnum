@@ -33,6 +33,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   subforumTop: {
     paddingTop: 4,
   },
+  tagIcon: {
+    marginRight: 6,
+    '& svg': {
+      width: 15,
+      height: 15,
+      fill: theme.palette.grey[600],
+    },
+  },
   body: {
     borderStyle: "none",
     padding: 0,
@@ -331,7 +339,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const {
+    ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
+    CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    LWHelpIcon, TopTagIcon
+  } = Components
 
   if (!comment) {
     return null;
@@ -409,7 +421,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         <div className={classes.body}>
           {showCommentTitle && <div className={classes.title}>
-            <CommentDiscussionIcon comment={comment} />
+            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+              <TopTagIcon tag={tag} />
+            </span> : <CommentDiscussionIcon
+              comment={comment}
+            />}
             {comment.title}
           </div>}
           <div className={classNames(classes.meta, {
@@ -419,7 +435,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
-            {displayTagIcon && <span>TODO</span>}
             {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
             {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment

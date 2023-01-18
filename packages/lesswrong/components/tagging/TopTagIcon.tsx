@@ -17,7 +17,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 
 // Mapping from tag slug to icon
 // Don't want to fight the type system about the type of the MUI icon
-const topTagIconMap = forumSelect<Record<string, any>>({
+export const topTagIconMap = forumSelect<Record<string, any>>({
   EAForum: {
     biosecurity: DnaIcon,
     'existential-risk': MushroomCloudIcon,
