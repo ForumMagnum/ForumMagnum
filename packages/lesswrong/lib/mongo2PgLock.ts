@@ -15,7 +15,7 @@ const mongo2PgLock = new class {
   private readonly writeConstraint = "write_constraint";
   private isEnsured = false;
 
-  async ensureTableExists(db: SqlClient, force: boolean = false): Promise<void> {
+  async ensureTableExists(db: SqlClient, force = false): Promise<void> {
     if (this.isEnsured && !force) {
       return;
     }
