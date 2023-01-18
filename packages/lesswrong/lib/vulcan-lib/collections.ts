@@ -98,7 +98,6 @@ export const createCollection = <
     addGraphQLCollection(collection);
   }
 
-  // Default Fragment
   const defaultFragment = getDefaultFragmentText(collection, schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
