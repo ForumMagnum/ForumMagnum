@@ -3,11 +3,13 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useTracking } from '../../../lib/analyticsEvents';
 import Paper from "@material-ui/core/Paper";
-import Checkbox from '@material-ui/core/Checkbox';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import qs from 'qs';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { defaultSubforumLayout, isSubforumLayout, SubforumLayout } from '../../../lib/collections/tags/helpers';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import SwapHoriz from '@material-ui/icons/SwapHoriz'
+import { SubforumLayout } from '../../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,14 +79,24 @@ const SubforumActionsButton = ({tag, userTagRel, layout, classes}: {
         data: {subforumPreferredLayout: newLayout}
       })
     }
+    setIsOpen(false)
   }, [history, layout, query, updateUserTagRel, userTagRel])
 
-  const subforumActions = <Paper className={classes.popout}>
-    <span className={classes.checkbox}>
-      <Checkbox checked={layout == "feed"} onChange={toggleLayout} disableRipple />
-      <Typography variant="body2">Show expanded previews</Typography>
-    </span>
-  </Paper>
+  const layoutMessages: Record<SubforumLayout, string> = {
+    feed: "Switch to list view",
+    list: "Switch to feed view",
+  }
+
+  const subforumActions = (
+    <Paper className={classes.popout}>
+      <MenuItem onClick={toggleLayout}>
+        <ListItemIcon>
+          <SwapHoriz />
+        </ListItemIcon>
+        {layoutMessages[layout]}
+      </MenuItem>
+    </Paper>
+  );
 
   return <div className={classes.root}>
     <div ref={anchorEl}>

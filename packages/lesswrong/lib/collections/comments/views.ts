@@ -503,7 +503,7 @@ ensureIndex(Comments,
   { name: "comments.tagId" }
 );
 
-//, TODO merge with feed sortings
+// TODO merge with subforumFeedSortings
 export const subforumSorting = {
   magic: { score: -1 },
   new: { postedAt: -1 },
