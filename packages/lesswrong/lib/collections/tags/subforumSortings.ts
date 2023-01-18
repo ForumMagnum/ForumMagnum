@@ -22,3 +22,8 @@ export const subforumSortingToResolverName = (sort: SubforumSorting) =>
 
 export const isSubforumSorting = (sort: string): sort is SubforumSorting =>
   (subforumSortings as string []).includes(sort);
+
+export const subforumLayouts = ["feed", "list"] as const
+export type SubforumLayout = typeof subforumLayouts[number]
+export const isSubforumLayout = (tab: string): tab is SubforumLayout => (subforumLayouts as readonly string[]).includes(tab)
+export const defaultSubforumLayout: SubforumLayout = "feed"

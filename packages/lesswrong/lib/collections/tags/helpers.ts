@@ -28,11 +28,6 @@ export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get(
 export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
-export const subforumLayouts = ["feed", "list"] as const
-export type SubforumLayout = typeof subforumLayouts[number]
-export const isSubforumLayout = (tab: string): tab is SubforumLayout => (subforumLayouts as readonly string[]).includes(tab)
-export const defaultSubforumLayout: SubforumLayout = "feed"
-
 export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
   // Assume links that are not explicitly for the subforum should go to the wiki tab (this may change in the future)
   const urlSearchParams = subforumSlugsSetting.get().includes(tag.slug) ? {tab: "wiki", ...urlOptions} : urlOptions

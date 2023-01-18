@@ -5,11 +5,12 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import Paper from "@material-ui/core/Paper";
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import qs from 'qs';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import SwapHoriz from '@material-ui/icons/SwapHoriz'
-import { SubforumLayout } from '../../../lib/collections/tags/helpers';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import { useCurrentUser } from '../../common/withUser';
+import { SubforumLayout } from '../../../lib/collections/tags/subforumSortings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,9 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const SubforumActionsButton = ({tag, userTagRel, layout, classes}: {
+const SubforumActionsButton = ({tag, layout, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
-  userTagRel?: UserTagRelDetails,
   layout: SubforumLayout,
   classes: ClassesType,
 }) => {
@@ -55,11 +55,9 @@ const SubforumActionsButton = ({tag, userTagRel, layout, classes}: {
   const {captureEvent} = useTracking();
   const { query } = useLocation();
   const { history } = useNavigation();
+  const currentUser = useCurrentUser();
   
-  const { mutate: updateUserTagRel } = useUpdate({
-    collectionName: "UserTagRels",
-    fragmentName: "UserTagRelDetails",
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
 
   const handleSetOpen = (open: boolean) => {
     captureEvent("tripleDotClick", {open, itemType: "subforum", tagId: tag._id})
@@ -67,20 +65,20 @@ const SubforumActionsButton = ({tag, userTagRel, layout, classes}: {
   }
 
   const Icon = MoreVertIcon
-  const { PopperCard, LWClickAwayListener, Typography } = Components
+  const { PopperCard, LWClickAwayListener } = Components
 
   const toggleLayout = useCallback(() => {
     const newLayout = layout == "feed" ? "list" : "feed"
     const newQuery = {...query, layout: newLayout}
+    
+    // Immediately change the layout for any user (inc logged out)
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
-    if (userTagRel) {
-      void updateUserTagRel({
-        selector: {_id: userTagRel._id},
-        data: {subforumPreferredLayout: newLayout}
-      })
+    if (currentUser) {
+      // For logged in users, also update their layout preference
+      void updateCurrentUser({subforumPreferredLayout: newLayout})
     }
     setIsOpen(false)
-  }, [history, layout, query, updateUserTagRel, userTagRel])
+  }, [currentUser, history, layout, query, updateCurrentUser])
 
   const layoutMessages: Record<SubforumLayout, string> = {
     feed: "Switch to list view",

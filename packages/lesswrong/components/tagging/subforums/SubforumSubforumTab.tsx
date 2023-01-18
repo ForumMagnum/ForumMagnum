@@ -9,10 +9,9 @@ import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
 import startCase from 'lodash/startCase';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
+import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { defaultSubforumLayout, isSubforumLayout, SubforumLayout } from '../../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {

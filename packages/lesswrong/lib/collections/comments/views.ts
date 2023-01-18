@@ -510,6 +510,7 @@ export const subforumSorting = {
   old: { postedAt: 1 },
   top: { baseScore: -1 },
   recentComments: { lastSubthreadActivity: -1 },
+  recentDiscussion: { lastSubthreadActivity: -1 }, // DEPRECATED
 }
 export const subforumDiscussionDefaultSorting = "recentComments"
 

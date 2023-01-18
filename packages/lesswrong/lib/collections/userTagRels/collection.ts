@@ -4,7 +4,6 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
-import { subforumLayouts } from "../tags/helpers";
 
 const schema: SchemaType<DbUserTagRel> = {
   tagId: {
@@ -65,16 +64,6 @@ const schema: SchemaType<DbUserTagRel> = {
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
     ...schemaDefaultValue(false),
-  },
-  subforumPreferredLayout: {
-    type: String,
-    allowedValues: subforumLayouts,
-    nullable: false,
-    optional: true,
-    canRead: [userOwns, 'admins'],
-    canCreate: ['members', 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    ...schemaDefaultValue(true),
   },
 };
 

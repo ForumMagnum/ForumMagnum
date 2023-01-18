@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { defaultSubforumLayout, isSubforumLayout, tagGetUrl } from '../../../lib/collections/tags/helpers';
+import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
@@ -13,6 +13,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { useDialog } from "../../common/withDialog";
+import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumSortings';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
@@ -231,7 +232,7 @@ const TagSubforumPage2 = ({classes}: {
     skip: !tag
   })
 
-  const { results: userTagRelResults, loading: userTagRelLoading } = useMulti({
+  const { results: userTagRelResults } = useMulti({
     terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelDetails",
@@ -243,7 +244,7 @@ const TagSubforumPage2 = ({classes}: {
   });
   const userTagRel = userTagRelResults?.[0];
 
-  const layout = isSubforumLayout(query.layout) ? query.layout : userTagRel?.subforumPreferredLayout ?? defaultSubforumLayout
+  const layout = isSubforumLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultSubforumLayout
 
   const onClickMembersList = () => {
     if (!tag) return;
@@ -329,8 +330,7 @@ const TagSubforumPage2 = ({classes}: {
           isSubscribed ?
             <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
             : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
-          {/* TODO userTagRel */}
-          <SubforumActionsButton tag={tag} userTagRel={userTagRel} layout={layout} />
+          <SubforumActionsButton tag={tag} layout={layout} />
         </div>
       </div>
       <div className={classes.membersListLink}>

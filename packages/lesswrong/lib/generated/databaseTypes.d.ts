@@ -1185,6 +1185,7 @@ interface DbUser extends DbObject {
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   acknowledgedNewUserGuidelines: boolean | null
+  subforumPreferredLayout: "feed" | "list"
   experiencedIn: Array<string>
   interestedIn: Array<string>
   allowDatadogSessionReplay: boolean | null

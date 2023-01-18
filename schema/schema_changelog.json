@@ -55,7 +55,7 @@
     "timestamp": "2023-01-18T10:42:29.000Z"
   },
   {
-    "acceptsSchemaHash": "03021ec2d4dbdcefd4873d9df9f2f4a1",
+    "acceptsSchemaHash": "b7923bda80a6d56ceeb2c8c622e4189b",
     "acceptedByMigration": "20230118T114157.add_subforumPreferredLayout.ts",
     "timestamp": "2023-01-18T11:41:57.000Z"
   }
