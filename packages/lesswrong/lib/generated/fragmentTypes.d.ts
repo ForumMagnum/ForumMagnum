@@ -673,6 +673,22 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly agentFoundationsId: string,
 }
 
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
+  readonly archivedByIds: Array<string>,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -1202,6 +1218,7 @@ interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
   readonly tagId: string,
+  readonly tag: CommentsList_tag|null,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1247,6 +1264,10 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
+}
+
+interface CommentsList_tag { // fragment on Tags
+  readonly slug: string,
 }
 
 interface CommentsList_contents { // fragment on Revisions
@@ -1421,22 +1442,6 @@ interface NotificationsList { // fragment on Notifications
   readonly type: string,
   readonly viewed: boolean,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -2900,6 +2905,8 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  ConversationsDefaultFragment: ConversationsDefaultFragment
+  MessagesDefaultFragment: MessagesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
@@ -2951,8 +2958,6 @@ interface FragmentTypes {
   WithVoteRevision: WithVoteRevision
   NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
-  ConversationsDefaultFragment: ConversationsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
@@ -3079,6 +3084,8 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  ConversationsDefaultFragment: "Conversations"
+  MessagesDefaultFragment: "Messages"
   VotesDefaultFragment: "Votes"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
@@ -3130,8 +3137,6 @@ interface CollectionNamesByFragmentName {
   WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
-  ConversationsDefaultFragment: "Conversations"
-  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
