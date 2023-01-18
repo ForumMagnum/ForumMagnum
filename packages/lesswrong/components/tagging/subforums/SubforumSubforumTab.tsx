@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
@@ -10,6 +10,7 @@ import { useDialog } from '../../common/withDialog';
 import startCase from 'lodash/startCase';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
+import { useUpdate } from '../../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -62,8 +63,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
+const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
+  userTagRel?: UserTagRelDetails,
   isSubscribed: boolean,
   classes: ClassesType,
 }) => {
@@ -89,11 +91,22 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
   }, [refetchRef]);
 
   const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
+  const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
   
   const clickNewDiscussion = useCallback(() => {
     setNewDiscussionOpen(true)
     captureEvent("newDiscussionClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "tagHeader"})
   }, [captureEvent, tag._id, tag.name])
+
+  const { mutate: updateUserTagRel } = useUpdate({
+    collectionName: 'UserTagRels',
+    fragmentName: 'UserTagRelDetails',
+  });
+
+  const dismissIntroPost = useCallback(() => {
+    if (!userTagRel) return;
+    void updateUserTagRel({selector: {_id: userTagRel?._id}, data: {subforumHideIntroPost: true}})
+  }, [updateUserTagRel, userTagRel])
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   const sortBy: SubforumSorting = (isSubforumSorting(query.sortedBy) && query.sortedBy) || (isSubforumSorting(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder) || defaultSubforumSorting;
@@ -186,6 +199,20 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
           />
         </div>
       )}
+      {tag.subforumIntroPost && !hideIntroPost && (
+        <div className={classes.feedPostWrapper}>
+          <RecentDiscussionThread
+            key={tag.subforumIntroPost._id}
+            post={{ ...tag.subforumIntroPost, recentComments: [] }}
+            comments={[]}
+            maxLengthWords={50}
+            refetch={refetch}
+            smallerFonts
+            dismissCallback={dismissIntroPost}
+            isSubforumIntroPost
+          />
+        </div>
+      )}
       <MixedTypeFeed
         firstPageSize={15}
         pageSize={20}
@@ -211,18 +238,21 @@ const SubforumSubforumTab = ({tag, isSubscribed, classes}: {
         renderers={{
           tagSubforumPosts: {
             fragmentName: "PostsRecentDiscussion",
-            render: (post: PostsRecentDiscussion) => (
-              <div className={classes.feedPostWrapper}>
-                <RecentDiscussionThread
-                  key={post._id}
-                  post={{ ...post }}
-                  comments={post.recentComments}
-                  maxLengthWords={50}
-                  refetch={refetch}
-                  smallerFonts
-                />
-              </div>
-            ),
+            render: (post: PostsRecentDiscussion) => {
+              // Remove the intro post from the feed IFF it has not been dismissed from the top
+              return post._id !== tag.subforumIntroPost?._id && !hideIntroPost && (
+                <div className={classes.feedPostWrapper}>
+                  <RecentDiscussionThread
+                    key={post._id}
+                    post={{ ...post }}
+                    comments={post.recentComments}
+                    maxLengthWords={50}
+                    refetch={refetch}
+                    smallerFonts
+                  />
+                </div>
+              );
+            },
           },
           tagSubforumComments: {
             fragmentName: "CommentWithRepliesFragment",

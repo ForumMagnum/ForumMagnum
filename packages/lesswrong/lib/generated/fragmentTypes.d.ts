@@ -425,6 +425,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly userId: string,
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
+  readonly subforumHideIntroPost: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -461,6 +462,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly canVoteOnRels: Array<string>,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
+  readonly subforumIntroPostId: string,
   readonly parentTagId: string,
   readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
@@ -669,6 +671,22 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly agentFoundationsId: string,
+}
+
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
+  readonly archivedByIds: Array<string>,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -1200,6 +1218,7 @@ interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
   readonly tagId: string,
+  readonly tag: CommentsList_tag|null,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1245,6 +1264,10 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
+}
+
+interface CommentsList_tag { // fragment on Tags
+  readonly slug: string,
 }
 
 interface CommentsList_contents { // fragment on Revisions
@@ -1419,22 +1442,6 @@ interface NotificationsList { // fragment on Notifications
   readonly type: string,
   readonly viewed: boolean,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -1921,12 +1928,13 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly currentUserExtendedVote: any,
 }
 
-interface UserTagRelNotifications { // fragment on UserTagRels
+interface UserTagRelDetails { // fragment on UserTagRels
   readonly _id: string,
   readonly userId: string,
   readonly tagId: string,
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
+  readonly subforumHideIntroPost: boolean,
 }
 
 interface TagBasicInfo { // fragment on Tags
@@ -2076,7 +2084,6 @@ interface TagSubtagFragment { // fragment on Tags
 }
 
 interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
-  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -2101,7 +2108,7 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2113,13 +2120,12 @@ interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
-  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2135,6 +2141,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
+  readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly autoTagModel: string | null,
@@ -2898,6 +2905,8 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  ConversationsDefaultFragment: ConversationsDefaultFragment
+  MessagesDefaultFragment: MessagesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
@@ -2949,8 +2958,6 @@ interface FragmentTypes {
   WithVoteRevision: WithVoteRevision
   NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
-  ConversationsDefaultFragment: ConversationsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
@@ -2994,7 +3001,7 @@ interface FragmentTypes {
   TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
-  UserTagRelNotifications: UserTagRelNotifications
+  UserTagRelDetails: UserTagRelDetails
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
@@ -3077,6 +3084,8 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  ConversationsDefaultFragment: "Conversations"
+  MessagesDefaultFragment: "Messages"
   VotesDefaultFragment: "Votes"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
@@ -3128,8 +3137,6 @@ interface CollectionNamesByFragmentName {
   WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
-  ConversationsDefaultFragment: "Conversations"
-  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
@@ -3173,7 +3180,7 @@ interface CollectionNamesByFragmentName {
   TagRelCreationFragment: "TagRels"
   TagRelMinimumFragment: "TagRels"
   WithVoteTagRel: "TagRels"
-  UserTagRelNotifications: "UserTagRels"
+  UserTagRelDetails: "UserTagRels"
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"

@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "17b3602e26c300f477a4c80d4b6c6617";
+export const acceptsSchemaHash = "afb5555a6e3a18714877036b68c63786";
 
 import { Collections } from "../vulcan-lib"
 import { updateDefaultValue, dropDefaultValue } from "./meta/utils"

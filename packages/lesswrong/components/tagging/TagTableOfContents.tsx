@@ -24,11 +24,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-const TagTableOfContents = ({tag, expandAll, showContributors, allowSubforumLink=true, onHoverContributor, displayOptions, classes}: {
+const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
   tag: TagPageFragment|AllTagsPageFragment
   expandAll?: ()=>void,
   showContributors: boolean,
-  allowSubforumLink?: boolean,
   onHoverContributor?: (contributorId: string)=>void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
@@ -46,22 +45,6 @@ const TagTableOfContents = ({tag, expandAll, showContributors, allowSubforumLink
         onClickSection={expandAll}
         displayOptions={displayOptions}
       />
-      {!!tag.isSubforum && (
-        <>
-          {allowSubforumLink && <><Link to={tagGetSubforumUrl(tag)} className={classes.randomTagLink}>
-            <span>Subforum</span>
-            {tag.subforumUnreadMessagesCount ? (
-              <span className={classes.unreadCount}>&nbsp;{`(${tag.subforumUnreadMessagesCount})`}</span>
-            ) : (
-              <></>
-            )}
-          </Link><TableOfContentsRow href="#" divider={true} /></>}
-          <Link to={tagGetDiscussionUrl(tag)} className={classes.randomTagLink}>
-            Wiki discussion
-          </Link>
-          <TableOfContentsRow href="#" divider={true} />
-        </>
-      )}
       <Link to="/tags/random" className={classes.randomTagLink}>
         Random {taggingNameCapitalSetting.get()}
       </Link>
