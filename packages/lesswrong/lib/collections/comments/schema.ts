@@ -8,6 +8,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
+import { viewTermsToQuery } from '../../utils/viewUtils';
 
 
 export const moderationOptionsGroup: FormGroup = {
@@ -240,7 +241,7 @@ const schema: SchemaType<DbComment> = {
     viewableBy: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
-      const params = Comments.getParameters({view:"shortformLatestChildren", topLevelCommentId: comment._id})
+      const params = viewTermsToQuery("Comments", {view:"shortformLatestChildren", topLevelCommentId: comment._id});
       return await Comments.find(params.selector, params.options).fetch()
     }
   }),

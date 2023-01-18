@@ -184,7 +184,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -200,6 +200,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
@@ -212,7 +213,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
-  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !showEditState)
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -418,6 +419,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
+            {displayTagIcon && <span>TODO</span>}
             {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
             {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
