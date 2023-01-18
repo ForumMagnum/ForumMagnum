@@ -13,7 +13,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
-import { subforumLayouts } from '../tags/subforumSortings';
+import { subforumLayouts } from '../tags/subforumHelpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:

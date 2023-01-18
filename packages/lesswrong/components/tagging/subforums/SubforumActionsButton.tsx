@@ -10,7 +10,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import SwapHoriz from '@material-ui/icons/SwapHoriz'
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../../common/withUser';
-import { SubforumLayout } from '../../../lib/collections/tags/subforumSortings';
+import { SubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,17 +68,19 @@ const SubforumActionsButton = ({tag, layout, classes}: {
   const { PopperCard, LWClickAwayListener } = Components
 
   const toggleLayout = useCallback(() => {
-    const newLayout = layout == "feed" ? "list" : "feed"
-    const newQuery = {...query, layout: newLayout}
+    const newLayout = layout === "feed" ? "list" : "feed"
+    captureEvent("subforumLayoutChanged", {tagId: tag._id, oldLayout: layout, newLayout: newLayout})
     
     // Immediately change the layout for any user (inc logged out)
+    const newQuery = {...query, layout: newLayout}
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
+
     if (currentUser) {
       // For logged in users, also update their layout preference
       void updateCurrentUser({subforumPreferredLayout: newLayout})
     }
     setIsOpen(false)
-  }, [currentUser, history, layout, query, updateCurrentUser])
+  }, [captureEvent, currentUser, history, layout, query, tag._id, updateCurrentUser])
 
   const layoutMessages: Record<SubforumLayout, string> = {
     feed: "Switch to list view",
