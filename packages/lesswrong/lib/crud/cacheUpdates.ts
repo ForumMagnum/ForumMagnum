@@ -1,8 +1,10 @@
 import { pluralize, Utils } from '../vulcan-lib';
 import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
+import { viewTermsToQuery } from '../utils/viewUtils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 import { loggerConstructor } from '../utils/logging';
+
 
 export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
   const mutationName = getCreateMutationName(typeName);
@@ -78,7 +80,8 @@ const invalidateQuery = ({client, query, variables}: {
 
 const getParametersByTypeName = (terms, typeName) => {
   const collection = getCollectionByTypeName(typeName);
-  return collection.getParameters(terms /* apolloClient */);
+  const collectionName = collection.collectionName;
+  return viewTermsToQuery(collectionName, terms); //NOTE: this once passed apolloClient but doesn't anymore
 }
 
 export const handleDeleteMutation = ({ document, results, typeName }) => {
