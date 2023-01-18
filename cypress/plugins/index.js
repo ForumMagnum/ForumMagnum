@@ -57,9 +57,8 @@ const dropAndSeedMongo = async (url) => {
     }
   }));
 
-  await Promise.all([
-    db.collection('users').insertMany(seedUsers),
-  ]);
+  // TODO: Remove this when the Users collection is fully migrated
+  await db.collection('users').insertMany(seedUsers);
 }
 
 const dropAndSeedPostgres = async () => {
