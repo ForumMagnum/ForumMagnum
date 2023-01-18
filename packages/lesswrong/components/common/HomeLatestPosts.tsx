@@ -53,7 +53,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
-    CuratedPostsList, LatestPostsDiscussion
+    CuratedPostsList, CommentsListCondensed
   } = Components
   const limit = parseInt(query.limit) || 13
   
@@ -72,7 +72,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const recentSubforumDiscussionTerms = {
     view: "latestSubforumDiscussion" as const,
     profileTagIds: currentUser?.profileTagIds,
-    limit: 3,
   };
 
   const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
@@ -123,7 +122,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            <LatestPostsDiscussion terms={recentSubforumDiscussionTerms}/>
+            <CommentsListCondensed label={"Discussion from your subforums"} contentType="frontpageSubforumDiscussion" terms={recentSubforumDiscussionTerms} initialLimit={3} />
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

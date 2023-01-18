@@ -527,6 +527,7 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
     tagId: tagId,
     tagCommentType: "SUBFORUM",
     topLevelCommentId: viewFieldNullOrMissing,
+    deleted: false,
   },
   options: {
     sort: sorting,

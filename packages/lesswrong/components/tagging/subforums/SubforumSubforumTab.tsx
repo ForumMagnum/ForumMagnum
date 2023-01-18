@@ -86,7 +86,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     CommentWithReplies,
     PostsList2,
     AddPostsToTag,
-    LatestPostsDiscussion,
+    CommentsListCondensed,
   } = Components;
 
   const { query } = useLocation();
@@ -280,13 +280,17 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
       <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={50}>
         <AddPostsToTag tag={tag} />
       </PostsList2>
-      <LatestPostsDiscussion
+      <CommentsListCondensed
+        label={"Discussions"}
+        contentType="subforumDiscussion"
         terms={{
           view: "tagSubforumComments" as const,
           tagId: tag._id,
           sortBy,
-          limit: 5,
         }}
+        initialLimit={8}
+        itemsPerPage={20}
+        showTotal
       />
     </div>
   );

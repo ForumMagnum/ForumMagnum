@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { ContentTypeString } from '../posts/PostsPage/ContentType';
 import { useCurrentUser } from './withUser';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -16,34 +17,41 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-// TODO rename
-const LatestPostsDiscussion = ({terms, classes}: {
+const CommentsListCondensed = ({label, contentType, terms, initialLimit, itemsPerPage, showTotal=false, classes}: {
+  label: string,
+  contentType: ContentTypeString,
   terms: CommentsViewTerms
+  initialLimit?: number,
+  itemsPerPage?: number,
+  showTotal?: boolean,
   classes: ClassesType,
 }) => {
   const { Loading, ContentType, CommentsNode, LoadMore } = Components;
   const currentUser  = useCurrentUser();
-  const subforumDiscussionCommentsQuery = useMulti({
-    // terms: {view: 'latestSubforumDiscussion', profileTagIds: currentUser?.profileTagIds, limit: 3},
+  const { results, loading, count, totalCount, loadMoreProps } = useMulti({
     terms: terms,
+    limit: initialLimit,
+    itemsPerPage,
+    enableTotal: true,
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
     skip: !isEAForum || !currentUser?.profileTagIds?.length,
   })
-  const [loadMoreCalled, setLoadMoreCalled] = useState(false);
   
   if (!isEAForum) {
     return null;
   }
-  if (subforumDiscussionCommentsQuery.loading) {
+  if (loading && !results?.length) {
     return <Loading/>;
   }
-  if (!subforumDiscussionCommentsQuery.results?.length) {
+  if (!results?.length) {
     return null;
   }
+
+  const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
   return <>
-    <ContentType type="subforumDiscussion" label="Discussion from your subforums" className={classes.subheader} />
-    {subforumDiscussionCommentsQuery.results.map((comment) => {
+    <ContentType type={contentType} label={label} className={classes.subheader} />
+    {results.map((comment) => {
       return <CommentsNode
         treeOptions={{
           // F7U12
@@ -56,24 +64,22 @@ const LatestPostsDiscussion = ({terms, classes}: {
         displayTagIcon
       />
     })}
-    {!loadMoreCalled && <LoadMore {...{
-      ...subforumDiscussionCommentsQuery.loadMoreProps,
-      loadMore: () => {
-        setLoadMoreCalled(true);
-        return subforumDiscussionCommentsQuery.loadMore(10);
-      },
+    {loading && <Loading/>}
+    {showLoadMore && <LoadMore {...{
+      ...loadMoreProps,
+      totalCount: showTotal ? totalCount : undefined,
     }} />}
   </>;
 }
 
-const LatestPostsDiscussionComponent = registerComponent(
-  'LatestPostsDiscussion',
-  LatestPostsDiscussion,
+const CommentsListCondensedComponent = registerComponent(
+  'CommentsListCondensed',
+  CommentsListCondensed,
   {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    LatestPostsDiscussion: typeof LatestPostsDiscussionComponent
+    CommentsListCondensed: typeof CommentsListCondensedComponent
   }
 }
