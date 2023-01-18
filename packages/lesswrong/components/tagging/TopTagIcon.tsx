@@ -36,7 +36,7 @@ const topTagIconMap = forumSelect<Record<string, any>>({
   default: {}
 })
 
-const TopTagIcon = ({tag}: {tag: TagBasicInfo}) => {
+const TopTagIcon = ({tag}: {tag: {slug: string}}) => {
   const Icon = topTagIconMap[tag.slug]
   if (!Icon) return null
   return <Icon />
