@@ -23,7 +23,7 @@ const VotingPatternsWarningPopup = ({onClose, classes}: {
       <p>You're voting pretty fast. Please only vote on things you've actually read. Mass-voting directed towards a user or topic is against site rules.</p>
       
       <Button onClick={onClose} className={classes.dismissButton}>
-        I Understand
+        Acknowledge
       </Button>
     </DialogContent>
   </LWDialog>
