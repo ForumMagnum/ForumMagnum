@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import { defaultSubforumLayout, isSubforumLayout, tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
@@ -231,7 +231,7 @@ const TagSubforumPage2 = ({classes}: {
     skip: !tag
   })
 
-  const { results: userTagRelResults } = useMulti({
+  const { results: userTagRelResults, loading: userTagRelLoading } = useMulti({
     terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelDetails",
@@ -242,6 +242,8 @@ const TagSubforumPage2 = ({classes}: {
     skip: !tag || !currentUser
   });
   const userTagRel = userTagRelResults?.[0];
+
+  const layout = isSubforumLayout(query.layout) ? query.layout : userTagRel?.subforumPreferredLayout ?? defaultSubforumLayout
 
   const onClickMembersList = () => {
     if (!tag) return;
@@ -376,7 +378,7 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} />,
+    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
   }
 

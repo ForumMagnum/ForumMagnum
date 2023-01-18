@@ -12,6 +12,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { defaultSubforumSorting, isSubforumSorting, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumSortings';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { defaultSubforumLayout, isSubforumLayout, SubforumLayout } from '../../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -67,14 +68,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const subforumLayouts = ["feed", "list"] as const
-export type SubforumLayout = typeof subforumLayouts[number]
-export const isSubforumLayout = (tab: string): tab is SubforumLayout => (subforumLayouts as readonly string[]).includes(tab)
-export const defaultSubforumLayout: SubforumLayout = "feed"
-
-const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
+const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
+  layout: SubforumLayout,
   isSubscribed: boolean,
   classes: ClassesType,
 }) => {

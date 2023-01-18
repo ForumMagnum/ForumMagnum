@@ -8,5 +8,6 @@ registerFragment(`
     subforumShowUnreadInSidebar
     subforumEmailNotifications
     subforumHideIntroPost
+    subforumPreferredLayout
   }
 `);

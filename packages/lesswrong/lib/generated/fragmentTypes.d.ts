@@ -426,6 +426,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
   readonly subforumHideIntroPost: boolean,
+  readonly subforumPreferredLayout: "feed" | "list",
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1935,6 +1936,7 @@ interface UserTagRelDetails { // fragment on UserTagRels
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
   readonly subforumHideIntroPost: boolean,
+  readonly subforumPreferredLayout: "feed" | "list",
 }
 
 interface TagBasicInfo { // fragment on Tags

@@ -1,14 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import Paper from "@material-ui/core/Paper";
 import Checkbox from '@material-ui/core/Checkbox';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
-import { defaultSubforumLayout, isSubforumLayout, SubforumLayout } from './SubforumSubforumTab';
 import qs from 'qs';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { defaultSubforumLayout, isSubforumLayout, SubforumLayout } from '../../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const SubforumActionsButton = ({tag, userTagRel, classes}: {
+const SubforumActionsButton = ({tag, userTagRel, layout, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   userTagRel?: UserTagRelDetails,
   layout: SubforumLayout,
@@ -69,15 +68,16 @@ const SubforumActionsButton = ({tag, userTagRel, classes}: {
   const { PopperCard, LWClickAwayListener, Typography } = Components
 
   const toggleLayout = useCallback(() => {
-    const newQuery = {...query, layout: layout == "feed" ? "list" : "feed"}
+    const newLayout = layout == "feed" ? "list" : "feed"
+    const newQuery = {...query, layout: newLayout}
     history.push({...location, search: `?${qs.stringify(newQuery)}`})
     if (userTagRel) {
       void updateUserTagRel({
         selector: {_id: userTagRel._id},
-        data: {subforumLayout: newQuery.layout}
+        data: {subforumPreferredLayout: newLayout}
       })
     }
-  }, [history, layout, query])
+  }, [history, layout, query, updateUserTagRel, userTagRel])
 
   const subforumActions = <Paper className={classes.popout}>
     <span className={classes.checkbox}>
@@ -96,7 +96,6 @@ const SubforumActionsButton = ({tag, userTagRel, classes}: {
       placement="bottom-end"
       allowOverflow
     >
-      {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
         {subforumActions}
       </LWClickAwayListener>

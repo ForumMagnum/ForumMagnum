@@ -4,6 +4,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
+import { subforumLayouts } from "../tags/helpers";
 
 const schema: SchemaType<DbUserTagRel> = {
   tagId: {
@@ -66,7 +67,8 @@ const schema: SchemaType<DbUserTagRel> = {
     ...schemaDefaultValue(false),
   },
   subforumPreferredLayout: {
-    type: Boolean,
+    type: String,
+    allowedValues: subforumLayouts,
     nullable: false,
     optional: true,
     canRead: [userOwns, 'admins'],
