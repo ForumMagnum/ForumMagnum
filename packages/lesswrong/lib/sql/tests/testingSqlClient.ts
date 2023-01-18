@@ -7,6 +7,7 @@ import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
 import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
+import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -31,6 +32,8 @@ export const preparePgTables = () => {
 }
 
 const buildTables = async (client: SqlClient) => {
+  await ensureMongo2PgLockTableExists(client);
+
   preparePgTables();
 
   for (let collection of Collections) {

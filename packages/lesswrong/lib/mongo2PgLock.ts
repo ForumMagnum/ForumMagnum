@@ -15,8 +15,8 @@ const mongo2PgLock = new class {
   private readonly writeConstraint = "write_constraint";
   private isEnsured = false;
 
-  private async ensureTableExists(db: SqlClient): Promise<void> {
-    if (this.isEnsured) {
+  async ensureTableExists(db: SqlClient, force: boolean = false): Promise<void> {
+    if (this.isEnsured && !force) {
       return;
     }
     this.isEnsured = true;
@@ -78,6 +78,9 @@ const mongo2PgLock = new class {
     `, [read, write, collectionName]);
   }
 }
+
+export const ensureMongo2PgLockTableExists = (db?: SqlClient): Promise<void> =>
+  mongo2PgLock.ensureTableExists(db ?? getSqlClientOrThrow(), true);
 
 export const getCollectionLockType = async (collectionName: CollectionNameString): Promise<ReadWriteTargets> =>
   mongo2PgLock.getCollectionType(getSqlClientOrThrow(), collectionName);
