@@ -48,25 +48,49 @@ const onConnectQueries: string[] = [
   `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
   // Enable the earthdistance extension - this is used for finding nearby events
   `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
+  // Build a nested JSON object from a path and a value - this is a dependency of
+  // fm_add_to_set below
+  `CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
+    target_path TEXT[],
+    terminal_element JSONB
+  )
+    RETURNS JSONB LANGUAGE sql IMMUTABLE AS
+   'SELECT JSONB_BUILD_OBJECT(
+      target_path[1],
+      CASE
+        WHEN CARDINALITY(target_path) = 1 THEN terminal_element
+        ELSE fm_build_nested_jsonb(
+          target_path[2:CARDINALITY(target_path)],
+          terminal_element
+        )
+      END
+    );'
+  `,
   // Implement Mongo's $addToSet for native PG arrays
   `CREATE OR REPLACE FUNCTION fm_add_to_set(ANYARRAY, ANYELEMENT)
     RETURNS ANYARRAY LANGUAGE sql IMMUTABLE AS
    'SELECT CASE WHEN ARRAY_POSITION($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;'
   `,
   // Implement Mongo's $addToSet for JSON fields - this requires a lot more work
-  // than for native PG arrays
+  // than for native PG arrays...
   `CREATE OR REPLACE FUNCTION fm_add_to_set(
     base_field JSONB,
     target_path TEXT[],
     value_to_add ANYELEMENT
   )
     RETURNS JSONB LANGUAGE sql IMMUTABLE AS
-   'SELECT CASE WHEN EXISTS (
+   'SELECT CASE
+    WHEN base_field #> target_path IS NULL
+      THEN COALESCE(base_field, ''{}''::JSONB) || fm_build_nested_jsonb(
+        target_path,
+        JSONB_BUILD_ARRAY(value_to_add)
+      )
+    WHEN EXISTS (
       SELECT *
       FROM JSONB_ARRAY_ELEMENTS(base_field #> target_path) AS elem
       WHERE elem = TO_JSONB(value_to_add)
     )
-    THEN base_field
+      THEN base_field
     ELSE JSONB_INSERT(
       base_field,
       (SUBSTRING(target_path::TEXT FROM ''(.*)}.*$'') || '', -1}'')::TEXT[],
