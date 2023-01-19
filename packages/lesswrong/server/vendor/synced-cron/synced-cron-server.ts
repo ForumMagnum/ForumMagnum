@@ -189,6 +189,14 @@ SyncedCron.stop = function() {
   this.running = false;
 }
 
+const isDuplicateKeyError = (
+  collection: CollectionBase<DbCronHistory>,
+  error: Error & {code?: number | string},
+) =>
+  collection.isPostgres()
+    ? error.code === '23505' // pg duplicate key error code - note it's a string
+    : error.code === 11000; // mongodb duplicate key error code
+
 // The meat of our logic. Checks if the specified has already run. If not,
 // records that it's running the job, runs it, and records the output
 SyncedCron._entryWrapper = function(entry: any) {
@@ -212,10 +220,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       try {
         jobHistory._id = await self._collection.rawInsert(jobHistory);
       } catch(e) {
-        // TODO: Handle this case properly in Postgres
-        // http://www.mongodb.org/about/contributors/error-codes/
-        // 11000 == duplicate key error
-        if (e.code === 11000) {
+        if (isDuplicateKeyError(self, e)) {
           log.info('Not running "' + entry.name + '" again.');
           return;
         }
