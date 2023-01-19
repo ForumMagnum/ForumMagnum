@@ -27,7 +27,10 @@ import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import {userGetDisplayName} from './collections/users/helpers'
 
-export type NotificationDocument = 'post' | 'comment' | 'user' | 'message' | 'tagRel' | 'localgroup'
+const notificationDocumentTypes = ['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const
+export type NotificationDocument = typeof notificationDocumentTypes[number]
+export const isNotificationDocument = (documentType: string): documentType is NotificationDocument =>
+  notificationDocumentTypes.includes(documentType as NotificationDocument)
 
 interface GetMessageProps {
   documentType: NotificationDocument | null

@@ -92,7 +92,12 @@ makeEditable({
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
-    order: 25
+    order: 25,
+    // Todo(PR): So far we've been pretending that mentions is just another type of pingback, which is true enough
+    //  pingbacks are rn enabled only in a few places though, so to make the mentions work, we'd need to enable them
+    //  in more places. At the very least here, maybe in other places. 
+    //  Leaving this in as PR discussion
+    pingbacks: true, 
   }
 })
 

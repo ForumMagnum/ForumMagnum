@@ -13,6 +13,7 @@ import cheerio from 'cheerio';
 import { onStartup } from '../../lib/executionEnvironment';
 import { dataToHTML, dataToWordCount } from './conversionUtils';
 import { Globals } from '../../lib/vulcan-lib/config';
+import {notify, PingbackDocumentPartial} from './mentions-notify'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -257,8 +258,24 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     }
     return newDoc;
   });
-  
-  
+
+
+  getCollectionHooks(collectionName).createAfter.add(async (newDocument, {currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notify(currentUser, collection.typeName, newDocument)
+    }
+
+    return newDocument
+  })
+
+  getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notify(currentUser, collection.typeName, newDocument, oldDocument as PingbackDocumentPartial)
+    }
+
+    return newDocument
+  })
+
   /**
    * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
    * they have fairly strict rate limits that often result in them failing to load.
