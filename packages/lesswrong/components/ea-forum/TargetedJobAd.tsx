@@ -255,7 +255,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2021/05/good-food-institute-160x160.png',
     occupation: 'alternative proteins',
     feedbackLinkPrefill: 'Executive+Assistant+at+GFI',
-    bitlyLink: "", // https://gfi.org/job/?gh_jid=6554883002
+    bitlyLink: "https://efctv.org/3Xqa86C", // https://gfi.org/job/?gh_jid=6554883002
     role: 'Executive Assistant, Science and Technology',
     insertThe: true,
     org: 'Good Food Institute',
@@ -289,7 +289,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2021/06/Anthropic-160x160.jpeg',
     occupation: 'software engineering',
     feedbackLinkPrefill: 'Senior+Software+Engineer+at+Anthropic',
-    bitlyLink: "", // https://jobs.lever.co/Anthropic/572e187a-8f62-451f-9802-94bd8a52ea90
+    bitlyLink: "https://efctv.org/3XN8g81", // https://jobs.lever.co/Anthropic/572e187a-8f62-451f-9802-94bd8a52ea90
     role: 'Senior Software Engineer, Developer Experience',
     org: 'Anthropic',
     orgLink: '/topics/anthropic',
@@ -318,7 +318,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2019/06/founders-pledge-160x160.png',
     occupation: 'finance',
     feedbackLinkPrefill: 'Investment+Operations+Manager+at+Founders+Pledge',
-    bitlyLink: "", // https://founders-pledge.jobs.personio.de/job/926945?_pc=959484&display=en
+    bitlyLink: "https://efctv.org/3ZLIYZE", // https://founders-pledge.jobs.personio.de/job/926945?_pc=959484&display=en
     role: 'Investment Operations Manager',
     org: 'Founders Pledge',
     orgLink: '/topics/founders-pledge',
@@ -402,6 +402,37 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
           <li>Are highly organized and adaptable</li>
           <li>Have strong managerial skills and the ability to think strategically in order to guide and support a growing team</li>
           <li>Have a strong interest in AI and AI safety and a strong drive to contribute and make a difference</li>
+        </ul>
+      </div>
+    </>
+  },
+  'engineering-arc': {
+    eagOccupations: ['Software development/Software engineering', 'AI safety technical research'],
+    tagId: 'FHE3J3E8qd6oqGZ8a', // Software engineering
+    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
+    occupation: 'software engineering',
+    feedbackLinkPrefill: 'Generalist+Software+Engineer+at+ARC',
+    bitlyLink: "https://efctv.org/3whnarm", // https://jobs.lever.co/alignment.org/d12bfa4a-6958-43f2-aff7-56f6a9651db4
+    role: 'Generalist Software Engineer',
+    insertThe: true,
+    org: 'Alignment Research Center',
+    orgLink: '/topics/alignment-research-center',
+    location: 'Berkeley, CA',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          ARC
+        </a> is a non-profit research organization focused on <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
+        </span>. The evaluations project is a new team within ARC building capability evaluations for
+        advanced ML models, which can enable labs to make measurable safety commitments.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates:
+        <ul>
+          <li>Can rapidly prototype features and write clear, easy-to-extend code (current stack: React, Typescript, Python, SQL, Flask)</li>
+          <li>Have good communication skills, including always asking for clarification if priorities are ambiguous</li>
+          <li>Are quick to pick up whatever skills and knowledge are required to make the project succeed</li>
         </ul>
       </div>
     </>
@@ -610,10 +641,10 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
             <LocationIcon className={classes.metadataIcon} />
             {adData.location}
           </div>
-          <div className={classes.metadata}>
+          {adData.roleType && <div className={classes.metadata}>
             <WorkIcon className={classes.metadataIcon} />
             {adData.roleType}
-          </div>
+          </div>}
           {
             // display the deadline when it's within 2 days away
             adData.deadline &&
