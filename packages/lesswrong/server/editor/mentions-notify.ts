@@ -1,6 +1,6 @@
 import * as _ from 'underscore'
 import {createNotifications} from '../notificationCallbacksHelpers'
-import {isNotificationDocument} from '../../lib/notificationTypes'
+import {notificationDocumentTypes} from '../../lib/notificationTypes'
 
 export interface PingbackDocumentPartial {
   _id: string,
@@ -10,8 +10,8 @@ export interface PingbackDocumentPartial {
 }
 
 export const notify = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
-  const newDocPingbacks = document.pingbacks?.Users || []
-  const oldDocPingbacks = oldDocument?.pingbacks?.Users || []
+  const newDocPingbacks = document.pingbacks?.Users ?? []
+  const oldDocPingbacks = oldDocument?.pingbacks?.Users ?? []
   
   const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
   const pingbacksToSend = removeSelfReference(newPingbacks, currentUser._id)
@@ -20,7 +20,7 @@ export const notify = async (currentUser: DbUser, collectionType: string, docume
   //  TagRels for example won't work, though they don't have content either.
   //  Show we define an explicit mapping?
   const notificationType = collectionType.toLowerCase()
-  if (!canNotify(currentUser, pingbacksToSend) || !isNotificationDocument(notificationType)) return
+  if (!canNotify(currentUser, pingbacksToSend) || !notificationDocumentTypes.has(notificationType)) return
 
   return createNotifications({
     notificationType: 'newMention',

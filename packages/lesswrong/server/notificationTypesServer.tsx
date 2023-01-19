@@ -17,7 +17,7 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
-import {getDocumentSummary, taggedPostMessage} from '../lib/notificationTypes'
+import {getDocumentSummary, taggedPostMessage, NotificationDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -26,7 +26,6 @@ import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
-import { NotificationDocument } from '../lib/notificationTypes'
 
 interface ServerNotificationType {
   name: string,

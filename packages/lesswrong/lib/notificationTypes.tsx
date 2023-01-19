@@ -26,11 +26,10 @@ import { NotificationChannelOption } from './collections/users/schema';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import {userGetDisplayName} from './collections/users/helpers'
+import {TupleSet, UnionOf} from './utils/typeGuardUtils'
 
-const notificationDocumentTypes = ['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const
-export type NotificationDocument = typeof notificationDocumentTypes[number]
-export const isNotificationDocument = (documentType: string): documentType is NotificationDocument =>
-  notificationDocumentTypes.includes(documentType as NotificationDocument)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const)
+export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
   documentType: NotificationDocument | null
