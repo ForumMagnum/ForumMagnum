@@ -1,7 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
 import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
-import { MongoCollection } from '../../../lib/mongoCollection';
+import { CronHistory } from '../../../lib/collections/cronHistory';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
@@ -90,8 +90,7 @@ onStartup(function() {
     later.date.localTime();
 
   // collection holding the job history records
-  SyncedCron._collection = new MongoCollection(options.collectionName);
-  SyncedCron._collection._ensureIndex({intendedAt: 1, name: 1}, {unique: true});
+  SyncedCron._collection = CronHistory;
 
   if (options.collectionTTL) {
     if (options.collectionTTL > minTTL)
@@ -213,6 +212,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       try {
         jobHistory._id = await self._collection.rawInsert(jobHistory);
       } catch(e) {
+        // TODO: Handle this case properly in Postgres
         // http://www.mongodb.org/about/contributors/error-codes/
         // 11000 == duplicate key error
         if (e.code === 11000) {
