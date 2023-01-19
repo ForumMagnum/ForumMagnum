@@ -326,7 +326,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
               setShowSettings(!showSettings);
             }}
           >
-            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? "Posts expanded" : "Posts collapsed"}</span></span>} />
+            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? "Posts Expanded" : "Posts Collapsed"}</span></span>} />
           </div>
         </LWTooltip>
       </div>

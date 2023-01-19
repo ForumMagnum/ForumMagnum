@@ -37,8 +37,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const sortings = Object.fromEntries(Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).filter(([key]) => isSubforumSorting(key)));
 const layouts: Record<SubforumLayout, SettingsOption> = {
-  feed: { label: "Posts expanded" },
-  list: { label: "Posts collapsed" },
+  feed: { label: "Posts Expanded" },
+  list: { label: "Posts Collapsed" },
 }
 
 const SubforumListSettings = ({currentSorting, currentLayout, classes}: {
