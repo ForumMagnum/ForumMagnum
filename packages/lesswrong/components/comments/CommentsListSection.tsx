@@ -12,8 +12,12 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+
+const isLW = forumTypeSetting.get() === "LessWrong"
+const isEA = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -195,7 +199,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
-      <Components.PostsPageCrosspostComments />
+      {(isEA || isLW) && <Components.PostsPageCrosspostComments />}
     </div>
   );
 }
