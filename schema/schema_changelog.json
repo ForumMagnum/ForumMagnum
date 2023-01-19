@@ -53,5 +53,10 @@
     "acceptsSchemaHash": "d92682d72d3bee6deb63b3b6419e027c",
     "acceptedByMigration": "20230118T104229.add_subforumIntroPostId.ts",
     "timestamp": "2023-01-18T10:42:29.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c7b9d9a9376057f062950eef371f4c5a",
+    "acceptedByMigration": "20230119T150231.create_cronHistory_collection.ts",
+    "timestamp": "2023-01-19T15:02:31.000Z"
   }
 ]
