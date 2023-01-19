@@ -41,6 +41,7 @@ type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUser
 type UserTagRelsViewName = "single";
 type UsersViewName = "usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"usersWithBannedUsers"|"sunshineNewUsers"|"allUsers"|"usersMapLocations"|"tagCommunityMembers"|"reviewAdminUsers"|"usersWithPaymentInfo"|"walledGardenInvitees"|"alignmentSuggestedUsers";
 type VotesViewName = "tagVotes"|"userPostVotes";
+type cronHistoryViewName = never
 
 interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms
@@ -86,6 +87,7 @@ interface ViewTermsByCollectionName {
   UserTagRels: UserTagRelsViewTerms
   Users: UsersViewTerms
   Votes: VotesViewTerms
+  cronHistory: ViewTermsBase
 }
 
 

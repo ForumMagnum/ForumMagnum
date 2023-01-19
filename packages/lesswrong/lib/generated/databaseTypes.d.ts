@@ -1259,6 +1259,18 @@ interface DbVote extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface cronHistoryCollection extends CollectionBase<DbCronHistory, "cronHistory"> {
+}
+
+interface DbCronHistory extends DbObject {
+  __collectionName?: "cronHistory"
+  intendedAt: Date
+  name: string
+  startedAt: Date | null
+  finishedAt: Date | null
+  result: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
   Bans: BansCollection
@@ -1303,6 +1315,7 @@ interface CollectionsByName {
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
+  cronHistory: cronHistoryCollection
 }
 
 interface ObjectsByCollectionName {
@@ -1349,5 +1362,6 @@ interface ObjectsByCollectionName {
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
+  cronHistory: DbCronHistory
 }
 
