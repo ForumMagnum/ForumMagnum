@@ -1,7 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
 import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
-import { CronHistory } from '../../../lib/collections/cronHistory';
+import { CronHistories } from '../../../lib/collections/cronHistories';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
@@ -90,7 +90,7 @@ onStartup(function() {
     later.date.localTime();
 
   // collection holding the job history records
-  SyncedCron._collection = CronHistory;
+  SyncedCron._collection = CronHistories;
 
   if (options.collectionTTL) {
     if (options.collectionTTL > minTTL)

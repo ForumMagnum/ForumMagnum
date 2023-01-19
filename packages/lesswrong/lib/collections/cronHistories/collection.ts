@@ -3,7 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 
-export const CronHistory: CronHistoriesCollection = createCollection({
+export const CronHistories: CronHistoriesCollection = createCollection({
   collectionName: 'CronHistories',
   dbCollectionName: 'cronHistory',
   typeName: 'CronHistory',
@@ -12,6 +12,6 @@ export const CronHistory: CronHistoriesCollection = createCollection({
   logChanges: false,
 });
 
-ensureIndex(CronHistory, {intendedAt: 1, name: 1}, {unique: true});
+ensureIndex(CronHistories, {intendedAt: 1, name: 1}, {unique: true});
 
-export default CronHistory;
+export default CronHistories;
