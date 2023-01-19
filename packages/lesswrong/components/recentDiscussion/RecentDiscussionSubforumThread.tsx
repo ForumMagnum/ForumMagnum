@@ -3,8 +3,6 @@ import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useRecordSubforumView } from '../hooks/useRecordSubforumView';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

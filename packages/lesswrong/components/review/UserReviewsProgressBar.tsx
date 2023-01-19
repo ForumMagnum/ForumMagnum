@@ -11,8 +11,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center",
-    marginLeft: 4,
-    marginRight: 10
   },
   text: {
     ...theme.typography.body2,

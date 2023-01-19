@@ -33,6 +33,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   subforumTop: {
     paddingTop: 4,
   },
+  tagIcon: {
+    marginRight: 6,
+    '& svg': {
+      width: 15,
+      height: 15,
+      fill: theme.palette.grey[600],
+    },
+  },
   body: {
     borderStyle: "none",
     padding: 0,
@@ -184,7 +192,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -200,6 +208,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
@@ -212,7 +221,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
-  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !showEditState)
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -330,7 +339,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const {
+    ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
+    CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    LWHelpIcon, TopTagIcon
+  } = Components
 
   if (!comment) {
     return null;
@@ -408,7 +421,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         <div className={classes.body}>
           {showCommentTitle && <div className={classes.title}>
-            <CommentDiscussionIcon comment={comment} />
+            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+              <TopTagIcon tag={tag} />
+            </span> : <CommentDiscussionIcon
+              comment={comment}
+            />}
             {comment.title}
           </div>}
           <div className={classNames(classes.meta, {

@@ -2,6 +2,7 @@ import cheerio from 'cheerio';
 import { cheerioParse, cheerioParseAndMarkOffsets, tokenizeHtml } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
 import type { SideCommentsResolverResult } from '../lib/collections/posts/schema';
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import groupBy from 'lodash/groupBy';
 import some from 'lodash/some';
 
@@ -349,7 +350,7 @@ export async function getSideComments(context: ResolverContext, postId: string, 
   //const startTimeMs = new Date().getTime();
   
   const comments = await Comments.find({
-    ...Comments.defaultView({}).selector,
+    ...getDefaultViewSelector("Comments"),
     postId,
   }).fetch();
   
