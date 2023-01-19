@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import LocationIcon from '@material-ui/icons/LocationOn'
+import WorkIcon from '@material-ui/icons/BusinessCenter'
 import CloseIcon from '@material-ui/icons/Close'
 import InfoIcon from '@material-ui/icons/Info'
 import ChevronRight from '@material-ui/icons/ChevronRight';
@@ -240,6 +241,7 @@ type JobAdData = {
   orgLink: string,                   // internal link on the org name
   salary?: string,
   location: string,
+  roleType?: string,                 // i.e. part-time, contract
   deadline?: moment.Moment,          // not displayed, only used to hide the ad after this date
   getDescription: (classes: ClassesType) => JSX.Element
 }
@@ -247,160 +249,96 @@ type JobAdData = {
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  'ai-policy-govai': {
-    eagOccupations: ['AI strategy & policy'],
-    tagId: 'u3Xg8MjDe2e6BvKtv', // AI Governance
-    logo: 'https://80000hours.org/wp-content/uploads/2021/12/centre-for-the-governance-of-ai-160x160.jpeg',
-    occupation: 'AI governance & policy',
-    feedbackLinkPrefill: 'Summer+Fellow+at+GovAI',
-    bitlyLink: "https://efctv.org/3hTf0Sl", // https://www.governance.ai/post/summer-fellowship-2023
-    role: 'Summer Fellow',
+  'project-management-gfi': {
+    eagOccupations: ['Project management/ Program management', 'Alternative proteins'],
+    tagId: 'sXXqo3rbghiNW7SwN', // Animal product alternatives
+    logo: 'https://80000hours.org/wp-content/uploads/2021/05/good-food-institute-160x160.png',
+    occupation: 'alternative proteins',
+    feedbackLinkPrefill: 'Executive+Assistant+at+GFI',
+    bitlyLink: "", // https://gfi.org/job/?gh_jid=6554883002
+    role: 'Executive Assistant, Science and Technology',
     insertThe: true,
-    org: 'Centre for the Governance of AI',
-    orgLink: '/topics/centre-for-the-governance-of-ai',
-    salary: '£9,000 - £12,000 stipend',
-    location: 'Oxford, UK (Flexible)',
-    deadline: moment("01-15-2023", "MM-DD-YYYY"),
+    org: 'Good Food Institute',
+    orgLink: '/topics/good-food-institute',
+    salary: '$63,046',
+    location: 'Remote, USA',
+    deadline: moment("02-01-2023", "MM-DD-YYYY"),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        In this fellowship at the <a href="https://www.governance.ai" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Centre for the Governance of AI (GovAI)
-        </a>, you will conduct independent research on <a href="https://www.governance.ai/post/summer-fellowship-2022-wrap-up" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          a topic of your choice
-        </a>, with mentorship from leading experts in the field of <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-governance")} innerHTML="AI governance"/>
-        </span>.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Are interested in using their career to study or shape the long-term implications of advanced AI</li>
-          <li>Can produce clearly written, insightful, and even-handed research</li>
-          <li>Have a graduate degree or research experience relevant to AI governance, such as political science, economics, sociology, or law</li>
-        </ul>
-      </div>
-    </>
-  },
-  'communications-cea-2': {
-    eagOccupations: ['Communications/Marketing', 'EA community building/community management', 'Writing'],
-    tagId: 'mPDquzDnkBkgi2iKR', // Marketing
-    logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
-    occupation: 'communications/marketing',
-    feedbackLinkPrefill: 'Communications+Specialist+at+CEA',
-    bitlyLink: "https://efctv.org/3H0m0q5", // https://www.centreforeffectivealtruism.org/careers/communications-specialist
-    role: 'Communications Specialist',
-    insertThe: true,
-    org: 'Centre for Effective Altruism',
-    orgLink: '/topics/centre-for-effective-altruism-1',
-    salary: '£49k - £77k',
-    location: 'Remote',
-    deadline: moment("01-15-2023", "MM-DD-YYYY"),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://www.centreforeffectivealtruism.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          CEA
-        </a> is looking to hire multiple people to improve how we communicate core EA ideas effectively and accurately,
-        including by working closely with other orgs in the EA and related communities.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have a strong understanding of EA ideas</li>
-          <li>Have clear, nuanced, and compelling writing</li>
-          <li>Can autonomously develop and implement communication campaigns around particular events or themes</li>
-        </ul>
-      </div>
-    </>
-  },
-  'communications-cea': {
-    eagOccupations: ['Communications/Marketing'],
-    tagId: 'mPDquzDnkBkgi2iKR', // Marketing
-    logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
-    occupation: 'communications/marketing',
-    feedbackLinkPrefill: 'Social+Media+Specialist+at+CEA',
-    bitlyLink: "https://efctv.org/3vTkVtP", // https://www.centreforeffectivealtruism.org/careers/social-media-specialist
-    role: 'Social Media Specialist',
-    insertThe: true,
-    org: 'Centre for Effective Altruism',
-    orgLink: '/topics/centre-for-effective-altruism-1',
-    salary: '£49k - £77k',
-    location: 'Remote',
-    deadline: moment("01-15-2023", "MM-DD-YYYY"),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        You'll be working at <a href="https://www.centreforeffectivealtruism.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          CEA
-        </a> to develop a social media strategy for effective altruism and work with EA organisations and spokespeople to implement it.
+        The <a href="https://gfi.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Good Food Institute (GFI)
+        </a> is a nonprofit that works with scientists, investors, and entrepreneurs to produce <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/cultivated-meat")} innerHTML="cultivated meat"/>
+        </span> and plant-based <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/animal-product-alternatives")} innerHTML="alternatives"/>
+        </span> to animal products.
       </div>
       <div className={classes.description}>
         Ideal candidates have:
         <ul>
-          <li>Familiarity with EA ideas</li>
-          <li>Clear, nuanced, and compelling writing</li>
-          <li>Sound judgement about the risks and benefits of different communications strategies and tactics</li>
+          <li>A minimum of four years' applicable work experience (previous administrative experience preferred)</li>
+          <li>Demonstrated experience working with projects in project management software</li>
+          <li>Strong attention to detail and a high degree of organization and efficiency</li>
         </ul>
       </div>
     </>
   },
-  'global-priorities-research-gpi-fellowship': {
-    eagOccupations: ['Global priorities research', 'Academic research'],
-    tagId: 'xsiR75hLgHBgtosDy', // Global priorities research
-    logo: 'https://80000hours.org/wp-content/uploads/2022/12/Global-priorities-institute-160x160.jpeg',
-    occupation: 'research',
-    feedbackLinkPrefill: 'Summer+Fellow+at+GPI',
-    bitlyLink: "https://efctv.org/3W8JbTN", // https://globalprioritiesinstitute.org/oxford-global-priorities-fellowship/
-    role: 'Summer Fellow',
-    insertThe: true,
-    org: 'Global Priorities Institute',
-    orgLink: '/topics/global-priorities-institute',
-    salary: '£5k stipend',
-    location: 'Oxford, UK',
-    deadline: moment("01-15-2023", "MM-DD-YYYY"),
+  'engineering-anthropic': {
+    eagOccupations: ['Software development/Software engineering', 'AI safety technical research'],
+    tagId: 'FHE3J3E8qd6oqGZ8a', // Software engineering
+    logo: 'https://80000hours.org/wp-content/uploads/2021/06/Anthropic-160x160.jpeg',
+    occupation: 'software engineering',
+    feedbackLinkPrefill: 'Senior+Software+Engineer+at+Anthropic',
+    bitlyLink: "", // https://jobs.lever.co/Anthropic/572e187a-8f62-451f-9802-94bd8a52ea90
+    role: 'Senior Software Engineer, Developer Experience',
+    org: 'Anthropic',
+    orgLink: '/topics/anthropic',
+    salary: '$270k - $445k',
+    location: 'San Francisco, CA',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        In this four-week fellowship with <a href="https://globalprioritiesinstitute.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          GPI
-        </a>, participants will learn about <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/global-priorities-research")} innerHTML="global priorities research"/>
-        </span> and develop a new research project under the guidance of a supervisor.
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Anthropic
+        </a> is an <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-safety")} innerHTML="AI safety"/>
+        </span> and research company that's working to build reliable, interpretable, and steerable AI systems.
       </div>
       <div className={classes.description}>
-        Applicants must:
+        Ideal candidates:
         <ul>
-          <li>Be a current Master's or PhD student in philosophy or economics (or an early career postdoc/faculty)</li>
-          <li>Be available from 12 June 2023 to 7 July 2023 to visit Oxford</li>
-          <li>Be able and willing to develop a new research project related to global priorities research during that time</li>
+          <li>Have strong instincts for code quality and robustness</li>
+          <li>Are comfortable debugging large-scale software systems</li>
+          <li>Enjoy close collaboration with engineers and researchers with a variety of backgrounds and expertise</li>
         </ul>
       </div>
     </>
   },
-  'ops-malaria-consortium': {
-    eagOccupations: ['Global health & development', 'Operations'],
-    tagId: 'sWcuTyTB5dP3nas2t', // Global health and development
-    logo: 'https://80000hours.org/wp-content/uploads/2019/11/Malaria-Consortium-160x160.png',
-    occupation: 'global health & development',
-    feedbackLinkPrefill: 'Administrative+Assistant+at+Malaria+Consortium',
-    bitlyLink: "https://efctv.org/3Gz7eW9", // https://malariaconsortium.current-vacancies.com/Jobs/Advert/2934672?cid=2061&t=Administrative-Assistant
-    role: 'Part-time Administrative Assistant',
-    org: 'Malaria Consortium',
-    orgLink: '/topics/malaria-consortium',
-    salary: '£28,814',
-    location: 'London, UK',
-    deadline: moment("01-15-2023", "MM-DD-YYYY"),
+  'finance-founders-pledge': {
+    eagOccupations: ['Finance/Accounting'],
+    logo: 'https://80000hours.org/wp-content/uploads/2019/06/founders-pledge-160x160.png',
+    occupation: 'finance',
+    feedbackLinkPrefill: 'Investment+Operations+Manager+at+Founders+Pledge',
+    bitlyLink: "", // https://founders-pledge.jobs.personio.de/job/926945?_pc=959484&display=en
+    role: 'Investment Operations Manager',
+    org: 'Founders Pledge',
+    orgLink: '/topics/founders-pledge',
+    salary: 'Up to $110k',
+    location: 'Remote, USA',
+    roleType: '12 month contract',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <a href="https://www.malariaconsortium.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Malaria Consortium
-        </a> is a British charity that works on preventing, controlling, and treating <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")} innerHTML="malaria"/>
-        </span> and other communicable diseases in Africa and Asia.
+        <a href="https://founderspledge.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Founders Pledge
+        </a> is a nonprofit that encourages entrepreneurs to pledge to donate a portion of their profits to
+        effective charities. They are looking for someone to help implement an investment program for their
+        global charitable foundation, on a 12-month FTC.
       </div>
       <div className={classes.description}>
         Ideal candidates have:
         <ul>
-          <li>5 A*-C GCSEs, including English Language and Mathematics</li>
-          <li>Administrative and Operations experience, particularly supporting use of policies and process</li>
-          <li>Experience working in a diverse environment and across cultures, especially Asia and Africa</li>
+          <li>Project management experience in either institutional or private wealth management operations</li>
+          <li>Understanding of institutional investment practices and portfolio management principles</li>
+          <li>Experience with audits and/or accounting (specifically investment accounting)</li>
         </ul>
       </div>
     </>
@@ -671,6 +609,10 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
           <div className={classes.metadata}>
             <LocationIcon className={classes.metadataIcon} />
             {adData.location}
+          </div>
+          <div className={classes.metadata}>
+            <WorkIcon className={classes.metadataIcon} />
+            {adData.roleType}
           </div>
           {
             // display the deadline when it's within 2 days away
