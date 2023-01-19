@@ -27,7 +27,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean} }, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }) {
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
 
@@ -46,7 +46,13 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
         const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
         
-        const docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
+        let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
+
+        // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
+        if (input.createIfMissing && docs.length === 0) {
+          await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
+          docs = await performQueryFromViewParameters(collection, terms, parameters);
+        }
         
         // Were there enough results to reach the limit specified in the query?
         const saturated = parameters.options.limit && docs.length>=parameters.options.limit;

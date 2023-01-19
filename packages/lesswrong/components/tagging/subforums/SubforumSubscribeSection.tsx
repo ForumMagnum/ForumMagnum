@@ -59,8 +59,8 @@ const SubforumSubscribeSection = ({
       captureEvent('subforumSubscribeClicked', {tagId: tag._id});
 
       if (currentUser) {
-        await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
         joinCallback();
+        await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
       } else {
         openDialog({
           componentName: "LoginPopup",
@@ -73,12 +73,16 @@ const SubforumSubscribeSection = ({
   }
   
   const onUnsubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+    try {
+      e.preventDefault()
 
-    captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
-    if (currentUser) {
-      await subforumMembershipMutation({variables: {tagId: tag._id, member: false}});
-      leaveCallback();
+      captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
+      if (currentUser) {
+        leaveCallback();
+        await subforumMembershipMutation({variables: {tagId: tag._id, member: false}});
+      }
+    } catch(error) {
+      flash({messageString: error.message});
     }
   }
   

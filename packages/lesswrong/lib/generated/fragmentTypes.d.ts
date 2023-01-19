@@ -425,6 +425,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly userId: string,
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
+  readonly subforumHideIntroPost: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -461,6 +462,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly canVoteOnRels: Array<string>,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
+  readonly subforumIntroPostId: string,
   readonly parentTagId: string,
   readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
@@ -1926,12 +1928,13 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly currentUserExtendedVote: any,
 }
 
-interface UserTagRelNotifications { // fragment on UserTagRels
+interface UserTagRelDetails { // fragment on UserTagRels
   readonly _id: string,
   readonly userId: string,
   readonly tagId: string,
   readonly subforumShowUnreadInSidebar: boolean,
   readonly subforumEmailNotifications: boolean,
+  readonly subforumHideIntroPost: boolean,
 }
 
 interface TagBasicInfo { // fragment on Tags
@@ -2081,7 +2084,6 @@ interface TagSubtagFragment { // fragment on Tags
 }
 
 interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
-  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -2106,7 +2108,7 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2118,13 +2120,12 @@ interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
-  readonly subforumUnreadMessagesCount: number,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumUnreadMessagesCount: number,
+  readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
 }
@@ -2140,6 +2141,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagEditFragment_parentTag|null,
+  readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly autoTagModel: string | null,
@@ -2999,7 +3001,7 @@ interface FragmentTypes {
   TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
-  UserTagRelNotifications: UserTagRelNotifications
+  UserTagRelDetails: UserTagRelDetails
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
@@ -3178,7 +3180,7 @@ interface CollectionNamesByFragmentName {
   TagRelCreationFragment: "TagRels"
   TagRelMinimumFragment: "TagRels"
   WithVoteTagRel: "TagRels"
-  UserTagRelNotifications: "UserTagRels"
+  UserTagRelDetails: "UserTagRels"
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"

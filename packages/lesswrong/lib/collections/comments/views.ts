@@ -31,6 +31,11 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  
+  const notDeletedOrDeletionIsPublic = {
+    $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
+  };
+  
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
   //  * The comment was posted before the hideSince date
@@ -41,18 +46,28 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const hideNewUnreviewedAuthorComments = (hideSince && bundleIsServer)
-    ? {$or: [
-      {authorIsUnreviewed: {$ne: true}},
-      {postedAt: {$lt: new Date(hideSince)}},
-      ...(context?.currentUser?._id ? [{userId: context?.currentUser?._id}] : [])]}
-    : {}
+  const shouldHideNewUnreviewedAuthorComments = (hideSince && bundleIsServer);
+  const hideNewUnreviewedAuthorComments =
+    (shouldHideNewUnreviewedAuthorComments && (
+      {$or: [
+        {authorIsUnreviewed: {$ne: true}},
+        {postedAt: {$lt: new Date(hideSince)}},
+        ...(context?.currentUser?._id ? [{userId: context?.currentUser?._id}] : [])
+      ]}
+    )
+  );
+  
   return ({
     selector: {
-      $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
+      ...(shouldHideNewUnreviewedAuthorComments
+        ? {$and: [
+            hideNewUnreviewedAuthorComments,
+            notDeletedOrDeletionIsPublic
+          ]}
+        : notDeletedOrDeletionIsPublic
+      ),
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
-      ...hideNewUnreviewedAuthorComments,
       ...validFields,
     },
     options: {
@@ -60,6 +75,14 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
     }
   });
 })
+
+// Spread into a view to remove the part of the default view selector that hides deleted and
+// unreviewed comments.
+const dontHideDeletedAndUnreviewed = {
+  $or: null,
+  $and: null,
+};
+
 
 const sortings = {
   "top" : { baseScore: -1},
@@ -98,7 +121,7 @@ ensureIndex(Comments, { parentCommentId: "hashed" });
 Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
   return {
     selector: {
-      $or: null,
+      ...dontHideDeletedAndUnreviewed,
       deleted: null,
       postId: terms.postId
     },
@@ -109,7 +132,7 @@ Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
 Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
   return {
     selector: {
-      $or: null,
+      ...dontHideDeletedAndUnreviewed,
       deleted: true,
     },
     options: {sort: {deletedDate: -1, postedAt: -1, baseScore: -1 }}
@@ -281,6 +304,7 @@ Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
 Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   return {
     selector: {
+      ...dontHideDeletedAndUnreviewed,
       $or: [
         {$and: []},
         {needsReview: true},
@@ -331,7 +355,7 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
     selector: {
       userId: terms.userId,
       // Don't hide deleted
-      $or: null,
+      ...dontHideDeletedAndUnreviewed,
       // Don't hide unreviewed comments
       authorIsUnreviewed: null
     },
