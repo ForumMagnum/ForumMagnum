@@ -55,7 +55,7 @@
     "timestamp": "2023-01-18T10:42:29.000Z"
   },
   {
-    "acceptsSchemaHash": "c7b9d9a9376057f062950eef371f4c5a",
+    "acceptsSchemaHash": "7f78055b7fe8ee2024beb99df7836f31",
     "acceptedByMigration": "20230119T150231.create_cronHistory_collection.ts",
     "timestamp": "2023-01-19T15:02:31.000Z"
   }

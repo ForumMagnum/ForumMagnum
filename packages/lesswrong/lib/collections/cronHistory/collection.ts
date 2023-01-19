@@ -3,8 +3,9 @@ import { createCollection } from '../../vulcan-lib';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 
-export const CronHistory: cronHistoryCollection = createCollection({
-  collectionName: 'cronHistory', // This starts with lowercase for legacy reasons
+export const CronHistory: CronHistoriesCollection = createCollection({
+  collectionName: 'CronHistories',
+  dbCollectionName: 'cronHistory',
   typeName: 'CronHistory',
   collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
   schema,

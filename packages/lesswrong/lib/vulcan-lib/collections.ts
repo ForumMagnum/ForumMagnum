@@ -22,9 +22,7 @@ export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
 export const getCollectionName = (typeName): CollectionNameString =>
-  typeName === "CronHistory"
-    ? "cronHistory" // CronHistory doesn't follow the pattern for legacy reasons
-    : pluralize(typeName) as CollectionNameString;
+  pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
