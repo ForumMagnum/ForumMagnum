@@ -483,7 +483,6 @@ export const NewGroupOrganizerNotification = registerNotificationType({
   name: "newGroupOrganizer",
   userSettingField: "notificationGroupAdministration",
   async getMessage({documentType, documentId}: GetMessageProps) {
-    // Todo: this seems like it should be moved to getDocument instead
     if (documentType !== 'localgroup') throw new Error("documentType must be localgroup")
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")

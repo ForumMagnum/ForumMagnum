@@ -18,7 +18,7 @@ export const notify = async (currentUser: DbUser, collectionType: string, docume
   
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
   //  TagRels for example won't work, though they don't have content either.
-  //  Show we define an explicit mapping?
+  //  should we define an explicit mapping?
   const notificationType = collectionType.toLowerCase()
   if (!canNotify(currentUser, pingbacksToSend) || !notificationDocumentTypes.has(notificationType)) return
 

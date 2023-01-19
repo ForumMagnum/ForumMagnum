@@ -4,6 +4,7 @@ import {getSiteUrl, Components} from '../vulcan-lib'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {userGetDisplayName} from '../collections/users/helpers'
+import {userMentionQueryString} from '../pingback'
 
 
 interface PostSearchHit {
@@ -65,7 +66,7 @@ async function fetchUserSuggestions(searchString: string) {
     return ({
       id: markers.user + displayName,
       // Query string is intended for later use in detecting the ping
-      link: `${linkPrefix}users/${hit.slug}?mention=user`,
+      link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
       text: displayName,
       karma: hit.karma,
       createdAt: new Date(hit.createdAt),

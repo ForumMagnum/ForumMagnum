@@ -2,6 +2,10 @@ import {PingbackDocument, RouterLocation} from './vulcan-lib'
 import {Posts} from './collections/posts'
 import {Users} from './collections/users/collection'
 
+const userMentionQuery = 'mention'
+const userMentionValue = 'user'
+export const userMentionQueryString = `${userMentionQuery}=${userMentionValue}`
+
 export async function getPostPingbackById(parsedUrl: RouterLocation, postId: string | null): Promise<PingbackDocument | null> {
   if (!postId)
     return null
@@ -30,8 +34,7 @@ export async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: str
 
 export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<PingbackDocument | null> {
   const slug = parsedUrl.params.slug
-  // TODO right now this is a convention sheared with `mentionConfig` find a place I could put it to embody it structurally (shared code)
-  const hasMentionParam = parsedUrl.query.mention === 'user'
+  const hasMentionParam = parsedUrl.query[userMentionQuery] === userMentionValue
   
   if (!hasMentionParam) return null
   
