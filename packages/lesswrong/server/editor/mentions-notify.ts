@@ -10,12 +10,8 @@ export interface PingbackDocumentPartial {
 }
 
 export const notify = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
-  const newDocPingbacks = document.pingbacks?.Users ?? []
-  const oldDocPingbacks = oldDocument?.pingbacks?.Users ?? []
-  
-  const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
-  const pingbacksToSend = removeSelfReference(newPingbacks, currentUser._id)
-  
+  const pingbacksToSend = getPingbacksToSend(currentUser, document, oldDocument)
+
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
   //  TagRels for example won't work, though they don't have content either.
   //  should we define an explicit mapping?
@@ -28,6 +24,14 @@ export const notify = async (currentUser: DbUser, collectionType: string, docume
     documentId: document._id,
     documentType: notificationType,
   })
+}
+
+function getPingbacksToSend(currentUser: DbUser, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) {
+  const newDocPingbacks = document.pingbacks?.Users ?? []
+  const oldDocPingbacks = oldDocument?.pingbacks?.Users ?? []
+
+  const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
+  return removeSelfReference(newPingbacks, currentUser._id)
 }
 
 const canNotify = (currentUser: DbUser, pingbacks: string[], {

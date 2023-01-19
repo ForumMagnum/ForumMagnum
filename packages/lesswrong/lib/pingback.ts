@@ -33,12 +33,10 @@ export async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: str
 }
 
 export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<PingbackDocument | null> {
-  const slug = parsedUrl.params.slug
   const hasMentionParam = parsedUrl.query[userMentionQuery] === userMentionValue
-  
   if (!hasMentionParam) return null
-  
-  const user = await Users.findOne({slug: slug})
+
+  const user = await Users.findOne({slug: parsedUrl.params.slug})
   if (!user) return null
  
   return ({collectionName: 'Users', documentId: user._id})
