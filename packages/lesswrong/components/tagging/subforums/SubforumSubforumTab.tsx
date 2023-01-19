@@ -12,6 +12,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -34,7 +35,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   feedHeader: {
     display: "flex",
     marginLeft: 10,
-    marginBottom: -16,
     [theme.breakpoints.down('xs')]: {
       '& .PostsListSortDropdown-root': {
         marginRight: "0px !important",
@@ -46,13 +46,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     columnGap: 16,
   },
+  listSettingsToggle: {
+    marginLeft: 16,
+  },
+  listSettingsContainer: {
+    marginTop: 16,
+  },
   newDiscussionContainer: {
     background: theme.palette.grey[0],
-    marginTop: 32,
+    marginTop: 16,
     padding: "0px 8px 8px 8px",
   },
   feedPostWrapper: {
-    marginTop: 32,
+    marginTop: 16,
+    marginBottom: 16,
   },
   hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
@@ -63,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   listLayout: {
-    paddingTop: 32,
+    paddingTop: 16,
   }
 })
 
@@ -86,6 +93,8 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
     PostsList2,
     AddPostsToTag,
     CommentsListCondensed,
+    SubforumListSettings,
+    SortButton,
   } = Components;
 
   const { query } = useLocation();
@@ -99,6 +108,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
   }, [refetchRef]);
 
   const [newDiscussionOpen, setNewDiscussionOpen] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
   
   const clickNewDiscussion = useCallback(() => {
@@ -272,13 +282,11 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
 
   const terms = {
     ...tagPostTerms(tag, query),
-    limit: 15
+    limit: 10
   }
   const listLayoutComponent = (
     <div className={classes.listLayout}>
-      <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={50}>
-        <AddPostsToTag tag={tag} />
-      </PostsList2>
+      <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
       <CommentsListCondensed
         label={"Discussions"}
         contentType="subforumDiscussion"
@@ -311,18 +319,35 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
           {discussionButton}
           {newPostButton}
         </div>
-        <PostsListSortDropdown value={sortBy} options={subforumSortings} />
+        <LWTooltip title={`${showSettings ? "Hide" : "Show"} options for sorting and layout`} placement="top-end">
+          <div
+            className={classes.listSettingsToggle}
+            onClick={() => {
+              setShowSettings(!showSettings);
+            }}
+          >
+            <SortButton label={`Sorted by ${TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}`} />
+          </div>
+        </LWTooltip>
       </div>
+      {showSettings && (
+        <div className={classes.listSettingsContainer}>
+          <SubforumListSettings currentSorting={sortBy} currentLayout={layout} />
+        </div>
+      )}
       {newDiscussionOpen && (
         <div className={classes.newDiscussionContainer}>
           {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time you click on them, on desktop only */}
           <CommentsNewForm
             tag={tag}
             tagCommentType={"SUBFORUM"}
-            successCallback={refetch}
             type="reply" // required to make the Cancel button appear
             enableGuidelines={true}
             cancelCallback={() => setNewDiscussionOpen(false)}
+            successCallback={() => {
+              setNewDiscussionOpen(false);
+              refetch();
+            }}
           />
         </div>
       )}

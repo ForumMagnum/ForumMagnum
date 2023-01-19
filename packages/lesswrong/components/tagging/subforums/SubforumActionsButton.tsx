@@ -37,17 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 4,
     }
   },
-  checkbox: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 24,
-    "& .MuiButtonBase-root": {
-      padding: 6,
-    },
-    "& .Typography-root": {
-      cursor: "default",
-    },
-  },
 })
 
 const SubforumActionsButton = ({tag, layout, classes}: {

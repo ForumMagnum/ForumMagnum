@@ -61,7 +61,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 19,
     paddingBottom: 0,
     paddingLeft: 42,
-    paddingRight: 28,
+    paddingRight: 42,
     background: theme.palette.panelBackground.default,
     width: "100%",
     [theme.breakpoints.down('sm')]: {
@@ -82,10 +82,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       fontSize: "2.4rem",
     }
-  },
-  titleRowActions: {
-    display: 'flex',
-    alignItems: 'baseline',
   },
   wikiSection: {
     paddingTop: 12,
@@ -324,14 +320,14 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        <div className={classes.titleRowActions}>
-          {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
-          {!!currentUser && !!userTagRel && (
-          isSubscribed ?
-            <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
-            : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
-          <SubforumActionsButton tag={tag} layout={layout} />
-        </div>
+        {/* <div className={classes.titleRowActions}> */}
+        {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
+        {!!currentUser && !!userTagRel && (
+        isSubscribed ?
+          <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
+          : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
+          {/* <SubforumActionsButton tag={tag} layout={layout} />
+        </div> */}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
