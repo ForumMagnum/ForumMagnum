@@ -174,3 +174,5 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
 //     reviewVoteScoreAF:1
 //   })
 //   .sort({reviewVoteScoreAllKarma:-1})
+
+// MAKE SURE TO UPDATE LIMIT OF QUERY IN UI
