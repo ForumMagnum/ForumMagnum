@@ -603,21 +603,22 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
 export const NewMentionNotification = serverRegisterNotificationType({
   name: "newMention",
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const summary = await getDocumentSummary(notifications[0].documentId as NotificationDocument, notifications[0].documentType);
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
     if (!summary) {
       throw Error(`Can't find document for notification: ${notifications[0]}`);
     }
-    return `${summary.associatedUserName} mentioned you in: ${summary.displayName}`;
+    
+    return `${summary.associatedUserName} mentioned you in ${summary.displayName}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const summary = await getDocumentSummary(notifications[0].documentId as NotificationDocument, notifications[0].documentType);
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
     if (!summary) {
       throw Error(`Can't find document for notification: ${notifications[0]}`);
     }
 
     return (
       <p>
-        {summary.associatedUserName} mentioned you in <a href={notifications[0].link}>{summary.displayName}</a>.
+        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notifications[0].link)}>{summary.displayName}</a>.
       </p>
     );
   },
