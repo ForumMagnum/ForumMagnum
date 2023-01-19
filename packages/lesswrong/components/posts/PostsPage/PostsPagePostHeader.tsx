@@ -9,6 +9,7 @@ import { isServer } from '../../../lib/executionEnvironment';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
@@ -91,6 +92,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderLeft: 'transparent'
   },
 });
+
+const isAF = forumTypeSetting.get() === "AlignmentForum"
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
 // On the client, we instead create an <a> tag, set its href, and extract
@@ -201,7 +204,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
               </a>
             </LWTooltip>
           }
-          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && <CrosspostHeaderIcon post={post} />}
+          {post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !isAF && <CrosspostHeaderIcon post={post} />}
           {!post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{readTime} min read</span>
           </LWTooltip>}
