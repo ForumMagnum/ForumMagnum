@@ -2374,7 +2374,7 @@ const schema: SchemaType<DbUser> = {
   subforumPreferredLayout: {
     type: String,
     allowedValues: subforumLayouts,
-    hidden: true, // only editable from SubforumActionsButton
+    hidden: true, // only editable by changing the setting from the subforum page
     optional: true,
     canRead: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],

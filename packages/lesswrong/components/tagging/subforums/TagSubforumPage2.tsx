@@ -166,7 +166,6 @@ const TagSubforumPage2 = ({classes}: {
     SubforumWelcomeBox,
     SubforumWikiTab,
     SubforumSubforumTab,
-    SubforumActionsButton,
   } = Components;
 
   const currentUser = useCurrentUser();
@@ -320,14 +319,11 @@ const TagSubforumPage2 = ({classes}: {
         <Typography variant="display3" className={classes.title}>
           {tag.name}
         </Typography>
-        {/* <div className={classes.titleRowActions}> */}
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
         {!!currentUser && !!userTagRel && (
         isSubscribed ?
           <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
           : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
-          {/* <SubforumActionsButton tag={tag} layout={layout} />
-        </div> */}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}

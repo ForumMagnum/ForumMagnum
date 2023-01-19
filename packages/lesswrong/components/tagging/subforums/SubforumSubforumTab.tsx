@@ -7,12 +7,12 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
-import startCase from 'lodash/startCase';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortings, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
+import { defaultSubforumSorting, isSubforumSorting, SubforumLayout, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
+import startCase from 'lodash/startCase';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -326,7 +326,7 @@ const SubforumSubforumTab = ({tag, userTagRel, layout, isSubscribed, classes}: {
               setShowSettings(!showSettings);
             }}
           >
-            <SortButton label={`Sorted by ${TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}`} />
+            <SortButton label={<span>Sorted by {TAG_POSTS_SORT_ORDER_OPTIONS[sortBy].label}<span className={classes.hideOnMobile}>, {layout === "feed" ? "Posts expanded" : "Posts collapsed"}</span></span>} />
           </div>
         </LWTooltip>
       </div>
