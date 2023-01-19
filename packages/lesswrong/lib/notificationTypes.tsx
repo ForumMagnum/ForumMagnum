@@ -85,7 +85,7 @@ type DocumentSummary =
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
 
-const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
+export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
 
   switch (documentType) {
@@ -553,5 +553,17 @@ export const CoauthorAcceptNotification = registerNotificationType({
   },
   getIcon() {
     return <DoneIcon style={iconStyles} />
+  },
+})
+
+export const NewMentionNotification = registerNotificationType({
+  name: "newMention",
+  userSettingField: "notificationNewMention",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId)
+    return `${summary?.associatedUserName} mentioned you in ${summary?.displayName}`
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
   },
 })

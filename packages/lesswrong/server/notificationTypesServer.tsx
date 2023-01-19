@@ -17,7 +17,7 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
-import { taggedPostMessage } from '../lib/notificationTypes';
+import {getDocumentSummary, taggedPostMessage} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -597,5 +597,28 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
         - The {forumTitleSetting.get()} Team
       </p>
     </div>
+  },
+});
+
+export const NewMentionNotification = serverRegisterNotificationType({
+  name: "newMention",
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const summary = await getDocumentSummary(notifications[0].documentId as NotificationDocument, notifications[0].documentType);
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notifications[0]}`);
+    }
+    return `${summary.associatedUserName} mentioned you in: ${summary.displayName}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const summary = await getDocumentSummary(notifications[0].documentId as NotificationDocument, notifications[0].documentType);
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notifications[0]}`);
+    }
+
+    return (
+      <p>
+        {summary.associatedUserName} mentioned you in <a href={notifications[0].link}>{summary.displayName}</a>.
+      </p>
+    );
   },
 });
