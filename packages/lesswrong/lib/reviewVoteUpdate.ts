@@ -163,6 +163,7 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
 //     _id:1, 
 //     userId:1, 
 //     author:1, 
+//     af: 1,
 //     reviewCount:1, 
 //     positiveReviewVoteCount:1, 
 //     reviewVotesAllKarma:1, 
