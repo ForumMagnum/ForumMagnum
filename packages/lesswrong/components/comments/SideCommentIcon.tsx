@@ -19,6 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 8,
     color: theme.palette.icon.dim6,
     
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+    
     "@media print": {
       display: "none",
     },
