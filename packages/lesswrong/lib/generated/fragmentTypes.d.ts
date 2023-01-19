@@ -2880,7 +2880,7 @@ interface cronHistoryDefaultFragment { // fragment on cronHistory
   readonly _id: string,
   readonly intendedAt: Date,
   readonly name: string,
-  readonly startedAt: Date | null,
+  readonly startedAt: Date,
   readonly finishedAt: Date | null,
   readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }

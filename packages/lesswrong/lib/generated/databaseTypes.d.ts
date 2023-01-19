@@ -1266,7 +1266,7 @@ interface DbCronHistory extends DbObject {
   __collectionName?: "cronHistory"
   intendedAt: Date
   name: string
-  startedAt: Date | null
+  startedAt: Date
   finishedAt: Date | null
   result: any /*{"definitions":[{"blackbox":true}]}*/
 }

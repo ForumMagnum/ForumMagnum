@@ -23,7 +23,7 @@ const schema: SchemaType<DbCronHistory> = {
   },
   startedAt: {
     type: Date,
-    ...commonFields(true),
+    ...commonFields(false),
   },
   finishedAt: {
     type: Date,
