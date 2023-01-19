@@ -81,5 +81,11 @@ describe("UpdateQuery", () => {
       expectedSql: `UPDATE "TestCollection" SET "c" = fm_add_to_set( "c" , '{d}' ::TEXT[] , $1::INTEGER ) WHERE "a" = $2`,
       expectedArgs: [4, 3],
     },
+    {
+      name: "can add a correct type hint for native arrays of JSON",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {c: [{d: "test"}]}}),
+      expectedSql: `UPDATE "TestCollection" SET "c" = $1::JSONB[] WHERE "a" = $2`,
+      expectedArgs: [[{d: "test"}], 3],
+    },
   ]);
 });

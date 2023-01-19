@@ -187,7 +187,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       return this.compileExpression(value);
     } else {
       const arg = this.createArg(value);
-      arg.typehint = this.getTypeHint(value);
+      if (!arg.typehint) {
+        arg.typehint = this.getTypeHint(value);
+      }
       return [arg];
     }
   }
