@@ -240,7 +240,7 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
             fragmentName: "PostsRecentDiscussion",
             render: (post: PostsRecentDiscussion) => {
               // Remove the intro post from the feed IFF it has not been dismissed from the top
-              return post._id !== tag.subforumIntroPost?._id && !hideIntroPost && (
+              return !(post._id === tag.subforumIntroPost?._id && !hideIntroPost) && (
                 <div className={classes.feedPostWrapper}>
                   <RecentDiscussionThread
                     key={post._id}
