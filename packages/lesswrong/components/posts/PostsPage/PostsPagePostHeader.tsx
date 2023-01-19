@@ -9,9 +9,12 @@ import { isServer } from '../../../lib/executionEnvironment';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 const PODCAST_TOOLTIP_SEEN_COOKIE = 'podcast_tooltip_seen'
+
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -214,7 +217,7 @@ const PostsPagePostHeader = ({post, answers = [], toggleEmbeddedPlayer, hideMenu
           {post.question && <a className={classes.commentsLink} href={"#answers"}>{postGetAnswerCountStr(answerCount)}</a>}
           <a className={classes.commentsLink} href={"#comments"}>{postGetCommentCountStr(post, commentCount)}</a>
           {toggleEmbeddedPlayer &&
-            (cachedTooltipSeen ?
+            ((cachedTooltipSeen || !isEAForum ) ?
               <LWTooltip title={'Listen to this post'} className={classes.togglePodcastIcon}>
                 <a href="#" onClick={toggleEmbeddedPlayer}>
                   <VolumeUpIcon />
