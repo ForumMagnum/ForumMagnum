@@ -75,7 +75,7 @@ export async function runMigration(name: string)
 
     await db.any(`DO $$
       BEGIN
-          PERFORM ${fn}();
+        PERFORM ${fn}();
       EXCEPTION WHEN undefined_function THEN
         -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
       END;
