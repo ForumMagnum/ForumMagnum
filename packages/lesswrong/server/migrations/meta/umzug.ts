@@ -85,18 +85,18 @@ export const createMigrator = async (db: SqlClient) => {
           name,
           up: async () => {
             context.timers[name] = {start: new Date()};
-            await safeRun(db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
+            await safeRun(context.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
             const result = await require(path).up(context);
-            await safeRun(db, `refresh_lowercase_views`) // add the views back in
+            await safeRun(context.db, `refresh_lowercase_views`) // add the views back in
             context.timers[name].end = new Date();
             return result;
           },
           down: async () => {
             const migration = require(path);
             if (migration.down) {
-              await safeRun(db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
+              await safeRun(context.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
               const result = await migration.down(context);
-              await safeRun(db, `refresh_lowercase_views`) // add the views back in
+              await safeRun(context.db, `refresh_lowercase_views`) // add the views back in
               return result;
             } else {
               console.warn(`Migration '${name}' has no down step`);
