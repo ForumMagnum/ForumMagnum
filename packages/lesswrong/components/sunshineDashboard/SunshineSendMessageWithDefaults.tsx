@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import MenuItem from "@material-ui/core/MenuItem";
 import Menu from '@material-ui/core/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@material-ui/icons/Edit";
@@ -50,9 +49,7 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType,
 }) => {
-  
-  const { ContentItemBody, LWTooltip, NewConversationButton } = Components
-  
+  const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
   
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);

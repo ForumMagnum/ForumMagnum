@@ -14,7 +14,6 @@ import { eligibleToNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '..
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { randomId } from '../../lib/random';
 
@@ -328,7 +327,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }, [submitVote, postsResults]);
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, ContentStyles, MenuItem } = Components
 
   const canInitialResort = !!postsResults
 

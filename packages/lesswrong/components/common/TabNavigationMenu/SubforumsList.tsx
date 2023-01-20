@@ -2,7 +2,6 @@ import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
-import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { tagGetSubforumUrl } from "../../../lib/collections/tags/helpers";
 
@@ -45,13 +44,7 @@ const SubforumsList = ({ onClick, classes }) => {
   
   if (!results || !results.length) return <></>
   
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Cast to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any
-  
-  const { TabNavigationSubItem } = Components
-
+  const { TabNavigationSubItem, MenuItemLink } = Components
   
   return (
     <span>
@@ -59,17 +52,16 @@ const SubforumsList = ({ onClick, classes }) => {
         <div>
           <div className={classes.title}>Subforums</div>
           {results.map((subforum) => (
-            <MenuItemUntyped
+            <MenuItemLink
               key={subforum._id}
               onClick={onClick}
-              component={Link}
               to={tagGetSubforumUrl(subforum)}
-              classes={{ root: classes.menuItem }}
+              rootClass={classes.menuItem}
             >
               <TabNavigationSubItem className={classes.subItem}>
                 {subforum.name}
               </TabNavigationSubItem>
-            </MenuItemUntyped>
+            </MenuItemLink>
           ))}
         </div>
       </AnalyticsContext>

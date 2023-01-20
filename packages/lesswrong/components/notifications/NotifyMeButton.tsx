@@ -11,7 +11,6 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 import { useDialog } from '../common/withDialog';
 
@@ -72,6 +71,7 @@ const NotifyMeButton = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog()
   const { flash } = useMessages();
+  const { MenuItem } = Components;
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',

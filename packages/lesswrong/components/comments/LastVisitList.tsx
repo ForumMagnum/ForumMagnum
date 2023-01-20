@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import MenuItem from '@material-ui/core/MenuItem'
 import * as _ from 'underscore';
 
 const VISITS_TO_SHOW = 4
@@ -12,6 +11,8 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   currentUser: UsersCurrent,
   clickCallback: (date: Date) => void,
 }) => {
+  const { Loading, MenuItem } = Components;
+  
   const { results, loading } = useMulti({
     terms: {
       view: "postVisits",
@@ -25,7 +26,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   });
   
   if (loading || !results)
-    return <Components.Loading/>
+    return <Loading/>
   
   // We load more visits than we're going to display, then filter out duplicates and
   // near-duplicates. "Duplicates" in this case means two visits within 2 minutes of

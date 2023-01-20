@@ -14,7 +14,6 @@ import NotesIcon from '@material-ui/icons/Notes';
 import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
-import MenuItem from '@material-ui/core/MenuItem';
 import EditIcon from '@material-ui/icons/Edit'
 import ExtensionIcon from '@material-ui/icons/Extension';
 import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
@@ -72,7 +71,7 @@ const UsersMenu = ({classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
-  const { LWPopper, LWTooltip, ThemePickerMenu } = Components
+  const { LWPopper, LWTooltip, ThemePickerMenu, MenuItem } = Components
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -219,9 +218,11 @@ const UsersMenu = ({classes}: {
               </Link>
             }
             <Divider/>
-            <MenuItem component="a" href="/logout">
-              Log Out
-            </MenuItem>
+            <a href="/logout">
+              <MenuItem>
+                Log Out
+              </MenuItem>
+            </a>
           </Paper>
         </LWPopper>
     </div>
