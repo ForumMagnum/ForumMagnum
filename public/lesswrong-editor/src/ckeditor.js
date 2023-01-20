@@ -63,10 +63,10 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 
-//
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import Button from './ckeditor5-button/button';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -81,6 +81,7 @@ const sharedPlugins = [
 	Autoformat,
 	BlockQuote,
 	Bold,
+	Button,
 	CKFinder,
 	Essentials,
 	Heading,

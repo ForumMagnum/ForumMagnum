@@ -1,8 +1,5 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import footnoteIcon from '../theme/icon.svg';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import Collection from '@ckeditor/ckeditor5-utils/src/collection';
-import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { INSERT_BUTTON_COMMAND, TOOLBAR_COMPONENT_NAME } from './constants';
 
 export default class ButtonUI extends Plugin {
