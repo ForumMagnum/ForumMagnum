@@ -10,6 +10,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 
 export interface ToCAnswer {
   baseScore: number,
@@ -277,7 +278,7 @@ async function getTocAnswers (document: DbPost) {
 
 async function getTocComments (document: DbPost) {
   const commentSelector: any = {
-    ...Comments.defaultView({}).selector,
+    ...getDefaultViewSelector("Comments"),
     answer: false,
     parentAnswerId: null,
     postId: document._id

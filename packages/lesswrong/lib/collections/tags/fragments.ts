@@ -151,7 +151,6 @@ registerFragment(`
 registerFragment(`
   fragment TagSubforumSidebarFragment on Tag {
     ...TagBasicInfo
-    subforumUnreadMessagesCount
   }
 `);
 
@@ -190,7 +189,9 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
-    subforumUnreadMessagesCount
+    subforumIntroPost {
+      ...PostsList
+    }
     subforumWelcomeText {
       _id
       html
@@ -213,7 +214,6 @@ registerFragment(`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
-    subforumUnreadMessagesCount
   }
 `);
 
@@ -222,7 +222,9 @@ registerFragment(`
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
-    subforumUnreadMessagesCount
+    subforumIntroPost {
+      ...PostsList
+    }
     subforumWelcomeText {
       _id
       html
@@ -263,6 +265,7 @@ registerFragment(`
     parentTag {
       ...TagBasicInfo
     }
+    subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
     

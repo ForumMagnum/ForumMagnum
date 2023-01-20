@@ -58,7 +58,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           this.check,
           context.currentUser,
           data,
-          
           context,
           '',
           `${typeName}.create`,

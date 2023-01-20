@@ -133,18 +133,13 @@ export async function postsNewNotifications (post: DbPost) {
 postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
-  // TODO: We have a bug that sends users way too many of these emails,
-  //       and I might not have time to debug this today but I think it's pretty bad to spam email users,
-  //       so adding this as a temp fix
-  if (forumTypeSetting.get() === 'EAForum') return false
-  
-  if (!!oldPost.mongoLocation !== !!newPost.mongoLocation) {
+  const oldLocation = oldPost.googleLocation?.geometry?.location;
+  const newLocation = newPost.googleLocation?.geometry?.location;
+  if (!!oldLocation !== !!newLocation) {
     //Location added or removed
     return true;
   }
-  if (oldPost.mongoLocation && newPost.mongoLocation
-    && !_.isEqual(oldPost.mongoLocation, newPost.mongoLocation)
-  ) {
+  if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
     // Location changed
     // NOTE: We treat the added/removed and changed cases separately because a
     // dumb thing inside the mutation callback handlers mixes up null vs
@@ -152,8 +147,8 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
     // undefined which should not trigger a notification.
     return true;
   }
-  
-  if ((newPost.joinEventLink !== oldPost.joinEventLink)
+
+  if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
     || !moment(newPost.startTime).isSame(moment(oldPost.startTime))
     || !moment(newPost.endTime).isSame(moment(oldPost.endTime))
   ) {
