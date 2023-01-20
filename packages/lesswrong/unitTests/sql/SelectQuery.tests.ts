@@ -451,6 +451,12 @@ describe("SelectQuery", () => {
       }}),
       expectedError: "Pipeline joins are not implemented",
     },
+    {
+      name: "can randomly sample results",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {sampleSize: 5}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY RANDOM() LIMIT $2',
+      expectedArgs: [3, 5],
+    },
   ]);
 
   describe("isGroupByAggregateExpression", () => {
