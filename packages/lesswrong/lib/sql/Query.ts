@@ -287,9 +287,9 @@ abstract class Query<T extends DbObject> {
       }
       else if (value === false) {
         if (op === "=") {
-          return [`${resolvedField}${hint} IS NOT TRUE`];
+          return [`${resolvedField}${hint} IS FALSE`];
         } else if (op === "<>") {
-          return [`${resolvedField}${hint} IS TRUE`];
+          return [`${resolvedField}${hint} IS NOT FALSE`];
         }
       }
       return [`${resolvedField}${hint} ${op} `, new Arg(value)];
