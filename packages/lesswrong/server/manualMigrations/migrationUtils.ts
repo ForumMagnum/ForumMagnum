@@ -68,23 +68,9 @@ export async function runMigration(name: string)
   
   const db = getSqlClient();
 
-  // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
-  // This wraapper runs the function and ignores if it's not defined yet
-  const safeRun = async (fn) => {
-    if(!db) return;
-
-    await db.any(`DO $$
-      BEGIN
-        PERFORM ${fn}();
-      EXCEPTION WHEN undefined_function THEN
-        -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
-      END;
-    $$;`)
-  }
-
   // TODO: do this atomically in a single transaction
   try {
-    await safeRun(`remove_lowercase_views`) // Remove any views before we change the underlying tables
+    await safeRun(db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
     await action();
     
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
@@ -103,7 +89,7 @@ export async function runMigration(name: string)
       finished: true, succeeded: false,
     }});
   } finally {
-    await safeRun(`refresh_lowercase_views`) // add the views back in
+    await safeRun(db, `refresh_lowercase_views`) // add the views back in
   }
 }
 
@@ -430,3 +416,17 @@ export async function forEachBucketRangeInCollection({collection, filter, bucket
 }
 
 Vulcan.dropUnusedField = dropUnusedField
+
+  // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
+  // This wraapper runs the function and ignores if it's not defined yet
+export async function safeRun(db : SqlClient | null, fn : string) : Promise<void> {
+  if(!db) return;
+
+  await db.any(`DO $$
+    BEGIN
+      PERFORM ${fn}();
+    EXCEPTION WHEN undefined_function THEN
+      -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
+    END;
+  $$;`)
+}
