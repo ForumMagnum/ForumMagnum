@@ -1,6 +1,6 @@
 import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../algoliaUtil'
 import {promisify} from '../utils/asyncUtils'
-import {getSiteUrl, Components} from '../vulcan-lib'
+import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {userGetDisplayName} from '../collections/users/helpers'
@@ -62,9 +62,9 @@ async function fetchUserSuggestions(searchString: string) {
   }) as { hits: UserSearchHit[] }
 
   return searchResults.hits.map(hit => {
-    const displayName = userGetDisplayName(hit)
+    const displayName = markers.user + userGetDisplayName(hit)
     return ({
-      id: markers.user + displayName,
+      id: displayName,
       // Query string is intended for later use in detecting the ping
       link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
       text: displayName,
