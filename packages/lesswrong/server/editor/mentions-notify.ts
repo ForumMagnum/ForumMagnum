@@ -9,7 +9,7 @@ export interface PingbackDocumentPartial {
   }
 }
 
-export const notify = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
+export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
   const pingbacksToSend = getPingbacksToSend(currentUser, document, oldDocument)
 
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
@@ -36,11 +36,13 @@ function getPingbacksToSend(currentUser: DbUser, document: PingbackDocumentParti
 
 const canNotify = (currentUser: DbUser, pingbacks: string[], {
   karmaThreshold = 1,
-  // Todo(PR): rn it is *New* pingback limit, should it be total? 
   newPingbackLimit = 3,
 }: { karmaThreshold?: number, newPingbackLimit?: number } = {}) =>
-  currentUser.karma >= karmaThreshold &&
-  pingbacks.length <= newPingbackLimit &&
-  !currentUser.conversationsDisabled
+  currentUser.isAdmin ||
+  (
+    currentUser.karma >= karmaThreshold &&
+    pingbacks.length <= newPingbackLimit &&
+    !currentUser.conversationsDisabled
+  )
 
 const removeSelfReference = (ids: string[], id: string) => _.without(ids, id)

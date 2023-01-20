@@ -13,7 +13,7 @@ import cheerio from 'cheerio';
 import { onStartup } from '../../lib/executionEnvironment';
 import { dataToHTML, dataToWordCount } from './conversionUtils';
 import { Globals } from '../../lib/vulcan-lib/config';
-import {notify, PingbackDocumentPartial} from './mentions-notify'
+import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -262,7 +262,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
   getCollectionHooks(collectionName).createAfter.add(async (newDocument, {currentUser}) => {
     if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-      await notify(currentUser, collection.typeName, newDocument)
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument)
     }
 
     return newDocument
@@ -270,7 +270,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
   getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
     if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-      await notify(currentUser, collection.typeName, newDocument, oldDocument as PingbackDocumentPartial)
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument, oldDocument as PingbackDocumentPartial)
     }
 
     return newDocument
