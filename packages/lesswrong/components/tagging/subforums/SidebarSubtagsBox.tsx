@@ -24,13 +24,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   removeButton: {
     float: "right",
   },
-  showMoreTagsLink: {
-
+  showAllSubtags: {
+    margin: "5px 0 0",
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.lwTertiary.main,
   },
 });
 
 const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment | TagPageWithRevisionFragment; className?: string; classes: ClassesType }) => {
-  const { ContentStyles, FooterTag, AddTagButton, TagPreview, Loading, LoadMore } = Components;
+  const { ContentStyles, FooterTag, AddTagButton, TagPreview, Loading } = Components;
 
   const [isAwaiting, setIsAwaiting] = useState(false)
   const [showAllSubtags, setShowAllSubtags] = useState(false)
@@ -85,7 +88,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
   };
 
   const sortedSubtags = sortTags(subTags, (t) => t)
-  const visibleSubtags = showAllSubtags ? sortedSubtags : take(sortedSubtags, 8)
+  const visibleSubtags = showAllSubtags ? sortedSubtags : take(sortedSubtags, 7)
 
   return (
     <div className={classNames(className, classes.root)}>
@@ -108,7 +111,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
           />
         ))}
         {canEditSubtags && <AddTagButton onTagSelected={({ tagId: subTagId }) => setParentTag({ subTagId, parentTagId: tag._id })} />}
-        {!showAllSubtags && visibleSubtags.length < sortedSubtags.length && <div><LoadMore loadMore={() => setShowAllSubtags(true)} /></div>}
+        {!showAllSubtags && visibleSubtags.length < sortedSubtags.length && <div className={classes.showAllSubtags}><a onClick={() => setShowAllSubtags(true)}>Show All</a></div>}
         { isAwaiting && <Loading/>}
       </span>
     </div>
