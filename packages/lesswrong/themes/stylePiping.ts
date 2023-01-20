@@ -259,6 +259,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     width: 'fit-content !important',
     height: 'fit-content !important',
   },
+  // Many column tables should overflow instead of squishing
+  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
+    overflowX: 'auto',
+    '& table': {
+      width: 700,
+    },
+  },
   '& td, & th': {
     ...tableCellStyles(theme)
   },
