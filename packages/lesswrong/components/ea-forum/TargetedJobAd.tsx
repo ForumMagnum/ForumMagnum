@@ -283,36 +283,6 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       </div>
     </>
   },
-  'engineering-anthropic': {
-    eagOccupations: ['Software development/Software engineering', 'AI safety technical research'],
-    tagId: 'FHE3J3E8qd6oqGZ8a', // Software engineering
-    logo: 'https://80000hours.org/wp-content/uploads/2021/06/Anthropic-160x160.jpeg',
-    occupation: 'software engineering',
-    feedbackLinkPrefill: 'Senior+Software+Engineer+at+Anthropic',
-    bitlyLink: "https://efctv.org/3XN8g81", // https://jobs.lever.co/Anthropic/572e187a-8f62-451f-9802-94bd8a52ea90
-    role: 'Senior Software Engineer, Developer Experience',
-    org: 'Anthropic',
-    orgLink: '/topics/anthropic',
-    salary: '$270k - $445k',
-    location: 'San Francisco, CA',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <a href="https://www.anthropic.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Anthropic
-        </a> is an <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-safety")} innerHTML="AI safety"/>
-        </span> and research company that's working to build reliable, interpretable, and steerable AI systems.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates:
-        <ul>
-          <li>Have strong instincts for code quality and robustness</li>
-          <li>Are comfortable debugging large-scale software systems</li>
-          <li>Enjoy close collaboration with engineers and researchers with a variety of backgrounds and expertise</li>
-        </ul>
-      </div>
-    </>
-  },
   'finance-founders-pledge': {
     eagOccupations: ['Finance/Accounting'],
     logo: 'https://80000hours.org/wp-content/uploads/2019/06/founders-pledge-160x160.png',
