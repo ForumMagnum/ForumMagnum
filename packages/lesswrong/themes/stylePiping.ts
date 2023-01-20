@@ -256,7 +256,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    width: 'fit-content',
+    width: 'fit-content !important',
+    height: 'fit-content !important',
   },
   '& td, & th': {
     ...tableCellStyles(theme)
