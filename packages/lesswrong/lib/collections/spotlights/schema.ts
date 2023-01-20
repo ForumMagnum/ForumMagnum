@@ -172,6 +172,16 @@ const schema: SchemaType<DbSpotlight> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  showAuthor: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 85,
+    ...schemaDefaultValue(false),
+   optional: true,
+   nullable: false,
+  },
   spotlightImageId: {
     type: String,
     canRead: ['guests'],

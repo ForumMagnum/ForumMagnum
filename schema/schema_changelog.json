@@ -58,5 +58,10 @@
     "acceptsSchemaHash": "afb5555a6e3a18714877036b68c63786",
     "acceptedByMigration": "20230118T135840.createdAt_default_value.ts",
     "timestamp": "2023-01-18T13:58:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "41d785c82046299974ee787e8cd20200",
+    "acceptedByMigration": "20230120T172921.spotlight_showAuthor.ts",
+    "timestamp": "2023-01-20T17:29:21.000Z"
   }
 ]

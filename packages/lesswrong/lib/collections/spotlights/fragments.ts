@@ -12,6 +12,7 @@ registerFragment(`
     customTitle
     customSubtitle
     duration
+    showAuthor
   }
 `)
 
@@ -22,6 +23,11 @@ registerFragment(`
       _id
       title
       slug
+      user {
+        _id
+        displayName
+        slug
+      }
     }
     description {
       html

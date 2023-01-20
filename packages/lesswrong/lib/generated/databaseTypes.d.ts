@@ -783,6 +783,7 @@ interface DbSpotlight extends DbObject {
   lastPromotedAt: Date
   draft: boolean
   spotlightImageId: string | null
+  showAuthor: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents

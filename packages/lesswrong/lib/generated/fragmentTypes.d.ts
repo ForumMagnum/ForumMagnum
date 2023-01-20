@@ -2751,6 +2751,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
   readonly spotlightImageId: string | null,
+  readonly showAuthor: boolean,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -2764,6 +2765,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
   readonly duration: number,
+  readonly showAuthor: boolean,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2774,6 +2776,13 @@ interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlig
 interface SpotlightDisplay_document { // fragment on Posts
   readonly _id: string,
   readonly title: string,
+  readonly slug: string,
+  readonly user: SpotlightDisplay_document_user|null,
+}
+
+interface SpotlightDisplay_document_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
   readonly slug: string,
 }
 
