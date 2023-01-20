@@ -31,6 +31,7 @@ export const topTagIconMap = forumSelect<Record<string, any>>({
     'animal-welfare': BirdIcon, // Replacing wild-animal-welfare and farmed-animal-welfare
     'effective-altruism-groups': PeopleIcon,
     'career-choice': ChoiceIcon,
+    'taking-action': ChoiceIcon, // Doesn't exist yet, but may be replacing career-choice
     'ai-risk': ChipIcon,
     'ai-safety': ChipIcon, // Replacing ai-risk
     'global-health-and-development': EarthIcon,
