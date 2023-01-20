@@ -16,6 +16,7 @@ registerFragment(`
     createdAt
     wikiOnly
     deleted
+    isSubforum
   }
 `);
 
@@ -27,7 +28,6 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
-    isSubforum
     subforumModeratorIds
     subforumModerators {
       ...UsersMinimumInfo
@@ -49,14 +49,10 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     description {
       _id
@@ -93,14 +89,10 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     isRead
     description(version: $version) {
@@ -121,14 +113,10 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     description {
       _id
@@ -140,7 +128,6 @@ registerFragment(`
 registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
-    isSubforum
     subforumModeratorIds
     tableOfContents
     subforumWelcomeText {
@@ -276,9 +263,7 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
     subforumIntroPostId
     tagFlagsIds
