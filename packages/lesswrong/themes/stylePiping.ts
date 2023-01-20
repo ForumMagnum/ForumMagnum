@@ -260,6 +260,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     height: 'fit-content !important',
   },
   // Many column tables should overflow instead of squishing
+  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
+  //    squishy tables (which is the default behavior above)
   '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
     overflowX: 'auto',
     '& table': {
