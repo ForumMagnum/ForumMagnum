@@ -10,6 +10,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
+import intersection from 'lodash/intersection';
 
 const HIDE_JOB_AD_COOKIE = 'hide_job_ad'
 
@@ -46,17 +47,25 @@ const TargetedJobAdSection = () => {
     if (!currentUser || !results || activeJob) return
     
     // user's relevant interests from EAG, such as "software engineering"
-    const userInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
+    const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
     // the topics that the user has displayed on their profile
     const userTags = currentUser.profileTagIds ?? []
     const userJobAds = results[0]?.jobAds ?? {}
     
     for (let jobName in JOB_AD_DATA) {
-      const occupationName = JOB_AD_DATA[jobName].occupationName
+      // skip any jobs where the deadline to apply has passed
+      const deadline = JOB_AD_DATA[jobName].deadline
+      if (deadline && moment().isAfter(deadline, 'day')) {
+        continue
+      }
+      
+      const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
+      const interestedIn = JOB_AD_DATA[jobName].interestedIn
       const occupationTag = JOB_AD_DATA[jobName].tagId
       const jobAdState = userJobAds[jobName]?.state
       // check if the ad fits the user's interests
-      const userIsMatch = (occupationName && userInterests.includes(occupationName)) ||
+      const userIsMatch = intersection(userEAGInterests, eagOccupations).length ||
+        intersection(currentUser.interestedIn, interestedIn).length ||
         (occupationTag && userTags.includes(occupationTag))
       // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
       const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)

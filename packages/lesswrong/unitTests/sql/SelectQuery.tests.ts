@@ -114,14 +114,32 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$in: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[])',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION )',
       expectedArgs: [1, 2, 3],
+    },
+    {
+      name: "can build select query with in comparison with empty array",
+      getQuery: () => new SelectQuery(testTable, {a: {$in: []}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" ::DOUBLE PRECISION IN ( SELECT NULL::DOUBLE PRECISION )',
+      expectedArgs: [],
     },
     {
       name: "can build select query with not-in comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$nin: [1, 2, 3]}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" = ANY(ARRAY[ $1 , $2 , $3 ]::REAL[]) )',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE NOT ( "a" ::DOUBLE PRECISION IN ( $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION , $3 ::DOUBLE PRECISION ) )',
       expectedArgs: [1, 2, 3],
+    },
+    {
+      name: "can build select query with all comparison",
+      getQuery: () => new SelectQuery(testTable, {a: {$all: [10, 20]}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> ARRAY[ $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION ]',
+      expectedArgs: [10, 20],
+    },
+    {
+      name: "can build select query with array length filter",
+      getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a", 1) = $1',
+      expectedArgs: [2],
     },
     {
       name: "can build select query with combined selector",
@@ -156,14 +174,29 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with descending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST',
       expectedArgs: [3],
     },
     {
       name: "can build select query with ascending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: 1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC NULLS FIRST',
       expectedArgs: [3],
+    },
+    {
+      name: "can build a select query with a nearby sort",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        a: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [10, 20],
+            },
+          },
+        },
+      }),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE 1=1 ORDER BY EARTH_DISTANCE(LL_TO_EARTH(( "a" ->'coordinates'->0)::FLOAT8, ( "a" ->'coordinates'->1)::FLOAT8), LL_TO_EARTH( $1 , $2 )) ASC NULLS LAST`,
+      expectedArgs: [10, 20],
     },
     {
       name: "can build select query with limit",
@@ -180,7 +213,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with multiple options",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 OFFSET $3',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST LIMIT $2 OFFSET $3',
       expectedArgs: [3, 10, 20],
     },
     {
@@ -265,6 +298,20 @@ describe("SelectQuery", () => {
       expectedArgs: ["default-value", 3],
     },
     {
+      name: "can build select with arbitrary expressions in $cond",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {
+        k: {
+          '$cond': {
+            if: {b: 3},
+            then: 4,
+            else: 5,
+          },
+        },
+      }}),
+      expectedSql: 'SELECT "TestCollection".* , (CASE WHEN "b" = $1 THEN $2 ELSE $3 END) ::INTEGER AS "k" FROM "TestCollection" WHERE "a" = $4',
+      expectedArgs: [3, 4, 5, 3],
+    },
+    {
       name: "can build select with arithmetic synthetic fields",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {
@@ -294,6 +341,57 @@ describe("SelectQuery", () => {
       }),
       expectedSql: 'SELECT "TestCollection".* , (CASE WHEN "a" IS NOT NULL THEN $1 ELSE $2 END) ::INTEGER AS "k" FROM "TestCollection" WHERE "a" = $3',
       expectedArgs: [2, 4, 3],
+    },
+    {
+      name: "can build select query with $abs",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $abs: "$a",
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , ABS( "a" ) AS "k" FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "can build select query with $min",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $min: ["$a", 6],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , LEAST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [6, 3],
+    },
+    {
+      name: "can build select query with $max",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $max: ["$a", 6],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , GREATEST( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [6, 3],
+    },
+    {
+      name: "can build select query with $ifNull",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $ifNull: [
+              "$a",
+              4,
+            ],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , COALESCE( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [4, 3],
     },
     {
       name: "can build select with date diff",
@@ -352,6 +450,12 @@ describe("SelectQuery", () => {
         as: "a",
       }}),
       expectedError: "Pipeline joins are not implemented",
+    },
+    {
+      name: "can randomly sample results",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {sampleSize: 5}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY RANDOM() LIMIT $2',
+      expectedArgs: [3, 5],
     },
   ]);
 

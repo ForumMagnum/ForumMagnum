@@ -26,7 +26,6 @@ interface CollectionBase<
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
   views: Record<string, ViewFunction<N>>
-  getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
   
   _schemaFields: SchemaType<T>
   _simpleSchema: any
@@ -132,7 +131,7 @@ type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
-type MongoIndexSpec = Record<string, number | string> | string;
+type MongoIndexSpec = Record<string, 1 | -1> | string;
 type MongoEnsureIndexOptions = Record<string, any>;
 type MongoDropIndexOptions = {};
 

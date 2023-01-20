@@ -7,7 +7,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
-import type { CommentFormDisplayMode } from './CommentsNewForm';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -71,6 +70,7 @@ export interface CommentsNodeProps {
    */
   showParentDefault?: boolean,
   noAutoScroll?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }
 /**
@@ -102,13 +102,14 @@ const CommentsNode = ({
   karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
   showParentDefault=false,
   noAutoScroll=false,
-  classes
+  displayTagIcon=false,
+  classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, replyFormStyle="default" } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -154,10 +155,23 @@ const CommentsNode = ({
     }, HIGHLIGHT_DURATION*1000);
   }, []);
 
+  const handleExpand = async (event?: React.MouseEvent) => {
+    event?.stopPropagation()
+    if (isTruncated || isSingleLine) {
+      setTruncated(false);
+      setSingleLine(false);
+      setTruncatedStateSet(true);
+      if (scrollOnExpand) {
+        scrollIntoView("auto") // should scroll instantly
+      }
+    }
+  }
+
   const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
     if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        void handleExpand()
         scrollIntoView()
       }, 0);
     }
@@ -186,19 +200,6 @@ const CommentsNode = ({
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
-
-  const handleExpand = async (event: React.MouseEvent) => {
-    event.stopPropagation()
-    if (isTruncated || isSingleLine) {
-      markAsRead && await markAsRead()
-      setTruncated(false);
-      setSingleLine(false);
-      setTruncatedStateSet(true);
-      if (scrollOnExpand) {
-        scrollIntoView("auto") // should scroll instantly
-      }
-    }
-  }
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
@@ -234,6 +235,7 @@ const CommentsNode = ({
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
                   showDescendentCount={loadChildrenSeparately}
+                  displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -247,6 +249,7 @@ const CommentsNode = ({
               key={comment._id}
               scrollIntoView={scrollIntoView}
               setSingleLine={setSingleLine}
+              displayTagIcon={displayTagIcon}
               { ...passedThroughItemProps}
             />
         }
@@ -299,4 +302,3 @@ declare global {
     CommentsNode: typeof CommentsNodeComponent,
   }
 }
-

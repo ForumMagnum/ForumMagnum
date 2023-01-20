@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute, getSiteUrl } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -19,7 +19,7 @@ import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
-import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
+import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../lib/collections/tags/collection';
@@ -111,7 +111,7 @@ export const NominatedPostNotification = serverRegisterNotificationType({
   name: "postNominated",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    return `Your post was nominated for the ${REVIEW_NAME_TITLE}`
+    return `Your post was nominated for the ${getReviewTitle(REVIEW_YEAR)}`
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
@@ -309,6 +309,30 @@ export const NewMessageNotification = serverRegisterNotificationType({
       messages={messages}
       participantsById={participantsById}
     />
+  },
+});
+
+export const WrappedNotification = serverRegisterNotificationType({
+  name: "wrapped",
+  emailSubject: async function() {
+    return 'Your EA Forum Wrapped for 2022';
+  },
+  emailBody: async function({ user }: {user: DbUser}) {
+    return <div>
+      <p>
+        Hi {user.displayName},
+      </p>
+      <p>
+        Thanks for being part of our community this year!{' '}
+        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}`}>
+          Check out your 2022 EA Forum Wrapped.
+        </a>{' '}
+        🎁
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
+      </p>
+    </div>
   },
 });
 

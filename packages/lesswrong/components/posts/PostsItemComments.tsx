@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 4,
     height: 24,
     position: "relative",
+    flexShrink: 0,
     
     "& .MuiSvgIcon-root": {
       height: "100%",
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentsIconLarge: {
-    width: 48,
+    width: 26,
     height: 24,
     cursor: "pointer",
     position: "relative",

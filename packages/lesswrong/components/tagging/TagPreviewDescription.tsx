@@ -43,6 +43,7 @@ const TagPreviewDescription = ({tag, classes}: {
       </ContentStyles>
     </div>
   }
+  // TODO: This hacky code path that we never hit is Times New Roman
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
 

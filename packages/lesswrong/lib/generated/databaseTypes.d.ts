@@ -163,6 +163,7 @@ interface DbComment extends DbObject {
   moderatorHat: boolean
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
+  title: string
   af: boolean
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
@@ -276,6 +277,17 @@ interface DbGardenCode extends DbObject {
   contents: EditableFieldContents
   contents_latest: string
   pingbacks: any /*{"definitions":[{}]}*/
+}
+
+interface ImagesCollection extends CollectionBase<DbImages, "Images"> {
+}
+
+interface DbImages extends DbObject {
+  __collectionName?: "Images"
+  originalUrl: string
+  cdnHostedUrl: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface LWEventsCollection extends CollectionBase<DbLWEvent, "LWEvents"> {
@@ -865,7 +877,11 @@ interface DbTag extends DbObject {
   canVoteOnRels: Array<string>
   isSubforum: boolean
   subforumModeratorIds: Array<string>
+  subforumIntroPostId: string
   parentTagId: string
+  subTagIds: Array<string>
+  autoTagModel: string | null
+  autoTagPrompt: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -874,6 +890,18 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface UserMostValuablePostsCollection extends CollectionBase<DbUserMostValuablePost, "UserMostValuablePosts"> {
+}
+
+interface DbUserMostValuablePost extends DbObject {
+  __collectionName?: "UserMostValuablePosts"
+  userId: string
+  postId: string
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserTagRelsCollection extends CollectionBase<DbUserTagRel, "UserTagRels"> {
@@ -886,6 +914,7 @@ interface DbUserTagRel extends DbObject {
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
   subforumEmailNotifications: boolean
+  subforumHideIntroPost: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1157,6 +1186,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   experiencedIn: Array<string>
   interestedIn: Array<string>
+  allowDatadogSessionReplay: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number
@@ -1244,6 +1274,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
+  Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
@@ -1268,6 +1299,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  UserMostValuablePosts: UserMostValuablePostsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
@@ -1288,6 +1320,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
+  Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
@@ -1312,6 +1345,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  UserMostValuablePosts: DbUserMostValuablePost
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote

@@ -86,7 +86,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
       </span>}
       {voteProps.baseScore <= 0 && <span className={classes.removed}>Removed (refresh page)</span>}
     </div>
-    {tagRel.tag && <TagPreview tag={tagRel.tag}/>}
+    {tagRel.tag && <TagPreview tag={tagRel.tag} autoApplied={tagRel.autoApplied}/>}
   </div>
 }
 

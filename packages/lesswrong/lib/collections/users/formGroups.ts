@@ -23,6 +23,12 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Emails",
     startCollapsed: true,
   },
+  privacy: {
+    order: 16,
+    name: "privacy",
+    label: "Privacy Settings",
+    startCollapsed: true,
+  },
   adminOptions: {
     name: "adminOptions",
     order: 25,
@@ -44,7 +50,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   banUser: {
     order:50,
     name: "banUser",
-    label: "Ban & Purge User",  
+    label: "Ban & Purge User",
     startCollapsed: true,
   },
   moderationGroup: {
