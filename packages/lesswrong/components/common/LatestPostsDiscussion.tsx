@@ -21,15 +21,17 @@ const LatestPostsDiscussion = ({classes}: {
 }) => {
   const { Loading, ContentType, CommentsNode, LoadMore } = Components;
   const currentUser  = useCurrentUser();
+
+  const skip = !isEAForum || !currentUser?.profileTagIds?.length
   const subforumDiscussionCommentsQuery = useMulti({
     terms: {view: 'latestSubforumDiscussion', profileTagIds: currentUser?.profileTagIds, limit: 3},
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
-    skip: !isEAForum || !currentUser?.profileTagIds?.length,
+    skip: skip,
   })
   const [loadMoreCalled, setLoadMoreCalled] = useState(false);
   
-  if (!isEAForum) {
+  if (skip) {
     return null;
   }
   if (subforumDiscussionCommentsQuery.loading) {

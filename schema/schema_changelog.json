@@ -55,8 +55,13 @@
     "timestamp": "2023-01-18T10:42:29.000Z"
   },
   {
-    "acceptsSchemaHash": "778fab1f7c2d942253123778b67715c5",
-    "acceptedByMigration": "20230120T010945.user_mentions_newMentionNotifictions.ts",
-    "timestamp": "2023-01-20T01:09:45.000Z"
+    "acceptsSchemaHash": "afb5555a6e3a18714877036b68c63786",
+    "acceptedByMigration": "20230118T135840.createdAt_default_value.ts",
+    "timestamp": "2023-01-18T13:58:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "283dfc730f436f378139bb85edce6dfc",
+    "acceptedByMigration": "20230121T020114.user_mentions_newMentionNotifictions.ts",
+    "timestamp": "2023-01-21T02:01:14.000Z"
   }
 ]
