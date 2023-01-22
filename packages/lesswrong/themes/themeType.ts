@@ -2,7 +2,7 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
-import { UnionOf } from '../lib/utils/typeGuardUtils';
+import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
