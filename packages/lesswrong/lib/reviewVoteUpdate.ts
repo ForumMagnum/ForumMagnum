@@ -163,6 +163,7 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
 //     _id:1, 
 //     userId:1, 
 //     author:1, 
+//     af: 1,
 //     reviewCount:1, 
 //     positiveReviewVoteCount:1, 
 //     reviewVotesAllKarma:1, 
@@ -173,3 +174,5 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
 //     reviewVoteScoreAF:1
 //   })
 //   .sort({reviewVoteScoreAllKarma:-1})
+
+// MAKE SURE TO UPDATE LIMIT OF QUERY IN UI

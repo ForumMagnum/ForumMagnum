@@ -96,8 +96,8 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
             // NOTE: This mutation has no user attached. This interacts with commentsDeleteSendPMAsync so that the PM notification of a deleted comment appears to come from themself.
             set: {
               deleted: true,
-              deletedDate: new Date(), 
-              deletedReason: "Your comment has been marked as spam by the Akismet spam integration. We've sent you a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)"
+              deletedDate: new Date(),
+              deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
             },
             validate: false,
           });

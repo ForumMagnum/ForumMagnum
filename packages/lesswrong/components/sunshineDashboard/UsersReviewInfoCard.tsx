@@ -9,7 +9,6 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { ContentSummaryRows } from './ModeratorUserInfo/ContentSummaryRows';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -142,6 +141,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...hideScrollBars
   },
+  flagged: {
+    border: theme.palette.border.intense,
+    borderColor: theme.palette.error.main
+  }
 })
 
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
@@ -232,7 +235,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const renderExpand = !!(posts?.length || comments?.length)
   
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
       {basicInfoRow}
       <div className={classes.columns}>
         <div className={classes.infoColumn}>

@@ -18,6 +18,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -157,6 +158,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   warning: {
     color: theme.palette.error.main
   },
+  singleLineWarning: {
+    padding: 16,
+  },
   
   voteAverage: {
     cursor: 'pointer',
@@ -219,9 +223,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       boxShadow: "unset"
     }
   },
-  reviewsList: {
-    marginTop: 50
-  }
 });
 
 export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
@@ -246,7 +247,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, ReviewsList, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ContentStyles } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -263,6 +264,7 @@ const ReviewVotingPage = ({classes}: {
     terms: {
       view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${reviewYear+1}-01-01`,
+      reviewPhase: reviewPhase,
       ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
       limit: 600,
     },
@@ -368,7 +370,8 @@ const ReviewVotingPage = ({classes}: {
         const post2Score = post2.currentUserReviewVote?.qualitativeScore || 0
         const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore || 0
         const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore || 0
-
+        const post1NotKarmaVoted = post1.currentUserVote === null 
+        const post2NotKarmaVoted = post2.currentUserVote === null
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
@@ -389,8 +392,6 @@ const ReviewVotingPage = ({classes}: {
         if (sortPosts === "needsFinalVote") {
           const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
           const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
-          const post1NotKarmaVoted = post1.currentUserVote === null 
-          const post2NotKarmaVoted = post2.currentUserVote === null
           if (post1NotReviewVoted && !post2NotReviewVoted) return -1
           if (post2NotReviewVoted && !post1NotReviewVoted) return 1
           if (post1Score < post2Score) return 1
@@ -410,6 +411,10 @@ const ReviewVotingPage = ({classes}: {
           if (post1Score < post2Score) return 1
           if (post1Score > post2Score) return -1
         }
+        if (sortPosts === "yourKarmaVote") {
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+        }        
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
         if (post1[sortPosts] < post2[sortPosts]) return 1
@@ -473,17 +478,17 @@ const ReviewVotingPage = ({classes}: {
             <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
             <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
             <ReviewDashboardButtons 
-                reviewYear={reviewYear} 
-                reviewPhase={reviewPhase}
-                showQuickReview
-              />
-            <div className={classes.reviewsList}>
-              <ReviewsList title={<Link to={`/reviews/${reviewYear}`}>Reviews</Link>} reviewYear={reviewYear} defaultSort="new"/>
-            </div>
+              reviewYear={reviewYear} 
+              reviewPhase={reviewPhase}
+              showQuickReview
+            />
           </>}
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>
+          {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
+            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>Account Settings</Link>
+            </ContentStyles>}
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
 
@@ -541,7 +546,10 @@ const ReviewVotingPage = ({classes}: {
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
                 <MenuItem value={'yourVote'}>
-                  <span className={classes.sortBy}>Sort by</span> Your Vote
+                  <span className={classes.sortBy}>Sort by</span> Your Review Vote
+                </MenuItem>
+                <MenuItem value={'yourKarmaVote'}>
+                  <span className={classes.sortBy}>Sort by</span> Your Karma Vote
                 </MenuItem>
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count

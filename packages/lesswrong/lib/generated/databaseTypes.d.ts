@@ -877,6 +877,7 @@ interface DbTag extends DbObject {
   canVoteOnRels: Array<string>
   isSubforum: boolean
   subforumModeratorIds: Array<string>
+  subforumIntroPostId: string
   parentTagId: string
   subTagIds: Array<string>
   autoTagModel: string | null
@@ -913,6 +914,7 @@ interface DbUserTagRel extends DbObject {
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
   subforumEmailNotifications: boolean
+  subforumHideIntroPost: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

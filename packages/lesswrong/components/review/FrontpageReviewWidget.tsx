@@ -126,7 +126,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
     ...theme.typography.commentStyle,
     fontSize: 14,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    marginLeft: 12
   },
   nominationTimeRemaining: {
     marginRight: "auto",
@@ -134,7 +135,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "left"
   },
   reviewProgressBar: {
-    marginRight: "auto",
+    marginRight: 2,
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
@@ -361,32 +362,42 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <UserReviewsProgressBar reviewYear={reviewYear}/>
     </span>}
-    {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
-      {reviewEndDate.fromNow()} remaining
-    </span>}
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
+      <Link to={"/reviews"} className={classes.actionButton}>
+        Review Leaderboard
+      </Link>
+    </LWTooltip>
     <LWTooltip title="A detailed view of all nominated posts">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
         Advanced Dashboard
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
-      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA2}>
+      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA}>
         Quick Review
       </Link>
     </LWTooltip>
+    {/* If there's less than 24 hours remaining, show the remaining time */}
+    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
+      {reviewEndDate.fromNow()} remaining
+    </span>}
   </div>
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
-    {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
-      {voteEndDate.fromNow()} remaining
-    </span>}
+    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
+      <Link to={"/reviews"} className={classes.actionButton}>
+        Review Leaderboard
+      </Link>
+    </LWTooltip>
     {
-      <Link to={"/reviews"} className={classes.actionButtonCTA}>
+      <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
         Cast Final Votes
       </Link>
     }
+    {/* If there's less than 24 hours remaining, show the remaining time */}
+    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
+      {voteEndDate.fromNow()} remaining
+    </span>}  
   </div>
 
   const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
