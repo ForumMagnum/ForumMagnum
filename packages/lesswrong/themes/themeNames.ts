@@ -3,8 +3,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
 export const userThemeNames = new TupleSet(["default", "dark"] as const);
-// TODO: FIXME
-export const userThemeSettings = new TupleSet([...(userThemeNames as unknown as ('default'|'dark')[]), "auto"] as const);
+export const userThemeSettings = new TupleSet([...userThemeNames, "auto"] as const);
 export const muiThemeNames = new TupleSet(["light", "dark"] as const);
 
 export type ThemeOptions = {
