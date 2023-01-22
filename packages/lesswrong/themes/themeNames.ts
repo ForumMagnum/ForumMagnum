@@ -1,9 +1,11 @@
 import { DeferredForumSelect, forumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { TupleSet } from '../lib/utils/typeGuardUtils';
 
-export const userThemeNames = ["default", "dark"] as const;
-export const userThemeSettings = [...userThemeNames, "auto"] as const;
-export const muiThemeNames = ["light", "dark"] as const;
+export const userThemeNames = new TupleSet(["default", "dark"] as const);
+// TODO: FIXME
+export const userThemeSettings = new TupleSet([...(userThemeNames as unknown as ('default'|'dark')[]), "auto"] as const);
+export const muiThemeNames = new TupleSet(["light", "dark"] as const);
 
 export type ThemeOptions = {
   name: UserThemeName,
@@ -16,7 +18,7 @@ export type AbstractThemeOptions = {
 }
 
 export const themeOptionsAreConcrete = (themeOptions: AbstractThemeOptions): themeOptions is ThemeOptions =>
-  userThemeNames.includes(themeOptions.name as UserThemeName);
+  userThemeNames.has(themeOptions.name);
 
 export type ThemeMetadata = {
   // Name to use for this theme internally, in config settings and stylesheet
@@ -77,7 +79,7 @@ export function isValidSerializedThemeOptions(options: string|object): options i
 }
 
 export const isValidUserThemeSetting = (name: string): name is UserThemeSetting =>
-  userThemeSettings.includes(name as unknown as UserThemeSetting);
+  userThemeSettings.has(name);
 
 export const resolveThemeName = (
   theme: UserThemeSetting,

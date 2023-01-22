@@ -2,6 +2,7 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
+import { UnionOf } from '../lib/utils/typeGuardUtils';
 import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
@@ -12,21 +13,21 @@ declare global {
    * UserThemeName represents a concrete theme name that can be directly mapped
    * to a stylesheet (eg; "default", "dark")
    */
-  type UserThemeName = typeof userThemeNames[number];
+  type UserThemeName = UnionOf<typeof userThemeNames>;
 
   /**
    * UserThemeSetting is a strict superset of UserThemeName which also includes
    * "abstract" themes which require some logic to be mapped to a stylesheet
    * (eg; "auto")
    */
-  type UserThemeSetting = typeof userThemeSettings[number];
+  type UserThemeSetting = UnionOf<typeof userThemeSettings>;
 
   /**
    * MuiThemeName includes all theme names that can be directly passed to
    * MaterialUI (eg; "light", "dark"). This is a 1-to-1 mapping from
    * UserThemeName.
    */
-  type MuiThemeName = typeof muiThemeNames[number];
+  type MuiThemeName = UnionOf<typeof muiThemeNames>;
 
   /**
    * Overridden forum type (for admins to quickly test AF and EA Forum themes).
