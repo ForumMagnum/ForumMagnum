@@ -2750,8 +2750,9 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly customSubtitle: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
-  readonly spotlightImageId: string | null,
   readonly showAuthor: boolean,
+  readonly spotlightImageId: string | null,
+  readonly spotlightDarkImageId: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -2759,6 +2760,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
+  readonly spotlightDarkImageId: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,

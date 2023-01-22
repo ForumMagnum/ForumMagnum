@@ -60,8 +60,8 @@
     "timestamp": "2023-01-18T13:58:40.000Z"
   },
   {
-    "acceptsSchemaHash": "41d785c82046299974ee787e8cd20200",
-    "acceptedByMigration": "20230120T172921.spotlight_showAuthor.ts",
-    "timestamp": "2023-01-20T17:29:21.000Z"
+    "acceptsSchemaHash": "6e346d0511814593d75fcc2f6ee2f862",
+    "acceptedByMigration": "20230122T210513.spotlight_new_fields.ts",
+    "timestamp": "2023-01-22T21:05:13.000Z"
   }
 ]

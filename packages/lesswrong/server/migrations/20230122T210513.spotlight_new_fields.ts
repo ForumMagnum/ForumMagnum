@@ -1,4 +1,5 @@
 /**
+ * NB: Shenanagins were had after generation
  * Generated on 2023-01-20T17:29:21.905Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
@@ -12,9 +13,9 @@
  * -
  * --- Accepted on 2023-01-18T13:58:40.000Z by 20230118T135840.createdAt_default_value.ts
  * +-- Overall schema hash: 41d785c82046299974ee787e8cd20200
- *  
+ *
  * @@ -718,3 +716,3 @@ CREATE TABLE "Sequences" (
- *  
+ *
  * --- Schema for "Spotlights", hash: 7063ae542c4289a0df6d73e7ab360ee6
  * +-- Schema for "Spotlights", hash: f0d6e702f9c8af30ea203fe94badbbe5
  *  CREATE TABLE "Spotlights" (
@@ -22,7 +23,7 @@
  *      "spotlightImageId" text,
  * +    "showAuthor" bool NOT NULL DEFAULT false,
  *      "schemaVersion" double precision DEFAULT 1,
- * 
+ *
  * -------------------------------------------
  * (run `git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql` to see this more clearly)
  *
@@ -31,7 +32,7 @@
  * - [x] Uncomment `acceptsSchemaHash` below
  * - [x] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "41d785c82046299974ee787e8cd20200";
+export const acceptsSchemaHash = "6e346d0511814593d75fcc2f6ee2f862";
 
 import Spotlights from "../../lib/collections/spotlights/collection"
 import { addField, dropField } from "./meta/utils"
@@ -42,6 +43,7 @@ export const up = async ({db}: MigrationContext) => {
   }
   
   await addField(db, Spotlights, "showAuthor")
+  await addField(db, Spotlights, "spotlightDarkImageId")
 }
 
 export const down = async ({db}: MigrationContext) => {
@@ -50,4 +52,5 @@ export const down = async ({db}: MigrationContext) => {
   }
   
   await dropField(db, Spotlights, "showAuthor")
+  await dropField(db, Spotlights, "spotlightDarkImageId")
 }

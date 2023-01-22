@@ -191,7 +191,17 @@ const schema: SchemaType<DbSpotlight> = {
     optional: true,
     nullable: true,
     order: 90,
-  }
+  },
+  spotlightDarkImageId: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: "ImageUpload",
+    optional: true,
+    nullable: true,
+    order: 100,
+  },
 };
   
 export default schema;
