@@ -10,6 +10,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import SearchIcon from '@material-ui/icons/Search';
+import InfoIcon from '@material-ui/icons/Info';
 import moment from 'moment';
 
 const hitsPerPage = 10
@@ -79,11 +80,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   searchIcon: {
     marginLeft: 12
   },
+  searchBoxRow: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 15,
+    gap: '16px',
+  },
   searchInputArea: {
+    flex: 1,
     display: "flex",
     alignItems: "center",
     maxWidth: 625,
-    marginBottom: 15,
     height: 48,
     border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
@@ -119,6 +126,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       "-webkit-appearance": "none",
       cursor: "text",
       ...theme.typography.body2,
+    },
+  },
+  searchHelp: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
     },
   },
   tabs: {
@@ -228,8 +240,10 @@ const SearchPageTabbed = ({classes}:{
   )
   const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
 
-  const { ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography } = Components
+  const {
+    ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip
+  } = Components
     
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
@@ -337,12 +351,20 @@ const SearchPageTabbed = ({classes}:{
       </div>
 
       <div className={classes.resultsColumn}>
-        <div className={classes.searchInputArea}>
-          <SearchIcon className={classes.searchIcon}/>
-          {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-            * null is the only option that actually suppresses the extra X button.
-          // @ts-ignore */}
-          <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+        <div className={classes.searchBoxRow}>
+          <div className={classes.searchInputArea}>
+            <SearchIcon className={classes.searchIcon}/>
+            {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+              * null is the only option that actually suppresses the extra X button.
+            // @ts-ignore */}
+            <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+          </div>
+          <LWTooltip
+            title={`"Quotes" and -minus signs are supported.`}
+            className={classes.searchHelp}
+          >
+            <InfoIcon />
+          </LWTooltip>
         </div>
         
         <Tabs
