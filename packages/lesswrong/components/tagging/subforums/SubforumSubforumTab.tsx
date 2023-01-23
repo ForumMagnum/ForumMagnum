@@ -124,7 +124,7 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
     displayMode: "minimalist" as const,
   };
   const maxAgeHours = 18;
-  const commentsLimit = (currentUser && currentUser.isAdmin) ? 4 : 3;
+  const commentsLimit = 3;
 
   const canPostDiscussion = !!(isSubscribed || currentUser?.isAdmin);
   const discussionButton = (
@@ -248,6 +248,7 @@ const SubforumSubforumTab = ({tag, userTagRel, isSubscribed, classes}: {
                     comments={post.recentComments}
                     maxLengthWords={50}
                     refetch={refetch}
+                    commentTreeOptions={{forceSingleLine: true}}
                     smallerFonts
                   />
                 </div>
