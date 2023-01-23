@@ -195,6 +195,8 @@ Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
 Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   return {
     selector: {
+      banned: viewFieldNullOrMissing,
+      deleted: false,
       $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
     },
     options: {
