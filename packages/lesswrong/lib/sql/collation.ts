@@ -2,7 +2,7 @@ export type CollationType = "case-sensitive" | "case-insensitive";
 
 export const DEFAULT_COLLATION: CollationType = "case-sensitive";
 
-export const getCollationType = (collation: any) => {
+export const getCollationType = (collation?: {locale: string, strength?: number}) => {
   if (!collation) {
     return DEFAULT_COLLATION;
   }
