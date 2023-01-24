@@ -8,13 +8,16 @@ import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
 import { algoliaExportById } from './search/utils';
 import { createAnonymousContext } from './vulcan-lib/query';
-import moment from 'moment';
 import { randomId } from '../lib/random';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
+import { RECEIVED_VOTING_PATTERN_WARNING } from '../lib/collections/moderatorActions/schema';
+import moment from 'moment';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -193,7 +196,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, context }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
@@ -202,8 +205,12 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
+  skipRateLimits: boolean,
   context?: ResolverContext,
-}) => {
+}): Promise<{
+  modifiedDocument: DbVoteableType,
+  showVotingPatternWarning: boolean,
+}> => {
   if (!context)
     context = await createAnonymousContext();
 
@@ -224,13 +231,30 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     throw new Error("Revisions are only voteable if they're revisions of tags");
   
   const existingVote = await getExistingVote({document, user});
+  let showVotingPatternWarning = false;
 
   if (existingVote && existingVote.voteType === voteType && !extendedVote) {
     if (toggleIfAlreadyVoted) {
       document = await clearVotesServer({document, user, collection, context})
     }
   } else {
-    await checkRateLimit({ document, collection, voteType, user });
+    if (!skipRateLimits) {
+      const { showVotingPatternWarning: warn } = await checkVotingRateLimits({ document, collection, voteType, user });
+      if (warn && !(await wasVotingPatternWarningDeliveredRecently(user))) {
+        showVotingPatternWarning = true;
+        void createMutator({
+          collection: ModeratorActions,
+          context,
+          currentUser: null,
+          validate: false,
+          document: {
+            userId: user._id,
+            type: RECEIVED_VOTING_PATTERN_WARNING,
+            endedAt: new Date()
+          }
+        });
+      }
+    }
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
@@ -251,39 +275,106 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   }
 
   (document as any).__typename = collection.options.typeName;
-  return document;
-}
-
-const getVotingRateLimits = async (user: DbUser|null) => {
-  if (user?.isAdmin) {
-    // Very lax rate limiting for admins
-    return {
-      perDay: 100000,
-      perHour: 50000,
-      perUserPerDay: 50000
-    }
-  }
   return {
-    perDay: 200,
-    perHour: 100,
-    perUserPerDay: 100,
+    modifiedDocument: document,
+    showVotingPatternWarning,
   };
 }
 
-// Check whether a given vote would exceed voting rate limits, and if so, throw
-// an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }: {
+async function wasVotingPatternWarningDeliveredRecently(user: DbUser): Promise<boolean> {
+  const mostRecentWarning = await ModeratorActions.findOne({
+    userId: user._id,
+    type: RECEIVED_VOTING_PATTERN_WARNING,
+  }, {
+    sort: {createdAt: -1}
+  });
+  if (!mostRecentWarning) {
+    return false;
+  }
+  const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
+  const warningAgeMinutes = warningAgeMS / (1000*60);
+  return warningAgeMinutes < 60;
+}
+
+interface VotingRateLimitSet {
+  perDay: number,
+  perHour: number,
+  perUserPerDay: number
+}
+interface VotingRateLimit {
+  voteCount: number
+  /** Must be ≤ than 24 hours */
+  periodInMinutes: number
+  types: "all"|"onlyStrong"|"onlyDown"
+  users: "allUsers"|"singleUser"
+  consequences: ("warningPopup"|"denyThisVote")[]
+  // TODO Consequences to add, not yet implemented: blockVotingFor24Hours, flagForModeration, revertRecentVotes
+  message: string|null
+}
+
+const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
+  if (user?.isAdmin) {
+    return [];
+  } else {
+    return [
+      {
+        voteCount: 200,
+        periodInMinutes: 60 * 24,
+        types: "all",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many votes in one day",
+      },
+      {
+        voteCount: 100,
+        periodInMinutes: 60,
+        types: "all",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many votes in one hour",
+      },
+      {
+        voteCount: 100,
+        periodInMinutes: 24*60,
+        types: "all",
+        users: "singleUser",
+        consequences: ["denyThisVote"],
+        message: "too many votes today on content by this author",
+      },
+      {
+        voteCount: 10,
+        periodInMinutes: 3,
+        types: "all",
+        users: "singleUser",
+        consequences: ["warningPopup"],
+        message: null,
+      },
+    ];
+  }
+}
+
+/**
+ * Check whether a given vote would exceed voting rate limits. If this vote
+ * should be blocked, throws an exception with a message describing why. If it
+ * shouldn't be blocked but should give the user a message warning them about
+ * site rules, returns {showVotingPatternWarning: true}. Otherwise returns
+ * {showVotingPattern: false}.
+ *
+ * May also add apply voting-related consequences such as flagging the user for
+ * moderation, as side effects.
+ */
+const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   document: DbVoteableType,
   collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser
-}): Promise<void> => {
+}): Promise<{
+  showVotingPatternWarning: boolean
+}> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
-    return;
+    return {showVotingPatternWarning: false};
   
-  const rateLimits = await getVotingRateLimits(user);
-
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours
   const oneDayAgo = moment().subtract(1, 'days').toDate();
   const votesInLastDay = await Votes.find({
@@ -292,22 +383,63 @@ const checkRateLimit = async ({ document, collection, voteType, user }: {
     votedAt: {$gt: oneDayAgo},
     cancelled:false
   }).fetch();
-
-  if (votesInLastDay.length >= rateLimits.perDay) {
-    throw new Error("Voting rate limit exceeded: too many votes in one day");
+  
+  // Go through rate limits checking if each applies. If more than one rate
+  // limit applies, we take the union of the consequences of exceeding all of
+  // them, and use the message from whichever was first in the list.
+  let firstExceededRateLimit: VotingRateLimit|null = null;
+  let rateLimitConsequences = new Set<string>();
+  const now = new Date().getTime();
+  
+  for (const rateLimit of getVotingRateLimits(user)) {
+    if (votesInLastDay.length < rateLimit.voteCount)
+      continue;
+    
+    const numMatchingVotes = votesInLastDay.filter((vote) => {
+      const ageInMS = now - vote.votedAt.getTime();
+      const ageInMinutes = ageInMS / (1000*60);
+      
+      if (ageInMinutes > rateLimit.periodInMinutes)
+        return false;
+      if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+        return false;
+      
+      const isStrong = (vote.voteType==="bigDownvote" || vote.voteType==="bigUpvote")
+      const isDown = (vote.voteType==="smallDownvote" || vote.voteType==="bigDownvote");
+      if (rateLimit.types === "onlyStrong" && !isStrong)
+        return false;
+      if (rateLimit.types === "onlyDown" && !isDown)
+        return false;
+      return true;
+    }).length;
+    
+    if (numMatchingVotes >= rateLimit.voteCount) {
+      if (!firstExceededRateLimit) {
+        firstExceededRateLimit = rateLimit;
+      }
+      for (let consequence of rateLimit.consequences) {
+        rateLimitConsequences.add(consequence);
+      }
+    }
   }
-
-  const oneHourAgo = moment().subtract(1, 'hours').toDate();
-  const votesInLastHour = _.filter(votesInLastDay, vote=>vote.votedAt >= oneHourAgo);
-
-  if (votesInLastHour.length >= rateLimits.perHour) {
-    throw new Error("Voting rate limit exceeded: too many votes in one hour");
+  
+  // Was any rate limit was exceeded?
+  let showVotingPatternWarning = false;
+  if (firstExceededRateLimit) {
+    if (rateLimitConsequences.has("warningPopup")) {
+      showVotingPatternWarning = true;
+    }
+    if (rateLimitConsequences.has("denyThisVote")) {
+      const message = firstExceededRateLimit.message;
+      if (message) {
+        throw new Error(`Voting rate limit exceeded: ${message}`);
+      } else {
+        throw new Error(`Voting rate limit exceeded`);
+      }
+    }
   }
-
-  const votesOnThisAuthor = _.filter(votesInLastDay, vote=>vote.authorIds.includes(document.userId));
-  if (votesOnThisAuthor.length >= rateLimits.perUserPerDay) {
-    throw new Error("Voting rate limit exceeded: too many votes today on content by this author");
-  }
+  
+  return { showVotingPatternWarning };
 }
 
 function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {

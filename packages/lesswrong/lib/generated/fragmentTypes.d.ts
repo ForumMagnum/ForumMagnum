@@ -738,6 +738,12 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
+  readonly userId: string,
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered",
+  readonly endedAt: Date | null,
+}
+
 interface PostsMinimumInfo { // fragment on Posts
   readonly _id: string,
   readonly slug: string,
@@ -2785,17 +2791,11 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
   readonly description: RevisionEdit|null,
 }
 
-interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
-  readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
-  readonly endedAt: Date | null,
-}
-
 interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
@@ -2867,6 +2867,7 @@ interface FragmentTypes {
   VotesDefaultFragment: VotesDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
+  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
@@ -3014,7 +3015,6 @@ interface FragmentTypes {
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
-  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
@@ -3046,6 +3046,7 @@ interface CollectionNamesByFragmentName {
   VotesDefaultFragment: "Votes"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
+  ModeratorActionsDefaultFragment: "ModeratorActions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
@@ -3193,7 +3194,6 @@ interface CollectionNamesByFragmentName {
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
-  ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentModeratorActionDisplay: "CommentModeratorActions"
