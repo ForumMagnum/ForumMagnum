@@ -31,7 +31,7 @@ import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
-import { getPositiveVoteThreshold } from '../lib/reviewUtils';
+import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -133,18 +133,13 @@ export async function postsNewNotifications (post: DbPost) {
 postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
-  // TODO: We have a bug that sends users way too many of these emails,
-  //       and I might not have time to debug this today but I think it's pretty bad to spam email users,
-  //       so adding this as a temp fix
-  if (forumTypeSetting.get() === 'EAForum') return false
-  
-  if (!!oldPost.mongoLocation !== !!newPost.mongoLocation) {
+  const oldLocation = oldPost.googleLocation?.geometry?.location;
+  const newLocation = newPost.googleLocation?.geometry?.location;
+  if (!!oldLocation !== !!newLocation) {
     //Location added or removed
     return true;
   }
-  if (oldPost.mongoLocation && newPost.mongoLocation
-    && !_.isEqual(oldPost.mongoLocation, newPost.mongoLocation)
-  ) {
+  if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
     // Location changed
     // NOTE: We treat the added/removed and changed cases separately because a
     // dumb thing inside the mutation callback handlers mixes up null vs
@@ -152,8 +147,8 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
     // undefined which should not trigger a notification.
     return true;
   }
-  
-  if ((newPost.joinEventLink !== oldPost.joinEventLink)
+
+  if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
     || !moment(newPost.startTime).isSame(moment(oldPost.startTime))
     || !moment(newPost.endTime).isSame(moment(oldPost.endTime))
   ) {
@@ -358,7 +353,7 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
 // This may have been sending out duplicate notifications in previous years, maybe just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on.
 getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
   const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
-  if (post && post.positiveReviewVoteCount >= getPositiveVoteThreshold()) {
+  if (post && post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD) {
     const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
     if (!notifications.length) {
       await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})

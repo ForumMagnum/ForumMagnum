@@ -66,6 +66,11 @@ export type SelectSqlOptions = Partial<{
    * directly.
    */
   group: Record<string, any>, // TODO Better typing
+  /**
+   * Perform a Mongo $sample aggregation where we select `sampleSize` random elements
+   * from the result.
+   */
+  sampleSize: number,
 }>
 
 /**
@@ -143,7 +148,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
 
     if (options || this.nearbySort) {
-      this.appendOptions(options ?? {});
+      this.appendOptions(options ?? {}, sqlOptions?.sampleSize);
     }
 
     if (sqlOptions?.forUpdate) {
@@ -292,7 +297,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     return projectedAtoms;
   }
 
-  private appendOptions(options: MongoFindOptions<T>): void {
+  private appendOptions(options: MongoFindOptions<T>, sampleSize?: number): void {
     const {sort, limit, skip} = options;
 
     if (sort && Object.keys(sort).length) {
@@ -323,6 +328,14 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (limit) {
       this.atoms.push("LIMIT");
       this.atoms.push(this.createArg(limit));
+    }
+
+    if (sampleSize) {
+      if (sort || this.nearbySort || limit) {
+        throw new Error("Conflicting sort options for select query");
+      }
+      this.atoms.push("ORDER BY RANDOM() LIMIT");
+      this.atoms.push(this.createArg(sampleSize));
     }
 
     if (skip) {

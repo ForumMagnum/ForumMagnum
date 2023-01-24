@@ -46,14 +46,28 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   const [truncated, setTruncated] = useState<boolean>(true)
   const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
 
+  // TODO find the place in the code where this is normally set
+  const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
+    if (user?.karma && user?.karma >= 1000) {
+      return 2
+    } else {
+      return 1
+    }
+  }
+
   const userRows = Object.entries(groupBy(reviews, (review) => review.userId))
-  const userRowsMapping = userRows.map(user => ({
-      user: user[1][0].user,
-      totalKarma: user[1].reduce((value, review) => value + review.baseScore, 0),
-      reviews: sortBy(user[1], obj => -obj.baseScore)
-  }))
+  const userRowsMapping = userRows.map(userTuple => {
+    const user = userTuple[1][0].user
+    return ({
+      user: user,
+      totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getSelfUpvotePower(user), 0),
+      reviews: sortBy(userTuple[1], obj => -obj.baseScore)
+  })})
+
+  const NUM_DEFAULT_REVIEWS = 10
+
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
-  const truncatedRows = truncated ? sortedUserRows.slice(0,5) : sortedUserRows
+  const truncatedRows = truncated ? sortedUserRows.slice(0,NUM_DEFAULT_REVIEWS) : sortedUserRows
 
   const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
 
@@ -77,14 +91,14 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
           <div className={classes.reviews}>{reviewUser.reviews.map(review => {
             return <LWTooltip placement="bottom-start" title={<div className={classes.card}><CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
               <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
-                <MetaInfo>{review.baseScore}</MetaInfo>
+                <MetaInfo>{review.baseScore - getSelfUpvotePower(review.user)}</MetaInfo>
               </a>
             </LWTooltip>
           })}</div>
         </Row>
       </div>
     })}
-    <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers (5/{sortedUserRows.length})</> : "Show Fewer"}</a>
+    <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers ({NUM_DEFAULT_REVIEWS}/{sortedUserRows.length})</> : "Show Fewer"}</a>
   </div>
 }
 

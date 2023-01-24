@@ -18,6 +18,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -157,6 +158,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   warning: {
     color: theme.palette.error.main
   },
+  singleLineWarning: {
+    padding: 16,
+  },
   
   voteAverage: {
     cursor: 'pointer',
@@ -243,7 +247,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ContentStyles } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -260,6 +264,7 @@ const ReviewVotingPage = ({classes}: {
     terms: {
       view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${reviewYear+1}-01-01`,
+      reviewPhase: reviewPhase,
       ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
       limit: 600,
     },
@@ -481,6 +486,9 @@ const ReviewVotingPage = ({classes}: {
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>
         <div className={classes.rightColumn}>
+          {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
+            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>Account Settings</Link>
+            </ContentStyles>}
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
 

@@ -78,7 +78,9 @@ export abstract class Type {
       case Boolean:
         return new BoolType();
       case Date:
-        return new DateType();
+        return fieldName === "createdAt"
+          ? new DefaultValueType(new DateType(), "CURRENT_TIMESTAMP")
+          : new DateType();
       case Number:
         return new FloatType();
       case "SimpleSchema.Integer":

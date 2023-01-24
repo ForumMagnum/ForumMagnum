@@ -7,7 +7,6 @@ import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { subforumSlugsSetting } from './routeUtil';
 
 
 export const communityPath = '/community';
@@ -733,7 +732,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
       redirect: (routerLocation: RouterLocation) => {
         const { params: {slug}, query, hash } = routerLocation
-        const isRouteSubforum = subforumSlugsSetting.get().includes(slug)
 
         const redirectQuery = pickBy({
           ...query,
@@ -741,8 +739,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
           commentId: query.commentId || hash?.slice(1)
         }, v => v)
 
-        // If the route is not declared as a subforum but somehow the user has clicked on a subforum link, redirect to the /subforum2 path, which will always display like a subforum
-        return `/${taggingNamePluralSetting.get()}/${slug}${isRouteSubforum ? '' : '/subforum2'}?${qs.stringify(redirectQuery)}${hash}`
+        // Redirect to the /subforum2 path, which will always display like a subforum regardless of whether isSubforum is true
+        return `/${taggingNamePluralSetting.get()}/${slug}/subforum2?${qs.stringify(redirectQuery)}${hash}`
       }
     },
     {

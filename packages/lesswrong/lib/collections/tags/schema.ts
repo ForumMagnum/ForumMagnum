@@ -9,10 +9,10 @@ import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
-import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
+import { getDefaultViewSelector } from '../../utils/viewUtils';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -246,7 +246,7 @@ const schema: SchemaType<DbTag> = {
       const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
 
       const comments = await Comments.find({
-        ...Comments.defaultView({}).selector,
+        ...getDefaultViewSelector("Comments"),
         tagId: tag._id,
         score: {$gt:0},
         deletedPublic: false,
@@ -500,6 +500,21 @@ const schema: SchemaType<DbTag> = {
     type: String,
     foreignKey: "Users",
     optional: true,
+  },
+  subforumIntroPostId: {
+    ...foreignKeyField({
+      idFieldName: "subforumIntroPostId",
+      resolverName: "subforumIntroPost",
+      collectionName: "Posts",
+      type: "Post",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Subforum intro post ID",
+    tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
+    group: formGroups.advancedOptions,
   },
   parentTagId: {
     ...foreignKeyField({

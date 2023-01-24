@@ -27,7 +27,6 @@ interface CollectionBase<
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
   views: Record<string, ViewFunction<N>>
-  getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
   
   _schemaFields: SchemaType<T>
   _simpleSchema: any

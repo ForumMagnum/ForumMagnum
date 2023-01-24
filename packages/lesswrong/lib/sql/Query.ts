@@ -250,9 +250,13 @@ abstract class Query<T extends DbObject> {
       if (fieldType instanceof ArrayType && !this.isIndex) {
         throw new NonScalarArrayAccessError(first, rest);
       } else if (fieldType) {
-        return `("${first}"` +
+        const hint = this.getTypeHint(typeHint);
+        const result = `("${first}"` +
           rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
-          `)${this.getTypeHint(typeHint)}`;
+          `)${hint}`;
+        return hint === "::TEXT"
+          ? result.replace(/->(?!.*->)/, "->>")
+          : result;
       }
     }
 
