@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Components, registerComponent } from '../../lib/vulcan-lib';
+import {Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import { siteImageSetting } from '../vulcan-core/App';
 import { getPostDescription } from '../posts/PostsPage/PostsPage';
 
@@ -24,6 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     fontSize: 12,
+    minHeight: 40,
+    marginBottom: 7,
+  },
+  url: {
+    fontSize: 12,
+    color: theme.palette.grey[600],
   },
   blurb: {
     paddingLeft: 16,
@@ -43,8 +49,7 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
 }) => {
   const { ImageUpload2 } = Components
   
-  console.log(document)
-  
+  const urlHostname = new URL(getSiteUrl()).hostname
   const description = getPostDescription(document)
 
   return (
@@ -63,10 +68,12 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
         <div className={classes.title}>
           {document.title}
         </div>
-        {description && <div className={classes.description}>
+        <div className={classes.description}>
           {description}
-        </div>}
-        
+        </div>
+        <div className={classes.url}>
+          {urlHostname}
+        </div>
       </div>
       <div className={classes.blurb}>
         A preview image makes it more likely that people will see your post.

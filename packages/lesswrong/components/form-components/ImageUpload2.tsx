@@ -41,40 +41,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 195,
     display: 'flex',
   },
-  imageIcon: {
-    fontSize: 18,
-    marginRight: theme.spacing.unit
-  },
-  chooseButton: {
-    marginLeft: 10
-  },
-  removeButton: {
-    color: theme.palette.icon.dim,
-    marginLeft: 10
-  }
 });
 
 const cloudinaryArgsByImageType = {
-  gridImageId: {
-    minImageHeight: 80,
-    minImageWidth: 203,
-    croppingAspectRatio: 2.5375,
-    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
-  },
-  bannerImageId: {
-    minImageHeight: 300,
-    minImageWidth: 700,
-    croppingAspectRatio: 4.7,
-    croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
-  },
-  profileImageId: {
-    minImageHeight: 170,
-    minImageWidth: 170,
-    croppingAspectRatio: 1,
-    croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
-  },
   socialPreviewImageId: {
     minImageHeight: 400,
     minImageWidth: 700,
@@ -82,46 +51,13 @@ const cloudinaryArgsByImageType = {
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
-  eventImageId: {
-    minImageHeight: 270,
-    minImageWidth: 480,
-    croppingAspectRatio: 1.78,
-    croppingDefaultSelectionRatio: 1.78,
-    uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
-  },
-  spotlightImageId: {
-    minImageHeight: 232,
-    minImageWidth: 345,
-    cropping: false,
-    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
-  }
 }
 
 const formPreviewSizeByImageType = {
-  gridImageId: {
-    width: 203,
-    height: 80
-  },
-  bannerImageId: {
-    width: "auto",
-    height: 280
-  },
-  profileImageId: {
-    width: 90,
-    height: 90
-  },
   socialPreviewImageId: {
     width: 306,
     height: 160
   },
-  eventImageId: {
-    width: 320,
-    height: 180
-  },
-  spotlightImageId: {
-    width: 345,
-    height: 234
-  }
 }
 
 const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
@@ -187,17 +123,11 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
     }, setImageInfo);
   }
   
-  const chooseDefaultImg = (newImageId) => {
-    setImageId(newImageId)
-    updateCurrentValues({[name]: newImageId})
-  }
-  
   const removeImg = () => {
     clearField()
     setImageId(null)
   }
-  
-  const { openDialog } = useDialog()
+
   const [imageId, setImageId] = useState(() => {
     if (document && document[name]) {
       return document[name];
@@ -216,8 +146,6 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
     g: "auto:faces"
   }) : placeholderUrl
   
-  console.log("ImageUpload2 render", {imageId, placeholderUrl, imageUrl})
-  
   return (
     <div className={classes.root} {...formPreviewSize}>
       <Helmet>
@@ -233,38 +161,6 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
           </Button>}
         </div>
       </div>
-      {/* TODO support these cases */}
-      {/* {name === "eventImageId" && (
-        <Button
-          variant="outlined"
-          onClick={() =>
-            openDialog({
-              componentName: "ImageUploadDefaultsDialog",
-              componentProps: { onSelect: chooseDefaultImg },
-            })
-          }
-          className={classes.chooseButton}
-        >
-          Choose from ours
-        </Button>
-      )}
-      {userHasDefaultProfilePhotos(useCurrentUser()) && name === "profileImageId" && (
-        <Button
-          variant="outlined"
-          onClick={() =>
-            openDialog({
-              componentName: "ImageUploadDefaultsDialog",
-              componentProps: {
-                onSelect: chooseDefaultImg,
-                type: "Profile",
-              },
-            })
-          }
-          className={classes.chooseButton}
-        >
-          Choose from ours
-        </Button>
-      )} */}
     </div>
   );
 };
