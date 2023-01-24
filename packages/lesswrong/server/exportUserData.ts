@@ -3,7 +3,6 @@ import { ClientIds } from "../lib/collections/clientIds/collection";
 import Collections from "../lib/collections/collections/collection";
 import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
-import EmailTokens from "../lib/collections/emailTokens/collection";
 import Localgroups from "../lib/collections/localgroups/collection";
 import Messages from "../lib/collections/messages/collection";
 import { ModeratorActions } from "../lib/collections/moderatorActions";
@@ -47,7 +46,6 @@ export const exportUserData = async (
     ["collections", Collections.find({userId}).fetch()],
     ["comments", Comments.find({userId}).fetch()],
     ["conversations", Conversations.find({participantIds: userId}).fetch()],
-    ["emailTokens", EmailTokens.find({userId}).fetch()],
     ["localGroups", Localgroups.find({organizerIds: userId}).fetch()],
     ["messages", Messages.find({userId}).fetch()],
     ["moderatorActions", ModeratorActions.find({userId}).fetch()],
