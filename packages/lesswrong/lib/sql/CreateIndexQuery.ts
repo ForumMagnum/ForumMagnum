@@ -85,6 +85,11 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     };
   }
 
+  /**
+   * Correctly format a column name for an index
+   * For simple and array fields, we just need to quote the name (eg; "_id")
+   * For deep JSON indexes we need to dereference the object (eg; "services"->'resume')
+   */
   private getIndexFieldName(tokens: string[]): string {
     if (tokens.length < 1) {
       throw new Error(`Invalid index field tokens: ${JSON.stringify(tokens)}`);
