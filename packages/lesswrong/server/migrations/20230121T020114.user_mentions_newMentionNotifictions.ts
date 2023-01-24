@@ -15,7 +15,7 @@ import {addField, dropField} from './meta/utils'
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = '283dfc730f436f378139bb85edce6dfc'
+export const acceptsSchemaHash = "283dfc730f436f378139bb85edce6dfc";
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) await addField(db, Users, 'notificationNewMention')
   
