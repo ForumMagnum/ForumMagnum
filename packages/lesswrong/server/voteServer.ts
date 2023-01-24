@@ -286,6 +286,7 @@ interface VotingRateLimitSet {
 }
 interface VotingRateLimit {
   voteCount: number
+  /** Must be ≤ than 24 hours */
   periodInMinutes: number
   types: "all"|"onlyStrong"|"onlyDown"
   users: "allUsers"|"singleUser"
