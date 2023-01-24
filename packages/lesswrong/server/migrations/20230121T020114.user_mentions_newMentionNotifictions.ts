@@ -15,17 +15,15 @@ import {addField, dropField} from './meta/utils'
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "283dfc730f436f378139bb85edce6dfc";
+export const acceptsSchemaHash = '283dfc730f436f378139bb85edce6dfc'
 export const up = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres() || !Comments.isPostgres()) return
-
-  await addField(db, Users, "notificationNewMention")
-  await addField(db, Comments, "pingbacks")
+  if (Users.isPostgres()) await addField(db, Users, 'notificationNewMention')
+  
+  if (Comments.isPostgres()) await addField(db, Comments, 'pingbacks')
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres() || !Comments.isPostgres()) return
-
-  await dropField(db, Users, "notificationNewMention")
-  await dropField(db, Comments, "pingbacks")
+  if (Users.isPostgres()) await dropField(db, Users, 'notificationNewMention')
+  
+  if (Comments.isPostgres()) await dropField(db, Comments, 'pingbacks')
 }
