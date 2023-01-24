@@ -61,8 +61,8 @@ const dropAndSeedMongo = async (url) => {
   await db.collection('users').insertMany(seedUsers);
 }
 
-const dropAndSeedPostgres = async () => {
-  if (!config.env.PG_URL) {
+const dropAndSeedPostgres = async (PG_URL) => {
+  if (!PG_URL) {
     console.warn("No PG_URL provided");
     return;
   }
@@ -145,7 +145,7 @@ module.exports = (on, config) => {
     async dropAndSeedDatabase() {
       await Promise.all([
         dropAndSeedMongo(config.env.TESTING_DB_URL),
-        dropAndSeedPostgres(),
+        dropAndSeedPostgres(config.env.PG_URL),
       ]);
       return null;
     },
