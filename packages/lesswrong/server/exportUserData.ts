@@ -77,7 +77,7 @@ export const exportUserData = async (
   const stringified = JSON.stringify(result, null, 2);
 
   // eslint-disable-next-line no-console
-  // console.log("Exported user data:", stringified);
+  console.log("Exported user data:", stringified);
 
   if (outfile) {
     await writeFile(outfile, stringified);
