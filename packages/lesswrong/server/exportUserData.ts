@@ -70,9 +70,10 @@ export const exportUserData = async (
   const values = await Promise.all(entries.map(async ([collection, {fetch}]) =>
     accessFilterMultiple(user, collection, await fetch(), null),
   ));
-  const result = Object.fromEntries(entries.map(([collection, _], i) => [
-    collection.collectionName, values[i],
-  ]));
+  const result = Object.fromEntries(entries
+    .map(([collection, _], i) => [collection.collectionName, values[i]])
+    .filter(([_, records]) => records.length > 0)
+  );
 
   const stringified = JSON.stringify(result, null, 2);
 
