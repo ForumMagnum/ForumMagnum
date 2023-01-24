@@ -55,8 +55,13 @@
     "timestamp": "2023-01-18T10:42:29.000Z"
   },
   {
-    "acceptsSchemaHash": "b7923bda80a6d56ceeb2c8c622e4189b",
-    "acceptedByMigration": "20230118T114157.add_subforumPreferredLayout.ts",
-    "timestamp": "2023-01-18T11:41:57.000Z"
+    "acceptsSchemaHash": "afb5555a6e3a18714877036b68c63786",
+    "acceptedByMigration": "20230118T135840.createdAt_default_value.ts",
+    "timestamp": "2023-01-18T13:58:40.000Z"
+  },
+  {
+    "acceptsSchemaHash": "707023204349d37156630a9823919f65",
+    "acceptedByMigration": "20230124T120350.add_subforumPreferredLayout.ts",
+    "timestamp": "2023-01-24T12:03:50.000Z"
   }
 ]

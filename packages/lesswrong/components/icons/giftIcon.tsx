@@ -8,6 +8,7 @@ export const GiftIcon = ({style}: any) => <svg
   x="0px" y="0px"
   viewBox="0 0 293.373 293.373"
   style={style}
+  fill="currentColor"
 >
 <g>
   <g>

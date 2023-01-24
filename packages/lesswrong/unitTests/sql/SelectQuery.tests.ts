@@ -166,6 +166,12 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select query with json fields with a string result",
+      getQuery: () => new SelectQuery(testTable, {"c.d.e": "test"}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"->\'d\'->>\'e\')::TEXT = $1',
+      expectedArgs: ["test"],
+    },
+    {
       name: "can build select query with array fields",
       getQuery: () => new SelectQuery(testTable, {"c.0": 3}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"[0])::INTEGER = $1',
@@ -450,6 +456,12 @@ describe("SelectQuery", () => {
         as: "a",
       }}),
       expectedError: "Pipeline joins are not implemented",
+    },
+    {
+      name: "can randomly sample results",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {sampleSize: 5}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY RANDOM() LIMIT $2',
+      expectedArgs: [3, 5],
     },
   ]);
 

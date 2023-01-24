@@ -194,7 +194,7 @@ const PostsList2 = ({
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
-          if (isPostRepeated(post._id)) {
+          if (isPostRepeated(post._id) || post._id in hiddenPosts) {
             return null;
           }
           addPost(post._id);
@@ -213,9 +213,7 @@ const PostsList2 = ({
             tooltipPlacement,
           };
 
-          if (!(post._id in hiddenPosts)) {
-            return <PostsItem2 key={post._id} {...props} />
-          }
+          return <PostsItem2 key={post._id} {...props} />
         })}
       </div>
       {showLoadMore && <SectionFooter>

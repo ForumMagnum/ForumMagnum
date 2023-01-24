@@ -314,6 +314,7 @@ importComponent("AgreementVoteAxis", () => require('../components/votes/Agreemen
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("EmojiReactionVoteOnComment", () => require('../components/votes/EmojiReactionVoteOnComment'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
+importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
 // Events
 // In a past version, these `importComponent` definitions were skipped if the hasEvents

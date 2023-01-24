@@ -1,11 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ContentTypeString } from '../posts/PostsPage/ContentType';
-import { useCurrentUser } from './withUser';
-
-const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subheader: {
