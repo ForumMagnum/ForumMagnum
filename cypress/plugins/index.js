@@ -62,6 +62,10 @@ const dropAndSeedMongo = async (url) => {
 }
 
 const dropAndSeedPostgres = async () => {
+  if (!config.env.PG_URL) {
+    console.warn("No PG_URL provided");
+    return;
+  }
   const result = await fetch("http://localhost:3000/api/recreateCypressPgDb", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -108,6 +112,10 @@ const associateLoginTokenMongo = async (config, {user, loginToken}) => {
 }
 
 const associateLoginTokenPostgres = async (config, {user, loginToken}) => {
+  if (!config.env.PG_URL) {
+    console.warn("No PG_URL provided");
+    return;
+  }
   const connectionString = replaceDbNameInPgConnectionString(
     config.env.PG_URL,
     pgDbName ?? pgDbTemplate,
