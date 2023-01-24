@@ -16,6 +16,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 import qs from "qs";
 import { PopperPlacementType } from '@material-ui/core/Popper';
+import { useHideRepeatedPosts } from './HideRepeatedPostsContext';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 32
 
@@ -425,6 +426,7 @@ const PostsItem2 = ({
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
   const { isRead, recordPostView } = useRecordPostView(post);
+  const { isPostRepeated, addPost } = useHideRepeatedPosts();
 
   const currentUser = useCurrentUser();
 
@@ -491,6 +493,11 @@ const PostsItem2 = ({
   }
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
+
+  if (isPostRepeated(post._id)) {
+    return null;
+  }
+  addPost(post._id);
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
