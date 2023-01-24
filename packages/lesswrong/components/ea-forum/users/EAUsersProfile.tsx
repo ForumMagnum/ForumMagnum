@@ -30,6 +30,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { useMessages } from '../../common/withMessages';
+import { HideRepeatedPostsProvider } from '../../posts/HideRepeatedPostsContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -303,7 +304,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
     SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
-    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList } = Components
+    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
+    ProfileShortform,
+  } = Components
 
   if (loading) {
     return <Loading/>
@@ -630,7 +633,10 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentIncludeEvents={currentIncludeEvents}
           />}
           <AnalyticsContext listContext="userPagePosts">
-            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor />
+            <HideRepeatedPostsProvider>
+              <ProfileShortform user={user} />
+              <PostsList2 terms={postTerms} boxShadow={false} hideAuthor />
+            </HideRepeatedPostsProvider>
           </AnalyticsContext>
         </div>}
         
