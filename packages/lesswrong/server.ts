@@ -146,6 +146,8 @@ import './server/callbacks/intercomCallbacks';
 import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
 
+import './server/exportUserData';
+
 import './server/spotlightCron';
 
 import "./server/languageModels/autoTagCallbacks";
