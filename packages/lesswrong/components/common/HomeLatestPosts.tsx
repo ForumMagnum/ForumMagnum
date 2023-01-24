@@ -122,7 +122,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            {isEAForum && !!currentUser?.profileTagIds?.length && <CommentsListCondensed label={"Discussion from your subforums"} contentType="frontpageSubforumDiscussion" terms={recentSubforumDiscussionTerms} initialLimit={3} />}
+            {isEAForum && !!currentUser?.profileTagIds?.length && (
+              <CommentsListCondensed
+                label={"Discussion from your subforums"}
+                contentType="frontpageSubforumDiscussion"
+                terms={recentSubforumDiscussionTerms}
+                initialLimit={3}
+              />
+            )}
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

@@ -64,25 +64,25 @@ const SubforumListSettings = ({currentSorting, currentLayout, classes}: {
   }
 
   return (
-      <div className={classes.root}>
-        <SettingsColumn
-          type={'sortedBy'}
-          title={'Sorted by:'}
-          options={sortings}
-          currentOption={currentSorting}
-          setSetting={setSetting}
-          nofollow
-        />
+    <div className={classes.root}>
+      <SettingsColumn
+        type={"sortedBy"}
+        title={"Sorted by:"}
+        options={sortings}
+        currentOption={currentSorting}
+        setSetting={setSetting}
+        nofollow
+      />
 
-        <SettingsColumn
-          type={'layout'}
-          title={'Layout:'}
-          options={layouts}
-          currentOption={currentLayout}
-          setSetting={setSetting}
-          nofollow
-        />
-      </div>
+      <SettingsColumn
+        type={"layout"}
+        title={"Layout:"}
+        options={layouts}
+        currentOption={currentLayout}
+        setSetting={setSetting}
+        nofollow
+      />
+    </div>
   );
 };
 

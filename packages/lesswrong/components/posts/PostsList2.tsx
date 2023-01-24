@@ -204,7 +204,7 @@ const PostsList2 = ({
             index: i,
             terms, showNominationCount, showReviewCount, showDraftTag, dense, hideAuthor, hideTrailingButtons,
             curatedIconLeft: curatedIconLeft,
-            tagRel: tagId && !hideTagRelevance ? (post as PostsListTag).tagRel : undefined,
+            tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from
