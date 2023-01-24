@@ -64,7 +64,7 @@ function getPingbacksToSend(
 
 const canNotify = (currentUser: DbUser, pingbacks: string[], {
   karmaThreshold = 1,
-  newPingbackLimit = 3,
+  newPingbackLimit = 25,
 }: { karmaThreshold?: number, newPingbackLimit?: number } = {}) =>
   currentUser.isAdmin ||
   (
