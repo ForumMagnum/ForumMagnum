@@ -124,7 +124,14 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
 getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = await Users.findOne(tagRel.userId);
-  const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
+  if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
+  const {modifiedDocument: votedTagRel} = await performVoteServer({
+    document: tagRel,
+    voteType: 'smallUpvote',
+    collection: TagRels,
+    user: tagCreator,
+    skipRateLimits: true,
+  })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
 });
