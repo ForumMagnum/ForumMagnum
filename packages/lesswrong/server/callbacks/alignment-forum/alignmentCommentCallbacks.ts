@@ -24,7 +24,13 @@ export async function recalculateAFCommentMetadata(postId: string|null) {
     collection:Posts,
     documentId: postId,
     set: {
+      // Needs to be recomputed after anything moves to/from AF; can't be handled
+      // incrementally by simpler callbacks because a comment being removed from
+      // AF might mean an unrelated comment is now the newest.
       afLastCommentedAt:new Date(lastCommentedAt),
+      // Needs to be recomputed after anything moves to/from AF because those
+      // moves are using raw updates.
+      afCommentCount: afComments.length,
     },
     unset: {},
     validate: false,
