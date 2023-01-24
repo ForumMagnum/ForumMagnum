@@ -48,7 +48,7 @@ const getMigrationChangelogEntries = async (rootPath: string): Promise<SchemaCha
   for (const migrationFile of migrationFiles) {
     // NOTE: I'm using this regex hack rather than importing because esbuild doesn't support
     // dynamic imports, I would very much like to change this
-    const acceptsHashRegex = new RegExp(/^export const acceptsSchemaHash = "(.*)"/);
+    const acceptsHashRegex = new RegExp(/^export const acceptsSchemaHash = ["'](.*)["']/);
     const contents = (await readFile(migrationFile)).toString().split("\n");
     const acceptsHashLine = contents.find(line => acceptsHashRegex.test(line));
     
