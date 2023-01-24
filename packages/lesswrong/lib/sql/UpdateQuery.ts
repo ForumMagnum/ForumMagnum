@@ -175,9 +175,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
-    } catch {
+    } catch (e) {
       // eslint-disable-next-line no-console
-      console.warn(`Field "${field}" is not recognized - is it missing from the schema?`);
+      console.warn(`Field "${field}" is not recognized - is it missing from the schema?`, e);
       return [];
     }
   }
