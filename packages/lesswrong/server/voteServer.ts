@@ -113,65 +113,82 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
+  
+  // Fetch existing, uncancelled votes
   const votes = await Connectors.find(Votes, {
     documentId: document._id,
     userId: user._id,
     cancelled: false,
   });
-  if (votes.length) {
-    const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
-    for (let vote of votes) {
-      if (excludeLatest && vote._id === latestVoteId) {
-        continue;
-      }
-      
-      // Cancel the existing votes
-      await updateMutator({
-        collection: Votes,
-        documentId: vote._id,
-        set: { cancelled: true },
-        unset: {},
-        validate: false,
-      });
-
-      //eslint-disable-next-line no-unused-vars
-      const {_id, ...otherVoteFields} = vote;
-      // Create an un-vote for each of the existing votes
-      const unvote = {
-        ...otherVoteFields,
-        cancelled: true,
-        isUnvote: true,
-        power: -vote.power,
-        votedAt: new Date(),
-      };
-      await createMutator({
-        collection: Votes,
-        document: unvote,
-        validate: false,
-      });
-
-      await voteCallbacks.cancelSync.runCallbacks({
-        iterator: {newDocument, vote},
-        properties: [collection, user]
-      });
-      await voteCallbacks.cancelAsync.runCallbacksAsync(
-        [{newDocument, vote}, collection, user]
-      );
-    }
-    const newScores = await recalculateDocumentScores(document, context);
-    await collection.rawUpdateOne(
-      {_id: document._id},
-      {
-        $set: {...newScores },
-      },
-      {}
-    );
-    newDocument = {
-      ...newDocument,
-      ...newScores,
-    };
-    void algoliaExportById(collection as any, newDocument._id);
+  if (!votes.length) {
+    return newDocument;
   }
+  
+  const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
+  const votesToCancel = excludeLatest
+    ? votes.filter(v=>v._id!==latestVoteId)
+    : votes
+  
+  // Mark the votes as cancelled in the DB, with findOneAndUpdate. If any of
+  // these doesn't return a result, it means `cancelled` was set to true in a
+  // concurrent operation, and that other operation is the one responsible for
+  // running the vote-canceled callbacks (which do the user-karma updates).
+  //
+  // If this was done the more straightforward way, then hitting vote buttons
+  // quickly could lead to votes getting double-cancelled; this doesn't affect
+  // the score of the document (which is recomputed from scratch each time) but
+  // does affect the user's karma. We used to have a bug like that.
+  const voteCancellations = await Promise.all(
+    votesToCancel.map((vote) => Votes.rawCollection().findOneAndUpdate({
+      _id: vote._id,
+      cancelled: false,
+    }, {
+      $set: { cancelled: true }
+    }))
+  );
+  
+  for (let voteCancellation of voteCancellations) {
+    const vote = voteCancellation?.value;
+    if (!vote) continue;
+    
+    //eslint-disable-next-line no-unused-vars
+    const {_id, ...otherVoteFields} = vote;
+    // Create an un-vote for each of the existing votes
+    const unvote = {
+      ...otherVoteFields,
+      cancelled: true,
+      isUnvote: true,
+      power: -vote.power,
+      votedAt: new Date(),
+    };
+    await createMutator({
+      collection: Votes,
+      document: unvote,
+      validate: false,
+    });
+
+    await voteCallbacks.cancelSync.runCallbacks({
+      iterator: {newDocument, vote},
+      properties: [collection, user]
+    });
+    await voteCallbacks.cancelAsync.runCallbacksAsync(
+      [{newDocument, vote}, collection, user]
+    );
+  }
+  const newScores = await recalculateDocumentScores(document, context);
+  await collection.rawUpdateOne(
+    {_id: document._id},
+    {
+      $set: {...newScores },
+    },
+    {}
+  );
+  newDocument = {
+    ...newDocument,
+    ...newScores,
+  };
+  
+  void algoliaExportById(collection as any, newDocument._id);
   return newDocument;
 }
 
