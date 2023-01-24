@@ -76,7 +76,9 @@ class PostScoringSimilarityServer extends PostScoringSimilarity {
 class PostScoringRecentCommentsServer extends PostScoringRecentComments {
   scoreBatch = async (posts: DbPost[], ctx: ScoringContext, options: PostScoringRecentCommentsOptions): Promise<number[]> => {
     const mostRecentCommentSince: (Date|null)[] = await Promise.all(posts.map(async (post) => {
-      if (post.lastCommentedAt < ctx.now) {
+      if (!post.commentCount) {
+        return null;
+      } else if (post.lastCommentedAt < ctx.now) {
         return post.lastCommentedAt;
       } else {
         return await getDateOfLastCommentBefore(post, ctx.now);
@@ -195,16 +197,18 @@ defineQuery({
     const overallScores: RecommendationResult[] = candidatePosts.map((post,i) => {
       let overallScore = 0;
       const featuresRubric: RecommendationRubric = [];
-      for (let feature of options.features) {
-        if (serverScoringFeaturesByName[feature.name].scoreMode !== "additive")
+      for (let [j,feature] of options.features.entries()) {
+        const featureImpl = serverScoringFeaturesByName[feature.name];
+        if (featureImpl.scoreMode !== "additive")
           continue;
         
         const featureScore = featureScoresByFeatureName[feature.name][i];
-        overallScore += featureScore;
+        const weight = options.features[j].weight;
+        overallScore += featureScore * weight;
         featuresRubric.push({
           feature: feature.name,
-          mode: "additive", //TODO
-          value: featureScore,
+          mode: featureImpl.scoreMode,
+          value: featureScore * weight,
         });
       }
       return {
@@ -233,8 +237,7 @@ defineQuery({
     // Return top candidate posts
     const sortedResults = orderBy(overallScores, r=>-r.score);
     const topResults = take(sortedResults, options.limit);
-    // eslint-disable-next-line no-console
-    console.log(topResults);
+    //console.log(topResults); //eslint-disable-line no-console
     return topResults;
   }
 });
