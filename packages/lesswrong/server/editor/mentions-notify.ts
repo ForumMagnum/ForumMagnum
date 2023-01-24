@@ -1,6 +1,7 @@
 import * as _ from 'underscore'
 import {createNotifications} from '../notificationCallbacksHelpers'
 import {notificationDocumentTypes} from '../../lib/notificationTypes'
+import {isBeingUndrafted} from './utils'
 
 export interface PingbackDocumentPartial {
   _id: string,
@@ -10,7 +11,7 @@ export interface PingbackDocumentPartial {
 }
 
 export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
-  const pingbacksToSend = getPingbacksToSend(currentUser, document, oldDocument)
+  const pingbacksToSend = getPingbacksToSend(currentUser, collectionType, document, oldDocument)
 
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
   //  TagRels for example won't work, though they don't have content either.
@@ -26,12 +27,39 @@ export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionTy
   })
 }
 
-function getPingbacksToSend(currentUser: DbUser, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) {
-  const newDocPingbacks = document.pingbacks?.Users ?? []
-  const oldDocPingbacks = oldDocument?.pingbacks?.Users ?? []
+function getPingbacksToSend(
+  currentUser: DbUser,
+  collectionType: string,
+  document: PingbackDocumentPartial,
+  oldDocument?: PingbackDocumentPartial,
+) {
+  const pingbacksFromDocuments = () => {
+    const newDocPingbacks = document.pingbacks?.Users ?? []
+    const oldDocPingbacks = oldDocument?.pingbacks?.Users ?? []
+    const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
 
-  const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
-  return removeSelfReference(newPingbacks, currentUser._id)
+    if (collectionType !== 'Post') return newPingbacks
+
+    const post = document as DbPost
+
+    if (post.draft) {
+      const pingedUsersWhoHaveAccessToDoc = _.intersection(newPingbacks, post.shareWithUsers)
+      return pingedUsersWhoHaveAccessToDoc
+    }
+
+    const oldPost = oldDocument as DbPost
+    // This currently does not handle multiple moves between draft and published.
+    if (isBeingUndrafted(oldPost, post)) {
+      const alreadyNotifiedUsers = _.intersection(oldDocPingbacks, oldPost.shareWithUsers)
+
+      // newDocPingbacks bc, we assume most users weren't pinged on the draft stage
+      return _.difference(newDocPingbacks, alreadyNotifiedUsers)
+    }
+
+    return newPingbacks
+  }
+
+  return removeSelfReference(pingbacksFromDocuments(), currentUser._id)
 }
 
 const canNotify = (currentUser: DbUser, pingbacks: string[], {
