@@ -302,7 +302,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
     return [
       {
         voteCount: 200,
-        periodInMinutes: 60,
+        periodInMinutes: 60 * 24,
         types: "all",
         users: "allUsers",
         consequences: ["denyThisVote"],
