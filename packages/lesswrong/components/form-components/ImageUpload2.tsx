@@ -6,18 +6,12 @@ import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
-import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
-
-export const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
-export const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
-export const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
-export const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
-export const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
-export const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSpotlight', 'yjgxmsio')
+import { cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from './ImageUpload';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,6 +28,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.buttons.imageUpload.hoverBackground,
     },
     color: theme.palette.text.invertedBackgroundText,
+  },
+  imageBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 0,
   },
   imageIcon: {
     fontSize: 18,
@@ -105,8 +105,8 @@ const formPreviewSizeByImageType = {
     height: 90
   },
   socialPreviewImageId: {
-    width: 153,
-    height: 80
+    width: 306,
+    height: 160
   },
   eventImageId: {
     width: 320,
@@ -118,13 +118,14 @@ const formPreviewSizeByImageType = {
   }
 }
 
-const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
+const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
   document: Object,
   updateCurrentValues: Function,
   clearField: Function,
   label: string,
   croppingAspectRatio?: number,
+  placeholderUrl?: string,
   classes: ClassesType
 }) => {
   const theme = useTheme();
@@ -201,65 +202,75 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   const formPreviewSize = formPreviewSizeByImageType[name]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
   
+  console.log("ImageUpload2 render", {imageId, placeholderUrl, effectiveId: imageId || placeholderUrl})
+  
+  // const imageUrl =
+  
   return (
-    <div className={classes.root}>
+    <div className={classes.root} {...formPreviewSize}>
       <Helmet>
-        <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
+        <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" />
       </Helmet>
-      {imageId &&
-        <Components.CloudinaryImage2
-          publicId={imageId}
-          {...formPreviewSize}
-        /> }
-      <Button
-        onClick={uploadWidget}
-        className={classNames("image-upload-button", classes.button)}
-      >
-        <ImageIcon className={classes.imageIcon}/>
+      <div className={classes.imageBackground}>
+        {imageId ? (
+          <Components.CloudinaryImage2 publicId={imageId || placeholderUrl} {...formPreviewSize} />
+        ) : (
+          <img src={placeholderUrl} {...formPreviewSize} />
+        )}
+      </div>
+      <Button onClick={uploadWidget} className={classNames("image-upload-button", classes.button)}>
+        <ImageIcon className={classes.imageIcon} />
         {imageId ? `Replace ${label}` : `Upload ${label}`}
       </Button>
-      {(name === 'eventImageId') && <Button
-        variant="outlined"
-        onClick={() => openDialog({
-          componentName: "ImageUploadDefaultsDialog",
-          componentProps: {onSelect: chooseDefaultImg}
-        })}
-        className={classes.chooseButton}
-      >
-        Choose from ours
-      </Button>}
-      {userHasDefaultProfilePhotos(useCurrentUser()) && (name === 'profileImageId') && <Button
-        variant="outlined"
-        onClick={() => openDialog({
-          componentName: "ImageUploadDefaultsDialog",
-          componentProps: {
-            onSelect: chooseDefaultImg,
-            type: "Profile"}
-        })}
-        className={classes.chooseButton}
-      >
-        Choose from ours
-      </Button>}
-      {imageId && <Button
-        className={classes.removeButton}
-        title="Remove"
-        onClick={removeImg}
-      >
-        Remove
-      </Button>}
+      {/* {name === "eventImageId" && (
+        <Button
+          variant="outlined"
+          onClick={() =>
+            openDialog({
+              componentName: "ImageUploadDefaultsDialog",
+              componentProps: { onSelect: chooseDefaultImg },
+            })
+          }
+          className={classes.chooseButton}
+        >
+          Choose from ours
+        </Button>
+      )}
+      {userHasDefaultProfilePhotos(useCurrentUser()) && name === "profileImageId" && (
+        <Button
+          variant="outlined"
+          onClick={() =>
+            openDialog({
+              componentName: "ImageUploadDefaultsDialog",
+              componentProps: {
+                onSelect: chooseDefaultImg,
+                type: "Profile",
+              },
+            })
+          }
+          className={classes.chooseButton}
+        >
+          Choose from ours
+        </Button>
+      )} */}
+      {imageId && (
+        <Button className={classes.removeButton} title="Remove" onClick={removeImg}>
+          Remove
+        </Button>
+      )}
     </div>
   );
 };
 
-(ImageUpload as any).contextTypes = {
+(ImageUpload2 as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
-const ImageUploadComponent = registerComponent("ImageUpload", ImageUpload, {styles});
+const ImageUpload2Component = registerComponent("ImageUpload2", ImageUpload2, {styles});
 
 declare global {
   interface ComponentTypes {
-    ImageUpload: typeof ImageUploadComponent
+    ImageUpload2: typeof ImageUpload2Component
   }
 }

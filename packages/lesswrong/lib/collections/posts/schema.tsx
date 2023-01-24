@@ -1306,8 +1306,8 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
-    control: "ImageUpload",
-    group: formGroups.advancedOptions,
+    control: "SocialPreviewUpload",
+    group: formGroups.socialPreview,
     order: 4,
   },
   

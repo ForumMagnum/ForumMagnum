@@ -653,6 +653,8 @@ importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIn
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
+importComponent("ImageUpload2", () => require('../components/form-components/ImageUpload2')); // TODO maybe combine this with the original
+importComponent("SocialPreviewUpload", () => require('../components/form-components/SocialPreviewUpload'));
 importComponent("FMCrosspostControl", () => require('../components/form-components/FMCrosspostControl'));
 importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
 importComponent("FormComponentPostEditorTagging", () => require('../components/form-components/FormComponentPostEditorTagging'));
