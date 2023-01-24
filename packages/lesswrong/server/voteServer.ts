@@ -286,6 +286,7 @@ interface VotingRateLimitSet {
 }
 interface VotingRateLimit {
   voteCount: number
+  /** Must be ≤ than 24 hours */
   periodInMinutes: number
   types: "all"|"onlyStrong"|"onlyDown"
   users: "allUsers"|"singleUser"
@@ -301,7 +302,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
     return [
       {
         voteCount: 200,
-        periodInMinutes: 60,
+        periodInMinutes: 60 * 24,
         types: "all",
         users: "allUsers",
         consequences: ["denyThisVote"],
