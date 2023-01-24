@@ -1,6 +1,7 @@
 import PgCollection from "../../../lib/sql/PgCollection";
 import AddFieldQuery from "../../../lib/sql/AddFieldQuery";
 import UpdateDefaultValueQuery from "../../../lib/sql/UpdateDefaultValueQuery";
+import DropDefaultValueQuery from "../../../lib/sql/DropDefaultValueQuery";
 import UpdateFieldTypeQuery from "../../../lib/sql/UpdateFieldTypeQuery";
 import TableIndex from "../../../lib/sql/TableIndex";
 import DropIndexQuery from "../../../lib/sql/DropIndexQuery";
@@ -33,6 +34,15 @@ export const updateDefaultValue = async <T extends DbObject>(
   fieldName: keyof T & string,
 ): Promise<void> => {
   const {sql, args} = new UpdateDefaultValueQuery(collection.getTable(), fieldName).compile();
+  await db.none(sql, args);
+}
+
+export const dropDefaultValue = async <T extends DbObject>(
+  db: SqlClient,
+  collection: PgCollection<T>,
+  fieldName: keyof T & string,
+): Promise<void> => {
+  const {sql, args} = new DropDefaultValueQuery(collection.getTable(), fieldName).compile();
   await db.none(sql, args);
 }
 

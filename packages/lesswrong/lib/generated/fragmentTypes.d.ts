@@ -1952,6 +1952,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
   readonly deleted: boolean,
+  readonly isSubforum: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -1960,7 +1961,6 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
-  readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
@@ -1976,21 +1976,9 @@ interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
-  readonly parentTag: TagFragment_parentTag|null,
-  readonly subTags: Array<TagFragment_subTags>,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-}
-
-interface TagFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagFragment_subTags { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -2015,22 +2003,10 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
 }
 
 interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
-  readonly parentTag: TagRevisionFragment_parentTag|null,
-  readonly subTags: Array<TagRevisionFragment_subTags>,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
   readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
-}
-
-interface TagRevisionFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagRevisionFragment_subTags { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
@@ -2043,21 +2019,9 @@ interface TagRevisionFragment_description { // fragment on Revisions
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
-  readonly parentTag: TagPreviewFragment_parentTag|null,
-  readonly subTags: Array<TagPreviewFragment_subTags>,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-}
-
-interface TagPreviewFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface TagPreviewFragment_subTags { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -2066,7 +2030,6 @@ interface TagPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
-  readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly tableOfContents: any,
   readonly subforumWelcomeText: TagSubforumFragment_subforumWelcomeText|null,
@@ -2140,7 +2103,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
-  readonly parentTag: TagEditFragment_parentTag|null,
+  readonly parentTag: TagBasicInfo|null,
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
@@ -2149,12 +2112,6 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
-}
-
-interface TagEditFragment_parentTag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
 }
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags

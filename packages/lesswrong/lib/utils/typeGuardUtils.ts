@@ -39,6 +39,10 @@ export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string
   has (value: string|number): value is T[number] {
     return super.has(value);
   }
+  
+  [Symbol.iterator](): IterableIterator<Tuple<T>[number]> {
+    return super[Symbol.iterator]();
+  }
 }
 
 export type TupleOf<T extends TupleSet<any>> = T extends TupleSet<infer U> ? U : never;
