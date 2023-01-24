@@ -21,8 +21,9 @@ import UserMostValuablePosts from "../lib/collections/userMostValuablePosts/coll
 import Users from "../lib/collections/users/collection";
 import UserTagRels from "../lib/collections/userTagRels/collection";
 import { Votes } from "../lib/collections/votes";
-import { Globals } from "./vulcan-lib";
+import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { writeFile } from "fs/promises";
+import { Globals } from "./vulcan-lib";
 
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
@@ -39,39 +40,43 @@ export const exportUserData = async (
 
   const userId = user._id;
 
-  const entries: [string, any][] = [
-    ["user", user],
-    ["bans", Bans.find({userId}).fetch()],
-    ["clientIds", ClientIds.find({userIds: userId}).fetch()],
-    ["collections", Collections.find({userId}).fetch()],
-    ["comments", Comments.find({userId}).fetch()],
-    ["conversations", Conversations.find({participantIds: userId}).fetch()],
-    ["localGroups", Localgroups.find({organizerIds: userId}).fetch()],
-    ["messages", Messages.find({userId}).fetch()],
-    ["moderatorActions", ModeratorActions.find({userId}).fetch()],
-    ["notifications", Notifications.find({userId}).fetch()],
-    ["pretrovDayLaunches", PetrovDayLaunchs.find({userId}).fetch()],
-    ["posts", Posts.find({userId}).fetch()],
-    ["rssFeeds", RSSFeeds.find({userId}).fetch()],
-    ["readStatuses", ReadStatuses.find({userId}).fetch()],
-    ["reports", Reports.find({userId}).fetch()],
-    ["revisions", Revisions.find({userId}).fetch()],
-    ["sequences", Sequences.find({userId}).fetch()],
-    ["subscriptions", Subscriptions.find({userId}).fetch()],
-    ["tagRels", TagRels.find({userId}).fetch()],
-    ["tags", Tags.find({userId}).fetch()],
-    ["userMostValuablePosts", UserMostValuablePosts.find({userId}).fetch()],
-    ["userTagRels", UserTagRels.find({userId}).fetch()],
-    ["votes", Votes.find({userId}).fetch()],
+  const entries: [CollectionBase<DbObject>, {fetch: () => Promise<DbObject[]>}][] = [
+    [Users, {fetch: () => Promise.resolve([user])}],
+    [Bans, Bans.find({userId})],
+    [ClientIds, ClientIds.find({userIds: userId})],
+    [Collections, Collections.find({userId})],
+    [Comments, Comments.find({userId})],
+    [Conversations, Conversations.find({participantIds: userId})],
+    [Localgroups, Localgroups.find({organizerIds: userId})],
+    [Messages, Messages.find({userId})],
+    [ModeratorActions, ModeratorActions.find({userId})],
+    [Notifications, Notifications.find({userId})],
+    [PetrovDayLaunchs, PetrovDayLaunchs.find({userId})],
+    [Posts, Posts.find({userId})],
+    [RSSFeeds, RSSFeeds.find({userId})],
+    [ReadStatuses, ReadStatuses.find({userId})],
+    [Reports, Reports.find({userId})],
+    [Revisions, Revisions.find({userId})],
+    [Sequences, Sequences.find({userId})],
+    [Subscriptions, Subscriptions.find({userId})],
+    [TagRels, TagRels.find({userId})],
+    [Tags, Tags.find({userId})],
+    [UserMostValuablePosts, UserMostValuablePosts.find({userId})],
+    [UserTagRels, UserTagRels.find({userId})],
+    [Votes, Votes.find({userId})],
   ];
 
-  const values = await Promise.all(entries.map(([_, value]) => value));
-  const result = Object.fromEntries(entries.map(([name, _], i) => [name, values[i]]));
+  const values = await Promise.all(entries.map(async ([collection, {fetch}]) =>
+    accessFilterMultiple(user, collection, await fetch(), null),
+  ));
+  const result = Object.fromEntries(entries.map(([collection, _], i) => [
+    collection.collectionName, values[i],
+  ]));
 
   const stringified = JSON.stringify(result, null, 2);
 
   // eslint-disable-next-line no-console
-  console.log("Exported user data:", stringified);
+  // console.log("Exported user data:", stringified);
 
   if (outfile) {
     await writeFile(outfile, stringified);
