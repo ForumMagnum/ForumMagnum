@@ -26,16 +26,16 @@ import { Globals } from "./vulcan-lib";
 import { writeFile } from "fs/promises";
 
 export const exportUserData = async (
-  {_id, slug}: {_id?: string, slug?: string},
+  selector: {_id?: string, slug?: string, email?: string},
   outfile?: string,
 ) => {
-  if (!_id && !slug) {
-    throw new Error("Must specify either a user ID or slug");
+  if (!selector._id && !selector.slug && !selector.email) {
+    throw new Error("Must specify either an _id, slug or email");
   }
 
-  const user = await Users.findOne({_id, slug});
+  const user = await Users.findOne(selector);
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("User not found: " + JSON.stringify(selector));
   }
 
   const userId = user._id;
