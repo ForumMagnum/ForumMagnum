@@ -47,9 +47,9 @@ function getPingbacksToSend(
       return pingedUsersWhoHaveAccessToDoc
     }
 
-    const oldPost = oldDocument as DbPost
+    const oldPost = oldDocument as DbPost | undefined
     // This currently does not handle multiple moves between draft and published.
-    if (isBeingUndrafted(oldPost, post)) {
+    if (oldPost && isBeingUndrafted(oldPost, post)) {
       const alreadyNotifiedUsers = _.intersection(oldDocPingbacks, oldPost.shareWithUsers)
 
       // newDocPingbacks bc, we assume most users weren't pinged on the draft stage
