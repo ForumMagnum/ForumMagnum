@@ -25,6 +25,7 @@ import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { writeFile } from "fs/promises";
 import { Globals } from "./vulcan-lib";
 
+/** Please ensure that we know that the user is who they say they are! */
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
   outfile?: string,
