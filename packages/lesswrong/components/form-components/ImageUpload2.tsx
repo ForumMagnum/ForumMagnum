@@ -12,15 +12,17 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from './ImageUpload';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 4,
-    marginLeft: 8,
     "& img": {
       display: "block",
       marginBottom: 8,
     },
+  },
+  buttonRow: {
+    margin: 'auto',
   },
   button: {
     background: theme.palette.buttons.imageUpload.background,
@@ -28,12 +30,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.buttons.imageUpload.hoverBackground,
     },
     color: theme.palette.text.invertedBackgroundText,
+    textTransform: 'none',
+    margin: 5,
+    fontSize: 14,
   },
   imageBackground: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 0,
+    backgroundSize: 'cover',
+    backgroundPosition: 'top right',
+    width: 370,
+    height: 195,
+    display: 'flex',
   },
   imageIcon: {
     fontSize: 18,
@@ -202,26 +208,32 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
   const formPreviewSize = formPreviewSizeByImageType[name]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
   
-  console.log("ImageUpload2 render", {imageId, placeholderUrl, effectiveId: imageId || placeholderUrl})
+  const imageUrl = imageId ? makeCloudinaryImageUrl(imageId, {
+    c: "fill",
+    dpr: "auto",
+    q: "auto",
+    f: "auto",
+    g: "auto:faces"
+  }) : placeholderUrl
   
-  // const imageUrl =
+  console.log("ImageUpload2 render", {imageId, placeholderUrl, imageUrl})
   
   return (
     <div className={classes.root} {...formPreviewSize}>
       <Helmet>
         <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" />
       </Helmet>
-      <div className={classes.imageBackground}>
-        {imageId ? (
-          <Components.CloudinaryImage2 publicId={imageId || placeholderUrl} {...formPreviewSize} />
-        ) : (
-          <img src={placeholderUrl} {...formPreviewSize} />
-        )}
+      <div className={classes.imageBackground} style={{ backgroundImage: `url(${imageUrl})` }}>
+        <div className={classes.buttonRow}>
+          <Button onClick={uploadWidget} className={classNames("image-upload-button", classes.button)}>
+            {imageId ? `Change` : `Upload ${label}`}
+          </Button>
+          {imageId && <Button className={classes.button} title="Remove" onClick={removeImg}>
+            Remove
+          </Button>}
+        </div>
       </div>
-      <Button onClick={uploadWidget} className={classNames("image-upload-button", classes.button)}>
-        <ImageIcon className={classes.imageIcon} />
-        {imageId ? `Replace ${label}` : `Upload ${label}`}
-      </Button>
+      {/* TODO support these cases */}
       {/* {name === "eventImageId" && (
         <Button
           variant="outlined"
@@ -253,11 +265,6 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
           Choose from ours
         </Button>
       )} */}
-      {imageId && (
-        <Button className={classes.removeButton} title="Remove" onClick={removeImg}>
-          Remove
-        </Button>
-      )}
     </div>
   );
 };
