@@ -13,6 +13,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { useDialog } from "../../common/withDialog";
+import { defaultSubforumLayout, isSubforumLayout } from '../../../lib/collections/tags/subforumHelpers';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
@@ -238,6 +239,8 @@ const TagSubforumPage2 = ({classes}: {
   });
   const userTagRel = userTagRelResults?.[0];
 
+  const layout = isSubforumLayout(query.layout) ? query.layout : currentUser?.subforumPreferredLayout ?? defaultSubforumLayout
+
   const onClickMembersList = () => {
     if (!tag) return;
 
@@ -318,9 +321,9 @@ const TagSubforumPage2 = ({classes}: {
         </Typography>
         {/* Join/Leave button always appears in members list, so only show join button here as an extra nudge if they are not a member */}
         {!!currentUser && !!userTagRel && (
-          isSubscribed ?
-            <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
-            : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
+        isSubscribed ?
+          <SubforumNotificationSettings startOpen={joinedDuringSession} tag={tag} userTagRel={userTagRel} currentUser={currentUser} className={classes.notificationSettings} />
+          : <SubforumSubscribeSection tag={tag} className={classes.joinBtn} joinCallback={() => setJoinedDuringSession(true)} />)}
       </div>
       <div className={classes.membersListLink}>
         {!membersCountLoading && <button className={classes.membersListLink} onClick={onClickMembersList}>{membersCount} members</button>}
@@ -367,7 +370,7 @@ const TagSubforumPage2 = ({classes}: {
   };
   
   const tabComponents: Record<SubforumTab, JSX.Element> = {
-    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} />,
+    subforum: <SubforumSubforumTab tag={tag} isSubscribed={isSubscribed} userTagRel={userTagRel} layout={layout} />,
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />
   }
 

@@ -32,7 +32,7 @@
  * - [x] Uncomment `acceptsSchemaHash` below
  * - [x] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "6e346d0511814593d75fcc2f6ee2f862";
+export const acceptsSchemaHash = "f167b9a94ae9eebe159267d6ca82d3a4";
 
 import Spotlights from "../../lib/collections/spotlights/collection"
 import { addField, dropField } from "./meta/utils"

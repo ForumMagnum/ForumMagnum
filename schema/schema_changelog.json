@@ -60,8 +60,13 @@
     "timestamp": "2023-01-18T13:58:40.000Z"
   },
   {
-    "acceptsSchemaHash": "6e346d0511814593d75fcc2f6ee2f862",
-    "acceptedByMigration": "20230122T210513.spotlight_new_fields.ts",
-    "timestamp": "2023-01-22T21:05:13.000Z"
+    "acceptsSchemaHash": "707023204349d37156630a9823919f65",
+    "acceptedByMigration": "20230124T120350.add_subforumPreferredLayout.ts",
+    "timestamp": "2023-01-24T12:03:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f167b9a94ae9eebe159267d6ca82d3a4",
+    "acceptedByMigration": "20230124T210513.spotlight_new_fields.ts",
+    "timestamp": "2023-01-24T21:05:13.000Z"
   }
 ]
