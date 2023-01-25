@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     fontSize: 12,
-    minHeight: 40,
+    minHeight: 36,
     marginBottom: 7,
   },
   url: {
