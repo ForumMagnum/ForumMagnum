@@ -172,6 +172,16 @@ const schema: SchemaType<DbSpotlight> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  showAuthor: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 85,
+    ...schemaDefaultValue(false),
+   optional: true,
+   nullable: false,
+  },
   spotlightImageId: {
     type: String,
     canRead: ['guests'],
@@ -181,7 +191,17 @@ const schema: SchemaType<DbSpotlight> = {
     optional: true,
     nullable: true,
     order: 90,
-  }
+  },
+  spotlightDarkImageId: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: "ImageUpload",
+    optional: true,
+    nullable: true,
+    order: 100,
+  },
 };
   
 export default schema;

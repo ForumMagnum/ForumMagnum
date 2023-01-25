@@ -99,6 +99,7 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   collectionName: CollectionName,
   fragmentName: FragmentName,
 }): {
+  /** Set a field to `null` to delete it */
   mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
   loading: boolean,
   error: ApolloError|undefined,

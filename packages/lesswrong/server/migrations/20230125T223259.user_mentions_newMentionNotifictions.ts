@@ -3,7 +3,7 @@ import {Comments} from '../../lib/collections/comments'
 import {addField, dropField} from './meta/utils'
 
 /**
- * Generated on 2023-01-21T02:01:14.685Z by `yarn makemigrations`
+ * Generated on 2023-01-25T22:32:59.886Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * ***Diff too large to display***
@@ -15,15 +15,16 @@ import {addField, dropField} from './meta/utils'
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "283dfc730f436f378139bb85edce6dfc";
+export const acceptsSchemaHash = "f74d70468a0d76011ef39059dc9584d5";
+
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) await addField(db, Users, 'notificationNewMention')
-  
+
   if (Comments.isPostgres()) await addField(db, Comments, 'pingbacks')
 }
 
 export const down = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) await dropField(db, Users, 'notificationNewMention')
-  
+
   if (Comments.isPostgres()) await dropField(db, Comments, 'pingbacks')
 }

@@ -52,6 +52,7 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   hideTrailingButtons=false,
+  hideTagRelevance=false,
   tooltipPlacement="bottom-end",
   boxShadow=true,
   curatedIconLeft=false,
@@ -91,6 +92,7 @@ const PostsList2 = ({
   itemsPerPage?: number,
   hideAuthor?: boolean,
   hideTrailingButtons?: boolean,
+  hideTagRelevance?: boolean,
   tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
@@ -192,7 +194,7 @@ const PostsList2 = ({
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
-          if (isPostRepeated(post._id)) {
+          if (isPostRepeated(post._id) || post._id in hiddenPosts) {
             return null;
           }
           addPost(post._id);
@@ -202,7 +204,7 @@ const PostsList2 = ({
             index: i,
             terms, showNominationCount, showReviewCount, showDraftTag, dense, hideAuthor, hideTrailingButtons,
             curatedIconLeft: curatedIconLeft,
-            tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+            tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms?.filter !== "questions",
             // I don't know why TS is not narrowing orderedResults away from
@@ -211,9 +213,7 @@ const PostsList2 = ({
             tooltipPlacement,
           };
 
-          if (!(post._id in hiddenPosts)) {
-            return <PostsItem2 key={post._id} {...props} />
-          }
+          return <PostsItem2 key={post._id} {...props} />
         })}
       </div>
       {showLoadMore && <SectionFooter>
