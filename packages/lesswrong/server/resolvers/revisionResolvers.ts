@@ -1,4 +1,4 @@
-import Revisions from '../../lib/collections/revisions/collection'
+import Revisions, { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/collection'
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { htmlStartingAtHash } from '../extractHighlights';
@@ -10,9 +10,6 @@ import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
-
-const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
-const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 
 augmentFieldsDict(Revisions, {
   markdown: {
