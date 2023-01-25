@@ -27,7 +27,6 @@ async function flagUserOnManyDMs({
   oldConversation?: DbConversation,
   currentUser: DbUser|null
 }): Promise<Partial<DbConversation>> {
-  console.log('🚀 ~ file: conversationCallbacks.ts:12 ~ flagUserOnManyDMs ~ currentUser', currentUser)
   if (!currentUser) {
     throw new Error("You can't create a conversation without being logged in");
   }
