@@ -48,7 +48,6 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter}:{
 }) => {
   const { LWTooltip } = Components
 
-  if (!posts?.length) return null
 
   const tags = posts?.flatMap(post => post.tags)
   const groupedTags = groupBy(tags, (tag) => tag._id)
@@ -75,6 +74,8 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter}:{
   const tagButton = (tag) => <LWTooltip title={tagButtonTooltip(tag)}><div key={tag._id} className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
     {tag.name} <span className={classes.count}>{tag.count}</span>
   </div></LWTooltip>
+
+  if (!posts?.length) return null
 
   return <div className={classes.root}>
     {slicedTags.map(tag => tagButton(tag))}
