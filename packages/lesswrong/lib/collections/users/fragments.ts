@@ -191,6 +191,7 @@ registerFragment(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    subforumPreferredLayout
     
     experiencedIn
     interestedIn

@@ -965,12 +965,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
-    {
-      name: 'SpotlightsPage',
-      path: '/spotlights',
-      componentName: 'SpotlightsPage',
-      title: 'Spotlights Page'
-    }
   ],
   AlignmentForum: [
     {
@@ -1273,6 +1267,7 @@ addRoute(
     componentName: 'TagPageRevisionSelect',
     titleComponentName: 'TagPageTitle',
   },
+  // ----- Admin / Moderation -----
   {
     name: 'admin',
     path: '/admin',
@@ -1318,6 +1313,12 @@ addRoute(
     name: 'notificationEmailPreview',
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
+  },
+  {
+    name: 'SpotlightsPage',
+    path: '/spotlights',
+    componentName: 'SpotlightsPage',
+    title: 'Spotlights Page'
   },
 );
 
