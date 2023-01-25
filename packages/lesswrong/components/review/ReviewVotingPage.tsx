@@ -450,7 +450,6 @@ const ReviewVotingPage = ({classes}: {
       
       const filteredPosts = tagFilter ? filter(newlySortedPosts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : newlySortedPosts
 
-    console.log(filteredPosts.length)
 
     setSortedPosts(filteredPosts)
     setPostsHaveBeenSorted(true)
