@@ -324,6 +324,10 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      imageUpload2: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
     },

@@ -1,17 +1,13 @@
 /* global cloudinary */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import {Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
-import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { useTheme } from '../themes/useTheme';
-import { useDialog } from '../common/withDialog';
-import { useCurrentUser } from '../common/withUser';
-import { userHasDefaultProfilePhotos } from '../../lib/betas';
-import { cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from './ImageUpload';
+import { cloudinaryUploadPresetSocialPreviewSetting } from './ImageUpload';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -25,14 +21,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: 'auto',
   },
   button: {
-    background: theme.palette.buttons.imageUpload.background,
+    background: theme.palette.buttons.imageUpload2.background,
     "&:hover": {
-      background: theme.palette.buttons.imageUpload.hoverBackground,
+      background: theme.palette.buttons.imageUpload2.hoverBackground,
     },
     color: theme.palette.text.invertedBackgroundText,
     textTransform: 'none',
     margin: 5,
     fontSize: 14,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   imageBackground: {
     backgroundSize: 'cover',

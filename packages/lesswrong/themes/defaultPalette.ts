@@ -392,6 +392,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.greyAlpha(.5),
       hoverBackground: shades.greyAlpha(.35),
     },
+    imageUpload2: {
+      background: shades.greyAlpha(.8),
+      hoverBackground: shades.greyAlpha(.6),
+    },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
   },

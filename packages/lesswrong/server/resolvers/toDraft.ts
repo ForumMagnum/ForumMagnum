@@ -1,9 +1,9 @@
 import { JSDOM } from 'jsdom'
-import { sanitize } from '../vulcan-lib/utils';
 import { markdownToHtmlNoLaTeX } from '../editor/conversionUtils';
 import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
 import { createHash } from "crypto";
+import { sanitize } from '../../lib/vulcan-lib/utils';
 
 function domBuilder(html: string) {
   const jsdom = new JSDOM(html)
