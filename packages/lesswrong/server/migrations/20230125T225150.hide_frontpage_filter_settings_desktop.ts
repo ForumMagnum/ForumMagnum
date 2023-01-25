@@ -1,30 +1,23 @@
-import { Users } from '../../lib/collections/users/collection';
-import { addField } from './meta/utils';
-
 /**
- * Generated on 2023-01-04T01:17:31.530Z by `yarn makemigrations`
+ * Generated on 2023-01-25T22:51:50.553Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
- * index 262617ce5a..73ee14186e 100644
+ * index 7d2ec35157..c14703bbc9 100644
  * --- a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql
  * +++ b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: ea71916ffaa87ae0a21302ce831261e6
+ * --- Overall schema hash: 707023204349d37156630a9823919f65
  * -
- * --- Accepted on 2022-12-30T18:11:10.000Z by 20221230T181110.fix_editable_fields.ts
- * +-- Overall schema hash: c46af5d867666c2447ff14368afc0df2
+ * --- Accepted on 2023-01-24T12:03:50.000Z by 20230124T120350.add_subforumPreferredLayout.ts
+ * +-- Overall schema hash: 7cbf5077bbfde8c80291425dcd16c9ab
  *  
- * @@ -858,3 +856,3 @@ CREATE TABLE "UserTagRels" (
+ * @@ -861,3 +859,3 @@ CREATE TABLE "UserTagRels" (
  *  
- * --- Schema for "Users", hash: 84a4b26181f3f998f08730b47351406e
- * +-- Schema for "Users", hash: 8441f45ed6575024b2341f7844087cf5
+ * --- Schema for "Users", hash: ba42221cd8e6c8924c8531df2692d80e
+ * +-- Schema for "Users", hash: c3c2cbb63b5bee2d02c6a25ada7e8d0d
  *  CREATE TABLE "Users" (
- * @@ -894,2 +892,3 @@ CREATE TABLE "Users" (
- *      "frontpageFilterSettings" jsonb,
- * +    "hideFrontpageFilterSettingsDesktop" bool,
- *      "allPostsTimeframe" text,
  * 
  * -------------------------------------------
  * (run `git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql` to see this more clearly)
@@ -34,14 +27,19 @@ import { addField } from './meta/utils';
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "c46af5d867666c2447ff14368afc0df2";
+export const acceptsSchemaHash = "7cbf5077bbfde8c80291425dcd16c9ab";
+
+import Users from "../../lib/collections/users/collection";
+import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
     await addField(db, Users, 'hideFrontpageFilterSettingsDesktop');
-  }
+  }  
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  if (Users.isPostgres()) {
+    await dropField(db, Users, 'hideFrontpageFilterSettingsDesktop');
+  }  
 }

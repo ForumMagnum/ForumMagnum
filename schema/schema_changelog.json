@@ -45,11 +45,6 @@
     "timestamp": "2022-12-30T18:11:10.000Z"
   },
   {
-    "acceptsSchemaHash": "c46af5d867666c2447ff14368afc0df2",
-    "acceptedByMigration": "20230104T011731.auto.ts",
-    "timestamp": "2023-01-04T01:17:31.000Z"
-  },
-  {
     "acceptsSchemaHash": "82e629fdd1fb2659bd379e8503ec8b6d",
     "acceptedByMigration": "20230110T105025.init_sub_tag_ids.ts",
     "timestamp": "2023-01-10T10:50:25.000Z"
@@ -68,5 +63,10 @@
     "acceptsSchemaHash": "707023204349d37156630a9823919f65",
     "acceptedByMigration": "20230124T120350.add_subforumPreferredLayout.ts",
     "timestamp": "2023-01-24T12:03:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7cbf5077bbfde8c80291425dcd16c9ab",
+    "acceptedByMigration": "20230125T225150.hide_frontpage_filter_settings_desktop.ts",
+    "timestamp": "2023-01-25T22:51:50.000Z"
   }
 ]
