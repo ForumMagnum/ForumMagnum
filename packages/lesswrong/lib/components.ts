@@ -482,6 +482,7 @@ importComponent("AFSuggestCommentsList", () => require('../components/sunshineDa
 
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
 importComponent("ContentSummaryRows", () => require('../components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows'));
+importComponent("NewUserDMSummary", () => require('../components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary'));
 importComponent("ModeratorActionItem", () => require('../components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem'));
 importComponent("AFSuggestPostsItem", () => require('../components/sunshineDashboard/AFSuggestPostsItem'));
 importComponent("AFSuggestPostsList", () => require('../components/sunshineDashboard/AFSuggestPostsList'));
