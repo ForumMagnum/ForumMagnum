@@ -65,8 +65,13 @@
     "timestamp": "2023-01-24T12:03:50.000Z"
   },
   {
-    "acceptsSchemaHash": "7cbf5077bbfde8c80291425dcd16c9ab",
-    "acceptedByMigration": "20230125T225150.hide_frontpage_filter_settings_desktop.ts",
-    "timestamp": "2023-01-25T22:51:50.000Z"
+    "acceptsSchemaHash": "f167b9a94ae9eebe159267d6ca82d3a4",
+    "acceptedByMigration": "20230124T210513.spotlight_new_fields.ts",
+    "timestamp": "2023-01-24T21:05:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "71ba3e6828163cf8f0942772838e2531",
+    "acceptedByMigration": "20230125T225839.hide_frontpage_filter_settings_desktop.ts",
+    "timestamp": "2023-01-25T22:58:39.000Z"
   }
 ]
