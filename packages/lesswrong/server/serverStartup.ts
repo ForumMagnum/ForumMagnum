@@ -16,9 +16,14 @@ import { createVoteableUnionType } from './votingGraphQL';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
 import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
+import { dropAndCreatePg } from './createTestingPgDb';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
+import { basename, join } from 'path';
+
+// Do this here to avoid a dependency cycle
+Globals.dropAndCreatePg = dropAndCreatePg;
 
 const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
   for (let functionName of ["log", "info", "warn", "error", "trace"]) {
@@ -140,7 +145,7 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
     const result = await func();
     // eslint-disable-next-line no-console
     console.log("Finished. Result: ", result);
-    process.exit(0);
+    process.kill(estrellaPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
     // eslint-disable-next-line no-console
@@ -218,7 +223,8 @@ const watchForShellCommands = () => {
     const fileContents = fs.readFileSync(path, 'utf8');
     // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
-    fs.unlinkSync(path);
+    const newPath = join("tmp/runningShellCommands", basename(path));
+    fs.renameSync(path, newPath);
     try {
       const func = compileWithGlobals(fileContents);
       const result = await func();
@@ -229,6 +235,8 @@ const watchForShellCommands = () => {
       console.log("Failed.");
       // eslint-disable-next-line no-console
       console.log(e);
+    } finally {
+      fs.unlinkSync(newPath);
     }
   });
 }

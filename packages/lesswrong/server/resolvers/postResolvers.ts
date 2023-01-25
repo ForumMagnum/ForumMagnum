@@ -9,6 +9,7 @@ import { getDefaultPostLocationFields } from '../posts/utils'
 import { addBlockIDsToHTML, getSideComments, matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
+import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -81,7 +82,7 @@ augmentFieldsDict(Posts, {
         
         const now = new Date();
         const comments = await Comments.find({
-          ...Comments.defaultView({}).selector,
+          ...getDefaultViewSelector("Comments"),
           postId: post._id,
         }).fetch();
         

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useMulti } from '../../../lib/crud/withMulti';
 import DialogContent from '@material-ui/core/DialogContent';
 
 const styles = (theme: ThemeType): JssStyles => ({

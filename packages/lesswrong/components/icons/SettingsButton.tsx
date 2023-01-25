@@ -6,21 +6,22 @@ import Settings from '@material-ui/icons/Settings';
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[600],
+    fontSize: 18
   },
   iconWithLabelGroup: {
     display: "flex",
     alignItems: "center",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   iconWithLabel: {
-    marginRight: theme.spacing.unit,
+    marginRight: 4,
+    marginLeft: 4,
   },
   label: {
     ...theme.typography.body2,
     fontSize: 14,
     color: theme.palette.grey[600],
-    fontStyle: "italic"
   }
 })
 

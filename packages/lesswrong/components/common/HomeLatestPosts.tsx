@@ -14,6 +14,9 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
+import { useMulti } from '../../lib/crud/withMulti';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
   marginBottom: 8
@@ -64,7 +67,10 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, SectionTitle, CuratedPostsList } = Components
+  const {
+    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography,
+    CuratedPostsList, CommentsListCondensed, SectionTitle
+  } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -90,10 +96,12 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     })
   }
   
+  const recentSubforumDiscussionTerms = {
+    view: "latestSubforumDiscussion" as const,
+    profileTagIds: currentUser?.profileTagIds,
+  };
 
-  const showCurated = 
-    (forumTypeSetting.get() === "EAForum")
-    || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
+  const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -140,10 +148,22 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+              <PostsList2
+                terms={recentPostsTerms}
+                alwaysShowLoadMore
+                hideHiddenFrontPagePosts
+              >
                 <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
+            {isEAForum && !!currentUser?.profileTagIds?.length && (
+              <CommentsListCondensed
+                label={"Discussion from your subforums"}
+                contentType="frontpageSubforumDiscussion"
+                terms={recentSubforumDiscussionTerms}
+                initialLimit={3}
+              />
+            )}
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

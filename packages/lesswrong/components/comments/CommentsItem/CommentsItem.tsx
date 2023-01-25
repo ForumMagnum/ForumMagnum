@@ -18,6 +18,7 @@ import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
+import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -32,6 +33,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   subforumTop: {
     paddingTop: 4,
+  },
+  tagIcon: {
+    marginRight: 6,
+    '& svg': {
+      width: 15,
+      height: 15,
+      fill: theme.palette.grey[600],
+    },
   },
   body: {
     borderStyle: "none",
@@ -184,7 +193,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -200,6 +209,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
@@ -212,7 +222,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
 
-  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !showEditState)
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -283,6 +293,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
+    const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+    const commentHidden = hideSince && new Date(hideSince) < new Date(comment.postedAt) &&
+      comment.authorIsUnreviewed
     const showReplyButton = (
       !hideReply &&
       !comment.deleted &&
@@ -292,7 +305,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
+      !commentHidden
     )
 
     const showInlineCancel = showReplyState && isMinimalist
@@ -330,7 +344,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const {
+    ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
+    CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    LWHelpIcon, TopTagIcon
+  } = Components
 
   if (!comment) {
     return null;
@@ -408,7 +426,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         <div className={classes.body}>
           {showCommentTitle && <div className={classes.title}>
-            <CommentDiscussionIcon comment={comment} />
+            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+              <TopTagIcon tag={tag} />
+            </span> : <CommentDiscussionIcon
+              comment={comment}
+            />}
             {comment.title}
           </div>}
           <div className={classNames(classes.meta, {
