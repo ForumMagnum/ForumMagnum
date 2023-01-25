@@ -448,7 +448,6 @@ const ReviewVotingPage = ({classes}: {
       })
       .map(([post, _]) => post)
       
-      console.log(newlySortedPosts[0].tags.map(tag=>tag._id))
       const filteredPosts = tagFilter ? filter(newlySortedPosts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : newlySortedPosts
 
     console.log(filteredPosts.length)
