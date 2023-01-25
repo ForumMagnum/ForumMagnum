@@ -65,6 +65,8 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter}:{
   const sortedTagsWithCount = sortBy(tagsWithCount, tag => -tag.count)
   const slicedTags = sortedTagsWithCount.slice(0,max)
 
+  const expandedNumberOfTags = filter(tagsWithCount, tag => tag.count >= expandedMinCount).length
+
   const tagButtonTooltip = (tag) => {
     if (currentFilter === tag._id) return `Show posts of all tags`
     return `Filter posts to only show posts tagged '${tag.name}'`
@@ -76,7 +78,7 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter}:{
 
   return <div className={classes.root}>
     {slicedTags.map(tag => tagButton(tag))}
-    {(max === defaultMax) && <a className={classes.button} onClick={() => setMax(filter(tagsWithCount, tag => tag.count >= expandedMinCount).length)}>More</a>}
+    {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>More</a></LWTooltip>}
     {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>Fewer</a>}
   </div>;
 }
