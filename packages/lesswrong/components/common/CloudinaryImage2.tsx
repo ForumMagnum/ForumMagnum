@@ -125,7 +125,7 @@ const CloudinaryImage2 = ({
       srcSet={srcSetFunc(darkPublicId!)}
       media="(min-width: 600px) and (prefers-color-scheme: dark)"
     /> : <source
-      srcSet={srcSetFunc(publicId)}
+      srcSet={srcSetFunc(shouldUseDarkImage === "yes" ? darkPublicId! : publicId)}
       media="(min-width: 600px)"
     />)}
     {shouldUseDarkImage === 'maybe' && <source
