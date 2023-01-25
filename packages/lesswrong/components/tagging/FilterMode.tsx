@@ -40,7 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.tag.border,
     borderRadius: 3,
     ...theme.typography.commentStyle,
-    cursor: "pointer",  
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
