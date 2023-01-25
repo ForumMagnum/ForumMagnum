@@ -10,6 +10,7 @@ import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
 import { createMutator } from '../vulcan-lib/mutators';
 import * as _ from 'underscore';
 import cheerio from 'cheerio';
+import { cheerioParse } from '../utils/htmlUtil';
 import { onStartup } from '../../lib/executionEnvironment';
 import { dataToHTML, dataToWordCount } from './conversionUtils';
 import { Globals } from '../../lib/vulcan-lib/config';
@@ -294,8 +295,7 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(diffHtml, null, false);
+  const parsedHtml = cheerioParse(diffHtml);
 
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");
