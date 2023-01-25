@@ -74,7 +74,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       const response = await createConversation({data})
       return response.data?.createConversation.data._id
     } catch(e) {
-      flash({messageString: e.message, type: 'error'})
+      flash(e.message)
       return null
     }
   }
