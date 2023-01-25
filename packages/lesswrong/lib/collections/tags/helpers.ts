@@ -1,7 +1,6 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
-import { subforumSlugsSetting } from "../../routeUtil";
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
@@ -28,16 +27,16 @@ export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get(
 export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions) => {
+export const tagGetUrl = (tag: {slug: string, isSubforum: boolean}, urlOptions?: GetUrlOptions) => {
   // Assume links that are not explicitly for the subforum should go to the wiki tab (this may change in the future)
-  const urlSearchParams = subforumSlugsSetting.get().includes(tag.slug) ? {tab: "wiki", ...urlOptions} : urlOptions
+  const urlSearchParams = tag.isSubforum ? {tab: "wiki", ...urlOptions} : urlOptions
   const search = qs.stringify(urlSearchParams)
 
   const url = `/${tagUrlBase}/${tag.slug}`
   return `${url}${search ? `?${search}` : ''}`
 }
 
-export const tagGetHistoryUrl = (tag: {slug: string}) => `${tagGetUrl(tag)}/history`
+export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBase}/${tag.slug}/history`
 
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
   const suffix = `/${tagUrlBase}/${tag.slug}/discussion`
@@ -79,6 +78,11 @@ export const subforumGetSubscribedUsers = async ({tagId}: {tagId: string}): Prom
 export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag: { subforumModeratorIds: string[] }) => {
   if (!user) return false
   if (user.isAdmin || user?.groups?.includes("sunshineRegiment")) return true
-  if (tag.subforumModeratorIds.includes(user._id)) return true
+  if (tag.subforumModeratorIds?.includes(user._id)) return true
   return false
+}
+
+export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
+  if (!user || !tag) return false;
+  return tag.subforumModeratorIds?.includes(user._id);
 }

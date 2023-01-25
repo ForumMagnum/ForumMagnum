@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Check from '@material-ui/icons/Check';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
@@ -20,6 +21,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 12,
     top: 12,
     color: theme.palette.text.dim40,
+    
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    }
+  },
+  showOnlyIfMobile: {
+    display: "none",
+    [theme.breakpoints.down('xs')]: {
+      display: "block",
+    },
+  },
+  largerScreenNeededNotice: {
+    padding: 8,
+    ...theme.typography.commentStyle,
   },
 });
 
@@ -50,6 +65,9 @@ const SetSideCommentVisibility = ({classes}: {
   
   const {sideCommentMode, setSideCommentMode} = sideCommentVisibility;
   const submenu = <Paper>
+    <span className={classNames(classes.showOnlyIfMobile, classes.largerScreenNeededNotice)}>
+      Side-comments require a larger screen
+    </span>
     {sideCommentModes.map(mode =>
       <MenuItem
         key={mode.name}
@@ -78,6 +96,9 @@ const SetSideCommentVisibility = ({classes}: {
       </ListItemIcon>
       <span className={classes.sideCommentsLabel}>
         Side-comments
+      </span>
+      <span className={classNames(classes.showOnlyIfMobile, classes.currentSelectionPreview)}>
+        Hidden
       </span>
       <span className={classes.currentSelectionPreview}>
         {sideCommentModes.find(mode=>mode.name===sideCommentMode)?.label}

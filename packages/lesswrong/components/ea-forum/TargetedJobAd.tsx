@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import LocationIcon from '@material-ui/icons/LocationOn'
+import WorkIcon from '@material-ui/icons/BusinessCenter'
 import CloseIcon from '@material-ui/icons/Close'
 import InfoIcon from '@material-ui/icons/Info'
 import ChevronRight from '@material-ui/icons/ChevronRight';
@@ -95,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 18,
     lineHeight: '24px',
     color: theme.palette.grey[700],
-    margin: '3px 0'
+    margin: '3px 0 5px'
   },
   link: {
     color: theme.palette.primary.main
@@ -104,7 +105,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 30,
-    rowGap: '3px'
+    rowGap: '5px'
   },
   metadata: {
     display: 'flex',
@@ -115,6 +116,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadataIcon: {
     fontSize: 12,
+  },
+  deadline: {
+    fontWeight: 600,
+    color: theme.palette.primary.dark
   },
   readMore: {
     display: 'flex',
@@ -176,39 +181,289 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+// list of options from EAG
+type EAGOccupation =
+  'Academic research'|
+  'Operations'|
+  'Entrepreneurship'|
+  'Policymaking/Civil service'|
+  'EA community building/community management'|
+  'AI safety technical research'|
+  'Software development/Software engineering'|
+  'People management'|
+  'Education'|
+  'Global health & development'|
+  'Improving institutional decision making'|
+  'Earning to give'|
+  'AI strategy & policy'|
+  'Project management/ Program management'|
+  'Healthcare/Medicine'|
+  'Technology'|
+  'Grantmaking'|
+  'Information security'|
+  'Climate change mitigation'|
+  'Global coordination & peace-building'|
+  'Consulting'|
+  'Alternative proteins'|
+  'Global mental health & well-being'|
+  'Nuclear security'|
+  'Politics'|
+  'Writing'|
+  'Event production'|
+  'Product management'|
+  'Wild animal welfare'|
+  'Biosecurity'|
+  'Philanthropy'|
+  'Farmed animal welfare'|
+  'Communications/Marketing'|
+  'HR/People operations'|
+  'Global priorities research'|
+  'Journalism'|
+  'Finance/Accounting'|
+  'User experience design/research'|
+  'Data science/Data visualization'|
+  'Counselling/Social work'|
+  'Graphic design'|
+  'S-risk'
+
+type JobAdData = {
+  standardApplyBtn?: boolean,        // set to show the "Apply now" button instead of "Yes, I'm interested"
+  eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
+  interestedIn?: EAGOccupation[],    // used to match on EAG interests
+  tagId?: string,                    // used to match on a topic
+  logo: string,                      // url for org logo
+  occupation: string,                // text displayed in the tooltip
+  feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
+  bitlyLink: string,                 // bitly link to the job ad page
+  role: string,
+  insertThe?: boolean,               // set if you want to insert a "the" before the org name
+  org: string,
+  orgLink: string,                   // internal link on the org name
+  salary?: string,
+  location: string,
+  roleType?: string,                 // i.e. part-time, contract
+  deadline?: moment.Moment,          // not displayed, only used to hide the ad after this date
+  getDescription: (classes: ClassesType) => JSX.Element
+}
+
 // job-specific data for the ad
 // (also used in the confirmation email, so links in the description need to be absolute)
-export const JOB_AD_DATA = {
-  'ai-policy-govai': {
-    occupationName: 'AI strategy & policy',
-    tagId: 'u3Xg8MjDe2e6BvKtv', // AI Governance
-    logo: 'https://80000hours.org/wp-content/uploads/2021/12/centre-for-the-governance-of-ai-160x160.jpeg',
-    occupation: 'AI governance & policy',
-    feedbackLinkPrefill: 'Summer+Fellow+at+GovAI',
-    bitlyLink: "https://efctv.org/3hTf0Sl", // https://www.governance.ai/post/summer-fellowship-2023
-    role: 'Summer Fellow',
+export const JOB_AD_DATA: Record<string, JobAdData> = {
+  'project-management-gfi': {
+    eagOccupations: ['Project management/ Program management', 'Alternative proteins'],
+    tagId: 'sXXqo3rbghiNW7SwN', // Animal product alternatives
+    logo: 'https://80000hours.org/wp-content/uploads/2021/05/good-food-institute-160x160.png',
+    occupation: 'alternative proteins',
+    feedbackLinkPrefill: 'Executive+Assistant+at+GFI',
+    bitlyLink: "https://efctv.org/3Xqa86C", // https://gfi.org/job/?gh_jid=6554883002
+    role: 'Executive Assistant, Science and Technology',
     insertThe: true,
-    org: 'Centre for the Governance of AI',
-    orgSlug: 'centre-for-the-governance-of-ai',
-    salary: '£9,000 - £12,000 stipend',
-    location: 'Oxford, UK (Flexible)',
-    deadline: moment("01-16-2023", "MM-DD-YYYY"),
+    org: 'Good Food Institute',
+    orgLink: '/topics/good-food-institute',
+    salary: '$63,046',
+    location: 'Remote, USA',
+    deadline: moment("02-01-2023", "MM-DD-YYYY"),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        In this fellowship at the <a href="https://www.governance.ai" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Centre for the Governance of AI (GovAI)
-        </a>, you will conduct independent research on <a href="https://www.governance.ai/post/summer-fellowship-2022-wrap-up" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          a topic of your choice
-        </a>, with mentorship from leading experts in the field of <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-governance")} innerHTML="AI governance"/>
-        </span>.
+        The <a href="https://gfi.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Good Food Institute (GFI)
+        </a> is a nonprofit that works with scientists, investors, and entrepreneurs to produce <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/cultivated-meat")} innerHTML="cultivated meat"/>
+        </span> and plant-based <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/animal-product-alternatives")} innerHTML="alternatives"/>
+        </span> to animal products.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>A minimum of four years' applicable work experience (previous administrative experience preferred)</li>
+          <li>Demonstrated experience working with projects in project management software</li>
+          <li>Strong attention to detail and a high degree of organization and efficiency</li>
+        </ul>
+      </div>
+    </>
+  },
+  'finance-founders-pledge': {
+    eagOccupations: ['Finance/Accounting'],
+    logo: 'https://80000hours.org/wp-content/uploads/2019/06/founders-pledge-160x160.png',
+    occupation: 'finance',
+    feedbackLinkPrefill: 'Investment+Operations+Manager+at+Founders+Pledge',
+    bitlyLink: "https://efctv.org/3ZLIYZE", // https://founders-pledge.jobs.personio.de/job/926945?_pc=959484&display=en
+    role: 'Investment Operations Manager',
+    org: 'Founders Pledge',
+    orgLink: '/topics/founders-pledge',
+    salary: 'Up to $110k',
+    location: 'Remote, USA',
+    roleType: '12 month contract',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://founderspledge.com" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Founders Pledge
+        </a> is a nonprofit that encourages entrepreneurs to pledge to donate a portion of their profits to
+        effective charities. They are looking for someone to help implement an investment program for their
+        global charitable foundation, on a 12-month FTC.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>Project management experience in either institutional or private wealth management operations</li>
+          <li>Understanding of institutional investment practices and portfolio management principles</li>
+          <li>Experience with audits and/or accounting (specifically investment accounting)</li>
+        </ul>
+      </div>
+    </>
+  },
+  'program-management-malaria-consortium': {
+    eagOccupations: ['Global health & development', 'Project management/ Program management', 'Communications/Marketing'],
+    tagId: 'sWcuTyTB5dP3nas2t', // Global health and development
+    logo: 'https://80000hours.org/wp-content/uploads/2019/11/Malaria-Consortium-160x160.png',
+    occupation: 'global health & development',
+    feedbackLinkPrefill: 'Programme+Design+and+Development+Specialist+at+Malaria+Consortium',
+    bitlyLink: "https://efctv.org/3GA1j33", // https://malariaconsortium.current-vacancies.com/Jobs/Advert/2694751?cid=2061&t=Programme-Design-and-Development-Specialist
+    role: 'Programme Design and Development Specialist',
+    org: 'Malaria Consortium',
+    orgLink: '/topics/malaria-consortium',
+    salary: '£44,859',
+    location: 'London, UK',
+    deadline: moment("01-31-2023", "MM-DD-YYYY"),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://www.malariaconsortium.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Malaria Consortium
+        </a> is a British charity that works on preventing, controlling, and treating <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")} innerHTML="malaria"/>
+        </span> and other communicable diseases in Africa and Asia.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>A Masters in Public Health, Epidemiology, Development Studies or similar fields, or equivalent practical experience</li>
+          <li>Experience in leading the design and writing of successful competitive proposals and tenders for public health programming for commercial bids and for grants</li>
+          <li>Experience in managing international health programmes in developing countries</li>
+        </ul>
+      </div>
+    </>
+  },
+  'ops-arc': {
+    eagOccupations: ['Operations', 'AI safety technical research'],
+    tagId: 'NNdytpR2E4jYKQCNd', // Operations
+    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
+    occupation: 'operations',
+    feedbackLinkPrefill: 'Operations+Officer+at+ARC',
+    bitlyLink: "https://efctv.org/3CGeuOI", // https://jobs.lever.co/alignment.org/78d8684f-e6f1-4d2a-a220-99d5622422ac
+    role: 'Operations Officer',
+    insertThe: true,
+    org: 'Alignment Research Center',
+    orgLink: '/topics/alignment-research-center',
+    location: 'Berkeley, CA',
+    deadline: moment("01-28-2023", "MM-DD-YYYY"),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          ARC
+        </a> is a non-profit research organization focused on <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
+        </span>. As part of a new team within ARC, your role will be to build, operate, and maintain systems
+        to help them do their work efficiently and effectively.
       </div>
       <div className={classes.description}>
         Ideal candidates:
         <ul>
-          <li>Are interested in using their career to study or shape the long-term implications of advanced AI</li>
-          <li>Can produce clearly written, insightful, and even-handed research</li>
-          <li>Have a graduate degree or research experience relevant to AI governance, such as political science, economics, sociology, or law</li>
+          <li>Are highly organized and adaptable</li>
+          <li>Have strong managerial skills and the ability to think strategically in order to guide and support a growing team</li>
+          <li>Have a strong interest in AI and AI safety and a strong drive to contribute and make a difference</li>
+        </ul>
+      </div>
+    </>
+  },
+  'engineering-arc': {
+    eagOccupations: ['Software development/Software engineering', 'AI safety technical research'],
+    tagId: 'FHE3J3E8qd6oqGZ8a', // Software engineering
+    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
+    occupation: 'software engineering',
+    feedbackLinkPrefill: 'Generalist+Software+Engineer+at+ARC',
+    bitlyLink: "https://efctv.org/3whnarm", // https://jobs.lever.co/alignment.org/d12bfa4a-6958-43f2-aff7-56f6a9651db4
+    role: 'Generalist Software Engineer',
+    insertThe: true,
+    org: 'Alignment Research Center',
+    orgLink: '/topics/alignment-research-center',
+    location: 'Berkeley, CA',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          ARC
+        </a> is a non-profit research organization focused on <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
+        </span>. The evaluations project is a new team within ARC building capability evaluations for
+        advanced ML models, which can enable labs to make measurable safety commitments.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates:
+        <ul>
+          <li>Can rapidly prototype features and write clear, easy-to-extend code (current stack: React, Typescript, Python, SQL, Flask)</li>
+          <li>Have good communication skills, including always asking for clarification if priorities are ambiguous</li>
+          <li>Are quick to pick up whatever skills and knowledge are required to make the project succeed</li>
+        </ul>
+      </div>
+    </>
+  },
+  'ai-research-arc': {
+    eagOccupations: ['AI safety technical research'],
+    tagId: 'oNiQsBHA3i837sySD', // AI safety
+    logo: 'https://80000hours.org/wp-content/uploads/2022/01/robotarm_big-160x160.png',
+    occupation: 'AI safety',
+    feedbackLinkPrefill: 'Researcher,+Model+Evaluations+at+ARC',
+    bitlyLink: "https://efctv.org/3ZqYEkV", // https://jobs.lever.co/alignment.org/51cce9d1-73c7-461c-9d37-4ec1da07a863
+    role: 'Researcher, Model Evaluations',
+    insertThe: true,
+    org: 'Alignment Research Center',
+    orgLink: '/topics/alignment-research-center',
+    location: 'Berkeley, CA',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://alignment.org" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          ARC
+        </a> is a non-profit research organization focused on <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/ai-alignment")} innerHTML="AI alignment"/>
+        </span>. The evaluations project is a new team within ARC building capability evaluations for
+        advanced ML models, which can enable labs to make measurable safety commitments.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>A solid working knowledge of language model capabilities and modern ML</li>
+          <li>A good understanding of alignment risk, in order to identify core risks and translate abstract stories about risk into concrete measurements of existing models</li>
+          <li>Strong basic coding skills (able to design and build a system for managing experiments and data)</li>
+        </ul>
+      </div>
+    </>
+  },
+  'biosecurity-warwick': {
+    interestedIn: ['Biosecurity'],
+    tagId: 'aELNHEKtcZtMwEkdK', // Biosecurity
+    logo: 'https://80000hours.org/wp-content/uploads/2022/12/Warwick-University-160x160.png',
+    occupation: 'biosecurity',
+    feedbackLinkPrefill: 'PhD+Student+at+University+of+Warwick',
+    bitlyLink: "https://efctv.org/3IxWcD3", // https://warwick.ac.uk/fac/cross_fac/igpp/ab101/
+    role: 'PhD Student',
+    insertThe: true,
+    org: 'University of Warwick, Institute for Global Pandemic Planning',
+    orgLink: '/posts/gnk3FbdxJjZrrvoGA/link-post-fully-funded-phds-in-pandemic-planning',
+    location: 'Warwick, UK',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        This is a 4-year fully funded scholarship to work on a PhD in Public Health
+        at <a href="https://warwick.ac.uk/fac/cross_fac/igpp/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          IGPP
+        </a>, with the option to focus on Behavioural Science, Mathematical Epidemiology,
+        Pathogen Diagnostics or Pandemic Response Planning.
+      </div>
+      <div className={classes.description}>
+        General entry requirements for the university:
+        <ul>
+          <li>At least an upper second class UK honours degree or international equivalent</li>
+          <li>Evidence of English language capability</li>
+          <li>Two strong academic references</li>
         </ul>
       </div>
     </>
@@ -345,7 +600,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
           <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
             {adData.role}
           </a> at{adData.insertThe ? ' the' : ''} <span className={classes.link}>
-            <HoverPreviewLink href={`/topics/${adData.orgSlug}`} innerHTML={adData.org} />
+            <HoverPreviewLink href={adData.orgLink} innerHTML={adData.org} />
           </span>
         </h2>
         <div className={classes.metadataRow}>
@@ -356,6 +611,18 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
             <LocationIcon className={classes.metadataIcon} />
             {adData.location}
           </div>
+          {adData.roleType && <div className={classes.metadata}>
+            <WorkIcon className={classes.metadataIcon} />
+            {adData.roleType}
+          </div>}
+          {
+            // display the deadline when it's within 2 days away
+            adData.deadline &&
+            moment().add(2, 'days').isSameOrAfter(adData.deadline, 'day') &&
+            <div className={classNames(classes.metadata, classes.deadline)}>
+              Apply by {adData.deadline.format('MMM Do')}
+            </div>
+          }
         </div>
         {!expanded ? <button onClick={handleExpand} className={classes.readMore}>
           <ChevronRight className={classes.readMoreIcon} /> Expand

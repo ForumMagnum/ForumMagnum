@@ -11,6 +11,7 @@ import type { RecommendationsAlgorithm } from '../lib/collections/users/recommen
 import { forumTypeSetting } from '../lib/instanceSettings';
 import SelectQuery from "../lib/sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -135,7 +136,7 @@ const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
   const recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...Posts.getParameters({}).selector,
+    ...getDefaultViewSelector("Posts"),
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -167,10 +168,18 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 }): Promise<Array<DbPost>> => {
   if (Posts.isPostgres()) {
     const joinHook = algorithm.onlyUnread && currentUser
-      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' AND rs."isRead" = FALSE`
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
       : undefined;
     const query = new SelectQuery(
-      new SelectQuery(Posts.getTable(), recommendablePostFilter(algorithm), {}, {joinHook}),
+      new SelectQuery(
+        new SelectQuery(
+          Posts.getTable(),
+          {},
+          {},
+          {joinHook},
+        ),
+        recommendablePostFilter(algorithm),
+      ),
       {},
       {projection: scoreRelevantFields},
     );

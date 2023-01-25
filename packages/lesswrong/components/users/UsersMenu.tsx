@@ -118,9 +118,9 @@ const UsersMenu = ({classes}: {
                 ev.preventDefault()
               }
             }}>
-             {userCanPost(currentUser) && <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                New Question
-              </MenuItem>}
+              {userCanPost(currentUser) && <Link to={`/newPost?question=true`}>
+                <MenuItem>New Question</MenuItem>
+              </Link>}
               {userCanPost(currentUser) && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>}

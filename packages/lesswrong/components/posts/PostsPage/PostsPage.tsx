@@ -212,7 +212,7 @@ const PostsPage = ({post, refetch, classes}: {
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect
   } = Components
 
   useEffect(() => {
@@ -310,6 +310,13 @@ const PostsPage = ({post, refetch, classes}: {
   const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
+  // If this is a non-AF post being viewed on AF, redirect to LW.
+  const isAF = (forumTypeSetting.get() === 'AlignmentForum');
+  if (isAF && !post.af) {
+    const lwURL = "https://www.lesswrong.com" + location.url;
+    return <PermanentRedirect url={lwURL}/>
+  }
+  
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <ToCColumn
@@ -350,7 +357,7 @@ const PostsPage = ({post, refetch, classes}: {
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
-            {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
       </AnalyticsInViewTracker>

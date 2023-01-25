@@ -1,13 +1,12 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { useMessages } from '../common/withMessages';
-import { useCurrentUser } from '../common/withUser';
-import { useDialog } from '../common/withDialog';
+import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
+import { useMessages } from '../../common/withMessages';
+import { useCurrentUser } from '../../common/withUser';
+import { useDialog } from '../../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,8 +59,8 @@ const SubforumSubscribeSection = ({
       captureEvent('subforumSubscribeClicked', {tagId: tag._id});
 
       if (currentUser) {
-        await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
         joinCallback();
+        await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
       } else {
         openDialog({
           componentName: "LoginPopup",
@@ -74,12 +73,16 @@ const SubforumSubscribeSection = ({
   }
   
   const onUnsubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+    try {
+      e.preventDefault()
 
-    captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
-    if (currentUser) {
-      await subforumMembershipMutation({variables: {tagId: tag._id, member: false}});
-      leaveCallback();
+      captureEvent('subforumUnsubscribeClicked', {tagId: tag._id})
+      if (currentUser) {
+        leaveCallback();
+        await subforumMembershipMutation({variables: {tagId: tag._id, member: false}});
+      }
+    } catch(error) {
+      flash({messageString: error.message});
     }
   }
   

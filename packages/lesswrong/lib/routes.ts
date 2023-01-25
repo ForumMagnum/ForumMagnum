@@ -3,11 +3,10 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNameP
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
-import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
+import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { subforumSlugsSetting } from './routeUtil';
 
 
 export const communityPath = '/community';
@@ -21,7 +20,6 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
-const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
@@ -221,7 +219,6 @@ addRoute(
     background: "white",
     initialScroll: "bottom",
   },
-
   {
     name: 'newPost',
     path: '/newPost',
@@ -265,7 +262,22 @@ addRoute(
     path: '/reviewVoting/:year',
     title: "Review Voting",
     componentName: "ReviewVotingPage",
-    ...reviewSubtitle
+    subtitleComponentName: "ReviewHeaderTitle"
+  },
+
+  {
+    name: 'reviewQuickPage',
+    path: '/reviewQuickPage',
+    componentName: 'ReviewQuickPage',
+    title: "Review Quick Page",
+    subtitle: "Quick Review Page"
+  },
+
+  {
+    name: "newLongformReviewForm",
+    path: '/newLongformReview',
+    title: "New Longform Review",
+    componentName: "NewLongformReviewForm",
   },
 
   // Sequences
@@ -720,7 +732,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
       redirect: (routerLocation: RouterLocation) => {
         const { params: {slug}, query, hash } = routerLocation
-        const isRouteSubforum = subforumSlugsSetting.get().includes(slug)
 
         const redirectQuery = pickBy({
           ...query,
@@ -728,8 +739,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
           commentId: query.commentId || hash?.slice(1)
         }, v => v)
 
-        // If the route is not declared as a subforum but somehow the user has clicked on a subforum link, redirect to the /subforum2 path, which will always display like a subforum
-        return `/${taggingNamePluralSetting.get()}/${slug}${isRouteSubforum ? '' : '/subforum2'}?${qs.stringify(redirectQuery)}${hash}`
+        // Redirect to the /subforum2 path, which will always display like a subforum regardless of whether isSubforum is true
+        return `/${taggingNamePluralSetting.get()}/${slug}/subforum2?${qs.stringify(redirectQuery)}${hash}`
       }
     },
     {
@@ -740,6 +751,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
+    },
+    {
+      name: 'EAForumWrapped',
+      path: '/wrapped',
+      componentName: 'EAForumWrappedPage',
+      title: 'EA Forum Wrapped',
     },
   ],
   LessWrong: [
@@ -916,21 +933,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/reviews/2018`,
     },
     {
-      name: 'reviews2018',
-      path: '/reviews/2018',
-      componentName: 'Reviews2018',
-      title: "2018 Reviews",
-    },
-    {
       name: 'reviews2019-old',
       path: '/reviews2019',
       redirect: () => `/reviews/2019`,
-    },
-    {
-      name: 'reviews2019',
-      path: '/reviews/2019',
-      componentName: 'Reviews2019',
-      title: "2019 Reviews",
     },
     {
       name: 'library',
@@ -1384,14 +1389,15 @@ addRoute(
     title: "User Comment Replies",
   },
   {
-    name: 'reviews',
+    name: 'reviewsReroute',
     path: '/reviews',
-    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
+    redirect: () => `/reviews/${REVIEW_YEAR}`,
   },
   {
-    name: 'reviews-2020',
-    path: '/reviews/2020',
-    redirect: () => `/reviewVoting/2020`,
+    name: 'reviews',
+    path:'/reviews/:year',
+    componentName: 'ReviewsPage',
+    title: "Reviews",
   },
   {
     name: 'reviewAdmin',

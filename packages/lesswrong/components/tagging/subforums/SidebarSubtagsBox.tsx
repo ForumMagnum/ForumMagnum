@@ -1,14 +1,18 @@
 import classNames from "classnames";
+import take from "lodash/take";
 import React, { useState } from "react";
-import { useSingle } from "../../lib/crud/withSingle";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { taggingNameSetting } from "../../lib/instanceSettings";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
-import { sortTags } from "./FooterTagList";
-import { TagPreviewProps } from "./TagPreview";
+import { useSingle } from "../../../lib/crud/withSingle";
+import { useUpdate } from "../../../lib/crud/withUpdate";
+import { taggingNameSetting } from "../../../lib/instanceSettings";
+import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { useCurrentUser } from "../../common/withUser";
+import { sortTags } from "../FooterTagList";
+import { TagPreviewProps } from "../TagPreview";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    padding: "1em 1.5em",
+  },
   previewWrapperRow: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -20,12 +24,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   removeButton: {
     float: "right",
   },
+  showAllSubtags: {
+    margin: "5px 0 0",
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.lwTertiary.main,
+  },
 });
 
 const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment | TagPageWithRevisionFragment; className?: string; classes: ClassesType }) => {
   const { ContentStyles, FooterTag, AddTagButton, TagPreview, Loading } = Components;
 
   const [isAwaiting, setIsAwaiting] = useState(false)
+  const [showAllSubtags, setShowAllSubtags] = useState(false)
   const currentUser = useCurrentUser();
 
   // TODO: we fetch the tag twice (once in TagSubforumPage2 and once here) because we want to get more info about the subtags, which could slow down the main page if there are a lot of them.
@@ -76,19 +87,22 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
     );
   };
 
+  const sortedSubtags = sortTags(subTags, (t) => t)
+  const visibleSubtags = showAllSubtags ? sortedSubtags : take(sortedSubtags, 7)
+
   return (
-    <div className={className}>
+    <div className={classNames(className, classes.root)}>
       <ContentStyles contentType="tag">
         <h2>Posts in this space are about</h2>
       </ContentStyles>
-      <span className={classes.root}>
+      <span>
         <FooterTag
           key={tag._id}
           tag={tag}
           hideScore={true}
           popperCard={<WrappedTagPreview tag={tag} showRelatedTags={false} />}
         />
-        {sortTags(subTags, (t) => t).map((tag) => (
+        {visibleSubtags.map((tag) => (
           <FooterTag
             key={tag._id}
             tag={tag}
@@ -97,6 +111,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
           />
         ))}
         {canEditSubtags && <AddTagButton onTagSelected={({ tagId: subTagId }) => setParentTag({ subTagId, parentTagId: tag._id })} />}
+        {!showAllSubtags && visibleSubtags.length < sortedSubtags.length && <div className={classes.showAllSubtags}><a onClick={() => setShowAllSubtags(true)}>Show All</a></div>}
         { isAwaiting && <Loading/>}
       </span>
     </div>
