@@ -85,6 +85,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginBottom: 15,
     gap: '16px',
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 12,
+    },
   },
   searchInputArea: {
     flex: 1,
@@ -94,9 +97,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 48,
     border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: 12,
-    },
     "& .ais-SearchBox": {
       display: 'inline-block',
       position: 'relative',
@@ -132,6 +132,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: "none",
     },
+  },
+  infoIcon: {
+    fontSize: 20,
+    fill: theme.palette.grey[800],
   },
   tabs: {
     margin: '0 auto 20px',
@@ -363,7 +367,7 @@ const SearchPageTabbed = ({classes}:{
             title={`"Quotes" and -minus signs are supported.`}
             className={classes.searchHelp}
           >
-            <InfoIcon />
+            <InfoIcon className={classes.infoIcon}/>
           </LWTooltip>
         </div>
         
