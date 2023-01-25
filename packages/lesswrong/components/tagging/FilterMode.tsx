@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
-    color: theme.palette.primary.dark,
+    color: theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
   },
   description: {
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: 'center'
   },
   filterScore: {
-    color: theme.palette.primary.dark,
+    color: theme.palette.primary.main,
     lineHeight: '8px',
     marginLeft: 7,
     '& svg': {
@@ -165,10 +165,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const reducedName = 'Reduced'
   const reducedVal = 'Reduced'
   const filterMode = filterModeToStr(mode, currentUser)
-  const isLW = forumTypeSetting.get() === 'LessWrong'
-  const filterModeLabel = isLW
-    ? filterModeStrToLWStr(filterMode)
-    : filterMode
+  const filterModeLabel = filterModeStrToLWStr(filterMode);
 
   const tagLabel =
     <span className={classes.tagLabel}>
