@@ -3,7 +3,7 @@ import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
-import { getWithCustomLoader, getWithLoader } from '../loaders';
+import { getWithLoader } from '../loaders';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
