@@ -1,14 +1,15 @@
+import type { ContentBlock } from 'draft-js';
 import React from 'react';
 
 import DefaultDivider from './components/DefaultDivider';
-import DividerButton from './components/DividerButton';
+import DividerButton, { DividerButtonProps } from './components/DividerButton';
 
 // import buttonStyles from './buttonStyles.css';
 
 const createDividerPlugin = (
   { blockType = 'divider', component = DefaultDivider } = {},
 ) => ({
-  blockRendererFn: (block) => {
+  blockRendererFn: (block: ContentBlock) => {
     if (block.getType() === blockType) {
       return {
         component,
@@ -17,7 +18,7 @@ const createDividerPlugin = (
     }
   },
   //eslint-disable-next-line react/display-name
-  DividerButton: (props) => (
+  DividerButton: (props: DividerButtonProps) => (
     <DividerButton {...props} blockType={blockType} />
   ),
 });

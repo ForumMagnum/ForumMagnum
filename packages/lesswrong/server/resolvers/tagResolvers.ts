@@ -26,7 +26,7 @@ import {
   subforumSortings,
   subforumSortingToResolverName,
   subforumSortingTypes,
-} from '../../lib/collections/tags/subforumSortings';
+} from '../../lib/collections/tags/subforumHelpers';
 import { VotesRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 
