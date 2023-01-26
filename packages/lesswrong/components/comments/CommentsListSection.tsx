@@ -7,13 +7,16 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+
+const isAF = forumTypeSetting.get() === "AlignmentForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -195,7 +198,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
-      <Components.PostsPageCrosspostComments />
+      {!isAF && <Components.PostsPageCrosspostComments />}
     </div>
   );
 }
