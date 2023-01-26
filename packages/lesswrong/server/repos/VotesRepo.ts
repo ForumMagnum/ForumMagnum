@@ -54,7 +54,7 @@ export default class VotesRepo extends AbstractRepo {
           "votedAt" <= $3 AND
           "userId" <> $1 AND
           "collectionName" = '${collectionName}'
-        GROUP BY "documentId", "_id"
+        GROUP BY "Votes"."documentId"
       ) v
       JOIN "${collectionName}" data ON data."_id" = v."_id"
       WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0

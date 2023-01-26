@@ -43,7 +43,7 @@ export const useHideRepeatedPosts = () => {
  * can be easily implemented in other components with the
  * useHideRepeatedPosts hook
  */
-export const HideRepeatedPostsProvider = ({children}) => {
+export const HideRepeatedPostsProvider = ({children}: { children: React.ReactNode }) => {
   const postIds: Record<string, string> = {};
 
   const isPostRepeated = (ownerId: string, postId: string) =>

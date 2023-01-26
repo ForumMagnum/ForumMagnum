@@ -4,6 +4,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { restrictViewableFields, userCanDo } from '../../lib/vulcan-users/permissions';
@@ -105,10 +106,19 @@ defineQuery({
     ) {
       // Add the user to linkSharingKeyUsedBy, if not already there
       if (currentUser && (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id))) {
-        await Posts.rawUpdateOne(
-          {_id: post._id},
-          {$addToSet: {linkSharingKeyUsedBy: currentUser._id}}
-        );
+        // FIXME: This is a workaround for the fact that $addToSet hasn't yet been implemented for postgres. We should
+        // switch to just using the second version because it should avoid errors with concurrent updates.
+        if (forumTypeSetting.get() === 'EAForum') {
+          await Posts.rawUpdateOne(
+            {_id: post._id},
+            {$set: {linkSharingKeyUsedBy: [...(post.linkSharingKeyUsedBy || []), currentUser._id]}}
+          );
+        } else {
+          await Posts.rawUpdateOne(
+            {_id: post._id},
+            {$addToSet: {linkSharingKeyUsedBy: currentUser._id}}
+          );
+        }
       }
       
       // Return the post

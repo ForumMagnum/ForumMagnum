@@ -130,6 +130,18 @@ describe("SelectQuery", () => {
       expectedArgs: [1, 2, 3],
     },
     {
+      name: "can build select query with all comparison",
+      getQuery: () => new SelectQuery(testTable, {a: {$all: [10, 20]}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> ARRAY[ $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION ]',
+      expectedArgs: [10, 20],
+    },
+    {
+      name: "can build select query with array length filter",
+      getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a", 1) = $1',
+      expectedArgs: [2],
+    },
+    {
       name: "can build select query with combined selector",
       getQuery: () => new SelectQuery(testTable, {a: {$gt: 2, $lt: 10}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ( "a" > $1 AND "a" < $2 )',
@@ -154,6 +166,12 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "can build select query with json fields with a string result",
+      getQuery: () => new SelectQuery(testTable, {"c.d.e": "test"}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"->\'d\'->>\'e\')::TEXT = $1',
+      expectedArgs: ["test"],
+    },
+    {
       name: "can build select query with array fields",
       getQuery: () => new SelectQuery(testTable, {"c.0": 3}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"[0])::INTEGER = $1',
@@ -162,14 +180,29 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with descending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST',
       expectedArgs: [3],
     },
     {
       name: "can build select query with ascending sort",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: 1}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" ASC NULLS FIRST',
       expectedArgs: [3],
+    },
+    {
+      name: "can build a select query with a nearby sort",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        a: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [10, 20],
+            },
+          },
+        },
+      }),
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE 1=1 ORDER BY EARTH_DISTANCE(LL_TO_EARTH(( "a" ->'coordinates'->0)::FLOAT8, ( "a" ->'coordinates'->1)::FLOAT8), LL_TO_EARTH( $1 , $2 )) ASC NULLS LAST`,
+      expectedArgs: [10, 20],
     },
     {
       name: "can build select query with limit",
@@ -186,7 +219,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with multiple options",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {sort: {b: -1}, limit: 10, skip: 20}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC LIMIT $2 OFFSET $3',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST LIMIT $2 OFFSET $3',
       expectedArgs: [3, 10, 20],
     },
     {
@@ -352,6 +385,21 @@ describe("SelectQuery", () => {
       expectedArgs: [6, 3],
     },
     {
+      name: "can build select query with $ifNull",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        addFields: {
+          k: {
+            $ifNull: [
+              "$a",
+              4,
+            ],
+          },
+        },
+      }),
+      expectedSql: 'SELECT "TestCollection".* , COALESCE( "a" , $1 ) AS "k" FROM "TestCollection" WHERE "a" = $2',
+      expectedArgs: [4, 3],
+    },
+    {
       name: "can build select with date diff",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {
         addFields: {
@@ -408,6 +456,12 @@ describe("SelectQuery", () => {
         as: "a",
       }}),
       expectedError: "Pipeline joins are not implemented",
+    },
+    {
+      name: "can randomly sample results",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {sampleSize: 5}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY RANDOM() LIMIT $2',
+      expectedArgs: [3, 5],
     },
   ]);
 

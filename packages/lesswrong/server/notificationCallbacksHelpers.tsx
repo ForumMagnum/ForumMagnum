@@ -1,24 +1,20 @@
 import Notifications from '../lib/collections/notifications/collection';
-import Messages from '../lib/collections/messages/collection';
 import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import Users from '../lib/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
-import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionIndexUtils';
-import { getNotificationTypeByName } from '../lib/notificationTypes';
+import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/query';
 import keyBy from 'lodash/keyBy';
-import TagRels from '../lib/collections/tagRels/collection';
-import Localgroups from '../lib/collections/localgroups/collection';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -128,34 +124,12 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
   }
 }
 
-const notificationMessage = async (notificationType: string, documentType: string|null, documentId: string|null) => {
+const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null) => {
   return await getNotificationTypeByName(notificationType)
     .getMessage({documentType, documentId});
 }
 
-const getDocument = async (documentType: string|null, documentId: string|null) => {
-  if (!documentId) return null;
-  
-  switch(documentType) {
-    case "post":
-      return await Posts.findOne(documentId);
-    case "comment":
-      return await Comments.findOne(documentId);
-    case "user":
-      return await Users.findOne(documentId);
-    case "message":
-      return await Messages.findOne(documentId);
-    case "localgroup":
-      return await Localgroups.findOne(documentId);
-    case "tagRel":
-      return await TagRels.findOne(documentId)
-    default:
-      //eslint-disable-next-line no-console
-      console.error(`Invalid documentType type: ${documentType}`);
-  }
-}
-
-const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: string|null, documentId: string|null, extraData: any) => {
+const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
   let document = await getDocument(documentType, documentId);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
@@ -194,7 +168,7 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
 export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail, context}: {
   userId: string,
   notificationType: string,
-  documentType: string|null,
+  documentType: NotificationDocument|null,
   documentId: string|null,
   
   // extraData: something JSON-serializable that gets attached to the notification.
@@ -268,7 +242,7 @@ export const createNotification = async ({userId, notificationType, documentType
 export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail, context }:{
   userIds: Array<string>
   notificationType: string,
-  documentType: string|null,
+  documentType: NotificationDocument|null,
   documentId: string|null,
   extraData?: any,
   noEmail?: boolean|null,

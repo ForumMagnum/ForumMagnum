@@ -246,6 +246,7 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
+  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
 }
 
 export type LoadMoreCallback = (limitOverride?: number) => void
@@ -277,6 +278,7 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
+  createIfMissing,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -310,7 +312,7 @@ export function useMulti<
   const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
-      enableCache, enableTotal,
+      enableCache, enableTotal, createIfMissing
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
   }

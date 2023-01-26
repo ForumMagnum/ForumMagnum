@@ -95,7 +95,14 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 // LESSWRONG – bigUpvote
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
- const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const {modifiedDocument: votedPost} = await performVoteServer({
+   document: post,
+   voteType: 'bigUpvote',
+   collection: Posts,
+   user: postAuthor,
+   skipRateLimits: true,
+ })
  return {...post, ...votedPost} as DbPost;
 });
 
@@ -246,6 +253,7 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 // admin or site feature updates postedAt that should change the "newness" of
 // the post unless there's been active comments.
 async function oldPostsLastCommentedAt (post: DbPost) {
+  // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
   if (post.commentCount) return
 
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})

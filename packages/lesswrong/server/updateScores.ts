@@ -20,6 +20,11 @@ const getSingleVotePower = () =>
   // score increase amount of a single vote after n days (for n=100, x=0.000040295)
   1 / Math.pow((INACTIVITY_THRESHOLD_DAYS * 24) + SCORE_BIAS, TIME_DECAY_FACTOR.get());
 
+interface BatchUpdateParams {
+  inactive?: boolean;
+  forceUpdate?: boolean;
+}
+
 /*
 
 Update a document's score if necessary.
@@ -27,7 +32,11 @@ Update a document's score if necessary.
 Returns how many documents have been updated (1 or 0).
 
 */
-export const updateScore = async ({collection, item, forceUpdate}) => {
+export const updateScore = async ({collection, item, forceUpdate}: {
+  collection: any;
+  item: DbPost;
+  forceUpdate?: boolean;
+}) => {
 
   // Age Check
   const postedAt = item?.frontpageDate?.valueOf() || item?.postedAt?.valueOf()
@@ -243,7 +252,7 @@ const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, 
     ? getBatchItemsPg(collection, inactive)
     : getBatchItemsMongo(collection, inactive);
 
-export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}) => {
+export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
   const items = await getBatchItems(collection, inactive);
   let updatedDocumentsCounter = 0;
   const itemUpdates = _.compact(items.map(i => {
@@ -273,7 +282,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   return updatedDocumentsCounter;
 }
 
-export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}) => {
+export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}: BatchUpdateParams & { collectionName: CollectionNameString }) => {
   const collection = getCollection(collectionName);
   return batchUpdateScore({collection, inactive, forceUpdate});
 }

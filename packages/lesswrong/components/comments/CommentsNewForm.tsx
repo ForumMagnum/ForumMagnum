@@ -159,7 +159,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     setLoading(false)
   };
 
-  const wrappedCancelCallback = (...args) => {
+  const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
       cancelCallback(...args)
     }
@@ -221,7 +221,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
-  const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get()
+  const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
+    currentUser && !currentUser.isReviewed
   const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
   const parentDocumentId = post?._id || tag?._id
   return (
@@ -241,7 +243,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data) => { 
+              submitCallback={(data: unknown) => { 
                 setLoading(true);
                 return data
               }}

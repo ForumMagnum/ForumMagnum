@@ -24,7 +24,7 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   });
   const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore, SingleColumnSection, SectionTitle } = Components
 
-  const MaybeTitleWrapper = ({children}) => heading ?
+  const MaybeTitleWrapper = ({children}: { children: JSX.Element }) => heading ?
     <SingleColumnSection>
       <SectionTitle title={heading} />
       {children}

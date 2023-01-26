@@ -13,6 +13,7 @@ import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { viewTermsToQuery } from '../lib/utils/viewUtils';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -46,7 +47,7 @@ export const servePostRSS = async (terms: RSSTerms, url?: string) => {
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
-  let parameters = Posts.getParameters(terms);
+  let parameters = viewTermsToQuery("Posts", terms);
   delete parameters['options']['sort']['sticky'];
 
   parameters.options.limit = 10;
@@ -99,7 +100,7 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
   const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes(req, res);
 
-  let parameters = Comments.getParameters(terms);
+  let parameters = viewTermsToQuery("Comments", terms);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);

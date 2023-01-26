@@ -13,6 +13,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
+import { subforumLayouts } from '../tags/subforumHelpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -54,6 +55,9 @@ const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user);
 };
 
+const ownsOrIsMod = (user: DbUser|null, document: any) => {
+  return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes('sunshineRegiment') ?? false);
+};
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -320,7 +324,8 @@ const schema: SchemaType<DbUser> = {
   },
   hasAuth0Id: resolverOnlyField({
     type: Boolean,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    // Mods cannot read because they cannot read services, which is a prerequisite
+    canRead: [userOwns, 'admins'],
     resolver: (user: DbUser) => {
       try {
         getAuth0Id(user);
@@ -367,7 +372,7 @@ const schema: SchemaType<DbUser> = {
     input: 'text',
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ownsOrIsAdmin,
+    canRead: ownsOrIsMod,
     order: 20,
     group: formGroups.default,
     onCreate: ({ document: user }) => {
@@ -391,6 +396,7 @@ const schema: SchemaType<DbUser> = {
       return data.email;
     },
     form: {
+      // Will always be disabled for mods, because they cannot read hasAuth0Id
       disabled: ({document}) => forumTypeSetting.get() === "EAForum" && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
@@ -1243,6 +1249,10 @@ const schema: SchemaType<DbUser> = {
   notificationSubforumUnread: {
     label: `New messages in subforums I'm subscribed to`,
     ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+  },
+  notificationNewMention: {
+    label: "Someone has mentioned me in a post or a comment",
+    ...notificationTypeSettingsField(),
   },
 
   // Karma-change notifier settings
@@ -2364,7 +2374,16 @@ const schema: SchemaType<DbUser> = {
 
   'moderatorActions.$': {
     type: 'Object'
-  }
+  },
+  subforumPreferredLayout: {
+    type: String,
+    allowedValues: Array.from(subforumLayouts),
+    hidden: true, // only editable by changing the setting from the subforum page
+    optional: true,
+    canRead: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+  },
 };
 
 /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */

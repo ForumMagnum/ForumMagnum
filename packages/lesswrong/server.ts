@@ -41,6 +41,7 @@ import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
+import './server/scripts/sendWrappedNotifications';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -144,6 +145,8 @@ import './server/callbacks/intercomCallbacks';
 
 import './server/fmCrosspost/crosspost';
 import './server/fmCrosspost/routes';
+
+import './server/exportUserData';
 
 import './server/spotlightCron';
 

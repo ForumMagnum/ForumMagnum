@@ -10,7 +10,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
   // No mutations (revisions are insert-only immutable, and are created as a

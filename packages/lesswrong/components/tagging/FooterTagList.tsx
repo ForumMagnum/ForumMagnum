@@ -40,7 +40,7 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, showCoreTags, hidePostTypeTag, link=true, highlightAutoApplied=false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
@@ -49,6 +49,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   hidePostTypeTag?: boolean,
   smallText?: boolean,
   link?: boolean
+  highlightAutoApplied?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -71,8 +72,9 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
   });
-  const tagIds = (results||[]).map((tagRel) => tagRel.tag?._id)
-  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+
+  const tagIds = (results||[]).map((tag) => tag._id)
+  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length > 0, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
@@ -111,7 +113,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   
   const contentTypeInfo = forumSelect(contentTypes);
   
-  const PostTypeTag = ({tooltipBody, label}) =>
+  const PostTypeTag = ({tooltipBody, label}: {
+    tooltipBody: React.ReactNode;
+    label: string;
+  }) =>
     <LWTooltip
       title={<Card className={classes.card}>
         <ContentStyles contentType="comment">
@@ -149,17 +154,20 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     </span>;
   }
 
-  
+  const sortedTagRels = sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag)
  
   return <span className={classes.root}>
-    {showCoreTags && <div><CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/></div>}
-    {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
+    {showCoreTags && <div>
+      <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected}/>
+    </div>}
+    {sortedTagRels.map(tagRel =>
       tagRel.tag && <FooterTag 
         key={tagRel._id} 
         tagRel={tagRel} 
         tag={tagRel.tag} 
         hideScore={hideScore}
         smallText={smallText}
+        highlightAsAutoApplied={highlightAutoApplied && tagRel.autoApplied}
         link={link}
       />
     )}

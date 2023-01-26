@@ -27,7 +27,7 @@ const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, on
   return <div>
     <CKEditor
       editor={CommentEditor}
-      onInit={(editor) => {
+      onInit={(editor: any) => {
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         if (onInit) onInit(editor)
@@ -47,7 +47,7 @@ const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, on
           bundleVersion: ckEditorBundleVersion,
         } : undefined,
         autosave: {
-          save (editor) {
+          save (editor: any) {
             return onSave && onSave( editor.getData() )
           }
         },

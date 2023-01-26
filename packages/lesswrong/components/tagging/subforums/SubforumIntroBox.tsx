@@ -1,5 +1,4 @@
 import Button from '@material-ui/core/Button';
-import classNames from 'classnames';
 import moment from 'moment';
 import React from 'react';
 import useCookies from 'react-cookie/cjs/useCookies';
@@ -11,6 +10,10 @@ const subforumIntroMessageSetting = new DatabasePublicSetting<string | null>("su
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    paddingTop: 2,
+    paddingBottom: "1em",
+    paddingLeft: "1.5em",
+    paddingRight: "1.5em",
     backgroundColor: theme.palette.background.primaryDim,
     border: theme.palette.border.commentBorder,
   },
@@ -39,9 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SubforumIntroBox = ({classes, className}: {
+const SubforumIntroBox = ({classes}: {
   classes: ClassesType,
-  className?: string,
 }) => {
   const HIDE_SUBFORUM_INTRO_COOKIE = 'hide_subforum_intro';
   const html = subforumIntroMessageSetting.get()
@@ -61,7 +63,7 @@ const SubforumIntroBox = ({classes, className}: {
   return (
     <ContentStyles contentType="tag" key={`welcome_box`}>
       <div
-        className={classNames(classes.root, className)}
+        className={classes.root}
       >
         <div className={classes.dismissButtonRow}>
           <Button className={classes.closeButton} onClick={hideBanner}>
