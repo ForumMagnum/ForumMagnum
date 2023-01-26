@@ -138,7 +138,6 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       </div>
     );
   }
-
 }
 
 const FormComponentPostEditorTaggingComponent = registerComponent("FormComponentPostEditorTagging", FormComponentPostEditorTagging, {styles});
