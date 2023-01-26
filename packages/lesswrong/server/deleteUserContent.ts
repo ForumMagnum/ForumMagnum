@@ -1,9 +1,7 @@
 import Comments from "../lib/collections/comments/collection";
 import Posts from "../lib/collections/posts/collection";
 import Users from "../lib/collections/users/collection";
-import { updateMutator } from './vulcan-lib';
-
-import { Globals } from "./vulcan-lib";
+import { Globals, updateMutator } from './vulcan-lib';
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => { setTimeout(resolve, ms); });
