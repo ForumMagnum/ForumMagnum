@@ -8,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import * as _ from 'underscore';
+import { useQuery, gql } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -37,45 +38,38 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
   open: boolean,
-  toggle: any,
+  toggle: ()=>void,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { results, refetch } = useMulti({
-    terms: {
-      view: 'userNotifications',
-      userId: currentUser._id
-    },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false,
-    fetchPolicy: 'cache-and-network',
+  const { data, loading, refetch } = useQuery(gql`
+    query UnreadNotificationCountQuery {
+      unreadNotificationsCount
+    }
+  `, {
+    ssr: true
   });
+  const notificationCount = data?.unreadNotificationsCount ?? 0;
   
   useOnNavigate(useCallback(() => {
-    refetch();
+    void refetch();
   }, [refetch]));
   useOnFocusTab(useCallback(() => {
-    refetch();
+    void refetch();
   }, [refetch]));
-  
-  let filteredResults: Array<NotificationsList> | undefined = results && _.filter(results,
-    (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
-  );
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
 
   return (
     <Badge
       classes={{ root: classes.badgeContainer, badge: classes.badge }}
-      badgeContent={(filteredResults && filteredResults.length) || ""}
+      badgeContent={(notificationCount>0) ? `${notificationCount}` : ""}
     >
       <IconButton
         classes={{ root: buttonClass }}
         onClick={toggle}
       >
-        {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
+        {(notificationCount>0) ? <NotificationsIcon /> : <NotificationsNoneIcon />}
       </IconButton>
     </Badge>
   )
