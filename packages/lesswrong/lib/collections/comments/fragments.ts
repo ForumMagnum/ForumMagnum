@@ -71,6 +71,9 @@ registerFragment(`
     post {
       ...PostsMinimumInfo
     }
+    relevantTags {
+      ...TagPreviewFragment
+    }
   }
 `)
 
@@ -95,6 +98,9 @@ registerFragment(`
     ...CommentsList
     contents {
       ...RevisionEdit
+    }
+    relevantTags {
+      ...TagPreviewFragment
     }
   }
 `);

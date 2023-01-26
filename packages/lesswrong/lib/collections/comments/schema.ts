@@ -4,12 +4,12 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting } from "../../instanceSettings";
+import { forumTypeSetting, taggingNameSetting } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-
+import { userHasShortformTags } from '../../betas';
 
 export const moderationOptionsGroup: FormGroup = {
   order: 50,
@@ -649,6 +649,28 @@ const schema: SchemaType<DbComment> = {
       const comment = props?.document
       return !commentAllowTitle(comment)
     }
+  },
+
+  relevantTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "relevantTagIds",
+      resolverName: "relevantTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    viewableBy: ['guests'],
+    insertableBy: ['members', 'admins', 'sunshineRegiment'],
+    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
+    optional: true,
+    label: `Post your shortform to a ${taggingNameSetting.get()}`,
+    tooltip: "TODO;",
+    control: "FormComponentTagsChecklist",
+    hidden: (user: UsersCurrent|DbUser|null): boolean => !userHasShortformTags(user),
+  },
+  'relevantTagIds.$': {
+    type: String,
+    optional: true,
+    foreignKey: "Tags",
   },
 };
 

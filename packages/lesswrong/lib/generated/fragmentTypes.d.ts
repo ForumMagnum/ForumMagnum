@@ -419,6 +419,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
   readonly title: string,
+  readonly relevantTagIds: Array<string>,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -1292,6 +1293,7 @@ interface CommentsList_contents { // fragment on Revisions
 
 interface ShortformComments extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
+  readonly relevantTags: Array<TagPreviewFragment>,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
@@ -1303,6 +1305,7 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 
 interface CommentEdit extends CommentsList { // fragment on Comments
   readonly contents: RevisionEdit|null,
+  readonly relevantTags: Array<TagPreviewFragment>,
 }
 
 interface DeletedCommentsMetaData { // fragment on Comments
