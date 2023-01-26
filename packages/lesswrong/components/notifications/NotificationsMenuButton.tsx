@@ -1,14 +1,10 @@
 import React, { useCallback } from 'react';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useOnNavigate } from '../hooks/useOnNavigate';
-import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import * as _ from 'underscore';
-import { useQuery, gql } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -36,40 +32,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ unreadNotifications, open, toggle, currentUser, classes }: {
+  unreadNotifications: number,
   open: boolean,
   toggle: ()=>void,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { data, loading, refetch } = useQuery(gql`
-    query UnreadNotificationCountQuery {
-      unreadNotificationsCount
-    }
-  `, {
-    ssr: true
-  });
-  const notificationCount = data?.unreadNotificationsCount ?? 0;
-  
-  useOnNavigate(useCallback(() => {
-    void refetch();
-  }, [refetch]));
-  useOnFocusTab(useCallback(() => {
-    void refetch();
-  }, [refetch]));
-
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
 
   return (
     <Badge
       classes={{ root: classes.badgeContainer, badge: classes.badge }}
-      badgeContent={(notificationCount>0) ? `${notificationCount}` : ""}
+      badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
         classes={{ root: buttonClass }}
         onClick={toggle}
       >
-        {(notificationCount>0) ? <NotificationsIcon /> : <NotificationsNoneIcon />}
+        {(unreadNotifications>0) ? <NotificationsIcon /> : <NotificationsNoneIcon />}
       </IconButton>
     </Badge>
   )
