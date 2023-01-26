@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
-import NoSsr from '@material-ui/core/NoSsr';
+import NoSSR from 'react-no-ssr';
 
 const styles = (theme: ThemeType): JssStyles => ({
   
@@ -38,14 +38,14 @@ const TagFlagToggleList = ({ value, path }: {
   });
 
   if (loading) return <Loading />
-  return <NoSsr><div className="multi-select-buttons">
+  return <NoSSR><div className="multi-select-buttons">
     {results?.map(({_id}) => {
       const selected = value && value.includes(_id);
       return <a key={_id} onClick={() => handleClick(_id)}>
         <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} showNumber={false} />
       </a>
     })}
-  </div></NoSsr>
+  </div></NoSSR>
 }
 
 (TagFlagToggleList as any).contextTypes = {

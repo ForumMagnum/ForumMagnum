@@ -1,4 +1,4 @@
-import NoSsr from '@material-ui/core/NoSsr'
+import NoSSR from 'react-no-ssr';
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -233,9 +233,9 @@ const PostsAnalyticsPage = ({ classes }: {
           Note 2: Data collection began on {dataCollectionFirstDay}.
         </em>
       </Typography>}
-      <NoSsr>
+      <NoSSR>
         <PostsAnalyticsInner post={post} classes={classes} />
-      </NoSsr>
+      </NoSSR>
       <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>
