@@ -13,6 +13,7 @@ import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
+import { createAnonymousContext } from './vulcan-lib/query';
 import keyBy from 'lodash/keyBy';
 
 /**
@@ -128,7 +129,7 @@ const notificationMessage = async (notificationType: string, documentType: Notif
     .getMessage({documentType, documentId});
 }
 
-const getLink = async (notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
+const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
   let document = await getDocument(documentType, documentId);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
@@ -148,7 +149,7 @@ const getLink = async (notificationTypeName: string, documentType: NotificationD
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return await commentGetPageUrlFromDB(document as DbComment);
+      return await commentGetPageUrlFromDB(document as DbComment, context, false);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":
@@ -164,7 +165,7 @@ const getLink = async (notificationTypeName: string, documentType: NotificationD
   }
 }
 
-export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail}:{
+export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail, context}: {
   userId: string,
   notificationType: string,
   documentType: NotificationDocument|null,
@@ -176,7 +177,9 @@ export const createNotification = async ({userId, notificationType, documentType
 
   // noEmail: If set, this notification can never be sent by email (even if the user's
   // config settings say that it would be).
-  noEmail?: boolean|null
+  noEmail?: boolean|null,
+  
+  context: ResolverContext,
 }) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
@@ -189,7 +192,7 @@ export const createNotification = async ({userId, notificationType, documentType
     documentType: documentType||undefined,
     message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
-    link: await getLink(notificationType, documentType, documentId, extraData),
+    link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,
   }
 
@@ -236,17 +239,19 @@ export const createNotification = async ({userId, notificationType, documentType
   }
 }
 
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail }:{
+export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail, context }:{
   userIds: Array<string>
   notificationType: string,
   documentType: NotificationDocument|null,
   documentId: string|null,
   extraData?: any,
-  noEmail?: boolean|null
+  noEmail?: boolean|null,
+  context?: ResolverContext,
 }) => {
+  const nonnullContext = context || await createAnonymousContext();
   return Promise.all(
     userIds.map(async userId => {
-      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail});
+      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail, context: nonnullContext});
     })
   );
 }
