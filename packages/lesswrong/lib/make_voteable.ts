@@ -1,5 +1,6 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
+import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 
 export type PermissionResult = {
@@ -98,7 +99,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { currentUser } = context;
-          if (currentUser?.isAdmin) {
+          if (userIsAdminOrMod(currentUser)) {
             return await getAllVotes(document, context);
           } else {
             return await getCurrentUserVotes(document, context);
