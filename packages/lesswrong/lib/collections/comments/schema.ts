@@ -170,24 +170,6 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
   },
 
-  // GraphQL only fields
-
-  pageUrl: resolverOnlyField({
-    type: String,
-    canRead: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, true)
-    },
-  }),
-
-  pageUrlRelative: resolverOnlyField({
-    type: String,
-    canRead: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, false)
-    },
-  }),
-
   answer: {
     type: Boolean,
     optional: true,

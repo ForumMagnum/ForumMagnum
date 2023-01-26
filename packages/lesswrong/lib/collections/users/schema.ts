@@ -2377,7 +2377,7 @@ const schema: SchemaType<DbUser> = {
   },
   subforumPreferredLayout: {
     type: String,
-    allowedValues: subforumLayouts,
+    allowedValues: Array.from(subforumLayouts),
     hidden: true, // only editable by changing the setting from the subforum page
     optional: true,
     canRead: [userOwns, 'admins'],
