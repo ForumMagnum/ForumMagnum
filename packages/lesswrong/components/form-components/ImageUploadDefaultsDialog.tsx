@@ -22,15 +22,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
-  onSelect: Function,
+  onSelect: (newImageId: string) => void,
   onClose?: ()=>void,
   classes: ClassesType,
-  type?: string
+  type?: 'Event' | 'Profile'
 }) => {
 
   const { LWDialog, CloudinaryImage } = Components
   
-  const selectImg = (img) => {
+  const selectImg = (img: string) => {
     onSelect(img)
     if (onClose)
       onClose();

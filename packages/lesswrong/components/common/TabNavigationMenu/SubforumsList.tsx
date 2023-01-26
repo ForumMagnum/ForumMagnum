@@ -34,7 +34,10 @@ const styles = ((theme: ThemeType): JssStyles => ({
   },
 }))
 
-const SubforumsList = ({ onClick, classes }) => {
+const SubforumsList = ({ onClick, classes }: {
+  onClick: () => void,
+  classes: ClassesType
+}) => {
   const { results } = useMulti({
     terms: {view: 'currentUserSubforums'},
     collectionName: "Tags",

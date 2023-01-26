@@ -17,10 +17,10 @@ import { loggerConstructor } from '../../lib/utils/logging';
 // convert GraphQL selector into Mongo-compatible selector
 // TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
 // see https://github.com/VulcanJS/Vulcan/issues/2000
-const convertSelector = selector => {
+const convertSelector = (selector: any) => {
   return selector;
 };
-const convertUniqueSelector = selector => {
+const convertUniqueSelector = (selector: any) => {
   if (selector.documentId) {
     selector._id = selector.documentId;
     delete selector.documentId;

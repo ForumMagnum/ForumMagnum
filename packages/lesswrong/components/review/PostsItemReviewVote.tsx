@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -79,14 +79,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:ClassesType, post:PostsListBase, marginRight?: boolean}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
-  const [newVote, setNewVote] = useState<number|null>(null)
+  const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
   const currentUser = useCurrentUser()
 
   if (!canNominate(currentUser, post)) return null
 
   const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
-  const displayVote = getCostData({})[voteIndex]?.value
+  const displayVote = getCostData({})[voteIndex as VoteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
