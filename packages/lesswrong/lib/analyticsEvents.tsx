@@ -150,8 +150,9 @@ will overwrite the first.
 NOTE! AnalyticsContext components will only add context data to events that are already
 being tracked (e.g. linkClicks, navigate). If you've added a button or change of state, you
 will likely have to add tracking manually with a captureEvent call. (Search codebase for examples or consult others)
-The best way to ensure you are tracking correctly with is to insert a console.log statement 
-in captureEvent in this file, e.g. console.log({eventType: eventProps}).
+
+The best way to ensure you are tracking correctly with is to look at the logs
+in the client or server (ensure getShowAnalyticsDebug is returning true).
 */
 
 export const AnalyticsContext = ({children, ...props}: any) => {

@@ -9,7 +9,7 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
+export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
   if (!user) {
     return "";
   } else {
@@ -20,7 +20,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+export const getUserName = function(user: {username: string} | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -476,6 +476,9 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }
 
+// TODO: I (JP) think this should be configurable in the function parameters
+/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
+ * we get from auth0 but is ultimately from google this function will throw. */
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {

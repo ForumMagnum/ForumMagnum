@@ -46,7 +46,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
 export const Comments: ExtendedCommentsCollection = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),
@@ -92,7 +92,8 @@ makeEditable({
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
-    order: 25
+    order: 25,
+    pingbacks: true, 
   }
 })
 

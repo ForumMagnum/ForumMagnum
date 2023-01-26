@@ -10,7 +10,7 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
-import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
@@ -18,6 +18,7 @@ import { StickyIcon } from '../../posts/PostsTitle';
 import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
+import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -29,6 +30,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     "&:hover $menu": {
       opacity:1
     }
+  },
+  subforumTop: {
+    paddingTop: 4,
+  },
+  tagIcon: {
+    marginRight: 6,
+    '& svg': {
+      width: 15,
+      height: 15,
+      fill: theme.palette.grey[600],
+    },
   },
   body: {
     borderStyle: "none",
@@ -134,6 +146,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px'
   },
+  title: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    flexGrow: 1,
+    marginTop: 8,
+    marginBottom: 0,
+    marginLeft: 0,
+    display: "block",
+    fontSize: '1.5rem',
+    lineHeight: '1.5em'
+  },
   postTitle: {
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
@@ -152,7 +175,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
   },
-  titleRow: {
+  postTitleRow: {
     display: 'flex',
     columnGap: 8,
     alignItems: 'center'
@@ -170,7 +193,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -186,6 +209,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentAnswerId?: string|undefined,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
+  displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
@@ -197,6 +221,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const currentUser = useCurrentUser();
 
   const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+
+  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -256,12 +282,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return <Components.CommentBody
-        truncated={truncated}
-        collapsed={collapsed}
-        comment={comment}
-        postPage={postPage}
-      />
+      return (
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} />
+      );
     }
   }
 
@@ -270,6 +293,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
+    const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+    const commentHidden = hideSince && new Date(hideSince) < new Date(comment.postedAt) &&
+      comment.authorIsUnreviewed
     const showReplyButton = (
       !hideReply &&
       !comment.deleted &&
@@ -279,7 +305,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
+      !commentHidden
     )
 
     const showInlineCancel = showReplyState && isMinimalist
@@ -317,7 +344,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
+  const {
+    ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
+    CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    LWHelpIcon, TopTagIcon
+  } = Components
 
   if (!comment) {
     return null;
@@ -363,6 +394,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
           [classes.sideComment]: treeOptions.isSideComment,
+          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
         },
       )}>
         { comment.parentCommentId && showParentState && (
@@ -377,7 +409,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
         
-        <div className={classes.titleRow}>
+        <div className={classes.postTitleRow}>
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
             <StickyIcon />
           </div>}
@@ -393,6 +425,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </Link>}
         </div>
         <div className={classes.body}>
+          {showCommentTitle && <div className={classes.title}>
+            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+              <TopTagIcon tag={tag} />
+            </span> : <CommentDiscussionIcon
+              comment={comment}
+            />}
+            {comment.title}
+          </div>}
           <div className={classNames(classes.meta, {
             [classes.sideCommentMeta]: treeOptions.isSideComment,
           })}>
@@ -400,6 +440,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
+            {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
             {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}

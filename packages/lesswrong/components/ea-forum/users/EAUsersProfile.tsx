@@ -27,7 +27,9 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-
+import CopyToClipboard from 'react-copy-to-clipboard';
+import CopyIcon from '@material-ui/icons/FileCopy'
+import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -181,6 +183,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 20,
     ...separatorBulletStyles(theme)
   },
+  copyLink: {
+    verticalAlign: 'text-top'
+  },
+  copyIcon: {
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
+  },
   registerRssLink: {
     cursor: 'pointer',
     '&:hover': {
@@ -217,6 +230,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
+  const { flash } = useMessages()
   
   const {loading, results} = useMulti({
     terms,
@@ -286,7 +300,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   })
 
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
-    SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList } = Components
@@ -554,6 +568,15 @@ const EAUsersProfile = ({terms, slug, classes}: {
           </div>}
           <Typography variant="body2" className={classes.links}>
             {currentUser?.isAdmin &&
+              <div>
+                <LWTooltip title="Click to copy userId" placement="bottom" className={classes.copyLink}>
+                  <CopyToClipboard text={user._id} onCopy={() => flash({messageString: "userId copied!"})}>
+                    <CopyIcon className={classes.copyIcon} />
+                  </CopyToClipboard>
+                </LWTooltip>
+              </div>
+            }
+            {currentUser?.isAdmin &&
               <div className={classes.registerRssLink}>
                 <DialogGroup
                   actions={[]}
@@ -600,7 +623,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSettings(!showPostSettings)}
+            <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings

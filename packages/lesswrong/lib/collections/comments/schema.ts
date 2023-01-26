@@ -5,10 +5,10 @@ import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 import { forumTypeSetting } from "../../instanceSettings";
-import GraphQLJSON from 'graphql-type-json';
-import { commentGetPageUrlFromDB } from './helpers';
+import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
+import { viewTermsToQuery } from '../../utils/viewUtils';
 
 
 export const moderationOptionsGroup: FormGroup = {
@@ -241,7 +241,7 @@ const schema: SchemaType<DbComment> = {
     viewableBy: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
-      const params = Comments.getParameters({view:"shortformLatestChildren", topLevelCommentId: comment._id})
+      const params = viewTermsToQuery("Comments", {view:"shortformLatestChildren", topLevelCommentId: comment._id});
       return await Comments.find(params.selector, params.options).fetch()
     }
   }),
@@ -634,6 +634,22 @@ const schema: SchemaType<DbComment> = {
     ...schemaDefaultValue(false),
   },
   
+  title: {
+    type: String,
+    optional: true,
+    max: 500,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    order: 10,
+    placeholder: "Title (optional)",
+    control: "EditCommentTitle",
+    hidden: (props) => {
+      // Currently only allow titles for top level subforum comments
+      const comment = props?.document
+      return !commentAllowTitle(comment)
+    }
+  },
 };
 
 /* Alignment Forum fields */

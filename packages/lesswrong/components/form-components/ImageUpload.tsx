@@ -88,7 +88,13 @@ const cloudinaryArgsByImageType = {
     minImageWidth: 345,
     cropping: false,
     uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
-  }
+  },
+  spotlightDarkImageId: {
+    minImageHeight: 232,
+    minImageWidth: 345,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+  },
 }
 
 const formPreviewSizeByImageType = {
@@ -115,7 +121,11 @@ const formPreviewSizeByImageType = {
   spotlightImageId: {
     width: 345,
     height: 234
-  }
+  },
+  spotlightDarkImageId: {
+    width: 345,
+    height: 234
+  },
 }
 
 const ImageUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {

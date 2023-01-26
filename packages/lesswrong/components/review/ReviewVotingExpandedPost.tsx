@@ -5,6 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 
 const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
@@ -33,9 +34,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: `dashed 1px ${theme.palette.greyAlpha(0.25)}`,
     color: theme.palette.grey[400]
   },
+  backButton: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 30,
+    ...theme.typography.body2,
+    color: theme.palette.grey[400],
+    cursor: "pointer",
+    '&:hover': {
+      opacity: .5
+    }
+  },
+  backIcon: {
+    marginRight: 12
+  }
 })
 
-const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewButton=true}:{
+  classes: ClassesType, 
+  post?: PostsListWithVotes|null,
+  showReviewButton?: boolean,
+  setExpandedPost: (post: PostsListWithVotes|null) => void
+}) => {
   const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
   const {document: postWithContents, loading} = useSingle({
@@ -50,34 +70,36 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
   if (!newPost) return null
 
   return <div>
+    <div className={classes.backButton} onClick={() => setExpandedPost(null)}>
+      <KeyboardBackspaceIcon className={classes.backIcon}/> Back
+    </div>
     <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>{newPost.title}</Link>
     {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
     {loading && <Loading/>}
-    <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
+    {showReviewButton && <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
       <div className={classes.writeAReview}>
         <div className={classes.reviewPrompt}>Write a review for "{newPost.title}"</div>
         <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
       </div>
-    </div>}/>
+    </div>}/>}
 
     <div className={classes.comments}>
-      <PingbacksList postId={newPost._id}/>
+      <PingbacksList postId={newPost._id} limit={3}/>
       {(getReviewPhase() !== "VOTING") && <ReviewPostComments
         title="Review"
         terms={{
           view: "reviews",
           reviewYear: REVIEW_YEAR, 
-          postId: newPost._id
+          postId: newPost._id,
         }}
         post={newPost}
       />}
       <ReviewPostComments
-        title="Unread Comment"
+        title="Recent Comment"
         terms={{
           view: "postsItemComments", 
           postId: newPost._id,
-          limit:7, 
-          after: newPost.lastVisitedAt
+          limit:7
         }}
         post={newPost}
       />

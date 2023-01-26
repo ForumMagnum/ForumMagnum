@@ -17,7 +17,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import qs from "qs";
 import { PopperPlacementType } from '@material-ui/core/Popper';
 export const MENU_WIDTH = 18
-export const KARMA_WIDTH = 42
+export const KARMA_WIDTH = 32
 
 export const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -27,6 +27,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   root: {
     position: "relative",
+    minWidth: 0,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     },
@@ -52,8 +53,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postsItem: {
     display: "flex",
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -307,6 +307,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     marginRight: 10
+  },
+  mostValuableCheckbox: {
+    marginLeft: 5
+  },
+  commentsIcon: {
+    marginLeft: 8
+  },
+  reviewPostButton: {
+    marginLeft: 10
   }
 })
 
@@ -355,7 +364,9 @@ const PostsItem2 = ({
   strikethroughTitle=false,
   translucentBackground=false,
   forceSticky=false,
-  showReadCheckbox=false
+  showReadCheckbox=false,
+  showMostValuableCheckbox=false,
+  showKarma=true
 }: {
   /** post: The post displayed.*/
   post: PostsList,
@@ -404,10 +415,12 @@ const PostsItem2 = ({
   tooltipPlacement?: PopperPlacementType,
   classes: ClassesType,
   curatedIconLeft?: boolean,
-  strikethroughTitle?: boolean
+  strikethroughTitle?: boolean,
   translucentBackground?: boolean,
   forceSticky?: boolean,
-  showReadCheckbox?: boolean
+  showReadCheckbox?: boolean,
+  showKarma?: boolean,
+  showMostValuableCheckbox?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -449,7 +462,8 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox } = (Components as ComponentTypes)
+    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
+    PostMostValuableCheckbox } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
   const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
@@ -507,9 +521,9 @@ const PostsItem2 = ({
             )}
           >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
-                <PostsItem2MetaInfo className={classes.karma}>
+                {showKarma && <PostsItem2MetaInfo className={classes.karma}>
                   {post.isEvent ? <AddToCalendarButton post={post} /> : <PostsItemKarma post={post} />}
-                </PostsItem2MetaInfo>
+                </PostsItem2MetaInfo>}
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
@@ -569,19 +583,22 @@ const PostsItem2 = ({
                   <PostsItemIcons post={post}/>
                 </div>}
 
-                {!resumeReading && <PostsItemComments
-                  small={false}
-                  commentCount={postGetCommentCount(post)}
-                  onClick={toggleComments}
-                  unreadComments={hasUnreadComments()}
-                  newPromotedComments={hasNewPromotedComments()}
-                />}
+                {!resumeReading && <div className={classes.commentsIcon}>
+                  <PostsItemComments
+                    small={false}
+                    commentCount={postGetCommentCount(post)}
+                    onClick={toggleComments}
+                    unreadComments={hasUnreadComments()}
+                    newPromotedComments={hasNewPromotedComments()}
+                  />
+                </div>}
 
                 {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
                 
-                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="bottom">
+                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
+                  <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
                   Review
-                </LWTooltip>}/>}
+                </LWTooltip>}/></span>}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
@@ -612,7 +629,7 @@ const PostsItem2 = ({
                 }
           </PostsItemTooltipWrapper>
 
-          {!hideTrailingButtons && <>
+          {!hideTrailingButtons && !showMostValuableCheckbox && <>
             {<div className={classes.actions}>
               {dismissButton}
               {!resumeReading && <PostActionsButton post={post} vertical />}
@@ -632,6 +649,9 @@ const PostsItem2 = ({
             />
           </div>}
         </div>
+        {showMostValuableCheckbox && <div className={classes.mostValuableCheckbox}>
+          <PostMostValuableCheckbox post={post} />
+        </div>}
       </div>
     </AnalyticsContext>
   )

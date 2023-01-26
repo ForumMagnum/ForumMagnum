@@ -17,7 +17,6 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT } from '../../lib/collections/moderatorActions/schema';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { convertImagesInPost } from '../scripts/convertImagesToCloudinary';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 
@@ -96,7 +95,14 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 // LESSWRONG – bigUpvote
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
- const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const {modifiedDocument: votedPost} = await performVoteServer({
+   document: post,
+   voteType: 'bigUpvote',
+   collection: Posts,
+   user: postAuthor,
+   skipRateLimits: true,
+ })
  return {...post, ...votedPost} as DbPost;
 });
 
@@ -241,23 +247,13 @@ async function extractSocialPreviewImage (post: DbPost) {
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 
-/**
- * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
- * they have fairly strict rate limits that often result in them failing to load.
- *
- * NOTE: This will soon become obsolete because we are going to make it so images
- * are automatically reuploaded on paste rather than on submit (see https://app.asana.com/0/628521446211730/1203311932993130/f).
- * It's fine to leave it here just in case though
- */
-getCollectionHooks("Posts").editAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
-getCollectionHooks("Posts").newAsync.add(async (post: DbPost) => {await convertImagesInPost(post._id)})
-
 // For posts without comments, update lastCommentedAt to match postedAt
 //
 // When the post is created, lastCommentedAt was set to the current date. If an
 // admin or site feature updates postedAt that should change the "newness" of
 // the post unless there's been active comments.
 async function oldPostsLastCommentedAt (post: DbPost) {
+  // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
   if (post.commentCount) return
 
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})

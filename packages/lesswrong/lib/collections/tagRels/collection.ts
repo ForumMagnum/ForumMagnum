@@ -59,12 +59,19 @@ const schema: SchemaType<DbTagRel> = {
       return currentUser ? !(await userCanVoteOnTag(currentUser, document.tagId)).fail : true;
     },
   }),
+  
+  autoApplied: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    optional: true, hidden: true,
+    // Implementation in tagResolvers.ts
+  },
 };
 
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'switching' : 'mongo',
+  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {

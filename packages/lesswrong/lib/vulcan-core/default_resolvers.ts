@@ -2,7 +2,7 @@ import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
-import { describeTerms } from '../utils/viewUtils';
+import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
 
 const maxAllowedSkip = 2000;
 
@@ -27,7 +27,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean} }, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }) {
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
 
@@ -42,10 +42,17 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // get collection based on collectionName argument
         const collection = getCollection(collectionName);
 
-        // get selector and options from terms and perform Mongo query
-        const parameters = collection.getParameters(terms, {}, context);
+        // Get selector and options from terms and perform Mongo query
+        // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
+        const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
         
-        const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
+        let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
+
+        // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
+        if (input.createIfMissing && docs.length === 0) {
+          await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
+          docs = await performQueryFromViewParameters(collection, terms, parameters);
+        }
         
         // Were there enough results to reach the limit specified in the query?
         const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
@@ -158,7 +165,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   };
 }
 
-const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
+const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   
@@ -199,7 +206,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
-    logger('queryFromViewParameters connector find', selector, terms, options);
+    logger('performQueryFromViewParameters connector find', selector, terms, options);
     return await Utils.Connectors.find(collection,
       {
         ...selector,

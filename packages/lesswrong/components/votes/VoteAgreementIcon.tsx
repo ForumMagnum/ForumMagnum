@@ -115,7 +115,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   iconsContainer: {
     position: 'relative',
     width: 25,
-    height: 20
+    height: 18
   },
   noClickCatch: {
     /* pointerEvents: none prevents elements under the IconButton from interfering with mouse

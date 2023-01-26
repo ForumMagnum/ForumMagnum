@@ -25,6 +25,10 @@ import './collections/notifications/collection';
 import './collections/notifications/views';
 import './collections/notifications/permissions';
 import './collections/notifications/fragments';
+
+// Images
+import './collections/images/collection';
+
 // Inbox
 import './collections/messages/collection'
 import './collections/messages/views';
@@ -128,6 +132,11 @@ import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
+
+import './collections/userMostValuablePosts/collection';
+import './collections/userMostValuablePosts/fragments';
+import './collections/userMostValuablePosts/permissions';
+import './collections/userMostValuablePosts/views';
 
 
 // Subscriptions

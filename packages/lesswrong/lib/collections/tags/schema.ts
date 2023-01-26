@@ -9,10 +9,10 @@ import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/sortOrderOptions';
-import omit from 'lodash/omit';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
+import { getDefaultViewSelector } from '../../utils/viewUtils';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -246,7 +246,7 @@ const schema: SchemaType<DbTag> = {
       const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
 
       const comments = await Comments.find({
-        ...Comments.defaultView({}).selector,
+        ...getDefaultViewSelector("Comments"),
         tagId: tag._id,
         score: {$gt:0},
         deletedPublic: false,
@@ -501,6 +501,21 @@ const schema: SchemaType<DbTag> = {
     foreignKey: "Users",
     optional: true,
   },
+  subforumIntroPostId: {
+    ...foreignKeyField({
+      idFieldName: "subforumIntroPostId",
+      resolverName: "subforumIntroPost",
+      collectionName: "Posts",
+      type: "Post",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    label: "Subforum intro post ID",
+    tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
+    group: formGroups.advancedOptions,
+  },
   parentTagId: {
     ...foreignKeyField({
       idFieldName: "parentTagId",
@@ -533,31 +548,55 @@ const schema: SchemaType<DbTag> = {
         }
         const { Tags } = context;
         // don't allow chained parent tag relationships
-        if ((await Tags.find({parentTagId: oldDocument._id}).count())) {
+        if (await Tags.find({parentTagId: oldDocument._id}).count()) {
           throw Error(`Tag ${oldDocument.name} is a parent tag of another tag.`);
         }
       }
       return data.parentTagId
     },
   },
-  subTags: resolverOnlyField({
-    type: Array,
-    graphQLtype: "[Tag]",
-    viewableBy: ['guests'],
-    resolver: async (tag, args: void, context: ResolverContext) => {
-      const { currentUser, Tags } = context;
-
-      const tags = await Tags.find({
-        parentTagId: tag._id
-      }, {
-        sort: {name: 1}
-      }).fetch();
-      return await accessFilterMultiple(currentUser, Tags, tags, context);
-    }
-  }),
-  'subTags.$': {
-    type: Object,
-    foreignKey: 'Tags',
+  subTagIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "subTagIds",
+      resolverName: "subTags",
+      collectionName: "Tags",
+      type: "Tag"
+    }),
+    optional: true,
+    // To edit this, you have to edit the parent tag of the tag you are adding, and this will be automatically updated. It's like this for
+    // largely historical reasons, we didn't used to materialise the sub tag ids at all, but this had performance issues
+    hidden: true,
+    viewableBy: ["guests"],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+  },
+  'subTagIds.$': {
+    type: String,
+    foreignKey: "Tags",
+    optional: true,
+  },
+  autoTagModel: {
+    type: String,
+    label: "Auto-tag classifier model ID",
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.advancedOptions,
+    nullable: true,
+    ...schemaDefaultValue(""),
+  },
+  
+  autoTagPrompt: {
+    type: String,
+    label: "Auto-tag classifier prompt string",
+    optional: true,
+    viewableBy: ['admins'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    group: formGroups.advancedOptions,
+    nullable: true,
+    ...schemaDefaultValue(""),
   },
 }
 

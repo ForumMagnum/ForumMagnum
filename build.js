@@ -189,7 +189,8 @@ build({
     "mathjax", "mathjax-node", "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql", "csso", "io-ts", "fp-ts",
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
-    "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter"
+    "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
+    "gpt-3-encoder",
   ],
 })
 
@@ -197,7 +198,7 @@ const openWebsocketConnections = [];
 
 async function isServerReady() {
   try {
-    const response = await fetch(`http://localhost:${serverPort}/robots.txt`);
+    const response = await fetch(`http://localhost:${serverPort}/api/ready`);
     return response.ok;
   } catch(e) {
     return false;
@@ -234,23 +235,32 @@ async function initiateRefresh() {
     return;
   }
   
+  // Wait just long enough to make sure estrella has killed the old server
+  // process so that when we check for server-readiness, we don't accidentally
+  // check the process that's being replaced.
+  await asyncSleep(100);
+  
+  refreshIsPending = true;
+  console.log("Initiated refresh; waiting for server to be ready");
+  await waitForServerReady();
+  
   if (openWebsocketConnections.length > 0) {
-    refreshIsPending = true;
-    console.log("Initiated refresh; waiting for server to be ready");
-    await waitForServerReady();
-    console.log("Notifying connected browser windows to refresh");
+    console.log(`Notifying ${openWebsocketConnections.length} connected browser windows to refresh`);
     for (let connection of openWebsocketConnections) {
       connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
     }
-    refreshIsPending = false;
+  } else {
+    console.log("Not sending auto-refresh notifications (no connected browsers to notify)");
   }
+  
+  refreshIsPending = false;
 }
 
 function startWebsocketServer() {
   const server = new WebSocket.Server({
     port: websocketPort,
   });
-  server.on('connection', (ws) => {
+  server.on('connection', async (ws) => {
     openWebsocketConnections.push(ws);
     
     ws.on('message', (data) => {
@@ -261,6 +271,8 @@ function startWebsocketServer() {
         openWebsocketConnections.splice(connectionIndex, 1);
       }
     });
+    
+    await waitForServerReady();
     ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
   });
 }
