@@ -139,7 +139,7 @@ const MixedTypeFeed = (args: {
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
   
-  const keyFunc = (result) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
+  const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
 
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start loading it.
@@ -170,7 +170,7 @@ const MixedTypeFeed = (args: {
             // Deduplicate by removing repeated results from the newly fetched page. Ideally we
             // would use cursor-based pagination to avoid this
             const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
-            const deduplicatedResults = fetchMoreResult[resolverName].results.filter(result => !prevKeys.has(keyFunc(result)));
+            const deduplicatedResults = fetchMoreResult[resolverName].results.filter((result: any) => !prevKeys.has(keyFunc(result)));
 
             return {
               [resolverName]: {

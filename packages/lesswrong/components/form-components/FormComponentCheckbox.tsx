@@ -19,7 +19,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }, context) => {
+const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: {
+  classes: ClassesType;
+  label: string;
+  disabled?: boolean;
+  path: string;
+  value: boolean;
+}, context: any) => {
   return <div className={classes.root}>
     <Checkbox
       className={classes.size}

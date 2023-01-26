@@ -1,5 +1,5 @@
 import { Components, registerComponent, getCollection } from '../../lib/vulcan-lib';
-import { withMulti } from '../../lib/crud/withMulti';
+import { LoadMoreCallback, withMulti } from '../../lib/crud/withMulti';
 import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -8,6 +8,16 @@ import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
+import type { ColumnComponents } from './datatableTypes';
+
+export interface Column {
+  name: string;
+  sortable?: string;
+  label?: string;
+  order?: number;
+  component?: ComponentTypes[ColumnComponents];
+  componentName?: ColumnComponents
+}
 
 /*
 
@@ -18,13 +28,13 @@ Datatable Component
 // see: http://stackoverflow.com/questions/1909441/jquery-keyup-delay
 const delay = (function(){
   var timer: any = 0;
-  return function(callback, ms){
+  return function(callback: () => void, ms: number){
     clearTimeout (timer);
     timer = setTimeout(callback, ms);
   };
 })();
 
-const getColumnName = column => (
+const getColumnName = (column: Column) => (
   typeof column === 'string' 
   ? column 
   : column.label || column.name
@@ -32,7 +42,7 @@ const getColumnName = column => (
 
 class Datatable extends PureComponent<any,any> {
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.updateQuery = this.updateQuery.bind(this);
     this.state = {
@@ -42,7 +52,7 @@ class Datatable extends PureComponent<any,any> {
     };
   }
 
-  toggleSort = column => {
+  toggleSort = (column: string) => {
     let currentSort;
     if (!this.state.currentSort[column]) {
       currentSort = { [column] : 1 };
@@ -54,7 +64,7 @@ class Datatable extends PureComponent<any,any> {
     this.setState({ currentSort });
   }
 
-  updateQuery(e) {
+  updateQuery(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     e.persist();
     e.preventDefault();
     this.setState({
@@ -69,7 +79,8 @@ class Datatable extends PureComponent<any,any> {
 
   render() {
     if (this.props.data) { // static JSON datatable
-
+      // TODO: that's definitely not the right type for columns, does this case ever get hit?
+      // @ts-ignore
       return <Components.DatatableContents columns={Object.keys(this.props.data[0])} {...this.props} results={this.props.data} />;
             
     } else { // dynamic datatable with data loading
@@ -110,7 +121,10 @@ const DatatableComponent = registerComponent('Datatable', Datatable, {
 
 export default Datatable;
 
-const DatatableLayout = ({ collectionName, children }) => (
+const DatatableLayout = ({ collectionName, children }: {
+  collectionName: CollectionNameString;
+  children: React.ReactNode;
+}) => (
   <div className={`datatable datatable-${collectionName}`}>
     {children}
   </div>
@@ -122,7 +136,12 @@ const DatatableLayoutComponent = registerComponent('DatatableLayout', DatatableL
 DatatableHeader Component
 
 */
-const DatatableHeader = ({ collection, column, toggleSort, currentSort }, { intl }) => {
+const DatatableHeader = ({ collection, column, toggleSort, currentSort }: {
+  collection: CollectionBase<any>
+  column: Column;
+  toggleSort: (name: string) => void;
+  currentSort: Record<string, number>;
+}, { intl }: any) => {
 
   const columnName = getColumnName(column);
   
@@ -165,7 +184,9 @@ DatatableHeader.propTypes = {
 };
 const DatatableHeaderComponent = registerComponent('DatatableHeader', DatatableHeader);
 
-const DatatableHeaderCellLayout = ({ children, ...otherProps }) => (
+const DatatableHeaderCellLayout = ({ children, ...otherProps }: {
+  children: React.ReactNode;
+} & React.DetailedHTMLProps<React.ThHTMLAttributes<HTMLTableCellElement>, HTMLTableCellElement>) => (
   <th {...otherProps}>{children}</th>
 );
 const DatatableHeaderCellLayoutComponent = registerComponent('DatatableHeaderCellLayout', DatatableHeaderCellLayout);
@@ -187,7 +208,12 @@ const SortAsc = () =>
     <path d="M280.263 0H25.7368C2.85078 0 -8.59221 27.7151 7.55631 43.8734L134.926 171.213C144.872 181.272 161.128 181.272 171.18 171.213L298.444 43.8734C314.592 27.7151 303.149 0 280.263 0Z" transform="translate(66 253.243)" fill="currentColor" fillOpacity="0.2"/>
   </svg>;
 
-const DatatableSorter = ({ name, label, toggleSort, currentSort }) => 
+const DatatableSorter = ({ name, label, toggleSort, currentSort }: {
+  name: string;
+  label: string;
+  toggleSort: (name: string) => void;
+  currentSort: Record<string, number>;
+}) => 
   <th>
     <div className="datatable-sorter" onClick={() => {toggleSort(name);}}>
       <span className="datatable-sorter-label">{label}</span>
@@ -212,7 +238,24 @@ DatatableContents Component
 
 */
 
-const DatatableContents = (props) => {
+interface DatatableContentsProps {
+  columns: Column[];
+  title?: string;
+  collection: CollectionBase<any>;
+  results?: any[];
+  loading?: boolean;
+  loadMore: LoadMoreCallback;
+  count?: number;
+  totalCount: number;
+  networkStatus?: number;
+  currentUser: UsersCurrent | null;
+  emptyState?: JSX.Element;
+  toggleSort: (name: string) => void;
+  currentSort: Record<string, number>;
+  rowClass: (document: any) => string;
+}
+
+const DatatableContents = (props: DatatableContentsProps) => {
 
   // if no columns are provided, default to using keys of first array item
   const { title, collection, results, columns, loading, loadMore, 
@@ -245,7 +288,7 @@ const DatatableContents = (props) => {
           }
         </DatatableContentsHeadLayout>
         <DatatableContentsBodyLayout>
-          {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} currentUser={currentUser} />)}
+          {results.map((document: any, index: number) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} currentUser={currentUser} />)}
         </DatatableContentsBodyLayout>
       </DatatableContentsInnerLayout>
       {hasMore &&
@@ -265,19 +308,25 @@ DatatableContents.propTypes = {
 };
 const DatatableContentsComponent = registerComponent('DatatableContents', DatatableContents);
 
-const DatatableContentsLayout = ({ children }) => (
+const DatatableContentsLayout = ({ children }: {
+  children: React.ReactNode;
+}) => (
   <div className="datatable-list">
     {children}
   </div>
 );
 const DatatableContentsLayoutComponent = registerComponent('DatatableContentsLayout', DatatableContentsLayout);
-const DatatableContentsInnerLayout = ({ children }) => (
+const DatatableContentsInnerLayout = ({ children }: {
+  children: React.ReactNode;
+}) => (
   <table className="table">
     {children}
   </table>
 );
 const DatatableContentsInnerLayoutComponent = registerComponent('DatatableContentsInnerLayout', DatatableContentsInnerLayout);
-const DatatableContentsHeadLayout = ({ children }) => (
+const DatatableContentsHeadLayout = ({ children }: {
+  children: React.ReactNode;
+}) => (
   <thead>
     <tr>
       {children}
@@ -285,11 +334,15 @@ const DatatableContentsHeadLayout = ({ children }) => (
   </thead>
 );
 const DatatableContentsHeadLayoutComponent = registerComponent('DatatableContentsHeadLayout', DatatableContentsHeadLayout);
-const DatatableContentsBodyLayout = ({ children }) => (
+const DatatableContentsBodyLayout = ({ children }: {
+  children: React.ReactNode;
+}) => (
   <tbody>{children}</tbody>
 );
 const DatatableContentsBodyLayoutComponent = registerComponent('DatatableContentsBodyLayout', DatatableContentsBodyLayout);
-const DatatableContentsMoreLayout = ({ children }) => (
+const DatatableContentsMoreLayout = ({ children }: {
+  children: React.ReactNode;
+}) => (
   <div className="datatable-list-load-more">
     {children}
   </div>
@@ -301,7 +354,9 @@ const DatatableContentsMoreLayoutComponent = registerComponent('DatatableContent
 DatatableTitle Component
 
 */
-const DatatableTitle = ({ title }) => 
+const DatatableTitle = ({ title }: {
+  title: string;
+}) => 
   <div className="datatable-title">{title}</div>;
 
 const DatatableTitleComponent = registerComponent('DatatableTitle', DatatableTitle);
@@ -311,7 +366,16 @@ const DatatableTitleComponent = registerComponent('DatatableTitle', DatatableTit
 DatatableRow Component
 
 */
-const DatatableRow = (props) => {
+
+interface DatatableRowProps {
+  columns: Column[];
+  document: any;
+  currentUser: UsersCurrent | null;
+  rowClass: string | ((document: any) => string);
+  collection: CollectionBase<any>;
+}
+
+const DatatableRow = (props: DatatableRowProps) => {
 
   const { columns, document, currentUser, rowClass } = props;
 
@@ -335,7 +399,9 @@ DatatableRow.propTypes = {
 };
 const DatatableRowComponent = registerComponent('DatatableRow', DatatableRow);
 
-const DatatableRowLayout = ({ children, ...otherProps }) => (
+const DatatableRowLayout = ({ children, ...otherProps }: {
+  children: React.ReactNode;
+} & React.DetailedHTMLProps<React.TableHTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement>) => (
   <tr {...otherProps}>
     {children}
   </tr>
@@ -348,19 +414,30 @@ DatatableCell Component
 
 */
 
-const cellStyles = theme => ({
+const cellStyles = (theme: JssStyles) => ({
   cell: {
     padding: 4
   }
 })
-const DatatableCell = ({ classes, column, document, currentUser }) => {
-  const Component = column.component 
+const DatatableCell = ({ classes, column, document, currentUser }: {
+  classes: ClassesType;
+  column: Column;
+  document: any;
+  currentUser: UsersCurrent | null
+}) => {
+  const Component: any = column.component 
   || (column.componentName && Components[column.componentName])
   || Components.DatatableDefaultCell;
   const columnName = getColumnName(column);
+  const componentProps = {
+    column,
+    document,
+    currentUser
+  };
+
   return (
     <Components.DatatableCellLayout className={classNames(`datatable-item-${columnName.toLowerCase().replace(/\s/g, '-')}`, classes.cell)}>
-      <Component column={column} document={document} currentUser={currentUser} />
+      <Component {...componentProps} />
     </Components.DatatableCellLayout>
   );
 };
@@ -368,7 +445,9 @@ DatatableCell.propTypes = {
 };
 const DatatableCellComponent = registerComponent('DatatableCell', DatatableCell, {styles: cellStyles});
 
-const DatatableCellLayout = ({ children, ...otherProps }) => (
+const DatatableCellLayout = ({ children, ...otherProps }: {
+  children: React.ReactNode;
+} & React.DetailedHTMLProps<React.TdHTMLAttributes<HTMLTableCellElement>, HTMLTableCellElement>) => (
   <td {...otherProps}>{children}</td>
 );
 const DatatableCellLayoutComponent = registerComponent('DatatableCellLayout', DatatableCellLayout);
@@ -378,7 +457,10 @@ const DatatableCellLayoutComponent = registerComponent('DatatableCellLayout', Da
 DatatableDefaultCell Component
 
 */
-const DatatableDefaultCell = ({ column, document }) =>
+const DatatableDefaultCell = ({ column, document }: {
+  column: Column;
+  document: any;
+}) =>
   <div>{typeof column === 'string' ? getFieldValue(document[column]) : getFieldValue(document[column.name])}</div>;
 
 const DatatableDefaultCellComponent = registerComponent('DatatableDefaultCell', DatatableDefaultCell);
