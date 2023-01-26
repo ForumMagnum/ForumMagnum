@@ -100,34 +100,45 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     updateValuesWithArray(existingTagIds.filter((thisTagId) => thisTagId !== tag.tagId))
   }
 
-  return (
-    <div className={classes.root}>
-      {showSubforumSection && (
-        <>
-          <h3 className={classNames(classes.subforumHeader, classes.header)}>Topics with subforums</h3>
-          <p className={classes.subforumExplanation}>
-            Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums
-            are broad topics with a dedicated community and space for general discussion.
-          </p>
-          <TagsChecklist
-            tags={subforumTags}
-            selectedTagIds={selectedTagIds}
-            onTagSelected={onTagSelected}
-            onTagRemoved={onTagRemoved}
-            displaySelected={"highlight"}
-          />
-          <h3 className={classes.header}>Other topics</h3>
-        </>
-      )}
-      <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
-      <TagMultiselect
-        path={path}
-        placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
-        value={selectedTagIds.filter((tagId) => !selectedSubforumTagIds.includes(tagId))}
-        updateCurrentValues={onMultiselectUpdate}
-      />
-    </div>
-  );
+  if (!document.draft && formType === "edit") {
+    return <FooterTagList
+      post={document}
+      hideScore
+      hidePostTypeTag
+      showCoreTags
+      link={false}
+    />
+  } else {
+    return (
+      <div className={classes.root}>
+        {showSubforumSection && (
+          <>
+            <h3 className={classNames(classes.subforumHeader, classes.header)}>Topics with subforums</h3>
+            <p className={classes.subforumExplanation}>
+              Your post is more likely to be seen by the right people if you post it in the relevant subforum. Subforums
+              are broad topics with a dedicated community and space for general discussion.
+            </p>
+            <TagsChecklist
+              tags={subforumTags}
+              selectedTagIds={selectedTagIds}
+              onTagSelected={onTagSelected}
+              onTagRemoved={onTagRemoved}
+              displaySelected={"highlight"}
+            />
+            <h3 className={classes.header}>Other topics</h3>
+          </>
+        )}
+        <TagsChecklist tags={coreTags} selectedTagIds={selectedTagIds} onTagSelected={onTagSelected} />
+        <TagMultiselect
+          path={path}
+          placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
+          value={selectedTagIds.filter((tagId) => !selectedSubforumTagIds.includes(tagId))}
+          updateCurrentValues={onMultiselectUpdate}
+        />
+      </div>
+    );
+  }
+
 }
 
 const FormComponentPostEditorTaggingComponent = registerComponent("FormComponentPostEditorTagging", FormComponentPostEditorTagging, {styles});
