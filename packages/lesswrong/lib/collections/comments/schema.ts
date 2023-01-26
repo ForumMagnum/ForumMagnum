@@ -175,7 +175,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, true)
+      return await commentGetPageUrlFromDB(comment, context, true)
     },
   }),
 
@@ -183,7 +183,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      return await commentGetPageUrlFromDB(comment, false)
+      return await commentGetPageUrlFromDB(comment, context, false)
     },
   }),
 

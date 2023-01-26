@@ -12,6 +12,7 @@ import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -93,9 +94,10 @@ export const servePostRSS = async (terms: RSSTerms, url?: string) => {
   return feed.xml();
 };
 
-export const serveCommentRSS = async (terms: RSSTerms, url?: string) => {
+const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
+  const context = await getContextFromReqAndRes(req, res);
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
@@ -103,7 +105,7 @@ export const serveCommentRSS = async (terms: RSSTerms, url?: string) => {
   const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
-    const url = await commentGetPageUrlFromDB(comment, true);
+    const url = await commentGetPageUrlFromDB(comment, context, true);
     const parentTitle = await getCommentParentTitle(comment)
     feed.item({
      title: 'Comment on ' + parentTitle,
@@ -125,7 +127,7 @@ addStaticRoute('/feed.xml', async function(params, req, res, next) {
     params.query.view = 'rss';
   }
   if (params.query.type && params.query.type === "comments") {
-    res.end(await serveCommentRSS(params.query));
+    res.end(await serveCommentRSS(params.query, req, res));
   } else {
     res.end(await servePostRSS(params.query));
   }
